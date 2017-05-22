@@ -11,6 +11,7 @@ from .views import (ValidationTestDefinitionResource,
                     ValidationTestDefinitionCreate,
                     SimpleModelListView,
                     SimpleModelDetailView,
+                    SimpleModelCreateView,
                     SimpleResultListView,
                     SimpleResultDetailView,
                     )
@@ -61,6 +62,9 @@ urlpatterns = (
     url(r'^view/models/(?P<pk>{})$'.format(uuid_pattern),
         SimpleModelDetailView.as_view(),
         name="simple-model-detail-view"),
+    url(r'^view/models/create$'.format(uuid_pattern),
+        SimpleModelCreateView.as_view(),
+        name="simple-model-create-view"),
 
     url(r'^view/results/$',
         SimpleResultListView.as_view(),

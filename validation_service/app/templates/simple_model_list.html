@@ -1,19 +1,43 @@
-{% extends 'base.html' %} {% block content %}
+{% extends 'base.html' %} {%load static%} {% block content %}
 
 <h1>Model catalog</h1>
 
+
 <table class="table table-striped">
+    <th>
+        <form class="form-inline pull-right">
+
+            <input type="text" name="search" style="width:150px" class="input-sm form-control" placeholder="Search">
+
+            <button type="submit" class="btn btn-info"><span class="glyphicon glyphicon-search"></span> </button>
+
+        </form>
+    </th>
     <th>Filters:
-        <a href="?species=mouse"><span class="label label-info">Mouse</span></a>
-        <a href="?species=rat"><span class="label label-info">Rat</span></a>
-        <a href="?brain_region=cerebellum"><span class="label label-info">Cerebellum</span></a>
-        <a href="?brain_region=hippocampus"><span class="label label-info">Hippocampus</span></a>
-        <a href="?brain_region=basal"><span class="label label-info">Basal ganglia</span></a>
-        <a href="?brain_region=cortex"><span class="label label-info">Cortex</span></a>
+        <select id="model-list-select" data-style="btn-primary" onChange="window.location.href=this.value">
+            <option value=""> by species </option>
+            <option value="?species=mouse">Mouse</option>
+            <option value="?species=rat"  >Rat</option>
+
+        </select>
+        <select id="model-list-select" onChange="window.location.href=this.value">
+            <option value=""> by brain region </option>
+            <option value="?brain_region=cerebellum">Cerebellum</option>
+            <option value="?brain_region=hippocampus">Hippocampus</option>
+            <option value="?brain_region=basal">Basal Ganglia</option>
+            <option value="?brain_region=cortex">Cortex</option>
+        </select>
+        <select id="model-list-select" onChange="window.location.href=this.value">
+            <option value=""> by cell type </option>
+            <option value="?cell_type=pyramidal">Pyramidal Cell</option>
+            <option value="?cell_type=interneuron">Interneuron</option>
+            <option value="?cell_type=granule">Granule Cell</option>
+        </select>
         <a href="."><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></a>
     </th>
+
     <th>
-        <a href="create"><span class="label label-info">New model</span></a>
+        <a href="create"><button class="btn btn-info">New model</button></a>
     </th>
 </table>
 
