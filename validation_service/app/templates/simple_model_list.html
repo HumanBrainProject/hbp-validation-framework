@@ -1,0 +1,45 @@
+{% extends 'base.html' %} {% block content %}
+
+<h1>Model catalog</h1>
+
+<table class="table table-striped">
+    <th>Filters:
+        <a href="?species=mouse"><span class="label label-info">Mouse</span></a>
+        <a href="?species=rat"><span class="label label-info">Rat</span></a>
+        <a href="?brain_region=cerebellum"><span class="label label-info">Cerebellum</span></a>
+        <a href="?brain_region=hippocampus"><span class="label label-info">Hippocampus</span></a>
+        <a href="?brain_region=basal"><span class="label label-info">Basal ganglia</span></a>
+        <a href="?brain_region=cortex"><span class="label label-info">Cortex</span></a>
+        <a href="."><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></a>
+    </th>
+    <th>
+        <a href="create"><span class="label label-info">New model</span></a>
+    </th>
+</table>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Species</th>
+            <th>Brain region</th>
+            <th>Cell type</th>
+            <th>Code location</th>
+            <th>Author(s)</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for model in object_list %}
+        <tr>
+            <td><a href="{{model.id}}">{{ model.name }}</a></td>
+            <td>{{ model.species }}</td>
+            <td>{{ model.brain_region }}</td>
+            <td>{{ model.cell_type }}</td>
+            <td>{{ model.source|urlizetrunc:50 }}</td>
+            <td>{{ model.author }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}

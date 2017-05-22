@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h1>Validation test: {{object.name}}</h1>
+<p><a href=".">back</a></p>
+
+<table class="table table-striped">
+    <tbody>
+        <tr><td>ID</td><td>{{ object.id }}</td></tr>
+        <tr><td>Name</td><td>{{ object.name }}</td></tr>
+        <tr><td>Species</td><td>{{ object.species }}</td></tr>
+        <tr><td>Brain region</td><td>{{ object.brain_region }}</td></tr>
+        <tr><td>Cell type</td><td>{{ object.cell_type }}</td></tr>
+        <tr><td>Age</td><td>{{ object.age }}</td></tr>
+        <tr><td>Data location</td><td>{{ object.data_location|urlize }}</td></tr>
+        <tr><td>Data type</td><td>{{ object.data_type }}</td></tr>
+        <tr><td>Data modality</td><td>{{ object.get_data_modality_display }}</td></tr>
+        <tr><td>Test type</td><td>{{ object.get_test_type_display }}</td></tr>
+        <tr><td>Author</td><td>{{ object.author }}</td></tr>
+        <tr><td>Publication</td><td>{% if formatted_publication %}{{ formatted_publication|urlize }}{% else %}{{ object.publication }}{% endif %}</td></tr>
+        <tr><td>Protocol</td><td>{{ object.protocol }}</td></tr>
+    </tbody>
+</table>
+
+<h2>Code versions</h2>
+<table class="table table-striped">
+    <thead>
+    <tr><th>Repository</th>
+        <th>Version</th>
+        <th>Test class</th>
+        <th>Date/time</th></tr>
+    </thead>
+    <tbody>
+    {% for code_obj in object.code.all %}
+    <tr><td>{{ code_obj.repository|urlize }}</td>
+        <td>{{ code_obj.version }}</td>
+        <td><code>{{ code_obj.path }}</code></td>
+        <td>{{ code_obj.timestamp }}</td></tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}

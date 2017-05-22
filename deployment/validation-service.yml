@@ -1,0 +1,9 @@
+image: cnrsunic/hbp_validation_service
+dockerfile: validation_service/Dockerfile
+ports:
+  443: 443
+env: [DEBUG,
+      VALIDATION_SERVICE_HOST,
+      VALIDATION_SERVICE_PORT]
+volumes: ["/etc/letsencrypt"]
+

@@ -1,0 +1,71 @@
+{% extends 'base.html' %} {% block content %}
+
+<h1>Validation tests</h1>
+
+
+
+<p>Filters:
+    <a href="?species=mouse"><span class="label label-info">Mouse</span></a>
+    <a href="?species=rat"><span class="label label-info">Rat</span></a>
+    <a href="?brain_region=cerebellum"><span class="label label-info">Cerebellum</span></a>
+    <a href="?brain_region=hippocampus"><span class="label label-info">Hippocampus</span></a>
+    <a href="?brain_region=basal"><span class="label label-info">Basal ganglia</span></a>
+    <a href="?brain_region=cortex"><span class="label label-info">Cortex</span></a>
+    <a href="."><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></a>
+
+
+</p>
+<p align="right">
+    <!--<form action="{ % url 'create-test-view' %}">-->
+    <form action="create">
+
+        <input type="submit" value="Add new test" />
+    </form>
+</p>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Species</th>
+            <th>Age</th>
+            <th>Brain region</th>
+            <th>Cell type</th>
+            <th>Data location</th>
+            <th>Data type</th>
+            <th>Data modality</th>
+            <th>Test type</th>
+            <th>Code location</th>
+            <th>Author</th>
+            <th>Publication</th>
+
+
+
+
+
+
+
+        </tr>
+
+    </thead>
+    <tbody>
+        {% for test in object_list %}
+        <tr>
+            <td><a href="{{test.id}}">{{ test.name }}</a></td>
+            <td>{{ test.species }}</td>
+            <td>{{ test.age }}</td>
+            <td>{{ test.brain_region }}</td>
+            <td>{{ test.cell_type }}</td>
+            <td>{{ test.data_location|urlizetrunc:20 }}</td>
+            <td>{{ test.data_type }}</td>
+            <td>{{ test.get_data_modality_display }}</td>
+            <td>{{ test.get_test_type_display }}</td>
+            <td>{{ test.get_latest_code.repository|urlizetrunc:20 }}</td>
+            <td>{{ test.author }}</td>
+            <td>{{ test.publication }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}

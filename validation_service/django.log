@@ -1,0 +1,1569 @@
+2017-05-17 08:44:30,980 INFO django.server: "GET / HTTP/1.1" 302 0
+2017-05-17 08:44:31,100 INFO django.server: "GET /login/hbp/?next=/ HTTP/1.1" 200 926
+2017-05-17 09:45:25,138 INFO django.server: code 400, message Bad request version ('\xba\xba\xc0+\xc0/\xc0,\xc00\xcc\xa9\xcc\xa8\xcc\x14\xcc\x13\xc0\x13\xc0\x14\x00\x9c\x00\x9d\x00/\x005\x00')
+2017-05-17 09:45:25,139 INFO django.server: code 400, message Bad request version ('\xea\xea\xc0+\xc0/\xc0,\xc00\xcc\xa9\xcc\xa8\xcc\x14\xcc\x13\xc0\x13\xc0\x14\x00\x9c\x00\x9d\x00/\x005\x00')
+2017-05-17 09:45:25,139 ERROR django.server: You're accessing the development server over HTTPS, but it only supports HTTP.
+
+2017-05-17 09:45:25,140 ERROR django.server: You're accessing the development server over HTTPS, but it only supports HTTP.
+
+2017-05-17 09:45:27,407 INFO django.server: code 400, message Bad request version ('\xaa\xaa\xc0+\xc0/\xc0,\xc00\xcc\xa9\xcc\xa8\xcc\x14\xcc\x13\xc0\x13\xc0\x14\x00\x9c\x00\x9d\x00/\x005\x00')
+2017-05-17 09:45:27,407 INFO django.server: code 400, message Bad request syntax ('\x16\x03\x01\x00\xc4\x01\x00\x00\xc0\x03\x03K!wxd\x96\x80')
+2017-05-17 09:45:27,407 ERROR django.server: You're accessing the development server over HTTPS, but it only supports HTTP.
+
+2017-05-17 09:45:27,407 INFO django.server: code 400, message Bad request version ('\xda\xda\xc0+\xc0/\xc0,\xc00\xcc\xa9\xcc\xa8\xcc\x14\xcc\x13\xc0\x13\xc0\x14\x00\x9c\x00\x9d\x00/\x005\x00')
+2017-05-17 09:45:27,407 INFO django.server: code 400, message Bad request version ('JJ\xc0+\xc0/\xc0,\xc00\xcc\xa9\xcc\xa8\xcc\x14\xcc\x13\xc0\x13\xc0\x14\x00\x9c\x00\x9d\x00/\x005\x00')
+2017-05-17 09:45:27,407 INFO django.server: code 400, message Bad HTTP/0.9 request type ('\x16\x03\x01\x00\xc4\x01\x00\x00\xc0\x03\x035#\x07j\xca\xca^^\xc2\x9c\x1bX4O!\xd6\x8df\x16\x8b9\x83mQ\x83P\xe5/\x07\x13\x11\x93\x00\x00')
+2017-05-17 09:45:27,407 INFO django.server: code 400, message Bad request version ('\xaa\xaa\xc0+\xc0/\xc0,\xc00\xcc\xa9\xcc\xa8\xcc\x14\xcc\x13\xc0\x13\xc0\x14\x00\x9c\x00\x9d\x00/\x005\x00')
+2017-05-17 09:45:27,407 ERROR django.server: You're accessing the development server over HTTPS, but it only supports HTTP.
+
+2017-05-17 09:45:27,408 ERROR django.server: You're accessing the development server over HTTPS, but it only supports HTTP.
+
+2017-05-17 09:45:27,408 ERROR django.server: You're accessing the development server over HTTPS, but it only supports HTTP.
+
+2017-05-17 09:45:27,408 ERROR django.server: You're accessing the development server over HTTPS, but it only supports HTTP.
+
+2017-05-17 09:45:27,408 ERROR django.server: You're accessing the development server over HTTPS, but it only supports HTTP.
+
+2017-05-17 09:45:27,411 INFO django.server: code 400, message Bad HTTP/0.9 request type ('\x16\x03\x01\x00\xc4\x01\x00\x00\xc0\x03\x03N\x07\x1eq\xf7"B\x8a\x837\xffO]\xf3pw\x9cd#\xb1\x8dmpQ\x89a\x16\xa2\x85\xb9\x1a\'\x00\x00')
+2017-05-17 09:45:27,411 ERROR django.server: You're accessing the development server over HTTPS, but it only supports HTTP.
+
+2017-05-17 09:47:38,312 INFO django.server: code 400, message Bad request version ('\x1a\x1a\xc0+\xc0/\xc0,\xc00\xcc\xa9\xcc\xa8\xcc\x14\xcc\x13\xc0\x13\xc0\x14\x00\x9c\x00\x9d\x00/\x005\x00')
+2017-05-17 09:47:38,312 INFO django.server: code 400, message Bad HTTP/0.9 request type ('\x16\x03\x01\x00\xc4\x01\x00\x00\xc0\x03\x032\xc0Q\x85\x0e\xd5\x96\x90>5"\x98\x9e\xa2\xe9D\xd1\xae\xaa#>\xc8\xe0\xcc\xf9$G\x97\xfff\x9b\x89\x00\x00')
+2017-05-17 09:47:38,312 ERROR django.server: You're accessing the development server over HTTPS, but it only supports HTTP.
+
+2017-05-17 09:47:38,312 INFO django.server: code 400, message Bad HTTP/0.9 request type ("\x16\x03\x01\x00\xc4\x01\x00\x00\xc0\x03\x03z\x81\xde\xaa\xcb\xa6C\x1bR\x1e\x8eI\x07\xa8\x1e\xc7\x14P\xc9e\x97\xf0E\xf2(\x1a\xe7}+3*'\x00\x00")
+2017-05-17 09:47:38,312 ERROR django.server: You're accessing the development server over HTTPS, but it only supports HTTP.
+
+2017-05-17 09:47:38,312 INFO django.server: code 400, message Bad request syntax ('\x16\x03\x01\x00\xc4\x01\x00\x00\xc0\x03\x03\xe9pc)\xe7\x87\x0f\xe2\xa0Cl\xc40\xf3\x94\x8f')
+2017-05-17 09:47:38,313 ERROR django.server: You're accessing the development server over HTTPS, but it only supports HTTP.
+
+2017-05-17 09:47:38,313 INFO django.server: code 400, message Bad HTTP/0.9 request type ("\x16\x03\x01\x00\xc4\x01\x00\x00\xc0\x03\x03\x97\x81\xd7O\x8a\x82\xcf\x14\xf2w\xe6\xfelz,\x9aj\x16c\xa0x\xd5rs'\xa1\xde\x89\x8f\xb2\xb8\x06\x00\x00")
+2017-05-17 09:47:38,313 ERROR django.server: You're accessing the development server over HTTPS, but it only supports HTTP.
+
+2017-05-17 09:47:38,313 INFO django.server: code 400, message Bad request version ('zz\xc0+\xc0/\xc0,\xc00\xcc\xa9\xcc\xa8\xcc\x14\xcc\x13\xc0\x13\xc0\x14\x00\x9c\x00\x9d\x00/\x005\x00')
+2017-05-17 09:47:38,314 ERROR django.server: You're accessing the development server over HTTPS, but it only supports HTTP.
+
+2017-05-17 09:47:38,314 ERROR django.server: You're accessing the development server over HTTPS, but it only supports HTTP.
+
+2017-05-17 09:47:38,318 INFO django.server: code 400, message Bad HTTP/0.9 request type ('\x16\x03\x01\x00\xc4\x01\x00\x00\xc0\x03\x03\x1d\xfd\x19D]\xd1\xad\xef\xa7(\xc3\xb7!\xc4\xa7\xd3^\x19*\xbc-xoS\xdc\x1b+\xe2_/\xf9\xbf\x00\x00')
+2017-05-17 09:47:38,318 ERROR django.server: You're accessing the development server over HTTPS, but it only supports HTTP.
+
+2017-05-17 09:47:50,719 INFO django.server: code 400, message Bad request version ('\xfa\xfa\xc0+\xc0/\xc0,\xc00\xcc\xa9\xcc\xa8\xcc\x14\xcc\x13\xc0\x13\xc0\x14\x00\x9c\x00\x9d\x00/\x005\x00')
+2017-05-17 09:47:50,719 INFO django.server: code 400, message Bad request syntax ('\x16\x03\x01\x00\xc4\x01\x00\x00\xc0\x03\x03\x05\xfa\xe7:}\xd0\x9ay\xa5\x95\x85\xa3\xed\xfc\x96\xd4\x1f\xeb\xc6p\x1f=?7\x81\x92\x034%\x14\xec\xfc\x00\x00 ')
+2017-05-17 09:47:50,720 INFO django.server: code 400, message Bad request syntax ('\x16\x03\x01\x00\xc4\x01\x00\x00\xc0\x03\x03$\xd8\xe9-\rd\xff\x1f\x0c\xb0\xa6\x18\xeb\x80\x9f\xd5_\xaa\x8a \xf9>\x02\xf2r\xa6\xd5\x98FfO\xdb\x00\x00 **\xc0+\xc0/\xc0,\xc00\xcc\xa9\xcc\xa8\xcc\x14\xcc\x13\xc0\x13\xc0\x14\x00\x9c\x00\x9d\x00/\x005\x00')
+2017-05-17 09:47:50,720 INFO django.server: code 400, message Bad request version ('\xaa\xaa\xc0+\xc0/\xc0,\xc00\xcc\xa9\xcc\xa8\xcc\x14\xcc\x13\xc0\x13\xc0\x14\x00\x9c\x00\x9d\x00/\x005\x00')
+2017-05-17 09:47:50,720 INFO django.server: code 400, message Bad request version ('::\xc0+\xc0/\xc0,\xc00\xcc\xa9\xcc\xa8\xcc\x14\xcc\x13\xc0\x13\xc0\x14\x00\x9c\x00\x9d\x00/\x005\x00')
+2017-05-17 09:47:50,720 ERROR django.server: You're accessing the development server over HTTPS, but it only supports HTTP.
+
+2017-05-17 09:47:50,720 ERROR django.server: You're accessing the development server over HTTPS, but it only supports HTTP.
+
+2017-05-17 09:47:50,720 ERROR django.server: You're accessing the development server over HTTPS, but it only supports HTTP.
+
+2017-05-17 09:47:50,721 ERROR django.server: You're accessing the development server over HTTPS, but it only supports HTTP.
+
+2017-05-17 09:47:50,721 ERROR django.server: You're accessing the development server over HTTPS, but it only supports HTTP.
+
+2017-05-17 09:47:50,727 INFO django.server: code 400, message Bad HTTP/0.9 request type ('\x16\x03\x01\x00\xc4\x01\x00\x00\xc0\x03\x03\xd6\xa7L\xa4\xc3\x86\xab\x00X/7WOD\xd6z6\xeaX\xcb\xd0\xb5\xeaa\xa0\xdb*\xdc|\xa3\x91\x9d\x00\x00')
+2017-05-17 09:47:50,727 ERROR django.server: You're accessing the development server over HTTPS, but it only supports HTTP.
+
+2017-05-17 09:47:52,211 INFO django.server: code 400, message Bad HTTP/0.9 request type ('\x16\x03\x01\x00\xc4\x01\x00\x00\xc0\x03\x03\x88\xed\xc4\x8bjT~\x00\x98\xb6\xd9\xda\xfe\x07\xda\xce\x92\xb9+\xbd\xedD\x89\x8euQ\xd0\xa6?.\xd9\xc9\x00\x00')
+2017-05-17 09:47:52,211 INFO django.server: code 400, message Bad HTTP/0.9 request type ('\x16\x03\x01\x00\xc4\x01\x00\x00\xc0\x03\x03m\xdeH<2]aw\xb9\x88\xe3KOA\x97\xf8k\xef\xe9^\xb9\xccN\xef,\x9c\x08\xfb1ew\xb3\x00\x00')
+2017-05-17 09:47:52,212 INFO django.server: code 400, message Bad request version ('\xba\xba\xc0+\xc0/\xc0,\xc00\xcc\xa9\xcc\xa8\xcc\x14\xcc\x13\xc0\x13\xc0\x14\x00\x9c\x00\x9d\x00/\x005\x00')
+2017-05-17 09:47:52,212 ERROR django.server: You're accessing the development server over HTTPS, but it only supports HTTP.
+
+2017-05-17 09:47:52,212 INFO django.server: code 400, message Bad HTTP/0.9 request type ("\x16\x03\x01\x00\xc4\x01\x00\x00\xc0\x03\x03\xb4'0<\x15M\xbe\xac\xa8m\xf1x\x80\xeaX84\x01,\xf6\xd7\x91\xf4\x9f\xe1\x11\xa9\xf2/\\\xf7\x07\x00\x00")
+2017-05-17 09:47:52,212 ERROR django.server: You're accessing the development server over HTTPS, but it only supports HTTP.
+
+2017-05-17 09:47:52,212 ERROR django.server: You're accessing the development server over HTTPS, but it only supports HTTP.
+
+2017-05-17 09:47:52,212 ERROR django.server: You're accessing the development server over HTTPS, but it only supports HTTP.
+
+2017-05-17 09:47:52,215 INFO django.server: code 400, message Bad request version ('\xca\xca\xc0+\xc0/\xc0,\xc00\xcc\xa9\xcc\xa8\xcc\x14\xcc\x13\xc0\x13\xc0\x14\x00\x9c\x00\x9d\x00/\x005\x00')
+2017-05-17 09:47:52,215 ERROR django.server: You're accessing the development server over HTTPS, but it only supports HTTP.
+
+2017-05-17 09:52:56,598 INFO django.server: code 400, message Bad request version ('::\xc0+\xc0/\xc0,\xc00\xcc\xa9\xcc\xa8\xcc\x14\xcc\x13\xc0\x13\xc0\x14\x00\x9c\x00\x9d\x00/\x005\x00')
+2017-05-17 09:52:56,598 INFO django.server: code 400, message Bad HTTP/0.9 request type ('\x16\x03\x01\x00\xc4\x01\x00\x00\xc0\x03\x03\x80|\xf9.\xd3\x00v\x19\xc7%9\x99\xfb$\xa9\xf0e\x85c\x01:*\x1f\xcb\xfe\xd3h\x9c7\xd4\x14\x00\x00\x00')
+2017-05-17 09:52:56,598 ERROR django.server: You're accessing the development server over HTTPS, but it only supports HTTP.
+
+2017-05-17 09:52:56,598 INFO django.server: code 400, message Bad HTTP/0.9 request type ('\x16\x03\x01\x00\xc4\x01\x00\x00\xc0\x03\x03uY\x92\x9b\xff\x80\xd2\xcch$\x91h\x88\x0fG\x80vT\x9aH\x1c\xce\xf9\x9a(\xa5\xe15a\xf4\xa3\x0e\x00\x00')
+2017-05-17 09:52:56,598 ERROR django.server: You're accessing the development server over HTTPS, but it only supports HTTP.
+
+2017-05-17 09:52:56,598 ERROR django.server: You're accessing the development server over HTTPS, but it only supports HTTP.
+
+2017-05-17 09:52:56,607 INFO django.server: code 400, message Bad request syntax ('\x16\x03\x01\x00\xc4\x01\x00\x00\xc0\x03\x03\xda\xa6\x03\x92\x83\x1eI\xa4\x1dg1\xdbH\xf2\xe4\x83\xe4\xc8')
+2017-05-17 09:52:56,607 ERROR django.server: You're accessing the development server over HTTPS, but it only supports HTTP.
+
+2017-05-17 09:53:18,511 INFO django.server: code 400, message Bad request version ('\xea\xea\xc0+\xc0/\xc0,\xc00\xcc\xa9\xcc\xa8\xcc\x14\xcc\x13\xc0\x13\xc0\x14\x00\x9c\x00\x9d\x00/\x005\x00')
+2017-05-17 09:53:18,511 INFO django.server: code 400, message Bad HTTP/0.9 request type ('\x16\x03\x01\x00\xc4\x01\x00\x00\xc0\x03\x03\xb6,\xf0\xb4n\xbf\xae\x00\xc9\x89\x8e\xfc\xb8\xab\xfa\xf32\xa4!\xbd\xb7\xcf%\x11{$E\x0f\x99\xb0T\xad\x00\x00')
+2017-05-17 09:53:18,511 ERROR django.server: You're accessing the development server over HTTPS, but it only supports HTTP.
+
+2017-05-17 09:53:18,511 INFO django.server: code 400, message Bad HTTP/0.9 request type ('\x16\x03\x01\x00\xc4\x01\x00\x00\xc0\x03\x03\x16\x87?\xd2\xab&Zt\xcex\xfe\xf3D\xf4>\xf26\x8f\xb2W\xaa\xd7fy\xf9fg\x07]\xf7P)\x00\x00')
+2017-05-17 09:53:18,511 ERROR django.server: You're accessing the development server over HTTPS, but it only supports HTTP.
+
+2017-05-17 09:53:18,512 ERROR django.server: You're accessing the development server over HTTPS, but it only supports HTTP.
+
+2017-05-17 09:53:18,518 INFO django.server: code 400, message Bad HTTP/0.9 request type ("\x16\x03\x01\x00\xc4\x01\x00\x00\xc0\x03\x03\x98\xc2.X\x94\x94E\xab\xcc\x8b\xbbW\xa7\x17\xd2;\x15\xef\xe9\xa6\x11\xc7'Ep2M?\xf1\xd9\x0eN\x00\x00")
+2017-05-17 09:53:18,518 ERROR django.server: You're accessing the development server over HTTPS, but it only supports HTTP.
+
+2017-05-17 09:55:03,810 INFO django.server: "GET /?ctx=eb6ae7dc-05d3-48cf-b86f-34adfd0470cb HTTP/1.1" 302 0
+2017-05-17 09:55:03,928 INFO django.server: "GET /login/hbp/?next=/%3Fctx%3Deb6ae7dc-05d3-48cf-b86f-34adfd0470cb HTTP/1.1" 200 919
+2017-05-17 09:56:19,233 INFO django.server: "GET /?ctx=eb6ae7dc-05d3-48cf-b86f-34adfd0470cb HTTP/1.1" 302 0
+2017-05-17 09:56:19,354 INFO django.server: "GET /login/hbp/?next=/%3Fctx%3Deb6ae7dc-05d3-48cf-b86f-34adfd0470cb HTTP/1.1" 200 991
+2017-05-17 09:56:22,146 INFO django.server: "GET /complete/hbp/?code=FuVfx6&state=3RUhProeq2K8J1gP1GR24dphXyu3aXVA HTTP/1.1" 302 0
+2017-05-17 09:56:22,177 INFO django.server: "GET /?ctx=eb6ae7dc-05d3-48cf-b86f-34adfd0470cb HTTP/1.1" 200 4226
+2017-05-17 09:56:22,199 WARNING django.request: Not Found: /static/hbp-collaboratory-theme/dist/css/bootstrap.css
+2017-05-17 09:56:22,199 WARNING django.server: "GET /static/hbp-collaboratory-theme/dist/css/bootstrap.css HTTP/1.1" 404 127
+2017-05-17 09:56:22,205 INFO django.server: "GET /static/app.css HTTP/1.1" 200 55
+2017-05-17 09:56:25,792 INFO django.server: "GET /view/models/ HTTP/1.1" 200 4126
+2017-05-17 09:56:25,814 WARNING django.request: Not Found: /static/hbp-collaboratory-theme/dist/css/bootstrap.css
+2017-05-17 09:56:25,814 WARNING django.server: "GET /static/hbp-collaboratory-theme/dist/css/bootstrap.css HTTP/1.1" 404 127
+2017-05-17 09:56:25,818 INFO django.server: "GET /static/app.css HTTP/1.1" 200 55
+2017-05-17 11:16:01,990 INFO django.server: "GET /?ctx=eb6ae7dc-05d3-48cf-b86f-34adfd0470cb HTTP/1.1" 200 4226
+2017-05-17 11:16:02,039 WARNING django.request: Not Found: /static/hbp-collaboratory-theme/dist/css/bootstrap.css
+2017-05-17 11:16:02,039 WARNING django.server: "GET /static/hbp-collaboratory-theme/dist/css/bootstrap.css HTTP/1.1" 404 127
+2017-05-17 11:16:02,043 INFO django.server: "GET /static/app.css HTTP/1.1" 200 55
+2017-05-17 11:23:51,049 INFO django.server: "GET /?ctx=eb6ae7dc-05d3-48cf-b86f-34adfd0470cb HTTP/1.1" 200 4226
+2017-05-17 11:23:51,103 WARNING django.request: Not Found: /static/hbp-collaboratory-theme/dist/css/bootstrap.css
+2017-05-17 11:23:51,103 WARNING django.server: "GET /static/hbp-collaboratory-theme/dist/css/bootstrap.css HTTP/1.1" 404 127
+2017-05-17 11:23:51,105 INFO django.server: "GET /static/app.css HTTP/1.1" 200 55
+2017-05-17 11:23:53,488 ERROR django.request: Internal Server Error: /view/models/
+Traceback (most recent call last):
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/core/handlers/exception.py", line 39, in inner
+    response = get_response(request)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/core/handlers/base.py", line 249, in _legacy_get_response
+    response = self._get_response(request)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/core/handlers/base.py", line 217, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/core/handlers/base.py", line 215, in _get_response
+    response = response.render()
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/response.py", line 109, in render
+    self.content = self.rendered_content
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/response.py", line 86, in rendered_content
+    content = template.render(context, self._request)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/backends/django.py", line 66, in render
+    return self.template.render(context)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/base.py", line 208, in render
+    return self._render(context)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/base.py", line 199, in _render
+    return self.nodelist.render(context)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/base.py", line 994, in render
+    bit = node.render_annotated(context)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/base.py", line 961, in render_annotated
+    return self.render(context)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/loader_tags.py", line 174, in render
+    return compiled_parent._render(context)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/base.py", line 199, in _render
+    return self.nodelist.render(context)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/base.py", line 994, in render
+    bit = node.render_annotated(context)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/base.py", line 961, in render_annotated
+    return self.render(context)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/loader_tags.py", line 70, in render
+    result = block.nodelist.render(context)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/base.py", line 994, in render
+    bit = node.render_annotated(context)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/base.py", line 961, in render_annotated
+    return self.render(context)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/defaulttags.py", line 166, in render
+    len_values = len(values)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/db/models/query.py", line 238, in __len__
+    self._fetch_all()
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/db/models/query.py", line 1087, in _fetch_all
+    self._result_cache = list(self.iterator())
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/db/models/query.py", line 65, in __iter__
+    for row in compiler.results_iter(results):
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/db/models/sql/compiler.py", line 795, in results_iter
+    row = self.apply_converters(row, converters)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/db/models/sql/compiler.py", line 779, in apply_converters
+    value = converter(value, expression, self.connection, self.query.context)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/db/backends/sqlite3/operations.py", line 239, in convert_uuidfield_value
+    value = uuid.UUID(value)
+  File "/home/joffrey/anaconda2/lib/python2.7/uuid.py", line 136, in __init__
+    raise ValueError('badly formed hexadecimal UUID string')
+ValueError: badly formed hexadecimal UUID string
+2017-05-17 11:23:53,493 ERROR django.server: "GET /view/models/ HTTP/1.1" 500 27
+2017-05-17 11:24:16,265 INFO django.server: "GET /?ctx=eb6ae7dc-05d3-48cf-b86f-34adfd0470cb HTTP/1.1" 200 4226
+2017-05-17 11:24:16,317 WARNING django.request: Not Found: /static/hbp-collaboratory-theme/dist/css/bootstrap.css
+2017-05-17 11:24:16,318 WARNING django.server: "GET /static/hbp-collaboratory-theme/dist/css/bootstrap.css HTTP/1.1" 404 127
+2017-05-17 11:24:16,320 INFO django.server: "GET /static/app.css HTTP/1.1" 200 55
+2017-05-17 11:24:19,794 ERROR django.request: Internal Server Error: /view/models/
+Traceback (most recent call last):
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/core/handlers/exception.py", line 39, in inner
+    response = get_response(request)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/core/handlers/base.py", line 249, in _legacy_get_response
+    response = self._get_response(request)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/core/handlers/base.py", line 217, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/core/handlers/base.py", line 215, in _get_response
+    response = response.render()
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/response.py", line 109, in render
+    self.content = self.rendered_content
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/response.py", line 86, in rendered_content
+    content = template.render(context, self._request)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/backends/django.py", line 66, in render
+    return self.template.render(context)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/base.py", line 208, in render
+    return self._render(context)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/base.py", line 199, in _render
+    return self.nodelist.render(context)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/base.py", line 994, in render
+    bit = node.render_annotated(context)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/base.py", line 961, in render_annotated
+    return self.render(context)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/loader_tags.py", line 174, in render
+    return compiled_parent._render(context)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/base.py", line 199, in _render
+    return self.nodelist.render(context)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/base.py", line 994, in render
+    bit = node.render_annotated(context)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/base.py", line 961, in render_annotated
+    return self.render(context)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/loader_tags.py", line 70, in render
+    result = block.nodelist.render(context)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/base.py", line 994, in render
+    bit = node.render_annotated(context)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/base.py", line 961, in render_annotated
+    return self.render(context)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/defaulttags.py", line 166, in render
+    len_values = len(values)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/db/models/query.py", line 238, in __len__
+    self._fetch_all()
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/db/models/query.py", line 1087, in _fetch_all
+    self._result_cache = list(self.iterator())
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/db/models/query.py", line 65, in __iter__
+    for row in compiler.results_iter(results):
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/db/models/sql/compiler.py", line 795, in results_iter
+    row = self.apply_converters(row, converters)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/db/models/sql/compiler.py", line 779, in apply_converters
+    value = converter(value, expression, self.connection, self.query.context)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/db/backends/sqlite3/operations.py", line 239, in convert_uuidfield_value
+    value = uuid.UUID(value)
+  File "/home/joffrey/anaconda2/lib/python2.7/uuid.py", line 136, in __init__
+    raise ValueError('badly formed hexadecimal UUID string')
+ValueError: badly formed hexadecimal UUID string
+2017-05-17 11:24:19,795 ERROR django.server: "GET /view/models/ HTTP/1.1" 500 27
+2017-05-17 11:24:21,685 INFO django.server: "GET /?ctx=eb6ae7dc-05d3-48cf-b86f-34adfd0470cb HTTP/1.1" 200 4226
+2017-05-17 11:24:21,709 WARNING django.request: Not Found: /static/hbp-collaboratory-theme/dist/css/bootstrap.css
+2017-05-17 11:24:21,710 WARNING django.server: "GET /static/hbp-collaboratory-theme/dist/css/bootstrap.css HTTP/1.1" 404 127
+2017-05-17 11:24:21,714 INFO django.server: "GET /static/app.css HTTP/1.1" 200 55
+2017-05-17 11:24:29,331 INFO django.server: "GET /view/tests/ HTTP/1.1" 200 4292
+2017-05-17 11:24:29,348 WARNING django.request: Not Found: /static/hbp-collaboratory-theme/dist/css/bootstrap.css
+2017-05-17 11:24:29,349 WARNING django.server: "GET /static/hbp-collaboratory-theme/dist/css/bootstrap.css HTTP/1.1" 404 127
+2017-05-17 11:24:29,352 INFO django.server: "GET /static/app.css HTTP/1.1" 200 55
+2017-05-17 11:24:30,542 INFO django.server: "GET /view/results/ HTTP/1.1" 200 4273
+2017-05-17 11:24:30,560 WARNING django.request: Not Found: /static/hbp-collaboratory-theme/dist/css/bootstrap.css
+2017-05-17 11:24:30,561 WARNING django.server: "GET /static/hbp-collaboratory-theme/dist/css/bootstrap.css HTTP/1.1" 404 127
+2017-05-17 11:24:30,563 INFO django.server: "GET /static/app.css HTTP/1.1" 200 55
+2017-05-17 11:24:31,301 ERROR django.request: Internal Server Error: /view/models/
+Traceback (most recent call last):
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/core/handlers/exception.py", line 39, in inner
+    response = get_response(request)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/core/handlers/base.py", line 249, in _legacy_get_response
+    response = self._get_response(request)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/core/handlers/base.py", line 217, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/core/handlers/base.py", line 215, in _get_response
+    response = response.render()
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/response.py", line 109, in render
+    self.content = self.rendered_content
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/response.py", line 86, in rendered_content
+    content = template.render(context, self._request)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/backends/django.py", line 66, in render
+    return self.template.render(context)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/base.py", line 208, in render
+    return self._render(context)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/base.py", line 199, in _render
+    return self.nodelist.render(context)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/base.py", line 994, in render
+    bit = node.render_annotated(context)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/base.py", line 961, in render_annotated
+    return self.render(context)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/loader_tags.py", line 174, in render
+    return compiled_parent._render(context)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/base.py", line 199, in _render
+    return self.nodelist.render(context)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/base.py", line 994, in render
+    bit = node.render_annotated(context)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/base.py", line 961, in render_annotated
+    return self.render(context)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/loader_tags.py", line 70, in render
+    result = block.nodelist.render(context)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/base.py", line 994, in render
+    bit = node.render_annotated(context)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/base.py", line 961, in render_annotated
+    return self.render(context)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/defaulttags.py", line 166, in render
+    len_values = len(values)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/db/models/query.py", line 238, in __len__
+    self._fetch_all()
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/db/models/query.py", line 1087, in _fetch_all
+    self._result_cache = list(self.iterator())
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/db/models/query.py", line 65, in __iter__
+    for row in compiler.results_iter(results):
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/db/models/sql/compiler.py", line 795, in results_iter
+    row = self.apply_converters(row, converters)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/db/models/sql/compiler.py", line 779, in apply_converters
+    value = converter(value, expression, self.connection, self.query.context)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/db/backends/sqlite3/operations.py", line 239, in convert_uuidfield_value
+    value = uuid.UUID(value)
+  File "/home/joffrey/anaconda2/lib/python2.7/uuid.py", line 136, in __init__
+    raise ValueError('badly formed hexadecimal UUID string')
+ValueError: badly formed hexadecimal UUID string
+2017-05-17 11:24:31,302 ERROR django.server: "GET /view/models/ HTTP/1.1" 500 27
+2017-05-17 11:24:55,525 INFO django.server: "GET /?ctx=eb6ae7dc-05d3-48cf-b86f-34adfd0470cb HTTP/1.1" 200 4226
+2017-05-17 11:24:55,575 WARNING django.request: Not Found: /static/hbp-collaboratory-theme/dist/css/bootstrap.css
+2017-05-17 11:24:55,576 WARNING django.server: "GET /static/hbp-collaboratory-theme/dist/css/bootstrap.css HTTP/1.1" 404 127
+2017-05-17 11:24:55,578 INFO django.server: "GET /static/app.css HTTP/1.1" 200 55
+2017-05-17 11:24:57,240 ERROR django.request: Internal Server Error: /view/models/
+Traceback (most recent call last):
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/core/handlers/exception.py", line 39, in inner
+    response = get_response(request)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/core/handlers/base.py", line 249, in _legacy_get_response
+    response = self._get_response(request)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/core/handlers/base.py", line 217, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/core/handlers/base.py", line 215, in _get_response
+    response = response.render()
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/response.py", line 109, in render
+    self.content = self.rendered_content
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/response.py", line 86, in rendered_content
+    content = template.render(context, self._request)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/backends/django.py", line 66, in render
+    return self.template.render(context)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/base.py", line 208, in render
+    return self._render(context)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/base.py", line 199, in _render
+    return self.nodelist.render(context)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/base.py", line 994, in render
+    bit = node.render_annotated(context)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/base.py", line 961, in render_annotated
+    return self.render(context)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/loader_tags.py", line 174, in render
+    return compiled_parent._render(context)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/base.py", line 199, in _render
+    return self.nodelist.render(context)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/base.py", line 994, in render
+    bit = node.render_annotated(context)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/base.py", line 961, in render_annotated
+    return self.render(context)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/loader_tags.py", line 70, in render
+    result = block.nodelist.render(context)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/base.py", line 994, in render
+    bit = node.render_annotated(context)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/base.py", line 961, in render_annotated
+    return self.render(context)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/defaulttags.py", line 166, in render
+    len_values = len(values)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/db/models/query.py", line 238, in __len__
+    self._fetch_all()
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/db/models/query.py", line 1087, in _fetch_all
+    self._result_cache = list(self.iterator())
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/db/models/query.py", line 65, in __iter__
+    for row in compiler.results_iter(results):
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/db/models/sql/compiler.py", line 795, in results_iter
+    row = self.apply_converters(row, converters)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/db/models/sql/compiler.py", line 779, in apply_converters
+    value = converter(value, expression, self.connection, self.query.context)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/db/backends/sqlite3/operations.py", line 239, in convert_uuidfield_value
+    value = uuid.UUID(value)
+  File "/home/joffrey/anaconda2/lib/python2.7/uuid.py", line 136, in __init__
+    raise ValueError('badly formed hexadecimal UUID string')
+ValueError: badly formed hexadecimal UUID string
+2017-05-17 11:24:57,243 ERROR django.server: "GET /view/models/ HTTP/1.1" 500 27
+2017-05-17 11:25:19,285 INFO django.server: "GET /?ctx=eb6ae7dc-05d3-48cf-b86f-34adfd0470cb HTTP/1.1" 200 4226
+2017-05-17 11:25:19,343 WARNING django.request: Not Found: /static/hbp-collaboratory-theme/dist/css/bootstrap.css
+2017-05-17 11:25:19,343 WARNING django.server: "GET /static/hbp-collaboratory-theme/dist/css/bootstrap.css HTTP/1.1" 404 127
+2017-05-17 11:25:19,345 INFO django.server: "GET /static/app.css HTTP/1.1" 200 55
+2017-05-17 11:25:20,868 INFO django.server: "GET /view/models/ HTTP/1.1" 200 4126
+2017-05-17 11:25:20,897 WARNING django.request: Not Found: /static/hbp-collaboratory-theme/dist/css/bootstrap.css
+2017-05-17 11:25:20,898 WARNING django.server: "GET /static/hbp-collaboratory-theme/dist/css/bootstrap.css HTTP/1.1" 404 127
+2017-05-17 11:25:20,901 INFO django.server: "GET /static/app.css HTTP/1.1" 200 55
+2017-05-17 11:27:34,791 INFO django.server: "GET /?ctx=eb6ae7dc-05d3-48cf-b86f-34adfd0470cb HTTP/1.1" 200 4226
+2017-05-17 11:27:34,844 WARNING django.request: Not Found: /static/hbp-collaboratory-theme/dist/css/bootstrap.css
+2017-05-17 11:27:34,845 WARNING django.server: "GET /static/hbp-collaboratory-theme/dist/css/bootstrap.css HTTP/1.1" 404 127
+2017-05-17 11:27:34,846 INFO django.server: "GET /static/app.css HTTP/1.1" 200 55
+2017-05-17 11:27:37,519 ERROR django.request: Internal Server Error: /view/models/
+Traceback (most recent call last):
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/core/handlers/exception.py", line 39, in inner
+    response = get_response(request)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/core/handlers/base.py", line 249, in _legacy_get_response
+    response = self._get_response(request)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/core/handlers/base.py", line 217, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/core/handlers/base.py", line 215, in _get_response
+    response = response.render()
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/response.py", line 109, in render
+    self.content = self.rendered_content
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/response.py", line 86, in rendered_content
+    content = template.render(context, self._request)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/backends/django.py", line 66, in render
+    return self.template.render(context)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/base.py", line 208, in render
+    return self._render(context)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/base.py", line 199, in _render
+    return self.nodelist.render(context)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/base.py", line 994, in render
+    bit = node.render_annotated(context)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/base.py", line 961, in render_annotated
+    return self.render(context)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/loader_tags.py", line 174, in render
+    return compiled_parent._render(context)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/base.py", line 199, in _render
+    return self.nodelist.render(context)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/base.py", line 994, in render
+    bit = node.render_annotated(context)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/base.py", line 961, in render_annotated
+    return self.render(context)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/loader_tags.py", line 70, in render
+    result = block.nodelist.render(context)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/base.py", line 994, in render
+    bit = node.render_annotated(context)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/base.py", line 961, in render_annotated
+    return self.render(context)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/defaulttags.py", line 166, in render
+    len_values = len(values)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/db/models/query.py", line 238, in __len__
+    self._fetch_all()
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/db/models/query.py", line 1087, in _fetch_all
+    self._result_cache = list(self.iterator())
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/db/models/query.py", line 65, in __iter__
+    for row in compiler.results_iter(results):
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/db/models/sql/compiler.py", line 795, in results_iter
+    row = self.apply_converters(row, converters)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/db/models/sql/compiler.py", line 779, in apply_converters
+    value = converter(value, expression, self.connection, self.query.context)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/db/backends/sqlite3/operations.py", line 239, in convert_uuidfield_value
+    value = uuid.UUID(value)
+  File "/home/joffrey/anaconda2/lib/python2.7/uuid.py", line 136, in __init__
+    raise ValueError('badly formed hexadecimal UUID string')
+ValueError: badly formed hexadecimal UUID string
+2017-05-17 11:27:37,520 ERROR django.server: "GET /view/models/ HTTP/1.1" 500 27
+2017-05-17 11:30:51,849 INFO django.server: "GET /?ctx=eb6ae7dc-05d3-48cf-b86f-34adfd0470cb HTTP/1.1" 200 4226
+2017-05-17 11:30:51,903 WARNING django.request: Not Found: /static/hbp-collaboratory-theme/dist/css/bootstrap.css
+2017-05-17 11:30:51,904 WARNING django.server: "GET /static/hbp-collaboratory-theme/dist/css/bootstrap.css HTTP/1.1" 404 127
+2017-05-17 11:30:51,906 INFO django.server: "GET /static/app.css HTTP/1.1" 200 55
+2017-05-17 11:31:06,346 ERROR django.request: Internal Server Error: /view/models/
+Traceback (most recent call last):
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/core/handlers/exception.py", line 39, in inner
+    response = get_response(request)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/core/handlers/base.py", line 249, in _legacy_get_response
+    response = self._get_response(request)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/core/handlers/base.py", line 217, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/core/handlers/base.py", line 215, in _get_response
+    response = response.render()
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/response.py", line 109, in render
+    self.content = self.rendered_content
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/response.py", line 86, in rendered_content
+    content = template.render(context, self._request)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/backends/django.py", line 66, in render
+    return self.template.render(context)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/base.py", line 208, in render
+    return self._render(context)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/base.py", line 199, in _render
+    return self.nodelist.render(context)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/base.py", line 994, in render
+    bit = node.render_annotated(context)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/base.py", line 961, in render_annotated
+    return self.render(context)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/loader_tags.py", line 174, in render
+    return compiled_parent._render(context)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/base.py", line 199, in _render
+    return self.nodelist.render(context)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/base.py", line 994, in render
+    bit = node.render_annotated(context)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/base.py", line 961, in render_annotated
+    return self.render(context)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/loader_tags.py", line 70, in render
+    result = block.nodelist.render(context)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/base.py", line 994, in render
+    bit = node.render_annotated(context)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/base.py", line 961, in render_annotated
+    return self.render(context)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/defaulttags.py", line 166, in render
+    len_values = len(values)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/db/models/query.py", line 238, in __len__
+    self._fetch_all()
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/db/models/query.py", line 1087, in _fetch_all
+    self._result_cache = list(self.iterator())
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/db/models/query.py", line 65, in __iter__
+    for row in compiler.results_iter(results):
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/db/models/sql/compiler.py", line 795, in results_iter
+    row = self.apply_converters(row, converters)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/db/models/sql/compiler.py", line 779, in apply_converters
+    value = converter(value, expression, self.connection, self.query.context)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/db/backends/sqlite3/operations.py", line 239, in convert_uuidfield_value
+    value = uuid.UUID(value)
+  File "/home/joffrey/anaconda2/lib/python2.7/uuid.py", line 136, in __init__
+    raise ValueError('badly formed hexadecimal UUID string')
+ValueError: badly formed hexadecimal UUID string
+2017-05-17 11:31:06,347 ERROR django.server: "GET /view/models/ HTTP/1.1" 500 27
+2017-05-17 11:32:21,113 INFO django.server: "GET /?ctx=eb6ae7dc-05d3-48cf-b86f-34adfd0470cb HTTP/1.1" 200 4226
+2017-05-17 11:32:21,157 WARNING django.request: Not Found: /static/hbp-collaboratory-theme/dist/css/bootstrap.css
+2017-05-17 11:32:21,158 WARNING django.server: "GET /static/hbp-collaboratory-theme/dist/css/bootstrap.css HTTP/1.1" 404 127
+2017-05-17 11:32:21,162 INFO django.server: "GET /static/app.css HTTP/1.1" 200 55
+2017-05-17 11:32:25,244 ERROR django.request: Internal Server Error: /view/models/
+Traceback (most recent call last):
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/core/handlers/exception.py", line 39, in inner
+    response = get_response(request)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/core/handlers/base.py", line 249, in _legacy_get_response
+    response = self._get_response(request)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/core/handlers/base.py", line 217, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/core/handlers/base.py", line 215, in _get_response
+    response = response.render()
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/response.py", line 109, in render
+    self.content = self.rendered_content
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/response.py", line 86, in rendered_content
+    content = template.render(context, self._request)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/backends/django.py", line 66, in render
+    return self.template.render(context)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/base.py", line 208, in render
+    return self._render(context)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/base.py", line 199, in _render
+    return self.nodelist.render(context)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/base.py", line 994, in render
+    bit = node.render_annotated(context)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/base.py", line 961, in render_annotated
+    return self.render(context)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/loader_tags.py", line 174, in render
+    return compiled_parent._render(context)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/base.py", line 199, in _render
+    return self.nodelist.render(context)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/base.py", line 994, in render
+    bit = node.render_annotated(context)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/base.py", line 961, in render_annotated
+    return self.render(context)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/loader_tags.py", line 70, in render
+    result = block.nodelist.render(context)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/base.py", line 994, in render
+    bit = node.render_annotated(context)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/base.py", line 961, in render_annotated
+    return self.render(context)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/defaulttags.py", line 166, in render
+    len_values = len(values)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/db/models/query.py", line 238, in __len__
+    self._fetch_all()
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/db/models/query.py", line 1087, in _fetch_all
+    self._result_cache = list(self.iterator())
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/db/models/query.py", line 65, in __iter__
+    for row in compiler.results_iter(results):
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/db/models/sql/compiler.py", line 795, in results_iter
+    row = self.apply_converters(row, converters)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/db/models/sql/compiler.py", line 779, in apply_converters
+    value = converter(value, expression, self.connection, self.query.context)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/db/backends/sqlite3/operations.py", line 239, in convert_uuidfield_value
+    value = uuid.UUID(value)
+  File "/home/joffrey/anaconda2/lib/python2.7/uuid.py", line 136, in __init__
+    raise ValueError('badly formed hexadecimal UUID string')
+ValueError: badly formed hexadecimal UUID string
+2017-05-17 11:32:25,250 ERROR django.server: "GET /view/models/ HTTP/1.1" 500 27
+2017-05-17 11:33:48,980 INFO django.server: "GET /?ctx=eb6ae7dc-05d3-48cf-b86f-34adfd0470cb HTTP/1.1" 200 4226
+2017-05-17 11:33:49,024 WARNING django.request: Not Found: /static/hbp-collaboratory-theme/dist/css/bootstrap.css
+2017-05-17 11:33:49,024 WARNING django.server: "GET /static/hbp-collaboratory-theme/dist/css/bootstrap.css HTTP/1.1" 404 127
+2017-05-17 11:33:49,028 INFO django.server: "GET /static/app.css HTTP/1.1" 200 55
+2017-05-17 11:33:55,295 ERROR django.request: Internal Server Error: /view/models/
+Traceback (most recent call last):
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/core/handlers/exception.py", line 39, in inner
+    response = get_response(request)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/core/handlers/base.py", line 249, in _legacy_get_response
+    response = self._get_response(request)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/core/handlers/base.py", line 187, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/core/handlers/base.py", line 185, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/views/generic/base.py", line 68, in view
+    return self.dispatch(request, *args, **kwargs)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/contrib/auth/mixins.py", line 56, in dispatch
+    return super(LoginRequiredMixin, self).dispatch(request, *args, **kwargs)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/views/generic/base.py", line 88, in dispatch
+    return handler(request, *args, **kwargs)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/views/generic/list.py", line 159, in get
+    self.object_list = self.get_queryset()
+  File "../model_validation_api/views.py", line 470, in get_queryset
+    print (ScientificModel.objects.filter(**filters))
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/db/models/query.py", line 232, in __repr__
+    data = list(self[:REPR_OUTPUT_SIZE + 1])
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/db/models/query.py", line 256, in __iter__
+    self._fetch_all()
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/db/models/query.py", line 1087, in _fetch_all
+    self._result_cache = list(self.iterator())
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/db/models/query.py", line 65, in __iter__
+    for row in compiler.results_iter(results):
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/db/models/sql/compiler.py", line 795, in results_iter
+    row = self.apply_converters(row, converters)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/db/models/sql/compiler.py", line 779, in apply_converters
+    value = converter(value, expression, self.connection, self.query.context)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/db/backends/sqlite3/operations.py", line 239, in convert_uuidfield_value
+    value = uuid.UUID(value)
+  File "/home/joffrey/anaconda2/lib/python2.7/uuid.py", line 136, in __init__
+    raise ValueError('badly formed hexadecimal UUID string')
+ValueError: badly formed hexadecimal UUID string
+2017-05-17 11:33:55,302 ERROR django.server: "GET /view/models/ HTTP/1.1" 500 27
+2017-05-17 11:34:36,052 INFO django.server: "GET /?ctx=eb6ae7dc-05d3-48cf-b86f-34adfd0470cb HTTP/1.1" 200 4226
+2017-05-17 11:34:36,097 WARNING django.request: Not Found: /static/hbp-collaboratory-theme/dist/css/bootstrap.css
+2017-05-17 11:34:36,097 WARNING django.server: "GET /static/hbp-collaboratory-theme/dist/css/bootstrap.css HTTP/1.1" 404 127
+2017-05-17 11:34:36,101 INFO django.server: "GET /static/app.css HTTP/1.1" 200 55
+2017-05-17 11:34:37,839 ERROR django.request: Internal Server Error: /view/models/
+Traceback (most recent call last):
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/core/handlers/exception.py", line 39, in inner
+    response = get_response(request)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/core/handlers/base.py", line 249, in _legacy_get_response
+    response = self._get_response(request)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/core/handlers/base.py", line 187, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/core/handlers/base.py", line 185, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/views/generic/base.py", line 68, in view
+    return self.dispatch(request, *args, **kwargs)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/contrib/auth/mixins.py", line 56, in dispatch
+    return super(LoginRequiredMixin, self).dispatch(request, *args, **kwargs)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/views/generic/base.py", line 88, in dispatch
+    return handler(request, *args, **kwargs)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/views/generic/list.py", line 159, in get
+    self.object_list = self.get_queryset()
+  File "../model_validation_api/views.py", line 470, in get_queryset
+    print (ScientificModel.objects.filter(**filters))
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/db/models/query.py", line 232, in __repr__
+    data = list(self[:REPR_OUTPUT_SIZE + 1])
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/db/models/query.py", line 256, in __iter__
+    self._fetch_all()
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/db/models/query.py", line 1087, in _fetch_all
+    self._result_cache = list(self.iterator())
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/db/models/query.py", line 65, in __iter__
+    for row in compiler.results_iter(results):
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/db/models/sql/compiler.py", line 795, in results_iter
+    row = self.apply_converters(row, converters)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/db/models/sql/compiler.py", line 779, in apply_converters
+    value = converter(value, expression, self.connection, self.query.context)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/db/backends/sqlite3/operations.py", line 239, in convert_uuidfield_value
+    value = uuid.UUID(value)
+  File "/home/joffrey/anaconda2/lib/python2.7/uuid.py", line 136, in __init__
+    raise ValueError('badly formed hexadecimal UUID string')
+ValueError: badly formed hexadecimal UUID string
+2017-05-17 11:34:37,844 ERROR django.server: "GET /view/models/ HTTP/1.1" 500 27
+2017-05-17 11:34:51,114 INFO django.server: "GET /?ctx=eb6ae7dc-05d3-48cf-b86f-34adfd0470cb HTTP/1.1" 200 4226
+2017-05-17 11:34:51,166 WARNING django.request: Not Found: /static/hbp-collaboratory-theme/dist/css/bootstrap.css
+2017-05-17 11:34:51,167 WARNING django.server: "GET /static/hbp-collaboratory-theme/dist/css/bootstrap.css HTTP/1.1" 404 127
+2017-05-17 11:34:51,169 INFO django.server: "GET /static/app.css HTTP/1.1" 200 55
+2017-05-17 11:34:52,526 ERROR django.request: Internal Server Error: /view/models/
+Traceback (most recent call last):
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/core/handlers/exception.py", line 39, in inner
+    response = get_response(request)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/core/handlers/base.py", line 249, in _legacy_get_response
+    response = self._get_response(request)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/core/handlers/base.py", line 187, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/core/handlers/base.py", line 185, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/views/generic/base.py", line 68, in view
+    return self.dispatch(request, *args, **kwargs)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/contrib/auth/mixins.py", line 56, in dispatch
+    return super(LoginRequiredMixin, self).dispatch(request, *args, **kwargs)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/views/generic/base.py", line 88, in dispatch
+    return handler(request, *args, **kwargs)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/views/generic/list.py", line 159, in get
+    self.object_list = self.get_queryset()
+  File "../model_validation_api/views.py", line 470, in get_queryset
+    print (ScientificModel.objects.filter(**filters))
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/db/models/query.py", line 232, in __repr__
+    data = list(self[:REPR_OUTPUT_SIZE + 1])
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/db/models/query.py", line 256, in __iter__
+    self._fetch_all()
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/db/models/query.py", line 1087, in _fetch_all
+    self._result_cache = list(self.iterator())
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/db/models/query.py", line 65, in __iter__
+    for row in compiler.results_iter(results):
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/db/models/sql/compiler.py", line 795, in results_iter
+    row = self.apply_converters(row, converters)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/db/models/sql/compiler.py", line 779, in apply_converters
+    value = converter(value, expression, self.connection, self.query.context)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/db/backends/sqlite3/operations.py", line 239, in convert_uuidfield_value
+    value = uuid.UUID(value)
+  File "/home/joffrey/anaconda2/lib/python2.7/uuid.py", line 136, in __init__
+    raise ValueError('badly formed hexadecimal UUID string')
+ValueError: badly formed hexadecimal UUID string
+2017-05-17 11:34:52,528 ERROR django.server: "GET /view/models/ HTTP/1.1" 500 27
+2017-05-17 11:35:27,568 INFO django.server: "GET /?ctx=eb6ae7dc-05d3-48cf-b86f-34adfd0470cb HTTP/1.1" 200 4226
+2017-05-17 11:35:27,624 WARNING django.request: Not Found: /static/hbp-collaboratory-theme/dist/css/bootstrap.css
+2017-05-17 11:35:27,624 WARNING django.server: "GET /static/hbp-collaboratory-theme/dist/css/bootstrap.css HTTP/1.1" 404 127
+2017-05-17 11:35:27,628 INFO django.server: "GET /static/app.css HTTP/1.1" 200 55
+2017-05-17 11:35:28,977 ERROR django.request: Internal Server Error: /view/models/
+Traceback (most recent call last):
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/core/handlers/exception.py", line 39, in inner
+    response = get_response(request)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/core/handlers/base.py", line 249, in _legacy_get_response
+    response = self._get_response(request)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/core/handlers/base.py", line 187, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/core/handlers/base.py", line 185, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/views/generic/base.py", line 68, in view
+    return self.dispatch(request, *args, **kwargs)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/contrib/auth/mixins.py", line 56, in dispatch
+    return super(LoginRequiredMixin, self).dispatch(request, *args, **kwargs)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/views/generic/base.py", line 88, in dispatch
+    return handler(request, *args, **kwargs)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/views/generic/list.py", line 159, in get
+    self.object_list = self.get_queryset()
+  File "../model_validation_api/views.py", line 471, in get_queryset
+    print (ScientificModel.objects.filter(**filters))
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/db/models/query.py", line 232, in __repr__
+    data = list(self[:REPR_OUTPUT_SIZE + 1])
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/db/models/query.py", line 256, in __iter__
+    self._fetch_all()
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/db/models/query.py", line 1087, in _fetch_all
+    self._result_cache = list(self.iterator())
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/db/models/query.py", line 65, in __iter__
+    for row in compiler.results_iter(results):
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/db/models/sql/compiler.py", line 795, in results_iter
+    row = self.apply_converters(row, converters)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/db/models/sql/compiler.py", line 779, in apply_converters
+    value = converter(value, expression, self.connection, self.query.context)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/db/backends/sqlite3/operations.py", line 239, in convert_uuidfield_value
+    value = uuid.UUID(value)
+  File "/home/joffrey/anaconda2/lib/python2.7/uuid.py", line 136, in __init__
+    raise ValueError('badly formed hexadecimal UUID string')
+ValueError: badly formed hexadecimal UUID string
+2017-05-17 11:35:28,982 ERROR django.server: "GET /view/models/ HTTP/1.1" 500 27
+2017-05-17 11:36:05,123 INFO django.server: "GET /?ctx=eb6ae7dc-05d3-48cf-b86f-34adfd0470cb HTTP/1.1" 200 4226
+2017-05-17 11:36:05,179 WARNING django.request: Not Found: /static/hbp-collaboratory-theme/dist/css/bootstrap.css
+2017-05-17 11:36:05,179 WARNING django.server: "GET /static/hbp-collaboratory-theme/dist/css/bootstrap.css HTTP/1.1" 404 127
+2017-05-17 11:36:05,181 INFO django.server: "GET /static/app.css HTTP/1.1" 200 55
+2017-05-17 11:36:08,877 INFO django.server: "GET /view/tests/ HTTP/1.1" 200 4292
+2017-05-17 11:36:08,903 WARNING django.request: Not Found: /static/hbp-collaboratory-theme/dist/css/bootstrap.css
+2017-05-17 11:36:08,903 WARNING django.server: "GET /static/hbp-collaboratory-theme/dist/css/bootstrap.css HTTP/1.1" 404 127
+2017-05-17 11:36:08,906 INFO django.server: "GET /static/app.css HTTP/1.1" 200 55
+2017-05-17 11:36:10,779 INFO django.server: "GET /view/tests/?species=rat HTTP/1.1" 200 4292
+2017-05-17 11:36:10,804 WARNING django.request: Not Found: /static/hbp-collaboratory-theme/dist/css/bootstrap.css
+2017-05-17 11:36:10,805 WARNING django.server: "GET /static/hbp-collaboratory-theme/dist/css/bootstrap.css HTTP/1.1" 404 127
+2017-05-17 11:36:10,808 INFO django.server: "GET /static/app.css HTTP/1.1" 200 55
+2017-05-17 11:36:14,042 INFO django.server: "GET / HTTP/1.1" 200 4226
+2017-05-17 11:36:14,063 WARNING django.request: Not Found: /static/hbp-collaboratory-theme/dist/css/bootstrap.css
+2017-05-17 11:36:14,063 WARNING django.server: "GET /static/hbp-collaboratory-theme/dist/css/bootstrap.css HTTP/1.1" 404 127
+2017-05-17 11:36:14,067 INFO django.server: "GET /static/app.css HTTP/1.1" 200 55
+2017-05-17 11:36:18,978 ERROR django.request: Internal Server Error: /view/models/
+Traceback (most recent call last):
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/core/handlers/exception.py", line 39, in inner
+    response = get_response(request)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/core/handlers/base.py", line 249, in _legacy_get_response
+    response = self._get_response(request)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/core/handlers/base.py", line 187, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/core/handlers/base.py", line 185, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/views/generic/base.py", line 68, in view
+    return self.dispatch(request, *args, **kwargs)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/contrib/auth/mixins.py", line 56, in dispatch
+    return super(LoginRequiredMixin, self).dispatch(request, *args, **kwargs)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/views/generic/base.py", line 88, in dispatch
+    return handler(request, *args, **kwargs)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/views/generic/list.py", line 159, in get
+    self.object_list = self.get_queryset()
+  File "../model_validation_api/views.py", line 471, in get_queryset
+    print (ScientificModel.objects.filter(**filters))
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/db/models/query.py", line 232, in __repr__
+    data = list(self[:REPR_OUTPUT_SIZE + 1])
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/db/models/query.py", line 256, in __iter__
+    self._fetch_all()
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/db/models/query.py", line 1087, in _fetch_all
+    self._result_cache = list(self.iterator())
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/db/models/query.py", line 65, in __iter__
+    for row in compiler.results_iter(results):
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/db/models/sql/compiler.py", line 795, in results_iter
+    row = self.apply_converters(row, converters)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/db/models/sql/compiler.py", line 779, in apply_converters
+    value = converter(value, expression, self.connection, self.query.context)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/db/backends/sqlite3/operations.py", line 239, in convert_uuidfield_value
+    value = uuid.UUID(value)
+  File "/home/joffrey/anaconda2/lib/python2.7/uuid.py", line 136, in __init__
+    raise ValueError('badly formed hexadecimal UUID string')
+ValueError: badly formed hexadecimal UUID string
+2017-05-17 11:36:18,981 ERROR django.server: "GET /view/models/ HTTP/1.1" 500 27
+2017-05-17 11:51:09,412 INFO django.server: "GET /?ctx=eb6ae7dc-05d3-48cf-b86f-34adfd0470cb HTTP/1.1" 200 4226
+2017-05-17 11:51:09,459 WARNING django.request: Not Found: /static/hbp-collaboratory-theme/dist/css/bootstrap.css
+2017-05-17 11:51:09,459 WARNING django.server: "GET /static/hbp-collaboratory-theme/dist/css/bootstrap.css HTTP/1.1" 404 127
+2017-05-17 11:51:09,463 INFO django.server: "GET /static/app.css HTTP/1.1" 200 55
+2017-05-17 11:51:13,111 ERROR django.request: Internal Server Error: /view/models/
+Traceback (most recent call last):
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/core/handlers/exception.py", line 39, in inner
+    response = get_response(request)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/core/handlers/base.py", line 249, in _legacy_get_response
+    response = self._get_response(request)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/core/handlers/base.py", line 187, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/core/handlers/base.py", line 185, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/views/generic/base.py", line 68, in view
+    return self.dispatch(request, *args, **kwargs)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/contrib/auth/mixins.py", line 56, in dispatch
+    return super(LoginRequiredMixin, self).dispatch(request, *args, **kwargs)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/views/generic/base.py", line 88, in dispatch
+    return handler(request, *args, **kwargs)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/views/generic/list.py", line 159, in get
+    self.object_list = self.get_queryset()
+  File "../model_validation_api/views.py", line 472, in get_queryset
+    print (ScientificModel.objects.filter(**filters))
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/db/models/query.py", line 232, in __repr__
+    data = list(self[:REPR_OUTPUT_SIZE + 1])
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/db/models/query.py", line 256, in __iter__
+    self._fetch_all()
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/db/models/query.py", line 1087, in _fetch_all
+    self._result_cache = list(self.iterator())
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/db/models/query.py", line 65, in __iter__
+    for row in compiler.results_iter(results):
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/db/models/sql/compiler.py", line 795, in results_iter
+    row = self.apply_converters(row, converters)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/db/models/sql/compiler.py", line 779, in apply_converters
+    value = converter(value, expression, self.connection, self.query.context)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/db/backends/sqlite3/operations.py", line 239, in convert_uuidfield_value
+    value = uuid.UUID(value)
+  File "/home/joffrey/anaconda2/lib/python2.7/uuid.py", line 136, in __init__
+    raise ValueError('badly formed hexadecimal UUID string')
+ValueError: badly formed hexadecimal UUID string
+2017-05-17 11:51:13,116 ERROR django.server: "GET /view/models/ HTTP/1.1" 500 27
+2017-05-17 11:52:11,103 INFO django.server: "GET /?ctx=eb6ae7dc-05d3-48cf-b86f-34adfd0470cb HTTP/1.1" 200 4226
+2017-05-17 11:52:11,157 WARNING django.request: Not Found: /static/hbp-collaboratory-theme/dist/css/bootstrap.css
+2017-05-17 11:52:11,157 WARNING django.server: "GET /static/hbp-collaboratory-theme/dist/css/bootstrap.css HTTP/1.1" 404 127
+2017-05-17 11:52:11,159 INFO django.server: "GET /static/app.css HTTP/1.1" 200 55
+2017-05-17 11:52:12,565 ERROR django.request: Internal Server Error: /view/models/
+Traceback (most recent call last):
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/core/handlers/exception.py", line 39, in inner
+    response = get_response(request)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/core/handlers/base.py", line 249, in _legacy_get_response
+    response = self._get_response(request)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/core/handlers/base.py", line 187, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/core/handlers/base.py", line 185, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/views/generic/base.py", line 68, in view
+    return self.dispatch(request, *args, **kwargs)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/contrib/auth/mixins.py", line 56, in dispatch
+    return super(LoginRequiredMixin, self).dispatch(request, *args, **kwargs)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/views/generic/base.py", line 88, in dispatch
+    return handler(request, *args, **kwargs)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/views/generic/list.py", line 159, in get
+    self.object_list = self.get_queryset()
+  File "../model_validation_api/views.py", line 472, in get_queryset
+    print (ScientificModel.objects.filter(**filters))
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/db/models/query.py", line 232, in __repr__
+    data = list(self[:REPR_OUTPUT_SIZE + 1])
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/db/models/query.py", line 256, in __iter__
+    self._fetch_all()
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/db/models/query.py", line 1087, in _fetch_all
+    self._result_cache = list(self.iterator())
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/db/models/query.py", line 65, in __iter__
+    for row in compiler.results_iter(results):
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/db/models/sql/compiler.py", line 795, in results_iter
+    row = self.apply_converters(row, converters)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/db/models/sql/compiler.py", line 779, in apply_converters
+    value = converter(value, expression, self.connection, self.query.context)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/db/backends/sqlite3/operations.py", line 239, in convert_uuidfield_value
+    value = uuid.UUID(value)
+  File "/home/joffrey/anaconda2/lib/python2.7/uuid.py", line 136, in __init__
+    raise ValueError('badly formed hexadecimal UUID string')
+ValueError: badly formed hexadecimal UUID string
+2017-05-17 11:52:12,567 ERROR django.server: "GET /view/models/ HTTP/1.1" 500 27
+2017-05-17 11:52:27,857 INFO django.server: "GET /?ctx=eb6ae7dc-05d3-48cf-b86f-34adfd0470cb HTTP/1.1" 200 4226
+2017-05-17 11:52:27,911 WARNING django.request: Not Found: /static/hbp-collaboratory-theme/dist/css/bootstrap.css
+2017-05-17 11:52:27,911 WARNING django.server: "GET /static/hbp-collaboratory-theme/dist/css/bootstrap.css HTTP/1.1" 404 127
+2017-05-17 11:52:27,913 INFO django.server: "GET /static/app.css HTTP/1.1" 200 55
+2017-05-17 11:52:29,535 INFO django.server: "GET /view/models/ HTTP/1.1" 200 4126
+2017-05-17 11:52:29,562 WARNING django.request: Not Found: /static/hbp-collaboratory-theme/dist/css/bootstrap.css
+2017-05-17 11:52:29,563 WARNING django.server: "GET /static/hbp-collaboratory-theme/dist/css/bootstrap.css HTTP/1.1" 404 127
+2017-05-17 11:52:29,565 INFO django.server: "GET /static/app.css HTTP/1.1" 200 55
+2017-05-17 11:55:15,304 INFO django.server: "GET /?ctx=eb6ae7dc-05d3-48cf-b86f-34adfd0470cb HTTP/1.1" 200 4226
+2017-05-17 11:55:15,346 WARNING django.request: Not Found: /static/hbp-collaboratory-theme/dist/css/bootstrap.css
+2017-05-17 11:55:15,346 WARNING django.server: "GET /static/hbp-collaboratory-theme/dist/css/bootstrap.css HTTP/1.1" 404 127
+2017-05-17 11:55:15,351 INFO django.server: "GET /static/app.css HTTP/1.1" 200 55
+2017-05-17 11:55:17,098 INFO django.server: "GET /view/models/ HTTP/1.1" 200 4126
+2017-05-17 11:55:17,127 WARNING django.request: Not Found: /static/hbp-collaboratory-theme/dist/css/bootstrap.css
+2017-05-17 11:55:17,128 WARNING django.server: "GET /static/hbp-collaboratory-theme/dist/css/bootstrap.css HTTP/1.1" 404 127
+2017-05-17 11:55:17,130 INFO django.server: "GET /static/app.css HTTP/1.1" 200 55
+2017-05-17 12:43:51,101 INFO django.server: code 400, message Bad request syntax ('ls')
+2017-05-17 12:43:51,102 WARNING django.server: "ls" 400 -
+2017-05-17 12:44:08,814 INFO django.server: code 400, message Bad request syntax ('GET')
+2017-05-17 12:44:08,814 WARNING django.server: "GET" 400 -
+2017-05-17 12:46:47,034 INFO django.server: code 400, message Bad request syntax ('\x16\x03\x01\x01\x02\x01\x00\x00\xfe\x03\x03+\xef\x86R\xfduF\x9b\x1d;Z\x81\x8d\xe3\xe8\x125+\xdb\xce(d\xcc\x82)n\xbc\xf6\x17M\x82\xcc\x00\x00n\xc00\xc0,\xc02\xc0.\xc0/\xc0+\xc01\xc0-\x00\xa5\x00\xa3\x00\xa1\x00\x9f\x00\xa4\x00\xa2\x00\xa0\x00\x9e\xc0(\xc0$\xc0\x14\xc0')
+2017-05-17 12:46:47,034 ERROR django.server: You're accessing the development server over HTTPS, but it only supports HTTP.
+
+2017-05-17 12:54:05,830 INFO django.server: "GET /?ctx=eb6ae7dc-05d3-48cf-b86f-34adfd0470cb HTTP/1.1" 200 4226
+2017-05-17 12:54:05,847 WARNING django.request: Not Found: /static/hbp-collaboratory-theme/dist/css/bootstrap.css
+2017-05-17 12:54:05,848 WARNING django.server: "GET /static/hbp-collaboratory-theme/dist/css/bootstrap.css HTTP/1.1" 404 127
+2017-05-17 12:54:05,853 INFO django.server: "GET /static/app.css HTTP/1.1" 200 55
+2017-05-17 12:54:12,909 INFO django.server: "GET /?ctx=eb6ae7dc-05d3-48cf-b86f-34adfd0470cb HTTP/1.1" 200 4226
+2017-05-17 12:54:12,963 WARNING django.request: Not Found: /static/hbp-collaboratory-theme/dist/css/bootstrap.css
+2017-05-17 12:54:12,964 WARNING django.server: "GET /static/hbp-collaboratory-theme/dist/css/bootstrap.css HTTP/1.1" 404 127
+2017-05-17 12:54:12,966 INFO django.server: "GET /static/app.css HTTP/1.1" 200 55
+2017-05-17 12:54:18,519 INFO django.server: "GET /view/models/ HTTP/1.1" 200 4126
+2017-05-17 12:54:18,540 WARNING django.request: Not Found: /static/hbp-collaboratory-theme/dist/css/bootstrap.css
+2017-05-17 12:54:18,541 WARNING django.server: "GET /static/hbp-collaboratory-theme/dist/css/bootstrap.css HTTP/1.1" 404 127
+2017-05-17 12:54:18,544 INFO django.server: "GET /static/app.css HTTP/1.1" 200 55
+2017-05-17 13:14:47,314 INFO django.server: "GET /?ctx=eb6ae7dc-05d3-48cf-b86f-34adfd0470cb HTTP/1.1" 200 4226
+2017-05-17 13:14:47,358 WARNING django.server: "GET /static/hbp-collaboratory-theme/dist/css/bootstrap.css HTTP/1.1" 404 1752
+2017-05-17 13:14:47,361 INFO django.server: "GET /static/app.css HTTP/1.1" 200 55
+2017-05-17 13:14:49,265 ERROR django.request: Internal Server Error: /view/models/
+Traceback (most recent call last):
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/core/handlers/exception.py", line 39, in inner
+    response = get_response(request)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/core/handlers/base.py", line 249, in _legacy_get_response
+    response = self._get_response(request)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/core/handlers/base.py", line 187, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/core/handlers/base.py", line 185, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/views/generic/base.py", line 68, in view
+    return self.dispatch(request, *args, **kwargs)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/contrib/auth/mixins.py", line 56, in dispatch
+    return super(LoginRequiredMixin, self).dispatch(request, *args, **kwargs)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/views/generic/base.py", line 88, in dispatch
+    return handler(request, *args, **kwargs)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/views/generic/list.py", line 159, in get
+    self.object_list = self.get_queryset()
+  File "../model_validation_api/views.py", line 475, in get_queryset
+    print (ScientificModel.objects.filter(**filters))
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/db/models/query.py", line 232, in __repr__
+    data = list(self[:REPR_OUTPUT_SIZE + 1])
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/db/models/query.py", line 256, in __iter__
+    self._fetch_all()
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/db/models/query.py", line 1087, in _fetch_all
+    self._result_cache = list(self.iterator())
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/db/models/query.py", line 65, in __iter__
+    for row in compiler.results_iter(results):
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/db/models/sql/compiler.py", line 795, in results_iter
+    row = self.apply_converters(row, converters)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/db/models/sql/compiler.py", line 779, in apply_converters
+    value = converter(value, expression, self.connection, self.query.context)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/db/backends/sqlite3/operations.py", line 239, in convert_uuidfield_value
+    value = uuid.UUID(value)
+  File "/home/joffrey/anaconda2/lib/python2.7/uuid.py", line 136, in __init__
+    raise ValueError('badly formed hexadecimal UUID string')
+ValueError: badly formed hexadecimal UUID string
+2017-05-17 13:14:49,342 ERROR django.server: "GET /view/models/ HTTP/1.1" 500 136495
+2017-05-17 13:29:08,616 INFO django.server: "GET /?ctx=eb6ae7dc-05d3-48cf-b86f-34adfd0470cb HTTP/1.1" 200 4226
+2017-05-17 13:29:08,660 WARNING django.server: "GET /static/hbp-collaboratory-theme/dist/css/bootstrap.css HTTP/1.1" 404 1752
+2017-05-17 13:29:08,664 INFO django.server: "GET /static/app.css HTTP/1.1" 200 55
+2017-05-17 13:29:10,300 INFO django.server: "GET /view/models/ HTTP/1.1" 200 4319
+2017-05-17 13:29:10,327 WARNING django.server: "GET /static/hbp-collaboratory-theme/dist/css/bootstrap.css HTTP/1.1" 404 1752
+2017-05-17 13:29:10,330 INFO django.server: "GET /static/app.css HTTP/1.1" 200 55
+2017-05-17 13:46:07,592 INFO django.server: "GET /?ctx=eb6ae7dc-05d3-48cf-b86f-34adfd0470cb HTTP/1.1" 200 4226
+2017-05-17 13:46:07,650 WARNING django.server: "GET /static/hbp-collaboratory-theme/dist/css/bootstrap.css HTTP/1.1" 404 1752
+2017-05-17 13:46:07,653 INFO django.server: "GET /static/app.css HTTP/1.1" 200 55
+2017-05-17 13:46:16,144 INFO django.server: "GET /view/models/ HTTP/1.1" 200 4319
+2017-05-17 13:46:16,166 WARNING django.server: "GET /static/hbp-collaboratory-theme/dist/css/bootstrap.css HTTP/1.1" 404 1752
+2017-05-17 13:46:16,168 INFO django.server: "GET /static/app.css HTTP/1.1" 200 55
+2017-05-17 13:48:46,055 INFO django.server: "GET /?ctx=eb6ae7dc-05d3-48cf-b86f-34adfd0470cb HTTP/1.1" 200 4226
+2017-05-17 13:48:46,112 WARNING django.server: "GET /static/hbp-collaboratory-theme/dist/css/bootstrap.css HTTP/1.1" 404 1752
+2017-05-17 13:48:46,114 INFO django.server: "GET /static/app.css HTTP/1.1" 200 55
+2017-05-17 13:49:10,604 INFO django.server: "GET /?ctx=eb6ae7dc-05d3-48cf-b86f-34adfd0470cb HTTP/1.1" 200 4226
+2017-05-17 13:49:10,643 WARNING django.server: "GET /static/hbp-collaboratory-theme/dist/css/bootstrap.css HTTP/1.1" 404 1752
+2017-05-17 13:49:10,646 INFO django.server: "GET /static/app.css HTTP/1.1" 200 55
+2017-05-17 13:49:13,771 INFO django.server: "GET /view/tests/ HTTP/1.1" 200 4292
+2017-05-17 13:49:13,798 WARNING django.server: "GET /static/hbp-collaboratory-theme/dist/css/bootstrap.css HTTP/1.1" 404 1752
+2017-05-17 13:49:13,801 INFO django.server: "GET /static/app.css HTTP/1.1" 200 55
+2017-05-17 13:49:15,066 INFO django.server: "GET /view/models/ HTTP/1.1" 200 4319
+2017-05-17 13:49:15,087 WARNING django.server: "GET /static/hbp-collaboratory-theme/dist/css/bootstrap.css HTTP/1.1" 404 1752
+2017-05-17 13:49:15,091 INFO django.server: "GET /static/app.css HTTP/1.1" 200 55
+2017-05-17 13:53:33,645 INFO django.server: "GET /?ctx=eb6ae7dc-05d3-48cf-b86f-34adfd0470cb HTTP/1.1" 200 4226
+2017-05-17 13:53:33,681 WARNING django.server: "GET /static/hbp-collaboratory-theme/dist/css/bootstrap.css HTTP/1.1" 404 1752
+2017-05-17 13:53:33,685 INFO django.server: "GET /static/app.css HTTP/1.1" 200 55
+2017-05-17 13:53:36,413 INFO django.server: "GET /view/models/ HTTP/1.1" 200 4319
+2017-05-17 13:53:36,437 WARNING django.server: "GET /static/hbp-collaboratory-theme/dist/css/bootstrap.css HTTP/1.1" 404 1752
+2017-05-17 13:53:36,440 INFO django.server: "GET /static/app.css HTTP/1.1" 200 55
+2017-05-17 14:02:14,070 INFO django.server: "GET /?ctx=eb6ae7dc-05d3-48cf-b86f-34adfd0470cb HTTP/1.1" 200 4226
+2017-05-17 14:02:14,109 WARNING django.server: "GET /static/hbp-collaboratory-theme/dist/css/bootstrap.css HTTP/1.1" 404 1752
+2017-05-17 14:02:14,113 INFO django.server: "GET /static/app.css HTTP/1.1" 200 55
+2017-05-17 14:03:10,842 INFO django.server: "GET /?ctx=eb6ae7dc-05d3-48cf-b86f-34adfd0470cb HTTP/1.1" 200 4226
+2017-05-17 14:03:10,883 WARNING django.server: "GET /static/hbp-collaboratory-theme/dist/css/bootstrap.css HTTP/1.1" 404 1752
+2017-05-17 14:03:10,888 INFO django.server: "GET /static/app.css HTTP/1.1" 200 55
+2017-05-17 14:03:57,802 INFO django.server: "GET /?ctx=eb6ae7dc-05d3-48cf-b86f-34adfd0470cb HTTP/1.1" 200 4226
+2017-05-17 14:03:57,845 WARNING django.server: "GET /static/hbp-collaboratory-theme/dist/css/bootstrap.css HTTP/1.1" 404 1752
+2017-05-17 14:03:57,850 INFO django.server: "GET /static/app.css HTTP/1.1" 200 55
+2017-05-18 08:12:32,354 INFO django.server: code 400, message Bad request syntax ('\x16\x03\x01\x00\xb5\x01\x00\x00\xb1\x03\x03\x8d\xea\x9a\xcfu\x94Yw\xd4\xc4\x99\xf6\x1d\xd3k6\xf4a\xa2L\x15l\x96k\xbe\xd0qM=d\xe6\x1d\x00\x00\x1e\xc0+\xc0/\xcc\xa9\xcc\xa8\xc0,\xc00\xc0')
+2017-05-18 08:12:32,354 ERROR django.server: You're accessing the development server over HTTPS, but it only supports HTTP.
+
+2017-05-18 08:12:56,865 INFO django.server: code 400, message Bad request syntax ('\x16\x03\x01\x00\xb5\x01\x00\x00\xb1\x03\x03\x05H\xd6\xb2Ml\xe6WPw\x803F`\x95\xe6C\xe3PBR\xabV\xdc!\x17\xda\xe4C\xde8')
+2017-05-18 08:12:56,866 ERROR django.server: You're accessing the development server over HTTPS, but it only supports HTTP.
+
+2017-05-18 08:13:28,238 INFO django.server: code 400, message Bad HTTP/0.9 request type ('\x16\x03\x01\x00\xb5\x01\x00\x00\xb1\x03\x03Jfc\x19Mt\xa6\x8a\xb2:)\x8b\xee\xf7\xc7V\xcbcB\x9e\xea\xe8M')
+2017-05-18 08:13:28,238 ERROR django.server: You're accessing the development server over HTTPS, but it only supports HTTP.
+
+2017-05-18 08:13:30,133 INFO django.server: code 400, message Bad HTTP/0.9 request type ('\x16\x03\x01\x00\xb5\x01\x00\x00\xb1\x03\x03\xdb:\xba\xd4\x1a')
+2017-05-18 08:13:30,133 ERROR django.server: You're accessing the development server over HTTPS, but it only supports HTTP.
+
+2017-05-18 08:13:59,966 INFO django.server: "GET / HTTP/1.1" 302 0
+2017-05-18 08:14:00,060 INFO django.server: "GET /login/hbp/?next=/ HTTP/1.1" 200 990
+2017-05-18 08:14:44,244 INFO django.server: code 400, message Bad request syntax ('\x16\x03\x01\x00\xb5\x01\x00\x00\xb1\x03\x03\x1dRx\xb1\xa9E9\x00Y\x92\x9d"\xbf[E[\\s*\xc8\xdb~/\xc4\x07\xe0\xd2\xe7\xdc\xb9\xb0\xd1\x00\x00\x1e\xc0+\xc0/\xcc\xa9\xcc\xa8\xc0,\xc00\xc0')
+2017-05-18 08:14:44,245 ERROR django.server: You're accessing the development server over HTTPS, but it only supports HTTP.
+
+2017-05-18 08:22:03,069 INFO django.server: "GET / HTTP/1.1" 302 0
+2017-05-18 08:22:03,163 INFO django.server: "GET /login/hbp/?next=/ HTTP/1.1" 200 991
+2017-05-18 08:22:03,240 WARNING django.request: Not Found: /favicon.ico
+2017-05-18 08:22:03,240 WARNING django.server: "GET /favicon.ico HTTP/1.1" 404 6150
+2017-05-18 08:26:42,699 INFO django.server: "GET /complete/hbp/?code=Do2a0i&state=kFGqT4a2Lig38RdXzcJ2korsr3NBej6T HTTP/1.1" 302 0
+2017-05-18 08:26:42,731 INFO django.server: "GET / HTTP/1.1" 200 4226
+2017-05-18 08:26:42,770 WARNING django.server: "GET /static/hbp-collaboratory-theme/dist/css/bootstrap.css HTTP/1.1" 404 1752
+2017-05-18 08:26:42,775 INFO django.server: "GET /static/app.css HTTP/1.1" 200 55
+2017-05-18 08:26:52,164 INFO django.server: "GET /view/models/ HTTP/1.1" 200 4319
+2017-05-18 08:26:52,190 WARNING django.server: "GET /static/hbp-collaboratory-theme/dist/css/bootstrap.css HTTP/1.1" 404 1752
+2017-05-18 08:49:06,559 INFO django.server: "GET /?ctx=eb6ae7dc-05d3-48cf-b86f-34adfd0470cb HTTP/1.1" 200 4226
+2017-05-18 08:49:06,578 WARNING django.server: "GET /static/hbp-collaboratory-theme/dist/css/bootstrap.css HTTP/1.1" 404 1752
+2017-05-18 08:49:06,584 INFO django.server: "GET /static/app.css HTTP/1.1" 200 55
+2017-05-18 08:49:31,937 INFO django.server: "GET /?ctx=eb6ae7dc-05d3-48cf-b86f-34adfd0470cb HTTP/1.1" 302 0
+2017-05-18 08:49:32,048 INFO django.server: "GET /login/hbp/?next=/%3Fctx%3Deb6ae7dc-05d3-48cf-b86f-34adfd0470cb HTTP/1.1" 200 991
+2017-05-18 08:49:32,130 WARNING django.request: Not Found: /favicon.ico
+2017-05-18 08:49:32,130 WARNING django.server: "GET /favicon.ico HTTP/1.1" 404 6150
+2017-05-18 08:49:34,615 INFO django.server: "GET /complete/hbp/?code=G4YmA3&state=vTFtfP6du4LQhpNR3aH5YdbK2ehrxiUc HTTP/1.1" 302 0
+2017-05-18 08:49:34,644 INFO django.server: "GET /?ctx=eb6ae7dc-05d3-48cf-b86f-34adfd0470cb HTTP/1.1" 200 4226
+2017-05-18 08:49:34,674 WARNING django.server: "GET /static/hbp-collaboratory-theme/dist/css/bootstrap.css HTTP/1.1" 404 1752
+2017-05-18 08:49:39,889 INFO django.server: "GET /static/app.css HTTP/1.1" 200 55
+2017-05-18 09:23:13,802 INFO django.server: "GET /?ctx=eb6ae7dc-05d3-48cf-b86f-34adfd0470cb HTTP/1.1" 200 4226
+2017-05-18 09:23:13,833 WARNING django.server: "GET /static/hbp-collaboratory-theme/dist/css/bootstrap.css HTTP/1.1" 404 1752
+2017-05-18 09:23:13,839 INFO django.server: "GET /static/app.css HTTP/1.1" 200 55
+2017-05-18 09:46:00,469 INFO django.server: "GET /?ctx=eb6ae7dc-05d3-48cf-b86f-34adfd0470cb HTTP/1.1" 200 4226
+2017-05-18 09:46:00,491 WARNING django.server: "GET /static/hbp-collaboratory-theme/dist/css/bootstrap.css HTTP/1.1" 404 1752
+2017-05-18 09:46:00,498 INFO django.server: "GET /static/app.css HTTP/1.1" 200 55
+2017-05-18 09:46:31,104 INFO django.server: "GET / HTTP/1.1" 200 4226
+2017-05-18 09:46:31,130 WARNING django.server: "GET /static/hbp-collaboratory-theme/dist/css/bootstrap.css HTTP/1.1" 404 1752
+2017-05-18 09:46:31,133 INFO django.server: "GET /static/app.css HTTP/1.1" 304 0
+2017-05-18 09:46:33,207 INFO django.server: "GET /view/models/ HTTP/1.1" 200 4319
+2017-05-18 09:46:33,229 WARNING django.server: "GET /static/hbp-collaboratory-theme/dist/css/bootstrap.css HTTP/1.1" 404 1752
+2017-05-18 09:46:47,270 WARNING django.request: Not Found: /*
+2017-05-18 09:46:47,271 WARNING django.server: "GET /* HTTP/1.1" 404 6120
+2017-05-18 09:46:50,361 INFO django.server: "GET / HTTP/1.1" 200 4226
+2017-05-18 09:46:50,384 WARNING django.server: "GET /static/hbp-collaboratory-theme/dist/css/bootstrap.css HTTP/1.1" 404 1752
+2017-05-18 10:21:01,475 INFO django.server: "GET /logout/hbp/?redirect=https://localhost:8000/?ctx=eb6ae7dc-05d3-48cf-b86f-34adfd0470cb HTTP/1.1" 302 0
+2017-05-18 10:21:01,480 INFO django.server: "GET /?ctx=eb6ae7dc-05d3-48cf-b86f-34adfd0470cb HTTP/1.1" 302 0
+2017-05-18 10:21:01,585 INFO django.server: "GET /login/hbp/?next=/%3Fctx%3Deb6ae7dc-05d3-48cf-b86f-34adfd0470cb HTTP/1.1" 200 991
+2017-05-18 11:22:31,910 WARNING django.request: Not Found: /complete/hbp
+2017-05-18 11:22:31,910 WARNING django.server: "GET /complete/hbp HTTP/1.1" 404 6153
+2017-05-18 11:29:29,628 INFO django.server: "GET /?ctx=eb6ae7dc-05d3-48cf-b86f-34adfd0470cb HTTP/1.1" 302 0
+2017-05-18 11:29:29,767 INFO django.server: "GET /login/hbp/?next=/%3Fctx%3Deb6ae7dc-05d3-48cf-b86f-34adfd0470cb HTTP/1.1" 200 991
+2017-05-18 11:29:32,176 INFO django.server: "GET /complete/hbp/?code=wFiHsn&state=7sfXuy2e7rSKHT5aL28DuSxCl19JBxo0 HTTP/1.1" 302 0
+2017-05-18 11:29:32,204 INFO django.server: "GET /?ctx=eb6ae7dc-05d3-48cf-b86f-34adfd0470cb HTTP/1.1" 200 4226
+2017-05-18 11:29:32,227 WARNING django.server: "GET /static/hbp-collaboratory-theme/dist/css/bootstrap.css HTTP/1.1" 404 1752
+2017-05-18 11:29:32,233 INFO django.server: "GET /static/app.css HTTP/1.1" 200 55
+2017-05-18 11:29:37,417 INFO django.server: "GET /view/models/ HTTP/1.1" 200 4319
+2017-05-18 11:29:37,448 WARNING django.server: "GET /static/hbp-collaboratory-theme/dist/css/bootstrap.css HTTP/1.1" 404 1752
+2017-05-18 11:29:42,394 INFO django.server: "GET /view/models/ HTTP/1.1" 200 4319
+2017-05-18 11:29:42,413 WARNING django.server: "GET /static/hbp-collaboratory-theme/dist/css/bootstrap.css HTTP/1.1" 404 1752
+2017-05-18 11:31:07,591 WARNING django.server: "GET /static/hbp-collaboratory-theme/dist/css/bootstrap.css HTTP/1.1" 404 1752
+2017-05-18 11:31:13,637 INFO django.server: "GET /?ctx=eb6ae7dc-05d3-48cf-b86f-34adfd0470cb HTTP/1.1" 200 4226
+2017-05-18 11:31:13,701 WARNING django.server: "GET /static/hbp-collaboratory-theme/dist/css/bootstrap.css HTTP/1.1" 404 1752
+2017-05-18 11:32:40,960 INFO django.server: "GET /?ctx=eb6ae7dc-05d3-48cf-b86f-34adfd0470cb HTTP/1.1" 200 4226
+2017-05-18 11:32:41,024 INFO django.server: "GET /static/hbp-collaboratory-theme/dist/css/bootstrap.css HTTP/1.1" 200 157846
+2017-05-18 11:32:41,063 INFO django.server: "GET /static/hbp-collaboratory-theme/dist/css/bootstrap.css.map HTTP/1.1" 200 172269
+2017-05-18 11:32:44,212 INFO django.server: "GET /view/models/ HTTP/1.1" 200 4319
+2017-05-18 11:32:44,270 INFO django.server: "GET /static/hbp-collaboratory-theme/dist/fonts/glyphicons-halflings-regular.woff2 HTTP/1.1" 200 18028
+2017-05-18 11:36:18,675 INFO django.server: "GET /?ctx=eb6ae7dc-05d3-48cf-b86f-34adfd0470cb HTTP/1.1" 200 4226
+2017-05-18 11:39:53,005 INFO django.server: "GET /?ctx=eb6ae7dc-05d3-48cf-b86f-34adfd0470cb HTTP/1.1" 200 4226
+2017-05-18 11:47:46,839 INFO django.server: "GET /?ctx=eb6ae7dc-05d3-48cf-b86f-34adfd0470cb HTTP/1.1" 200 4226
+2017-05-18 11:47:58,010 INFO django.server: "GET /view/models/ HTTP/1.1" 200 4578
+2017-05-18 11:48:04,563 INFO django.server: "GET / HTTP/1.1" 200 4226
+2017-05-18 11:48:05,819 INFO django.server: "GET /view/models/ HTTP/1.1" 200 4578
+2017-05-18 11:48:06,662 INFO django.server: "GET /view/tests/ HTTP/1.1" 200 4292
+2017-05-18 11:48:09,235 INFO django.server: "GET /view/models/ HTTP/1.1" 200 4578
+2017-05-18 11:48:09,979 INFO django.server: "GET / HTTP/1.1" 200 4226
+2017-05-19 09:15:21,526 INFO django.server: code 400, message Bad HTTP/0.9 request type ('\x16\x03\x01\x00\xc4\x01\x00\x00\xc0\x03\x03\xb8\x8a\xec\xc7\x1a\xbd\xa4\xe0v\x88\x17\xa2\xc7\xae\xdex\xf7#~\x964\xaaS\xf8\xf3\xe2L\xe7Q0\x8d\xea\x00\x00')
+2017-05-19 09:15:21,526 INFO django.server: code 400, message Bad request version ('\xaa\xaa\xc0+\xc0/\xc0,\xc00\xcc\xa9\xcc\xa8\xcc\x14\xcc\x13\xc0\x13\xc0\x14\x00\x9c\x00\x9d\x00/\x005\x00')
+2017-05-19 09:15:21,527 INFO django.server: code 400, message Bad request syntax ('\x16\x03\x01\x00\xc4\x01\x00\x00\xc0\x03\x03\x06\xdb\xc6{l\x88z_&!\x1aX^s.\xc6\xd3\x17\xd0\x00\x8c{|\x85\x05\x8d\x91\xc6\xeat\xdfV\x00\x00 ')
+2017-05-19 09:15:21,527 INFO django.server: code 400, message Bad request version ('ZZ\xc0+\xc0/\xc0,\xc00\xcc\xa9\xcc\xa8\xcc\x14\xcc\x13\xc0\x13\xc0\x14\x00\x9c\x00\x9d\x00/\x005\x00')
+2017-05-19 09:15:21,528 INFO django.server: code 400, message Bad request version ('ZZ\xc0+\xc0/\xc0,\xc00\xcc\xa9\xcc\xa8\xcc\x14\xcc\x13\xc0\x13\xc0\x14\x00\x9c\x00\x9d\x00/\x005\x00')
+2017-05-19 09:15:21,529 INFO django.server: code 400, message Bad HTTP/0.9 request type ('\x16\x03\x01\x00\xc4\x01\x00\x00\xc0\x03\x03\x01|\xb9\xd7KL\xf9g\xc6s\xdb\xdd\xb8U')
+2017-05-19 09:15:21,573 ERROR django.server: You're accessing the development server over HTTPS, but it only supports HTTP.
+
+2017-05-19 09:15:21,573 ERROR django.server: You're accessing the development server over HTTPS, but it only supports HTTP.
+
+2017-05-19 09:15:21,574 ERROR django.server: You're accessing the development server over HTTPS, but it only supports HTTP.
+
+2017-05-19 09:15:21,574 ERROR django.server: You're accessing the development server over HTTPS, but it only supports HTTP.
+
+2017-05-19 09:15:21,574 ERROR django.server: You're accessing the development server over HTTPS, but it only supports HTTP.
+
+2017-05-19 09:15:21,574 ERROR django.server: You're accessing the development server over HTTPS, but it only supports HTTP.
+
+2017-05-19 09:15:33,615 INFO django.server: code 400, message Bad HTTP/0.9 request type ("\x16\x03\x01\x00\xc4\x01\x00\x00\xc0\x03\x03'8)\xaf<\x95C\xc3\x1c\x19\xe1\x1e\xd9\x9a\xfb\xe3\xd4\xf6u4\x9a\xa1\x8e/$\xfe\xdd\\\xef\x9f\xf0\x11\x00\x00")
+2017-05-19 09:15:33,615 INFO django.server: code 400, message Bad HTTP/0.9 request type ('\x16\x03\x01\x00\xc4\x01\x00\x00\xc0\x03\x03\xa9w\xf8\x8fY\xc2\x9e\x9e\xbc\xba\xb1\xd8.\x98\xdf\x19\xa37\xd1.\xcc8\xa1TX\x83\xb4\x8d\x96h\xd9M\x00\x00')
+2017-05-19 09:15:33,615 INFO django.server: code 400, message Bad HTTP/0.9 request type ('\x16\x03\x01\x00\xc4\x01\x00\x00\xc0\x03\x03\xb8E\xc1VC\xb8pk^z\xa6\x8cK\xcb\xbc>2\x15-#\x8b\xda\xe9\xdb\x81\x82\x04C\xa5\xa3\x9c\xea\x00\x00')
+2017-05-19 09:15:33,616 INFO django.server: code 400, message Bad request version ('zz\xc0+\xc0/\xc0,\xc00\xcc\xa9\xcc\xa8\xcc\x14\xcc\x13\xc0\x13\xc0\x14\x00\x9c\x00\x9d\x00/\x005\x00')
+2017-05-19 09:15:33,616 ERROR django.server: You're accessing the development server over HTTPS, but it only supports HTTP.
+
+2017-05-19 09:15:33,617 ERROR django.server: You're accessing the development server over HTTPS, but it only supports HTTP.
+
+2017-05-19 09:15:33,617 ERROR django.server: You're accessing the development server over HTTPS, but it only supports HTTP.
+
+2017-05-19 09:15:33,617 ERROR django.server: You're accessing the development server over HTTPS, but it only supports HTTP.
+
+2017-05-19 09:15:36,351 INFO django.server: code 400, message Bad request version ('\xba\xba\xc0+\xc0/\xc0,\xc00\xcc\xa9\xcc\xa8\xcc\x14\xcc\x13\xc0\x13\xc0\x14\x00\x9c\x00\x9d\x00/\x005\x00')
+2017-05-19 09:15:36,352 ERROR django.server: You're accessing the development server over HTTPS, but it only supports HTTP.
+
+2017-05-19 09:15:41,136 INFO django.server: code 400, message Bad request syntax ("\x16\x03\x01\x00\xc4\x01\x00\x00\xc0\x03\x03'6\x94\xd1\xd1!*[WYS\x82\x1e\x0fb?\x7f%\x9d\xb2\xaa8\x9b\xe2\x96 \xae\x19 \\ \xb4\x00\x00 **\xc0+\xc0/\xc0,\xc00\xcc\xa9\xcc\xa8\xcc\x14\xcc\x13\xc0\x13\xc0\x14\x00\x9c\x00\x9d\x00/\x005\x00")
+2017-05-19 09:15:41,136 ERROR django.server: You're accessing the development server over HTTPS, but it only supports HTTP.
+
+2017-05-19 09:15:41,136 INFO django.server: code 400, message Bad HTTP/0.9 request type ('\x16\x03\x01\x00\xc4\x01\x00\x00\xc0\x03\x03\xc4\xd0\x90\xeb\x94#\xddF\x05\x87^\xe8\xff\xb6\xe8\x9fJ\x9b\x82O9\xdeD?\x16\xf2I3~=\xbcJ\x00\x00')
+2017-05-19 09:15:41,136 INFO django.server: code 400, message Bad request syntax ("\x16\x03\x01\x00\xc4\x01\x00\x00\xc0\x03\x03\x18A\x9f:\xd5v\xac\xbb\xfd\xca ~\xfa\xce\xbd\x1a\xd1!5T\x068\rc\xf0'\x9d\xd1G@\x8e\x93\x00\x00 \x1a\x1a\xc0+\xc0/\xc0,\xc00\xcc\xa9\xcc\xa8\xcc\x14\xcc\x13\xc0\x13\xc0\x14\x00\x9c\x00\x9d\x00/\x005\x00")
+2017-05-19 09:15:41,137 ERROR django.server: You're accessing the development server over HTTPS, but it only supports HTTP.
+
+2017-05-19 09:15:41,137 ERROR django.server: You're accessing the development server over HTTPS, but it only supports HTTP.
+
+2017-05-19 09:15:43,246 INFO django.server: code 400, message Bad HTTP/0.9 request type ('\x16\x03\x01\x00\xc4\x01\x00\x00\xc0\x03\x03]$\xb1\xcc\x1b5s\xfc\x9d\xc3\x92WLT\x90\xc9f@\xa3\xf2\x83\x91\xca\xcb\xb9\xfa\xa1a\xd7J\xde9\x00\x00')
+2017-05-19 09:15:43,246 ERROR django.server: You're accessing the development server over HTTPS, but it only supports HTTP.
+
+2017-05-19 09:15:56,853 WARNING django.security.SuspiciousSession: Session data corrupted
+2017-05-19 09:15:56,885 INFO django.server: "GET / HTTP/1.1" 302 0
+2017-05-19 09:15:56,892 WARNING django.security.SuspiciousSession: Session data corrupted
+2017-05-19 09:15:56,984 INFO django.server: "GET /login/hbp/?next=/ HTTP/1.1" 200 990
+2017-05-19 09:15:57,064 WARNING django.request: Not Found: /favicon.ico
+2017-05-19 09:15:57,064 WARNING django.server: "GET /favicon.ico HTTP/1.1" 404 6175
+2017-05-19 09:15:57,825 INFO django.server: "GET / HTTP/1.1" 302 0
+2017-05-19 09:15:57,992 INFO django.server: "GET /login/hbp/?next=/ HTTP/1.1" 200 990
+2017-05-19 09:18:12,588 INFO django.server: "GET /?ctx=eb6ae7dc-05d3-48cf-b86f-34adfd0470cb HTTP/1.1" 302 0
+2017-05-19 09:18:12,751 INFO django.server: "GET /login/hbp/?next=/%3Fctx%3Deb6ae7dc-05d3-48cf-b86f-34adfd0470cb HTTP/1.1" 200 991
+2017-05-19 09:18:14,712 ERROR django.request: Internal Server Error: /complete/hbp/
+Traceback (most recent call last):
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/core/handlers/exception.py", line 41, in inner
+    response = get_response(request)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/core/handlers/base.py", line 249, in _legacy_get_response
+    response = self._get_response(request)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/core/handlers/base.py", line 187, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/core/handlers/base.py", line 185, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/views/decorators/cache.py", line 57, in _wrapped_view_func
+    response = view_func(request, *args, **kwargs)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/views/decorators/csrf.py", line 58, in wrapped_view
+    return view_func(*args, **kwargs)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/social/apps/django_app/utils.py", line 51, in wrapper
+    return func(request, backend, *args, **kwargs)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/social/apps/django_app/views.py", line 28, in complete
+    redirect_name=REDIRECT_FIELD_NAME, *args, **kwargs)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/social/actions.py", line 44, in do_complete
+    user = backend.complete(user=user, *args, **kwargs)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/social/backends/base.py", line 41, in complete
+    return self.auth_complete(*args, **kwargs)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/social/utils.py", line 246, in wrapper
+    return func(*args, **kwargs)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/social/backends/oauth.py", line 397, in auth_complete
+    *args, **kwargs)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/social/utils.py", line 246, in wrapper
+    return func(*args, **kwargs)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/social/backends/oauth.py", line 408, in do_auth
+    return self.strategy.authenticate(*args, **kwargs)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/social/strategies/django_strategy.py", line 96, in authenticate
+    return authenticate(*args, **kwargs)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/contrib/auth/__init__.py", line 100, in authenticate
+    user = backend.authenticate(*args, **credentials)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/social/backends/base.py", line 82, in authenticate
+    return self.pipeline(pipeline, *args, **kwargs)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/social/backends/base.py", line 85, in pipeline
+    out = self.run_pipeline(pipeline, pipeline_index, *args, **kwargs)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/social/backends/base.py", line 110, in run_pipeline
+    out['pipeline_index'] = pipeline_index + idx
+TypeError: unsupported operand type(s) for +: 'NoneType' and 'int'
+2017-05-19 09:18:14,803 ERROR django.server: "GET /complete/hbp/?code=Anh4Ql&state=q9QzGODjlFZZKoQ1emvBakpzIbyWgk6F HTTP/1.1" 500 165990
+2017-05-19 09:21:23,740 INFO django.server: "GET /?ctx=eb6ae7dc-05d3-48cf-b86f-34adfd0470cb HTTP/1.1" 302 0
+2017-05-19 09:21:23,886 INFO django.server: "GET /login/hbp/?next=/%3Fctx%3Deb6ae7dc-05d3-48cf-b86f-34adfd0470cb HTTP/1.1" 200 991
+2017-05-19 09:21:25,648 ERROR django.request: Internal Server Error: /complete/hbp/
+Traceback (most recent call last):
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/core/handlers/exception.py", line 41, in inner
+    response = get_response(request)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/core/handlers/base.py", line 249, in _legacy_get_response
+    response = self._get_response(request)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/core/handlers/base.py", line 187, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/core/handlers/base.py", line 185, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/views/decorators/cache.py", line 57, in _wrapped_view_func
+    response = view_func(request, *args, **kwargs)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/views/decorators/csrf.py", line 58, in wrapped_view
+    return view_func(*args, **kwargs)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/social/apps/django_app/utils.py", line 51, in wrapper
+    return func(request, backend, *args, **kwargs)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/social/apps/django_app/views.py", line 28, in complete
+    redirect_name=REDIRECT_FIELD_NAME, *args, **kwargs)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/social/actions.py", line 44, in do_complete
+    user = backend.complete(user=user, *args, **kwargs)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/social/backends/base.py", line 41, in complete
+    return self.auth_complete(*args, **kwargs)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/social/utils.py", line 246, in wrapper
+    return func(*args, **kwargs)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/social/backends/oauth.py", line 397, in auth_complete
+    *args, **kwargs)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/social/utils.py", line 246, in wrapper
+    return func(*args, **kwargs)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/social/backends/oauth.py", line 408, in do_auth
+    return self.strategy.authenticate(*args, **kwargs)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/social/strategies/django_strategy.py", line 96, in authenticate
+    return authenticate(*args, **kwargs)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/contrib/auth/__init__.py", line 100, in authenticate
+    user = backend.authenticate(*args, **credentials)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/social/backends/base.py", line 82, in authenticate
+    return self.pipeline(pipeline, *args, **kwargs)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/social/backends/base.py", line 85, in pipeline
+    out = self.run_pipeline(pipeline, pipeline_index, *args, **kwargs)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/social/backends/base.py", line 110, in run_pipeline
+    out['pipeline_index'] = pipeline_index + idx
+TypeError: unsupported operand type(s) for +: 'NoneType' and 'int'
+2017-05-19 09:21:25,739 ERROR django.server: "GET /complete/hbp/?code=5bNL44&state=q9QzGODjlFZZKoQ1emvBakpzIbyWgk6F HTTP/1.1" 500 165990
+2017-05-19 09:23:43,299 INFO django.server: "GET /?ctx=eb6ae7dc-05d3-48cf-b86f-34adfd0470cb HTTP/1.1" 302 0
+2017-05-19 09:23:43,436 INFO django.server: "GET /login/hbp/?next=/%3Fctx%3Deb6ae7dc-05d3-48cf-b86f-34adfd0470cb HTTP/1.1" 200 919
+2017-05-19 09:26:14,560 INFO django.server: "GET /?ctx=eb6ae7dc-05d3-48cf-b86f-34adfd0470cb HTTP/1.1" 302 0
+2017-05-19 09:26:14,679 INFO django.server: "GET /login/hbp/?next=/%3Fctx%3Deb6ae7dc-05d3-48cf-b86f-34adfd0470cb HTTP/1.1" 200 991
+2017-05-19 09:26:16,602 ERROR django.request: Internal Server Error: /complete/hbp/
+Traceback (most recent call last):
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/core/handlers/exception.py", line 41, in inner
+    response = get_response(request)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/core/handlers/base.py", line 249, in _legacy_get_response
+    response = self._get_response(request)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/core/handlers/base.py", line 187, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/core/handlers/base.py", line 185, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/views/decorators/cache.py", line 57, in _wrapped_view_func
+    response = view_func(request, *args, **kwargs)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/views/decorators/csrf.py", line 58, in wrapped_view
+    return view_func(*args, **kwargs)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/social/apps/django_app/utils.py", line 51, in wrapper
+    return func(request, backend, *args, **kwargs)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/social/apps/django_app/views.py", line 28, in complete
+    redirect_name=REDIRECT_FIELD_NAME, *args, **kwargs)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/social/actions.py", line 44, in do_complete
+    user = backend.complete(user=user, *args, **kwargs)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/social/backends/base.py", line 41, in complete
+    return self.auth_complete(*args, **kwargs)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/social/utils.py", line 246, in wrapper
+    return func(*args, **kwargs)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/social/backends/oauth.py", line 397, in auth_complete
+    *args, **kwargs)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/social/utils.py", line 246, in wrapper
+    return func(*args, **kwargs)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/social/backends/oauth.py", line 408, in do_auth
+    return self.strategy.authenticate(*args, **kwargs)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/social/strategies/django_strategy.py", line 96, in authenticate
+    return authenticate(*args, **kwargs)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/contrib/auth/__init__.py", line 100, in authenticate
+    user = backend.authenticate(*args, **credentials)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/social/backends/base.py", line 82, in authenticate
+    return self.pipeline(pipeline, *args, **kwargs)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/social/backends/base.py", line 85, in pipeline
+    out = self.run_pipeline(pipeline, pipeline_index, *args, **kwargs)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/social/backends/base.py", line 110, in run_pipeline
+    out['pipeline_index'] = pipeline_index + idx
+TypeError: unsupported operand type(s) for +: 'NoneType' and 'int'
+2017-05-19 09:26:16,699 ERROR django.server: "GET /complete/hbp/?code=pf3h5B&state=q9QzGODjlFZZKoQ1emvBakpzIbyWgk6F HTTP/1.1" 500 166289
+2017-05-19 09:26:38,935 INFO django.server: code 400, message Bad request version ('\x8b\xf8a\xa9\xa5\x80\x00\xb92\xb9z\x1c%')
+2017-05-19 09:26:38,935 ERROR django.server: You're accessing the development server over HTTPS, but it only supports HTTP.
+
+2017-05-19 09:27:18,628 INFO django.server: code 400, message Bad HTTP/0.9 request type ('\x16\x03\x01\x02\x00\x01\x00\x01\xfc\x03\x03\xfe\xfb\xd2_\xa8a1\xdc`\\h9\x82D\xccG\xb8A\x8f\xf9\xb9!\x8e\xa5]\x045\xc9\x07\x1fE\x95')
+2017-05-19 09:27:18,628 ERROR django.server: You're accessing the development server over HTTPS, but it only supports HTTP.
+
+2017-05-19 09:27:33,701 INFO django.server: "GET /?ctx=eb6ae7dc-05d3-48cf-b86f-34adfd0470cb HTTP/1.1" 302 0
+2017-05-19 09:27:33,829 INFO django.server: "GET /login/hbp/?next=/%3Fctx%3Deb6ae7dc-05d3-48cf-b86f-34adfd0470cb HTTP/1.1" 200 991
+2017-05-19 09:27:35,855 ERROR django.request: Internal Server Error: /complete/hbp/
+Traceback (most recent call last):
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/core/handlers/exception.py", line 41, in inner
+    response = get_response(request)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/core/handlers/base.py", line 249, in _legacy_get_response
+    response = self._get_response(request)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/core/handlers/base.py", line 187, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/core/handlers/base.py", line 185, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/views/decorators/cache.py", line 57, in _wrapped_view_func
+    response = view_func(request, *args, **kwargs)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/views/decorators/csrf.py", line 58, in wrapped_view
+    return view_func(*args, **kwargs)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/social/apps/django_app/utils.py", line 51, in wrapper
+    return func(request, backend, *args, **kwargs)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/social/apps/django_app/views.py", line 28, in complete
+    redirect_name=REDIRECT_FIELD_NAME, *args, **kwargs)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/social/actions.py", line 44, in do_complete
+    user = backend.complete(user=user, *args, **kwargs)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/social/backends/base.py", line 41, in complete
+    return self.auth_complete(*args, **kwargs)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/social/utils.py", line 246, in wrapper
+    return func(*args, **kwargs)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/social/backends/oauth.py", line 397, in auth_complete
+    *args, **kwargs)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/social/utils.py", line 246, in wrapper
+    return func(*args, **kwargs)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/social/backends/oauth.py", line 408, in do_auth
+    return self.strategy.authenticate(*args, **kwargs)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/social/strategies/django_strategy.py", line 96, in authenticate
+    return authenticate(*args, **kwargs)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/contrib/auth/__init__.py", line 100, in authenticate
+    user = backend.authenticate(*args, **credentials)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/social/backends/base.py", line 82, in authenticate
+    return self.pipeline(pipeline, *args, **kwargs)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/social/backends/base.py", line 85, in pipeline
+    out = self.run_pipeline(pipeline, pipeline_index, *args, **kwargs)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/social/backends/base.py", line 110, in run_pipeline
+    out['pipeline_index'] = pipeline_index + idx
+TypeError: unsupported operand type(s) for +: 'NoneType' and 'int'
+2017-05-19 09:27:35,951 ERROR django.server: "GET /complete/hbp/?code=NjniHc&state=q9QzGODjlFZZKoQ1emvBakpzIbyWgk6F HTTP/1.1" 500 167602
+2017-05-19 09:30:12,155 INFO django.server: "GET /?ctx=eb6ae7dc-05d3-48cf-b86f-34adfd0470cb HTTP/1.1" 302 0
+2017-05-19 09:30:12,288 INFO django.server: "GET /login/hbp/?next=/%3Fctx%3Deb6ae7dc-05d3-48cf-b86f-34adfd0470cb HTTP/1.1" 200 991
+2017-05-19 09:30:14,337 ERROR django.request: Internal Server Error: /complete/hbp/
+Traceback (most recent call last):
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/core/handlers/exception.py", line 41, in inner
+    response = get_response(request)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/core/handlers/base.py", line 249, in _legacy_get_response
+    response = self._get_response(request)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/core/handlers/base.py", line 187, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/core/handlers/base.py", line 185, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/views/decorators/cache.py", line 57, in _wrapped_view_func
+    response = view_func(request, *args, **kwargs)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/views/decorators/csrf.py", line 58, in wrapped_view
+    return view_func(*args, **kwargs)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/social/apps/django_app/utils.py", line 51, in wrapper
+    return func(request, backend, *args, **kwargs)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/social/apps/django_app/views.py", line 28, in complete
+    redirect_name=REDIRECT_FIELD_NAME, *args, **kwargs)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/social/actions.py", line 44, in do_complete
+    user = backend.complete(user=user, *args, **kwargs)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/social/backends/base.py", line 41, in complete
+    return self.auth_complete(*args, **kwargs)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/social/utils.py", line 246, in wrapper
+    return func(*args, **kwargs)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/social/backends/oauth.py", line 397, in auth_complete
+    *args, **kwargs)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/social/utils.py", line 246, in wrapper
+    return func(*args, **kwargs)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/social/backends/oauth.py", line 408, in do_auth
+    return self.strategy.authenticate(*args, **kwargs)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/social/strategies/django_strategy.py", line 96, in authenticate
+    return authenticate(*args, **kwargs)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/contrib/auth/__init__.py", line 100, in authenticate
+    user = backend.authenticate(*args, **credentials)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/social/backends/base.py", line 82, in authenticate
+    return self.pipeline(pipeline, *args, **kwargs)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/social/backends/base.py", line 85, in pipeline
+    out = self.run_pipeline(pipeline, pipeline_index, *args, **kwargs)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/social/backends/base.py", line 110, in run_pipeline
+    out['pipeline_index'] = pipeline_index + idx
+TypeError: unsupported operand type(s) for +: 'NoneType' and 'int'
+2017-05-19 09:30:14,436 ERROR django.server: "GET /complete/hbp/?code=sIzLa5&state=q9QzGODjlFZZKoQ1emvBakpzIbyWgk6F HTTP/1.1" 500 167602
+2017-05-19 09:37:39,183 INFO django.server: "GET /?ctx=eb6ae7dc-05d3-48cf-b86f-34adfd0470cb HTTP/1.1" 302 0
+2017-05-19 09:37:39,274 INFO django.server: "GET /login/hbp/?next=/%3Fctx%3Deb6ae7dc-05d3-48cf-b86f-34adfd0470cb HTTP/1.1" 200 991
+2017-05-19 09:37:39,353 WARNING django.request: Not Found: /favicon.ico
+2017-05-19 09:37:39,353 WARNING django.server: "GET /favicon.ico HTTP/1.1" 404 6174
+2017-05-19 09:37:41,848 INFO django.server: "GET /complete/hbp/?code=vs6gVn&state=q9QzGODjlFZZKoQ1emvBakpzIbyWgk6F HTTP/1.1" 302 0
+2017-05-19 09:37:41,874 INFO django.server: "GET /?ctx=eb6ae7dc-05d3-48cf-b86f-34adfd0470cb HTTP/1.1" 200 4226
+2017-05-19 09:38:10,331 INFO django.server: "GET /?ctx=eb6ae7dc-05d3-48cf-b86f-34adfd0470cb HTTP/1.1" 200 4226
+2017-05-19 09:38:18,797 INFO django.server: "GET /view/models/ HTTP/1.1" 200 4578
+2017-05-19 09:38:43,911 INFO django.server: "GET /?ctx=eb6ae7dc-05d3-48cf-b86f-34adfd0470cb HTTP/1.1" 200 4226
+2017-05-19 09:38:43,969 INFO django.server: "GET /static/app.css HTTP/1.1" 200 55
+2017-05-19 09:45:10,270 INFO django.server: "GET /view/tests/ HTTP/1.1" 200 4292
+2017-05-19 11:51:45,697 INFO django.server: "GET /?ctx=eb6ae7dc-05d3-48cf-b86f-34adfd0470cb HTTP/1.1" 200 4226
+2017-05-19 11:52:46,829 INFO django.server: "GET /?ctx=eb6ae7dc-05d3-48cf-b86f-34adfd0470cb HTTP/1.1" 200 4226
+2017-05-19 11:52:51,623 INFO django.server: "GET /view/results/ HTTP/1.1" 200 4090
+2017-05-19 11:53:17,107 INFO django.server: "GET /view/results/ HTTP/1.1" 200 4090
+2017-05-19 11:53:19,396 INFO django.server: "GET /view/tests/ HTTP/1.1" 200 4384
+2017-05-19 11:53:39,655 INFO django.server: "GET /?ctx=eb6ae7dc-05d3-48cf-b86f-34adfd0470cb HTTP/1.1" 200 4226
+2017-05-19 11:54:33,089 INFO django.server: "GET /view/tests/ HTTP/1.1" 200 4390
+2017-05-19 12:18:08,082 INFO django.server: "GET /?ctx=eb6ae7dc-05d3-48cf-b86f-34adfd0470cb HTTP/1.1" 200 4226
+2017-05-19 12:18:12,513 INFO django.server: "GET /view/tests/ HTTP/1.1" 200 4671
+2017-05-19 12:18:53,777 INFO django.server: "GET /?ctx=eb6ae7dc-05d3-48cf-b86f-34adfd0470cb HTTP/1.1" 200 4226
+2017-05-19 12:18:57,248 INFO django.server: "GET /view/tests/ HTTP/1.1" 200 4480
+2017-05-19 12:19:26,489 INFO django.server: "GET /?ctx=eb6ae7dc-05d3-48cf-b86f-34adfd0470cb HTTP/1.1" 200 4226
+2017-05-19 12:19:27,628 INFO django.server: "GET /view/tests/ HTTP/1.1" 200 4527
+2017-05-19 12:20:23,300 INFO django.server: "GET /view/tests/ HTTP/1.1" 200 4460
+2017-05-19 12:24:16,095 INFO django.server: "GET /view/tests/ HTTP/1.1" 200 4503
+2017-05-19 12:24:16,981 INFO django.server: "GET /view/tests/ HTTP/1.1" 200 4503
+2017-05-19 12:24:17,572 INFO django.server: "GET /view/tests/ HTTP/1.1" 200 4503
+2017-05-19 12:24:38,388 INFO django.server: "GET /view/tests/ HTTP/1.1" 200 4484
+2017-05-19 12:51:17,059 INFO django.server: "GET /view/tests/ HTTP/1.1" 200 4504
+2017-05-19 12:51:18,236 WARNING django.request: Not Found: /view/tests/{
+2017-05-19 12:51:18,237 WARNING django.server: "GET /view/tests/%7B? HTTP/1.1" 404 6370
+2017-05-19 13:00:30,360 INFO django.server: "GET /?ctx=eb6ae7dc-05d3-48cf-b86f-34adfd0470cb HTTP/1.1" 200 4226
+2017-05-19 13:00:32,091 INFO django.server: "GET /view/tests/ HTTP/1.1" 200 4504
+2017-05-19 13:00:33,647 WARNING django.request: Not Found: /view/tests/{
+2017-05-19 13:00:33,648 WARNING django.server: "GET /view/tests/%7B? HTTP/1.1" 404 6370
+2017-05-19 13:01:39,671 INFO django.server: "GET /?ctx=eb6ae7dc-05d3-48cf-b86f-34adfd0470cb HTTP/1.1" 200 4226
+2017-05-19 13:01:42,011 INFO django.server: "GET /view/tests/ HTTP/1.1" 200 4504
+2017-05-19 13:01:43,389 WARNING django.request: Not Found: /view/tests/{
+2017-05-19 13:01:43,391 WARNING django.server: "GET /view/tests/%7B? HTTP/1.1" 404 6376
+2017-05-19 13:05:24,440 INFO django.server: "GET /?ctx=eb6ae7dc-05d3-48cf-b86f-34adfd0470cb HTTP/1.1" 200 4226
+2017-05-19 13:05:26,068 INFO django.server: "GET /view/tests/ HTTP/1.1" 200 4506
+2017-05-19 13:05:27,230 WARNING django.request: Not Found: /view/tests/{ % url 'create-test-view' %}
+2017-05-19 13:05:27,231 WARNING django.server: "GET /view/tests/%7B%20%%20url%20'create-test-view'%20%%7D? HTTP/1.1" 404 6498
+2017-05-19 13:11:00,251 INFO django.server: "GET /?ctx=eb6ae7dc-05d3-48cf-b86f-34adfd0470cb HTTP/1.1" 200 4226
+2017-05-19 13:11:02,298 INFO django.server: "GET /view/tests/ HTTP/1.1" 200 4541
+2017-05-19 13:11:03,630 ERROR django.request: Internal Server Error: /view/tests/create
+Traceback (most recent call last):
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/core/handlers/exception.py", line 41, in inner
+    response = get_response(request)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/core/handlers/base.py", line 249, in _legacy_get_response
+    response = self._get_response(request)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/core/handlers/base.py", line 217, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/core/handlers/base.py", line 215, in _get_response
+    response = response.render()
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/response.py", line 107, in render
+    self.content = self.rendered_content
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/response.py", line 82, in rendered_content
+    template = self.resolve_template(self.template_name)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/response.py", line 64, in resolve_template
+    return select_template(template, using=self.using)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/loader.py", line 48, in select_template
+    return engine.get_template(template_name)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/backends/django.py", line 39, in get_template
+    return Template(self.engine.get_template(template_name), self)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/engine.py", line 162, in get_template
+    template, origin = self.find_template(template_name)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/engine.py", line 136, in find_template
+    name, template_dirs=dirs, skip=skip,
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/loaders/base.py", line 44, in get_template
+    contents, origin, origin.template_name, self.engine,
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/base.py", line 191, in __init__
+    self.nodelist = self.compile_nodelist()
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/base.py", line 230, in compile_nodelist
+    return parser.parse()
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/base.py", line 515, in parse
+    raise self.error(token, e)
+TemplateSyntaxError: 'jsonify' is not a registered tag library. Must be one of:
+admin_list
+admin_modify
+admin_static
+admin_urls
+cache
+i18n
+l10n
+log
+markup
+oidc_session
+static
+staticfiles
+tz
+2017-05-19 13:11:03,715 ERROR django.server: "GET /view/tests/create? HTTP/1.1" 500 135499
+2017-05-19 13:11:27,088 INFO django.server: "GET /?ctx=eb6ae7dc-05d3-48cf-b86f-34adfd0470cb HTTP/1.1" 200 4226
+2017-05-19 13:11:33,955 INFO django.server: "GET /view/tests/ HTTP/1.1" 200 4541
+2017-05-19 13:11:35,227 ERROR django.request: Internal Server Error: /view/tests/create
+Traceback (most recent call last):
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/core/handlers/exception.py", line 41, in inner
+    response = get_response(request)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/core/handlers/base.py", line 249, in _legacy_get_response
+    response = self._get_response(request)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/core/handlers/base.py", line 217, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/core/handlers/base.py", line 215, in _get_response
+    response = response.render()
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/response.py", line 107, in render
+    self.content = self.rendered_content
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/response.py", line 82, in rendered_content
+    template = self.resolve_template(self.template_name)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/response.py", line 64, in resolve_template
+    return select_template(template, using=self.using)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/loader.py", line 48, in select_template
+    return engine.get_template(template_name)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/backends/django.py", line 39, in get_template
+    return Template(self.engine.get_template(template_name), self)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/engine.py", line 162, in get_template
+    template, origin = self.find_template(template_name)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/engine.py", line 136, in find_template
+    name, template_dirs=dirs, skip=skip,
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/loaders/base.py", line 44, in get_template
+    contents, origin, origin.template_name, self.engine,
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/base.py", line 191, in __init__
+    self.nodelist = self.compile_nodelist()
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/base.py", line 230, in compile_nodelist
+    return parser.parse()
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/base.py", line 515, in parse
+    raise self.error(token, e)
+TemplateSyntaxError: Invalid filter: 'jsonify'
+2017-05-19 13:11:35,320 ERROR django.server: "GET /view/tests/create? HTTP/1.1" 500 134528
+2017-05-19 13:12:25,018 INFO django.server: "GET /?ctx=eb6ae7dc-05d3-48cf-b86f-34adfd0470cb HTTP/1.1" 200 4226
+2017-05-19 13:12:26,413 INFO django.server: "GET /view/tests/ HTTP/1.1" 200 4541
+2017-05-19 13:12:27,523 ERROR django.request: Internal Server Error: /view/tests/create
+Traceback (most recent call last):
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/core/handlers/exception.py", line 41, in inner
+    response = get_response(request)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/core/handlers/base.py", line 249, in _legacy_get_response
+    response = self._get_response(request)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/core/handlers/base.py", line 217, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/core/handlers/base.py", line 215, in _get_response
+    response = response.render()
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/response.py", line 107, in render
+    self.content = self.rendered_content
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/response.py", line 82, in rendered_content
+    template = self.resolve_template(self.template_name)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/response.py", line 64, in resolve_template
+    return select_template(template, using=self.using)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/loader.py", line 48, in select_template
+    return engine.get_template(template_name)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/backends/django.py", line 39, in get_template
+    return Template(self.engine.get_template(template_name), self)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/engine.py", line 162, in get_template
+    template, origin = self.find_template(template_name)
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/engine.py", line 136, in find_template
+    name, template_dirs=dirs, skip=skip,
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/loaders/base.py", line 44, in get_template
+    contents, origin, origin.template_name, self.engine,
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/base.py", line 191, in __init__
+    self.nodelist = self.compile_nodelist()
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/base.py", line 230, in compile_nodelist
+    return parser.parse()
+  File "/home/joffrey/anaconda2/lib/python2.7/site-packages/django/template/base.py", line 515, in parse
+    raise self.error(token, e)
+TemplateSyntaxError: 'jsonify' is not a registered tag library. Must be one of:
+admin_list
+admin_modify
+admin_static
+admin_urls
+cache
+i18n
+l10n
+log
+markup
+oidc_session
+static
+staticfiles
+tz
+2017-05-19 13:12:27,604 ERROR django.server: "GET /view/tests/create? HTTP/1.1" 500 136812
+2017-05-19 13:14:23,507 INFO django.server: "GET /?ctx=eb6ae7dc-05d3-48cf-b86f-34adfd0470cb HTTP/1.1" 200 4226
+2017-05-19 13:14:24,638 INFO django.server: "GET /view/tests/ HTTP/1.1" 200 4541
+2017-05-19 13:14:25,705 INFO django.server: "GET /view/tests/create? HTTP/1.1" 200 5647
+2017-05-19 13:14:45,039 INFO django.server: "GET /view/tests/ HTTP/1.1" 200 4541
+2017-05-19 13:26:53,043 INFO django.server: "GET /view/tests/create? HTTP/1.1" 200 5644
+2017-05-19 13:44:36,894 INFO django.server: "GET /?ctx=eb6ae7dc-05d3-48cf-b86f-34adfd0470cb HTTP/1.1" 200 4226
+2017-05-19 13:44:40,311 INFO django.server: "GET /view/tests/ HTTP/1.1" 200 4541
+2017-05-19 13:44:41,608 INFO django.server: "GET /view/tests/create? HTTP/1.1" 200 5309
+2017-05-19 13:58:22,330 INFO django.server: "GET /?ctx=eb6ae7dc-05d3-48cf-b86f-34adfd0470cb HTTP/1.1" 200 4226
+2017-05-19 13:58:51,276 INFO django.server: "GET /view/tests/ HTTP/1.1" 200 4541
+2017-05-19 13:58:52,608 INFO django.server: "GET /view/tests/create? HTTP/1.1" 200 5316
+2017-05-22 11:10:34,380 INFO django.server: "GET /?ctx=eb6ae7dc-05d3-48cf-b86f-34adfd0470cb HTTP/1.1" 200 4226
+2017-05-22 11:13:31,331 INFO django.server: "GET /?ctx=eb6ae7dc-05d3-48cf-b86f-34adfd0470cb HTTP/1.1" 200 4226
+2017-05-22 11:13:31,397 INFO django.server: "GET /static/app.css HTTP/1.1" 200 55
+2017-05-22 11:13:39,297 INFO django.server: "GET /view/tests/ HTTP/1.1" 200 4541
+2017-05-22 11:13:42,974 INFO django.server: "GET /view/tests/create? HTTP/1.1" 200 5309
+2017-05-22 11:19:40,602 INFO django.server: "GET /?ctx=eb6ae7dc-05d3-48cf-b86f-34adfd0470cb HTTP/1.1" 200 4226
+2017-05-22 11:19:41,851 INFO django.server: "GET /view/tests/ HTTP/1.1" 200 4541
+2017-05-22 11:19:42,953 INFO django.server: "GET /view/tests/create? HTTP/1.1" 200 5906
+2017-05-22 11:21:42,111 WARNING django.server: "POST /view/tests/create? HTTP/1.1" 400 493
+2017-05-22 11:37:18,222 INFO django.server: "GET /?ctx=eb6ae7dc-05d3-48cf-b86f-34adfd0470cb HTTP/1.1" 200 4226
+2017-05-22 11:37:20,225 INFO django.server: "GET /view/tests/ HTTP/1.1" 200 4541
+2017-05-22 11:37:22,277 INFO django.server: "GET /view/tests/create? HTTP/1.1" 200 8169
+2017-05-22 11:41:24,628 INFO django.server: "GET /?ctx=eb6ae7dc-05d3-48cf-b86f-34adfd0470cb HTTP/1.1" 200 4226
+2017-05-22 11:41:26,817 INFO django.server: "GET /view/tests/ HTTP/1.1" 200 4541
+2017-05-22 11:41:28,140 INFO django.server: "GET /view/tests/create? HTTP/1.1" 200 8910
+2017-05-22 11:41:42,288 INFO django.server: "POST /view/tests/create? HTTP/1.1" 201 374
+2017-05-22 11:44:29,549 INFO django.server: "GET /?ctx=eb6ae7dc-05d3-48cf-b86f-34adfd0470cb HTTP/1.1" 200 4226
+2017-05-22 11:44:30,986 INFO django.server: "GET /view/tests/ HTTP/1.1" 200 4926
+2017-05-22 11:44:32,168 INFO django.server: "GET /view/tests/create? HTTP/1.1" 200 8910
+2017-05-22 11:45:05,647 INFO django.server: "POST /view/tests/create? HTTP/1.1" 201 353
+2017-05-22 11:46:40,226 INFO django.server: "GET /?ctx=eb6ae7dc-05d3-48cf-b86f-34adfd0470cb HTTP/1.1" 200 4226
+2017-05-22 11:46:42,564 INFO django.server: "GET /view/tests/ HTTP/1.1" 200 5297
+2017-05-22 11:46:43,932 INFO django.server: "GET /view/tests/create? HTTP/1.1" 200 8910
+2017-05-22 11:48:18,861 INFO django.server: "GET /view/tests/ HTTP/1.1" 200 5297
+2017-05-22 11:48:20,197 INFO django.server: "GET /view/tests/create? HTTP/1.1" 200 8825
+2017-05-22 11:48:47,108 INFO django.server: "GET /view/tests/ HTTP/1.1" 200 5297
+2017-05-22 11:48:48,270 INFO django.server: "GET /view/tests/create? HTTP/1.1" 200 8910
+2017-05-22 11:50:14,944 INFO django.server: "GET /view/tests/ HTTP/1.1" 200 5297
+2017-05-22 11:50:16,385 INFO django.server: "GET /view/tests/create? HTTP/1.1" 200 8374
+2017-05-22 12:06:55,955 INFO django.server: "GET /view/tests/ HTTP/1.1" 200 5297
+2017-05-22 12:06:57,511 INFO django.server: "GET /view/tests/create? HTTP/1.1" 200 8374
+2017-05-22 12:07:37,366 INFO django.server: "GET /?ctx=eb6ae7dc-05d3-48cf-b86f-34adfd0470cb HTTP/1.1" 200 4226
+2017-05-22 12:07:39,207 INFO django.server: "GET /view/tests/ HTTP/1.1" 200 5297
