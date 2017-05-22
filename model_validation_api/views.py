@@ -518,27 +518,24 @@ class SimpleModelListView(LoginRequiredMixin, ListView):
     
 
     def get_queryset(self):
-        print ("here ?")
         filters = {}
-        print (self.request.GET.items())
         for key, value in self.request.GET.items():
             if key in VALID_MODEL_FILTER_NAMES:
                 filters[key + "__icontains"] = value
-        print ("FILTER")
-        print (filters)
-        print (ScientificModel.objects.filter(**filters))
-        print ("after filter")
-
-        
         return ScientificModel.objects.filter(**filters)
 
+    def get(self, request, *args, **kwargs):
+        if request.META['QUERY_STRING'].startswith("search="):
+            self.object_list = ScientificModel.objects.filter(name__contains=request.META['QUERY_STRING'][7:])
+        else:
+            self.object_list = self.get_queryset()
+        context = self.get_context_data()
+        return self.render_to_response(context)
+
     def get_context_data(self, **kwargs):
-        print ("here 1?")
         context = super(SimpleModelListView, self).get_context_data(**kwargs)
         context["section"] = "models"
         context["build_info"] = settings.BUILD_INFO
-        print ("CTX")
-        print (context)
         return context
 
 
@@ -552,6 +549,27 @@ class SimpleModelDetailView(LoginRequiredMixin, DetailView):
         context["section"] = "models"
         context["build_info"] = settings.BUILD_INFO
         return context
+
+class SimpleModelCreateView( View):
+    model = ScientificModel
+    template_name = "simple_model_create.html"
+    login_url='/login/hbp/'
+    form_class = ScientificModelForm
+
+    def get(self, request, *args, **kwargs):
+        h = ScientificModel()
+        form = self.form_class(instance = h)
+        return render(request, self.template_name, {'form': form})
+    
+    def post(self, request, *args, **kwargs):
+         model_creation = ScientificModel()
+         form = self.form_class(request.POST, instance=model_creation)
+
+         if form.is_valid():
+            form = form.save(commit=False)
+            form.save()
+            return HttpResponseRedirect(form.id)
+         return render(request, self.template_name, {'form': form})
 
 
 class SimpleResultListView(LoginRequiredMixin, ListView):
