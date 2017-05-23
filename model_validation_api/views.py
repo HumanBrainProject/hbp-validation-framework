@@ -526,7 +526,13 @@ class SimpleModelListView(LoginRequiredMixin, ListView):
 
     def get(self, request, *args, **kwargs):
         if request.META['QUERY_STRING'].startswith("search="):
-            self.object_list = ScientificModel.objects.filter(name__contains=request.META['QUERY_STRING'][7:])
+            name_list = ScientificModel.objects.filter(name__contains=request.META['QUERY_STRING'][7:])
+            species_list =  ScientificModel.objects.filter(species__contains=request.META['QUERY_STRING'][7:])
+            brain_region_list =  ScientificModel.objects.filter(brain_region__contains=request.META['QUERY_STRING'][7:])
+            cell_type_list = ScientificModel.objects.filter(cell_type__contains=request.META['QUERY_STRING'][7:])
+            author_list = ScientificModel.objects.filter(author__contains=request.META['QUERY_STRING'][7:])
+            self.object_list = (name_list|species_list|brain_region_list|cell_type_list|author_list).distinct()
+   
         else:
             self.object_list = self.get_queryset()
         context = self.get_context_data()
@@ -550,7 +556,35 @@ class SimpleModelDetailView(LoginRequiredMixin, DetailView):
         context["build_info"] = settings.BUILD_INFO
         return context
 
-class SimpleModelCreateView( View):
+class SimpleModelEditView(DetailView):
+    model = ScientificModel
+    form_class = ScientificModelForm
+    template_name = "simple_model_edit.html"
+    login_url='/login/hbp/'
+
+    def get_context_data(self, **kwargs):
+        context = super(SimpleModelEditView, self).get_context_data(**kwargs)
+        context["section"] = "models"
+        context["build_info"] = settings.BUILD_INFO
+        return context
+
+    def get(self, request, *args, **kwargs):
+        print(self.get_object().id)
+        h = ScientificModel.objects.get(id = self.get_object().id)
+        form = self.form_class(instance = h)
+        return render(request, self.template_name, {'form': form, 'object':h})
+    
+    def post(self, request, *args, **kwargs):
+        m = self.get_object()
+        form = self.form_class(request.POST, instance=m)
+        if form.is_valid():
+            form = form.save(commit=False)
+            form.save()
+            return render(request, "simple_model_detail.html", {'form': form, "object": m})
+        return render(request, self.template_name, {'form': form, "object": m})
+
+
+class SimpleModelCreateView(View):
     model = ScientificModel
     template_name = "simple_model_create.html"
     login_url='/login/hbp/'
