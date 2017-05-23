@@ -28,9 +28,9 @@ from .models import (ValidationTestDefinition, ValidationTestCode,
 from .forms import ValidationTestDefinitionForm, ScientificModelForm
 
 CROSSREF_URL = "http://api.crossref.org/works/"
-VALID_FILTER_NAMES = ('brain_region', 'cell_type',
+VALID_FILTER_NAMES = ('name', 'age', 'brain_region', 'cell_type',
                       'data_type', 'data_modality', 'test_type',
-                      'author', 'species')
+                      'author', 'species', 'data_location', 'publication')
 VALID_MODEL_FILTER_NAMES = ('brain_region', 'cell_type',
                             'author', 'species')
 VALID_RESULT_FILTERS = {
@@ -288,15 +288,29 @@ class ValidationTestDefinitionSearchResource(View):
 class SimpleTestListView(LoginRequiredMixin, ListView):
     model = ValidationTestDefinition
     template_name = "simple_test_list.html"
-    login_url='/login/hbp/'
+    login_url='/login/hbp/'           
 
     def get_queryset(self):
+        logger.debug("SimpleTestListView - get_queryset" + str(self.request.GET.items()))
         filters = {}
-        for key, value in self.request.GET.items():
-            print(key, value)
-            if key in VALID_FILTER_NAMES:
-                filters[key + "__icontains"] = value
+        if self.request.META['QUERY_STRING'].startswith("search="):
+            search = ""
+            search_cat = ""
+            for key, value in self.request.GET.items():
+                if key == 'search':
+                    search = value
+                if key == 'search_cat':
+                    search_cat = value
+            print(search_cat, search)
+            if search_cat in VALID_FILTER_NAMES:
+                filters[search_cat + "__icontains"] = search
+        else :
+            for key, value in self.request.GET.items():
+                print(key, value)
+                if key in VALID_FILTER_NAMES:
+                    filters[key + "__icontains"] = value
         return ValidationTestDefinition.objects.filter(**filters)
+
 
     def get_context_data(self, **kwargs):
         context = super(SimpleTestListView, self).get_context_data(**kwargs)
@@ -524,9 +538,17 @@ class SimpleModelListView(LoginRequiredMixin, ListView):
                 filters[key + "__icontains"] = value
         return ScientificModel.objects.filter(**filters)
 
+    # def get(self, request, *args, **kwargs):
+    #     if request.META['QUERY_STRING'].startswith("search="):
+    #         self.object_list = ScientificModel.objects.filter(name__contains=request.META['QUERY_STRING'][7:])
     def get(self, request, *args, **kwargs):
         if request.META['QUERY_STRING'].startswith("search="):
-            self.object_list = ScientificModel.objects.filter(name__contains=request.META['QUERY_STRING'][7:])
+            name_list = ScientificModel.objects.filter(name__contains=request.META['QUERY_STRING'][7:])
+            species_list =  ScientificModel.objects.filter(species__contains=request.META['QUERY_STRING'][7:])
+            brain_region_list =  ScientificModel.objects.filter(brain_region__contains=request.META['QUERY_STRING'][7:])
+            cell_type_list = ScientificModel.objects.filter(cell_type__contains=request.META['QUERY_STRING'][7:])
+            author_list = ScientificModel.objects.filter(author__contains=request.META['QUERY_STRING'][7:])
+            self.object_list = (name_list|species_list|brain_region_list|cell_type_list|author_list).distinct()
         else:
             self.object_list = self.get_queryset()
         context = self.get_context_data()
