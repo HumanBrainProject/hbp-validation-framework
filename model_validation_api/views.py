@@ -572,7 +572,35 @@ class SimpleModelDetailView(LoginRequiredMixin, DetailView):
         context["build_info"] = settings.BUILD_INFO
         return context
 
-class SimpleModelCreateView( View):
+class SimpleModelEditView(DetailView):
+    model = ScientificModel
+    form_class = ScientificModelForm
+    template_name = "simple_model_edit.html"
+    login_url='/login/hbp/'
+
+    def get_context_data(self, **kwargs):
+        context = super(SimpleModelEditView, self).get_context_data(**kwargs)
+        context["section"] = "models"
+        context["build_info"] = settings.BUILD_INFO
+        return context
+
+    def get(self, request, *args, **kwargs):
+        print(self.get_object().id)
+        h = ScientificModel.objects.get(id = self.get_object().id)
+        form = self.form_class(instance = h)
+        return render(request, self.template_name, {'form': form, 'object':h})
+    
+    def post(self, request, *args, **kwargs):
+        m = self.get_object()
+        form = self.form_class(request.POST, instance=m)
+        if form.is_valid():
+            form = form.save(commit=False)
+            form.save()
+            return render(request, "simple_model_detail.html", {'form': form, "object": m})
+        return render(request, self.template_name, {'form': form, "object": m})
+
+
+class SimpleModelCreateView(View):
     model = ScientificModel
     template_name = "simple_model_create.html"
     login_url='/login/hbp/'

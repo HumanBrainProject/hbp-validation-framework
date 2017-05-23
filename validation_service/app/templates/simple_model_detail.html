@@ -1,37 +1,64 @@
-{% extends 'base.html' %}
-{% load markup %}
-
-{% block content %}
+ {% extends 'base.html' %} {% load markup %} {% block content %}
 
 <h1>Model: {{object.name}}</h1>
 <p><a href=".">back</a></p>
 
 <table class="table table-striped">
-    <tbody>
-        <tr><td>ID</td><td>{{ object.id }}</td></tr>
-        <tr><td>Name</td><td>{{ object.name }}</td></tr>
-        <tr><td>Species</td><td>{{ object.species }}</td></tr>
-        <tr><td>Brain region</td><td>{{ object.brain_region }}</td></tr>
-        <tr><td>Cell type</td><td>{{ object.cell_type }}</td></tr>
-        <tr><td>Code location</td><td>{{ object.source|urlize }}</td></tr>
-        <tr><td>Author(s)</td><td>{{ object.author }}</td></tr>
-        <tr><td>Description</td><td>{{ object.description|markdown }}</td></tr>
-    </tbody>
+    <th>
+        <a href="edit/{{object.id}}"><button class="btn btn-info">Edit model</button></a>
+    </th>
 </table>
 
+<table class="table table-striped">
+    <tbody>
+        <tr>
+            <td>ID</td>
+            <td>{{ object.id }}</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>Name</td>
+            <td>{{ object.name }}</td>
+        </tr>
+        <tr>
+            <td>Species</td>
+            <td>{{ object.species }}</td>
+        </tr>
+        <tr>
+            <td>Brain region</td>
+            <td>{{ object.brain_region }}</td>
+        </tr>
+        <tr>
+            <td>Cell type</td>
+            <td>{{ object.cell_type }}</td>
+        </tr>
+        <tr>
+            <td>Code location</td>
+            <td>{{ object.source|urlize }}</td>
+        </tr>
+        <tr>
+            <td>Author(s)</td>
+            <td>{{ object.author }}</td>
+        </tr>
+        <tr>
+            <td>Description</td>
+            <td>{{ object.description|markdown }}</td>
+        </tr>
+    </tbody>
+</table>
 <h2>Model versions</h2>
 <table class="table table-striped">
     <thead>
-    <tr>
-        <th>Version</th>
-        <th>Parameters</th>
+        <tr>
+            <th>Version</th>
+            <th>Parameters</th>
     </thead>
     <tbody>
-    {% for model_instance in object.instances.all %}
-    <tr>
-        <td>{{ model_instance.version }}</td>
-        <td><pre>{{ code_obj.parameters }}</pre></td>
-    {% endfor %}
+        {% for model_instance in object.instances.all %}
+        <tr>
+            <td>{{ model_instance.version }}</td>
+            <td><pre>{{ code_obj.parameters }}</pre></td>
+            {% endfor %}
     </tbody>
 </table>
 
