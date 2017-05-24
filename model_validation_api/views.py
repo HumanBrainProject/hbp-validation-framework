@@ -212,7 +212,7 @@ class ValidationTestDefinitionListResource(View):
         content = self.serializer.serialize(tests)
         return HttpResponse(content, content_type="application/json; charset=utf-8", status=200)
 
-class ValidationTestDefinitionCreate(TemplateView): 
+class ValidationTestDefinitionCreate(DetailView): 
     template_name = "simple_test_create.html"
     model = ValidationTestDefinition
     form_class = ValidationTestDefinitionForm
@@ -265,6 +265,40 @@ class ValidationTestDefinitionCreate(TemplateView):
         #     form.save()
         #     return self.redirect(request, ctx = self.kwargs['ctx'])
         # return render(request, self.template_name, {'form': form, 'ctx': self.kwargs['ctx'], 'collab_name':get_collab_name(self.kwargs['ctx'])})
+
+class ValidationTestDefinitionEdit(TemplateView): 
+    template_name = "simple_test_edit.html"
+    model = ValidationTestDefinition
+    form_class = ValidationTestDefinitionForm
+
+    serializer = ValidationTestDefinitionSerializer
+    login_url='/login/hbp/'
+
+
+    def get(self, request, *args, **kwargs):
+
+        h = ValidationTestDefinition()
+        form = self.form_class(instance = h)
+
+        return render(request, self.template_name, {'form': form, })
+
+
+    def post(self, request, *args, **kwargs):
+        """Add a test"""
+        # if not is_admin(request):
+        #     return HttpResponseForbidden("You do not have permission to add a test.")
+        #  form = ValidationTestDefinitionForm(json.loads(request.body))
+
+        test_creation = ValidationTestDefinition()
+        form = self.form_class(request.POST, instance=test_creation)
+
+        if form.is_valid():
+            test = form.save()
+            content = self.serializer.serialize(test)
+            return HttpResponse(content, content_type="application/json; charset=utf-8", status=201)
+        else:
+            print(form.data)
+            return HttpResponseBadRequest(str(form.errors))  # todo: plain text
 
 
 class ValidationTestDefinitionSearchResource(View):

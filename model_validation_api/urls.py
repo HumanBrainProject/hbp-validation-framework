@@ -9,6 +9,7 @@ from .views import (ValidationTestDefinitionResource,
                     SimpleTestListView,
                     SimpleTestDetailView,
                     ValidationTestDefinitionCreate,
+                    ValidationTestDefinitionEdit,
                     SimpleModelListView,
                     SimpleModelDetailView,
                     SimpleModelEditView,
@@ -54,7 +55,9 @@ urlpatterns = (
     url(r'^view/tests/create$',
         ValidationTestDefinitionCreate.as_view(),
         name="create-test-view"),
-
+    url(r'^view/tests/edit/(?P<pk>\d+)$',
+        ValidationTestDefinitionEdit.as_view(),
+        name="edit-test-view"),
 
 
     url(r'^view/models/$',
