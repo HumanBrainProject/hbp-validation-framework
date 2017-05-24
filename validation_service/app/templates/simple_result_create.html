@@ -1,0 +1,126 @@
+{% extends 'base.html' %} {% load markup %} {% load jsonify %} {% block content %}
+
+<h1>Select models</h1>
+<p><a href=".">back</a></p>
+
+
+<p>
+
+    <th>
+        <!-- Barre de recherche sur le nom des modeles -->
+        <form class="form-inline pull-right">
+            <input type="text" name="search" style="width:150px" class="input-sm form-control" placeholder="Search">
+            <button type="submit" class="btn btn-info"><span class="glyphicon glyphicon-search"></span> </button>
+        </form>
+    </th>
+</p>
+
+<p>
+<td> Filters :
+    <select id="model-list-select" onChange="window.location.href=this.value">
+         <option value=""> by brain region </option>
+         <option value="?brain_region=cerebellum">Cerebellum</option>
+         <option value="?brain_region=hippocampus">Hippocampus</option>
+         <option value="?brain_region=basal">Basal ganglia</option>
+         <option value="?brain_region=cortex">Cortex</option>
+         <option value="?brain_region=CA1_Bianchi">CA1_Bianchi</option>
+         <option value="?brain_region=Golding_dichotomy">Golding_dichotomy</option>
+         <option value="?brain_region=Kali_Freund">Kali_Freund</option>
+         <option value="?brain_region=Migliore_schizophr">Migliore_schizophr</option>
+         <option value="?brain_region=CA1_pyr_cAC_dend-990803_axon-051208AM2"> CA1_pyr_cAC_dend-990803_axon-051208AM2</option>
+         <option value="?brain_region=CA1_int_cNAC_980513B">CA1_int_cNAC_980513B</option>
+         <option value="?brain_region=CA1_int_cNAC_970509HP2">CA1_int_cNAC_970509HP2</option>
+         <option value="?brain_region=CA1_pyr_cAC_oh140807_A0_idG">CA1_pyr_cAC_oh140807_A0_idG</option>
+         <option value="?brain_region=CA1_pyr_cAC_oh140807_A0_idF"> CA1_pyr_cAC_oh140807_A0_idF</option>
+         <option value="?brain_region=CA1_int_cNAC_011023HP2">CA1_int_cNAC_011023HP2</option>
+         <option value="?brain_region=CA1_pyr_cAC_mpg141217_A_idB">CA1_pyr_cAC_mpg141217_A_idB</option>
+         <option value="?brain_region=CA1_pyr_cAC_dend-050921AM2_axon-051208AM2">CA1_pyr_cAC_dend-050921AM2_axon-051208AM2</option>
+         <option value="?brain_region=CA1_int_cNAC_060314AM2"> CA1_int_cNAC_060314AM2</option>
+         <option value="?brain_region=CA1_pyr_cAC_oh140807_A0_idC">CA1_pyr_cAC_oh140807_A0_idC</option>
+         <option value="?brain_region=CA1_int_cNAC_971114B">CA1_int_cNAC_971114B</option>
+         <option value="?brain_region=CA1_int_cNAC_011017HP2">CA1_int_cNAC_011017HP2</option>
+         <option value="?brain_region=CA1_pyr_cAC_mpg150305_A_idB">CA1_pyr_cAC_mpg150305_A_idB</option>
+         <option value="?brain_region=Test_Column_Shailesh">Test_Column_Shailesh</option>
+         <option value="?brain_region=CA1_pyr_cAC_mpg141215_A_idA">CA1_pyr_cAC_mpg141215_A_idA</option>
+         <option value="?brain_region=CA1_pyr_cAC_mpg141216_A_idA">CA1_pyr_cAC_mpg141216_A_idA</option>
+         <option value="?brain_region=CA1_pyr_cAC_oh140807_A0_idH">CA1_pyr_cAC_oh140807_A0_idH</option>
+         <option value="?brain_region=CA1_pyr_cAC_mpg141209_A_idA">CA1_pyr_cAC_mpg141209_A_idA</option>
+         <option value="?brain_region=CA1_pyr_cAC_oh140807_A0_idB">CA1_pyr_cAC_oh140807_A0_idB</option>
+         <option value="?brain_region=CA1_pyr_cAC_oh140521_B0_Rat_idA">CA1_pyr_cAC_oh140521_B0_Rat_idA</option>
+         <option value="?brain_region=CA1_int_cNAC_970717D">CA1_int_cNAC_970717D</option>
+         <option value="?brain_region=CA1_int_cNAC_980120A">CA1_int_cNAC_980120A</option>
+         <option value="?brain_region=CA1_pyr_cAC_oh140807_A0_idJ">CA1_pyr_cAC_oh140807_A0_idJ</option>
+         <option value="?brain_region=CA1_int_cNAC_990611HP2">CA1_int_cNAC_990611HP2</option>
+         <option value="?brain_region=CA1_int_cNAC_010710HP2">CA1_int_cNAC_010710HP2</option>
+         <option value="?brain_region=CA1_pyr_cAC_mpg141208_B_idA">CA1_pyr_cAC_mpg141208_B_idA</option>
+         <option value="?brain_region=CA1_int_cNAC_970627BHP1">CA1_int_cNAC_970627BHP1</option>
+         <option value="?brain_region=CA1_pyr_cAC_oh140521_B0_Rat_idC">CA1_pyr_cAC_oh140521_B0_Rat_idC</option>
+         <option value="?brain_region=CA1_pyr_cAC_mpg141017_a1">CA1_pyr_cAC_mpg141017_a1</option>
+         <option value="?brain_region=CA1_int_cNAC_990111HP2">CA1_int_cNAC_990111HP2</option>
+         <option value="?brain_region=CA1_pyr_cAC_mpg141209_B_idA">CA1_pyr_cAC_mpg141209_B_idA</option>
+         <option value="?brain_region=CA1_pyr_cAC_oh140807_A0_idA">CA1_pyr_cAC_oh140807_A0_idA</option>
+         <option value="?brain_region=CA1_int_cNAC_970911C">CA1_int_cNAC_970911C</option>
+         <option value="?brain_region=test_model">test_model</option>
+         <option value="?brain_region=test_model_2">test_model_2</option>       
+         <option value="?brain_region=CA1_pyr_cAC_12AUG16_demo">CA1_pyr_cAC_12AUG16_demo</option>
+         {% for model_name in filters.models %}<option value="?model={{model_name}}">{{model_name}}</span></option> {% endfor %}
+         {% for test_name in filters.tests %}<option value="?validation={{test_name}}">{{test_name}}</span></option> {% endfor %}
+         <option value="."></option>
+    </select>
+</td>
+</p>
+
+
+<p>
+<td> Filters :
+    <select id="model-list-select" onChange="window.location.href=this.value">
+         <option value=""> by validation test </option>
+         <option value="?name=oblique integration">oblique integration</option>
+         <option value="?name=depolarization block">depolarization block</option>
+         <option value="?name=response to somatic current injection for cell "dend-050921AM2_axon-051208AM2"">response to somatic current injection for cell "dend-050921AM2_axon-051208AM2"</option>
+         <option value="?name=layer height test">layer height test</option>
+         <option value="?name=somatic features of CA1 pyramidal neurons">somatic features of CA1 pyramidal neurons</option>
+         {% for model_name in filters.models %}<option value="?model={{model_name}}">{{model_name}}</span></option> {% endfor %}
+         {% for test_name in filters.tests %}<option value="?validation={{test_name}}">{{test_name}}</span></option> {% endfor %}
+         <option value="."></option>
+    </select>
+</td>
+</p>
+</br>
+
+
+
+
+<table class="table table-striped">
+    <thead>
+    <tr>
+        <th>Date/time</th>
+        <th colspan="2">Model</th>
+        <th colspan="2">Validation test</th>
+        <th>Result</th>
+        <th>Platform</th>
+        <th>Collab</th>
+    </tr>
+    </thead>
+    <tbody>
+{% for result in object_list %}
+    <tr>
+        <td><a href="{{ result.id }}">{{ result.timestamp }}</a></td>
+        
+        <td><a href="/view/models/{{ result.model_instance.model.id }}">{{ result.model_instance.model.name }}</a></td>
+        <td>{{ result.model_instance.version|truncatechars:9 }}</td>
+        <td><a href="/view/tests/{{ result.test_definition.test_definition.id }}">{{ result.test_definition.test_definition.name }}</a></td>
+        <td>{{ result.test_definition.version|truncatechars:9 }}</td>
+        <td>{{ result.result }}</td>
+        <td>{{ result.get_platform_as_dict.network_name }}</td>
+        <td>{{ result.project }}</td>
+    </tr>
+{% endfor %}
+    </tbody>
+</table>
+
+
+
+
+{% endblock %}
+

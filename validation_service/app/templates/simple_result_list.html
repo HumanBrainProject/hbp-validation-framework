@@ -4,15 +4,18 @@
 
 <h1>Model validation test results</h1>
 
-<p>Filters:
-    <a href="?brain_region=cerebellum"><span class="label label-info">Cerebellum</span></a>
-    <a href="?brain_region=hippocampus"><span class="label label-info">Hippocampus</span></a>
-    <a href="?brain_region=basal"><span class="label label-info">Basal ganglia</span></a>
-    <a href="?brain_region=cortex"><span class="label label-info">Cortex</span></a>
-    {% for model_name in filters.models %}<a href="?model={{model_name}}"><span class="label label-info">{{model_name}}</span></a> {% endfor %}
-    {% for test_name in filters.tests %}<a href="?validation={{test_name}}"><span class="label label-info">{{test_name}}</span></a> {% endfor %}
-    <a href="."><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></a>
-</p>
+
+<a href="{% url 'About_the_Models_Page' %}">About the Models Page</a>
+<br/>
+<a href="{% url 'About_the_validation_test_result' %}">About the Validation Test Result</a>
+<br/>
+<a href="{% url 'simple_result_detail' %}">About the Test</a>
+<br/>
+<a href="{% url 'simple_result_create' %}">Select Models</a>
+<br/>
+
+
+
 
 <table class="table table-striped">
     <thead>
@@ -29,6 +32,7 @@
 {% for result in object_list %}
     <tr>
         <td><a href="{{ result.id }}">{{ result.timestamp }}</a></td>
+        
         <td><a href="/view/models/{{ result.model_instance.model.id }}">{{ result.model_instance.model.name }}</a></td>
         <td>{{ result.model_instance.version|truncatechars:9 }}</td>
         <td><a href="/view/tests/{{ result.test_definition.test_definition.id }}">{{ result.test_definition.test_definition.name }}</a></td>
