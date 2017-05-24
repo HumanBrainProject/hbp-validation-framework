@@ -101,6 +101,6 @@ def simple_result_list(request):
 def simple_result_create(request):
     return render(request,'simple_result_create.html', {})
  
-
+ 
 def About_the_validation_test_result(request):
     return render(request,'simple_result_detail.html', {})

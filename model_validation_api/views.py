@@ -488,36 +488,37 @@ class ValidationTestResultListResource(View):
 
 
 
-
 #class SimpleResultCreateView(View):  
-#    template_name = "simple_result_create.html"
-#    model = ValidationTestResult 
-#    form_class = ValidationTestResultForm
+class ValidationTestResultView(View):  
+    template_name = "simple_result_new_create.html"
+    model = ValidationTestResult 
+    form_class = ValidationTestResultForm
 
-    #serializer = ValidationTestResultSerializer
-#    login_url='/login/hbp/'
-
-
-#    def get(self, request, *args, **kwargs):
-
-#        h = ValidationTestResult()
-#        form = self.form_class(instance = h)
-
-#        return render(request, self.template_name, {'form': form, })
+    serializer = ValidationTestResultSerializer
+    login_url='/login/hbp/'
 
 
-#    def post(self, request, *args, **kwargs):
-#        """Add a test"""
-       
-#        result_creation = ValidationTestResult()
-#       # test_creation = ValidationTestResult() 
-#        form = self.form_class(request.POST, instance=result_creation)
+    def get(self, request, *args, **kwargs):
 
-#        if form.is_valid():
-#            form = form.save(commit=False)
-#            form.save()
-#            return HttpResponseRedirect(form.id)
-#        return render(request, self.template_name, {'form': form})
+        h = ValidationTestResult()
+        form = self.form_class(instance = h)
+
+        return render(request, self.template_name, {'form': form, })
+
+
+    def post(self, request, *args, **kwargs):
+        """Add a test"""
+      
+        #result_creation = ValidationTestResult()
+        test_creation = ValidationTestResult() 
+        #form = self.form_class(request.POST, instance=result_creation)
+        form = self.form_class(request.POST, instance=test_creation)
+
+        if form.is_valid():
+            form = form.save(commit=False)
+            form.save()
+            return HttpResponseRedirect(form.id)
+        return render(request, self.template_name, {'form': form})
 
 
 
