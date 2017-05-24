@@ -25,7 +25,7 @@ from hbp_app_python_auth.auth import get_access_token, get_auth_header
 
 from .models import (ValidationTestDefinition, ValidationTestCode,
                      ValidationTestResult, ScientificModelInstance, ScientificModel)
-from .forms import ValidationTestDefinitionForm, ScientificModelForm
+from .forms import ValidationTestDefinitionForm, ScientificModelForm, ValidationTestResultForm
 
 CROSSREF_URL = "http://api.crossref.org/works/"
 VALID_FILTER_NAMES = ('brain_region', 'cell_type',
@@ -425,7 +425,7 @@ class ValidationTestResultResource(View):
         return HttpResponse(content, content_type="application/json; charset=utf-8", status=200)
 
 
-class ValidationTestResultListResource(View):
+class ValidationTestResultListResource(View): 
     serializer = ValidationTestResultSerializer
     login_url='/login/hbp/'
 
@@ -462,6 +462,56 @@ class ValidationTestResultListResource(View):
         results = ValidationTestResult.objects.all()
         content = self.serializer.serialize(results)
         return HttpResponse(content, content_type="application/json; charset=utf-8", status=200)
+
+
+
+
+
+
+
+
+
+
+
+
+
+#class SimpleResultCreateView(View):  
+#    template_name = "simple_result_create.html"
+#    model = ValidationTestResult 
+#    form_class = ValidationTestResultForm
+
+    #serializer = ValidationTestResultSerializer
+#    login_url='/login/hbp/'
+
+
+#    def get(self, request, *args, **kwargs):
+
+#        h = ValidationTestResult()
+#        form = self.form_class(instance = h)
+
+#        return render(request, self.template_name, {'form': form, })
+
+
+#    def post(self, request, *args, **kwargs):
+#        """Add a test"""
+       
+#        result_creation = ValidationTestResult()
+#       # test_creation = ValidationTestResult() 
+#        form = self.form_class(request.POST, instance=result_creation)
+
+#        if form.is_valid():
+#            form = form.save(commit=False)
+#            form.save()
+#            return HttpResponseRedirect(form.id)
+#        return render(request, self.template_name, {'form': form})
+
+
+
+
+
+
+
+
 
 
 class ScientificModelResource(View):
@@ -529,8 +579,16 @@ class SimpleModelListView(LoginRequiredMixin, ListView):
         print (ScientificModel.objects.filter(**filters))
         print ("after filter")
 
-        
         return ScientificModel.objects.filter(**filters)
+
+    def get(self, request, *args, **kwargs):
+        if request.META['QUERY_STRING'].startswith("search="):
+            self.object_list = ScientificModel.objects.filter(name__contains=request.META['QUERY_STRING'][7:])
+        else:
+            self.object_list = self.get_queryset()
+        context = self.get_context_data()
+        return self.render_to_response(context)
+
 
     def get_context_data(self, **kwargs):
         print ("here 1?")
@@ -540,6 +598,9 @@ class SimpleModelListView(LoginRequiredMixin, ListView):
         print ("CTX")
         print (context)
         return context
+
+
+
 
 
 class SimpleModelDetailView(LoginRequiredMixin, DetailView):

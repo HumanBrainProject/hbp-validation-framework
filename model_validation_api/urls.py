@@ -13,6 +13,7 @@ from .views import (ValidationTestDefinitionResource,
                     SimpleModelDetailView,
                     SimpleResultListView,
                     SimpleResultDetailView,
+                    #SimpleResultCreateView,
                     )
 
 uuid_pattern = "[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}"
@@ -54,7 +55,6 @@ urlpatterns = (
         name="create-test-view"),
 
 
-
     url(r'^view/models/$',
         SimpleModelListView.as_view(),
         name="simple-model-list-view"),
@@ -67,7 +67,8 @@ urlpatterns = (
         name="simple-result-list-view"),
     url(r'^view/results/(?P<pk>\d+)$',
         SimpleResultDetailView.as_view(),
-        name="simple-result-detail-view"),
-
-    
+        name="simple-result-detail-view"),   
+#    url(r'^view/results/(?P<pk>\d+)$',
+#        SimpleResultCreateView.as_view(),
+#        name="simple-result-create-view"),   
 )
