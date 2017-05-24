@@ -1,9 +1,9 @@
 {% extends 'base.html' %} {% load markup %} {% block content %}
 
-<h1>Edit Model: {{object.name}}</h1>
+<h1>Edit Test: {{object.name}}</h1>
 <p><a href="..">back</a></p>
 
-<form action="" class="scientific-model-form" method="POST">
+<form action="" class="validation-test-definition-form" method="POST">
     <table class="table table-condensed">
         {% csrf_token %} {{ form.non_field_errors }} {{form.errors}}
         <tbody>
