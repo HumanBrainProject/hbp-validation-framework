@@ -28,9 +28,9 @@ from .models import (ValidationTestDefinition, ValidationTestCode,
 from .forms import ValidationTestDefinitionForm, ScientificModelForm, ValidationTestResultForm
 
 CROSSREF_URL = "http://api.crossref.org/works/"
-VALID_FILTER_NAMES = ('brain_region', 'cell_type',
+VALID_FILTER_NAMES = ('name', 'age', 'brain_region', 'cell_type',
                       'data_type', 'data_modality', 'test_type',
-                      'author', 'species')
+                      'author', 'species', 'data_location', 'publication')
 VALID_MODEL_FILTER_NAMES = ('brain_region', 'cell_type',
                             'author', 'species')
 VALID_RESULT_FILTERS = {
@@ -288,15 +288,29 @@ class ValidationTestDefinitionSearchResource(View):
 class SimpleTestListView(LoginRequiredMixin, ListView):
     model = ValidationTestDefinition
     template_name = "simple_test_list.html"
-    login_url='/login/hbp/'
+    login_url='/login/hbp/'           
 
     def get_queryset(self):
+        logger.debug("SimpleTestListView - get_queryset" + str(self.request.GET.items()))
         filters = {}
-        for key, value in self.request.GET.items():
-            print(key, value)
-            if key in VALID_FILTER_NAMES:
-                filters[key + "__icontains"] = value
+        if self.request.META['QUERY_STRING'].startswith("search="):
+            search = ""
+            search_cat = ""
+            for key, value in self.request.GET.items():
+                if key == 'search':
+                    search = value
+                if key == 'search_cat':
+                    search_cat = value
+            print(search_cat, search)
+            if search_cat in VALID_FILTER_NAMES:
+                filters[search_cat + "__icontains"] = search
+        else :
+            for key, value in self.request.GET.items():
+                print(key, value)
+                if key in VALID_FILTER_NAMES:
+                    filters[key + "__icontains"] = value
         return ValidationTestDefinition.objects.filter(**filters)
+
 
     def get_context_data(self, **kwargs):
         context = super(SimpleTestListView, self).get_context_data(**kwargs)
@@ -568,22 +582,24 @@ class SimpleModelListView(LoginRequiredMixin, ListView):
     
 
     def get_queryset(self):
-        print ("here ?")
         filters = {}
-        print (self.request.GET.items())
         for key, value in self.request.GET.items():
             if key in VALID_MODEL_FILTER_NAMES:
                 filters[key + "__icontains"] = value
-        print ("FILTER")
-        print (filters)
-        print (ScientificModel.objects.filter(**filters))
-        print ("after filter")
-
         return ScientificModel.objects.filter(**filters)
 
+    # def get(self, request, *args, **kwargs):
+    #     if request.META['QUERY_STRING'].startswith("search="):
+    #         self.object_list = ScientificModel.objects.filter(name__contains=request.META['QUERY_STRING'][7:])
     def get(self, request, *args, **kwargs):
         if request.META['QUERY_STRING'].startswith("search="):
-            self.object_list = ScientificModel.objects.filter(name__contains=request.META['QUERY_STRING'][7:])
+            name_list = ScientificModel.objects.filter(name__contains=request.META['QUERY_STRING'][7:])
+            species_list =  ScientificModel.objects.filter(species__contains=request.META['QUERY_STRING'][7:])
+            brain_region_list =  ScientificModel.objects.filter(brain_region__contains=request.META['QUERY_STRING'][7:])
+            cell_type_list = ScientificModel.objects.filter(cell_type__contains=request.META['QUERY_STRING'][7:])
+            author_list = ScientificModel.objects.filter(author__contains=request.META['QUERY_STRING'][7:])
+            self.object_list = (name_list|species_list|brain_region_list|cell_type_list|author_list).distinct()
+
         else:
             self.object_list = self.get_queryset()
         context = self.get_context_data()
@@ -591,12 +607,9 @@ class SimpleModelListView(LoginRequiredMixin, ListView):
 
 
     def get_context_data(self, **kwargs):
-        print ("here 1?")
         context = super(SimpleModelListView, self).get_context_data(**kwargs)
         context["section"] = "models"
         context["build_info"] = settings.BUILD_INFO
-        print ("CTX")
-        print (context)
         return context
 
 
@@ -613,6 +626,55 @@ class SimpleModelDetailView(LoginRequiredMixin, DetailView):
         context["section"] = "models"
         context["build_info"] = settings.BUILD_INFO
         return context
+
+class SimpleModelEditView(DetailView):
+    model = ScientificModel
+    form_class = ScientificModelForm
+    template_name = "simple_model_edit.html"
+    login_url='/login/hbp/'
+
+    def get_context_data(self, **kwargs):
+        context = super(SimpleModelEditView, self).get_context_data(**kwargs)
+        context["section"] = "models"
+        context["build_info"] = settings.BUILD_INFO
+        return context
+
+    def get(self, request, *args, **kwargs):
+        print(self.get_object().id)
+        h = ScientificModel.objects.get(id = self.get_object().id)
+        form = self.form_class(instance = h)
+        return render(request, self.template_name, {'form': form, 'object':h})
+    
+    def post(self, request, *args, **kwargs):
+        m = self.get_object()
+        form = self.form_class(request.POST, instance=m)
+        if form.is_valid():
+            form = form.save(commit=False)
+            form.save()
+            return render(request, "simple_model_detail.html", {'form': form, "object": m})
+        return render(request, self.template_name, {'form': form, "object": m})
+
+
+class SimpleModelCreateView(View):
+    model = ScientificModel
+    template_name = "simple_model_create.html"
+    login_url='/login/hbp/'
+    form_class = ScientificModelForm
+
+    def get(self, request, *args, **kwargs):
+        h = ScientificModel()
+        form = self.form_class(instance = h)
+        return render(request, self.template_name, {'form': form})
+    
+    def post(self, request, *args, **kwargs):
+         model_creation = ScientificModel()
+         form = self.form_class(request.POST, instance=model_creation)
+
+         if form.is_valid():
+            form = form.save(commit=False)
+            form.save()
+            return HttpResponseRedirect(form.id)
+         return render(request, self.template_name, {'form': form})
 
 
 class SimpleResultListView(LoginRequiredMixin, ListView):
