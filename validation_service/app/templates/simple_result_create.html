@@ -1,23 +1,28 @@
 {% extends 'base.html' %} {% load markup %} {% load jsonify %} {% block content %}
 
 <h1>Select models</h1>
-<p><a href=".">back</a></p>
+<p><a href=".">back</a></p> 
 
 
-<p>
-
+<table class="table table-striped">
     <th>
         <!-- Barre de recherche sur le nom des modeles -->
-        <form class="form-inline pull-right">
-            <input type="text" name="search" style="width:150px" class="input-sm form-control" placeholder="Search">
+         <form class="form-inline pull-right">
+            <input type="text" name="search" style="width:150px" class="form-control" placeholder="Search">
+            <select id="model-list-select-search" class="form-control" name="search_cat" data-style="btn-primary"> <!-- onChange="window.location.href=this.value">-->
+                <option value=""> Search by </option>
+                <option value="name">Name</option>
+                <option value="test_definition.name">Validation test</option>
+                <option value="brain_region">Brain region</option>
+            </select>
             <button type="submit" class="btn btn-info"><span class="glyphicon glyphicon-search"></span> </button>
         </form>
     </th>
-</p>
+</table>
 
-<p>
-<td> Filters :
-    <select id="model-list-select" onChange="window.location.href=this.value">
+<table class="table table-striped">
+ <th>Filters:
+    <select id="model-list-select" data-style="btn-primary" onChange="window.location.href=this.value">
          <option value=""> by brain region </option>
          <option value="?brain_region=cerebellum">Cerebellum</option>
          <option value="?brain_region=hippocampus">Hippocampus</option>
@@ -67,13 +72,8 @@
          {% for test_name in filters.tests %}<option value="?validation={{test_name}}">{{test_name}}</span></option> {% endfor %}
          <option value="."></option>
     </select>
-</td>
-</p>
-
-
-<p>
-<td> Filters :
-    <select id="model-list-select" onChange="window.location.href=this.value">
+   
+    <select id="model-list-select" data-style="btn-primary"  onChange="window.location.href=this.value">       
          <option value=""> by validation test </option>
          <option value="?name=oblique integration">oblique integration</option>
          <option value="?name=depolarization block">depolarization block</option>
@@ -84,9 +84,10 @@
          {% for test_name in filters.tests %}<option value="?validation={{test_name}}">{{test_name}}</span></option> {% endfor %}
          <option value="."></option>
     </select>
-</td>
-</p>
-</br>
+    <a href="."><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></a>
+    </th>
+</table>
+</br> 
 
 
 

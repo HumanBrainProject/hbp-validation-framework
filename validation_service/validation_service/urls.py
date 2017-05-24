@@ -9,7 +9,7 @@ from views import show, edit, config, home
 
 
 from views import About_the_Models_Page
-from views import About_the_validation_test_result
+from views import About_the_validation_test_result 
 from views import simple_result_detail
 from views import simple_result_create
 #from views import edit_select_models
