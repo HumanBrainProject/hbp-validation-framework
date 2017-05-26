@@ -25,7 +25,7 @@ from hbp_app_python_auth.auth import get_access_token, get_auth_header
 
 from .models import (ValidationTestDefinition, ValidationTestCode,
                      ValidationTestResult, ScientificModelInstance, ScientificModel)
-from .forms import ValidationTestDefinitionForm, ScientificModelForm, ValidationTestResultForm
+from .forms import ValidationTestDefinitionForm, ScientificModelForm, ScientificTestForm, ValidationTestResultForm
 
 CROSSREF_URL = "http://api.crossref.org/works/"
 VALID_FILTER_NAMES = ('name', 'age', 'brain_region', 'cell_type',
@@ -266,40 +266,6 @@ class ValidationTestDefinitionCreate(DetailView):
         #     return self.redirect(request, ctx = self.kwargs['ctx'])
         # return render(request, self.template_name, {'form': form, 'ctx': self.kwargs['ctx'], 'collab_name':get_collab_name(self.kwargs['ctx'])})
 
-class ValidationTestDefinitionEdit(TemplateView): 
-    template_name = "simple_test_edit.html"
-    model = ValidationTestDefinition
-    form_class = ValidationTestDefinitionForm
-
-    serializer = ValidationTestDefinitionSerializer
-    login_url='/login/hbp/'
-
-
-    def get(self, request, *args, **kwargs):
-
-        h = ValidationTestDefinition()
-        form = self.form_class(instance = h)
-
-        return render(request, self.template_name, {'form': form, })
-
-
-    def post(self, request, *args, **kwargs):
-        """Add a test"""
-        # if not is_admin(request):
-        #     return HttpResponseForbidden("You do not have permission to add a test.")
-        #  form = ValidationTestDefinitionForm(json.loads(request.body))
-
-        test_creation = ValidationTestDefinition()
-        form = self.form_class(request.POST, instance=test_creation)
-
-        if form.is_valid():
-            test = form.save()
-            content = self.serializer.serialize(test)
-            return HttpResponse(content, content_type="application/json; charset=utf-8", status=201)
-        else:
-            print(form.data)
-            return HttpResponseBadRequest(str(form.errors))  # todo: plain text
-
 
 class ValidationTestDefinitionSearchResource(View):
     serializer = ValidationTestDefinitionSerializer
@@ -390,6 +356,33 @@ class SimpleTestDetailView(LoginRequiredMixin, DetailView):
         pub_data["year"] = pub_data["created"]["date-parts"][0][0]
         template = u"{authors} ({year}) {title[0]}. {short-container-title[0]} {volume}:{page} {URL}"
         return template.format(**pub_data)
+
+class SimpleTestEditView(DetailView):
+    model = ValidationTestDefinition
+    form_class = ScientificTestForm
+    template_name = "simple_test_edit.html"
+    login_url='/login/hbp/'
+
+    def get_context_data(self, **kwargs):
+        context = super(SimpleTestEditView, self).get_context_data(**kwargs)
+        context["section"] = "models"
+        context["build_info"] = settings.BUILD_INFO
+        return context
+
+    def get(self, request, *args, **kwargs):
+        print(self.get_object().id)
+        h = ScientificModel.objects.get(id = self.get_object().id)
+        form = self.form_class(instance = h)
+        return render(request, self.template_name, {'form': form, 'object':h})
+    
+    def post(self, request, *args, **kwargs):
+        m = self.get_object()
+        form = self.form_class(request.POST, instance=m)
+        if form.is_valid():
+            form = form.save(commit=False)
+            form.save()
+            return render(request, "simple_test_detail.html", {'form': form, "object": m})
+        return render(request, self.template_name, {'form': form, "object": m})
 
 
 class ValidationTestResultSerializer(object):

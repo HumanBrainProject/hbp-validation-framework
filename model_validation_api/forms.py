@@ -14,6 +14,11 @@ class ValidationTestResultForm(ModelForm):
         model = ValidationTestResult
         fields = "__all__"
 
+class ScientificTestForm(ModelForm):
+
+    class Meta:
+        model = ValidationTestResult
+        fields = "__all__"
 
 class ScientificModelForm(ModelForm):
 
