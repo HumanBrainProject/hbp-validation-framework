@@ -371,7 +371,7 @@ class SimpleTestEditView(DetailView):
 
     def get(self, request, *args, **kwargs):
         print(self.get_object().id)
-        h = ScientificModel.objects.get(id = self.get_object().id)
+        h = ValidationTestDefinition.objects.get(id = self.get_object().id)
         form = self.form_class(instance = h)
         return render(request, self.template_name, {'form': form, 'object':h})
     
