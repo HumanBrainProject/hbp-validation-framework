@@ -19,7 +19,24 @@ TEST_TYPES = (("single cell", "single cell activity"),
               ("network activity", "network activity"),
               ("behaviour", "behaviour"),
               ("subcellular", "subcellular"))
-
+SPECIES_CHOICES = (
+        ('mouse','Mouse (Mus musculus)'),
+        ('rat','Rat (Rattus rattus)'),
+        ('other','Other'),
+    )
+BRAIN_REGION_CHOICES = (
+        ('basal ganglia','Basal Ganglia'),
+        ('cerebellum','Cerebellum'),
+        ('cortex','Cortex'),
+        ('hippocampus','Hippocampus'),
+        ('other','Other'),
+    )
+CELL_TYPE_CHOICES = (
+        ('granule cell','Granule Cell'),
+        ('interneuron','Interneuron'),
+        ('pyramidal cell','Pyramidal Cell'),
+        ('other','Other'),
+    )
 
 @python_2_unicode_compatible
 class ValidationTestDefinition(models.Model):
@@ -86,9 +103,9 @@ class ScientificModel(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=200, help_text="short descriptive name")
     description = models.TextField()
-    species = models.CharField(max_length=100, blank=True, help_text="species")
-    brain_region = models.CharField(max_length=100, blank=True, help_text="brain region, if applicable")
-    cell_type = models.CharField(max_length=100, blank=True, help_text="cell type, for single-cell models")
+    species = models.CharField(max_length=100, choices=SPECIES_CHOICES ,blank=True, help_text="species")
+    brain_region = models.CharField(max_length=100, choices=BRAIN_REGION_CHOICES, blank=True, help_text="brain region, if applicable")
+    cell_type = models.CharField(max_length=100,choices=CELL_TYPE_CHOICES, blank=True, help_text="cell type, for single-cell models")
     author = models.TextField(help_text="Author(s) of this model")  # do we need a separate "owner" field?
     source = models.URLField(help_text="Version control repository containing the source code of the model")
     # todo: move `source` field into ModelInstance

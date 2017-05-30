@@ -74,3 +74,33 @@ def config(request):
 #     if res.status_code != 200:
 #         return False
 #     return res.json().get('UPDATE', False)
+
+
+
+
+
+@login_required(login_url='/login/hbp')
+def About_the_Models_Page(request):
+    return render(request,'simple_model_detail.html', {})
+
+
+def simple_result_detail(request):
+    return render(request,'simple_test_detail.html', {})
+
+
+def simple_result_list(request):
+    
+    context = UUID(request.GET.get('ctx'))
+    return render_to_response('simple_result_list.html', {'context': context})
+
+
+#def edit_select_models(request):
+#    return render(request,'edit_select_models.html', {})
+   
+
+def simple_result_create(request):
+    return render(request,'simple_result_create.html', {})
+ 
+ 
+def About_the_validation_test_result(request):
+    return render(request,'simple_result_detail.html', {})

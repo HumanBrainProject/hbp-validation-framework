@@ -4,10 +4,10 @@
 #
 #    pip-compile --output-file validation_service/requirements.txt validation_service/requirements.in
 #
--e packages/task-types-0.0.10
--e packages/bbp-services-0.0.15
--e packages/bbp-client-0.4.4
--e packages/hbp-app-python-auth-0.1.5
+#-e packages/task-types-0.0.10
+#-e packages/bbp-services-0.0.15
+#-e packages/bbp-client-0.4.4
+#-e packages/hbp-app-python-auth-0.1.5
 appdirs==1.4.0            # via setuptools
 argparse==1.2.1
 django-sslserver==0.19

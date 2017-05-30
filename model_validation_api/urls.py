@@ -8,11 +8,16 @@ from .views import (ValidationTestDefinitionResource,
                     ScientificModelListResource,
                     SimpleTestListView,
                     SimpleTestDetailView,
+                    SimpleTestEditView,
                     ValidationTestDefinitionCreate,
                     SimpleModelListView,
                     SimpleModelDetailView,
+                    SimpleModelEditView,
+                    SimpleModelCreateView,
                     SimpleResultListView,
                     SimpleResultDetailView,
+                    #SimpleResultCreateView,
+                    ValidationTestResultView,
                     )
 
 uuid_pattern = "[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}"
@@ -49,11 +54,12 @@ urlpatterns = (
     url(r'^view/tests/(?P<pk>\d+)$',
         SimpleTestDetailView.as_view(),
         name="simple-detail-view"),
+    url(r'^view/tests/edit/(?P<pk>\d+)$',
+        SimpleTestEditView.as_view(),
+        name="edit-test-view"),
     url(r'^view/tests/create$',
         ValidationTestDefinitionCreate.as_view(),
         name="create-test-view"),
-
-
 
     url(r'^view/models/$',
         SimpleModelListView.as_view(),
@@ -61,13 +67,21 @@ urlpatterns = (
     url(r'^view/models/(?P<pk>{})$'.format(uuid_pattern),
         SimpleModelDetailView.as_view(),
         name="simple-model-detail-view"),
+    url(r'^view/models/create$'.format(uuid_pattern),
+        SimpleModelCreateView.as_view(),
+        name="simple-model-create-view"),
+    url(r'^view/models/edit/(?P<pk>{})$'.format(uuid_pattern),
+        SimpleModelEditView.as_view(),
+        name="simple-model-edit-view"),
 
     url(r'^view/results/$',
         SimpleResultListView.as_view(),
         name="simple-result-list-view"),
     url(r'^view/results/(?P<pk>\d+)$',
         SimpleResultDetailView.as_view(),
-        name="simple-result-detail-view"),
-
-    
+        name="simple-result-detail-view"),   
+    url(r'^view/results/create$',
+        #SimpleResultCreateView.as_view(),
+        ValidationTestResultView.as_view(),
+        name="simple-result-new-create-view"),   
 )

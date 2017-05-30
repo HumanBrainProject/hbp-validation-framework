@@ -28,14 +28,14 @@ from hbp_app_python_auth.auth import get_access_token, get_auth_header
 
 from .models import (ValidationTestDefinition, ValidationTestCode,
                      ValidationTestResult, ScientificModelInstance, ScientificModel)
-from .forms import ValidationTestDefinitionForm, ScientificModelForm
+from .forms import ValidationTestDefinitionForm, ScientificModelForm, ScientificTestForm, ValidationTestResultForm
 
 
 
 CROSSREF_URL = "http://api.crossref.org/works/"
-VALID_FILTER_NAMES = ('brain_region', 'cell_type',
+VALID_FILTER_NAMES = ('name', 'age', 'brain_region', 'cell_type',
                       'data_type', 'data_modality', 'test_type',
-                      'author', 'species')
+                      'author', 'species', 'data_location', 'publication')
 VALID_MODEL_FILTER_NAMES = ('brain_region', 'cell_type',
                             'author', 'species')
 VALID_RESULT_FILTERS = {
@@ -243,8 +243,11 @@ class ValidationTestDefinitionListResource(View):
         content = self.serializer.serialize(tests)
         return HttpResponse(content, content_type="application/json; charset=utf-8", status=200)
 
+
 @method_decorator(login_required(login_url='/login/hbp'), name='dispatch' )
-class ValidationTestDefinitionCreate(TemplateView): 
+
+class ValidationTestDefinitionCreate(DetailView): 
+
     template_name = "simple_test_create.html"
     model = ValidationTestDefinition
     form_class = ValidationTestDefinitionForm
@@ -318,15 +321,29 @@ class ValidationTestDefinitionSearchResource(View):
 class SimpleTestListView(LoginRequiredMixin, ListView):
     model = ValidationTestDefinition
     template_name = "simple_test_list.html"
-    login_url='/login/hbp/'
+    login_url='/login/hbp/'           
 
     def get_queryset(self):
+        logger.debug("SimpleTestListView - get_queryset" + str(self.request.GET.items()))
         filters = {}
-        for key, value in self.request.GET.items():
-            print(key, value)
-            if key in VALID_FILTER_NAMES:
-                filters[key + "__icontains"] = value
+        if self.request.META['QUERY_STRING'].startswith("search="):
+            search = ""
+            search_cat = ""
+            for key, value in self.request.GET.items():
+                if key == 'search':
+                    search = value
+                if key == 'search_cat':
+                    search_cat = value
+            print(search_cat, search)
+            if search_cat in VALID_FILTER_NAMES:
+                filters[search_cat + "__icontains"] = search
+        else :
+            for key, value in self.request.GET.items():
+                print(key, value)
+                if key in VALID_FILTER_NAMES:
+                    filters[key + "__icontains"] = value
         return ValidationTestDefinition.objects.filter(**filters)
+
 
     def get_context_data(self, **kwargs):
         context = super(SimpleTestListView, self).get_context_data(**kwargs)
@@ -373,6 +390,33 @@ class SimpleTestDetailView(LoginRequiredMixin, DetailView):
         template = u"{authors} ({year}) {title[0]}. {short-container-title[0]} {volume}:{page} {URL}"
         return template.format(**pub_data)
 
+class SimpleTestEditView(DetailView):
+    model = ValidationTestDefinition
+    form_class = ScientificTestForm
+    template_name = "simple_test_edit.html"
+    login_url='/login/hbp/'
+
+    def get_context_data(self, **kwargs):
+        context = super(SimpleTestEditView, self).get_context_data(**kwargs)
+        context["section"] = "models"
+        context["build_info"] = settings.BUILD_INFO
+        return context
+
+    def get(self, request, *args, **kwargs):
+        print(self.get_object().id)
+        h = ValidationTestDefinition.objects.get(id = self.get_object().id)
+        form = self.form_class(instance = h)
+        return render(request, self.template_name, {'form': form, 'object':h})
+    
+    def post(self, request, *args, **kwargs):
+        m = self.get_object()
+        form = self.form_class(request.POST, instance=m)
+        if form.is_valid():
+            form = form.save(commit=False)
+            form.save()
+            return render(request, "simple_test_detail.html", {'form': form, "object": m})
+        return render(request, self.template_name, {'form': form, "object": m})
+
 
 class ScientificModelSerializer(object):
 
@@ -401,7 +445,6 @@ class ScientificModelSerializer(object):
 
 
 
-@method_decorator(login_required(login_url='/login/hbp'), name='dispatch' )
 class ScientificModelResource(View):
     serializer = ScientificModelSerializer
     login_url='/login/hbp/'
@@ -466,8 +509,25 @@ class SimpleModelListView(LoginRequiredMixin, ListView):
 
         return ScientificModel.objects.filter(**filters)
 
-    def get_context_data(self, **kwargs):
+    # def get(self, request, *args, **kwargs):
+    #     if request.META['QUERY_STRING'].startswith("search="):
+    #         self.object_list = ScientificModel.objects.filter(name__contains=request.META['QUERY_STRING'][7:])
+    def get(self, request, *args, **kwargs):
+        if request.META['QUERY_STRING'].startswith("search="):
+            name_list = ScientificModel.objects.filter(name__contains=request.META['QUERY_STRING'][7:])
+            species_list =  ScientificModel.objects.filter(species__contains=request.META['QUERY_STRING'][7:])
+            brain_region_list =  ScientificModel.objects.filter(brain_region__contains=request.META['QUERY_STRING'][7:])
+            cell_type_list = ScientificModel.objects.filter(cell_type__contains=request.META['QUERY_STRING'][7:])
+            author_list = ScientificModel.objects.filter(author__contains=request.META['QUERY_STRING'][7:])
+            self.object_list = (name_list|species_list|brain_region_list|cell_type_list|author_list).distinct()
 
+        else:
+            self.object_list = self.get_queryset()
+        context = self.get_context_data()
+        return self.render_to_response(context)
+
+
+    def get_context_data(self, **kwargs):
         context = super(SimpleModelListView, self).get_context_data(**kwargs)
         context["section"] = "models"
         context["build_info"] = settings.BUILD_INFO
@@ -486,6 +546,73 @@ class SimpleModelDetailView(LoginRequiredMixin, DetailView):
         context["section"] = "models"
         context["build_info"] = settings.BUILD_INFO
         return context
+
+class SimpleModelEditView(DetailView):
+    model = ScientificModel
+    form_class = ScientificModelForm
+    template_name = "simple_model_edit.html"
+    login_url='/login/hbp/'
+
+    def get_context_data(self, **kwargs):
+        context = super(SimpleModelEditView, self).get_context_data(**kwargs)
+        context["section"] = "models"
+        context["build_info"] = settings.BUILD_INFO
+        return context
+
+    def get(self, request, *args, **kwargs):
+        print(self.get_object().id)
+        h = ScientificModel.objects.get(id = self.get_object().id)
+        form = self.form_class(instance = h)
+        return render(request, self.template_name, {'form': form, 'object':h})
+    
+    def post(self, request, *args, **kwargs):
+        m = self.get_object()
+        form = self.form_class(request.POST, instance=m)
+        if form.is_valid():
+            form = form.save(commit=False)
+            form.save()
+            return render(request, "simple_model_detail.html", {'form': form, "object": m})
+        return render(request, self.template_name, {'form': form, "object": m})
+
+
+@method_decorator(login_required(login_url='/login/hbp'), name='dispatch' )
+class SimpleModelCreateView(View):
+    model = ScientificModel
+    template_name = "simple_model_create.html"
+    login_url='/login/hbp/'
+    form_class = ScientificModelForm
+
+    def get(self, request, *args, **kwargs):
+        h = ScientificModel()
+        form = self.form_class(instance = h)
+        return render(request, self.template_name, {'form': form})
+    
+    def post(self, request, *args, **kwargs):
+         model_creation = ScientificModel()
+         form = self.form_class(request.POST, instance=model_creation)
+
+         if form.is_valid():
+            print ("YES")
+            form = form.save(commit=False)
+            form.save()
+            return HttpResponseRedirect(form.id)
+         print ("NO !")
+         print form.data
+         print form.errors
+         return render(request, self.template_name, {'form': form})
+
+
+        # test_creation = ValidationTestDefinition()
+        # form = self.form_class(request.POST, instance=test_creation)
+
+        # if form.is_valid():
+        #     test = form.save()
+        #     content = self.serializer.serialize(test)
+        #     return HttpResponse(content, content_type="application/json; charset=utf-8", status=201)
+        # else:
+        #     print(form.data)
+        #     return HttpResponseBadRequest(str(form.errors))  # todo: plain text
+
 
 
 class ValidationTestResultSerializer(object):
@@ -520,6 +647,104 @@ class ValidationTestResultSerializer(object):
             data = [cls._to_dict(result) for result in results]
         encoder = DjangoJSONEncoder(ensure_ascii=False, indent=4)
         return encoder.encode(data)
+
+
+
+@method_decorator(login_required(login_url='/login/hbp'), name='dispatch' )
+class ValidationTestResultResource(View):
+    serializer = ValidationTestResultSerializer
+    login_url='/login/hbp/'
+
+    def _get_result(self, result_id):
+        try:
+            result = ValidationTestResult.objects.get(pk=result_id)
+        except ValidationTestResult.DoesNotExist:
+            result = None
+        return result
+
+    def get(self, request, *args, **kwargs):
+        """View a result"""
+        result = self._get_result(kwargs["result_id"])
+        if result is None:
+            return HttpResponseNotFound("No such result")
+        content = self.serializer.serialize(result)
+        return HttpResponse(content, content_type="application/json; charset=utf-8", status=200)
+
+
+class ValidationTestResultListResource(View): 
+    serializer = ValidationTestResultSerializer
+    login_url='/login/hbp/'
+
+    def post(self, request, *args, **kwargs):
+        """Add a result"""
+         # if not is_admin(request):
+         #     return HttpResponseForbidden("You do not have permission to add a result.")
+
+        data = json.loads(request.body)
+
+        sci_model = ScientificModel.objects.get(pk=data["model_instance"]["model_id"])
+        model_instance, created = ScientificModelInstance.objects.get_or_create(model=sci_model,
+                                                                            version=data["model_instance"]["version"],
+                                                                            parameters=data["model_instance"]["parameters"])
+        test_uri = data["test_definition"]
+        parsed_uri = urlparse(test_uri)
+        test_id = int(parsed_uri.path.split("/")[-1])
+        test_instance_id = int(parse_qs(parsed_uri.query)['version'][0])
+        test_instance = ValidationTestCode.objects.get(pk=test_instance_id)
+        assert test_instance.test_definition.pk == test_id, "{} != {}".format(test_instance.test_definition.pk, test_id)   # sanity check
+
+        new_test_result = ValidationTestResult(model_instance=model_instance,
+                                               test_definition=test_instance,
+                                               results_storage=data["results_storage"],
+                                               result=float(data["result"]),  # should be a Quantity?
+                                               passed=data["passed"],
+                                               platform=json.dumps(data["platform"]),
+                                               project=data.get("project", ""))
+        new_test_result.save()
+        content = self.serializer.serialize(new_test_result)
+        return HttpResponse(content, content_type="application/json; charset=utf-8", status=201)
+
+    def get(self, request, *args, **kwargs):
+        results = ValidationTestResult.objects.all()
+        content = self.serializer.serialize(results)
+        return HttpResponse(content, content_type="application/json; charset=utf-8", status=200)
+
+
+
+#class SimpleResultCreateView(View):  
+class ValidationTestResultView(View):  
+    template_name = "simple_result_new_create.html"
+    model = ValidationTestResult 
+    form_class = ValidationTestResultForm
+
+    serializer = ValidationTestResultSerializer
+    login_url='/login/hbp/'
+
+
+    def get(self, request, *args, **kwargs):
+
+        h = ValidationTestResult()
+        form = self.form_class(instance = h)
+
+        return render(request, self.template_name, {'form': form, })
+
+
+    def post(self, request, *args, **kwargs):
+        """Add a test"""
+      
+        #result_creation = ValidationTestResult()
+        test_creation = ValidationTestResult() 
+        #form = self.form_class(request.POST, instance=result_creation)
+        form = self.form_class(request.POST, instance=test_creation)
+
+        if form.is_valid():
+            form = form.save(commit=False)
+            form.save()
+            return HttpResponseRedirect(form.id)
+        return render(request, self.template_name, {'form': form})
+
+
+
 
 
 @method_decorator(login_required(login_url='/login/hbp'), name='dispatch' )

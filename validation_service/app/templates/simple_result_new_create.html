@@ -1,0 +1,244 @@
+{% extends 'base.html' %} {% load markup %} {% load jsonify %} {% block content %}
+
+<h1>Create new Test Results</h1>
+<p><a href=".">back</a></p>
+
+
+<form action="" class="validation-test-result-serializer" method="POST">
+<!--<form action="" class="validation-test-result-form" method="POST">   -->
+<!--<form action="" class="scientific-test-form" method="POST">       -->
+
+
+<!--
+    <table class="table table-striped table-condensed">
+        {% csrf_token %} {{ form.non_field_errors }}
+        <tbody>
+ 
+
+            <tr>
+	    <td> Date/time 
+                <td> 
+	                {{ form.timestamp.label_tag }}
+                </td>
+                <td> 
+                   {{ form.timestamp }}
+                    <p class="help-text">{{ form.timestamp.errors }}</p>
+                </td> 
+                </td>
+            </tr>
+      
+
+            <tr>
+                <td> Model </td>
+                <td>
+                    {{ form.name.label_tag }}
+                </td>
+                <td>
+                    {{form.name}}
+                    <p class="help-text">{{ form.name.errors }}</p>
+                </td>
+            </tr>
+
+            <tr>
+
+	    <td> Version </td>
+                <td>
+                    {{ form..version.label_tag }}
+                </td>
+                <td>
+                    {{form.version}}
+                    <p class="help-text">{{ form.version.errors }}</p>
+                </td>
+            </tr>
+
+
+            <tr>
+	    <td> Parameters </td>
+                <td>
+                    {{ form.parameters.label_tag }}
+                </td>
+                <td>
+                    {{form.parameters}}
+                    <p class="help-text">{{ form.parameters.errors }}</p>
+                </td>
+            </tr>
+
+
+            <tr>
+	    <td>Validation test </td>
+                <td>
+                    {{ form.test_definition.test_definition.name.label_tag }}
+                </td>
+                <td>
+                    {{ form.test_definition.test_definition.name }}
+                    <p class="help-text">{{ form.test_definition.test_definition.name.errors }}</p>
+                </td>
+            </tr>
+
+
+            <tr>
+	    <td> Test definition version </td>
+                <td>
+                    {{ form.test_definition.version.label_tag }}
+                </td>
+                <td>
+                    {{form.test_definition.version}}
+                    <p class="help-text">{{ form.test_definition.version.errors }}</p>
+                </td>
+            </tr>
+
+
+
+            <tr>
+	    <td> Result </td>
+                <td>
+                    {{ form.result.label_tag }}
+                </td>
+                <td>
+                    {{form.result}}
+                    <p class="help-text">{{ form.result.errors }}</p>
+                </td>
+            </tr>
+
+
+            <tr>
+	     <td> Platform </td>
+                <td>
+                    {{ form.passed.label_tag }}
+                </td>
+                <td>
+                    {{form.passed}}
+                    <p class="help-text">{{ form.passed.errors }}</p>
+                </td>
+            </tr>
+
+
+
+            <tr>
+	     <td> Collab </td>
+                <td>
+                    {{ form.collab_name.label_tag }}
+                </td>
+                <td>
+                    {{form.collab_name}}
+                    <p class="help-text">{{ form.collab_name.errors }}</p>
+                </td>
+            </tr>
+
+
+    </tbody>
+                </table>
+              
+
+    <div class="navbar navbar-form">
+    
+        <button type="submit" class="btn btn-primary">submit</button>
+    </div>
+</form>
+-->
+
+
+
+
+
+
+<table class="table table-striped">
+     {% csrf_token %} {{ form.non_field_errors }}
+    <tbody>
+        <tr>
+            <td colspan="2">Date/time</td>
+                <td>{{ object.timestamp }}
+                 <p class="help-text">{{ object.timestamp.errors }}</p></td>
+        </tr>
+
+        <tr>
+            <td>Model</td>
+                <td>Name</td>
+                <td><a href="/view/models/{{ object.model_instance.model.id }}">{{ object.model_instance.model.name }}</a>
+                <p class="help-text">{{ object.model_instance.model.name  }}</p></td>
+        </tr>
+
+        <tr>
+            <td></td>
+            <td>Version</td>
+                <td>{{ object.model_instance.version }}
+                <p class="help-text">{{ object.model_instance.version }}</p></td>
+        </tr>
+        
+        <tr>
+            <td></td>
+            <td>Parameters</td>
+                <td><pre>{{ object.model_instance.parameters }}</pre></td>
+                <p class="help-text">{{ object.model_instance.parameters }}</p></td>
+        </tr>
+
+        <tr>
+            <td>Validation test</td>
+                <td>Name</td>
+                <td><a href="/view/tests/{{ object.test_definition.test_definition.id }}">{{ object.test_definition.test_definition.name }}</a>
+                <p class="help-text">{{ object.test_definition.test_definition.name }}</p></td>
+        </tr>
+
+        <tr>
+            <td></td>
+            <td>Version</td>
+                <td>{{ object.test_definition.version }}
+                <p class="help-text">{{  object.test_definition.version }}</p></td>
+        </tr>
+
+        <tr>
+            <td colspan="2">Result</td>
+                <td>{{ object.result }}
+                <p class="help-text">{{  object.result }}</p></td>
+        </tr>
+
+        <tr>
+            <td colspan="2">Pass?</td>
+                <td>{{ object.passed }}
+                <p class="help-text">{{  object.passed }}</p></td>
+        </tr>
+
+        <tr>
+            <td colspan="2">Collab</td>
+                <td><a href="https://collab.humanbrainproject.eu/#/collab/{{ object.project }}">{{ collab_name }}</a>
+                <p class="help-text">{{ collab_name  }}</p></td>
+        </tr>
+
+    </tbody>
+</table>
+
+
+
+<h2>Additional data</h2>
+<p><a href="{{related_data.folder.url}}">{{ related_data.folder.path }}</a></p>
+
+
+<h2>Platform</h2>
+<table class="table table-striped">
+    <tbody>
+    {% for key, value in object.get_platform_as_dict.items %}
+    <tr>
+        <td>{{ key }}</td>
+        <td>{{ value }}</td>
+    {% endfor %}
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{% endblock %}
