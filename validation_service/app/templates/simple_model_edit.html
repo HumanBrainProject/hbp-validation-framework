@@ -1,7 +1,7 @@
 {% extends 'base.html' %} {% load markup %} {% block content %}
 
 <h1>Edit Model: {{object.name}}</h1>
-<p><a href="..">back</a></p>
+<p><a href="{% url 'simple-model-detail-view' pk=object.id  %}">back</a></p>
 
 <form action="" class="scientific-model-form" method="POST">
     <table class="table table-condensed">
@@ -20,22 +20,22 @@
             <tr>
                 <td>Species</td>
                 <!--<td>{{ object.species }}</td>-->
-                <td display:none>{{ form.species }}</td>
+                <td>{{ form.species }}</td>
             </tr>
             <tr>
                 <td>Brain region</td>
                 <!--<td>{{ object.brain_region }}</td>-->
-                <td display:none>{{ form.brain_region }}</td>
+                <td>{{ form.brain_region }}</td>
             </tr>
             <tr>
                 <td>Cell type</td>
                 <!--<td>{{ object.cell_type }}</td>-->
-                <td display:none>{{ form.cell_type }}</td>
+                <td>{{ form.cell_type }}</td>
             </tr>
             <tr>
                 <td>Code location</td>
                 <!--<td>{{ object.source|urlize }}</td>-->
-                <td display:none>{{ form.source}}</td>
+                <td>{{ form.source}}</td>
             </tr>
             <tr>
                 <td>Author(s)</td>
