@@ -9,6 +9,7 @@
 <table class="table table-striped table-condensed">
      {% csrf_token %} {{ form.non_field_errors }}
     <tbody>
+        
         <tr>
                 <td> Model
                     {{form.model_instance.model.pk.label_tag}}
@@ -51,11 +52,11 @@
 
         <tr>
                 <td> Test Definition
-                    {{form.test_definition.test_definition..label_tag}}
+                    {{form.test_definition.test_definition.label_tag}}
                 </td>
                 <td>
                     {{form.test_definition.test_definition.}} 
-                    <p class="help-text">{{ form.test_definition.test_definition..errors }}</p>
+                    <p class="help-text">{{ form.test_definition.test_definition.errors }}</p>
                 </td>
         </tr>
 
@@ -167,8 +168,14 @@
         {% endfor %}
     </tbody>
 </table>
+    
 
 
+<br/>
+<div class="navbar navbar-form">
+        <button type="submit" class="btn btn-primary">Save</button>
+    </div>
 
+</form>
 
 {% endblock %}
