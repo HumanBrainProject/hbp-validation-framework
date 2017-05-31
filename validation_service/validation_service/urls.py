@@ -23,7 +23,7 @@ urlpatterns = [
     # url(r'^app/edit$', edit, name='app_edit'),
     # url(r'^config.json$', config, name='config'),
     url(r'^', include('model_validation_api.urls')),
-    # url(r'^About_the_Models_Page$', About_the_Models_Page, name='About_the_Models_Page'), 
-    # url(r'^About_the_validation_test_result$', About_the_validation_test_result, name='About_the_validation_test_result'),   
-    # url(r'^simple_result_detail$', simple_result_detail, name='simple_result_detail'), 
+    url(r'^About_the_Models_Page$', About_the_Models_Page, name='About_the_Models_Page'), 
+    url(r'^About_the_validation_test_result$', About_the_validation_test_result, name='About_the_validation_test_result'),   
+    url(r'^simple_result_detail$', simple_result_detail, name='simple_result_detail'), 
 ]

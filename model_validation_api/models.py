@@ -9,6 +9,7 @@ from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
 
 
+
 DATA_MODALITIES = (("ephys", "electrophysiology"),
                    ("fMRI", "fMRI"),
                    ("2-photon", "2-photon imaging"),
@@ -24,6 +25,8 @@ SPECIES_CHOICES = (
         ('rat','Rat (Rattus rattus)'),
         ('marmoset','Marmoset (callithrix jacchus)'),
         ('human', 'Human (Homo sapiens)'),
+        ('rhesus_monkey', 'Paxinos Rhesus Monkey (Macaca mulatta)'),
+        ('opossum', 'Opossum (Monodelphis domestica)'),
         ('other','Other'),
     )
 BRAIN_REGION_CHOICES = (
@@ -146,13 +149,12 @@ class ValidationTestResult(models.Model):
     project = models.CharField(help_text="Project with which this test run is associated(optional)",
                                max_length=200,
                                blank=True)  # project==collab_id for HBP
-    
+
     class Meta:
         get_latest_by = "timestamp"
 
     def get_platform_as_dict(self):
-#        return json.loads(self.platform)
-        return "ERROR"
+        return json.loads(self.platform)
 
     def __str__(self):
         return "Validation test result {}".format(self.id,)
