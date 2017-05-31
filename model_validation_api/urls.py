@@ -17,10 +17,11 @@ from .views import (ValidationTestDefinitionResource,
                     SimpleModelCreateView,
                     SimpleResultListView,
                     SimpleResultDetailView,
+                    SimpleResultEditView
                     #SimpleResultCreateView,
                     #ValidationTestResultView, 
-                    ValidationTestResultCreate,
-                    ValidationTestResultEdit,
+                    # ValidationTestResultCreate,
+                    # ValidationTestResultEdit,
                     )
 
 uuid_pattern = "[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}"
@@ -64,9 +65,10 @@ urlpatterns = (
         ValidationTestDefinitionCreate.as_view(),
         name="create-test-view"),
 
+
     url(r'^view/models/$',
         SimpleModelListView.as_view(),
-        name="simple-model-list-view"),
+        name="simple-modeValidationTestResultEdit,l-list-view"),
     url(r'^view/models/(?P<pk>{})$'.format(uuid_pattern),
         SimpleModelDetailView.as_view(),
         name="simple-model-detail-view"),
@@ -82,19 +84,21 @@ urlpatterns = (
     url(r'^view/models/new_version/(?P<pk>{})$'.format(uuid_pattern),
         SimpleModelVersionView.as_view(),
         name="simple-model-version-view"),
+
+
     url(r'^view/results/$',
         SimpleResultListView.as_view(),
         name="simple-result-list-view"),
     url(r'^view/results/(?P<pk>{})$'.format(uuid_pattern),
         SimpleResultDetailView.as_view(),
         name="simple-result-detail-view"),   
-    url(r'^view/results/create$',
-        #SimpleResultCreateView.as_view(),
-        #ValidationTestResultListResource.as_view(),
-         #ValidationTestResultView.as_view(),
-        ValidationTestResultCreate.as_view(),
-        name="simple-result-create-view"),  
-    url(r'^view/results/edit/(?P<pk>{})$'.format(uuid_pattern),
-        ValidationTestResultEdit.as_view(),
-        name="edit-result-view"), 
+    # url(r'^view/results/create$',
+    #     #SimpleResultCreateView.as_view(),
+    #     #ValidationTestResultListResource.as_view(),
+    #      #ValidationTestResultView.as_view(),
+    #     ValidationTestResultCreate.as_view(),
+    #     name="simple-result-create-view"),  
+    url(r'^edit$',
+        SimpleResultEditView.as_view(),
+        name="simple-result-edit-view"), 
 )

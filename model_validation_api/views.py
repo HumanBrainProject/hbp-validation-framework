@@ -494,9 +494,6 @@ class SimpleModelListView(LoginRequiredMixin, ListView):
 
         return ScientificModel.objects.filter(**filters)
 
-    # def get(self, request, *args, **kwargs):
-    #     if request.META['QUERY_STRING'].startswith("search="):
-    #         self.object_list = ScientificModel.objects.filter(name__contains=request.META['QUERY_STRING'][7:])
     def get(self, request, *args, **kwargs):
         if request.META['QUERY_STRING'].startswith("search="):
             name_list = ScientificModel.objects.filter(name__contains=request.META['QUERY_STRING'][7:])
@@ -516,7 +513,11 @@ class SimpleModelListView(LoginRequiredMixin, ListView):
         context = super(SimpleModelListView, self).get_context_data(**kwargs)
         context["section"] = "models"
         context["build_info"] = settings.BUILD_INFO
-
+        context["filters"] = {
+            "species": ScientificModel.objects.values_list('species', flat=True).distinct(),
+            "brain_region": ScientificModel.objects.values_list('brain_region', flat=True).distinct(),
+            "cell_type": ScientificModel.objects.values_list('cell_type', flat=True).distinct(),
+        }
         return context
 
 
@@ -910,17 +911,19 @@ class SimpleResultDetailView(LoginRequiredMixin, DetailView):
 
         return {}
 
-
 @method_decorator(login_required(login_url='/login/hbp'), name='dispatch' )
 class ValidationTestResultCreate(View):   
     model = ValidationTestResult   
     template_name = "simple_result_create.html"
     login_url='/login/hbp/'
     form_class = ValidationTestResultForm
-   
     serializer = ValidationTestResultSerializer
-    
 
+    def get_context_data(self, **kwargs):
+        context = super(SimpleResultEditView, self).get_context_data(**kwargs)
+        context["section"] = "results"
+        context["build_info"] = settings.BUILD_INFO
+        return context
 
     def get(self, request, *args, **kwargs):
 
@@ -944,35 +947,33 @@ class ValidationTestResultCreate(View):
         return render(request, self.template_name, {'form': form})
 
 
-@method_decorator(login_required(login_url='/login/hbp'), name='dispatch' )
-class ValidationTestResultEdit(TemplateView): 
-    template_name = "simple_result_edit.html"
-    model = ValidationTestResult
-    form_class = ValidationTestResultForm
+# @method_decorator(login_required(login_url='/login/hbp'), name='dispatch' )
+# class ValidationTestResultEdit(TemplateView): 
+#     template_name = "simple_result_edit.html"
+#     model = ValidationTestResult
+#     form_class = ValidationTestResultForm
 
-    serializer = ValidationTestResultSerializer
-    login_url='/login/hbp/'
+#     serializer = ValidationTestResultSerializer
+#     login_url='/login/hbp/'
+
+#     def get(self, request, *args, **kwargs):
+
+#         h = ValidationTestResult()
+#         form = self.form_class(instance = h)
+
+#         return render(request, self.template_name, {'form': form, })
 
 
-    def get(self, request, *args, **kwargs):
-
-        h = ValidationTestResult()
-        form = self.form_class(instance = h)
-
-        return render(request, self.template_name, {'form': form, })
-
-
-    def post(self, request, *args, **kwargs):
-        """Add a result"""
+#     def post(self, request, *args, **kwargs):
+#         """Add a result"""
        
-        result_creation = ValidationTestResult()
-        form = self.form_class(request.POST, instance=result_creation)
+#         result_creation = ValidationTestResult()
+#         form = self.form_class(request.POST, instance=result_creation)
 
-        if form.is_valid():
-            result = form.save()
-            content = self.serializer.serialize(test)
-            return HttpResponse(content, content_type="application/json; charset=utf-8", status=201)
-        else:
-            print(form.data)
-            return HttpResponseBadRequest(str(form.errors))  # todo: plain text
-
+#         if form.is_valid():
+#             result = form.save()
+#             content = self.serializer.serialize(test)
+#             return HttpResponse(content, content_type="application/json; charset=utf-8", status=201)
+#         else:
+#             print(form.data)
+#             return HttpResponseBadRequest(str(form.errors))  # todo: plain text
