@@ -22,6 +22,8 @@ TEST_TYPES = (("single cell", "single cell activity"),
 SPECIES_CHOICES = (
         ('mouse','Mouse (Mus musculus)'),
         ('rat','Rat (Rattus rattus)'),
+        ('marmoset','Marmoset (callithrix jacchus)'),
+        ('human', 'Human (Homo sapiens)'),
         ('other','Other'),
     )
 BRAIN_REGION_CHOICES = (
