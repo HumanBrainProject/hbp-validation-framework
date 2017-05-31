@@ -1,0 +1,21 @@
+// Format a comma separated list, most often use in conjunction with
+// .list-inline class.
+.list-comma-separated {
+  > li:after {
+    content: ',\00a0';
+  }
+
+  > li:last-child:after {
+    content: '';
+  }
+
+  // Remove margin/padding defined in Bootstrap for list-inline.
+  &.list-inline {
+    margin-left: 0;
+
+    > li {
+      padding-left: 0;
+      padding-right: 0;
+    }
+  }
+}

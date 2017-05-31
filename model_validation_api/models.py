@@ -42,6 +42,7 @@ CELL_TYPE_CHOICES = (
 
 @python_2_unicode_compatible
 class ValidationTestDefinition(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=200, help_text="short descriptive name")
     species = models.CharField(max_length=100, help_text="species") # G
     brain_region = models.CharField(max_length=100, help_text="brain region")  # I
@@ -133,7 +134,7 @@ class ScientificModelInstance(models.Model):
 
 @python_2_unicode_compatible
 class ValidationTestResult(models.Model):
-
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     model_instance = models.ForeignKey(ScientificModelInstance)
     test_definition = models.ForeignKey(ValidationTestCode)
     results_storage = models.TextField(help_text="Location of data files produced by the test run")  # or store locations of individual files?
