@@ -22,15 +22,27 @@ from django.http import (HttpResponse, JsonResponse,
                          HttpResponseNotAllowed,     # 405
                          HttpResponseNotModified,    # 304
                          HttpResponseRedirect)       # 302
-from django.core.serializers.json import DjangoJSONEncoder
+
 from django.conf import settings
 import requests
 from hbp_app_python_auth.auth import get_access_token, get_auth_header
 
-from .models import (ValidationTestDefinition, ValidationTestCode,
-                     ValidationTestResult, ScientificModelInstance, ScientificModel, ScientificModelInstance)
-from .forms import ValidationTestDefinitionForm, ScientificModelForm, ScientificTestForm, ValidationTestResultForm, ScientificModelInstanceForm
+from .models import (ValidationTestDefinition, 
+                        ValidationTestCode,
+                        ValidationTestResult, 
+                        ScientificModelInstance, 
+                        ScientificModel, 
+                        ScientificModelInstance)
 
+from .forms import (ValidationTestDefinitionForm, 
+                        ScientificModelForm, 
+                        ScientificTestForm, 
+                        ValidationTestResultForm, 
+                        ScientificModelInstanceForm)
+
+from .serializer import (ValidationTestDefinitionSerializer, 
+                            ScientificModelSerializer, 
+                            ValidationTestResultSerializer)
 
 
 CROSSREF_URL = "http://api.crossref.org/works/"
@@ -150,54 +162,7 @@ def get_user(request):
 #     return True
 
 
-class ValidationTestDefinitionSerializer(object):
 
-    @staticmethod
-    def _to_dict(test, version=None):
-        resource_uri = "/tests/{}".format(test.pk)
-        if version is None:
-            try:
-                code_obj = ValidationTestCode.objects.filter(test_definition=test).latest()
-                version = code_obj.pk
-            except ValidationTestCode.DoesNotExist:
-                code_obj = None
-        else:
-            code_obj = ValidationTestCode.objects.get(pk=version, test_definition=test)
-        if code_obj:
-            resource_uri += "?version={}".format(version)
-            code = {
-                "repository": code_obj.repository,
-                "version": code_obj.version,  # note that this is the Git version, not the object version
-                "path": code_obj.path,
-            }
-        else:
-            code = None
-        data = {
-            "name": test.name,
-            "species": test.species,
-            "brain_region": test.brain_region,
-            "cell_type": test.cell_type,
-            "age": test.age,
-            "data_location": test.data_location,
-            "data_type": test.data_type,
-            "data_modality": test.data_modality,
-            "test_type": test.test_type,
-            "protocol": test.protocol,
-            "code": code,
-            "author": test.author,
-            "publication": test.publication,
-            "resource_uri": resource_uri
-        }
-        return data
-
-    @classmethod
-    def serialize(cls, tests, version=None):
-        if isinstance(tests, ValidationTestDefinition):
-            data = cls._to_dict(tests, version=version)
-        else:
-            data = [cls._to_dict(test) for test in tests]
-        encoder = DjangoJSONEncoder(ensure_ascii=False, indent=4)
-        return encoder.encode(data)
 
 @method_decorator(login_required(login_url='/login/hbp'), name='dispatch' )
 class ValidationTestDefinitionResource(View):
@@ -248,22 +213,17 @@ class ValidationTestDefinitionListResource(View):
 @method_decorator(login_required(login_url='/login/hbp'), name='dispatch' )
 
 class ValidationTestDefinitionCreate(DetailView): 
-
     template_name = "simple_test_create.html"
     model = ValidationTestDefinition
     form_class = ValidationTestDefinitionForm
-
     serializer = ValidationTestDefinitionSerializer
     login_url='/login/hbp/'
 
-
     def get(self, request, *args, **kwargs):    
-
         h = ValidationTestDefinition()
         form = self.form_class(instance = h)
 
         return render(request, self.template_name, {'form': form, })
-
 
     def post(self, request, *args, **kwargs):
         """Add a test"""
@@ -275,9 +235,10 @@ class ValidationTestDefinitionCreate(DetailView):
         form = self.form_class(request.POST, instance=test_creation)
 
         if form.is_valid():
-            test = form.save()
-            content = self.serializer.serialize(test)
-            return HttpResponse(content, content_type="application/json; charset=utf-8", status=201)
+            form = form.save()
+            content = self.serializer.serialize(form)
+            # return HttpResponse(content, content_type="application/json; charset=utf-8", status=201)
+            return HttpResponseRedirect(form.id)
         else:
             print(form.data)
             return HttpResponseBadRequest(str(form.errors))  # todo: plain text
@@ -417,33 +378,6 @@ class SimpleTestEditView(DetailView):
             form.save()
             return render(request, "simple_test_detail.html", {'form': form, "object": m})
         return render(request, self.template_name, {'form': form, "object": m})
-
-
-class ScientificModelSerializer(object):
-
-    @staticmethod
-    def _to_dict(model):
-        data = {
-            "name": model.name,
-            "description": model.description,
-            "species": model.species,
-            "brain_region": model.brain_region,
-            "cell_type": model.cell_type,
-            "author": model.author,
-            "source": model.source,
-            "resource_uri": "/models/{}".format(model.pk)
-        }
-        return data
-
-    @classmethod
-    def serialize(cls, models):
-        if isinstance(models, ScientificModel):
-            data = cls._to_dict(models)
-        else:
-            data = [cls._to_dict(model) for model in models]
-        encoder = DjangoJSONEncoder(ensure_ascii=False, indent=4)
-        return encoder.encode(data)
-
 
 
 class ScientificModelResource(View):
@@ -624,7 +558,7 @@ class SimpleModelCreateView(View):
     template_name = "simple_model_create.html"
     login_url='/login/hbp/'
     form_class = ScientificModelForm
-
+    serializer = ScientificModelSerializer
     def get(self, request, *args, **kwargs):
         h = ScientificModel()
         form = self.form_class(instance = h)
@@ -634,68 +568,20 @@ class SimpleModelCreateView(View):
          model_creation = ScientificModel()
          form = self.form_class(request.POST, instance=model_creation)
          if form.is_valid():
-            print ("YES")
             form = form.save(commit=False)
             form.save()
+            # content = self.serializer.serialize(form)
+
             disp = request.POST.get("display_type", None)
             if disp :
                 model_instance = ScientificModelInstance()
                 model_instance.model = ScientificModel.objects.get(id = form.id)
                 model_instance.version = 'original version'
                 model_instance.save()
+            
             return HttpResponseRedirect(form.id)
-         print ("NO !")
-         print form.data
-         print form.errors
-         return render(request, self.template_name, {'form': form})
-
-
-        # test_creation = ValidationTestDefinition()
-        # form = self.form_class(request.POST, instance=test_creation)
-
-        # if form.is_valid():
-        #     test = form.save()
-        #     content = self.serializer.serialize(test)
-        #     return HttpResponse(content, content_type="application/json; charset=utf-8", status=201)
-        # else:
-        #     print(form.data)
-        #     return HttpResponseBadRequest(str(form.errors))  # todo: plain text
-
-
-
-class ValidationTestResultSerializer(object):
-    
-    @staticmethod
-    def _to_dict(result):
-        data = {
-            "model_instance": {
-                "model_id": result.model_instance.model.pk,
-                "version": result.model_instance.version,
-                "parameters": result.model_instance.parameters,
-                "resource_uri": "/models/{}?instance={}".format(result.model_instance.model.pk,
-                                                                result.model_instance.pk)
-            },
-            "test_definition": "/tests/{}?version={}".format(result.test_definition.test_definition.pk,
-                                                             result.test_definition.pk),
-            "results_storage": result.results_storage,
-            "result": result.result,
-            "passed": result.passed,
-            "platform": result.get_platform_as_dict(),
-            "timestamp": result.timestamp,
-            "project": result.project,
-            "resource_uri": "/results/{}".format(result.pk)
-        }
-        return data
-
-    @classmethod
-    def serialize(cls, results):
-        if isinstance(results, ValidationTestResult):
-            data = cls._to_dict(results)
-        else:
-            data = [cls._to_dict(result) for result in results]
-        encoder = DjangoJSONEncoder(ensure_ascii=False, indent=4)
-        return encoder.encode(data)
-
+ 
+         return render(request, self.template_name, {'form': form}, status=400) 
 
 
 @method_decorator(login_required(login_url='/login/hbp'), name='dispatch' )
@@ -790,9 +676,6 @@ class ValidationTestResultView(View):
             form.save()
             return HttpResponseRedirect(form.id)
         return render(request, self.template_name, {'form': form})
-
-
-
 
 
 @method_decorator(login_required(login_url='/login/hbp'), name='dispatch' )

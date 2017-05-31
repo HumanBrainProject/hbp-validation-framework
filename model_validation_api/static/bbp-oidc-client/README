@@ -1,0 +1,60 @@
+angular-bbp-oidc-client.js
+==========================
+
+Angular client for OpenId connect secured REST services
+
+Usage
+-----
+
+Add the angular script to HTML.
+
+```
+<script src="/components/angular/angular.js"></script>
+<script src="/components/angular-bbp-config/angular-bbp-config.js"></script>
+
+<script src="components/angular-bbp-oidc-client.js"></script>
+```
+
+Add `bbpOidcClient` dependency to your
+application and define required constants.
+
+```
+module(app, ['bbpOidcClient']);
+```
+
+Ensure bbpConfig module has the right keys
+defined:
+bbpOidcClient rely on bbpConfig module to retrieve
+environment data. Please ensure that the following
+keys are present:
+
+- `api.user.v0`
+- `auth.url`
+- `auth.clientId`
+- `oidc.debug` default is `false`
+
+See the example folder for a working example.
+
+
+Angular Migrations
+==================
+
+Those are migrations notes for angular version of the component.
+
+From 0.4.0 to 0.5.0
+-------------------
+
+In version 0.4.0, login was enforced automatically. Since 0.5.0, you must
+use a configuration to say so. You should as well use prompt login if you plan
+proper logout scenario.
+
+```
+module('app', ['bbpOidcClient'])
+.config(['bbpOidcSessionProvider' ,function(bbpOidcSessionProvider){
+    // force the app to have a token when bbpOidcSession is required for
+    // the first time.
+    bbpOidcSessionProvider.ensureToken(true);
+    // for proper logout, we need to act on the way we login.
+    bbpOidcSessionProvider.alwaysPromptLogin(true);
+}]);
+```

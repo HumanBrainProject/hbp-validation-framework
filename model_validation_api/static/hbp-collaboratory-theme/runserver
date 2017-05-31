@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+HTTPS_PORT=4443
+HOST_SERVED=localhost
+CWD=$(pwd)
+CERT_PATH=$CWD/server.pem
+APP_ROOT=dist
+
+# move to app root folder
+cd $APP_ROOT
+
+# generate self-signed cert the first time
+if [ ! -f $CERT_PATH ]; then
+    openssl req -new -x509 -subj "/C=CH/ST=Geneve/L=Geneve/O=lol/CN=localhost" -keyout $CERT_PATH -out $CERT_PATH -days 365 -nodes
+fi
+
+echo "launching HTTPS server on port $HTTPS_PORT"
+python -c "import BaseHTTPServer, SimpleHTTPServer, ssl;\
+    httpd = BaseHTTPServer.HTTPServer(('${HOST_SERVED}', ${HTTPS_PORT}), SimpleHTTPServer.SimpleHTTPRequestHandler);\
+    httpd.socket = ssl.wrap_socket (httpd.socket, certfile='${CERT_PATH}', server_side=True);httpd.serve_forever()"

@@ -1,0 +1,122 @@
+// override variables
+@import 'variables';
+
+// import bootstrap theme using the overloaded _bootstrap.scss file.
+@import './bootstrap';
+
+// customization of the theme
+@import 'list-group-improvement';
+@import 'generated-icon';
+@import 'dl';
+@import 'type';
+@import 'animation';
+
+// ----------------------------------
+// CSS Fixes
+// ---------
+
+// Position radios and checkboxes better
+.radio,
+.checkbox {
+  *[type="radio"],
+  *[type="checkbox"] {
+    // fixes input[type=radio,checkbox] top margin.
+    // original theme definition break the current theme.
+    margin: 0;
+  }
+
+  label {
+    padding-left: 23px;
+  }
+}
+
+// ----------------------------------
+// CSS Additions
+// -------------
+
+// Make page header similar to h2
+.page-header {
+  font-size: 24px;
+}
+
+// Title sizes overriding
+h1 {
+  font-size: 32px;
+}
+
+h2 {
+  font-size: 25px;
+}
+
+h3 {
+  font-size: 21px;
+}
+
+h4 {
+  font-size: 18px;
+}
+
+h5 {
+  font-size: 14px;
+  text-transform: uppercase;
+}
+
+h6 {
+  font-size: 12px;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+// Default thumbnail in Bootstrap has a border, we remove that
+// for we use thumbnail style to lay out images in multi column
+// pages on simple white background where border is undesired */
+.row .thumbnail {
+  border: 0;
+  border-radius: 0;
+  box-shadow: 0;
+}
+
+
+// navbar-form
+
+.navbar.navbar-form {
+  background-color: $white-transluant;
+  border-bottom: 1px solid $gray-light;
+  border-top: 1px solid $gray-light;
+  height: 36px;
+  margin: 0;
+  padding: $padding-base-vertical 0;
+
+  .navbar-nav {
+    margin: 0;
+  }
+
+  .nav li {
+    display: inline-block;
+    margin: 0 $grid-gutter-width/2;
+
+    &:first-child {
+      margin-left: 0;
+    }
+
+    &:last-child {
+      margin-right: 0;
+    }
+  }
+}
+
+
+.btn {
+  // Buttons active state
+  &:active,
+  &.active {
+    background-color: $brand-primary;
+    background-image: none;
+    box-shadow: none;
+    outline: 0;
+  }
+}
+
+.modal-dialog {
+  max-width: 100%;
+}

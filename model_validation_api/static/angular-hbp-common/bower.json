@@ -1,0 +1,39 @@
+{
+  "name": "angular-hbp-common",
+  "description": "Common components for HBP websites.",
+  "version": "2.3.0",
+  "private": true,
+  "repository": {
+    "url": "ssh://bbpcode.epfl.ch/platform/JSLibAngularHbpCommon"
+  },
+  "dependencies": {
+    "angular": "~1.4.9",
+    "angular-bbp-config": "~0.3.0",
+    "angular-ui-router": "~0.2.15",
+    "angular-bootstrap": "~0.13.4",
+    "bbp-oidc-client": "~0.8.1",
+    "jquery": "~1.11.3",
+    "lodash": "~3.10.1",
+    "marked-hbp": "~0.3.3"
+  },
+  "devDependencies": {
+    "angular-mocks": "~1.4.6"
+  },
+  "main": [
+    "dist/angular-hbp-common.js"
+  ],
+  "ignore": [
+    "/test",
+    ".*",
+    "Gruntfile.js",
+    "karma*.*",
+    "package.json",
+    "/bower_components",
+    "/src",
+    "Gemfile*.*",
+    "/reports"
+  ],
+  "resolutions": {
+    "angular": "~1.4.9"
+  }
+}
