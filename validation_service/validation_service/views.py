@@ -97,9 +97,6 @@ def simple_result_list(request):
 #def edit_select_models(request):
 #    return render(request,'edit_select_models.html', {})
    
-
-def simple_result_create(request):
-    return render(request,'simple_result_create.html', {})
  
  
 def About_the_validation_test_result(request):
