@@ -134,7 +134,7 @@ class ScientificModelInstance(models.Model):
 
 @python_2_unicode_compatible
 class ValidationTestResult(models.Model):
-
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     model_instance = models.ForeignKey(ScientificModelInstance)
     test_definition = models.ForeignKey(ValidationTestCode)
     results_storage = models.TextField(help_text="Location of data files produced by the test run")  # or store locations of individual files?
