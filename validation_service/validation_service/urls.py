@@ -11,7 +11,6 @@ from views import show, edit, config, home
 from views import About_the_Models_Page
 from views import About_the_validation_test_result 
 from views import simple_result_detail
-from views import simple_result_create
 #from views import edit_select_models
 
 urlpatterns = [
@@ -27,5 +26,4 @@ urlpatterns = [
     url(r'^About_the_Models_Page$', About_the_Models_Page, name='About_the_Models_Page'), 
     url(r'^About_the_validation_test_result$', About_the_validation_test_result, name='About_the_validation_test_result'),   
     url(r'^simple_result_detail$', simple_result_detail, name='simple_result_detail'), 
-    url(r'^simple_result_create$', simple_result_create, name='simple_result_create'),   
 ]
