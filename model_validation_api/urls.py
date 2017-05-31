@@ -18,7 +18,9 @@ from .views import (ValidationTestDefinitionResource,
                     SimpleResultListView,
                     SimpleResultDetailView,
                     #SimpleResultCreateView,
-                    ValidationTestResultView,
+                    #ValidationTestResultView, 
+                    ValidationTestResultCreate,
+                    ValidationTestResultEdit,
                     )
 
 uuid_pattern = "[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}"
@@ -88,6 +90,11 @@ urlpatterns = (
         name="simple-result-detail-view"),   
     url(r'^view/results/create$',
         #SimpleResultCreateView.as_view(),
-        ValidationTestResultView.as_view(),
-        name="simple-result-new-create-view"),   
+        #ValidationTestResultListResource.as_view(),
+         #ValidationTestResultView.as_view(),
+        ValidationTestResultCreate.as_view(),
+        name="simple-result-create-view"),  
+    url(r'^view/results/edit/(?P<pk>\d+)$',
+        ValidationTestResultEdit.as_view(),
+        name="edit-result-view"), 
 )

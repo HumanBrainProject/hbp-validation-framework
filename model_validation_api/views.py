@@ -163,7 +163,6 @@ def get_user(request):
 
 
 
-
 @method_decorator(login_required(login_url='/login/hbp'), name='dispatch' )
 class ValidationTestDefinitionResource(View):
     serializer = ValidationTestDefinitionSerializer
@@ -184,6 +183,7 @@ class ValidationTestDefinitionResource(View):
         code_version = request.GET.get("version", None)
         content = self.serializer.serialize(test, code_version)
         return HttpResponse(content, content_type="application/json; charset=utf-8", status=200)
+
 
 @method_decorator(login_required(login_url='/login/hbp'), name='dispatch' )
 class ValidationTestDefinitionListResource(View):
@@ -211,7 +211,6 @@ class ValidationTestDefinitionListResource(View):
 
 
 @method_decorator(login_required(login_url='/login/hbp'), name='dispatch' )
-
 class ValidationTestDefinitionCreate(DetailView): 
     template_name = "simple_test_create.html"
     model = ValidationTestDefinition
@@ -260,6 +259,7 @@ class ValidationTestDefinitionCreate(DetailView):
         #     form.save()
         #     return self.redirect(request, ctx = self.kwargs['ctx'])
         # return render(request, self.template_name, {'form': form, 'ctx': self.kwargs['ctx'], 'collab_name':get_collab_name(self.kwargs['ctx'])})
+
 
 @method_decorator(login_required(login_url='/login/hbp'), name='dispatch' )
 class ValidationTestDefinitionSearchResource(View):
@@ -312,6 +312,7 @@ class SimpleTestListView(LoginRequiredMixin, ListView):
         context["section"] = "tests"
         return context
 
+
 @method_decorator(login_required(login_url='/login/hbp'), name='dispatch' )
 class SimpleTestDetailView(LoginRequiredMixin, DetailView):
     model = ValidationTestDefinition
@@ -352,6 +353,8 @@ class SimpleTestDetailView(LoginRequiredMixin, DetailView):
         template = u"{authors} ({year}) {title[0]}. {short-container-title[0]} {volume}:{page} {URL}"
         return template.format(**pub_data)
 
+
+@method_decorator(login_required(login_url='/login/hbp'), name='dispatch' )
 class SimpleTestEditView(DetailView):
     model = ValidationTestDefinition
     form_class = ScientificTestForm
@@ -380,6 +383,7 @@ class SimpleTestEditView(DetailView):
         return render(request, self.template_name, {'form': form, "object": m})
 
 
+@method_decorator(login_required(login_url='/login/hbp'), name='dispatch' )
 class ScientificModelResource(View):
     serializer = ScientificModelSerializer
     login_url='/login/hbp/'
@@ -425,7 +429,6 @@ class ScientificModelListResource(View):
         models = ScientificModel.objects.all()
         content = self.serializer.serialize(models)
         return HttpResponse(content, content_type="application/json; charset=utf-8", status=200)
-
 
 
 @method_decorator(login_required(login_url='/login/hbp'), name='dispatch' )
@@ -482,6 +485,8 @@ class SimpleModelDetailView(LoginRequiredMixin, DetailView):
         context["build_info"] = settings.BUILD_INFO
         return context
 
+
+@method_decorator(login_required(login_url='/login/hbp'), name='dispatch' )
 class SimpleModelEditView(DetailView):
     model = ScientificModel
     form_class = ScientificModelForm
@@ -514,6 +519,8 @@ class SimpleModelEditView(DetailView):
         url = reverse("simple-model-detail-view", kwargs = { 'pk':kwargs['pk']})
         return HttpResponseRedirect(url)
 
+
+@method_decorator(login_required(login_url='/login/hbp'), name='dispatch' )
 class SimpleModelVersionView(DetailView):
     model = ScientificModelInstance
     form_class = ScientificModelInstanceForm
@@ -551,6 +558,7 @@ class SimpleModelVersionView(DetailView):
     def redirect(self, request, *args, **kwargs): 
         url = reverse("simple-model-detail-view", kwargs = { 'pk':kwargs['pk']})
         return HttpResponseRedirect(url)
+
 
 @method_decorator(login_required(login_url='/login/hbp'), name='dispatch' )
 class SimpleModelCreateView(View):
@@ -605,47 +613,7 @@ class ValidationTestResultResource(View):
         return HttpResponse(content, content_type="application/json; charset=utf-8", status=200)
 
 
-class ValidationTestResultListResource(View): 
-    serializer = ValidationTestResultSerializer
-    login_url='/login/hbp/'
-
-    def post(self, request, *args, **kwargs):
-        """Add a result"""
-         # if not is_admin(request):
-         #     return HttpResponseForbidden("You do not have permission to add a result.")
-
-        data = json.loads(request.body)
-
-        sci_model = ScientificModel.objects.get(pk=data["model_instance"]["model_id"])
-        model_instance, created = ScientificModelInstance.objects.get_or_create(model=sci_model,
-                                                                            version=data["model_instance"]["version"],
-                                                                            parameters=data["model_instance"]["parameters"])
-        test_uri = data["test_definition"]
-        parsed_uri = urlparse(test_uri)
-        test_id = int(parsed_uri.path.split("/")[-1])
-        test_instance_id = int(parse_qs(parsed_uri.query)['version'][0])
-        test_instance = ValidationTestCode.objects.get(pk=test_instance_id)
-        assert test_instance.test_definition.pk == test_id, "{} != {}".format(test_instance.test_definition.pk, test_id)   # sanity check
-
-        new_test_result = ValidationTestResult(model_instance=model_instance,
-                                               test_definition=test_instance,
-                                               results_storage=data["results_storage"],
-                                               result=float(data["result"]),  # should be a Quantity?
-                                               passed=data["passed"],
-                                               platform=json.dumps(data["platform"]),
-                                               project=data.get("project", ""))
-        new_test_result.save()
-        content = self.serializer.serialize(new_test_result)
-        return HttpResponse(content, content_type="application/json; charset=utf-8", status=201)
-
-    def get(self, request, *args, **kwargs):
-        results = ValidationTestResult.objects.all()
-        content = self.serializer.serialize(results)
-        return HttpResponse(content, content_type="application/json; charset=utf-8", status=200)
-
-
-
-#class SimpleResultCreateView(View):  
+@method_decorator(login_required(login_url='/login/hbp'), name='dispatch' )
 class ValidationTestResultView(View):  
     template_name = "simple_result_new_create.html"
     model = ValidationTestResult 
@@ -676,27 +644,6 @@ class ValidationTestResultView(View):
             form.save()
             return HttpResponseRedirect(form.id)
         return render(request, self.template_name, {'form': form})
-
-
-@method_decorator(login_required(login_url='/login/hbp'), name='dispatch' )
-class ValidationTestResultResource(View):
-    serializer = ValidationTestResultSerializer
-    login_url='/login/hbp/'
-
-    def _get_result(self, result_id):
-        try:
-            result = ValidationTestResult.objects.get(pk=result_id)
-        except ValidationTestResult.DoesNotExist:
-            result = None
-        return result
-
-    def get(self, request, *args, **kwargs):
-        """View a result"""
-        result = self._get_result(kwargs["result_id"])
-        if result is None:
-            return HttpResponseNotFound("No such result")
-        content = self.serializer.serialize(result)
-        return HttpResponse(content, content_type="application/json; charset=utf-8", status=200)
 
 
 @method_decorator(login_required(login_url='/login/hbp'), name='dispatch' )
@@ -769,6 +716,7 @@ class SimpleResultListView(LoginRequiredMixin, ListView):
 
 @method_decorator(login_required(login_url='/login/hbp'), name='dispatch' )
 class SimpleResultDetailView(LoginRequiredMixin, DetailView):
+    
     model = ValidationTestResult
     template_name = "simple_result_detail.html"
 
@@ -912,4 +860,72 @@ class SimpleResultDetailView(LoginRequiredMixin, DetailView):
             return data
         else:
             print("Storage not yet supported")
+
         return {}
+
+
+@method_decorator(login_required(login_url='/login/hbp'), name='dispatch' )
+class ValidationTestResultCreate(View):   
+    model = ValidationTestResult   
+    template_name = "simple_result_create.html"
+    login_url='/login/hbp/'
+    form_class = ValidationTestResultForm
+   
+    serializer = ValidationTestResultSerializer
+    
+
+
+    def get(self, request, *args, **kwargs):
+
+        h = ValidationTestResult()
+        form = self.form_class(instance = h)
+        return render(request, self.template_name, {'form': form, })
+
+
+    def post(self, request, *args, **kwargs):
+        """Add a test"""
+        
+        result_creation = ValidationTestResult()
+        #test_creation = ValidationTestResult() 
+        form = self.form_class(request.POST, instance=result_creation)
+        #form = self.form_class(request.POST, instance=test_creation)
+
+        if form.is_valid():
+            form = form.save(commit=False)
+            form.save()
+            return HttpResponseRedirect(form.id)
+        return render(request, self.template_name, {'form': form})
+
+
+@method_decorator(login_required(login_url='/login/hbp'), name='dispatch' )
+class ValidationTestResultEdit(TemplateView): 
+    template_name = "simple_result_edit.html"
+    model = ValidationTestResult
+    form_class = ValidationTestResultForm
+
+    serializer = ValidationTestResultSerializer
+    login_url='/login/hbp/'
+
+
+    def get(self, request, *args, **kwargs):
+
+        h = ValidationTestResult()
+        form = self.form_class(instance = h)
+
+        return render(request, self.template_name, {'form': form, })
+
+
+    def post(self, request, *args, **kwargs):
+        """Add a result"""
+       
+        result_creation = ValidationTestResult()
+        form = self.form_class(request.POST, instance=result_creation)
+
+        if form.is_valid():
+            result = form.save()
+            content = self.serializer.serialize(test)
+            return HttpResponse(content, content_type="application/json; charset=utf-8", status=201)
+        else:
+            print(form.data)
+            return HttpResponseBadRequest(str(form.errors))  # todo: plain text
+

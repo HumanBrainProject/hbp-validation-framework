@@ -3,8 +3,16 @@
 
 {% block content %}
 
-<h1>Validation test result</h1>
+<h1>Validation test result: {{object.name}}</h1>
 <p><a href=".">back</a></p>
+
+
+<table class="table table-striped">
+    <th>
+        <a href="edit/{{object.id}}"><button class="btn btn-info">Edit Validation test</button></a>
+    </th> 
+</table>
+
 
 <table class="table table-striped">
     <tbody>
