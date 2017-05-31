@@ -865,7 +865,7 @@ class SimpleResultDetailView(LoginRequiredMixin, DetailView):
         return {}
 
 @method_decorator(login_required(login_url='/login/hbp'), name='dispatch' )
-class ValidationTestResultCreate(View):   
+class SimpleResultEditView(View):   
     model = ValidationTestResult   
     template_name = "simple_result_create.html"
     login_url='/login/hbp/'
