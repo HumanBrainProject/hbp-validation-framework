@@ -825,7 +825,7 @@ class SimpleResultCreateView(View):
            form.save()
            return HttpResponseRedirect(form.id)
         return render(request, self.template_name, {'form': form})
-"""
+""" 
 
 
 
