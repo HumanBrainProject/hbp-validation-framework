@@ -143,12 +143,13 @@ class ValidationTestResult(models.Model):
     project = models.CharField(help_text="Project with which this test run is associated(optional)",
                                max_length=200,
                                blank=True)  # project==collab_id for HBP
-
+    
     class Meta:
         get_latest_by = "timestamp"
 
     def get_platform_as_dict(self):
-        return json.loads(self.platform)
+#        return json.loads(self.platform)
+        return "ERROR"
 
     def __str__(self):
         return "Validation test result {}".format(self.id,)
