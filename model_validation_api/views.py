@@ -8,6 +8,7 @@ import logging
 from urlparse import urlparse, parse_qs
 from datetime import date
 from django.shortcuts import render
+from django.core.urlresolvers import reverse
 from django.forms.models import model_to_dict
 from django.views.generic import View, ListView, DetailView, TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -24,8 +25,8 @@ import requests
 from hbp_app_python_auth.auth import get_access_token, get_auth_header
 
 from .models import (ValidationTestDefinition, ValidationTestCode,
-                     ValidationTestResult, ScientificModelInstance, ScientificModel)
-from .forms import ValidationTestDefinitionForm, ScientificModelForm, ValidationTestResultForm
+                     ValidationTestResult, ScientificModelInstance, ScientificModel, ScientificModelInstance)
+from .forms import ValidationTestDefinitionForm, ScientificModelForm, ScientificTestForm, ValidationTestResultForm, ScientificModelInstanceForm
 
 CROSSREF_URL = "http://api.crossref.org/works/"
 VALID_FILTER_NAMES = ('name', 'age', 'brain_region', 'cell_type',
@@ -267,40 +268,6 @@ class ValidationTestDefinitionCreate(DetailView):
         #     return self.redirect(request, ctx = self.kwargs['ctx'])
         # return render(request, self.template_name, {'form': form, 'ctx': self.kwargs['ctx'], 'collab_name':get_collab_name(self.kwargs['ctx'])})
 
-class ValidationTestDefinitionEdit(TemplateView): 
-    template_name = "simple_test_edit.html"
-    model = ValidationTestDefinition
-    form_class = ValidationTestDefinitionForm
-
-    serializer = ValidationTestDefinitionSerializer
-    login_url='/login/hbp/'
-
-
-    def get(self, request, *args, **kwargs):
-
-        h = ValidationTestDefinition()
-        form = self.form_class(instance = h)
-
-        return render(request, self.template_name, {'form': form, })
-
-
-    def post(self, request, *args, **kwargs):
-        """Add a test"""
-        # if not is_admin(request):
-        #     return HttpResponseForbidden("You do not have permission to add a test.")
-        #  form = ValidationTestDefinitionForm(json.loads(request.body))
-
-        test_creation = ValidationTestDefinition()
-        form = self.form_class(request.POST, instance=test_creation)
-
-        if form.is_valid():
-            test = form.save()
-            content = self.serializer.serialize(test)
-            return HttpResponse(content, content_type="application/json; charset=utf-8", status=201)
-        else:
-            print(form.data)
-            return HttpResponseBadRequest(str(form.errors))  # todo: plain text
-
 
 class ValidationTestDefinitionSearchResource(View):
     serializer = ValidationTestDefinitionSerializer
@@ -391,6 +358,33 @@ class SimpleTestDetailView(LoginRequiredMixin, DetailView):
         pub_data["year"] = pub_data["created"]["date-parts"][0][0]
         template = u"{authors} ({year}) {title[0]}. {short-container-title[0]} {volume}:{page} {URL}"
         return template.format(**pub_data)
+
+class SimpleTestEditView(DetailView):
+    model = ValidationTestDefinition
+    form_class = ScientificTestForm
+    template_name = "simple_test_edit.html"
+    login_url='/login/hbp/'
+
+    def get_context_data(self, **kwargs):
+        context = super(SimpleTestEditView, self).get_context_data(**kwargs)
+        context["section"] = "models"
+        context["build_info"] = settings.BUILD_INFO
+        return context
+
+    def get(self, request, *args, **kwargs):
+        print(self.get_object().id)
+        h = ValidationTestDefinition.objects.get(id = self.get_object().id)
+        form = self.form_class(instance = h)
+        return render(request, self.template_name, {'form': form, 'object':h})
+    
+    def post(self, request, *args, **kwargs):
+        m = self.get_object()
+        form = self.form_class(request.POST, instance=m)
+        if form.is_valid():
+            form = form.save(commit=False)
+            form.save()
+            return render(request, "simple_test_detail.html", {'form': form, "object": m})
+        return render(request, self.template_name, {'form': form, "object": m})
 
 
 class ValidationTestResultSerializer(object):
@@ -639,9 +633,51 @@ class SimpleModelEditView(DetailView):
         if form.is_valid():
             form = form.save(commit=False)
             form.save()
-            return render(request, "simple_model_detail.html", {'form': form, "object": m})
+            return self.redirect(request, pk=m.id)
         return render(request, self.template_name, {'form': form, "object": m})
+    
+    @classmethod    
+    def redirect(self, request, *args, **kwargs): 
+        url = reverse("simple-model-detail-view", kwargs = { 'pk':kwargs['pk']})
+        return HttpResponseRedirect(url)
 
+class SimpleModelVersionView(DetailView):
+    model = ScientificModelInstance
+    form_class = ScientificModelInstanceForm
+    template_name = "simple_model_version.html"
+    login_url='/login/hbp/'
+
+    def get_context_data(self, **kwargs):
+        context = super(SimpleModelVersionView, self).get_context_data(**kwargs)
+        context["section"] = "models"
+        context["build_info"] = settings.BUILD_INFO
+        return context
+
+    def get(self, request, *args, **kwargs):
+        qs = request.META['QUERY_STRING']
+        if qs.startswith("modelID="):
+            model_id = qs[8:] 
+            h = ScientificModel.objects.get(id=model_id)
+        else: 
+            h = ScientificModel()
+        instance = ScientificModelInstance()
+        instance.model = h
+        form = self.form_class(instance = instance)
+        return render(request, self.template_name, {'form': form, 'object':h})
+    
+    def post(self, request, *args, **kwargs):
+
+        form = self.form_class(request.POST)
+        if form.is_valid():
+            form = form.save(commit=False)
+            form.save()
+            return self.redirect(request, pk=form.model.id)
+        return render(request, self.template_name, {'form': form})
+
+    @classmethod    
+    def redirect(self, request, *args, **kwargs): 
+        url = reverse("simple-model-detail-view", kwargs = { 'pk':kwargs['pk']})
+        return HttpResponseRedirect(url)
 
 class SimpleModelCreateView(View):
     model = ScientificModel
@@ -657,10 +693,15 @@ class SimpleModelCreateView(View):
     def post(self, request, *args, **kwargs):
          model_creation = ScientificModel()
          form = self.form_class(request.POST, instance=model_creation)
-
          if form.is_valid():
             form = form.save(commit=False)
             form.save()
+            disp = request.POST.get("display_type", None)
+            if disp :
+                model_instance = ScientificModelInstance()
+                model_instance.model = ScientificModel.objects.get(id = form.id)
+                model_instance.version = 'original version'
+                model_instance.save()
             return HttpResponseRedirect(form.id)
          return render(request, self.template_name, {'form': form})
 

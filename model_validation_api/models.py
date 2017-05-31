@@ -123,7 +123,7 @@ class ScientificModelInstance(models.Model):
     """
     model = models.ForeignKey(ScientificModel, related_name="instances")
     version = models.CharField(max_length=64)
-    parameters = models.TextField()
+    parameters = models.TextField(null=True, blank=True)
 
     def __str__(self):
         return "Model: {} @ version {}".format(self.model.name, self.version)

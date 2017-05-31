@@ -1,5 +1,6 @@
 from django.forms import ModelForm
-from .models import ValidationTestDefinition, ScientificModel, ValidationTestResult
+from django import forms
+from .models import ValidationTestDefinition, ScientificModel, ValidationTestResult, ScientificModelInstance
 
 
 class ValidationTestDefinitionForm(ModelForm):
@@ -14,9 +15,20 @@ class ValidationTestResultForm(ModelForm):
         model = ValidationTestResult
         fields = "__all__"
 
+class ScientificTestForm(ModelForm):
+
+    class Meta:
+        model = ValidationTestResult
+        fields = "__all__"
 
 class ScientificModelForm(ModelForm):
 
     class Meta:
         model = ScientificModel
+        fields = "__all__"
+
+class ScientificModelInstanceForm(ModelForm):
+
+    class Meta:
+        model = ScientificModelInstance
         fields = "__all__"
