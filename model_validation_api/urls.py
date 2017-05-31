@@ -87,13 +87,13 @@ urlpatterns = (
         SimpleResultListView.as_view(),
         name="simple-result-list-view"),
 
-    url(r'^view/results/(?P<pk>\d+)$'.format(uuid_pattern),
+    url(r'^view/results/(?P<pk>{})$'.format(uuid_pattern),
         SimpleResultDetailView.as_view(),
         name="simple-result-detail-view"),   
     url(r'^view/results/create$',
         ValidationTestResultCreate.as_view(),
         name="simple-result-create-view"),  
-    url(r'^view/results/edit/(?P<pk>\d+)$'.format(uuid_pattern),
+    url(r'^view/results/edit/(?P<pk>{})$'.format(uuid_pattern),
         ValidationTestResultEdit.as_view(),
         name="edit-result-view"), 
 )
