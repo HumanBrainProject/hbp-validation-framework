@@ -234,10 +234,57 @@ class ValidationTestDefinitionCreate(DetailView):
         form = self.form_class(request.POST, instance=test_creation)
 
         if form.is_valid():
-            form = form.save()
-            content = self.serializer.serialize(form)
-            # return HttpResponse(content, content_type="application/json; charset=utf-8", status=201)
-            return HttpResponseRedirect(form.id)
+            
+            # content = self.serializer.serialize(form)
+
+            repository = request.POST.get("repository", None)
+            path = request.POST.get("path", None)
+            version = request.POST.get("version", None)
+
+
+            #TODO :  add some check to verify that repository/path/version are correct. 
+                    #possible to combine 2 models in one form ?
+            if repository and path and version :
+                
+                
+                
+                form = form.save()
+                
+                
+
+                test_code = ValidationTestCode()
+                # test_code.test_definition_id = ValidationTestDefinition.objects.get(id = form.id)
+                test_code.test_definition = ValidationTestDefinition.objects.get(id = form.id)
+                # test_code.test_definition_id = test_creation
+                
+                # test_code.test_definition_id = form.id
+                
+                print ("")
+                print (ValidationTestDefinition.objects.get(id = form.id).id)
+                print (test_code.test_definition_id)
+                print(form.id)
+                print ("")
+                
+
+                
+                test_code.repository = repository
+                test_code.path = path
+                test_code.version = version
+
+
+                test_code.save()
+
+                
+
+                # return HttpResponse(content, content_type="application/json; charset=utf-8", status=201)
+                return HttpResponseRedirect(form.id)
+            else :
+                print(form.data)
+                print ("repository : " + str(repository))
+                print ("path : " + str(path))
+                print ("version" + str(version))
+                return HttpResponseBadRequest(str(form.errors))  # todo: plain text
+                
         else:
             print(form.data)
             return HttpResponseBadRequest(str(form.errors))  # todo: plain text

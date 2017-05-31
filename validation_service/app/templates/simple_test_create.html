@@ -3,6 +3,8 @@
 <h1>Create new Test</h1>
 <p><a href=".">back</a></p>
 
+</br>
+<h3>About test definition</h3>
 <form action="" class="scientific-test-form" method="POST">
     <table class="table table-striped table-condensed">
         {% csrf_token %} {{ form.non_field_errors }}
@@ -122,17 +124,52 @@
                 </td>
             </tr>
 
-
-
-
         </tbody>
     </table>
-    <br/>
 
-    <div class="navbar navbar-form">
-        <!--<button type="submit" class="btn btn-primary" >Save</button>    #on-submit=view.redirect()-->
-        <button type="submit" class="btn btn-primary">Save</button>
+
+    <br/>
+    <h3>About test code</h3>
+
+    <!--<label for="l_box1"><input type="radio" name="display_type" value=True id="l_box1"> Save as a version</label>-->
+
+    <div class="input-group">
+        <span class="input-group-addon" id="basic-addon1">Repository</span>
+        <input type="text" name="repository" class="form-control" placeholder="texte" aria-describedby="basic-addon1">
     </div>
+
+
+    <br/>
+    <div class="input-group">
+        <span class="input-group-addon" id="basic-addon1 ">Path</span>
+        <input type="text " name="path" class="form-control " placeholder="texte " aria-describedby="basic-addon1 ">
+    </div>
+
+    <br/>
+    <div class="input-group ">
+        <span class="input-group-addon " id="basic-addon1 ">Version</span>
+        <input type="text " name="version" class="form-control " placeholder="texte " aria-describedby="basic-addon1 ">
+    </div>
+
+
+
+
+
+
+
+
+
+    <br/>
+    <div class="navbar navbar-form ">
+        <!--<button type="submit " class="btn btn-primary " >Save</button>    #on-submit=view.redirect()-->
+        <button type="submit " class="btn btn-primary ">Save</button>
+    </div>
+
+
+
+
+
+
 </form>
 
 

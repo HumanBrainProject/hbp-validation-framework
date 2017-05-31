@@ -76,6 +76,7 @@ class ValidationTestDefinition(models.Model):
 
 @python_2_unicode_compatible
 class ValidationTestCode(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     repository = models.CharField(max_length=200, help_text="location of the code that defines the test")
     version = models.CharField(max_length=128, help_text="version of the code that defines the test")
     path = models.CharField(max_length=200, help_text="path to test class within Python code")
