@@ -1,13 +1,11 @@
-{% extends 'base.html' %}
-
-{% block content %}
+{% extends 'base.html' %} {% block content %}
 
 <h1>Model validation test results</h1>
 
 <table class="table table-striped">
     <th>
         <!-- Barre de recherche sur le nom des modeles -->
-         <form class="form-inline pull-left">
+        <form class="form-inline pull-left">
             <input type="text" name="search" style="width:150px" class="form-control" placeholder="Search">
             <select id="model-list-select-search" class="input-sm form-control" name="search_cat" data-style="btn-primary"> <!-- onChange="window.location.href=this.value">-->
                 <option value=""> Search by </option>
@@ -22,8 +20,8 @@
 
 <!--
 <table class="table table-striped">
- <th>Filters:
-    <select id="model-list-select" data-style="btn-primary" onChange="window.location.href=this.value">
+    <th>Filters:
+        <select id="model-list-select" data-style="btn-primary" onChange="window.location.href=this.value">
          <option value=""> by brain region </option>
          <option value="?brain_region=cerebellum">Cerebellum</option>
          <option value="?brain_region=hippocampus">Hippocampus</option>
@@ -73,8 +71,8 @@
          {% for test_name in filters.tests %}<option value="?validation={{test_name}}">{{test_name}}</span></option> {% endfor %}
          <option value="."></option>
     </select>
-   
-    <select id="model-list-select" data-style="btn-primary"  onChange="window.location.href=this.value">       
+
+        <select id="model-list-select" data-style="btn-primary" onChange="window.location.href=this.value">       
          <option value=""> by validation test </option>
          <option value="?name=oblique integration">oblique integration</option>
          <option value="?name=depolarization block">depolarization block</option>
@@ -85,9 +83,10 @@
          {% for test_name in filters.tests %}<option value="?validation={{test_name}}">{{test_name}}</span></option> {% endfor %}
          <option value="."></option>
     </select>
-    <a href="."><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></a>
+        <a href="."><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></a>
     </th>
     <th>
+
         <a href="create"><button class="btn btn-info">Add new test result</button></a>
     </th>
 </table>
@@ -138,16 +137,6 @@
 
 
 
-<table class="table table-striped">
-    <th>
-<a href="{% url 'About_the_Models_Page' %}">About the Models Page</a>
-<br/>
-<a href="{% url 'About_the_validation_test_result' %}">About the Validation Test Result</a>
-<br/>
-<a href="{% url 'simple_result_detail' %}">About the Test</a>
-<br/>
-    </th>
-</table>
 
 
 
@@ -157,29 +146,29 @@
 
 <table class="table table-striped">
     <thead>
-    <tr>
-        <th>Date/time</th>
-        <th colspan="2">Model</th>
-        <th colspan="2">Validation test</th>
-        <th>Result</th>
-        <th>Platform</th>
-        <th>Collab</th>
-    </tr>
+        <tr>
+            <th>Date/time</th>
+            <th colspan="2">Model</th>
+            <th colspan="2">Validation test</th>
+            <th>Result</th>
+            <th>Platform</th>
+            <th>Collab</th>
+        </tr>
     </thead>
     <tbody>
-{% for result in object_list %}
-    <tr>
-        <!--<td><a href="{{ result.id }}">{{ result.timestamp }}</a></td>-->
-        <td>{{ result.timestamp }}</td>
-        <td><a href="/view/models/{{ result.model_instance.model.id }}">{{ result.model_instance.model.name }}</a></td>
-        <td>{{ result.model_instance.version|truncatechars:9 }}</td>
-        <td><a href="/view/tests/{{ result.test_definition.test_definition.id }}">{{ result.test_definition.test_definition.name }}</a></td>
-        <td>{{ result.test_definition.version|truncatechars:9 }}</td>
-        <td>{{ result.result }}</td>
-        <td>{{ result.get_platform_as_dict.network_name }}</td>
-        <td>{{ result.project }}</td>
-    </tr>
-{% endfor %}
+        {% for result in object_list %}
+        <tr>
+            <!--<td><a href="{{ result.id }}">{{ result.timestamp }}</a></td>-->
+            <td>{{ result.timestamp }}</td>
+            <td><a href="/view/models/{{ result.model_instance.model.id }}">{{ result.model_instance.model.name }}</a></td>
+            <td>{{ result.model_instance.version|truncatechars:9 }}</td>
+            <td><a href="/view/tests/{{ result.test_definition.test_definition.id }}">{{ result.test_definition.test_definition.name }}</a></td>
+            <td>{{ result.test_definition.version|truncatechars:9 }}</td>
+            <td>{{ result.result }}</td>
+            <td>{{ result.get_platform_as_dict.network_name }}</td>
+            <td>{{ result.project }}</td>
+        </tr>
+        {% endfor %}
     </tbody>
 </table>
 
