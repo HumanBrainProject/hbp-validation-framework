@@ -17,7 +17,8 @@ from .views import (ValidationTestDefinitionResource,
                     SimpleModelCreateView,
                     SimpleResultListView,
                     SimpleResultDetailView,
-                    SimpleResultEditView
+                    #SimpleResultEditView
+                    
                     #SimpleResultCreateView,
                     #ValidationTestResultView, 
                     # ValidationTestResultCreate,
@@ -99,8 +100,10 @@ urlpatterns = (
     #      #ValidationTestResultView.as_view(),
     #     ValidationTestResultCreate.as_view(),
     #     name="simple-result-create-view"),  
-    url(r'^edit$',
-        SimpleResultEditView.as_view(),
-        name="simple-result-edit-view"), 
+    
+    #
+    #url(r'^edit$',
+    #    SimpleResultEditView.as_view(),
+    #    name="simple-result-edit-view"), 
 
 )
