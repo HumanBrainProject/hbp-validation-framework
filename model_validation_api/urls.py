@@ -85,20 +85,24 @@ urlpatterns = (
         SimpleModelVersionView.as_view(),
         name="simple-model-version-view"),
 
-
     url(r'^view/results/$',
         SimpleResultListView.as_view(),
         name="simple-result-list-view"),
+
     url(r'^view/results/(?P<pk>{})$'.format(uuid_pattern),
         SimpleResultDetailView.as_view(),
         name="simple-result-detail-view"),   
+
     # url(r'^view/results/create$',
     #     #SimpleResultCreateView.as_view(),
     #     #ValidationTestResultListResource.as_view(),
     #      #ValidationTestResultView.as_view(),
     #     ValidationTestResultCreate.as_view(),
     #     name="simple-result-create-view"),  
-    url(r'^edit$',
-        SimpleResultEditView.as_view(),
-        name="simple-result-edit-view"), 
+    
+    #
+    #url(r'^edit$',
+    #    SimpleResultEditView.as_view(),
+    #    name="simple-result-edit-view"), 
+
 )

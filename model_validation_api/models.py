@@ -156,6 +156,7 @@ class ValidationTestResult(models.Model):
 
     def get_platform_as_dict(self):
         return json.loads(self.platform)
+#        return 'OK'
 
     def __str__(self):
         return "Validation test result {}".format(self.id,)
