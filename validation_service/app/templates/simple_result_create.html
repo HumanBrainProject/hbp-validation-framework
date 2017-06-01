@@ -1,174 +1,40 @@
 {% extends 'base.html' %} {% load markup %} {% load jsonify %} {% block content %}
 
-<h1>Create new Test Results</h1>
+<h1>Run a test validation</h1>
 <p><a href=".">back</a></p>
 
 
 
-<form action="" class="validation-test-result-form" method="POST">       
-<table class="table table-striped table-condensed">
-     {% csrf_token %} {{ form.non_field_errors }}
-    <tbody>
-        <tr>
-                <td> Model
-                    {{form.model_instance.model.pk.label_tag}}
-                </td>
-                <td> 
-                    {{form.model_instance.model.pk}} 
-                    <p class="help-text">{{ form.model_instance.model.pk.errors }}</p>
-                </td>
-        </tr>
-        
-        <tr>
-                <td> Version
-                    {{form.model_instance.version.label_tag}}
-                </td>
-                <td>
-                    {{form.model_instance.version}} 
-                    <p class="help-text">{{ form.model_instance.version.errors }}</p>
-                </td>
-        </tr>
+<form action="" class="validation-test-result-form" method="POST">
 
-        <tr>
-                <td> Parameters
-                    {{form.model_instance.parameters.label_tag}}
-                </td>
-                <td>
-                    {{form.model_instance.parameters}} 
-                    <p class="help-text">{{ form.model_instance.parameters.errors }}</p>
-                </td>
-        </tr>
-        
-        <tr>
-                <td> Result
-                    {{form.result.model_instance.label_tag}}
-                </td>
-                <td>
-                    {{form.result.model_instance.parameters}} 
-                    <p class="help-text">{{ form.result.model_instance.errors }}</p>
-                </td>
-        </tr>
+    {% csrf_token %} {{ form.non_field_errors }}
 
-        <tr>
-                <td> Test Definition
-                    {{form.test_definition.test_definition..label_tag}}
-                </td>
-                <td>
-                    {{form.test_definition.test_definition.}} 
-                    <p class="help-text">{{ form.test_definition.test_definition..errors }}</p>
-                </td>
-        </tr>
+    <tr class="input-group-btn select">
+        <label for="model-list-select"> Select a model: 
+                <select id="model-list-select" data-style="btn-primary" name="model_select">
+                    <option value=""> default </option>
+                    {% for model in datas.models %}
+                    <option value="{{model}}">{{model.name}}</option>
+                    {% endfor %}
+                </select>
+                </label>
+    </tr>
+    </br>
+    <tr class="input-group-btn select">
+        <label for="test-list-select"> Select a test: 
+                <select id="test-list-select" data-style="btn-primary" name="test_select">
+                    {% for test in datas.tests %}
+                    <option value="{{test}}">{{test}}</option>
+                    {% endfor %}
+                </select>
+                </label>
+    </tr>
+    <!-- /btn-group -->
 
-        <tr>
-                <td> 
-                    {{form.results_storage.label_tag}}
-                </td>
-                <td>
-                    {{form.results_storage}} 
-                    <p class="help-text">{{ form.results_storage.errors }}</p>
-                </td>
-        </tr>
-        <tr>
-                <td> 
-                    {{form.result.label_tag}}
-                </td>
-                <td>
-                    {{form.result}} 
-                    <p class="help-text">{{ form.result.errors }}</p>
-                </td>
-        </tr>
-        <tr>
-                <td> 
-                    {{form.passed.label_tag}}
-                </td>
-                <td>
-                    {{form.passed}} 
-                    <p class="help-text">{{ form.passed.errors }}</p> 
-                </td>
-        </tr>
-        <tr>
-                <td> Platform
-                    {{form.get_platform_as_dict.label_tag}}
-                </td>
-                <td>
-                    {{form.get_platform_as_dict}} 
-                    <p class="help-text">{{ form.get_platform_as_dict.errors }}</p>
-                </td>
-        </tr>
-        <tr>
-                <td> Time / Date
-                    {{form.timestamp.label_tag}}
-                </td>
-                <td>
-                    {{form.timestamp}} 
-                    <p class="help-text">{{ form.timestamp.errors }}</p>
-                </td>
-        </tr>
-        <tr>
-                <td> 
-                    {{form.project.label_tag}}
-                </td>
-                <td>
-                    {{form.project}} 
-                    <p class="help-text">{{ form.project.errors }}</p>
-                </td>
-        </tr> 
-        <tr>
-                <td> Format 
-                    {{form.format.label_tag}}
-                </td>
-                <td>
-                    {{form.format}} 
-                    <p class="help-text">{{ form.format.errors }}</p>
-                </td>
-        </tr>
-
-    </tbody>
-</table>
-
-
-<h2>Additional data</h2>
-    <table class="table table-striped">
-        <tbody>
-            <tr>
-                <td>
-            <!--<p> -->
-                {{ related_data.folder.path.label_tag  }}
-            <!--</p>-->
-                </td>
-            <!--<p>-->
-                <td>
-                <a href="{{related_data.folder.url}}">{{ related_data.folder.path }}</a>
-            <!--</p>-->
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    
-
-<h2>Platform</h2>
-<table class="table table-striped">
-    <tbody>
-        {% for key, value in object.get_platform_as_dict.items %}
-            <tr>
-                <td>
-                    {{ key.label_tag }}
-                </td>
-                <td>
-                    {{ key }}
-                </td>
-                <td>
-                    {{ value.label_tag }}
-                </td>
-                <td>
-                    {{ value }}
-                </td>
-            </tr>
-        {% endfor %}
-    </tbody>
-</table>
-
-
+    <div class="navbar navbar-form">
+        <button type="submit" class="btn btn-primary">Save</button>
+    </div>
+</form>
 
 
 {% endblock %}
