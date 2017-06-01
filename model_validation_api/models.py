@@ -47,9 +47,9 @@ CELL_TYPE_CHOICES = (
 class ValidationTestDefinition(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=200, help_text="short descriptive name")
-    species = models.CharField(max_length=100, help_text="species") # G
-    brain_region = models.CharField(max_length=100, help_text="brain region")  # I
-    cell_type = models.CharField(max_length=100, help_text="cell type")  # D
+    species = models.CharField(max_length=100,choices=SPECIES_CHOICES, help_text="species") # G
+    brain_region = models.CharField(max_length=100, choices=BRAIN_REGION_CHOICES, help_text="brain region")  # I
+    cell_type = models.CharField(max_length=100, choices=CELL_TYPE_CHOICES,help_text="cell type")  # D
     age = models.CharField(max_length=50, null=True, help_text="age of animal, e.g. '6 weeks'")
     data_location = models.CharField(max_length=200, help_text="location of comparison data")  # M
     data_type = models.CharField(max_length=100, help_text="type of comparison data (number, histogram, time series, etc.)")  # S

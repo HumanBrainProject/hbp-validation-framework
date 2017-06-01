@@ -17,7 +17,7 @@ from .views import (ValidationTestDefinitionResource,
                     SimpleModelCreateView,
                     SimpleResultListView,
                     SimpleResultDetailView,
-                    SimpleResultEditView
+                    SimpleResultEditView,
                     #SimpleResultCreateView,
                     #ValidationTestResultView, 
                     # ValidationTestResultCreate,

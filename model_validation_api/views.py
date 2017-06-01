@@ -232,7 +232,7 @@ class ValidationTestDefinitionCreate(DetailView):
 
         test_creation = ValidationTestDefinition()
         form = self.form_class(request.POST, instance=test_creation)
-
+    
         if form.is_valid():
             
             # content = self.serializer.serialize(form)
@@ -754,7 +754,7 @@ class SimpleResultListView(LoginRequiredMixin, ListView):
         context["section"] = "results"
         context["build_info"] = settings.BUILD_INFO
 
-        # create list of model and validation filters
+        # create list of model and tests filters
         context["filters"] = {
             "models": ScientificModel.objects.values_list('name', flat=True),
             "tests": ValidationTestDefinition.objects.values_list('name', flat=True)
@@ -912,29 +912,27 @@ class SimpleResultDetailView(LoginRequiredMixin, DetailView):
         return {}
 
 @method_decorator(login_required(login_url='/login/hbp'), name='dispatch' )
-class ValidationTestResultCreate(View):   
+class SimpleResultEditView(View):   
     model = ValidationTestResult   
     template_name = "simple_result_create.html"
     login_url='/login/hbp/'
     form_class = ValidationTestResultForm
     serializer = ValidationTestResultSerializer
 
-    def get_context_data(self, **kwargs):
-        context = super(SimpleResultEditView, self).get_context_data(**kwargs)
-        context["section"] = "results"
-        context["build_info"] = settings.BUILD_INFO
-        return context
-
     def get(self, request, *args, **kwargs):
 
         h = ValidationTestResult()
         form = self.form_class(instance = h)
-        return render(request, self.template_name, {'form': form, })
+        datas = {}
+        datas['models'] = list(ScientificModel.objects.all().distinct())
+        datas['tests'] = list(ValidationTestDefinition.objects.all().distinct())
+        print(datas)
+        return render(request, self.template_name, {'form': form, 'datas':datas})
 
 
     def post(self, request, *args, **kwargs):
         """Add a test"""
-        
+        print('result', request.POST.get("model_select", None))
         result_creation = ValidationTestResult()
         #test_creation = ValidationTestResult() 
         form = self.form_class(request.POST, instance=result_creation)
