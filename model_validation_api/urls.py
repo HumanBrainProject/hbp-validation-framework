@@ -58,6 +58,7 @@ urlpatterns = (
     url(r'^view/tests/(?P<pk>{})$'.format(uuid_pattern),
         SimpleTestDetailView.as_view(),
         name="simple-detail-view"),
+        #name="simple-test-detail-view"),
     url(r'^view/tests/edit/(?P<pk>{})$'.format(uuid_pattern),
         SimpleTestEditView.as_view(),
         name="edit-test-view"),
