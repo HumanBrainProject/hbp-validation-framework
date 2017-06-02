@@ -5,10 +5,22 @@
 
 <table class="table table-striped">
     <th>
-        <form class="form-inline pull-right">
+<!--        <form class="form-inline pull-right">-->
+       
+        <form class="form-inline pull-left">    
 
             <input type="text" name="search" style="width:150px" class="input-sm form-control" placeholder="Search">
 
+            <select id="model-list-select-search" class="form-control" name="search_cat" data-style="btn-primary">  
+                <option value=""> Search by </option>
+                <option value="name">Name</option>
+                <option value="species">Species</option>
+                <option value="brain_region">Brain region</option>
+                <option value="cell_type">Cell type</option>
+                <option value="data_location">Code location</option>
+                <option value="author">Author</option>
+            </select>
+            
             <button type="submit" class="btn btn-info"><span class="glyphicon glyphicon-search"></span> </button>
 
         </form>

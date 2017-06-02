@@ -1,143 +1,160 @@
-{% extends 'base.html' %} {% load markup %} {% load jsonify %} {% block content %}
+{% extends 'base.html' %} {% load markup %} {% block content %}
 
 <h1>Edit Test: {{object.name}}</h1>
-<p><a href=".">back</a></p>
+<p><a href="{% url 'simple-detail-view' pk=object.id  %}">back</a></p>
 
 <form action="" class="scientific-test-form" method="POST">
-    <table class="table table-striped table-condensed">
-        {% csrf_token %} {{ form.non_field_errors }}
+    <table class="table table-condensed">
+        {% csrf_token %} {{ form.non_field_errors }} {{form.errors}}
         <tbody>
 
             <tr>
-                <td>
-                    {{ form.name.label_tag }}
-                </td>
-                <td>
-                    {{ object.name }}
-                    <p class="help-text">{{ form.name.errors }}</p>
-                </td>
+                <td>ID</td>
+                <td>{{ object.id }}</td>
+                <td></td>
             </tr>
             <tr>
-                <td>
-                    {{ form.author.label_tag }}
-                </td>
-                <td>
-                    {{form.author}}
-                    <p class="help-text">{{ form.author.errors }}</p>
-                </td>
-            </tr>
-
-            <tr>
-                <td>
-                    {{ form.publication.label_tag }}
-                </td>
-                <td>
-                    {{form.publication}}
-                    <p class="help-text">{{ form.publication.errors }}</p>
-                </td>
+                <td>Name</td>
+                <td>{{ form.name }}</td>
+                <p class="help-text">{{ form.name.errors }}</p>
             </tr>
             <tr>
-                <td>
-                    {{ form.protocol.label_tag }}
-                </td>
-                <td>
-                    {{form.protocol}}
-                    <p class="help-text">{{ form.protocol.errors }}</p>
-                </td>
-            </tr>
-
-            <tr>
-                <td>
-                    {{ form.species.label_tag }}
-                </td>
-                <td>
-                    {{ form.species }}
-                    <p class="help-text">{{ form.species.errors }}</p>
-                </td>
+                <td>Author(s)</td>
+                <td>{{ form.author }}</td>
+                <p class="help-text">{{ form.author.errors }}</p>
             </tr>
             <tr>
-                <td>
-                    {{ form.brain_region.label_tag }}
-                </td>
-                <td>
-                    {{form.brain_region}}
-                    <p class="help-text">{{ form.brain_region.errors }}</p>
-                </td>
+                <td>Publication</td>
+                <td>{{ form.publication }}</td>
+                <p class="help-text">{{ form.publication.errors }}</p>
             </tr>
             <tr>
-                <td>
-                    {{ form.cell_type.label_tag }}
-                </td>
-                <td>
-                    {{form.cell_type}}
-                    <p class="help-text">{{ form.cell_type.errors }}</p>
-                </td>
-            </tr>
-
-            <tr>
-                <td>
-                    {{ form.age.label_tag }}
-                </td>
-                <td>
-                    {{form.age}}
-                    <p class="help-text">{{ form.age.errors }}</p>
-                </td>
-            </tr>
-
-            <tr>
-                <td>
-                    {{ form.data_location.label_tag }}
-                </td>
-                <td>
-                    {{ form.data_location }}
-                    <p class="help-text">{{ form.data_location.errors }}</p>
-                </td>
+                <td>Protocol</td>
+                <td>{{ form.protocol }}</td>
+                <p class="help-text">{{ form.protocol.errors }}</p>
             </tr>
             <tr>
-                <td>
-                    {{ form.data_type.label_tag }}
-                </td>
-                <td>
-                    {{form.data_type}}
-                    <p class="help-text">{{ form.data_type.errors }}</p>
-                </td>
+                <td>Species</td>
+                <td>{{ form.species }}</td>
+                <!--<p class="help-text">{{ form.species.errors }}</p>-->
             </tr>
             <tr>
-                <td>
-                    {{ form.data_modality.label_tag }}
-                </td>
-                <td>
-                    {{form.data_modality}}
-                    <p class="help-text">{{ form.data_modality.errors }}</p>
-                </td>
+                <td>Brain region</td>
+                <td>{{ form.brain_region }}</td>
+                <!--<p class="help-text">{{ form.brain_region.errors }}</p>-->
             </tr>
-
             <tr>
-                <td>
-                    {{ form.test_type.label_tag }}
-                </td>
-                <td>
-                    {{form.test_type}}
-                    <p class="help-text">{{ form.test_type.errors }}</p>
-                </td>
+                <td>Cell type</td>
+                <td>{{ form.cell_type }}</td>
+                <!--<p class="help-text">{{ form.cell_type.errors }}</p>-->
+            </tr>
+            <tr>
+                <td>Age</td>
+                <td>{{ form.age }}</td>
+                <!--<p class="help-text">{{ form.age.errors }}</p>-->
+            </tr>
+            <tr>
+                <td>Data location</td>
+                <td>{{ form.data_location }}</td>
+                <!--<p class="help-text">{{ form.data_location.errors }}</p>-->
+            </tr>
+            <tr>
+                <td>Data type</td>
+                <td>{{form.data_type}}</td>
+                <!--<p class="help-text">{{ form.data_type.errors }}</p>-->
+            </tr>
+            <tr>
+                <td>Data modality</td>
+                <td>{{ form.data_modality }}</td>
+                <!--<p class="help-text">{{ form.data_modality.errors }}</p>-->
+            </tr>
+            <tr>
+                <td>Test type</td>
+                <td>{{ form.test_type }}</td>
+                <!--<p class="help-text">{{ form.test_type.errors }}</p>-->
             </tr>
 
 
+
+<!--
+            <tr>
+                <td>ID</td>
+                <td>{{ object.id }}</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>Name</td>
+                <td>{{ object.name }}</td>
+                <p class="help-text">{{ object.name.errors }}</p>
+            </tr>
+            <tr>
+                <td>Author(s)</td>
+                <td>{{ object.author }}</td>
+                <p class="help-text">{{ object.author.errors }}</p>
+            </tr>
+
+            <tr>
+                <td>Publication</td>
+                <td>{{ object.publication }}</td>
+                <p class="help-text">{{ object.publication.errors }}</p>
+            </tr>
+            <tr>
+                <td>Protocol</td>
+                <td>{{ object.protocol }}</td>
+                <p class="help-text">{{ object.protocol.errors }}</p>
+            </tr>
+            <tr>
+                <td>Species</td>
+                <td>{{ object.species }}</td>
+                <p class="help-text">{{ object.species.errors }}</p>
+            </tr>
+            <tr>
+                <td>Brain region</td>
+                <td>{{ object.brain_region }}</td>
+                <p class="help-text">{{ object.brain_region.errors }}</p>
+            </tr>
+            <tr>
+                <td>Cell type</td>
+                <td>{{ object.cell_type }}</td>
+                <p class="help-text">{{ object.cell_type.errors }}</p>
+            </tr>
+            <tr>
+                <td>Age</td> 
+                <td>{{ object.age }}</td>
+                <p class="help-text">{{ object.age.errors }}</p>
+            </tr>
+            <tr>
+                <td>Data location</td>
+                <td>{{ object.data_location }}</td>
+                p class="help-text">{{ object.data_location.errors }}</p>
+            </tr>
+            <tr>
+                <td>Data type</td>
+                <td>{{object.data_type}}</td>
+                <p class="help-text">{{ object.data_type.errors }}</p>
+            </tr>
+            <tr>
+                <td>Data modality</td>
+                <td>{{ object.data_modality }}</td>
+                <p class="help-text">{{ object.data_modality.errors }}</p>
+            </tr>
+            <tr>
+                <td>Test type</td>
+                <td>{{ object.test_type }}</td>
+                <p class="help-text">{{ object.test_type.errors }}</p>
+            </tr>
+-->
 
 
         </tbody>
     </table>
     <br/>
 
+
     <div class="navbar navbar-form">
         <!--<button type="submit" class="btn btn-primary" >Save</button>    #on-submit=view.redirect()-->
         <button type="submit" class="btn btn-primary">Save</button>
     </div>
 </form>
-
-
-
-
-
 
 {% endblock %}

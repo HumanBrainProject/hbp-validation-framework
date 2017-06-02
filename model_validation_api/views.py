@@ -378,6 +378,12 @@ class SimpleTestEditView(DetailView):
             return render(request, "simple_test_detail.html", {'form': form, "object": m})
         return render(request, self.template_name, {'form': form, "object": m})
 
+    @classmethod    
+    def redirect(self, request, *args, **kwargs): 
+        url = reverse("simple-detail-view", kwargs = { 'pk':kwargs['pk']})
+        return HttpResponseRedirect(url)
+
+
 
 @method_decorator(login_required(login_url='/login/hbp'), name='dispatch' )
 class ScientificModelResource(View):

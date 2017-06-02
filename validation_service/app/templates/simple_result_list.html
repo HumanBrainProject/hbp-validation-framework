@@ -7,7 +7,7 @@
         <!-- Barre de recherche sur le nom des modeles -->
         <form class="form-inline pull-left">
             <input type="text" name="search" style="width:150px" class="form-control" placeholder="Search">
-            <select id="model-list-select-search" class="form-control" name="search_cat" data-style="btn-primary"> <!-- onChange="window.location.href=this.value">-->
+            <select id="model-list-select-search" class="input-sm form-control" name="search_cat" data-style="btn-primary"> <!-- onChange="window.location.href=this.value">-->
                 <option value=""> Search by </option>
                 <option value="name">Name</option>
                 <option value="test_definition.name">Validation test</option>
@@ -16,8 +16,9 @@
             <button type="submit" class="btn btn-info"><span class="glyphicon glyphicon-search"></span> </button>
         </form>
     </th>
-</table>
 
+
+<!--
 <table class="table table-striped">
     <th>Filters:
         <select id="model-list-select" data-style="btn-primary" onChange="window.location.href=this.value">
@@ -85,11 +86,54 @@
         <a href="."><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></a>
     </th>
     <th>
-        <!-- <form class="form-inline pull-right">-->
+
         <a href="create"><button class="btn btn-info">Add new test result</button></a>
     </th>
 </table>
-</br>
+</br> 
+-->
+
+
+
+
+
+<!--<select id="model-list-select-search" class="input-sm form-control" name="search_cat" data-style="btn-primary"> -->
+
+ <th>Filters:
+    
+    <select id="model-list-select" onChange="window.location.href=this.value">
+        <option value=""> by model name </option>
+            {% for model_name in filters.models %}
+                 <option value="?model={{model_name}}">{{model_name}}</option> 
+            {% endfor %}
+    </select>
+              
+    <select id="model-list-select" onChange="window.location.href=this.value">
+         <option value=""> by validation test </option>
+            {% for test_name in filters.tests %}
+                 <option value="?validation={{test_name}}">{{test_name}}</option>
+            {% endfor %}
+             <!--<option value="."></option>-->
+    </select>
+
+    <select id="model-list-select" onChange="window.location.href=this.value">
+        <option value=""> by brain region </option>
+            {% for region in filters.brain_region %}
+                 <option value="?brain_region={{region}}">{{region}}</option>
+            {% endfor %}
+    </select>  
+
+    <a href="."><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></a>
+    </th>
+    <th>
+        <a href="create"><button class="btn btn-info">Add new test result</button></a>
+    </th>
+</table>
+</br> 
+
+
+
+
 
 
 

@@ -4,7 +4,8 @@
 
 <table class="table table-striped">
     <th>
-        <form class="form-inline pull-right">
+        <!--<form class="form-inline pull-right">-->
+         <form class="form-inline pull-left">   
             <input type="text" name="search" style="width:150px" class="form-control" placeholder="Search">
             <select id="model-list-select-search" class="form-control" name="search_cat" data-style="btn-primary"> <!-- onChange="window.location.href=this.value">-->
                 <option value=""> Search by </option>
@@ -23,58 +24,54 @@
             <button type="submit" class="btn btn-info"><span class="glyphicon glyphicon-search"></span> </button>
         </form>
     </th>
-    <div class="form-inline pull-right">
+  
         <th>
             <label for="model-list-select-1" class="col-sm-2 control-label nopadding" style="height:36px; padding-top:8px !important;">Filters : </label>
-            <div class="col-sm-3 nopadding">
-                <select id="model-list-select-1" class="form-control" data-style="btn-primary" onChange="window.location.href=this.value">
+
+               <select id="model-list-select-1" data-style="btn-primary" onChange="window.location.href=this.value">                    
                     <option value=""> by species </option>
+                    <!--
                     <option value="?species=mouse">Mouse</option>
                     <option value="?species=rat"  >Rat</option>
-
+                    -->
+                        {% for species in filters.species %}
+                     <option value="?species={{species}}">{{species}}</option>
+                        {% endfor %}
                 </select>
-            </div>
-            <div class="col-sm-3 nopadding">
-                <select id="model-list-select-2" class="form-control" onChange="window.location.href=this.value">
+
+                <select id="model-list-select-2" onChange="window.location.href=this.value">
                     <option value=""> by brain region </option>
+                    <!--
                     <option value="?brain_region=cerebellum">Cerebellum</option>
                     <option value="?brain_region=hippocampus">Hippocampus</option>
                     <option value="?brain_region=basal">Basal Ganglia</option>
                     <option value="?brain_region=cortex">Cortex</option>
+                    --> 
+                        {% for region in filters.brain_region %}
+                     <option value="?brain_region={{region}}">{{region}}</option>   
+                        {% endfor %}
                 </select>
-            </div>
-            <div class="col-sm-3 nopadding-left">
-                <select id="model-list-select-3" class="form-control" onChange="window.location.href=this.value">
+
+                <select id="model-list-select-3" onChange="window.location.href=this.value">
                     <option value=""> by cell type </option>
+                    <!--
                     <option value="?cell_type=pyramidal">Pyramidal Cell</option>
                     <option value="?cell_type=interneuron">Interneuron</option>
                     <option value="?cell_type=granule">Granule Cell</option>
-                </select>
-            </div>
-            <a href="."><span class="btn btn-info glyphicon glyphicon-remove" aria-hidden="true"></span></a>
+                    -->
+                        {% for cell in filters.cell_type %}
+                    <option value="?cell_type={{cell}}">{{cell}}</option>
+                        {% endfor %}
+               </select>
+
+            <a href="."><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></a>
         </th>
-    </div>
+   
     <th>
         <a href="create"><button class="btn btn-info">Add new test</button></a>
     </th>
 </table>
 
-<!--<p>Filters:
-    <a href="?species=mouse"><span class="label label-info">Mouse</span></a>
-    <a href="?species=rat"><span class="label label-info">Rat</span></a>
-    <a href="?brain_region=cerebellum"><span class="label label-info">Cerebellum</span></a>
-    <a href="?brain_region=hippocampus"><span class="label label-info">Hippocampus</span></a>
-    <a href="?brain_region=basal"><span class="label label-info">Basal ganglia</span></a>
-    <a href="?brain_region=cortex"><span class="label label-info">Cortex</span></a>
-    <a href="."><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></a>
-</p>
-<p align="right">
-    <!--<form action="{ % url 'create-test-view' %}">-->
-    <!--<form action="create">
-
-        <input type="submit" value="Add new test" />
-    </form>
-</p>-->
 
 <table class="table table-striped">
     <thead>

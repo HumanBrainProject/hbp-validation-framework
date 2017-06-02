@@ -1,0 +1,33 @@
+{
+  "name": "marked-hbp",
+  "version": "0.3.3",
+  "homepage": "https://github.com/oliamb/marked",
+  "authors": [
+    "Christopher Jeffrey <chjjeffrey@gmail.com>"
+  ],
+  "description": "A markdown parser built for speed",
+  "keywords": [
+    "markdown",
+    "markup",
+    "html"
+  ],
+  "main": "lib/marked.js",
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "app/bower_components",
+    "test",
+    "tests"
+  ],
+  "_release": "0.3.3",
+  "_resolution": {
+    "type": "version",
+    "tag": "0.3.3",
+    "commit": "8e81a6ed532c958c05ec224a3aa6b6a0aa3e647b"
+  },
+  "_source": "git://github.com/oliamb/marked-hbp.git",
+  "_target": "~0.3.3",
+  "_originalSource": "marked-hbp"
+}
