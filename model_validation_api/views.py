@@ -35,6 +35,7 @@ from .models import (ValidationTestDefinition,
                         ScientificModelInstance)
 
 from .forms import (ValidationTestDefinitionForm, 
+                        ValidationTestCodeForm,
                         ScientificModelForm, 
                         ScientificTestForm, 
                         ValidationTestResultForm, 
@@ -215,14 +216,16 @@ class ValidationTestDefinitionCreate(DetailView):
     template_name = "simple_test_create.html"
     model = ValidationTestDefinition
     form_class = ValidationTestDefinitionForm
+    form_class_code = ValidationTestCodeForm
     serializer = ValidationTestDefinitionSerializer
     login_url='/login/hbp/'
 
     def get(self, request, *args, **kwargs):    
         h = ValidationTestDefinition()
         form = self.form_class(instance = h)
-
-        return render(request, self.template_name, {'form': form, })
+        c = ValidationTestCode()
+        formcode  = self.form_class_code(instance = c)
+        return render(request, self.template_name, {'form': form, 'formcode':formcode })
 
     def post(self, request, *args, **kwargs):
         """Add a test"""
@@ -232,80 +235,26 @@ class ValidationTestDefinitionCreate(DetailView):
 
         test_creation = ValidationTestDefinition()
         form = self.form_class(request.POST, instance=test_creation)
-    
+        test_code_creation = ValidationTestCode()
+
         if form.is_valid():
-            
-            # content = self.serializer.serialize(form)
-
-            repository = request.POST.get("repository", None)
-            path = request.POST.get("path", None)
-            version = request.POST.get("version", None)
-
-
             #TODO :  add some check to verify that repository/path/version are correct. 
-                    #possible to combine 2 models in one form ?
-            if repository and path and version :
-                
-                
-                
+                    #possible to combine 2 models in one form ? yep :-) it is done
                 form = form.save()
-                
-                
-
-                test_code = ValidationTestCode()
-                # test_code.test_definition_id = ValidationTestDefinition.objects.get(id = form.id)
-                test_code.test_definition = ValidationTestDefinition.objects.get(id = form.id)
-                # test_code.test_definition_id = test_creation
-                
-                # test_code.test_definition_id = form.id
-                
-                print ("")
-                print (ValidationTestDefinition.objects.get(id = form.id).id)
-                print (test_code.test_definition_id)
-                print(form.id)
-                print ("")
-                
-
-                
-                test_code.repository = repository
-                test_code.path = path
-                test_code.version = version
-
-
-                test_code.save()
-
-                
-
-                # return HttpResponse(content, content_type="application/json; charset=utf-8", status=201)
-                return HttpResponseRedirect(form.id)
-            else :
-                print(form.data)
-                print ("repository : " + str(repository))
-                print ("path : " + str(path))
-                print ("version" + str(version))
-                return HttpResponseBadRequest(str(form.errors))  # todo: plain text
-                
+                test_code_creation.test_definition = ValidationTestDefinition.objects.get(id = form.id)
+                test_code_creation.repository = request.POST.get("repository", None)
+                test_code_creation.path = request.POST.get("path", None)
+                test_code_creation.version = request.POST.get("version", None)
+                test_code_creation.save()
+                return self.redirect(request, pk=form.id)       
         else:
-            print(form.data)
-            return HttpResponseBadRequest(str(form.errors))  # todo: plain text
+            return render(request, self.template_name, {'form': form, 'formcode': formcode})  # todo: plain text
 
-    # @classmethod    
-    # def redirect(self, request, *args, **kwargs): ### use to go back to TicketListView directly after creating a ticket
-    #     url = reverse('ticket-list2', kwargs = {'ctx': kwargs['ctx']})
+    @classmethod    
+    def redirect(self, request, *args, **kwargs): ### use to go back to Test detail View
+        url = reverse('simple-detail-view', kwargs = {'pk': kwargs['pk']})
 
-    #     return HttpResponseRedirect(url)
-
-        # def post(self, request, *args, **kwargs):
-        # ticket_creation = Ticket()
-        # ticket_creation.ctx = get_object_or_404(Ctx, ctx=self.kwargs['ctx'])
-        # form = self.form_class(request.POST, instance=ticket_creation)
-
-        # if form.is_valid():
-        #     form = form.save(commit=False)
-        #     form.author = request.user
-        #     form.save()
-        #     return self.redirect(request, ctx = self.kwargs['ctx'])
-        # return render(request, self.template_name, {'form': form, 'ctx': self.kwargs['ctx'], 'collab_name':get_collab_name(self.kwargs['ctx'])})
+        return HttpResponseRedirect(url)
 
 
 @method_decorator(login_required(login_url='/login/hbp'), name='dispatch' )
