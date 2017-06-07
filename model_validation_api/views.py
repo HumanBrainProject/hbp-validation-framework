@@ -594,31 +594,52 @@ class SimpleModelCreateView(View):
     template_name = "simple_model_create.html"
     login_url='/login/hbp/'
     form_class = ScientificModelForm
+    form_class_instance = ScientificModelInstanceForm
     serializer = ScientificModelSerializer
     def get(self, request, *args, **kwargs):
         h = ScientificModel()
         form = self.form_class(instance = h)
-        return render(request, self.template_name, {'form': form})
+        model_instance = ScientificModelInstance()
+        form_instance = self.form_class_instance(instance=model_instance)
+        return render(request, self.template_name, {'form': form, 'form_instance': form_instance})
     
     def post(self, request, *args, **kwargs):
          model_creation = ScientificModel()
          form = self.form_class(request.POST, instance=model_creation)
          if form.is_valid():
             form = form.save(commit=False)
+            form.access_control = 2180 #self.get_collab_id()
             form.save()
             # content = self.serializer.serialize(form)
-
-            disp = request.POST.get("display_type", None)
-            if disp :
-                model_instance = ScientificModelInstance()
-                model_instance.model = ScientificModel.objects.get(id = form.id)
-                model_instance.version = 'original version'
-                model_instance.save()
-            
+            model_instance = ScientificModelInstance(model = ScientificModel.objects.get(id = form.id))
+            form_instance = self.form_class_instance(instance = model_instance)
+            form_instance = form_instance.save(commit=False)
+            form_instance.model = ScientificModel.objects.get(id = form.id)
+            form_instance.source = request.POST.get('source', None)
+            form_instance.version = request.POST.get('version', None)
+            form_instance.parameters = request.POST.get('parameters', None)
+            form_instance.save()
             return HttpResponseRedirect(form.id)
  
          return render(request, self.template_name, {'form': form}, status=400) 
+    def get_collab_id(self):
+        social_auth = self.request.user.social_auth.get()
+        print("social auth", social_auth.extra_data )
+        # import hbp_service_client.document_service.client as doc_service_client
+        # access_token = get_access_token(self.request.user.social_auth.get())
+        # dsc = doc_service_client.Client.new(access_token)
 
+        headers = {
+            'Authorization': get_auth_header(self.request.user.social_auth.get())
+        }
+
+        #to get collab_id
+        svc_url = settings.HBP_COLLAB_SERVICE_URL
+        context = self.request.session["next"][6:]
+        url = '%scollab/context/%s/' % (svc_url, context)
+        res = requests.get(url, headers=headers)
+        collab_id = res.json()['collab']['id']
+        return collab_id
 
 @method_decorator(login_required(login_url='/login/hbp'), name='dispatch' )
 class ValidationTestResultResource(View):
