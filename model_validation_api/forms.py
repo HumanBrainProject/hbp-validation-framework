@@ -32,9 +32,12 @@ class ScientificModelForm(ModelForm):
     class Meta:
         model = ScientificModel
         fields = "__all__"
-
+        widgets = {
+            'access_control': forms.HiddenInput(),
+        }
 class ScientificModelInstanceForm(ModelForm):
 
     class Meta:
         model = ScientificModelInstance
         fields = "__all__"
+       

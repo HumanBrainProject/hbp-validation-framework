@@ -42,6 +42,12 @@ CELL_TYPE_CHOICES = (
         ('pyramidal cell','Pyramidal Cell'),
         ('other','Other'),
     )
+MODEL_TYPE = (
+        ('single_cell','Single Cell'),
+        ('network','Network'),
+        ('mean_field','Mean Field'),
+        ('other','Other'),
+    )    
 
 @python_2_unicode_compatible
 class ValidationTestDefinition(models.Model):
@@ -114,9 +120,10 @@ class ScientificModel(models.Model):
     brain_region = models.CharField(max_length=100, choices=BRAIN_REGION_CHOICES, blank=True, help_text="brain region, if applicable")
     cell_type = models.CharField(max_length=100,choices=CELL_TYPE_CHOICES, blank=True, help_text="cell type, for single-cell models")
     author = models.TextField(help_text="Author(s) of this model")  # do we need a separate "owner" field?
-    source = models.URLField(help_text="Version control repository containing the source code of the model")
-    # todo: move `source` field into ModelInstance
-    # model_type? (network, single neuron, etc.)?
+    model_type = models.CharField(max_length=100, choices=MODEL_TYPE, blank=True, help_text="model type: single cell, network or mean field region")
+    private = models.BooleanField ( default= False ,help_text="privacy of the model: can be private (if true) or public (if false)")
+    access_control = models.IntegerField( default=0, help_text="ID of the collab containing the model. Use for access control")
+    # todo: 
     # spiking vs rate?
 
     def __str__(self):
@@ -131,6 +138,7 @@ class ScientificModelInstance(models.Model):
     model = models.ForeignKey(ScientificModel, related_name="instances")
     version = models.CharField(max_length=64)
     parameters = models.TextField(null=True, blank=True)
+    source = models.URLField(help_text="Version control repository containing the source code of the model")
 
     def __str__(self):
         return "Model: {} @ version {}".format(self.model.name, self.version)
