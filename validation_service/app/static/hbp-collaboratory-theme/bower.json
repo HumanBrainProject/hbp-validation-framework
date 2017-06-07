@@ -1,0 +1,45 @@
+{
+  "name": "hbp-collaboratory-theme",
+  "version": "0.1.0",
+  "authors": [
+    "Olivier Amblet <olivier.amblet@epfl.ch>"
+  ],
+  "description": "A Bootstrap 3 Theme for HBP Collaboratory Extensions",
+  "main": [
+    "dist/sass/theme.scss",
+    "dist/css/bootstrap.css",
+    "dist/fonts/glyphicons-halflings-regular.eot",
+    "dist/fonts/glyphicons-halflings-regular.svg",
+    "dist/fonts/glyphicons-halflings-regular.ttf",
+    "dist/fonts/glyphicons-halflings-regular.woff",
+    "dist/fonts/glyphicons-halflings-regular.woff2",
+    "dist/fonts/Gotham-Black.otf",
+    "dist/fonts/Gotham-BlackItalic.otf",
+    "dist/fonts/Gotham-Bold.otf",
+    "dist/fonts/Gotham-BoldItalic.otf",
+    "dist/fonts/Gotham-Book.otf",
+    "dist/fonts/Gotham-BookItalic.otf",
+    "dist/fonts/Gotham-Light.otf",
+    "dist/fonts/Gotham-LightItalic.otf",
+    "dist/fonts/Gotham-Medium.otf",
+    "dist/fonts/Gotham-MediumItalic.otf",
+    "dist/fonts/Gotham-Thin.otf",
+    "dist/fonts/Gotham-ThinItalic.otf",
+    "dist/fonts/Gotham-Ultra.otf",
+    "dist/fonts/Gotham-UltraItalic.otf",
+    "dist/fonts/Gotham-XLight.otf",
+    "dist/fonts/Gotham-XLightItalic.otf"
+  ],
+  "homepage": "https://bbpcode.epfl.ch/code/#/admin/projects/platform/hbp/collaboratory-theme",
+  "license": "-",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "devDependencies": {
+    "bootstrap-sass": "~3.3.3"
+  }
+}

@@ -1,0 +1,40 @@
+dl {
+  > dt {
+    padding-top: $padding-base-vertical;
+  }
+
+  > :first-child {
+    padding-top: 0;
+  }
+}
+
+
+// This .dl-horizontal overrides use the grid system as a base for
+// implementation. It make it easier to structure content with other
+// part of UI element.
+.dl-horizontal {
+  @include make-row;
+
+  > dt {
+    @include make-sm-column($dl-horizontal-dt-columns);
+    padding-bottom: $padding-base-vertical;
+    padding-top: 0;
+
+    &.dl-horizontal-heading {
+      @include make-sm-column-push($dl-horizontal-dt-columns);
+      @include make-sm-column($dl-horizontal-dd-columns);
+      text-align: left;
+    }
+
+    + dd {
+      @include make-sm-column-push(0);
+    }
+  }
+
+  > dd {
+    @include make-sm-column-push($dl-horizontal-dt-columns);
+    @include make-sm-column($dl-horizontal-dd-columns);
+    margin-left: 0;
+    padding-bottom: $padding-base-vertical;
+  }
+}
