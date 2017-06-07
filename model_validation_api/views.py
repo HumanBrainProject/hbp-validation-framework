@@ -312,6 +312,10 @@ class SimpleTestListView(LoginRequiredMixin, ListView):
 
                     self.object_list = (name_list|species_list|age_list|brain_region_list|cell_type_list|data_location_list|data_type_list|data_modality_list|test_type_list|author_list|publication_list).distinct()
                     return self.object_list
+        else :
+            for key, value in self.request.GET.items():
+                search = value
+                filters[key + "__icontains"] = search
 
         return ValidationTestDefinition.objects.filter(**filters)
 
