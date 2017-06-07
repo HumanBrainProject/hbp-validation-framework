@@ -246,7 +246,7 @@ class ValidationTestDefinitionCreate(DetailView):
                 test_code_creation.path = request.POST.get("path", None)
                 test_code_creation.version = request.POST.get("version", None)
                 test_code_creation.save()
-                return self.redirect(request, pk=form.id)       
+                return self.redirect(request, pk=form.id)
         else:
             return render(request, self.template_name, {'form': form, 'formcode': formcode})  # todo: plain text
 
@@ -282,7 +282,7 @@ class SimpleTestListView(LoginRequiredMixin, ListView):
     login_url='/login/hbp/'           
 
     def get_queryset(self):
-        logger.debug("SimpleTestListView - get_queryset" + str(self.request.GET.items()))
+        # print("SimpleTestListView - get_queryset" + str(self.request.GET.items()))
         filters = {}
         if self.request.META['QUERY_STRING'].startswith("search="):
             search = ""
@@ -292,20 +292,43 @@ class SimpleTestListView(LoginRequiredMixin, ListView):
                     search = value
                 if key == 'search_cat':
                     search_cat = value
-            print(search_cat, search)
+            # print(search_cat, search)
             if search_cat in VALID_FILTER_NAMES:
                 filters[search_cat + "__icontains"] = search
+            else :
+                for item in VALID_FILTER_NAMES:
+                    filters[item + "__icontains"] = search
+                    name_list = ValidationTestDefinition.objects.filter(name__contains=search)
+                    species_list = ValidationTestDefinition.objects.filter(species__contains=search)
+                    age_list = ValidationTestDefinition.objects.filter(age__contains=search)
+                    brain_region_list = ValidationTestDefinition.objects.filter(brain_region__contains=search)
+                    cell_type_list = ValidationTestDefinition.objects.filter(cell_type__contains=search)
+                    data_location_list = ValidationTestDefinition.objects.filter(data_location__contains=search)
+                    data_type_list = ValidationTestDefinition.objects.filter(data_type__contains=search)
+                    data_modality_list = ValidationTestDefinition.objects.filter(data_modality__contains=search)
+                    test_type_list = ValidationTestDefinition.objects.filter(test_type__contains=search)
+                    author_list = ValidationTestDefinition.objects.filter(author__contains=search)
+                    publication_list = ValidationTestDefinition.objects.filter(publication__contains=search)
+
+                    self.object_list = (name_list|species_list|age_list|brain_region_list|cell_type_list|data_location_list|data_type_list|data_modality_list|test_type_list|author_list|publication_list).distinct()
+                    return self.object_list
         else :
             for key, value in self.request.GET.items():
-                print(key, value)
-                if key in VALID_FILTER_NAMES:
-                    filters[key + "__icontains"] = value
+                search = value
+                filters[key + "__icontains"] = search
+
         return ValidationTestDefinition.objects.filter(**filters)
 
 
     def get_context_data(self, **kwargs):
         context = super(SimpleTestListView, self).get_context_data(**kwargs)
         context["section"] = "tests"
+        context["filters"] = {
+            "species": ValidationTestDefinition.objects.values_list('species', flat=True).distinct(),
+            "brain_region": ValidationTestDefinition.objects.values_list('brain_region', flat=True).distinct(),
+            "cell_type": ValidationTestDefinition.objects.values_list('cell_type', flat=True).distinct(),
+        }
+
         return context
 
 
@@ -353,7 +376,7 @@ class SimpleTestDetailView(LoginRequiredMixin, DetailView):
 @method_decorator(login_required(login_url='/login/hbp'), name='dispatch' )
 class SimpleTestEditView(DetailView):
     model = ValidationTestDefinition
-    form_class = ScientificTestForm
+    form_class = ValidationTestDefinitionForm
     template_name = "simple_test_edit.html"
     login_url='/login/hbp/'
 
@@ -367,6 +390,7 @@ class SimpleTestEditView(DetailView):
         print(self.get_object().id)
         h = ValidationTestDefinition.objects.get(id = self.get_object().id)
         form = self.form_class(instance = h)
+        # print(str(form))
         return render(request, self.template_name, {'form': form, 'object':h})
     
     def post(self, request, *args, **kwargs):
@@ -375,7 +399,8 @@ class SimpleTestEditView(DetailView):
         if form.is_valid():
             form = form.save(commit=False)
             form.save()
-            return render(request, "simple_test_detail.html", {'form': form, "object": m})
+            return self.redirect(request, pk=m.id)
+            # return render(request, "simple_test_detail.html", {'form': form, "object": m})
         return render(request, self.template_name, {'form': form, "object": m})
 
     @classmethod    
@@ -439,7 +464,6 @@ class SimpleModelListView(LoginRequiredMixin, ListView):
     template_name = "simple_model_list.html"
     login_url='/login/hbp/'
     
-
     def get_queryset(self):
         filters = {}
 
@@ -506,6 +530,7 @@ class SimpleModelEditView(DetailView):
         print(self.get_object().id)
         h = ScientificModel.objects.get(id = self.get_object().id)
         form = self.form_class(instance = h)
+        # print(str(form))
         return render(request, self.template_name, {'form': form, 'object':h})
     
     def post(self, request, *args, **kwargs):

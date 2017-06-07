@@ -27,43 +27,30 @@
   
         <th>
             <label for="model-list-select-1" class="col-sm-2 control-label nopadding" style="height:36px; padding-top:8px !important;">Filters : </label>
-
-               <select id="model-list-select-1" data-style="btn-primary" onChange="window.location.href=this.value">                    
+            <div class="col-sm-3 nopadding">
+                <select id="model-list-select-1" class="form-control nopadding" onChange="window.location.href=this.value">                    
                     <option value=""> by species </option>
-                    <!--
-                    <option value="?species=mouse">Mouse</option>
-                    <option value="?species=rat"  >Rat</option>
-                    -->
                         {% for species in filters.species %}
-                     <option value="?species={{species}}">{{species}}</option>
+                        <option value="?species={{species}}">{{species}}</option>
                         {% endfor %}
                 </select>
-
-                <select id="model-list-select-2" onChange="window.location.href=this.value">
+            </div>
+            <div class="col-sm-3 nopadding">
+                <select id="model-list-select-2" class="form-control nopadding" onChange="window.location.href=this.value">
                     <option value=""> by brain region </option>
-                    <!--
-                    <option value="?brain_region=cerebellum">Cerebellum</option>
-                    <option value="?brain_region=hippocampus">Hippocampus</option>
-                    <option value="?brain_region=basal">Basal Ganglia</option>
-                    <option value="?brain_region=cortex">Cortex</option>
-                    --> 
                         {% for region in filters.brain_region %}
-                     <option value="?brain_region={{region}}">{{region}}</option>   
+                    <option value="?brain_region={{region}}">{{region}}</option>   
                         {% endfor %}
                 </select>
-
-                <select id="model-list-select-3" onChange="window.location.href=this.value">
+            </div>
+            <div class="col-sm-3 nopadding-left">
+                <select id="model-list-select-3" class="form-control nopadding" onChange="window.location.href=this.value">
                     <option value=""> by cell type </option>
-                    <!--
-                    <option value="?cell_type=pyramidal">Pyramidal Cell</option>
-                    <option value="?cell_type=interneuron">Interneuron</option>
-                    <option value="?cell_type=granule">Granule Cell</option>
-                    -->
                         {% for cell in filters.cell_type %}
                     <option value="?cell_type={{cell}}">{{cell}}</option>
                         {% endfor %}
-               </select>
-
+                </select>
+            </div>
             <a href="."><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></a>
         </th>
    
@@ -88,13 +75,6 @@
             <th>Code location</th>
             <th>Author</th>
             <th>Publication</th>
-
-
-
-
-
-
-
         </tr>
 
     </thead>

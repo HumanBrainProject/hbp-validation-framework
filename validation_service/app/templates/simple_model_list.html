@@ -5,8 +5,6 @@
 
 <table class="table table-striped">
     <th>
-        <!--        <form class="form-inline pull-right">-->
-
         <form class="form-inline pull-left">
 
             <input type="text" name="search" style="width:150px" class="input-sm form-control" placeholder="Search">
@@ -14,25 +12,32 @@
 
         </form>
     </th>
-    <th>Filters:
-        <select id="model-list-select" data-style="btn-primary" onChange="window.location.href=this.value">
-            <option value=""> by species </option>
-            {% for species in filters.species %}
-            <option value="?species={{species}}">{{species}}</option>
-            {% endfor %}
-        </select>
-        <select id="model-list-select" onChange="window.location.href=this.value">
-            <option value=""> by brain region </option>
-            {% for region in filters.brain_region %}
-            <option value="?brain_region={{region}}">{{region}}</option>
-            {% endfor %}
-        </select>
-        <select id="model-list-select" onChange="window.location.href=this.value">
-            <option value=""> by cell type </option>
-            {% for cell in filters.cell_type %}
-            <option value="?cell_type={{cell}}">{{cell}}</option>
-            {% endfor %}
-        </select>
+    <th><label for="model-list-select-1" class="col-sm-2 control-label nopadding" style="height:36px; padding-top:8px !important;">Filters : </label>
+        <div class="col-sm-3 nopadding">
+            <select id="model-list-select-1" class="form-control nopadding" onChange="window.location.href=this.value">
+                <option value=""> by species </option>
+                {% for species in filters.species %}
+                <option value="?species={{species}}">{{species}}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-sm-3 nopadding">
+            <select id="model-list-select-2" class="form-control nopadding" onChange="window.location.href=this.value">
+                <option value=""> by brain region </option>
+                {% for region in filters.brain_region %}
+                <option value="?brain_region={{region}}">{{region}}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-sm-3 nopadding-left">
+            <select id="model-list-select-3" class="form-control nopadding" onChange="window.location.href=this.value">
+                <option value=""> by cell type </option>
+                {% for cell in filters.cell_type %}
+                <option value="?cell_type={{cell}}">{{cell}}</option>
+                {% endfor %}
+            </select>
+        </div>
+
         <a href="."><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></a>
     </th>
 
