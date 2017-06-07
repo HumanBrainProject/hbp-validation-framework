@@ -376,7 +376,7 @@ class SimpleTestDetailView(LoginRequiredMixin, DetailView):
 @method_decorator(login_required(login_url='/login/hbp'), name='dispatch' )
 class SimpleTestEditView(DetailView):
     model = ValidationTestDefinition
-    form_class = ScientificTestForm
+    form_class = ValidationTestDefinitionForm
     template_name = "simple_test_edit.html"
     login_url='/login/hbp/'
 
@@ -387,9 +387,10 @@ class SimpleTestEditView(DetailView):
         return context
 
     def get(self, request, *args, **kwargs):
-        # print(self.get_object().id)
+        print(self.get_object().id)
         h = ValidationTestDefinition.objects.get(id = self.get_object().id)
         form = self.form_class(instance = h)
+        # print(str(form))
         return render(request, self.template_name, {'form': form, 'object':h})
     
     def post(self, request, *args, **kwargs):
@@ -398,7 +399,8 @@ class SimpleTestEditView(DetailView):
         if form.is_valid():
             form = form.save(commit=False)
             form.save()
-            return render(request, "simple_test_detail.html", {'form': form, "object": m})
+            return self.redirect(request, pk=m.id)
+            # return render(request, "simple_test_detail.html", {'form': form, "object": m})
         return render(request, self.template_name, {'form': form, "object": m})
 
     @classmethod    
@@ -528,6 +530,7 @@ class SimpleModelEditView(DetailView):
         print(self.get_object().id)
         h = ScientificModel.objects.get(id = self.get_object().id)
         form = self.form_class(instance = h)
+        # print(str(form))
         return render(request, self.template_name, {'form': form, 'object':h})
     
     def post(self, request, *args, **kwargs):
