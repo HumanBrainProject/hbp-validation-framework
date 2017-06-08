@@ -246,7 +246,7 @@ class ValidationTestDefinitionCreate(DetailView):
                 test_code_creation.path = request.POST.get("path", None)
                 test_code_creation.version = request.POST.get("version", None)
                 test_code_creation.save()
-                return self.redirect(request, pk=form.id)       
+                return self.redirect(request, pk=form.id)
         else:
             return render(request, self.template_name, {'form': form, 'formcode': formcode})  # todo: plain text
 
@@ -283,7 +283,7 @@ class SimpleTestListView(LoginRequiredMixin, ListView):
     login_url='/login/hbp/'           
 
     def get_queryset(self):
-        logger.debug("SimpleTestListView - get_queryset" + str(self.request.GET.items()))
+        # print("SimpleTestListView - get_queryset" + str(self.request.GET.items()))
         filters = {}
         if self.request.META['QUERY_STRING'].startswith("search="):
             search = ""
@@ -293,20 +293,43 @@ class SimpleTestListView(LoginRequiredMixin, ListView):
                     search = value
                 if key == 'search_cat':
                     search_cat = value
-            print(search_cat, search)
+            # print(search_cat, search)
             if search_cat in VALID_FILTER_NAMES:
                 filters[search_cat + "__icontains"] = search
+            else :
+                for item in VALID_FILTER_NAMES:
+                    filters[item + "__icontains"] = search
+                    name_list = ValidationTestDefinition.objects.filter(name__contains=search)
+                    species_list = ValidationTestDefinition.objects.filter(species__contains=search)
+                    age_list = ValidationTestDefinition.objects.filter(age__contains=search)
+                    brain_region_list = ValidationTestDefinition.objects.filter(brain_region__contains=search)
+                    cell_type_list = ValidationTestDefinition.objects.filter(cell_type__contains=search)
+                    data_location_list = ValidationTestDefinition.objects.filter(data_location__contains=search)
+                    data_type_list = ValidationTestDefinition.objects.filter(data_type__contains=search)
+                    data_modality_list = ValidationTestDefinition.objects.filter(data_modality__contains=search)
+                    test_type_list = ValidationTestDefinition.objects.filter(test_type__contains=search)
+                    author_list = ValidationTestDefinition.objects.filter(author__contains=search)
+                    publication_list = ValidationTestDefinition.objects.filter(publication__contains=search)
+
+                    self.object_list = (name_list|species_list|age_list|brain_region_list|cell_type_list|data_location_list|data_type_list|data_modality_list|test_type_list|author_list|publication_list).distinct()
+                    return self.object_list
         else :
             for key, value in self.request.GET.items():
-                print(key, value)
-                if key in VALID_FILTER_NAMES:
-                    filters[key + "__icontains"] = value
+                search = value
+                filters[key + "__icontains"] = search
+
         return ValidationTestDefinition.objects.filter(**filters)
 
 
     def get_context_data(self, **kwargs):
         context = super(SimpleTestListView, self).get_context_data(**kwargs)
         context["section"] = "tests"
+        context["filters"] = {
+            "species": ValidationTestDefinition.objects.values_list('species', flat=True).distinct(),
+            "brain_region": ValidationTestDefinition.objects.values_list('brain_region', flat=True).distinct(),
+            "cell_type": ValidationTestDefinition.objects.values_list('cell_type', flat=True).distinct(),
+        }
+
         return context
 
 
@@ -385,7 +408,7 @@ class SimpleTestVersionView(DetailView):
 @method_decorator(login_required(login_url='/login/hbp'), name='dispatch' )
 class SimpleTestEditView(DetailView):
     model = ValidationTestDefinition
-    form_class = ScientificTestForm
+    form_class = ValidationTestDefinitionForm
     template_name = "simple_test_edit.html"
     login_url='/login/hbp/'
 
@@ -399,6 +422,7 @@ class SimpleTestEditView(DetailView):
         print(self.get_object().id)
         h = ValidationTestDefinition.objects.get(id = self.get_object().id)
         form = self.form_class(instance = h)
+        # print(str(form))
         return render(request, self.template_name, {'form': form, 'object':h})
     
     def post(self, request, *args, **kwargs):
@@ -407,7 +431,8 @@ class SimpleTestEditView(DetailView):
         if form.is_valid():
             form = form.save(commit=False)
             form.save()
-            return render(request, "simple_test_detail.html", {'form': form, "object": m})
+            return self.redirect(request, pk=m.id)
+            # return render(request, "simple_test_detail.html", {'form': form, "object": m})
         return render(request, self.template_name, {'form': form, "object": m})
 
     @classmethod    
@@ -471,7 +496,6 @@ class SimpleModelListView(LoginRequiredMixin, ListView):
     template_name = "simple_model_list.html"
     login_url='/login/hbp/'
     
-
     def get_queryset(self):
         filters = {}
 
@@ -538,6 +562,7 @@ class SimpleModelEditView(DetailView):
         print(self.get_object().id)
         h = ScientificModel.objects.get(id = self.get_object().id)
         form = self.form_class(instance = h)
+        # print(str(form))
         return render(request, self.template_name, {'form': form, 'object':h})
     
     def post(self, request, *args, **kwargs):
@@ -601,31 +626,52 @@ class SimpleModelCreateView(View):
     template_name = "simple_model_create.html"
     login_url='/login/hbp/'
     form_class = ScientificModelForm
+    form_class_instance = ScientificModelInstanceForm
     serializer = ScientificModelSerializer
     def get(self, request, *args, **kwargs):
         h = ScientificModel()
         form = self.form_class(instance = h)
-        return render(request, self.template_name, {'form': form})
+        model_instance = ScientificModelInstance()
+        form_instance = self.form_class_instance(instance=model_instance)
+        return render(request, self.template_name, {'form': form, 'form_instance': form_instance})
     
     def post(self, request, *args, **kwargs):
          model_creation = ScientificModel()
          form = self.form_class(request.POST, instance=model_creation)
          if form.is_valid():
             form = form.save(commit=False)
+            form.access_control = 2180 #self.get_collab_id()
             form.save()
             # content = self.serializer.serialize(form)
-
-            disp = request.POST.get("display_type", None)
-            if disp :
-                model_instance = ScientificModelInstance()
-                model_instance.model = ScientificModel.objects.get(id = form.id)
-                model_instance.version = 'original version'
-                model_instance.save()
-            
+            model_instance = ScientificModelInstance(model = ScientificModel.objects.get(id = form.id))
+            form_instance = self.form_class_instance(instance = model_instance)
+            form_instance = form_instance.save(commit=False)
+            form_instance.model = ScientificModel.objects.get(id = form.id)
+            form_instance.source = request.POST.get('source', None)
+            form_instance.version = request.POST.get('version', None)
+            form_instance.parameters = request.POST.get('parameters', None)
+            form_instance.save()
             return HttpResponseRedirect(form.id)
  
          return render(request, self.template_name, {'form': form}, status=400) 
+    def get_collab_id(self):
+        social_auth = self.request.user.social_auth.get()
+        print("social auth", social_auth.extra_data )
+        # import hbp_service_client.document_service.client as doc_service_client
+        # access_token = get_access_token(self.request.user.social_auth.get())
+        # dsc = doc_service_client.Client.new(access_token)
 
+        headers = {
+            'Authorization': get_auth_header(self.request.user.social_auth.get())
+        }
+
+        #to get collab_id
+        svc_url = settings.HBP_COLLAB_SERVICE_URL
+        context = self.request.session["next"][6:]
+        url = '%scollab/context/%s/' % (svc_url, context)
+        res = requests.get(url, headers=headers)
+        collab_id = res.json()['collab']['id']
+        return collab_id
 
 @method_decorator(login_required(login_url='/login/hbp'), name='dispatch' )
 class ValidationTestResultResource(View):

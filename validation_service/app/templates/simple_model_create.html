@@ -73,17 +73,44 @@
                             </td>
                         </tr>
                         <tr>
+
                             <td>
-                                {{ form.source.label_tag }}
+                                {{ form.model_type.label_tag }}
                             </td>
                             <td>
-                                {{form.source}}
-                                <p class="help-text">{{ form.source.errors }}</p>
+                                {{form.model_type}}
+                                <p class="help-text">{{ form.model_type.errors }}</p>
                             </td>
                         </tr>
                         <tr>
-                            <label for="l_box1"><input type="radio" name="display_type" value=True id="l_box1"> Save as a version</label>
+                            <td>
+                                {{ form_instance.source.label_tag }}
+                            </td>
+                            <td>
+                                {{form_instance.source}}
+                                <p class="help-text">{{ form_instance.source.errors }}</p>
+                            </td>
                         </tr>
+                        <tr>
+                            <tr>
+                                <td>
+                                    <b>Version name</b>
+                                </td>
+                                <td>
+                                    {{form_instance.version}}
+                                    <p class="help-text">{{ form_instance.version.errors }}</p>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    {{ form.private.label_tag }}
+                                </td>
+                                <td>
+                                    {{form.private}}
+                                    <p class="help-text">{{ form_instance.private.errors }}</p>
+                                </td>
+                                {{form.access_control}}
+                            </tr>
                     </tbody>
                 </table>
         </tbody>
