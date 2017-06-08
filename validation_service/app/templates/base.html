@@ -10,6 +10,7 @@
 
     <link rel="stylesheet" href="{% static 'hbp-collaboratory-theme/dist/css/bootstrap.css' %}">
     <link rel="stylesheet" href="{% static 'app.css' %}">
+    <link rel="stylesheet" href="{% static 'css/Model_catalog.css' %}">
   </head>
   <body>
     {% hbp_oidc_session_handler request.user %}
@@ -33,8 +34,7 @@
 
 
     <script type="text/javascript" src="{% static 'js/app.js' %}"></script>
-
-
+    <script type="text/javascript" src="{% static 'js/Model_catalog.js' %}"></script>
 
 
     <nav class="navbar navbar-default navbar-static-top">
@@ -56,6 +56,7 @@
         <li{% if section == 'models' %} class="active"{% endif %}><a href="/view/models/">Model Catalog</a></li>
         <li{% if section == 'tests' %} class="active"{% endif %}><a href="/view/tests/">Validation Tests</a></li>
         <li{% if section == 'results' %} class="active"{% endif %}><a href="/view/results/">Test Results</a></li>
+        <li{% if section == 'home' %} class="active"{% endif %}><a href="/view/validation/home/">Home Validation</a></li>
       </ul>
     </div><!-- /.navbar-collapse -->
   </div><!-- /.container-fluid -->
