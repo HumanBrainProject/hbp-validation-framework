@@ -2,5 +2,15 @@
 
 <h1>Home Validation</h1>
 
-sssss
+
+<tr>
+    <h2>list tests</h2>
+    {% for test in tests %}
+    <p>{{test.name}} </p> {% endfor %} </tr>
+</br>
+</br>
+<h2>list models</h2>
+<tr>{% for model in models %}
+    <p>{{model.name}} </p> {% endfor %}</tr>
+
 {% endblock %}

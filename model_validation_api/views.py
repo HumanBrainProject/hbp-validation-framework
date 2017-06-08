@@ -998,14 +998,24 @@ class SimpleResultEditView(View):
 
 @method_decorator(login_required(login_url='/login/hbp'), name='dispatch' )
 class HomeValidationView(View):
-    model = ValidationTestDefinition
+    # model = ValidationTestDefinition
+    # template_name = "validation_home.html"
+    # login_url='/login/hbp/'
+
+    # def get(self, request, *args, **kwargs):
+    #     template = loader.get_template(self.template_name)
+    #     return HttpResponse(template.render())
+
+
+    # model = ValidationTestDefinition
     template_name = "validation_home.html"
     login_url='/login/hbp/'
 
     def get(self, request, *args, **kwargs):
-        template = loader.get_template(self.template_name)
-        return HttpResponse(template.render())
+        tests = ValidationTestDefinition.objects.all()
+        models = ScientificModel.objects.all()
 
+        return render(request, self.template_name, { 'tests':tests, 'models':models})
 
 
 # @method_decorator(login_required(login_url='/login/hbp'), name='dispatch' )
