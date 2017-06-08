@@ -19,11 +19,7 @@ from .views import (ValidationTestDefinitionResource,
                     SimpleResultListView,
                     SimpleResultDetailView,
                     SimpleResultEditView,
-<<<<<<< HEAD
                     HomeValidationView,
-=======
-
->>>>>>> 9dd30a68bfaa83d0f6cc7cb7a06c8cd5536d36ee
                     #SimpleResultCreateView,
                     #ValidationTestResultView, 
                     # ValidationTestResultCreate,
