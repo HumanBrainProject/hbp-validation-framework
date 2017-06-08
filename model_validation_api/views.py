@@ -33,18 +33,22 @@ from .models import (ValidationTestDefinition,
                         ValidationTestResult, 
                         ScientificModelInstance, 
                         ScientificModel, 
-                        ScientificModelInstance)
+                        ScientificModelInstance,
+                        Comment)
 
 from .forms import (ValidationTestDefinitionForm, 
                         ValidationTestCodeForm,
                         ScientificModelForm, 
                         ScientificTestForm, 
                         ValidationTestResultForm, 
-                        ScientificModelInstanceForm)
+                        ScientificModelInstanceForm,
+                        CommentForm)
 
 from .serializer import (ValidationTestDefinitionSerializer, 
                             ScientificModelSerializer, 
                             ValidationTestResultSerializer)
+
+from django.shortcuts import get_object_or_404
 
 
 CROSSREF_URL = "http://api.crossref.org/works/"
@@ -254,7 +258,7 @@ class ValidationTestDefinitionCreate(DetailView):
     @classmethod    
     def redirect(self, request, *args, **kwargs): ### use to go back to Test detail View
         # url = reverse('simple-detail-view', kwargs = {'pk': kwargs['pk']})
-        url = reverse('simple-test-detail-description-view', kwargs = {'pk': kwargs['pk']})
+        url = reverse('simple-detail-view', kwargs = {'pk': kwargs['pk']})
         
         return HttpResponseRedirect(url)
 
@@ -377,33 +381,47 @@ class SimpleTestDetailView(LoginRequiredMixin, DetailView):
         template = u"{authors} ({year}) {title[0]}. {short-container-title[0]} {volume}:{page} {URL}"
         return template.format(**pub_data)
 
-
-
-
-
-
-
 @method_decorator(login_required(login_url='/login/hbp'), name='dispatch' )
-class SimpleTestVersionView(DetailView):
-
-    model = ValidationTestCode
-    template_name = "simple_test_version.html"
-    
-    login_url='/login/hbp/'
-
-
-
+class NewSimpleTestDetailView(LoginRequiredMixin, DetailView):
+    model = ValidationTestDefinition
+    template_name = "simple_test_detail.html"
+    form_class = CommentForm
 
     def get(self, request, *args, **kwargs):
-        # h = model.objects.get(id = self.get_object().id)
-        h = self.model.objects.filter(test_definition_id = self.kwargs['pk'])
-
+        validation_code = ValidationTestCode.objects.filter(test_definition_id = self.kwargs['pk'])
         test = ValidationTestDefinition.objects.get(id = self.kwargs['pk'])
+
+        comment = Comment.objects.filter(test = self.kwargs['pk'])
+
+        cmt = Comment()
+        form = self.form_class(instance = cmt)
         
+        return render(request, self.template_name, {'form': form, 'validation_code':validation_code, 'test':test, 'comment':comment})
 
-        # form = self.form_class(instance = h)
-        return render(request, self.template_name, {'object':h, 'test':test})
 
+    def post(self, request, *args, **kwargs):
+        validation_code = ValidationTestCode.objects.filter(test_definition_id = self.kwargs['pk'])
+        test = ValidationTestDefinition.objects.get(id = self.kwargs['pk'])
+        comment = Comment.objects.filter(test = self.kwargs['pk'])
+
+        if request.POST.get('action', None) == 'edit_comment':
+            form=self.edit_comment(request)
+        else:    
+            comment_creation = Comment()
+            comment_creation.test = get_object_or_404(ValidationTestDefinition, pk=self.kwargs['pk'])      
+       
+            if request.method == 'POST':
+                form = CommentForm(request.POST, instance=comment_creation)
+
+                if form.is_valid(): 
+                    form = form.save(commit=False)
+                    form.author = request.user
+                    form.save()
+           
+        cmt = Comment()
+        form = self.form_class(instance = cmt)
+                
+        return render(request, self.template_name, {'form': form, 'validation_code':validation_code, 'test':test, 'comment':comment})
 
 
 @method_decorator(login_required(login_url='/login/hbp'), name='dispatch' )

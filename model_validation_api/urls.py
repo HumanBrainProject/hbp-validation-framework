@@ -7,8 +7,12 @@ from .views import (ValidationTestDefinitionResource,
                     ScientificModelResource,
                     ScientificModelListResource,
                     SimpleTestListView,
+
                     SimpleTestDetailView,
-                    SimpleTestVersionView,
+                    NewSimpleTestDetailView,
+
+                    # SimpleTestVersionView,
+
                     SimpleTestEditView,
                     ValidationTestDefinitionCreate,
                     SimpleModelListView,
@@ -57,23 +61,10 @@ urlpatterns = (
     url(r'^view/tests/$',
         SimpleTestListView.as_view(),
         name="simple-list-view"),
-    # url(r'^view/tests/(?P<pk>{})$'.format(uuid_pattern),
-    #     SimpleTestDetailView.as_view(),
-    #     name="simple-detail-view"),
-    #     #name="simple-test-detail-view"),
 
-    url(r'^view/tests/description/(?P<pk>{})$'.format(uuid_pattern),
-        SimpleTestDetailView.as_view(),
-        name="simple-test-detail-description-view"),
-
-    url(r'^view/tests/version/(?P<pk>{})$'.format(uuid_pattern),
-        SimpleTestVersionView.as_view(),
-        name="simple-test-detail-version-view"),
-
-
-
-
-
+    url(r'^view/tests/(?P<pk>{})$'.format(uuid_pattern),
+        NewSimpleTestDetailView.as_view(),
+        name="simple-detail-view"),
 
 
     url(r'^view/tests/edit/(?P<pk>{})$'.format(uuid_pattern),
