@@ -913,7 +913,7 @@ class SimpleResultDetailView(LoginRequiredMixin, DetailView):
         return {}
 
 @method_decorator(login_required(login_url='/login/hbp'), name='dispatch' )
-class SimpleResultEditView(View):   
+class SimpleResultEditView(View):
     model = ValidationTestResult   
     template_name = "simple_result_create.html"
     login_url='/login/hbp/'
@@ -944,6 +944,19 @@ class SimpleResultEditView(View):
             form.save()
             return HttpResponseRedirect(form.id)
         return render(request, self.template_name, {'form': form})
+
+@method_decorator(login_required(login_url='/login/hbp'), name='dispatch' )
+class HomeValidationView(View):
+    model = ValidationTestDefinition
+    template_name = "validation_home.html"
+    login_url='/login/hbp/'
+
+    def get(self, request, *args, **kwargs):
+        print(self.get_object().id)
+        h = ValidationTestDefinition.objects.get(id = self.get_object().id)
+        form = self.form_class(instance = h)
+        # print(str(form))
+        return render(request, self.template_name, {'form': form, 'object':h})
 
 
 # @method_decorator(login_required(login_url='/login/hbp'), name='dispatch' )

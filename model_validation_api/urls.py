@@ -18,6 +18,7 @@ from .views import (ValidationTestDefinitionResource,
                     SimpleResultListView,
                     SimpleResultDetailView,
                     SimpleResultEditView,
+                    HomeValidationView,
                     #SimpleResultCreateView,
                     #ValidationTestResultView, 
                     # ValidationTestResultCreate,
@@ -93,6 +94,11 @@ urlpatterns = (
     url(r'^view/results/(?P<pk>{})$'.format(uuid_pattern),
         SimpleResultDetailView.as_view(),
         name="simple-result-detail-view"),   
+
+    url(r'^view/validation/home/$',
+        HomeValidationView.as_view(),
+        name="home-validation-view"),
+
 
     # url(r'^view/results/create$',
     #     #SimpleResultCreateView.as_view(),
