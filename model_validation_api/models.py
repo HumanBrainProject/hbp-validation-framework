@@ -168,3 +168,11 @@ class ValidationTestResult(models.Model):
 
     def __str__(self):
         return "Validation test result {}".format(self.id,)
+
+
+class Comment(models.Model):
+    test = models.ForeignKey(ValidationTestDefinition, on_delete=models.CASCADE, default = 0)
+    author = models.CharField(max_length=200, default="")
+    text = models.TextField()
+    creation_date = models.DateTimeField(auto_now_add=True)
+    approved_comment = models.BooleanField(default=False)
