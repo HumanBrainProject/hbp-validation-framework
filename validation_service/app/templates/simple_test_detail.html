@@ -1,9 +1,31 @@
-{% extends 'base.html' %}
-
-{% block content %}
+{% extends 'base.html' %} {% block content %}
 
 <h1>Validation test: {{object.name}}</h1>
-<p><a href=".">back</a></p>
+<p><a href="..">back</a></p>
+
+<div class="topnav" id="myTopnav">
+    <a href="../description/{{object.id}}">Description</a>
+    <a href="../version/{{object.id}}">Version</a>
+    <a href="../results/{{object.id}}">Results</a>
+    <a href="../comments/{{object.id}}">Comments</a>
+
+</div>
+
+
+<ul class="nav nav-pills">
+    <li class="active"><a href="#tab1" data-toggle="tab">Programme</a></li>
+    <li><a href="#tab2" data-toggle="tab">Public</a></li>
+    <li><a href="#tab3" data-toggle="tab">Objectifs</a></li>
+    <li><a href="#tab4" data-toggle="tab">En complément</a></li>
+</ul>
+<div class="tab-content">
+    <div class="tab-pane active" id="tab1">Vous pouvez consulter le détail du programme</div>
+    <div class="tab-pane" id="tab2">Vous pouvez consulter le détail sur le public</div>
+    <div class="tab-pane" id="tab3">Vous pouvez consulter le détail des objectifs pédagogiques</div>
+    <div class="tab-pane" id="tab4">Vous pouvez consulter le détail des compléments</div>
+</div>
+
+
 
 <table class="table table-striped">
     <th>
@@ -13,37 +35,80 @@
 
 <table class="table table-striped">
     <tbody>
-        <tr><td>ID</td><td>{{ object.id }}</td></tr>
-        <tr><td>Name</td><td>{{ object.name }}</td></tr>
-        <tr><td>Species</td><td>{{ object.species }}</td></tr>
-        <tr><td>Brain region</td><td>{{ object.brain_region }}</td></tr>
-        <tr><td>Cell type</td><td>{{ object.cell_type }}</td></tr>
-        <tr><td>Age</td><td>{{ object.age }}</td></tr>
-        <tr><td>Data location</td><td>{{ object.data_location|urlize }}</td></tr>
-        <tr><td>Data type</td><td>{{ object.data_type }}</td></tr>
-        <tr><td>Data modality</td><td>{{ object.get_data_modality_display }}</td></tr>
-        <tr><td>Test type</td><td>{{ object.get_test_type_display }}</td></tr>
-        <tr><td>Author</td><td>{{ object.author }}</td></tr>
-        <tr><td>Publication</td><td>{% if formatted_publication %}{{ formatted_publication|urlize }}{% else %}{{ object.publication }}{% endif %}</td></tr>
-        <tr><td>Protocol</td><td>{{ object.protocol }}</td></tr>
+        <tr>
+            <td>ID</td>
+            <td>{{ object.id }}</td>
+        </tr>
+        <tr>
+            <td>Name</td>
+            <td>{{ object.name }}</td>
+        </tr>
+        <tr>
+            <td>Species</td>
+            <td>{{ object.species }}</td>
+        </tr>
+        <tr>
+            <td>Brain region</td>
+            <td>{{ object.brain_region }}</td>
+        </tr>
+        <tr>
+            <td>Cell type</td>
+            <td>{{ object.cell_type }}</td>
+        </tr>
+        <tr>
+            <td>Age</td>
+            <td>{{ object.age }}</td>
+        </tr>
+        <tr>
+            <td>Data location</td>
+            <td>{{ object.data_location|urlize }}</td>
+        </tr>
+        <tr>
+            <td>Data type</td>
+            <td>{{ object.data_type }}</td>
+        </tr>
+        <tr>
+            <td>Data modality</td>
+            <td>{{ object.get_data_modality_display }}</td>
+        </tr>
+        <tr>
+            <td>Test type</td>
+            <td>{{ object.get_test_type_display }}</td>
+        </tr>
+        <tr>
+            <td>Author</td>
+            <td>{{ object.author }}</td>
+        </tr>
+        <tr>
+            <td>Publication</td>
+            <td>{% if formatted_publication %}{{ formatted_publication|urlize }}{% else %}{{ object.publication }}{% endif %}</td>
+        </tr>
+        <tr>
+            <td>Protocol</td>
+            <td>{{ object.protocol }}</td>
+        </tr>
     </tbody>
 </table>
 
 <h2>Code versions</h2>
 <table class="table table-striped">
     <thead>
-    <tr><th>Repository</th>
-        <th>Version</th>
-        <th>Test class</th>
-        <th>Date/time</th></tr>
+        <tr>
+            <th>Repository</th>
+            <th>Version</th>
+            <th>Test class</th>
+            <th>Date/time</th>
+        </tr>
     </thead>
     <tbody>
-    {% for code_obj in object.code.all %}
-    <tr><td>{{ code_obj.repository|urlize }}</td>
-        <td>{{ code_obj.version }}</td>
-        <td><code>{{ code_obj.path }}</code></td>
-        <td>{{ code_obj.timestamp }}</td></tr>
-    {% endfor %}
+        {% for code_obj in object.code.all %}
+        <tr>
+            <td>{{ code_obj.repository|urlize }}</td>
+            <td>{{ code_obj.version }}</td>
+            <td><code>{{ code_obj.path }}</code></td>
+            <td>{{ code_obj.timestamp }}</td>
+        </tr>
+        {% endfor %}
     </tbody>
 </table>
 
