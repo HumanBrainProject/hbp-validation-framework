@@ -24,6 +24,7 @@ from django.http import (HttpResponse, JsonResponse,
                          HttpResponseRedirect)       # 302
 
 from django.conf import settings
+from django.template import loader
 import requests
 from hbp_app_python_auth.auth import get_access_token, get_auth_header
 
@@ -984,11 +985,9 @@ class HomeValidationView(View):
     login_url='/login/hbp/'
 
     def get(self, request, *args, **kwargs):
-        print(self.get_object().id)
-        h = ValidationTestDefinition.objects.get(id = self.get_object().id)
-        form = self.form_class(instance = h)
-        # print(str(form))
-        return render(request, self.template_name, {'form': form, 'object':h})
+        template = loader.get_template(self.template_name)
+        return HttpResponse(template.render())
+
 
 
 # @method_decorator(login_required(login_url='/login/hbp'), name='dispatch' )
