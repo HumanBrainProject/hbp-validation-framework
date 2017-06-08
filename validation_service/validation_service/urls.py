@@ -21,7 +21,7 @@ urlpatterns = [
     url('', include('hbp_app_python_auth.urls', namespace='hbp-social')),
     # url(r'^app/$', show, name='app_show'),
     # url(r'^app/edit$', edit, name='app_edit'),
-    # url(r'^config.json$', config, name='config'),
+    url(r'^config.json$', config, name='config'),
     url(r'^', include('model_validation_api.urls')),
     url(r'^About_the_Models_Page$', About_the_Models_Page, name='About_the_Models_Page'), 
     url(r'^About_the_validation_test_result$', About_the_validation_test_result, name='About_the_validation_test_result'),   

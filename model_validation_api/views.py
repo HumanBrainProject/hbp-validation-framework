@@ -252,8 +252,9 @@ class ValidationTestDefinitionCreate(DetailView):
 
     @classmethod    
     def redirect(self, request, *args, **kwargs): ### use to go back to Test detail View
-        url = reverse('simple-detail-view', kwargs = {'pk': kwargs['pk']})
-
+        # url = reverse('simple-detail-view', kwargs = {'pk': kwargs['pk']})
+        url = reverse('simple-test-detail-description-view', kwargs = {'pk': kwargs['pk']})
+        
         return HttpResponseRedirect(url)
 
 
@@ -313,6 +314,8 @@ class SimpleTestListView(LoginRequiredMixin, ListView):
 class SimpleTestDetailView(LoginRequiredMixin, DetailView):
     model = ValidationTestDefinition
     template_name = "simple_test_detail.html"
+    # template_name = "test_view.html"
+    
     login_url='/login/hbp/'
 
     def get_context_data(self, **kwargs):
@@ -324,6 +327,7 @@ class SimpleTestDetailView(LoginRequiredMixin, DetailView):
             context["publication_detail"] = crossref_metadata
             if crossref_metadata:
                 context["formatted_publication"] = self._format_publication(crossref_metadata)
+        print (context)
         return context
 
     def _get_crossref_metadata(self, publication_field):
@@ -348,6 +352,34 @@ class SimpleTestDetailView(LoginRequiredMixin, DetailView):
         pub_data["year"] = pub_data["created"]["date-parts"][0][0]
         template = u"{authors} ({year}) {title[0]}. {short-container-title[0]} {volume}:{page} {URL}"
         return template.format(**pub_data)
+
+
+
+
+
+
+
+@method_decorator(login_required(login_url='/login/hbp'), name='dispatch' )
+class SimpleTestVersionView(DetailView):
+
+    model = ValidationTestCode
+    template_name = "simple_test_version.html"
+    
+    login_url='/login/hbp/'
+
+
+
+
+    def get(self, request, *args, **kwargs):
+        # h = model.objects.get(id = self.get_object().id)
+        h = self.model.objects.filter(test_definition_id = self.kwargs['pk'])
+
+        test = ValidationTestDefinition.objects.get(id = self.kwargs['pk'])
+        
+
+        # form = self.form_class(instance = h)
+        return render(request, self.template_name, {'object':h, 'test':test})
+
 
 
 @method_decorator(login_required(login_url='/login/hbp'), name='dispatch' )
