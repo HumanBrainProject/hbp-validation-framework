@@ -84,7 +84,7 @@
     <tbody>
         {% for test in object_list %}
         <tr>
-            <td><a href="description/{{test.id}}">{{ test.name }}</a></td>
+            <td><a href="{{test.id}}">{{ test.name }}</a></td>
             <td>{{ test.species }}</td>
             <td>{{ test.age }}</td>
             <td>{{ test.brain_region }}</td>
