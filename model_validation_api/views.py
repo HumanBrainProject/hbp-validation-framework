@@ -1012,6 +1012,7 @@ class HomeValidationView(View):
     login_url='/login/hbp/'
 
     def get(self, request, *args, **kwargs):
+        
         tests = ValidationTestDefinition.objects.all()
         models = ScientificModel.objects.all()
 
