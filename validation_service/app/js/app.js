@@ -4,37 +4,15 @@
   window.ver_api = '/api/v2/';
 
   var testApp = angular.module( 'testApp', [ 
-    // 'hbpCommon',
-    // 'bbpOidcClient',
     'ui.router',
     'ng',
     'ngResource',
-    'ngRoute',
-    // 'hbpCollaboratory',
-    // 'clb-error',
-    // 'clb-ui-error',
-    // 'clb-env',
-    // 'clb-app',
   ]);
 
   testApp.config(
     function ( $httpProvider, $stateProvider, $locationProvider, $rootScopeProvider, $resourceProvider, $urlRouterProvider ) 
     {
       $resourceProvider.defaults.stripTrailingSlashes = false;
-      // Routing
-      // $stateProvider
-      //   .state('home', {
-      //     url: '/home',
-      //     template: '<h1>home</h1>'
-      //   })
-      //   .state('validation_test', {
-      //     url: '/home/validation_test',
-      //     template: '<h1>validation_test</h1>'
-      //   })
-      //   .state('test_result', {
-      //     url: '/home/test_result',
-      //     template: '<h1>test_result</h1>'
-      //   });
 
       $stateProvider
         .state('home', {
@@ -52,7 +30,7 @@
           templateUrl: '/static/js/test_result.tpl.html', 
           controller: 'TestResultCtrl'
         });
-      $urlRouterProvider.otherwise('/');
+      $urlRouterProvider.otherwise('/home');
     }
   );
 
