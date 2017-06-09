@@ -100,7 +100,7 @@ urlpatterns = (
 
     url(r'^view/results/(?P<pk>{})$'.format(uuid_pattern),
         SimpleResultDetailView.as_view(),
-        name="simple-result-detail-view"),   
+        name="simple-result-detail-view"),
 
     url(r'^view/validation/home/$',
         HomeValidationView.as_view(),

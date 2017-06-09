@@ -1,9 +1,9 @@
 (function() {
 
-  window.base_url = '';
+  window.base_url = 'https://127.0.0.1:8000/view/validation/home/';
   window.ver_api = '/api/v2/';
 
-  angular.module( 'nmpi', [ 
+  angular.module( 'app', [ 
     'hbpCommon',
     'ui.router',
     'ng',
