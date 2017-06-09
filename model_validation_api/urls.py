@@ -102,7 +102,7 @@ urlpatterns = (
         SimpleResultDetailView.as_view(),
         name="simple-result-detail-view"),
 
-    url(r'^view/validation/home/$',
+    url(r'^app/$',
         HomeValidationView.as_view(),
         name="home-validation-view"),
 

@@ -1,56 +1,59 @@
-(function() {
+// (function() {
 
-  window.base_url = 'https://127.0.0.1:8000/view/validation/home/';
+  window.base_url = 'https://127.0.0.1:8000/';
   window.ver_api = '/api/v2/';
 
-  angular.module( 'app', [ 
-    'hbpCommon',
+  var testApp = angular.module( 'testApp', [ 
+    // 'hbpCommon',
+    // 'bbpOidcClient',
     'ui.router',
     'ng',
     'ngResource',
-    'hbpCollaboratory',
-    'clb-error',
-    'clb-ui-error',
-    'clb-env',
-    'clb-app',
-  ])
+    'ngRoute',
+    // 'hbpCollaboratory',
+    // 'clb-error',
+    // 'clb-ui-error',
+    // 'clb-env',
+    // 'clb-app',
+  ]);
 
-  .config(
-    function ( $httpProvider, $stateProvider, $locationProvider, $rootScopeProvider, $resourceProvider ) 
+  testApp.config(
+    function ( $httpProvider, $stateProvider, $locationProvider, $rootScopeProvider, $resourceProvider, $urlRouterProvider ) 
     {
       $resourceProvider.defaults.stripTrailingSlashes = false;
       // Routing
+      // $stateProvider
+      //   .state('home', {
+      //     url: '/home',
+      //     template: '<h1>home</h1>'
+      //   })
+      //   .state('validation_test', {
+      //     url: '/home/validation_test',
+      //     template: '<h1>validation_test</h1>'
+      //   })
+      //   .state('test_result', {
+      //     url: '/home/test_result',
+      //     template: '<h1>test_result</h1>'
+      //   });
+
       $stateProvider
-      .state('home', {
-        url: '/home',
-        templateUrl: 'home_1.tpl.html',   
-        controller: 'HomeCtrl'
-      })
-      .state('validation_test', {
-        url: '/home/validation_test',
-        templateUrl: 'validation_test.tpl.html',
-        controller: 'ValTestCtrl'
-      })
-      .state('test_result', {
-        url: '/home/test_result',
-        templateUrl: 'test_result.tpl.html', 
-        controller: 'TestResultCtrl'
-      })
+        .state('home', {
+          url: '/home',
+          templateUrl: '/static/js/home_1.tpl.html',   
+          controller: 'HomeCtrl'
+        })
+        .state('validation_test', {
+          url: '/home/validation_test',
+          templateUrl: '/static/js/validation_test.tpl.html',
+          controller: 'ValTestCtrl'
+        })
+        .state('test_result', {
+          url: '/home/test_result',
+          templateUrl: '/static/js/test_result.tpl.html', 
+          controller: 'TestResultCtrl'
+        });
+      $urlRouterProvider.otherwise('/');
     }
-  )
+  );
 
-
-    // Bootstrap function
-    // angular.bootstrap().invoke(function($http, $log) {
-    //     $http.get('/config.json').then(function(res) {
-    //         window.bbpConfig = res.data;
-    //         angular.element(document).ready(function() {
-    //             angular.bootstrap(document, ['request-app']);
-    //         });
-    //     }, function() {
-    //         $log.error('Cannot boot request-app application');
-    //         window.location.href = '/login/hbp/?next=' + encodeURIComponent(window.location.pathname + window.location.search + window.location.hash);
-    //     });
-    // });
-
-}());
+// }());
