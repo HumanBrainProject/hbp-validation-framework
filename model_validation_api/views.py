@@ -34,11 +34,13 @@ from .models import (ValidationTestDefinition,
                         ScientificModelInstance, 
                         ScientificModel, 
                         ScientificModelInstance,
+                        ScientificModelImage,   
                         Comment)
 
 from .forms import (ValidationTestDefinitionForm, 
                         ValidationTestCodeForm,
-                        ScientificModelForm, 
+                        ScientificModelForm,
+                        ScientificModelImageForm,  
                         ScientificTestForm, 
                         ValidationTestResultForm, 
                         ScientificModelInstanceForm,
@@ -646,13 +648,16 @@ class SimpleModelCreateView(View):
     login_url='/login/hbp/'
     form_class = ScientificModelForm
     form_class_instance = ScientificModelInstanceForm
+    form_class_image = ScientificModelImageForm
     serializer = ScientificModelSerializer
     def get(self, request, *args, **kwargs):
         h = ScientificModel()
         form = self.form_class(instance = h)
         model_instance = ScientificModelInstance()
         form_instance = self.form_class_instance(instance=model_instance)
-        return render(request, self.template_name, {'form': form, 'form_instance': form_instance})
+        model_image = ScientificModelImage 
+        form_image = self.form_class_image(instance = model_image)
+        return render(request, self.template_name, {'form': form, 'form_instance': form_instance, 'form_image': form_image})
     
     def post(self, request, *args, **kwargs):
          model_creation = ScientificModel()
