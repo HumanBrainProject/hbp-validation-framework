@@ -50,6 +50,7 @@ from .serializer import (ValidationTestDefinitionSerializer,
 
 from django.shortcuts import get_object_or_404
 
+from django.core import serializers
 
 CROSSREF_URL = "http://api.crossref.org/works/"
 VALID_FILTER_NAMES = ('name', 'age', 'brain_region', 'cell_type',
@@ -1008,12 +1009,14 @@ class HomeValidationView(View):
 
 
     # model = ValidationTestDefinition
-    template_name = "validation_home.html"
+    template_name = "validation_home2.html"
     login_url='/login/hbp/'
 
     def get(self, request, *args, **kwargs):
         tests = ValidationTestDefinition.objects.all()
         models = ScientificModel.objects.all()
+        tests = serializers.serialize("json", tests)
+        models = serializers.serialize("json", models)
 
         return render(request, self.template_name, { 'tests':tests, 'models':models})
 

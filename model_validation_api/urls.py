@@ -102,9 +102,21 @@ urlpatterns = (
         SimpleResultDetailView.as_view(),
         name="simple-result-detail-view"),   
 
+
+
+
+    #validation app url
     url(r'^view/validation/home/$',
         HomeValidationView.as_view(),
         name="home-validation-view"),
+
+    url(r'^view/validation/home/test(?P<pk>{})$'.format(uuid_pattern),
+        NewSimpleTestDetailView.as_view(),
+        name="simple-list-view"),
+
+    url(r'^view/validation/home/model(?P<pk>{})$'.format(uuid_pattern),
+        SimpleModelDetailView.as_view(), #just for now
+        name="simple-model-detail-view"),
 
 
     # url(r'^view/results/create$',
