@@ -1,6 +1,6 @@
 from django.forms import ModelForm
 from django import forms
-from .models import ValidationTestDefinition, ValidationTestCode, ScientificModel, ValidationTestResult, ScientificModelInstance, Comment
+from .models import ValidationTestDefinition, ValidationTestCode, ScientificModel, ValidationTestResult, ScientificModelInstance, Comment, ScientificModelImage
 
 
 class ValidationTestDefinitionForm(ModelForm):
@@ -38,9 +38,17 @@ class ScientificModelForm(ModelForm):
 class ScientificModelInstanceForm(ModelForm):
 
     class Meta:
-        model = ScientificModelInstance
+        model = ScientificModelImage
         fields = "__all__"
+        widgets = {
+            '': forms.HiddenInput(),
+        }
        
+class ScientificModelImageForm(ModelForm):
+
+    class Meta:
+        model = ScientificModel
+        fields = "__all__"
 class CommentForm(ModelForm):
     
     class Meta:

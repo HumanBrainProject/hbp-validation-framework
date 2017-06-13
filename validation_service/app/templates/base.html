@@ -1,9 +1,9 @@
-{% load staticfiles %}
-{% load oidc_session %}
+{% load staticfiles %} {% load oidc_session %}
 
 <!DOCTYPE html>
 <html>
-  <head>
+
+<head>
     <title>{% block title %}Model Validation Service{% endblock %}</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width">
@@ -11,8 +11,9 @@
     <link rel="stylesheet" href="{% static 'hbp-collaboratory-theme/dist/css/bootstrap.css' %}">
     <link rel="stylesheet" href="{% static 'app.css' %}">
     <link rel="stylesheet" href="{% static 'css/Model_catalog.css' %}">
-  </head>
-  <body>
+</head>
+
+<body>
     {% hbp_oidc_session_handler request.user %}
 
     <script type="text/javascript" src="{% static 'lodash/lodash.min.js' %}"></script>
@@ -22,7 +23,7 @@
 
     <script type="text/javascript" src="{% static 'lodash/lodash.min.js' %}"></script>
 
-    <script type="text/javascript" src="{% static 'angular/angular.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'angular/angular.js' %}"></script>
     <script type="text/javascript" src="{% static 'angular-bootstrap/ui-bootstrap-tpls.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'angular-bbp-config/angular-bbp-config.js' %}"></script>
     <script type="text/javascript" src="{% static 'bbp-oidc-client/angular-bbp-oidc-client.js' %}"></script>
@@ -32,45 +33,46 @@
 
     <script type="text/javascript" src="{% static 'angular-hbp-common/dist/angular-hbp-common.min.js' %}"></script>
 
-
     <script type="text/javascript" src="{% static 'js/app.js' %}"></script>
     <script type="text/javascript" src="{% static 'js/Model_catalog.js' %}"></script>
-
+    <script type="text/javascript" src="{% static 'js/controller.js' %}"></script>
 
     <nav class="navbar navbar-default navbar-static-top">
-    <div class="container-fluid">
-    <!-- Brand and toggle get grouped for better mobile display -->
-    <div class="navbar-header">
-      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+        <div class="container-fluid">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
         <span class="sr-only">Toggle navigation</span>
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a class="navbar-brand" href="/">Brain Simulation Platform</a>
-    </div>
+                <a class="navbar-brand" href="/">Brain Simulation Platform</a>
+            </div>
 
-    <!-- Collect the nav links, forms, and other content for toggling -->
-    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-      <ul class="nav navbar-nav">
-        <li{% if section == 'models' %} class="active"{% endif %}><a href="/view/models/">Model Catalog</a></li>
-        <li{% if section == 'tests' %} class="active"{% endif %}><a href="/view/tests/">Validation Tests</a></li>
-        <li{% if section == 'results' %} class="active"{% endif %}><a href="/view/results/">Test Results</a></li>
-        <li{% if section == 'home' %} class="active"{% endif %}><a href="/view/validation/home/">Home Validation</a></li>
-      </ul>
-    </div><!-- /.navbar-collapse -->
-  </div><!-- /.container-fluid -->
-  </nav>
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav">
+                    <li{% if section=='models' %} class="active" {% endif %}><a href="/view/models/">Model Catalog</a></li>
+                        <li{% if section=='tests' %} class="active" {% endif %}><a href="/view/tests/">Validation Tests</a></li>
+                            <li{% if section=='results' %} class="active" {% endif %}><a href="/view/results/">Test Results</a></li>
+                                <li{% if section=='home' %} class="active" {% endif %}><a href="/app/">Home Validation</a></li>
+                </ul>
+            </div>
+            <!-- /.navbar-collapse -->
+        </div>
+        <!-- /.container-fluid -->
+    </nav>
 
     <div class="app container-fluid">
 
-      <div class="row">
-      <main class="page">
-      {% block content %}{% endblock %}
-      </main>
-      </div>
+        <div class="row">
+            <main class="page">
+                {% block content %}{% endblock %}
+            </main>
+        </div>
     </div>
 
-  </body>
+</body>
 
 </html>
