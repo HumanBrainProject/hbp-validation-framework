@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'hbp_app_python_auth',
     'markdown_deux',
 
+    'corsheaders',
     'rest_framework',
 ]
 if ENV == "dev":
@@ -48,6 +49,9 @@ if ENV == "dev":
     sys.path.append("..")
 
 MIDDLEWARE_CLASSES = (
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.common.CommonMiddleware',
+
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -55,7 +59,9 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.security.SecurityMiddleware',
     #'social_django.middleware.SocialAuthExceptionMiddleware',
-    'social.apps.django_app.middleware.SocialAuthExceptionMiddleware'
+    'social.apps.django_app.middleware.SocialAuthExceptionMiddleware',
+
+    
 )
 
 AUTHENTICATION_BACKENDS = (
@@ -181,3 +187,13 @@ if os.path.exists(os.path.join(BASE_DIR, "build_info.json")):
         BUILD_INFO = json.load(fp)
 else:
     BUILD_INFO = None
+
+
+
+
+# CORS_ORIGIN_ALLOW_ALL = True
+
+CORS_ORIGIN_WHITELIST = (
+    'localhost:8000',
+    '127.0.0.1:9000'
+)

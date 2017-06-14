@@ -1044,8 +1044,6 @@ class AllModelAndTest(APIView):
             'request': request,
         }
 
-        for i in models : 
-            print (i.__dict__)
 
         model_serializer = ScientificModelSerializer(models, context=serializer_context, many=True )#data=request.data)
         # test_serializer = ValidationTestDefinitionSerializer(tests)

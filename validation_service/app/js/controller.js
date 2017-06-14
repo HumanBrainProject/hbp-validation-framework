@@ -13,7 +13,7 @@ testApp.controller('HomeCtrl', ['$scope', '$rootScope', '$http', '$location', "A
         $scope.double_list = AllModelAndTest.get({}, function(data){
       
         });
-
+        console.log("okokokokok");
         console.log($scope.double_list);
 
     }
