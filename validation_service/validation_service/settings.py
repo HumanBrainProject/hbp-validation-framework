@@ -40,6 +40,8 @@ INSTALLED_APPS = [
     'social.apps.django_app.default',
     'hbp_app_python_auth',
     'markdown_deux',
+
+    'rest_framework',
 ]
 if ENV == "dev":
     INSTALLED_APPS.append('sslserver')

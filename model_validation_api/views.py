@@ -1040,7 +1040,14 @@ class AllModelAndTest(APIView):
         models = ScientificModel.objects.all()
         # tests = ValidationTestDefinition.objects.all()
 
-        model_serializer = ScientificModelSerializer(models)
+        serializer_context = {
+            'request': request,
+        }
+
+        for i in models : 
+            print (i.__dict__)
+
+        model_serializer = ScientificModelSerializer(models, context=serializer_context, many=True )#data=request.data)
         # test_serializer = ValidationTestDefinitionSerializer(tests)
 
 
@@ -1048,6 +1055,7 @@ class AllModelAndTest(APIView):
         # "resource_uri": "/models/{}".format(model.pk)
 
         #also need to join "code" data throught serializer
+
 
 
         return Response({
