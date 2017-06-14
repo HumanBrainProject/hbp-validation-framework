@@ -2,15 +2,11 @@
 
 <h1>Home Validation</h1>
 
-
-<tr>
-    <h2>list tests</h2>
-    {% for test in tests %}
-    <p>{{test.name}} </p> {% endfor %} </tr>
-</br>
-</br>
-<h2>list models</h2>
-<tr>{% for model in models %}
-    <p>{{model.name}} </p> {% endfor %}</tr>
-
+<div ng-app="testApp">
+    <a href="#/home">Home</a><br />
+    <a href="#/home/validation_test">Validation test</a><br />
+    <a href="#/home/test_result">Test result</a><br />
+    <div ui-view></div>
+</div>
 {% endblock %}
+

@@ -1,0 +1,81 @@
+<body id="notebooks" ng-controller="HomeCtrl" ng-init="init({{tests}}, {{models}})">
+    <h1> Home validation </h1>
+
+    <label> Search :  <input id="search_model"  ng-model='search.fields.$'> </label> {%verbatim%}
+
+    <table class="table" style="border-top: none;">
+        <td>
+
+            <table id="model_table" class="table table-striped">
+
+                <h3> Models </h3>
+
+                <thead>
+                    <th>Name</th>
+                    <th>Species</th>
+                    <th>Brain region</th>
+                    <th>Cell type</th>
+                    <th>Code location</th>
+                    <th>Author(s)</th>
+                </thead>
+
+                <tbody>
+                    <tr id="test1" ng-repeat="model in models | filter: search">
+                        <td><a href="model{{model.pk}}">{{ model.fields.name }}</a></td>
+                        <td>{{ model.fields.species }}</td>
+                        <td>{{ model.fields.brain_region }}</td>
+                        <td>{{ model.fields.cell_type }}</td>
+                        <!--<td>{{ model.fields.source|urlizetrunc:50 }}</td>-->
+                        <td></td>
+                        <td>{{ model.fields.author }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </td>
+
+        <td>
+            <table id="test_table" class="table table-striped">
+
+                <h3> Tests </h3>
+
+                <thead>
+                    <th>Name</th>
+                    <th>Species</th>
+                    <th>Age</th>
+                    <th>Brain region</th>
+                    <th>Cell type</th>
+                    <th>Data location</th>
+                    <th>Data type</th>
+                    <th>Data modality</th>
+                    <th>Test type</th>
+                    <th>Code location</th>
+                    <th>Author</th>
+                    <th>Publication</th>
+                </thead>
+
+                <tbody>
+                    <tr ng-repeat='test in tests | filter:search'>
+                        <td><a href="test{{test.pk}}">{{ test.fields.name }}</a></td>
+                        <td>{{ test.fields.species }}</td>
+                        <td>{{ test.fields.age }}</td>
+                        <td>{{ test.fields.brain_region }}</td>
+
+                        <td>{{ test.fields.cell_type }}</td>
+                        <td>{{ test.fields.data_location }}</td>
+
+                        <td>{{ test.fields.data_type }}</td>
+                        <td>{{ test.fields.get_data_modality_display }}</td>
+                        <td>{{ test.fields.get_test_type_display }}</td>
+                        <td>{{ test.fields.get_latest_code.repository}}</td>
+                        <td>{{ test.fields.author }}</td>
+                        <td>{{ test.fields.publication }}</td>
+                    </tr>
+
+                </tbody>
+            </table>
+        </td>
+    </table>
+    {%endverbatim%}
+
+
+</body>
