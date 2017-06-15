@@ -22,9 +22,9 @@ testApp.controller('ValTestCtrl', ['$scope', '$rootScope', '$http', '$location',
     }
 ]);
 
-testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$location', 'ValidationTestDefinitionRest',
-    function($scope, $rootScope, $http, $location, ValidationTestDefinitionRest) {
-        // $scope.double_list = ValidationTestDefinitionRest.get({}, function(data){});
+testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$location', '$stateParams', 'ValidationTestDefinitionRest',
+    function($scope, $rootScope, $http, $location, $stateParams, ValidationTestDefinitionRest) {
+        $scope.detail_test = ValidationTestDefinitionRest.get({id: $stateParams.uuid}, function(data){});
     }
 ]);
 
