@@ -1,9 +1,12 @@
 
 from django.core.serializers.json import DjangoJSONEncoder
 
-from .models import (ValidationTestDefinition, ValidationTestCode)
+from .models import (ValidationTestDefinition, 
+                    ValidationTestCode,
+                    ScientificModel,
+                    )
 
-
+from rest_framework import serializers
 
 
 class ValidationTestDefinitionSerializer(object):
@@ -114,3 +117,17 @@ class ValidationTestResultSerializer(object):
             data = [cls._to_dict(result) for result in results]
         encoder = DjangoJSONEncoder(ensure_ascii=False, indent=4)
         return encoder.encode(data)
+
+
+#### rest freamework serializers ####
+
+class ScientificModelSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = ScientificModel
+        fields = ('id', 'name', 'description', 'species', 'brain_region', 'cell_type', 'author', 'model_type')
+
+
+class ValidationTestDefinitionSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = ValidationTestDefinition
+        fields = ('id', 'name', 'species', 'brain_region', 'cell_type', 'age', 'data_location', 'data_type', 'data_modality', 'test_type', 'protocol', 'author', 'publication')
