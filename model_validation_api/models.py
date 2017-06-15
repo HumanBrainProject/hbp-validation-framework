@@ -170,8 +170,8 @@ class ValidationTestResult(models.Model):
         return "Validation test result {}".format(self.id,)
 
 
-class Comment(models.Model):
-    test = models.ForeignKey(ValidationTestDefinition, on_delete=models.CASCADE)
+class Comment(models.Model): 
+    test = models.ForeignKey(ValidationTestDefinition, on_delete=models.CASCADE) 
     author = models.CharField(max_length=200, default="")
     text = models.TextField()
     creation_date = models.DateTimeField(auto_now_add=True)
