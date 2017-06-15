@@ -1038,7 +1038,7 @@ class AllModelAndTest(APIView):
 
      def get(self, request, format=None, **kwargs):
         models = ScientificModel.objects.all()
-        # tests = ValidationTestDefinition.objects.all()
+        tests = ValidationTestDefinition.objects.all()
 
         serializer_context = {
             'request': request,
@@ -1046,7 +1046,7 @@ class AllModelAndTest(APIView):
 
 
         model_serializer = ScientificModelSerializer(models, context=serializer_context, many=True )#data=request.data)
-        # test_serializer = ValidationTestDefinitionSerializer(tests)
+        test_serializer = ValidationTestDefinitionSerializer(tests, context=serializer_context, many=True)
 
 
         #need to transform model_serializer.data :
@@ -1058,7 +1058,7 @@ class AllModelAndTest(APIView):
 
         return Response({
             'models': model_serializer.data,
-            # 'tests': test_serializer.data,
+            'tests': test_serializer.data,
         })
 
 

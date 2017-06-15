@@ -5,16 +5,13 @@ var testApp = angular.module('testApp');
 
 testApp.controller('HomeCtrl', ['$scope', '$rootScope', '$http', '$location', "AllModelAndTest",
     function($scope, $rootScope, $http, $location, AllModelAndTest) {
-        $scope.init = function(tests, models) {
-            $scope.tests = tests;
-            $scope.models = models;
-        };
+        // $scope.init = function(tests, models) {
+        //     $scope.tests = tests;
+        //     $scope.models = models;
+        // };
 
         $scope.double_list = AllModelAndTest.get({}, function(data){
-      
         });
-        console.log("okokokokok");
-        console.log($scope.double_list);
 
     }
 ]);
