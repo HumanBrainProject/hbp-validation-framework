@@ -24,6 +24,8 @@ from .views import (ValidationTestDefinitionResource,
                     SimpleResultDetailView,
                     SimpleResultEditView,
                     HomeValidationView,
+                    ConfigView,
+                    ConfigViewCreateView,
                     #SimpleResultCreateView,
                     #ValidationTestResultView, 
                     # ValidationTestResultCreate,
@@ -105,6 +107,12 @@ urlpatterns = (
     url(r'^app/$',
         HomeValidationView.as_view(),
         name="home-validation-view"),
+
+
+
+    url(r'^ConfigView$',
+        ConfigViewCreateView.as_view(), 
+        name='ConfigView'), 
 
 
     # url(r'^view/results/create$',
