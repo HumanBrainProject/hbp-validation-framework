@@ -16,15 +16,15 @@ testApp.controller('HomeCtrl', ['$scope', '$rootScope', '$http', '$location', "A
     }
 ]);
 
-testApp.controller('ValTestCtrl', ['$scope', '$rootScope', '$http', '$location', 'AllModelAndTest',
-    function($scope, $rootScope, $http, $location, AllModelAndTest) {
-        $scope.double_list = AllModelAndTest.get({}, function(data){});
+testApp.controller('ValTestCtrl', ['$scope', '$rootScope', '$http', '$location', 'ValidationTestDefinitionRest',
+    function($scope, $rootScope, $http, $location, ValidationTestDefinitionRest) {
+        $scope.test_list = ValidationTestDefinitionRest.get({}, function(data){});
     }
 ]);
 
-testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$location', 'AllModelAndTest',
-    function($scope, $rootScope, $http, $location, AllModelAndTest) {
-        $scope.double_list = AllModelAndTest.get({}, function(data){});
+testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$location', 'ValidationTestDefinitionRest',
+    function($scope, $rootScope, $http, $location, ValidationTestDefinitionRest) {
+        // $scope.double_list = ValidationTestDefinitionRest.get({}, function(data){});
     }
 ]);
 

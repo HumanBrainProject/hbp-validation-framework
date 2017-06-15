@@ -1062,6 +1062,47 @@ class AllModelAndTest(APIView):
         })
 
 
+class ScientificModelRest(APIView):
+    
+     def get(self, request, format=None, **kwargs):
+        models = ScientificModel.objects.all()
+
+        serializer_context = {
+            'request': request,
+        }
+
+        model_serializer = ScientificModelSerializer(models, context=serializer_context, many=True )#data=request.data)
+
+        #need to transform model_serializer.data :
+        # "resource_uri": "/models/{}".format(model.pk)
+
+        #also need to join "code" data throught serializer
+
+        return Response({
+            'models': model_serializer.data,
+        })
+
+
+class ValidationTestDefinitionRest(APIView):
+    
+     def get(self, request, format=None, **kwargs):
+        tests = ValidationTestDefinition.objects.all()
+
+        serializer_context = {
+            'request': request,
+        }
+
+        test_serializer = ValidationTestDefinitionSerializer(tests, context=serializer_context, many=True)
+
+        #need to transform model_serializer.data :
+        # "resource_uri": "/models/{}".format(model.pk)
+
+        #also need to join "code" data throught serializer
+
+        return Response({
+            'tests': test_serializer.data,
+        })
+
 
 
 
