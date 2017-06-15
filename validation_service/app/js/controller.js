@@ -24,7 +24,7 @@ testApp.controller('ValTestCtrl', ['$scope', '$rootScope', '$http', '$location',
 
 testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$location', 'AllModelAndTest',
     function($scope, $rootScope, $http, $location, AllModelAndTest) {
-        // $scope.double_list = AllModelAndTest.get({}, function(data){});
+        $scope.double_list = AllModelAndTest.get({}, function(data){});
     }
 ]);
 

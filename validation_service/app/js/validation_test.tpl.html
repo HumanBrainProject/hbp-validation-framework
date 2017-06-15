@@ -18,7 +18,7 @@
 
                 <tbody>
                     <tr ng-repeat='test in double_list.tests | filter:search'>
-                        <td><a href="test{{test.pk}}">{{ test.name }}</a></td>
+                        <td><a href="/app/#/home/validation_test/{{test.id}}">{{ test.name }}</a></td>
                         <td>{{ test.species }}</td>
                         <td>{{ test.age }}</td>
                         <td>{{ test.brain_region }}</td>
