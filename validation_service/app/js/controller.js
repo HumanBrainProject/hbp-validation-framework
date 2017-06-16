@@ -24,7 +24,9 @@ testApp.controller('ValTestCtrl', ['$scope', '$rootScope', '$http', '$location',
 
 testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$location', '$stateParams', 'ValidationTestDefinitionRest',
     function($scope, $rootScope, $http, $location, $stateParams, ValidationTestDefinitionRest) {
-        $scope.detail_test = ValidationTestDefinitionRest.get({id: $stateParams.uuid}, function(data){});
+        $scope.detail_test = ValidationTestDefinitionRest.get({id: $stateParams.uuid}, function(data){
+            console.log(data);
+        });
 
         $scope.selected_tab = "";
 
