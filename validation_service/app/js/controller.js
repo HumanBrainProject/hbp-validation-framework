@@ -31,3 +31,22 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
 testApp.controller('TestResultCtrl', ['$scope', '$rootScope', '$http', '$location',
     function($scope, $rootScope, $http, $location) {}
 ]);
+
+
+
+
+//Model catalog
+var ModelCatalogApp = angular.module('ModelCatalogApp');
+
+// ModelCatalogApp.controller('ModelCatalogApp', ['$scope', '$rootScope', '$http', '$location',
+//     function($scope, $rootScope, $http, $location, AllModelAndTest) {
+//         // $scope.init = function(tests, models) {
+//         //     $scope.tests = tests;
+//         //     $scope.models = models;
+//         // };
+
+//         $scope.double_list = AllModelAndTest.get({}, function(data){
+//         });
+
+//     }
+// ]);
