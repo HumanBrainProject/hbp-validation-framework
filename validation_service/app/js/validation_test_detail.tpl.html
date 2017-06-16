@@ -1,0 +1,29 @@
+
+<div ng-controller="ValTestDetailCtrl">
+    {{detail_test}}<br />
+    {{detail_test.tests[0].id}}<br />
+    {{detail_test.tests[0].name}}
+
+    <ul class="nav nav-tabs">
+        <li id="li_tab_description" class="active"><a class="nav-link" ng-click="toogleTabs('tab_description')" data-toggle="tab">Description</a></li>
+        <li id="li_tab_version"><a class="nav-link" ng-click="toogleTabs('tab_version')" data-toggle="tab">Version</a></li>
+        <li id="li_tab_results"><a class="nav-link" ng-click="toogleTabs('tab_results')" data-toggle="tab">Results</a></li>
+        <li id="li_tab_comments"><a class="nav-link" ng-click="toogleTabs('tab_comments')" data-toggle="tab">Comments</a></li>
+    </ul>
+
+    <div class="control-group" id="tab_description" style="display:block;" aria-expanded="true">
+        <p>tab_description</p>
+    </div>
+
+    <div class="control-group" id="tab_version" style="display:none;" aria-expanded="true">
+        <p>tab_version</p>
+    </div>
+
+    <div class="control-group" id="tab_results" style="display:none;" aria-expanded="true">
+        <p>tab_results</p>
+    </div>
+
+    <div class="control-group" id="tab_comments" style="display:none;" aria-expanded="true">
+        <p>tab_comments</p>
+    </div>
+</div>

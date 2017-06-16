@@ -1037,6 +1037,7 @@ class HomeValidationView(View):
 
 
 
+
 class ConfigViewCreateView(View):
   
     model = ConfigView
@@ -1062,33 +1063,51 @@ class ConfigViewCreateView(View):
 
 class AllModelAndTest(APIView):
 
-     def get(self, request, format=None, **kwargs):
-        models = ScientificModel.objects.all()
-        tests = ValidationTestDefinition.objects.all()
 
+class TestDetail(APIView):
+
+    def get(self, request, format=None, **kwargs):
         serializer_context = {
             'request': request,
         }
+        # print (self.kwargs.__dict__)
+        tests = ValidationTestDefinition.objects.filter(id = self.kwargs['id'])
+        test_serializer = ValidationTestDefinitionSerializer(tests, context=serializer_context, many=True)        
+
+        return Response({
+                    'tests': test_serializer.data,
+                })
 
 
+class ScientificModelRest(APIView):
+    
+     def get(self, request, format=None, **kwargs):
+        serializer_context = {
+            'request': request,
+        }
+        models = ScientificModel.objects.all()
         model_serializer = ScientificModelSerializer(models, context=serializer_context, many=True )#data=request.data)
-        test_serializer = ValidationTestDefinitionSerializer(tests, context=serializer_context, many=True)
-
 
         #need to transform model_serializer.data :
         # "resource_uri": "/models/{}".format(model.pk)
 
-        #also need to join "code" data throught serializer
-
-
-
         return Response({
             'models': model_serializer.data,
-            'tests': test_serializer.data,
         })
 
 
+class ValidationTestDefinitionRest(APIView):
+    
+     def get(self, request, format=None, **kwargs):
+        serializer_context = {
+            'request': request,
+        }
+        tests = ValidationTestDefinition.objects.all()
+        test_serializer = ValidationTestDefinitionSerializer(tests, context=serializer_context, many=True)
 
+        return Response({
+            'tests': test_serializer.data,
+        })
 
 
 
