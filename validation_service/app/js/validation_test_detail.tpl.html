@@ -1,9 +1,5 @@
 
 <div ng-controller="ValTestDetailCtrl">
-    {{detail_test}}<br />
-    {{detail_test.tests[0].id}}<br />
-    {{detail_test.tests[0].name}}
-
     <ul class="nav nav-tabs">
         <li id="li_tab_description" class="active"><a class="nav-link" ng-click="toogleTabs('tab_description')" data-toggle="tab">Description</a></li>
         <li id="li_tab_version"><a class="nav-link" ng-click="toogleTabs('tab_version')" data-toggle="tab">Version</a></li>
@@ -12,18 +8,113 @@
     </ul>
 
     <div class="control-group" id="tab_description" style="display:block;" aria-expanded="true">
-        <p>tab_description</p>
+        <table class="table table-striped">
+            <tbody>
+                <tr>
+                    <td>ID</td>
+                    <td>{{ detail_test.tests[0].id }}</td>
+                </tr>
+                <tr>
+                    <td>Name</td>
+                    <td>{{ detail_test.tests[0].name }}</td>
+                </tr>
+                <tr>
+                    <td>Species</td>
+                    <td>{{ detail_test.tests[0].species }}</td>
+                </tr>
+                <tr>
+                    <td>Brain region</td>
+                    <td>{{ detail_test.tests[0].brain_region }}</td>
+                </tr>
+                <tr>
+                    <td>Cell type</td>
+                    <td>{{ detail_test.tests[0].cell_type }}</td>
+                </tr>
+                <tr>
+                    <td>Age</td>
+                    <td>{{ detail_test.tests[0].age }}</td>
+                </tr>
+                <tr>
+                    <td>Data location</td>
+                    <td>{{ detail_test.tests[0].data_location }}</td>
+                </tr>
+                <tr>
+                    <td>Data type</td>
+                    <td>{{ detail_test.tests[0].data_type }}</td>
+                </tr>
+                <tr>
+                    <td>Data modality</td>
+                    <td>{{ detail_test.tests[0].get_data_modality_display }}</td>
+                </tr>
+                <tr>
+                    <td>Test type</td>
+                    <td>{{ detail_test.tests[0].get_test_type_display }}</td>
+                </tr>
+                <tr>
+                    <td>Author</td>
+                    <td>{{ detail_test.tests[0].author }}</td>
+                </tr>
+                <tr>
+                    <td>Publication</td>
+                    <td>{{ detail_test.tests[0].publication }}</td>
+                </tr>
+                <tr>
+                    <td>Protocol</td>
+                    <td>{{ detail_test.tests[0].protocol }}</td>
+                </tr>
+            </tbody>
+        </table>
+
     </div>
 
     <div class="control-group" id="tab_version" style="display:none;" aria-expanded="true">
-        <p>tab_version</p>
+        <h2>Code versions</h2>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Repository</th>
+                    <th>Version</th>
+                    <th>Test class</th>
+                    <th>Date/time</th>
+                </tr>
+            </thead>
+            <tbody>
+
+            </tbody>
+        </table>
     </div>
 
     <div class="control-group" id="tab_results" style="display:none;" aria-expanded="true">
-        <p>tab_results</p>
+        <p>Some results</p>
     </div>
 
     <div class="control-group" id="tab_comments" style="display:none;" aria-expanded="true">
-        <p>tab_comments</p>
+        <main class="comment" onsubmit="return false">
+
+            <div class="panel-heading">
+                <h3 class="panel-title" id="title-commment"> Comments </h3>
+            </div>
+
+
+        </main>
+
+        <main action="" class="commentForm" method="POST">
+            <form action="" class="comment-form" method="POST">
+                <div class="comment-form-fields">
+
+
+                    <div class="form-group form-group-editor">
+                        <h4> Add a comment </h4>
+                        <p id="CommentTextbox"> {{form.text}} </p>
+                        <p class="help-text">{{ form.text.errors }}</p>
+                    </div>
+                </div>
+
+                <div class="navbar navbar-form">
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </form>
+
+        </main>
     </div>
 </div>
