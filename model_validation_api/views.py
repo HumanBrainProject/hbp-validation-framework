@@ -1062,7 +1062,7 @@ class ConfigViewListResource(View):
         models = ConfigView.objects.all()
         content = self.serializer.serialize(models)
         return HttpResponse(content, content_type="application/json; charset=utf-8", status=200)
-"""
+""" 
 
 
 
