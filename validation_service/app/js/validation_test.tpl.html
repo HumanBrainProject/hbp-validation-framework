@@ -1,3 +1,40 @@
 <div ng-controller="ValTestCtrl">
     <h1>Validation Test </h1>
+            <table id="test_table" class="table table-striped">
+                <thead>
+                    <th>Name</th>
+                    <th>Species</th>
+                    <th>Age</th>
+                    <th>Brain region</th>
+                    <th>Cell type</th>
+                    <th>Data location</th>
+                    <th>Data type</th>
+                    <th>Data modality</th>
+                    <th>Test type</th>
+                    <th>Code location</th>
+                    <th>Author</th>
+                    <th>Publication</th>
+                </thead>
+
+                <tbody>
+                    <tr ng-repeat='test in test_list.tests | filter:search'>
+                        <td><a href="/app/#/home/validation_test/{{test.id}}">{{ test.name }}</a></td>
+                        <td>{{ test.species }}</td>
+                        <td>{{ test.age }}</td>
+                        <td>{{ test.brain_region }}</td>
+
+                        <td>{{ test.cell_type }}</td>
+                        <td>{{ test.data_location }}</td>
+
+                        <td>{{ test.data_type }}</td>
+                        <td>{{ test.get_data_modality_display }}</td>
+                        <td>{{ test.get_test_type_display }}</td>
+                        <td>{{ test.get_latest_code.repository}}</td>
+                        <td>{{ test.author }}</td>
+                        <td>{{ test.publication }}</td>
+                    </tr>
+
+                </tbody>
+            </table>
+
 </div>

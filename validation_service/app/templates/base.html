@@ -10,8 +10,8 @@
 
     <link rel="stylesheet" href="{% static 'hbp-collaboratory-theme/dist/css/bootstrap.css' %}">
     <link rel="stylesheet" href="{% static 'app.css' %}">
-    <link rel="stylesheet" href="{% static 'Model_catalog.css' %}">
-    
+
+    <link rel="stylesheet" type="text/css" href="{% static 'css/validation_home.css' %}">
   </head>
   <body>
     {% hbp_oidc_session_handler request.user %}
@@ -22,6 +22,7 @@
 
 
     <script type="text/javascript" src="{% static 'lodash/lodash.min.js' %}"></script>
+
     <script type="text/javascript" src="{% static 'angular/angular.js' %}"></script>
     <script type="text/javascript" src="{% static 'angular-bootstrap/ui-bootstrap-tpls.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'angular-bbp-config/angular-bbp-config.js' %}"></script>
@@ -29,12 +30,15 @@
     <script type="text/javascript" src="{% static 'angular-ui-router/release/angular-ui-router.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'angular-resource/angular-resource.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'marked-hbp/marked.min.js' %}"></script>
-    <script type="text/javascript" src="{% static 'angular-modal-service-master/bower_components/angular-modal-service/dst/angular-modal-service.min.js' %}"></script>
+
     <script type="text/javascript" src="{% static 'angular-hbp-common/dist/angular-hbp-common.min.js' %}"></script>
 
     <script type="text/javascript" src="{% static 'js/app.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/model.js' %}"></script>
+    
     <script type="text/javascript" src="{% static 'js/controller.js' %}"></script>
-    <script type="text/javascript" src="{% static 'Model_catalog.js' %}"></script>
+    <!--<script type="text/javascript" src="{% static 'js/validation_home.js' %}"></script>-->
+
 
     <nav class="navbar navbar-default navbar-static-top">
     <div class="container-fluid">

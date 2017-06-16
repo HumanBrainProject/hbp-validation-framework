@@ -52,6 +52,20 @@ from .serializer import (ValidationTestDefinitionSerializer,
 
 from django.shortcuts import get_object_or_404
 
+from django.core import serializers
+
+
+#rest_framework
+from rest_framework import (viewsets,
+                            status,
+                            mixins,
+                            generics,
+                            permissions,)
+
+from rest_framework.views import APIView
+from rest_framework.response import Response
+
+
 
 CROSSREF_URL = "http://api.crossref.org/works/"
 VALID_FILTER_NAMES = ('name', 'age', 'brain_region', 'cell_type',
@@ -1030,11 +1044,84 @@ class HomeValidationView(View):
     login_url='/login/hbp/'
 
     def get(self, request, *args, **kwargs):
-        
         tests = ValidationTestDefinition.objects.all()
         models = ScientificModel.objects.all()
+        tests = serializers.serialize("json", tests)
+        models = serializers.serialize("json", models) 
 
         return render(request, self.template_name, { 'tests':tests, 'models':models})
+
+
+class AllModelAndTest(APIView):
+
+     def get(self, request, format=None, **kwargs):
+        models = ScientificModel.objects.all()
+        tests = ValidationTestDefinition.objects.all()
+
+        serializer_context = {
+            'request': request,
+        }
+
+
+        model_serializer = ScientificModelSerializer(models, context=serializer_context, many=True )#data=request.data)
+        test_serializer = ValidationTestDefinitionSerializer(tests, context=serializer_context, many=True)
+
+
+        #need to transform model_serializer.data :
+        # "resource_uri": "/models/{}".format(model.pk)
+
+        #also need to join "code" data throught serializer
+
+
+
+        return Response({
+            'models': model_serializer.data,
+            'tests': test_serializer.data,
+        })
+
+
+class ScientificModelRest(APIView):
+    
+     def get(self, request, format=None, **kwargs):
+        models = ScientificModel.objects.all()
+
+        serializer_context = {
+            'request': request,
+        }
+
+        model_serializer = ScientificModelSerializer(models, context=serializer_context, many=True )#data=request.data)
+
+        #need to transform model_serializer.data :
+        # "resource_uri": "/models/{}".format(model.pk)
+
+        #also need to join "code" data throught serializer
+
+        return Response({
+            'models': model_serializer.data,
+        })
+
+
+class ValidationTestDefinitionRest(APIView):
+    
+     def get(self, request, format=None, **kwargs):
+        tests = ValidationTestDefinition.objects.all()
+
+        serializer_context = {
+            'request': request,
+        }
+
+        test_serializer = ValidationTestDefinitionSerializer(tests, context=serializer_context, many=True)
+
+        #need to transform model_serializer.data :
+        # "resource_uri": "/models/{}".format(model.pk)
+
+        #also need to join "code" data throught serializer
+
+        return Response({
+            'tests': test_serializer.data,
+        })
+
+
 
 
 # @method_decorator(login_required(login_url='/login/hbp'), name='dispatch' )
