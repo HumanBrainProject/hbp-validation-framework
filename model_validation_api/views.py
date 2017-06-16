@@ -483,6 +483,19 @@ class ScientificModelResource(View):
         content = self.serializer.serialize(model)
         return HttpResponse(content, content_type="application/json; charset=utf-8", status=200)
 
+@method_decorator(login_required(login_url='/login/hbp'), name='dispatch' )
+class AddImage(View):
+    model = ScientificModelImage
+    template_name = "modal.html"
+    login_url='/login/hbp/'
+    form_class = ScientificModelImageForm
+
+    def get(self, request, *args, **kwargs):
+        h = ScientificModelImage()
+        form = self.form_class(instance = h)
+        return render(request, self.template_name, {'form': form})
+
+
 
 @method_decorator(login_required(login_url='/login/hbp'), name='dispatch' )
 class ScientificModelListResource(View):
@@ -655,7 +668,7 @@ class SimpleModelCreateView(View):
         form = self.form_class(instance = h)
         model_instance = ScientificModelInstance()
         form_instance = self.form_class_instance(instance=model_instance)
-        model_image = ScientificModelImage 
+        model_image = ScientificModelImage()
         form_image = self.form_class_image(instance = model_image)
         return render(request, self.template_name, {'form': form, 'form_instance': form_instance, 'form_image': form_image})
     

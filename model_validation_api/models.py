@@ -154,7 +154,7 @@ class ScientificModelImage(models.Model):
     caption = models.TextField(null=True, blank=True)
 
     def __str__(self):
-        return "Model: {} @ image {}".format(self.model.name, self.id)
+        return "Model: {} (image {})".format(self.model.name, self.id)
 
 
 @python_2_unicode_compatible

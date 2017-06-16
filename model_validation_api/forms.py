@@ -38,7 +38,7 @@ class ScientificModelForm(ModelForm):
 class ScientificModelInstanceForm(ModelForm):
 
     class Meta:
-        model = ScientificModelImage
+        model = ScientificModelInstance
         fields = "__all__"
         widgets = {
             '': forms.HiddenInput(),
@@ -47,8 +47,11 @@ class ScientificModelInstanceForm(ModelForm):
 class ScientificModelImageForm(ModelForm):
 
     class Meta:
-        model = ScientificModel
+        model = ScientificModelImage
         fields = "__all__"
+        widgets = {
+            'model': forms.HiddenInput(),
+        }
 class CommentForm(ModelForm):
     
     class Meta:
