@@ -91,7 +91,7 @@ class ValidationTestCode(models.Model):
     path = models.CharField(max_length=200, help_text="path to test class within Python code")
     timestamp = models.DateTimeField(auto_now_add=True, help_text="timestamp for this version of the code")
     test_definition = models.ForeignKey(ValidationTestDefinition, help_text="Validation test implemented by this code",
-                                        related_name="code")
+                                        related_name="codes")
 
     class Meta:
         verbose_name_plural = "validation test code"

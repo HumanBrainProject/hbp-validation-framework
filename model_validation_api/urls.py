@@ -28,8 +28,9 @@ from .views import (ValidationTestDefinitionResource,
                     #ValidationTestResultView, 
                     # ValidationTestResultCreate,
                     # ValidationTestResultEdit,
-                    
-                    AllModelAndTest,
+
+                    ModelList,
+                    TestList,
                     )
 
 uuid_pattern = "[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}"
@@ -119,9 +120,12 @@ urlpatterns = (
         SimpleModelDetailView.as_view(), #just for now
         name="simple-model-detail-view"),
 
-    url(r'^app/getdata/$',
-        AllModelAndTest.as_view(),
-        name="home-get-data"),
+
+    url(r'^app/api-models/$',
+        ModelList.as_view(),),
+
+    url(r'^app/api-tests/$',
+        TestList.as_view(), ),
 
 
 
