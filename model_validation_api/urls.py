@@ -29,8 +29,7 @@ from .views import (ValidationTestDefinitionResource,
                     #ValidationTestResultView, 
                     # ValidationTestResultCreate,
                     # ValidationTestResultEdit,
-                    
-                    AllModelAndTest,
+
                     ScientificModelRest,
                     ValidationTestDefinitionRest
                     )
@@ -125,9 +124,6 @@ urlpatterns = (
         SimpleModelDetailView.as_view(), #just for now
         name="simple-model-detail-view"),
 
-    url(r'^app/getdata/$',
-        AllModelAndTest.as_view(),
-        name="home-get-data"),
 
     url(r'^app/getscientificmodels/$',
         ScientificModelRest.as_view(),

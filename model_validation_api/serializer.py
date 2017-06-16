@@ -30,7 +30,7 @@ class ValidationTestDefinitionSerializer(object):
                 "path": code_obj.path,
             }
         else:
-            code = None
+            codes = None
         data = {
             "name": test.name,
             "species": test.species,
@@ -42,7 +42,7 @@ class ValidationTestDefinitionSerializer(object):
             "data_modality": test.data_modality,
             "test_type": test.test_type,
             "protocol": test.protocol,
-            "code": code,
+            "codes": codes,
             "author": test.author,
             "publication": test.publication,
             "resource_uri": resource_uri
@@ -126,7 +126,23 @@ class ScientificModelSerializer(serializers.HyperlinkedModelSerializer):
         model = ScientificModel
         fields = ('id', 'name', 'description', 'species', 'brain_region', 'cell_type', 'author', 'model_type')
 
+class TestCodeSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = ValidationTestCode
+        fields = ('id', 'repository', 'version', 'path', 'timestamp', 'test_definition_id')
+
 class ValidationTestDefinitionSerializer(serializers.HyperlinkedModelSerializer):
+    # codes = serializers.PrimaryKeyRelatedField(many = True, read_only=True)
+    codes = TestCodeSerializer(many=True , read_only=True)
+
     class Meta:
         model = ValidationTestDefinition
-        fields = ('id', 'name', 'species', 'brain_region', 'cell_type', 'age', 'data_location', 'data_type', 'data_modality', 'test_type', 'protocol', 'author', 'publication')
+        fields = ('id', 'name', 'species', 'brain_region', 
+                    'cell_type', 'age', 'data_location', 
+                    'data_type', 'data_modality', 'test_type', 
+                    'protocol', 'author', 'publication', 'codes')
+
+
+
+
+    
