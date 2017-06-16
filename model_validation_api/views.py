@@ -48,7 +48,8 @@ from .forms import (ValidationTestDefinitionForm,
 
 from .serializer import (ValidationTestDefinitionSerializer, 
                             ScientificModelSerializer, 
-                            ValidationTestResultSerializer)
+#                            ValidationTestResultSerializer,
+#                            ConfigViewSerializer)
 
 from django.shortcuts import get_object_or_404
 
@@ -1038,12 +1039,40 @@ class HomeValidationView(View):
 
 
 
+"""
+class ConfigViewListResource(View):
+    serializer = ConfigViewSerializer
+    login_url='/login/hbp/'
+
+    def post(self, request, *args, **kwargs):
+         
+         print ("ConfigViewListResource POST")
+         form = ConfigViewForm(json.loads(request.body))
+         if form.is_valid():
+             model = form.save()
+             content = self.serializer.serialize(model)
+             return HttpResponse(content, content_type="application/json; charset=utf-8", status=201)
+         else:
+             print(form.data)
+             return HttpResponseBadRequest(str(form.errors))  # todo: plain text
+
+    def get(self, request, *args, **kwargs):
+        print ("ConfigViewListResource GET")
+        
+        models = ConfigView.objects.all()
+        content = self.serializer.serialize(models)
+        return HttpResponse(content, content_type="application/json; charset=utf-8", status=200)
+"""
+
+
+
 class ConfigViewCreateView(View):
   
     model = ConfigView
     template_name = "Config_View.html"
     login_url='/login/hbp/'
     form = ConfigViewForm
+    #serializer = ConfigViewSerializer
     def get(self, request, *args, **kwargs):
         model_ConfigView = ConfigView()
         form = self.form(instance = model_ConfigView)
@@ -1061,6 +1090,34 @@ class ConfigViewCreateView(View):
  
          return render(request, self.template_name, {'form': form}, status=400) 
 
+
+
+    """
+    def get_collab_id(self):
+        social_auth = self.request.user.social_auth.get()
+        print("social auth", social_auth.extra_data )
+        
+        headers = {
+            'Authorization': get_auth_header(self.request.user.social_auth.get())
+        }
+
+        #to get collab_id
+        svc_url = settings.HBP_COLLAB_SERVICE_URL
+        context = self.request.session["next"][6:]
+        url = '%scollab/context/%s/' % (svc_url, context)
+        res = requests.get(url, headers=headers)
+        collab_id = res.json()['collab']['id']
+        return collab_id
+     """
+
+
+
+
+
+
+
+
+
 class AllModelAndTest(APIView):
 
      def get(self, request, format=None, **kwargs):
@@ -1074,6 +1131,7 @@ class AllModelAndTest(APIView):
 
         model_serializer = ScientificModelSerializer(models, context=serializer_context, many=True )#data=request.data)
         test_serializer = ValidationTestDefinitionSerializer(tests, context=serializer_context, many=True)
+      #  ConfigView_serializer = ConfigViewSerializer(models, context=serializer_context, many=True )#data=request.data)
 
 
         #need to transform model_serializer.data :
