@@ -1061,7 +1061,7 @@ class ConfigViewCreateView(View):
  
          return render(request, self.template_name, {'form': form}, status=400) 
 
-class AllModelAndTest(APIView):
+# class AllModelAndTest(APIView):
 
 
 class TestDetail(APIView):
