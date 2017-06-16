@@ -1,17 +1,17 @@
 var validationAppServices = angular.module('validationAppServices', ['ngResource']);
 
-validationAppServices.factory('Models', ['$resource',
+validationAppServices.factory('ScientificModelRest', ['$resource',
   function($resource){
-    return $resource( base_url + 'app/api-models/', {}, {
+    return $resource( base_url + 'app/getscientificmodels/', {}, {
       get: {method:'GET', params:{format:'json'}, isArray:false},
     //   put: {method:'PUT', params:{format:'json'}, headers:{ 'Content-Type':'application/json' }},
     //   post: { method: 'POST', params:{ format:'json' }, headers:{ 'Content-Type':'application/json' } }
     });
   }]);
 
-validationAppServices.factory('Tests', ['$resource',
+validationAppServices.factory('ValidationTestDefinitionRest', ['$resource',
   function($resource){
-    return $resource( base_url + 'app/api-tests/', {}, {
+    return $resource( base_url + 'app/getvalidationtests/:uuid', {id:'@eUuid'}, {
       get: {method:'GET', params:{format:'json'}, isArray:false},
     //   put: {method:'PUT', params:{format:'json'}, headers:{ 'Content-Type':'application/json' }},
     //   post: { method: 'POST', params:{ format:'json' }, headers:{ 'Content-Type':'application/json' } }

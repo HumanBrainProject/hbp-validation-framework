@@ -1034,43 +1034,47 @@ class HomeValidationView(View):
         return render(request, self.template_name, { 'tests':tests, 'models':models})
 
 
-    
 
+class TestDetail(APIView):
 
-class TestList(APIView):
     def get(self, request, format=None, **kwargs):
         serializer_context = {
             'request': request,
         }
-
-        tests = ValidationTestDefinition.objects.all()
-        test_serializer = ValidationTestDefinitionSerializer(tests, context=serializer_context, many=True)
+        # print (self.kwargs.__dict__)
+        tests = ValidationTestDefinition.objects.filter(id = self.kwargs['id'])
+        test_serializer = ValidationTestDefinitionSerializer(tests, context=serializer_context, many=True)        
 
         return Response({
-            'tests': test_serializer.data,
-        })
+                    'tests': test_serializer.data,
+                })
 
-class ModelList(APIView):
-        #need to transform model_serializer.data :
-        # "resource_uri": "/models/{}".format(model.pk)
-    def get(self, request, format=None, **kwargs):
+
+class ScientificModelRest(APIView):
+    
+     def get(self, request, format=None, **kwargs):
         serializer_context = {
             'request': request,
         }
         models = ScientificModel.objects.all()
-        model_serializer = ScientificModelSerializer(models, context=serializer_context, many=True )
+        model_serializer = ScientificModelSerializer(models, context=serializer_context, many=True )#data=request.data)
+
+        #need to transform model_serializer.data :
+        # "resource_uri": "/models/{}".format(model.pk)
 
         return Response({
             'models': model_serializer.data,
         })
 
 
-class TestDetail(APIView):
-
-    def get(self, request, format=None, **kwargs):
-        print (self.kwargs.__dict__)
-        tests = ValidationTestDefinition.objects.filter(id = self.kwargs['id'])
-        test_serializer = ValidationTestDefinitionSerializer(tests, context=serializer_context, many=True)        
+class ValidationTestDefinitionRest(APIView):
+    
+     def get(self, request, format=None, **kwargs):
+        serializer_context = {
+            'request': request,
+        }
+        tests = ValidationTestDefinition.objects.all()
+        test_serializer = ValidationTestDefinitionSerializer(tests, context=serializer_context, many=True)
 
         return Response({
             'tests': test_serializer.data,
