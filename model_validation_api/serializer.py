@@ -126,7 +126,6 @@ class ScientificModelSerializer(serializers.HyperlinkedModelSerializer):
         model = ScientificModel
         fields = ('id', 'name', 'description', 'species', 'brain_region', 'cell_type', 'author', 'model_type')
 
-
 class ValidationTestDefinitionSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = ValidationTestDefinition

@@ -1154,3 +1154,23 @@ class ValidationTestDefinitionRest(APIView):
 #         else:
 #             print(form.data)
 #             return HttpResponseBadRequest(str(form.errors))  # todo: plain text
+
+
+
+
+class ModelCatalogView(APIView):
+    
+     def get(self, request, format=None, **kwargs):
+        models = ScientificModel.objects.all()
+        serializer_context = {
+            'request': request,
+        }
+        model_serializer = ScientificModelSerializer(models, context=serializer_context, many=True )#data=request.data)
+        #need to transform model_serializer.data :
+        # "resource_uri": "/models/{}".format(model.pk)
+
+
+        return Response({
+            'models': model_serializer.data,
+        })
+
