@@ -133,7 +133,7 @@ urlpatterns = (
         ValidationTestDefinitionRestList.as_view(),
         name="validation-test-get-data"),
 
-    url(r'^app/getvalidationtests/(?P<pk>{})$'.format(uuid_pattern),
+    url(r'^app/getvalidationtests/(?P<id>{})$'.format(uuid_pattern),
         ValidationTestDefinitionRestFilter.as_view(),
         name="validation-test-get-data"),
 

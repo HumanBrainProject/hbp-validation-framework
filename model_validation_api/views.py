@@ -1123,7 +1123,7 @@ class ValidationTestDefinitionRestFilter(APIView):
         serializer_context = {
             'request': request,
         }
-        tests = ValidationTestDefinition.objects.filter(id = self.kwargs['pk'])
+        tests = ValidationTestDefinition.objects.filter(id = self.kwargs['id'])
         test_serializer = ValidationTestDefinitionSerializer(tests, context=serializer_context, many=True)
 
         return Response({
