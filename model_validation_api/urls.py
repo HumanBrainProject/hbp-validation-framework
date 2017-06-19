@@ -131,6 +131,10 @@ urlpatterns = (
         ValidationTestDefinitionRest.as_view(),
         name="validation-test-get-data"),
 
+    url(r'^app/getvalidationtests/(?P<pk>{})$'.format(uuid_pattern),
+        ValidationTestDefinitionRest.as_view(),
+        name="validation-test-get-data"),
+
 
     url(r'^ConfigView$',
         ConfigViewCreateView.as_view(), 

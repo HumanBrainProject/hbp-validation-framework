@@ -1081,7 +1081,7 @@ class TestDetail(APIView):
 
 class ScientificModelRest(APIView):
     
-     def get(self, request, format=None, **kwargs):
+    def get(self, request, format=None, **kwargs):
         serializer_context = {
             'request': request,
         }
@@ -1098,17 +1098,17 @@ class ScientificModelRest(APIView):
 
 class ValidationTestDefinitionRest(APIView):
     
-     def get(self, request, format=None, **kwargs):
+    serializer_class = ValidationTestDefinitionSerializer
+    def get(self, request, format=None, **kwargs):
         serializer_context = {
             'request': request,
         }
-        tests = ValidationTestDefinition.objects.all()
+        tests = ValidationTestDefinition.objects.filter(id = self.kwargs['pk'])
         test_serializer = ValidationTestDefinitionSerializer(tests, context=serializer_context, many=True)
 
         return Response({
             'tests': test_serializer.data,
         })
-
 
 
 # @method_decorator(login_required(login_url='/login/hbp'), name='dispatch' )
