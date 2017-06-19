@@ -32,8 +32,9 @@ from .views import (ValidationTestDefinitionResource,
                     # ValidationTestResultEdit,
 
                     ScientificModelRest,
-                    ValidationTestDefinitionRest,
-                    ValidationTestCodeRest
+                    ValidationTestDefinitionRestList,
+                    ValidationTestDefinitionRestFilter,
+                    # ValidationTestCodeRest
                     )
 
 uuid_pattern = "[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}"
@@ -129,17 +130,17 @@ urlpatterns = (
         name="scientific-model-get-data"),
 
     url(r'^app/getvalidationtests/$',
-        ValidationTestDefinitionRest.as_view(),
+        ValidationTestDefinitionRestList.as_view(),
         name="validation-test-get-data"),
 
     url(r'^app/getvalidationtests/(?P<pk>{})$'.format(uuid_pattern),
-        ValidationTestDefinitionRest.as_view(),
+        ValidationTestDefinitionRestFilter.as_view(),
         name="validation-test-get-data"),
 
 
-    url(r'^app/getvalidationtestscode/$',
-        ValidationTestCodeRest.as_view(),
-        name="validation-test-code-get-data"),
+    # url(r'^app/getvalidationtestscode/$',
+    #     ValidationTestCodeRest.as_view(),
+    #     name="validation-test-code-get-data"),
 
     url(r'^ConfigView$',
         ConfigViewCreateView.as_view(), 
