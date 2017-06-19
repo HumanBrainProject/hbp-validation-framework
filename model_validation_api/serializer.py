@@ -4,6 +4,7 @@ from django.core.serializers.json import DjangoJSONEncoder
 from .models import (ValidationTestDefinition, 
                     ValidationTestCode,
                     ScientificModel,
+                    ScientificModelInstance,
                     )
 
 from rest_framework import serializers
@@ -121,6 +122,12 @@ class ValidationTestResultSerializer(object):
 
 #### rest freamework serializers ####
 
+class ScientificModelInstanceSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = ScientificModelInstance
+        fields = ('id', 'version', 'parameters', 'source', 'model_id',)
+
+
 class ScientificModelSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = ScientificModel
@@ -130,26 +137,12 @@ class ScientificModelSerializer(serializers.HyperlinkedModelSerializer):
 #may be need to create one read version
 class ValidationTestCodeSerializer(serializers.HyperlinkedModelSerializer):
     # test_definition_id = serializers.SlugRelatedField(slug_field='id', read_only=True)#queryset=test.objects.all())
-
     # test_definition_id = serializers.RelatedField(source='test.id', read_only=True)
-
-    
-
-    
-
-    
     class Meta:
         model = ValidationTestCode
         fields = ('id', 'repository', 'version', 'path', 'timestamp', 'test_definition_id')
-
         # read_only_fields = ('test_definition_id')
 
-# class CallSerializer(serializers.HyperlinkedModelSerializer):
-#     srcPhone = serializers.SlugRelatedField(slug_field='number')
-
-#     class Meta:
-#         model = Call
-#         fields = ('url', 'created', 'srcPhone')
 
 
 class ValidationTestDefinitionSerializer(serializers.HyperlinkedModelSerializer):

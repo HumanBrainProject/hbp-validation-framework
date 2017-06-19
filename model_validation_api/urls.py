@@ -32,7 +32,7 @@ from .views import (ValidationTestDefinitionResource,
                     # ValidationTestResultEdit,
 
                     ScientificModelRest,
-                    ValidationTestDefinitionRestList,
+                    ValidationTestDefinitionRest,
                     ValidationTestDefinitionRestFilter,
                     # ValidationTestCodeRest
                     )
@@ -130,7 +130,7 @@ urlpatterns = (
         name="scientific-model-get-data"),
 
     url(r'^app/getvalidationtests/$',
-        ValidationTestDefinitionRestList.as_view(),
+        ValidationTestDefinitionRest.as_view(),
         name="validation-test-get-data"),
 
     url(r'^app/getvalidationtests/(?P<id>{})$'.format(uuid_pattern),

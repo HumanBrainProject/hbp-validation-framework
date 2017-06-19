@@ -75,73 +75,8 @@ testApp.controller('ValTestCreateCtrl', ['$scope', '$rootScope', '$http', '$loca
     function($scope, $rootScope, $http, $location, ValidationTestDefinitionRest, ValidationTestCodeRest) {
 
         $scope.make_post = function() {
-            var json_test = {
-                // id: '',
-                name: $scope.test.name,
-                species: $scope.test.species,
-                brain_region: $scope.test.brain_region,
-                cell_type: $scope.test.cell_type,
-                age: $scope.test.age,
-                data_location: $scope.test.data_location,
-                data_type: $scope.test.data_type,
-                data_modality: $scope.test.data_modality,
-                test_type: $scope.test.test_type,
-                protocol: $scope.test.protocol,
-                author: $scope.test.author,
-                publication: $scope.test.publication,
-            };
-
-            var json_code = {
-                // id: '40bef6fba96f4e7696896b9d58be9245',
-                repository: $scope.code.repository,
-                version: $scope.code.version,
-                path: $scope.code.path,
-                // timestamp: neeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeed date,
-                // test_definition_id: $scope.test.neeeeeeeeeeeeeeeeeeeeeeeeeeed id,
-            };
-
-            var data_to_send = { test_data: json_test, code_data: json_code, };
+            var data_to_send = JSON.stringify({ test_data: $scope.test, code_data: $scope.code });
             ValidationTestDefinitionRest.save(data_to_send, function(value) {});
-
-
-        };
-
-        $scope.make_fake_post = function() {
-            var json_test = {
-                // id: 'dc69613e9b0a4s8b9768f12b3562e178',
-                name: 'my name',
-                species: 'rat',
-                brain_region: 'cerebellum',
-                cell_type: 'interneuron',
-                age: '123456',
-                data_location: 'dtc',
-                data_type: 'bad',
-                data_modality: 'ephys',
-                test_type: 'subcellular',
-                protocol: 'nothing',
-                author: 'moi',
-                publication: '656565',
-
-            };
-
-            // ValidationTestDefinitionRest.save(json, function(value) {});
-
-            var json_code = {
-                // id: 'dc69613e9b0a468b9768f12b3562e174',
-                repository: 'fdfdfd',
-                version: 'fdsdf',
-                path: 'dsfdfd',
-                // timestamp: '2017-06-08 12:29:49.260120',
-                // test_definition_id: 'dc69613e9b0a468b9768f12b3562e175',
-            };
-
-            var data_to_send = { test_data: json_test, code_data: json_code, };
-
-            ValidationTestDefinitionRest.save(data_to_send, function(value) {});
-
-            // ValidationTestCodeRest.save(data_to_send, function(value) {});
-
-
         };
     }
 ]);
