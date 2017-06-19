@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 
 from model_validation_api.models import ValidationTestDefinition
 from model_validation_api.models import ScientificModel
+from model_validation_api.models import ConfigView
 
 
 from django.test import TestCase, RequestFactory
@@ -14,6 +15,7 @@ from django.test import TestCase, RequestFactory
 from model_validation_api.views import ValidationTestDefinitionListResource
 from model_validation_api.views import ValidationTestDefinitionCreate
 from model_validation_api.views import SimpleModelCreateView
+from model_validation_api.views import ConfigViewCreateView
 
 
 #test_functions :
@@ -126,6 +128,36 @@ class models(TestCase):
         response = SimpleModelCreateView.as_view()(request)
 
         self.assertEqual(response.status_code, 302)
+
+
+
+
+class models_ConfigView(TestCase):
+    def setUp(self):
+        # Every test needs access to the request factory.
+        self.factory = RequestFactory()
+        self.user = User.objects.create_user(
+            username='jacob', email='jacob@...', password='top_secret')
+
+        self.model1bis = ConfigView.objects.create(species:"Other",
+                                                   brain_region:"Other",
+                                                   cell_type:"Other",
+                                                   model_type:"Other",
+                                                  )
+
+    def test_create_new_model(self):
+        # Create an instance of a POST request.
+        request = self.factory.post("/view/models/create", {"species":"other",
+                                                            "brain_region":"other",
+                                                            "cell_type":"other",
+                                                            "model_type":"other",
+                                                            })
+        request.user = self.user
+        response = ConfigViewCreateView.as_view()(request)
+
+        self.assertEqual(response.status_code, 302)
+
+
 
 
 

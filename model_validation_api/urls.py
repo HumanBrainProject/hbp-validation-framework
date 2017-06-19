@@ -24,6 +24,8 @@ from .views import (ValidationTestDefinitionResource,
                     SimpleResultDetailView,
                     SimpleResultEditView,
                     HomeValidationView,
+                    ConfigView,
+                    ConfigViewCreateView,
                     #SimpleResultCreateView,
                     #ValidationTestResultView, 
                     # ValidationTestResultCreate,
@@ -134,6 +136,11 @@ urlpatterns = (
     url(r'^app/getvalidationtestscode/$',
         ValidationTestCodeRest.as_view(),
         name="validation-test-code-get-data"),
+
+    url(r'^ConfigView$',
+        ConfigViewCreateView.as_view(), 
+        name='ConfigView'), 
+
 
 
     # url(r'^view/results/create$',

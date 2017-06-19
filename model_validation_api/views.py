@@ -34,7 +34,8 @@ from .models import (ValidationTestDefinition,
                         ScientificModelInstance, 
                         ScientificModel, 
                         ScientificModelInstance,
-                        Comment)
+                        Comment,
+                        ConfigView,)
 
 from .forms import (ValidationTestDefinitionForm, 
                         ValidationTestCodeForm,
@@ -42,7 +43,8 @@ from .forms import (ValidationTestDefinitionForm,
                         ScientificTestForm, 
                         ValidationTestResultForm, 
                         ScientificModelInstanceForm,
-                        CommentForm)
+                        CommentForm, 
+                        ConfigViewForm)
 
 from .serializer import (ValidationTestDefinitionSerializer, 
                             ScientificModelSerializer, 
@@ -1041,6 +1043,33 @@ class HomeValidationView(View):
 
 
 
+
+class ConfigViewCreateView(View):
+  
+    model = ConfigView
+    template_name = "Config_View.html"
+    login_url='/login/hbp/'
+    form = ConfigViewForm
+    def get(self, request, *args, **kwargs):
+        model_ConfigView = ConfigView()
+        form = self.form(instance = model_ConfigView)
+        return render(request, self.template_name, {'form': form})
+   
+
+    def post(self, request, *args, **kwargs):
+         model_creation_ConfigView = ConfigView()
+         form = self.form(request.POST, instance=model_creation_ConfigView)
+         if form.is_valid():
+            form = form.save(commit=False)
+            form.access_control = 3348 #self.get_collab_id()
+            form.save()
+            return HttpResponseRedirect(form.id)
+ 
+         return render(request, self.template_name, {'form': form}, status=400) 
+
+# class AllModelAndTest(APIView):
+
+
 class TestDetail(APIView):
 
     def get(self, request, format=None, **kwargs):
@@ -1158,7 +1187,6 @@ class ValidationTestDefinitionRest(APIView):
         #  if self.request.method in ('GET', )
         #  return ValidationTestDefinitionWithCodesReadSerializer
          return ValidationTestDefinitionSerializer
-
 
 
 
