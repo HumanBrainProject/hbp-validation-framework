@@ -46,21 +46,25 @@ var ModelCatalogApp = angular.module( 'ModelCatalogApp', [
     'ui.router',
     'ng',
     'ngResource',
-    // 'validationAppServices',
+    'ModelCatalogServices',
 ]);
 
 ModelCatalogApp.config(
-    function ( $httpProvider, $stateProvider, $locationProvider, $rootScopeProvider, $resourceProvider, $urlRouterProvider )
+    function ( $httpProvider, $stateProvider, $locationProvider, $rootScopeProvider, $resourceProvider, $urlRouterProvider)
     {
         $resourceProvider.defaults.stripTrailingSlashes = false;
-
         $stateProvider
             .state('ModelCatalog', {
                 url: '/model-catalog',
                 templateUrl: '/static/templates/model-catalog.tpl.html',
                 controller: 'ModelCatalogCtrl'
             })
+            .state('ModelCatalogCreate', {
+                url: '/model-catalog/create',
+                templateUrl: '/static/templates/model-catalog-create.tpl.html',
+                controller: 'ModelCatalogCreateCtrl'
+            });
         $urlRouterProvider.otherwise('/model-catalog');
-    }
-);
+
+    });
 // }());
