@@ -48,7 +48,13 @@ from .forms import (ValidationTestDefinitionForm,
 
 from .serializer import (ValidationTestDefinitionSerializer, 
                             ScientificModelSerializer, 
-                            ValidationTestResultSerializer)
+                            ValidationTestResultSerializer,
+                            ValidationTestCodeSerializer,
+
+                            ValidationTestDefinitionWithCodesReadSerializer
+                            
+                            
+                            )
 
 from django.shortcuts import get_object_or_404
 
@@ -478,24 +484,24 @@ class SimpleTestEditView(DetailView):
 
 
 @method_decorator(login_required(login_url='/login/hbp'), name='dispatch' )
-class ScientificModelResource(View):
-    serializer = ScientificModelSerializer
-    login_url='/login/hbp/'
+# class ScientificModelResource(View):
+#     serializer = ScientificModelSerializer
+#     login_url='/login/hbp/'
 
-    def _get_model(self, model_id):
-        try:
-            model = ScientificModel.objects.get(pk=model_id)
-        except ScientificModel.DoesNotExist:
-            model = None
-        return model
+#     def _get_model(self, model_id):
+#         try:
+#             model = ScientificModel.objects.get(pk=model_id)
+#         except ScientificModel.DoesNotExist:
+#             model = None
+#         return model
 
-    def get(self, request, *args, **kwargs):
-        """View a model"""
-        model = self._get_model(kwargs["model_id"])
-        if model is None:
-            return HttpResponseNotFound("No such result")
-        content = self.serializer.serialize(model)
-        return HttpResponse(content, content_type="application/json; charset=utf-8", status=200)
+#     def get(self, request, *args, **kwargs):
+#         """View a model"""
+#         model = self._get_model(kwargs["model_id"])
+#         if model is None:
+#             return HttpResponseNotFound("No such result")
+#         content = self.serializer.serialize(model)
+#         return HttpResponse(content, content_type="application/json; charset=utf-8", status=200)
 
 
 @method_decorator(login_required(login_url='/login/hbp'), name='dispatch' )
