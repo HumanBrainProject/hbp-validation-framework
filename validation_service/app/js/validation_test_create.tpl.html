@@ -1,17 +1,183 @@
-
 <div ng-controller="ValTestCreateCtrl">
-    
-    <button ng-click=" make_fake_post()" >Create post</button>
-   
+
+
+
+    <h1>Create new Test</h1>
+    <p><a href=".">back</a></p>
+
+
+    </br>
+    <h3>About test definition</h3>
+
+    <form name="form" class="simple-form">
+
+
+        <table class="table table-striped table-condensed">
+
+            <tbody>
+
+                <tr>
+                    <td>
+                        Name:
+                    </td>
+                    <td>
+                        <input type="text" name="name" ng-model="test.name" required />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        Author:
+                    </td>
+                    <td>
+                        <input type="text" ng-model="test.author" required />
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>
+                        Publication:
+                    </td>
+                    <td>
+                        <input type="text" ng-model="test.publication" required />
+
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        Protocol:
+                    </td>
+                    <td>
+                        <input type="text" ng-model="test.protocol" required/>
+
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>
+                        Species:
+                    </td>
+                    <td>
+                        <input type="text" ng-model="test.species" required/>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        Brain_region:
+                    </td>
+                    <td>
+                        <input type="text" ng-model="test.brain_region" required/>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        Cell_type:
+                    </td>
+                    <td>
+                        <input type="text" ng-model="test.cell_type" required/>
+
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>
+                        Age:
+                    </td>
+                    <td>
+                        <input type="text" ng-model="test.age" required/>
+
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>
+                        Data_location:
+                    </td>
+                    <td>
+                        <input type="url" ng-model="test.data_location" required/>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        Data_type:
+                    </td>
+                    <td>
+                        <input type="text" ng-model="test.data_type" required />
+
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        Data_modality:
+                    </td>
+                    <td>
+                        <input type="text" ng-model="test.data_modality" required/>
+
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>
+                        Test_type:
+                    </td>
+                    <td>
+                        <input type="text" ng-model="test.test_type" required/>
+
+                    </td>
+                </tr>
+
+            </tbody>
+        </table>
+
+
+        <br/>
+        <h3>About test code</h3>
+
+        <table class="table table-striped table-condensed">
+            <tbody>
+
+                <tr>
+                    <td>
+                        Repository:
+                    </td>
+                    <td>
+                        <input type="url" ng-model="code.repository" required/>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        Path:
+                    </td>
+                    <td>
+                        <input type="text" ng-model="code.path" required/>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        Version:
+                    </td>
+                    <td>
+                        <input type="text" ng-model="code.version" required/>
+
+                    </td>
+                </tr>
+
+            </tbody>
+        </table>
 
 
 
 
+        <br/>
+        <div class="navbar navbar-form ">
+            <!--<button type="submit " class="btn btn-primary " >Save</button>    #on-submit=view.redirect()-->
+            <button ng-click="make_post()" class="btn btn-primary ">Save</button>
 
+        </div>
 
-
-   
-
-
+    </form>
 </div>
-
