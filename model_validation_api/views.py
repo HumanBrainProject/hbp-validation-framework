@@ -1130,22 +1130,25 @@ class ValidationTestDefinitionRest(APIView):
 #             print(form.data)
 #             return HttpResponseBadRequest(str(form.errors))  # todo: plain text
 
+# #############################################################
+###views for model catalog api
+@method_decorator(login_required(login_url='/login/hbp'), name='dispatch' )
+class ModelCatalogView(View):
 
+    template_name = "model_catalog.html"
+    login_url='/login/hbp/'
 
-
-class ModelCatalogView(APIView):
-    
-     def get(self, request, format=None, **kwargs):
+    def get(self, request, *args, **kwargs):
         models = ScientificModel.objects.all()
-        serializer_context = {
-            'request': request,
-        }
-        model_serializer = ScientificModelSerializer(models, context=serializer_context, many=True )#data=request.data)
-        #need to transform model_serializer.data :
-        # "resource_uri": "/models/{}".format(model.pk)
+        models = serializers.serialize("json", models) 
+        return render(request, self.template_name, {'models':models})
+
+@method_decorator(login_required(login_url='/login/hbp'), name='dispatch' )
+class ModelCatalogCreateView(View):
+    login_url='/login/hbp/'
+    template_name = "model_catalog.html"       
+    def post(self, request, *args, **kwargs):
 
 
-        return Response({
-            'models': model_serializer.data,
-        })
-
+        return render(request, self.template_name, {'models':models})
+        

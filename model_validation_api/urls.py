@@ -31,7 +31,8 @@ from .views import (ValidationTestDefinitionResource,
                     # ValidationTestResultEdit,
 
                     ScientificModelRest,
-                    ValidationTestDefinitionRest
+                    ValidationTestDefinitionRest,
+                    ModelCatalogView,
                     )
 
 uuid_pattern = "[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}"
@@ -145,4 +146,12 @@ urlpatterns = (
     #    SimpleResultEditView.as_view(),
     #    name="simple-result-edit-view"), 
 
+     #model catalog app url
+    url(r'^model-catalog/$',
+        ModelCatalogView.as_view(),
+        name="model-catalog-view"),
+
+    url(r'^app/setModels/$',
+        ModelCatalogView.as_view(),
+        name="model-catalog-set"),
 )
