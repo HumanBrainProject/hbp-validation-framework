@@ -51,7 +51,7 @@ MODEL_TYPE = (
 
 @python_2_unicode_compatible
 class ValidationTestDefinition(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, )
     name = models.CharField(max_length=200, help_text="short descriptive name")
     species = models.CharField(max_length=100,choices=SPECIES_CHOICES, help_text="species") # G
     brain_region = models.CharField(max_length=100, choices=BRAIN_REGION_CHOICES, help_text="brain region")  # I
