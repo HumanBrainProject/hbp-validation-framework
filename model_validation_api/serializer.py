@@ -4,6 +4,7 @@ from django.core.serializers.json import DjangoJSONEncoder
 from .models import (ValidationTestDefinition, 
                     ValidationTestCode,
                     ScientificModel,
+                    ScientificModelInstance,
                     )
 
 from rest_framework import serializers
@@ -120,7 +121,6 @@ class ValidationTestResultSerializer(object):
 
 
 #### rest freamework serializers ####
-
 
 class ScientificModelInstanceSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:

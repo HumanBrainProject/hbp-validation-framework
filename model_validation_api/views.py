@@ -1087,7 +1087,7 @@ class TestDetail(APIView):
 
 class ScientificModelRest(APIView):
     
-     def get(self, request, format=None, **kwargs):
+    def get(self, request, format=None, **kwargs):
         serializer_context = {
             'request': request,
         }
@@ -1102,15 +1102,10 @@ class ScientificModelRest(APIView):
         })
 
 
-
-     def post(self, request, format=None):
-        serializer_context = {
-            'request': request,
-        }
         model_serializer = ScientificModelSerializer(data=request.data['model'], context=serializer_context)
     
         if model_serializer.is_valid():
-            model = model_serializer.save():
+            model = model_serializer.save()
         else:
             return Response(model_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -1125,6 +1120,13 @@ class ScientificModelRest(APIView):
         return Response(status=status.HTTP_201_CREATED)
 
 
+class ValidationTestDefinitionRestList(APIView):
+    
+    serializer_class = ValidationTestDefinitionSerializer
+    def get(self, request, format=None, **kwargs):
+        serializer_context = {
+            'request': request,
+        }
 
 
 
@@ -1153,9 +1155,8 @@ class ValidationTestDefinitionRest(APIView):
      def get(self, request, format=None, **kwargs):
 
         serializer_context = {'request': request,}
+
         tests = ValidationTestDefinition.objects.all()
-        # serializer_class = self.get_serializer_class()
-        # serializer = serializer_class(tests, context=serializer_context, many=True)
         test_serializer = ValidationTestDefinitionSerializer(tests, context=serializer_context, many=True)
 
         return Response({
@@ -1165,8 +1166,6 @@ class ValidationTestDefinitionRest(APIView):
 
      def post(self, request, format=None):
         serializer_context = {'request': request,}
-        
-        print (request.data)
 
         test_serializer = ValidationTestDefinitionSerializer(data=request.data['test_data'], context=serializer_context)
         if test_serializer.is_valid():
@@ -1182,11 +1181,20 @@ class ValidationTestDefinitionRest(APIView):
         
         return Response(status=status.HTTP_201_CREATED)
 
-    #  def get_serializer_class(self):
-    #      print (self.request.method)
-    #     #  if self.request.method in ('GET', )
-    #     #  return ValidationTestDefinitionWithCodesReadSerializer
-    #      return ValidationTestDefinitionSerializer
+class ValidationTestDefinitionRestFilter(APIView):
+    
+    serializer_class = ValidationTestDefinitionSerializer
+    def get(self, request, format=None, **kwargs):
+        serializer_context = {
+            'request': request,
+        }
+        tests = ValidationTestDefinition.objects.filter(id = self.kwargs['pk'])
+        test_serializer = ValidationTestDefinitionSerializer(tests, context=serializer_context, many=True)
+
+
+        return Response({
+            'tests': test_serializer.data,
+        })
 
 
 
