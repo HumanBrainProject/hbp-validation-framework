@@ -1119,17 +1119,6 @@ class ScientificModelRest(APIView):
         
         return Response(status=status.HTTP_201_CREATED)
 
-
-class ValidationTestDefinitionRestList(APIView):
-    
-    serializer_class = ValidationTestDefinitionSerializer
-    def get(self, request, format=None, **kwargs):
-        serializer_context = {
-            'request': request,
-        }
-
-
-
 class ValidationTestCodeRest(APIView):
      def post(self, request, format=None):
         serializer_context = {'request': request,}
@@ -1156,7 +1145,19 @@ class ValidationTestDefinitionRest(APIView):
 
         serializer_context = {'request': request,}
 
-        tests = ValidationTestDefinition.objects.all()
+        logger.debug("get -- s : " + str(request.GET.items))
+
+
+        for key, value in self.request.GET.items():
+            if key == 'id':
+                tests = ValidationTestDefinition.objects.filter(id = value)
+            else:
+                tests = ValidationTestDefinition.objects.all()
+        # if(request.GET.get['id']):
+        #     tests = ValidationTestDefinition.objects.filter(id = request.GET['id'])
+        # else:
+            # tests = ValidationTestDefinition.objects.all()
+
         test_serializer = ValidationTestDefinitionSerializer(tests, context=serializer_context, many=True)
 
         return Response({
@@ -1188,7 +1189,7 @@ class ValidationTestDefinitionRestFilter(APIView):
         serializer_context = {
             'request': request,
         }
-        tests = ValidationTestDefinition.objects.filter(id = self.kwargs['id'])
+        tests = ValidationTestDefinition.objects.filter(id = request.GET['id'])
         test_serializer = ValidationTestDefinitionSerializer(tests, context=serializer_context, many=True)
 
 

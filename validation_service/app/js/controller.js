@@ -24,9 +24,11 @@ testApp.controller('ValTestCtrl', ['$scope', '$rootScope', '$http', '$location',
 
 testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$location', '$stateParams', 'ValidationTestDefinitionRest',
     function($scope, $rootScope, $http, $location, $stateParams, ValidationTestDefinitionRest) {
-        $scope.detail_test = ValidationTestDefinitionRest.get({ id: $stateParams.uuid }, function(data) {
-            console.log(data);
-        });
+        // var getvalidationtestsUrl = window.base_url + "app/getvalidationtests/" + $stateParams.uuid+"?format=json";
+        $scope.detail_test = ValidationTestDefinitionRest.get({id : $stateParams.uuid});
+        // $scope.detail_test = ValidationTestDefinitionRest.get(getvalidationtestsUrl, function(data) {
+        //     console.log(data);
+        // });
 
         $scope.selected_tab = "";
 
