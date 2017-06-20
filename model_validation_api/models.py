@@ -202,3 +202,29 @@ class ConfigView(models.Model):
 
     def __str__(self):
         return "Model: {} ({})".format(self.name, self.id)
+
+class Param_DataModalities (models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    authorised_value = models.CharField(max_length=200, default="")
+
+class Param_TestType (models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    authorised_value = models.CharField(max_length=200, default="")
+
+class Param_Species (models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    authorised_value = models.CharField(max_length=200, default="")
+
+class Param_BrainRegion (models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    authorised_value = models.CharField(max_length=200, default="")
+
+class Param_CellType (models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    authorised_value = models.CharField(max_length=200, default="")
+
+class Param_ModelType (models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    authorised_value = models.CharField(max_length=200, default="")
+
+
