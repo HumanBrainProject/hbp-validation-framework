@@ -79,7 +79,12 @@
                 </tr>
             </thead>
             <tbody>
-
+                <tr ng-repeat='code_version in detail_version_test.tests | filter:search'>
+                    <td>{{ code_version.repository }}</td>
+                    <td>{{ code_version.version }}</td>
+                    <td><code>{{ code_version.path }}</code></td>
+                    <td>{{ code_version.timestamp }}</td>
+                </tr>
             </tbody>
         </table>
     </div>
