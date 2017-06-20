@@ -2,7 +2,7 @@ var validationAppServices = angular.module('validationAppServices', ['ngResource
 
 validationAppServices.factory('ScientificModelRest', ['$resource',
     function($resource) {
-        return $resource(base_url + 'app/getscientificmodels/:uuid', { id: '@eUuid' }, {
+        return $resource(base_url + 'app/scientificmodel/:uuid', { id: '@eUuid' }, {
             get: { method: 'GET', params: { format: 'json' }, isArray: false },
             //   put: {method:'PUT', params:{format:'json'}, headers:{ 'Content-Type':'application/json' }},
             post: { method: 'POST', params: { format: 'json' }, headers: { 'Content-Type': 'application/json' } }
@@ -12,7 +12,7 @@ validationAppServices.factory('ScientificModelRest', ['$resource',
 
 validationAppServices.factory('ScientificModelInstanceRest', ['$resource',
     function($resource) {
-        return $resource(base_url + 'app/getscientificmodelinstance/:uuid', { id: '@eUuid' }, {
+        return $resource(base_url + 'app/scientificmodelinstance/:uuid', { id: '@eUuid' }, {
             get: { method: 'GET', params: { format: 'json' }, isArray: false },
             //   put: {method:'PUT', params:{format:'json'}, headers:{ 'Content-Type':'application/json' }},
             post: { method: 'POST', params: { format: 'json' }, headers: { 'Content-Type': 'application/json' } }
@@ -22,7 +22,7 @@ validationAppServices.factory('ScientificModelInstanceRest', ['$resource',
 
 validationAppServices.factory('ValidationTestDefinitionRest', ['$resource',
     function($resource) {
-        return $resource(base_url + 'app/getvalidationtests/:uuid', { id: '@eUuid' }, {
+        return $resource(base_url + 'app/validationtest/:uuid', { id: '@eUuid' }, {
             get: { method: 'GET', params: { format: 'json' }, isArray: false },
             //   put: {method:'PUT', params:{format:'json'}, headers:{ 'Content-Type':'application/json' }},
             post: { method: 'POST', params: { format: 'json' }, headers: { 'Content-Type': 'application/json' } }
@@ -32,7 +32,7 @@ validationAppServices.factory('ValidationTestDefinitionRest', ['$resource',
 
 validationAppServices.factory('ValidationTestCodeRest', ['$resource',
     function($resource) {
-        return $resource(base_url + 'app/getvalidationtestscode/:uuid', { id: '@eUuid' }, {
+        return $resource(base_url + 'app/validationtestscode/:uuid', { id: '@eUuid' }, {
             get: { method: 'GET', params: { format: 'json' }, isArray: false },
             //   put: {method:'PUT', params:{format:'json'}, headers:{ 'Content-Type':'application/json' }},
             post: { method: 'POST', params: { format: 'json' }, headers: { 'Content-Type': 'application/json' } }
