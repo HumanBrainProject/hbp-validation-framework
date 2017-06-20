@@ -1140,6 +1140,28 @@ class ScientificModelRest(APIView):
         return Response(status=status.HTTP_201_CREATED)
 
 class ValidationTestCodeRest(APIView):
+
+     def get(self, request, format=None, **kwargs):
+    
+        serializer_context = {'request': request,}
+        nb_id = str(len(request.GET.getlist('id')))
+        nb_td_id = str(len(request.GET.getlist('test_definition_id')))
+
+        if nb_id == '0' and nb_td_id == '0':
+            tests = ValidationTestCode.objects.all()
+        else:
+            for key, value in self.request.GET.items():
+                if key == 'id':
+                    tests = ValidationTestCode.objects.filter(id = value)
+                if key == 'test_definition_id':
+                    tests = ValidationTestCode.objects.filter(test_definition_id = value)
+
+        test_serializer = ValidationTestCodeSerializer(tests, context=serializer_context, many=True)
+        return Response({
+            'tests': test_serializer.data,
+        })
+
+
      def post(self, request, format=None):
         serializer_context = {'request': request,}
         test_id = str(len(request.POST.getlist('id')))
