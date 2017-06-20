@@ -189,3 +189,29 @@ class ConfigView(models.Model):
 
     def __str__(self):
         return "Model: {} ({})".format(self.name, self.id)
+
+class DataModalities (models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    authorised_value = models.CharField(max_length=200, default="")
+
+class TestType (models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    authorised_value = models.CharField(max_length=200, default="")
+
+class Species (models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    authorised_value = models.CharField(max_length=200, default="")
+
+class BrainRegion (models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    authorised_value = models.CharField(max_length=200, default="")
+
+class CellType (models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    authorised_value = models.CharField(max_length=200, default="")
+
+class ModelType (models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    authorised_value = models.CharField(max_length=200, default="")
+
+# class CollabParameters (models.Model):

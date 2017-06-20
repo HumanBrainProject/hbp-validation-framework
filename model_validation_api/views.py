@@ -1070,19 +1070,31 @@ class ConfigViewCreateView(View):
 # class AllModelAndTest(APIView):
 
 
-class TestDetail(APIView):
+# class TestDetail(APIView):
 
-    def get(self, request, format=None, **kwargs):
-        serializer_context = {
-            'request': request,
-        }
-        # print (self.kwargs.__dict__)
-        tests = ValidationTestDefinition.objects.filter(id = self.kwargs['id'])
-        test_serializer = ValidationTestDefinitionSerializer(tests, context=serializer_context, many=True)        
+#     def get(self, request, format=None, **kwargs):
+#         serializer_context = {
+#             'request': request,
+#         }
+#         # print (self.kwargs.__dict__)
+#         tests = ValidationTestDefinition.objects.filter(id = self.kwargs['id'])
+#         test_serializer = ValidationTestDefinitionSerializer(tests, context=serializer_context, many=True)        
 
-        return Response({
-                    'tests': test_serializer.data,
-                })
+#         return Response({
+#                     'tests': test_serializer.data,
+#                 })
+
+class ScientificModelInstanceRest (APIView):
+    def post(self, request, format=None):
+        serializer_context = {'request': request,}
+
+        serializer = ScientificModelInstanceSerializer(data=request.data, context=serializer_context)
+        
+        if serializer.is_valid():        
+            serializer.save(model_id='dc69613e9b0a468b9768f12b3562e176')  #need to see how to get this value throught kwargs or other ?
+            return Response(status=status.HTTP_201_CREATED) #put inside .is_valid
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class ScientificModelRest(APIView):
@@ -1126,8 +1138,7 @@ class ValidationTestCodeRest(APIView):
      def post(self, request, format=None):
         serializer_context = {'request': request,}
 
-        serializer_class = self.get_serializer_class()
-        serializer = serializer_class(data=request.data, context=serializer_context)
+        serializer = ValidationTestCodeSerializer(data=request.data, context=serializer_context)
         
         if serializer.is_valid():        
             serializer.save(test_definition_id='dc69613e9b0a468b9768f12b3562e176')  #need to see how to get this value throught kwargs or other ?
