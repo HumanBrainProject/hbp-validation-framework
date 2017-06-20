@@ -24,8 +24,12 @@ from .views import (ValidationTestDefinitionResource,
                     SimpleResultDetailView,
                     SimpleResultEditView,
                     HomeValidationView,
-                    ConfigView,
-                    ConfigViewCreateView,
+                    configviewListResource,
+                    configview,
+                    configviewCreateView,
+                    configviewEditView,
+                    configviewDetailView,
+#                    configviewRest,
                     #SimpleResultCreateView,
                     #ValidationTestResultView, 
                     # ValidationTestResultCreate,
@@ -108,6 +112,23 @@ urlpatterns = (
 
 
 
+
+
+    url(r'^view/models/(?P<pk>{})$'.format(uuid_pattern),
+        configviewDetailView.as_view(),
+        name="config-view-detail-view"),
+    url(r'^view/models/create$',
+        configviewCreateView.as_view(),
+        name="config-view-create-view"),
+    url(r'^view/models/edit/(?P<pk>{})$'.format(uuid_pattern),
+        configviewEditView.as_view(),
+        name="config-view-edit-view"),
+
+
+
+
+
+
     #validation app url
     url(r'^app/$',
         HomeValidationView.as_view(),
@@ -126,11 +147,26 @@ urlpatterns = (
         name="home-get-data"),
 
 
+   url(r'^app/configview$',
+        configviewListResource.as_view(),
+        name="config-view-resource"),
+
+    url(r'^app/configview$',
+        configviewCreateView.as_view(), 
+        name='configview'), 
+
+    url(r'^app/view/configview/edit/(?P<pk>{})$'.format(uuid_pattern), 
+        configviewEditView.as_view(),
+        name="config-view-edit-view"),
+
+#    url(r'^app/getconfigview/$',
+#        configviewRest.as_view(),
+#        name="config-view-get-data"),
 
 
-    url(r'^ConfigView$',
-        ConfigViewCreateView.as_view(), 
-        name='ConfigView'), 
+
+
+
 
 
     # url(r'^view/results/create$',

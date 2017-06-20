@@ -31,3 +31,33 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
 testApp.controller('TestResultCtrl', ['$scope', '$rootScope', '$http', '$location',
     function($scope, $rootScope, $http, $location) {}
 ]);
+
+
+
+    
+
+testApp.controller('configviewCtrl', ['$scope', '$rootScope', '$http', '$location',
+    function($scope, $rootScope, $http, $location) {
+//        $scope.configview =
+        this.species_list =
+        [{species : 'rat'},
+         {form.species},
+         {form.brain_region},
+         {form.cell_type},
+         {form.model_type}];
+    }])
+    ;
+ //   .filter('currencyFR', ['numberFilter', function(numberFilter){
+ //       return function(input, symbol){
+ //       };   
+ //    }]);
+
+
+testApp.controller('configviewDetailCtrl', ['$scope', '$rootScope', '$http', '$location', 
+//'$stateParams', 'configviewRest',
+    function($scope, $rootScope, $http, $location, 
+//    $stateParams, configviewRest
+    ) {
+
+    }
+]);

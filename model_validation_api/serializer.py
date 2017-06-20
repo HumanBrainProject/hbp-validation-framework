@@ -4,6 +4,7 @@ from django.core.serializers.json import DjangoJSONEncoder
 from .models import (ValidationTestDefinition, 
                     ValidationTestCode,
                     ScientificModel,
+                    configview,
                     )
 
 from rest_framework import serializers
@@ -131,3 +132,32 @@ class ValidationTestDefinitionSerializer(serializers.HyperlinkedModelSerializer)
     class Meta:
         model = ValidationTestDefinition
         fields = ('id', 'name', 'species', 'brain_region', 'cell_type', 'age', 'data_location', 'data_type', 'data_modality', 'test_type', 'protocol', 'author', 'publication')
+
+
+
+class configviewSerializer(object):
+    
+    @staticmethod
+    def _to_dict(model):
+        data = {
+            "species": model.species,
+            "brain_region": model.brain_region,
+            "cell_type": model.cell_type,
+            "model_type": model.model_type
+        }
+        return data
+
+    @classmethod
+    def serialize(cls, models):
+        if isinstance(models, configview):
+            data = cls._to_dict(models)
+        else:
+            data = [cls._to_dict(model) for model in models]
+        encoder = DjangoJSONEncoder(ensure_ascii=False, indent=4)
+        return encoder.encode(data)
+
+
+class configviewSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = configview
+        fields = ('species', 'brain_region', 'cell_type', 'model_type')

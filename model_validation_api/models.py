@@ -179,7 +179,7 @@ class Comment(models.Model):
 
 
 @python_2_unicode_compatible
-class ConfigView(models.Model): 
+class configview(models.Model): 
     
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     species = models.CharField(max_length=100, choices=SPECIES_CHOICES ,blank=True, help_text="species")
