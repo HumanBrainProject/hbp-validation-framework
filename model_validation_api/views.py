@@ -1106,7 +1106,7 @@ class TestDetail(APIView):
 
 class ScientificModelRest(APIView):
     
-     def get(self, request, format=None, **kwargs):
+    def get(self, request, format=None, **kwargs):
         serializer_context = {
             'request': request,
         }
@@ -1121,35 +1121,24 @@ class ScientificModelRest(APIView):
         })
 
 
+        model_serializer = ScientificModelSerializer(data=request.data['model'], context=serializer_context)
+    
+        if model_serializer.is_valid():
+            model = model_serializer.save()
+        else:
+            return Response(model_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-     def post(self, request, format=None):
-        serializer_context = {
-            'request': request,
-        }
-        # model_serializer = ScientificModelSerializer(data=request.data, context=serializer_context)
-        # if model_serializer.is_valid():
+        model_instance_serializer = ScientificModelInstanceSerializer(data=request.data['model_instance'], context=serializer_context)
 
-        #     #here specific stuffs
-        #     serializer.save()
 
+        if model_instance_serializer.is_valid():
+            model_instance_serializer.save(model_id=model.id)
+        else:
+            return Response(model_instance_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
-        # if serializer.is_valid():
-        #     username = serializer.initial_data['username']
-        #     last_name = serializer.initial_data['last_name']
-        #     first_name = serializer.initial_data['first_name']
-        #     email = serializer.initial_data['email']
-        #     password = serializer.initial_data['password']
-            
-        #     usr = User.objects.create_user(username=username, last_name=last_name, first_name=first_name, email=email, password=password)
-        #     usr.save()
-
-        return Response(status=status.HTTP_201_CREATED) #put inside .is_valid
-        # return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
+        return Response(status=status.HTTP_201_CREATED)
 
 class ValidationTestCodeRest(APIView):
-    
      def post(self, request, format=None):
         serializer_context = {'request': request,}
 
@@ -1169,16 +1158,25 @@ class ValidationTestCodeRest(APIView):
          return ValidationTestCodeSerializer
 
 
-
-
 class ValidationTestDefinitionRest(APIView):
     
      def get(self, request, format=None, **kwargs):
 
         serializer_context = {'request': request,}
-        tests = ValidationTestDefinition.objects.all()
-        # serializer_class = self.get_serializer_class()
-        # serializer = serializer_class(tests, context=serializer_context, many=True)
+
+        logger.debug("get -- s : " + str(request.GET.items))
+
+
+        for key, value in self.request.GET.items():
+            if key == 'id':
+                tests = ValidationTestDefinition.objects.filter(id = value)
+            else:
+                tests = ValidationTestDefinition.objects.all()
+        # if(request.GET.get['id']):
+        #     tests = ValidationTestDefinition.objects.filter(id = request.GET['id'])
+        # else:
+            # tests = ValidationTestDefinition.objects.all()
+
         test_serializer = ValidationTestDefinitionSerializer(tests, context=serializer_context, many=True)
 
         return Response({
@@ -1188,7 +1186,7 @@ class ValidationTestDefinitionRest(APIView):
 
      def post(self, request, format=None):
         serializer_context = {'request': request,}
-    
+
         test_serializer = ValidationTestDefinitionSerializer(data=request.data['test_data'], context=serializer_context)
         if test_serializer.is_valid():
             test = test_serializer.save() 
@@ -1196,22 +1194,12 @@ class ValidationTestDefinitionRest(APIView):
             return Response(test_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         code_serializer = ValidationTestCodeSerializer(data=request.data['code_data'], context=serializer_context)
-        print ("ok1")
         if code_serializer.is_valid():
-            print ("ok2")
             code_serializer.save(test_definition_id=test.id)
         else:
-            print ("not ok")
             return Response(code_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
         return Response(status=status.HTTP_201_CREATED)
-
-    #  def get_serializer_class(self):
-    #      print (self.request.method)
-    #     #  if self.request.method in ('GET', )
-    #     #  return ValidationTestDefinitionWithCodesReadSerializer
-    #      return ValidationTestDefinitionSerializer
-
 
 
 # @method_decorator(login_required(login_url='/login/hbp'), name='dispatch' )
