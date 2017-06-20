@@ -166,8 +166,4 @@ urlpatterns = (
     url(r'^model-catalog/$',
         ModelCatalogView.as_view(),
         name="model-catalog-view"),
-
-    url(r'^app/setModels/$',
-        ModelCatalogView.as_view(),
-        name="model-catalog-set"),
 )

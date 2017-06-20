@@ -1169,7 +1169,6 @@ class ValidationTestDefinitionRest(APIView):
 
         logger.debug("get -- s : " + str(request.GET.items))
 
-
         for key, value in self.request.GET.items():
             if key == 'id':
                 tests = ValidationTestDefinition.objects.filter(id = value)
@@ -1249,12 +1248,4 @@ class ModelCatalogView(View):
         models = serializers.serialize("json", models) 
         return render(request, self.template_name, {'models':models})
 
-@method_decorator(login_required(login_url='/login/hbp'), name='dispatch' )
-class ModelCatalogCreateView(View):
-    login_url='/login/hbp/'
-    template_name = "model_catalog.html"       
-    def post(self, request, *args, **kwargs):
-
-
-        return render(request, self.template_name, {'models':models})
         
