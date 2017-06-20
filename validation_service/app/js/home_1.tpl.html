@@ -2,7 +2,7 @@
 
     <h1> Home validation </h1>
 
-    <label> Search :  <input id="search_model"  ng-model='search.fields.$'> </label> 
+    <label> Search :  <input id="search_model"  ng-model='search.$'> </label> 
 
     <table class="table" style="border-top: none;">
         <td>
@@ -21,7 +21,7 @@
                 </thead>
 
                 <tbody>
-                    <tr id="test1" ng-repeat="model in double_list.models | filter: search">
+                    <tr id="test1" ng-repeat="model in models.models | filter: search">
                         <td><a href="model{{model.pk}}">{{ model.name }}</a></td>
                         <td>{{ model.species }}</td>
                         <td>{{ model.brain_region }}</td>
@@ -55,7 +55,7 @@
                 </thead>
 
                 <tbody>
-                    <tr ng-repeat='test in double_list.tests | filter:search'>
+                    <tr ng-repeat='test in tests.tests | filter:search'>
                         <td><a href="test{{test.pk}}">{{ test.name }}</a></td>
                         <td>{{ test.species }}</td>
                         <td>{{ test.age }}</td>
@@ -70,6 +70,8 @@
                         <td>{{ test.get_latest_code.repository}}</td>
                         <td>{{ test.author }}</td>
                         <td>{{ test.publication }}</td>
+
+                        <td>{{ test.validationtestcodes}}</td>
                     </tr>
 
                 </tbody>

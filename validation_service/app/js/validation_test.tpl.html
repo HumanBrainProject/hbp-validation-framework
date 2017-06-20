@@ -1,4 +1,5 @@
 <div ng-controller="ValTestCtrl">
+        <a href="#home/validation_test/create"><button class="btn btn-info">Add new test</button></a>
     <h1>Validation Test </h1>
             <table id="test_table" class="table table-striped">
                 <thead>
@@ -17,8 +18,8 @@
                 </thead>
 
                 <tbody>
-                    <tr ng-repeat='test in double_list.tests | filter:search'>
-                        <td><a href="test{{test.pk}}">{{ test.name }}</a></td>
+                    <tr ng-repeat='test in test_list.tests | filter:search'>
+                        <td><a href="/app/#/home/validation_test/{{test.id}}">{{ test.name }}</a></td>
                         <td>{{ test.species }}</td>
                         <td>{{ test.age }}</td>
                         <td>{{ test.brain_region }}</td>

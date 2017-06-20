@@ -1,15 +1,49 @@
 var validationAppServices = angular.module('validationAppServices', ['ngResource']);
 
-validationAppServices.factory('AllModelAndTest', ['$resource',
-  function($resource){
-    return $resource( base_url + 'app/getdata/', {}, {
-      get: {method:'GET', params:{format:'json'}, isArray:false},
-    //   put: {method:'PUT', params:{format:'json'}, headers:{ 'Content-Type':'application/json' }},
-    //   post: { method: 'POST', params:{ format:'json' }, headers:{ 'Content-Type':'application/json' } }
-    });
-  }]);
-  
-  
+
+validationAppServices.factory('ScientificModelRest', ['$resource',
+    function($resource) {
+        return $resource(base_url + 'app/scientificmodel/:uuid', { id: '@eUuid' }, {
+            get: { method: 'GET', params: { format: 'json' }, isArray: false },
+            //   put: {method:'PUT', params:{format:'json'}, headers:{ 'Content-Type':'application/json' }},
+            post: { method: 'POST', params: { format: 'json' }, headers: { 'Content-Type': 'application/json' } }
+        });
+    }
+]);
+
+validationAppServices.factory('ScientificModelInstanceRest', ['$resource',
+    function($resource) {
+        return $resource(base_url + 'app/scientificmodelinstance/:uuid', { id: '@eUuid' }, {
+            get: { method: 'GET', params: { format: 'json' }, isArray: false },
+            //   put: {method:'PUT', params:{format:'json'}, headers:{ 'Content-Type':'application/json' }},
+            post: { method: 'POST', params: { format: 'json' }, headers: { 'Content-Type': 'application/json' } }
+        });
+    }
+]);
+
+validationAppServices.factory('ValidationTestDefinitionRest', ['$resource',
+    function($resource) {
+        return $resource(base_url + 'app/validationtest/:uuid', { id: '@eUuid' }, {
+            get: { method: 'GET', params: { format: 'json' }, isArray: false },
+            //   put: {method:'PUT', params:{format:'json'}, headers:{ 'Content-Type':'application/json' }},
+            post: { method: 'POST', params: { format: 'json' }, headers: { 'Content-Type': 'application/json' } }
+        });
+    }
+]);
+
+validationAppServices.factory('ValidationTestCodeRest', ['$resource',
+    function($resource) {
+        return $resource(base_url + 'app/validationtestscode/:uuid', { id: '@eUuid' }, {
+            get: { method: 'GET', params: { format: 'json' }, isArray: false },
+            //   put: {method:'PUT', params:{format:'json'}, headers:{ 'Content-Type':'application/json' }},
+            post: { method: 'POST', params: { format: 'json' }, headers: { 'Content-Type': 'application/json' } }
+        });
+    }
+]);
+
+
+
+
 validationAppServices.factory('configviewRest', ['$resource',
   function($resource){
     return $resource( base_url + 'app/getconfigview/:uuid', {id:'@eUuid'}, {
@@ -18,4 +52,3 @@ validationAppServices.factory('configviewRest', ['$resource',
     //   post: { method: 'POST', params:{ format:'json' }, headers:{ 'Content-Type':'application/json' } }
     });
   }]);
-  

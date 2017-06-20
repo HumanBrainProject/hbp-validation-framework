@@ -4,7 +4,7 @@ from .views import (ValidationTestDefinitionResource,
                     ValidationTestDefinitionSearchResource,
                     ValidationTestResultResource,
                     ValidationTestResultListResource,
-                    ScientificModelResource,
+                    # ScientificModelResource,
                     ScientificModelListResource,
                     SimpleTestListView,
 
@@ -34,8 +34,11 @@ from .views import (ValidationTestDefinitionResource,
                     #ValidationTestResultView, 
                     # ValidationTestResultCreate,
                     # ValidationTestResultEdit,
-                    
-                    AllModelAndTest,
+
+                    ScientificModelRest,
+                    ValidationTestDefinitionRest,
+                    ScientificModelInstanceRest,
+                    ValidationTestCodeRest
                     )
 
 uuid_pattern = "[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}"
@@ -61,9 +64,9 @@ urlpatterns = (
     url(r'^models/$',
         ScientificModelListResource.as_view(),
         name="model-list-resource"),
-    url(r'^models/(?P<model_id>{})$'.format(uuid_pattern),
-        ScientificModelResource.as_view(),
-        name="model-item-resource"),
+    # url(r'^models/(?P<model_id>{})$'.format(uuid_pattern),
+    #     ScientificModelResource.as_view(),
+    #     name="model-item-resource"),
 
 
     url(r'^view/tests/$',
@@ -142,9 +145,14 @@ urlpatterns = (
         SimpleModelDetailView.as_view(), #just for now
         name="simple-model-detail-view"),
 
-    url(r'^app/getdata/$',
-        AllModelAndTest.as_view(),
-        name="home-get-data"),
+
+    url(r'^app/scientificmodel/$',
+        ScientificModelRest.as_view(),
+        name="scientific-model"),
+
+    url(r'^app/scientificmodelinstance/$',
+        ScientificModelInstanceRest.as_view(),
+        name="scientific-model-instance"),
 
 
    url(r'^app/configview$',
@@ -162,6 +170,7 @@ urlpatterns = (
 #    url(r'^app/getconfigview/$',
 #        configviewRest.as_view(),
 #        name="config-view-get-data"),
+
 
 
 

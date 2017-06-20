@@ -49,7 +49,16 @@ from .forms import (ValidationTestDefinitionForm,
 from .serializer import (ValidationTestDefinitionSerializer, 
                             ScientificModelSerializer, 
                             ValidationTestResultSerializer,
+
                             configviewSerializer)
+
+                            ValidationTestCodeSerializer,
+
+                            ValidationTestDefinitionWithCodesReadSerializer
+                            
+                            
+                            )
+
 
 from django.shortcuts import get_object_or_404
 
@@ -479,24 +488,24 @@ class SimpleTestEditView(DetailView):
 
 
 @method_decorator(login_required(login_url='/login/hbp'), name='dispatch' )
-class ScientificModelResource(View):
-    serializer = ScientificModelSerializer
-    login_url='/login/hbp/'
+# class ScientificModelResource(View):
+#     serializer = ScientificModelSerializer
+#     login_url='/login/hbp/'
 
-    def _get_model(self, model_id):
-        try:
-            model = ScientificModel.objects.get(pk=model_id)
-        except ScientificModel.DoesNotExist:
-            model = None
-        return model
+#     def _get_model(self, model_id):
+#         try:
+#             model = ScientificModel.objects.get(pk=model_id)
+#         except ScientificModel.DoesNotExist:
+#             model = None
+#         return model
 
-    def get(self, request, *args, **kwargs):
-        """View a model"""
-        model = self._get_model(kwargs["model_id"])
-        if model is None:
-            return HttpResponseNotFound("No such result")
-        content = self.serializer.serialize(model)
-        return HttpResponse(content, content_type="application/json; charset=utf-8", status=200)
+#     def get(self, request, *args, **kwargs):
+#         """View a model"""
+#         model = self._get_model(kwargs["model_id"])
+#         if model is None:
+#             return HttpResponseNotFound("No such result")
+#         content = self.serializer.serialize(model)
+#         return HttpResponse(content, content_type="application/json; charset=utf-8", status=200)
 
 
 @method_decorator(login_required(login_url='/login/hbp'), name='dispatch' )
@@ -1258,6 +1267,130 @@ class AllModelAndTest(APIView):
 
 
 
+# class AllModelAndTest(APIView):
+
+
+# class TestDetail(APIView):
+
+#     def get(self, request, format=None, **kwargs):
+#         serializer_context = {
+#             'request': request,
+#         }
+#         # print (self.kwargs.__dict__)
+#         tests = ValidationTestDefinition.objects.filter(id = self.kwargs['id'])
+#         test_serializer = ValidationTestDefinitionSerializer(tests, context=serializer_context, many=True)        
+
+#         return Response({
+#                     'tests': test_serializer.data,
+#                 })
+
+class ScientificModelInstanceRest (APIView):
+    def post(self, request, format=None):
+        serializer_context = {'request': request,}
+        model_id = str(len(request.POST.getlist('id')))
+
+        serializer = ScientificModelInstanceSerializer(data=request.data, context=serializer_context)
+        
+        if serializer.is_valid():        
+            serializer.save(model_id=model_id)  #need to see how to get this value throught kwargs or other ?
+            return Response(status=status.HTTP_201_CREATED) #put inside .is_valid
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class ScientificModelRest(APIView):
+    
+    def get(self, request, format=None, **kwargs):
+        serializer_context = {
+            'request': request,
+        }
+        models = ScientificModel.objects.all()
+        model_serializer = ScientificModelSerializer(models, context=serializer_context, many=True )#data=request.data)
+
+        #need to transform model_serializer.data :
+        # "resource_uri": "/models/{}".format(model.pk)
+
+        return Response({
+            'models': model_serializer.data,
+        })
+
+    def post(self, request, format=None):
+        serializer_context = {'request': request,}
+
+        model_serializer = ScientificModelSerializer(data=request.data['model'], context=serializer_context)
+    
+        if model_serializer.is_valid():
+            model = model_serializer.save()
+        else:
+            return Response(model_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        model_instance_serializer = ScientificModelInstanceSerializer(data=request.data['model_instance'], context=serializer_context)
+
+
+        if model_instance_serializer.is_valid():
+            model_instance_serializer.save(model_id=model.id)
+        else:
+            return Response(model_instance_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+        return Response(status=status.HTTP_201_CREATED)
+
+class ValidationTestCodeRest(APIView):
+     def post(self, request, format=None):
+        serializer_context = {'request': request,}
+        test_id = str(len(request.POST.getlist('id')))
+
+        serializer = ValidationTestCodeSerializer(data=request.data, context=serializer_context)
+        
+        if serializer.is_valid():        
+            serializer.save(test_definition_id=test_id)  #need to see how to get this value throught kwargs or other ?
+            return Response(status=status.HTTP_201_CREATED) #put inside .is_valid
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+     def get_serializer_class(self):
+         print (self.request.method)
+        #  if self.request.method in ('GET', )
+        #      return ValidationTestDefinitionWithCodesReadSerializer
+         return ValidationTestCodeSerializer
+
+
+class ValidationTestDefinitionRest(APIView):
+    
+     def get(self, request, format=None, **kwargs):
+
+        serializer_context = {'request': request,}
+        nb_id = str(len(request.GET.getlist('id')))
+
+        if(nb_id == '0'):
+            tests = ValidationTestDefinition.objects.all()
+        else:
+            for key, value in self.request.GET.items():
+                if key == 'id':
+                    tests = ValidationTestDefinition.objects.filter(id = value)
+
+        test_serializer = ValidationTestDefinitionSerializer(tests, context=serializer_context, many=True)
+
+        return Response({
+            'tests': test_serializer.data,
+        })
+
+
+     def post(self, request, format=None):
+        serializer_context = {'request': request,}
+
+        test_serializer = ValidationTestDefinitionSerializer(data=request.data['test_data'], context=serializer_context)
+        if test_serializer.is_valid():
+            test = test_serializer.save() 
+        else:
+            return Response(test_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        code_serializer = ValidationTestCodeSerializer(data=request.data['code_data'], context=serializer_context)
+        if code_serializer.is_valid():
+            code_serializer.save(test_definition_id=test.id)
+        else:
+            return Response(code_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+        return Response(status=status.HTTP_201_CREATED)
 
 
 # @method_decorator(login_required(login_url='/login/hbp'), name='dispatch' )

@@ -51,7 +51,7 @@ MODEL_TYPE = (
 
 @python_2_unicode_compatible
 class ValidationTestDefinition(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, )
     name = models.CharField(max_length=200, help_text="short descriptive name")
     species = models.CharField(max_length=100,choices=SPECIES_CHOICES, help_text="species") # G
     brain_region = models.CharField(max_length=100, choices=BRAIN_REGION_CHOICES, help_text="brain region")  # I
@@ -91,7 +91,7 @@ class ValidationTestCode(models.Model):
     path = models.CharField(max_length=200, help_text="path to test class within Python code")
     timestamp = models.DateTimeField(auto_now_add=True, help_text="timestamp for this version of the code")
     test_definition = models.ForeignKey(ValidationTestDefinition, help_text="Validation test implemented by this code",
-                                        related_name="code")
+                                        related_name="codes")
 
     class Meta:
         verbose_name_plural = "validation test code"
@@ -189,3 +189,29 @@ class configview(models.Model):
 
     def __str__(self):
         return "Model: {} ({})".format(self.name, self.id)
+
+class Param_DataModalities (models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    authorised_value = models.CharField(max_length=200, default="")
+
+class Param_TestType (models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    authorised_value = models.CharField(max_length=200, default="")
+
+class Param_Species (models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    authorised_value = models.CharField(max_length=200, default="")
+
+class Param_BrainRegion (models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    authorised_value = models.CharField(max_length=200, default="")
+
+class Param_CellType (models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    authorised_value = models.CharField(max_length=200, default="")
+
+class Param_ModelType (models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    authorised_value = models.CharField(max_length=200, default="")
+
+

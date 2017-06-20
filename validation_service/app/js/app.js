@@ -26,6 +26,11 @@ testApp.config(
                 templateUrl: '/static/js/validation_test.tpl.html',
                 controller: 'ValTestCtrl'
             })
+            .state('create_validation_test', {
+                url: '/home/validation_test/create',
+                templateUrl: '/static/js/validation_test_create.tpl.html',
+                controller: 'ValTestCreateCtrl'
+            })
             .state('validation_test_detail', {
                 url: '/home/validation_test/:uuid',
                 templateUrl: '/static/js/validation_test_detail.tpl.html',
