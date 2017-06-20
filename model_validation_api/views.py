@@ -1182,22 +1182,6 @@ class ValidationTestDefinitionRest(APIView):
         
         return Response(status=status.HTTP_201_CREATED)
 
-class ValidationTestDefinitionRestFilter(APIView):
-    
-    serializer_class = ValidationTestDefinitionSerializer
-    def get(self, request, format=None, **kwargs):
-        serializer_context = {
-            'request': request,
-        }
-        tests = ValidationTestDefinition.objects.filter(id = request.GET['id'])
-        test_serializer = ValidationTestDefinitionSerializer(tests, context=serializer_context, many=True)
-
-
-        return Response({
-            'tests': test_serializer.data,
-        })
-
-
 
 # @method_decorator(login_required(login_url='/login/hbp'), name='dispatch' )
 # class ValidationTestResultEdit(TemplateView): 
