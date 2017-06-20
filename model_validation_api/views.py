@@ -1145,19 +1145,19 @@ class ValidationTestDefinitionRest(APIView):
 
         serializer_context = {'request': request,}
 
-        logger.debug("get -- s : " + str(request.GET.items))
+        nb_id = str(len(request.GET.getlist('id')))
+        logger.debug("get -- s : " + nb_id)
 
+        if(nb_id == '0'):
+            logger.debug("0 id")
+            tests = ValidationTestDefinition.objects.all()
+        else:
+            for key, value in self.request.GET.items():
+                if key == 'id':
+                    logger.debug("id ok")
+                    tests = ValidationTestDefinition.objects.filter(id = value)
 
-        for key, value in self.request.GET.items():
-            if key == 'id':
-                tests = ValidationTestDefinition.objects.filter(id = value)
-            else:
-                tests = ValidationTestDefinition.objects.all()
-        # if(request.GET.get['id']):
-        #     tests = ValidationTestDefinition.objects.filter(id = request.GET['id'])
-        # else:
-            # tests = ValidationTestDefinition.objects.all()
-
+        logger.debug("test_serializer")
         test_serializer = ValidationTestDefinitionSerializer(tests, context=serializer_context, many=True)
 
         return Response({
