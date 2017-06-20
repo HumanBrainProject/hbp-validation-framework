@@ -157,8 +157,8 @@ ModelCatalogApp.controller('ModelCatalogCtrl', ['$scope', '$rootScope', '$http',
     }
 ]);
 
-ModelCatalogApp.controller('ModelCatalogCreateCtrl', ['$scope', '$rootScope', '$http', '$location',
-    function($scope, $rootScope, $http, $location) { 
+ModelCatalogApp.controller('ModelCatalogCreateCtrl', ['$scope', '$rootScope', '$http', '$location', 'ScientificModelRest',
+    function($scope, $rootScope, $http, $location, ScientificModelRest) { 
     $scope.species = [
       {id: 'mouse', name: 'Mouse (Mus musculus)'},
       {id: 'rat', name: 'Rat (Rattus rattus)'},
@@ -192,16 +192,10 @@ ModelCatalogApp.controller('ModelCatalogCreateCtrl', ['$scope', '$rootScope', '$
     ];
 
     $scope.saveModel = function() {
-        alert('yep')
-        var parameter = JSON.stringify({model:$scope.model, model_instance:$scope.model_instance, model_image:$scope.model_image});
-    $http.post("#/getModels/", parameter).
-    success(function(data, status, headers, config) {
-        alert(data);
-      }).
-      error(function(data, status, headers, config) {
-      });
+        var parameters = JSON.stringify({model:$scope.model, model_instance:$scope.model_instance, model_image:$scope.model_image});
+        ScientificModelRest.save(parameters, function(value) {});
 
-    }
+    };
 }
     
 ]);
