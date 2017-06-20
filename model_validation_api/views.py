@@ -1120,6 +1120,9 @@ class ScientificModelRest(APIView):
             'models': model_serializer.data,
         })
 
+        
+    def post(self, request, format=None):
+        serializer_context = {'request': request,}
 
         model_serializer = ScientificModelSerializer(data=request.data['model'], context=serializer_context)
     
