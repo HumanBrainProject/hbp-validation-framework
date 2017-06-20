@@ -1113,7 +1113,6 @@ class ScientificModelRest(APIView):
             'models': model_serializer.data,
         })
 
-        
     def post(self, request, format=None):
         serializer_context = {'request': request,}
 
@@ -1158,19 +1157,14 @@ class ValidationTestDefinitionRest(APIView):
      def get(self, request, format=None, **kwargs):
 
         serializer_context = {'request': request,}
+        nb_id = str(len(request.GET.getlist('id')))
 
-        logger.debug("get -- s : " + str(request.GET.items))
-
-
-        for key, value in self.request.GET.items():
-            if key == 'id':
-                tests = ValidationTestDefinition.objects.filter(id = value)
-            else:
-                tests = ValidationTestDefinition.objects.all()
-        # if(request.GET.get['id']):
-        #     tests = ValidationTestDefinition.objects.filter(id = request.GET['id'])
-        # else:
-            # tests = ValidationTestDefinition.objects.all()
+        if(nb_id == '0'):
+            tests = ValidationTestDefinition.objects.all()
+        else:
+            for key, value in self.request.GET.items():
+                if key == 'id':
+                    tests = ValidationTestDefinition.objects.filter(id = value)
 
         test_serializer = ValidationTestDefinitionSerializer(tests, context=serializer_context, many=True)
 
