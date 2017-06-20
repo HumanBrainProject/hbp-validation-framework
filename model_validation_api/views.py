@@ -1104,7 +1104,15 @@ class ScientificModelRest(APIView):
         serializer_context = {
             'request': request,
         }
-        models = ScientificModel.objects.all()
+        model_id = str(len(request.GET.getlist('id')))
+
+        if(model_id == '0'):
+            models = ScientificModel.objects.all()
+        else:
+            for key, value in self.request.GET.items():
+                if key == 'id':
+                    models = ScientificModel.objects.filter(id=value)
+
         model_serializer = ScientificModelSerializer(models, context=serializer_context, many=True )#data=request.data)
 
         #need to transform model_serializer.data :
@@ -1118,15 +1126,12 @@ class ScientificModelRest(APIView):
         serializer_context = {'request': request,}
 
         model_serializer = ScientificModelSerializer(data=request.data['model'], context=serializer_context)
-    
         if model_serializer.is_valid():
             model = model_serializer.save()
         else:
             return Response(model_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         model_instance_serializer = ScientificModelInstanceSerializer(data=request.data['model_instance'], context=serializer_context)
-
-
         if model_instance_serializer.is_valid():
             model_instance_serializer.save(model_id=model.id)
         else:
