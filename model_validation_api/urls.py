@@ -33,6 +33,7 @@ from .views import (ValidationTestDefinitionResource,
 
                     ScientificModelRest,
                     ValidationTestDefinitionRest,
+                    ScientificModelInstanceRest
                     # ValidationTestCodeRest
                     )
 
@@ -127,6 +128,10 @@ urlpatterns = (
     url(r'^app/getscientificmodels/$',
         ScientificModelRest.as_view(),
         name="scientific-model-get-data"),
+
+    url(r'^app/getscientificmodelinstance/$',
+        ScientificModelInstanceRest.as_view(),
+        name="scientific-model-instance"),
 
     url(r'^app/getvalidationtests/$',
         ValidationTestDefinitionRest.as_view(),

@@ -1087,11 +1087,12 @@ class ConfigViewCreateView(View):
 class ScientificModelInstanceRest (APIView):
     def post(self, request, format=None):
         serializer_context = {'request': request,}
+        model_id = str(len(request.POST.getlist('id')))
 
         serializer = ScientificModelInstanceSerializer(data=request.data, context=serializer_context)
         
         if serializer.is_valid():        
-            serializer.save(model_id='dc69613e9b0a468b9768f12b3562e176')  #need to see how to get this value throught kwargs or other ?
+            serializer.save(model_id=model_id)  #need to see how to get this value throught kwargs or other ?
             return Response(status=status.HTTP_201_CREATED) #put inside .is_valid
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -1136,11 +1137,12 @@ class ScientificModelRest(APIView):
 class ValidationTestCodeRest(APIView):
      def post(self, request, format=None):
         serializer_context = {'request': request,}
+        test_id = str(len(request.POST.getlist('id')))
 
         serializer = ValidationTestCodeSerializer(data=request.data, context=serializer_context)
         
         if serializer.is_valid():        
-            serializer.save(test_definition_id='dc69613e9b0a468b9768f12b3562e176')  #need to see how to get this value throught kwargs or other ?
+            serializer.save(test_definition_id=test_id)  #need to see how to get this value throught kwargs or other ?
             return Response(status=status.HTTP_201_CREATED) #put inside .is_valid
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
