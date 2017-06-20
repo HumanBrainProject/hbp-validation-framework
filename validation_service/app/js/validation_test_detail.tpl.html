@@ -83,7 +83,7 @@
                     <td>{{ code_version.repository }}</td>
                     <td>{{ code_version.version }}</td>
                     <td><code>{{ code_version.path }}</code></td>
-                    <td>{{ code_version.timestamp }}</td>
+                    <td>{{ code_version.timestamp | date:'d MMMM yyyy, hh:mm' : 'UTC' }}</td>
                 </tr>
             </tbody>
         </table>
