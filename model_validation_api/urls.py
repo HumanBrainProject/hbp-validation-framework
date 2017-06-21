@@ -35,13 +35,8 @@ from .views import (ValidationTestDefinitionResource,
                     ValidationTestDefinitionRest,
                     ModelCatalogView,
                     ScientificModelInstanceRest,
-<<<<<<< HEAD
                     ValidationTestCodeRest,
                     TestCommentRest,
-=======
-                    ValidationTestCodeRest
-
->>>>>>> f6b03465ff79930c90a7971e7cf0ba48ef0fb3d3
                     )
 
 uuid_pattern = "[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}"
@@ -151,7 +146,6 @@ urlpatterns = (
         ValidationTestCodeRest.as_view(),
         name="validation-test-code"),
 
-<<<<<<< HEAD
     url(r'^app/testcomment/$',
         TestCommentRest.as_view(),
         name="test-comment"),
@@ -160,11 +154,6 @@ urlpatterns = (
     url(r'^ConfigView$',
         ConfigViewCreateView.as_view(), 
         name='ConfigView'), 
-=======
-    # url(r'^ConfigView$',
-    #     ConfigViewCreateView.as_view(), 
-    #     name='ConfigView'), 
->>>>>>> f6b03465ff79930c90a7971e7cf0ba48ef0fb3d3
 
     url(r'^app/collabparameterrest/$',
         CollabParameterRest.as_view(), 

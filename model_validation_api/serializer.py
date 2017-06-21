@@ -5,12 +5,8 @@ from .models import (ValidationTestDefinition,
                     ValidationTestCode,
                     ScientificModel,
                     ScientificModelInstance,
-<<<<<<< HEAD
-                    Comment,
-=======
                     ScientificModelImage,
-                    CollabParameters
->>>>>>> f6b03465ff79930c90a7971e7cf0ba48ef0fb3d3
+                    Comment,
                     )
 
 from rest_framework import serializers
@@ -177,20 +173,8 @@ class ValidationTestDefinitionWithCodesReadSerializer(serializers.HyperlinkedMod
                     'protocol', 'author', 'publication', 'codes')
 
 
-<<<<<<< HEAD
 class CommentSerializer(serializers.HyperlinkedModelSerializer):
     # test = ValidationTestCodeSerializer(many=True , read_only=True)
     class Meta:
         model = Comment
         fields = ( 'id', 'author', 'text', 'creation_date', 'approved_comment', 'test_id')
-=======
-
-
-class CollabParametersSerializer(serializers.HyperlinkedModelSerializer):
-    
-    class Meta:
-        model = CollabParameters
-        fields = ('id', 'data_modalities', 'test_type', 'species', 'brain_region', 
-                    'cell_type', 'model_type',)
-
->>>>>>> f6b03465ff79930c90a7971e7cf0ba48ef0fb3d3
