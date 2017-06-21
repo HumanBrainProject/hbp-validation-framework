@@ -20,13 +20,11 @@ testApp.controller('ValTestCtrl', ['$scope', '$rootScope', '$http', '$location',
     }
 ]);
 
-testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$location', '$stateParams', 'ValidationTestDefinitionRest', 'CollabParameters',
-    function($scope, $rootScope, $http, $location, $stateParams, ValidationTestDefinitionRest, CollabParameters) {
-        // var getvalidationtestsUrl = window.base_url + "app/getvalidationtests/" + $stateParams.uuid+"?format=json";
+testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$location', '$stateParams', 'ValidationTestDefinitionRest', 'ValidationTestCodeRest',
+    function($scope, $rootScope, $http, $location, $stateParams, ValidationTestDefinitionRest, ValidationTestCodeRest) {
         $scope.detail_test = ValidationTestDefinitionRest.get({ id: $stateParams.uuid });
-        // $scope.detail_test = ValidationTestDefinitionRest.get(getvalidationtestsUrl, function(data) {
-        //     console.log(data);
-        // });
+
+        $scope.detail_version_test = ValidationTestCodeRest.get({ test_definition_id: $stateParams.uuid });
 
         $scope.selected_tab = "";
 
