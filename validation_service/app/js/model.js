@@ -46,12 +46,11 @@ validationAppServices.factory('ValidationTestCodeRest', ['$resource',
 var ModelCatalogServices = angular.module('ModelCatalogServices', ['ngResource']);
 
 ModelCatalogServices.factory('ScientificModelRest', ['$resource',
-  function($resource){
-    return $resource( base_url + 'app/getscientificmodels/:uuid', {id:'@eUuid'}, {
-      get: {method:'GET', params:{format:'json'}, isArray:false},
-    //   put: {method:'PUT', params:{format:'json'}, headers:{ 'Content-Type':'application/json' }},
-      post: { method: 'POST', params:{ format:'json' }, headers:{ 'Content-Type':'application/json' } }
-  });
-
-}]);
-
+    function($resource) {
+        return $resource(base_url + 'app/scientificmodel/:uuid', { id: '@eUuid' }, {
+            get: { method: 'GET', params: { format: 'json' }, isArray: false },
+            //   put: {method:'PUT', params:{format:'json'}, headers:{ 'Content-Type':'application/json' }},
+            post: { method: 'POST', params: { format: 'json' }, headers: { 'Content-Type': 'application/json' } }
+        });
+    }
+]);

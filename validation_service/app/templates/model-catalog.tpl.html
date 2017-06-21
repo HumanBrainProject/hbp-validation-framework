@@ -72,8 +72,8 @@
         </tr>
     </thead>
     <tbody>
-        <tr ng-repeat="model in models | filter: search">
-            <td><a href="{{model.id}}">{{ model.name }}</a></td>
+        <tr ng-repeat="model in models.models | filter: search">
+            <td><a href="#/model-catalog/detail/{{model.id}}">{{ model.name }}</a></td>
             <td>{{ model.species }}</td>
             <td>{{ model.brain_region }}</td>
             <td>{{ model.cell_type }}</td>

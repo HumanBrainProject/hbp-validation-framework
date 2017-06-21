@@ -68,6 +68,11 @@ ModelCatalogApp.config(
                 url: '/model-catalog/create',
                 templateUrl: '/static/templates/model-catalog-create.tpl.html',
                 controller: 'ModelCatalogCreateCtrl'
+            })
+            .state('ModelCatalogDetail', {
+                url: '/model-catalog/detail/:uuid',
+                templateUrl: '/static/templates/model-catalog-detail.tpl.html',
+                controller: 'ModelCatalogDetailCtrl'
             });
         $urlRouterProvider.otherwise('/model-catalog');
 

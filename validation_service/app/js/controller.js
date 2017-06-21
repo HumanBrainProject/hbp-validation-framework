@@ -87,15 +87,17 @@ testApp.controller('ValTestCreateCtrl', ['$scope', '$rootScope', '$http', '$loca
 //Model catalog
 var ModelCatalogApp = angular.module('ModelCatalogApp');
 
-ModelCatalogApp.controller('ModelCatalogCtrl', ['$scope', '$rootScope', '$http', '$location',
-    function($scope, $rootScope, $http, $location) {
-    
-    
+ModelCatalogApp.controller('ModelCatalogCtrl', ['$scope', '$rootScope', '$http', '$location', 'ScientificModelRest',
+    function($scope, $rootScope, $http, $location, ScientificModelRest) {
+         $scope.models = ScientificModelRest.get({}, function(data) {});
+
     }
 ]);
 
 ModelCatalogApp.controller('ModelCatalogCreateCtrl', ['$scope', '$rootScope', '$http', '$location', 'ScientificModelRest',
     function($scope, $rootScope, $http, $location, ScientificModelRest) { 
+    // var markdown = require( "markdown" ).markdown;
+    $("#ImagePopup").hide();
     $scope.species = [
       {id: 'mouse', name: 'Mouse (Mus musculus)'},
       {id: 'rat', name: 'Rat (Rattus rattus)'},
@@ -127,19 +129,37 @@ ModelCatalogApp.controller('ModelCatalogCreateCtrl', ['$scope', '$rootScope', '$
       {id: 'mean_field', name: 'Mean Field'},
       {id: 'other', name: 'Other'},
     ];
-
+    $scope.model_image = [];
+    $scope.displayAddImage = function() {
+         $("#ImagePopup").show();
+    };
+    $scope.saveImage = function() {
+        alert(JSON.stringify($scope.image));
+         $scope.model_image.push($scope.image);
+         $("#ImagePopup").hide();
+          $scope.image = {};
+    };
+    $scope.closeImagePanel = function() {
+        $scope.image = {};
+         $("#ImagePopup").hide();
+    };
     $scope.saveModel = function() {
         var parameters = JSON.stringify({model:$scope.model, model_instance:$scope.model_instance, model_image:$scope.model_image});
+         alert('ok 3');
         ScientificModelRest.save(parameters, function(value) {});
-
+         alert('ok 4');
     };
-}
-    
+}  
 ]);
 
-ModelCatalogApp.controller('ModelCatalogVersionCtrl', ['$scope', '$rootScope', '$http', '$location',
-    function($scope, $rootScope, $http, $location) {
-    
-
+ModelCatalogApp.controller('ModelCatalogDetailCtrl', ['$scope', '$rootScope', '$http', '$location','$stateParams', 'ScientificModelRest',
+    function($scope, $rootScope, $http, $location, $stateParams,  ScientificModelRest) { 
+        $scope.model = ScientificModelRest.get({id : $stateParams.uuid});
     }
 ]);
+// ModelCatalogApp.controller('ModelCatalogVersionCtrl', ['$scope', '$rootScope', '$http', '$location',
+//     function($scope, $rootScope, $http, $location) {
+    
+
+//     }
+// ]);

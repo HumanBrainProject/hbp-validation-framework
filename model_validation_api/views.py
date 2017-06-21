@@ -51,6 +51,8 @@ from .forms import (ValidationTestDefinitionForm,
 
 from .serializer import (ValidationTestDefinitionSerializer, 
                             ScientificModelSerializer, 
+                            ScientificModelInstanceSerializer,
+                            ScientificModelImageSerializer,
                             ValidationTestResultSerializer,
                             ValidationTestCodeSerializer,
 
@@ -1127,23 +1129,31 @@ class ScientificModelRest(APIView):
 
         if(model_id == '0'):
             models = ScientificModel.objects.all()
+            model_serializer = ScientificModelSerializer(models, context=serializer_context, many=True )
+            return Response({
+            'models': model_serializer.data,
+            })
         else:
             for key, value in self.request.GET.items():
                 if key == 'id':
                     models = ScientificModel.objects.filter(id=value)
-
-        model_serializer = ScientificModelSerializer(models, context=serializer_context, many=True )#data=request.data)
-
+                    model_instance = ScientificModelInstance.objects.filter(model_id=value)
+                    model_images = ScientificModelImage.objects.filter(model_id=value)
+            model_serializer = ScientificModelSerializer(models, context=serializer_context, many=True )#data=request.data)
+            model_instance_serializer = ScientificModelInstanceSerializer(model_instance, context=serializer_context, many=True )
+            model_image_serializer = ScientificModelImageSerializer(model_images, context=serializer_context, many=True )
         #need to transform model_serializer.data :
         # "resource_uri": "/models/{}".format(model.pk)
 
-        return Response({
-            'models': model_serializer.data,
-        })
+            return Response({
+                'models': model_serializer.data,
+                'model_instances': model_instance_serializer.data,
+                'models_images': model_image_serializer.data,
+            })
 
     def post(self, request, format=None):
         serializer_context = {'request': request,}
-
+        print('fdeqr')
         model_serializer = ScientificModelSerializer(data=request.data['model'], context=serializer_context)
         if model_serializer.is_valid():
             model = model_serializer.save()
@@ -1155,7 +1165,17 @@ class ScientificModelRest(APIView):
             model_instance_serializer.save(model_id=model.id)
         else:
             return Response(model_instance_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        
+        print(request.data['model_image'])
+        if request.data['model_image']!={}:
+            for i in request.data['model_image']:
+                model_image_serializer = ScientificModelImageSerializer(data=i, context=serializer_context)
+                if model_image_serializer.is_valid():
+                    print("is valid")
+                    model_image_serializer.save(model_id=model.id)
+                else:
+                    print('is not valid')
+                    return Response(model_image_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
         return Response(status=status.HTTP_201_CREATED)
 
 class ValidationTestCodeRest(APIView):

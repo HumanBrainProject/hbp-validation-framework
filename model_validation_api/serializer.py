@@ -5,6 +5,7 @@ from .models import (ValidationTestDefinition,
                     ValidationTestCode,
                     ScientificModel,
                     ScientificModelInstance,
+                    ScientificModelImage,
                     )
 
 from rest_framework import serializers
@@ -125,13 +126,17 @@ class ValidationTestResultSerializer(object):
 class ScientificModelInstanceSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = ScientificModelInstance
-        fields = ('id', 'version', 'parameters', 'source', 'model_id',)
+        fields = ('id', 'version', 'parameters', 'source', 'model_id')
 
+class ScientificModelImageSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = ScientificModelImage
+        fields = ('id', 'url', 'caption','model_id')
 
 class ScientificModelSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = ScientificModel
-        fields = ('id', 'name', 'description', 'species', 'brain_region', 'cell_type', 'author', 'model_type')
+        fields = ('id', 'name', 'description', 'species', 'brain_region', 'cell_type', 'author', 'model_type','private','access_control')
 
 
 #may be need to create one read version
