@@ -24,8 +24,8 @@ from .views import (ValidationTestDefinitionResource,
                     SimpleResultDetailView,
                     SimpleResultEditView,
                     HomeValidationView,
-                    ConfigView,
-                    ConfigViewCreateView,
+                    CollabParameterRest,
+                    # ConfigViewCreateView,
                     #SimpleResultCreateView,
                     #ValidationTestResultView, 
                     # ValidationTestResultCreate,
@@ -33,9 +33,15 @@ from .views import (ValidationTestDefinitionResource,
 
                     ScientificModelRest,
                     ValidationTestDefinitionRest,
+                    ModelCatalogView,
                     ScientificModelInstanceRest,
+<<<<<<< HEAD
                     ValidationTestCodeRest,
                     TestCommentRest,
+=======
+                    ValidationTestCodeRest
+
+>>>>>>> f6b03465ff79930c90a7971e7cf0ba48ef0fb3d3
                     )
 
 uuid_pattern = "[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}"
@@ -92,6 +98,9 @@ urlpatterns = (
     url(r'^view/models/create$',
         SimpleModelCreateView.as_view(),
         name="simple-model-create-view"),
+    # url(r'^view/models/create/addImage$',
+    #     AddImage.as_view(),
+    #     name="simple-model-add-image"),
     url(r'^view/models/edit/(?P<pk>{})$'.format(uuid_pattern),
         SimpleModelEditView.as_view(),
         name="simple-model-edit-view"),
@@ -142,6 +151,7 @@ urlpatterns = (
         ValidationTestCodeRest.as_view(),
         name="validation-test-code"),
 
+<<<<<<< HEAD
     url(r'^app/testcomment/$',
         TestCommentRest.as_view(),
         name="test-comment"),
@@ -150,7 +160,15 @@ urlpatterns = (
     url(r'^ConfigView$',
         ConfigViewCreateView.as_view(), 
         name='ConfigView'), 
+=======
+    # url(r'^ConfigView$',
+    #     ConfigViewCreateView.as_view(), 
+    #     name='ConfigView'), 
+>>>>>>> f6b03465ff79930c90a7971e7cf0ba48ef0fb3d3
 
+    url(r'^app/collabparameterrest/$',
+        CollabParameterRest.as_view(), 
+        ),
 
 
     # url(r'^view/results/create$',
@@ -165,4 +183,8 @@ urlpatterns = (
     #    SimpleResultEditView.as_view(),
     #    name="simple-result-edit-view"), 
 
+     #model catalog app url
+    url(r'^model-catalog/$',
+        ModelCatalogView.as_view(),
+        name="model-catalog-view"),
 )

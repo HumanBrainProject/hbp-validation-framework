@@ -5,7 +5,12 @@ from .models import (ValidationTestDefinition,
                     ValidationTestCode,
                     ScientificModel,
                     ScientificModelInstance,
+<<<<<<< HEAD
                     Comment,
+=======
+                    ScientificModelImage,
+                    CollabParameters
+>>>>>>> f6b03465ff79930c90a7971e7cf0ba48ef0fb3d3
                     )
 
 from rest_framework import serializers
@@ -126,24 +131,28 @@ class ValidationTestResultSerializer(object):
 class ScientificModelInstanceSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = ScientificModelInstance
-        fields = ('id', 'version', 'parameters', 'source', 'model_id',)
+        fields = ('id', 'version', 'parameters', 'source', 'model_id')
 
+class ScientificModelImageSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = ScientificModelImage
+        fields = ('id', 'url', 'caption','model_id')
 
 class ScientificModelSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = ScientificModel
-        fields = ('id', 'name', 'description', 'species', 'brain_region', 'cell_type', 'author', 'model_type')
+        fields = ('id', 'name', 'description', 'species', 'brain_region', 'cell_type', 'author', 'model_type','private','access_control')
 
 
 #may be need to create one read version
 class ValidationTestCodeSerializer(serializers.HyperlinkedModelSerializer):
     # test_definition_id = serializers.SlugRelatedField(slug_field='id', read_only=True)#queryset=test.objects.all())
     # test_definition_id = serializers.RelatedField(source='test.id', read_only=True)
+
     class Meta:
         model = ValidationTestCode
         fields = ('id', 'repository', 'version', 'path', 'timestamp', 'test_definition_id')
         # read_only_fields = ('test_definition_id')
-
 
 
 class ValidationTestDefinitionSerializer(serializers.HyperlinkedModelSerializer):
@@ -168,8 +177,20 @@ class ValidationTestDefinitionWithCodesReadSerializer(serializers.HyperlinkedMod
                     'protocol', 'author', 'publication', 'codes')
 
 
+<<<<<<< HEAD
 class CommentSerializer(serializers.HyperlinkedModelSerializer):
     # test = ValidationTestCodeSerializer(many=True , read_only=True)
     class Meta:
         model = Comment
         fields = ( 'id', 'author', 'text', 'creation_date', 'approved_comment', 'test_id')
+=======
+
+
+class CollabParametersSerializer(serializers.HyperlinkedModelSerializer):
+    
+    class Meta:
+        model = CollabParameters
+        fields = ('id', 'data_modalities', 'test_type', 'species', 'brain_region', 
+                    'cell_type', 'model_type',)
+
+>>>>>>> f6b03465ff79930c90a7971e7cf0ba48ef0fb3d3
