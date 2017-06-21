@@ -74,20 +74,58 @@ testApp.controller('TestResultCtrl', ['$scope', '$rootScope', '$http', '$locatio
 ]);
 
 
+testApp.controller('ValTestCreateCtrl', ['$scope', '$rootScope', '$http', '$location', 'ValidationTestDefinitionRest', 'ValidationTestCodeRest',
+    function($scope, $rootScope, $http, $location, ValidationTestDefinitionRest, ValidationTestCodeRest) {
 
-    
+        $scope.make_post = function() {
+            var data_to_send = JSON.stringify({ test_data: $scope.test, code_data: $scope.code });
+            ValidationTestDefinitionRest.save(data_to_send, function(value) {});
+        };
+    }
+]);
 
-testApp.controller('configviewCtrl', ['$scope', '$rootScope', '$http', '$location',
-    function($scope, $rootScope, $http, $location) {
-//        $scope.configview =
-        this.species_list =
-        [{species : 'rat'},
-         {form.species},
-         {form.brain_region},
-         {form.cell_type},
-         {form.model_type}];
-    }])
-    ;
+
+
+/*
+<script type="text/javascript"><!--//--><![CDATA[//><!--
+sfHover = function() {
+   var sfEls = document.getElementById("nav").getElementsByTagName("li");
+   for (var i=0; i<sfEls.length; i++) {
+      sfEls[i].onmouseover=function() {
+         this.className+=" sfhover";
+      }
+      sfEls[i].onmouseout=function() {
+      this.className=this.className.replace(new RegExp(" sfhover\b"), "");
+      }
+   }
+}
+if (window.attachEvent) window.attachEvent("onload", sfHover);
+//--><!]]></script>
+*/
+
+testApp.controller('configviewCtrl', ['$scope', '$rootScope', '$http', '$location', 'ValidationTestDefinitionRest', 'ValidationTestCodeRest',
+    function($scope, $rootScope, $http, $location, ValidationTestDefinitionRest, ValidationTestCodeRest) {
+        $scope.species_list = 'fdrdfd';
+        var species_list = 'fdrdfd';
+        
+    }
+]);
+
+
+// testApp.controller('configviewCtrl', ['$scope', '$rootScope', '$http', '$location',
+//     function($scope, $rootScope, $http, $location) {
+// //        $scope.configview =
+// //        $scope.species_list =
+//         $scope.species_list = 'fdrdfd';
+//         var species_list = 'fdrdfd';
+        
+// //         [{species : 'rat'},
+// //   //       {form.species},
+// //   //       {form.brain_region},
+// //   //       {form.cell_type},
+// //     //     {form.model_type}];
+// //         ];
+//     }]);
  //   .filter('currencyFR', ['numberFilter', function(numberFilter){
  //       return function(input, symbol){
  //       };   
@@ -103,12 +141,18 @@ testApp.controller('configviewDetailCtrl', ['$scope', '$rootScope', '$http', '$l
     }
 ]);
 
-testApp.controller('ValTestCreateCtrl', ['$scope', '$rootScope', '$http', '$location', 'ValidationTestDefinitionRest', 'ValidationTestCodeRest',
-    function($scope, $rootScope, $http, $location, ValidationTestDefinitionRest, ValidationTestCodeRest) {
 
-        $scope.make_post = function() {
-            var data_to_send = JSON.stringify({ test_data: $scope.test, code_data: $scope.code });
-            ValidationTestDefinitionRest.save(data_to_send, function(value) {});
-        };
-    }
-]);
+/*
+angular.module('FilterInControllerModule', []).
+controller('FilterController', ['filterFilter', function FilterController(filterFilter) {
+  this.array = [
+    {name: 'Tobias'},
+    {name: 'Jeff'},
+    {name: 'Brian'},
+    {name: 'Igor'},
+    {name: 'James'},
+    {name: 'Brad'}
+  ];
+  this.filteredArray = filterFilter(this.array, 'a');
+}]);
+*/
