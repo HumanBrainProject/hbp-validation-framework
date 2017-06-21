@@ -6,6 +6,7 @@ from .models import (ValidationTestDefinition,
                     ScientificModel,
                     ScientificModelInstance,
                     ScientificModelImage,
+                    CollabParameters
                     )
 
 from rest_framework import serializers
@@ -174,4 +175,10 @@ class ValidationTestDefinitionWithCodesReadSerializer(serializers.HyperlinkedMod
 
 
 
+class CollabParametersSerializer(serializers.HyperlinkedModelSerializer):
     
+    class Meta:
+        model = CollabParameters
+        fields = ('id', 'data_modalities', 'test_type', 'species', 'brain_region', 
+                    'cell_type', 'model_type',)
+

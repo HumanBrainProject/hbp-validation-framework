@@ -192,9 +192,11 @@ class Comment(models.Model):
 
 
 @python_2_unicode_compatible
-class ConfigView(models.Model): 
+class CollabParameters(models.Model): 
     
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    id = models.CharField(primary_key=True, max_length=100 , default="")
+    data_modalities = models.CharField(max_length=100, choices=SPECIES_CHOICES ,blank=True, help_text="species")
+    test_type = models.CharField(max_length=100, choices=SPECIES_CHOICES ,blank=True, help_text="species")
     species = models.CharField(max_length=100, choices=SPECIES_CHOICES ,blank=True, help_text="species")
     brain_region = models.CharField(max_length=100, choices=BRAIN_REGION_CHOICES, blank=True, help_text="brain region, if applicable")
     cell_type = models.CharField(max_length=100,choices=CELL_TYPE_CHOICES, blank=True, help_text="cell type, for single-cell models")

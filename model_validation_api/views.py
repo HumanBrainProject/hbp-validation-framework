@@ -36,7 +36,7 @@ from .models import (ValidationTestDefinition,
                         ScientificModelInstance,
                         ScientificModelImage,   
                         Comment,
-                        ConfigView,)
+                        CollabParameters,)
 
 
 from .forms import (ValidationTestDefinitionForm, 
@@ -47,7 +47,7 @@ from .forms import (ValidationTestDefinitionForm,
                         ValidationTestResultForm, 
                         ScientificModelInstanceForm,
                         CommentForm, 
-                        ConfigViewForm)
+                        )
 
 from .serializer import (ValidationTestDefinitionSerializer, 
                             ScientificModelSerializer, 
@@ -55,7 +55,7 @@ from .serializer import (ValidationTestDefinitionSerializer,
                             ScientificModelImageSerializer,
                             ValidationTestResultSerializer,
                             ValidationTestCodeSerializer,
-
+                            CollabParametersSerializer,
                             ValidationTestDefinitionWithCodesReadSerializer
                             
                             
@@ -1065,28 +1065,28 @@ class HomeValidationView(View):
 
 
 
-class ConfigViewCreateView(View):
+# class ConfigViewCreateView(View):
   
-    model = ConfigView
-    template_name = "Config_View.html"
-    login_url='/login/hbp/'
-    form = ConfigViewForm
-    def get(self, request, *args, **kwargs):
-        model_ConfigView = ConfigView()
-        form = self.form(instance = model_ConfigView)
-        return render(request, self.template_name, {'form': form})
+#     model = CollabParameters
+#     template_name = "Config_View.html"
+#     login_url='/login/hbp/'
+#     # form = ConfigViewForm
+#     def get(self, request, *args, **kwargs):
+#         model_ConfigView = CollabParameters()
+#         form = self.form(instance = model_ConfigView)
+#         return render(request, self.template_name, {'form': form})
    
 
-    def post(self, request, *args, **kwargs):
-         model_creation_ConfigView = ConfigView()
-         form = self.form(request.POST, instance=model_creation_ConfigView)
-         if form.is_valid():
-            form = form.save(commit=False)
-            form.access_control = 3348 #self.get_collab_id()
-            form.save()
-            return HttpResponseRedirect(form.id)
+#     def post(self, request, *args, **kwargs):
+#          model_creation_ConfigView = ConfigView()
+#          form = self.form(request.POST, instance=model_creation_ConfigView)
+#          if form.is_valid():
+#             form = form.save(commit=False)
+#             form.access_control = 3348 #self.get_collab_id()
+#             form.save()
+#             return HttpResponseRedirect(form.id)
  
-         return render(request, self.template_name, {'form': form}, status=400) 
+#          return render(request, self.template_name, {'form': form}, status=400) 
 
 # class AllModelAndTest(APIView):
 
@@ -1257,6 +1257,42 @@ class ValidationTestDefinitionRest(APIView):
             return Response(code_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
         return Response(status=status.HTTP_201_CREATED)
+
+
+
+
+class CollabParameterRest(APIView):
+    
+     def get(self, request, format=None, **kwargs):
+
+        serializer_context = {'request': request,}
+        id = str(len(request.GET.getlist('id')))
+
+        if(id == '0'):
+            param = CollabParameters.objects.all()
+        else:
+            for key, value in self.request.GET.items():
+                if key == 'id':
+                    param = CollabParameters.objects.filter(id = value)
+
+        param_serializer = CollabParametersSerializer(param, context=serializer_context, many=True)
+
+        return Response({
+            'param': param_serializer.data,
+        })
+
+
+     def post(self, request, format=None):
+        serializer_context = {'request': request,}
+
+        param_serializer = CollabParametersSerializer(data=request.data['test_data'], context=serializer_context)
+        if param_serializer.is_valid():
+            param = param_serializer.save() 
+        else:
+            return Response(param_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+        return Response(status=status.HTTP_201_CREATED)
+
 
 
 # @method_decorator(login_required(login_url='/login/hbp'), name='dispatch' )
