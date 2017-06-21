@@ -138,10 +138,23 @@ class ScientificModelInstance(models.Model):
     model = models.ForeignKey(ScientificModel, related_name="instances")
     version = models.CharField(max_length=64)
     parameters = models.TextField(null=True, blank=True)
-    source = models.URLField(help_text="Version control repository containing the source code of the model")
+    source = models.URLField(default='' ,help_text="Version control repository containing the source code of the model")
 
     def __str__(self):
         return "Model: {} @ version {}".format(self.model.name, self.version)
+
+@python_2_unicode_compatible
+class ScientificModelImage(models.Model):
+    """
+    A specific instance of a model with a well defined version and parameterization.
+    """
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    model = models.ForeignKey(ScientificModel, related_name="images")
+    url =  models.URLField(default='' ,help_text="Version control repository containing the source code of the model")
+    caption = models.TextField(null=True, blank=True)
+
+    def __str__(self):
+        return "Model: {} (image {})".format(self.model.name, self.id)
 
 
 @python_2_unicode_compatible

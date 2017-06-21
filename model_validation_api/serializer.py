@@ -5,6 +5,7 @@ from .models import (ValidationTestDefinition,
                     ValidationTestCode,
                     ScientificModel,
                     ScientificModelInstance,
+                    ScientificModelImage,
                     CollabParameters
                     )
 
@@ -126,24 +127,28 @@ class ValidationTestResultSerializer(object):
 class ScientificModelInstanceSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = ScientificModelInstance
-        fields = ('id', 'version', 'parameters', 'source', 'model_id',)
+        fields = ('id', 'version', 'parameters', 'source', 'model_id')
 
+class ScientificModelImageSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = ScientificModelImage
+        fields = ('id', 'url', 'caption','model_id')
 
 class ScientificModelSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = ScientificModel
-        fields = ('id', 'name', 'description', 'species', 'brain_region', 'cell_type', 'author', 'model_type')
+        fields = ('id', 'name', 'description', 'species', 'brain_region', 'cell_type', 'author', 'model_type','private','access_control')
 
 
 #may be need to create one read version
 class ValidationTestCodeSerializer(serializers.HyperlinkedModelSerializer):
     # test_definition_id = serializers.SlugRelatedField(slug_field='id', read_only=True)#queryset=test.objects.all())
     # test_definition_id = serializers.RelatedField(source='test.id', read_only=True)
+
     class Meta:
         model = ValidationTestCode
         fields = ('id', 'repository', 'version', 'path', 'timestamp', 'test_definition_id')
         # read_only_fields = ('test_definition_id')
-
 
 
 class ValidationTestDefinitionSerializer(serializers.HyperlinkedModelSerializer):

@@ -13,7 +13,6 @@ from hbp_app_python_auth.auth import get_access_token, get_token_type, get_auth_
 def home(request):
     return render(request, 'home.html', {})
 
-
 @login_required(login_url='/login/hbp/')
 def show(request):
     context = UUID(request.GET.get('ctx'))

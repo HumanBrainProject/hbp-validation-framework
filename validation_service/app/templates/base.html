@@ -10,8 +10,7 @@
 
     <link rel="stylesheet" href="{% static 'hbp-collaboratory-theme/dist/css/bootstrap.css' %}">
     <link rel="stylesheet" href="{% static 'app.css' %}">
-
-    <link rel="stylesheet" type="text/css" href="{% static 'css/validation_home.css' %}">
+    <link rel="stylesheet" href="{% static 'Model_catalog.css' %}">
   </head>
   <body>
     {% hbp_oidc_session_handler request.user %}
@@ -29,6 +28,7 @@
     <script type="text/javascript" src="{% static 'bbp-oidc-client/angular-bbp-oidc-client.js' %}"></script>
     <script type="text/javascript" src="{% static 'angular-ui-router/release/angular-ui-router.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'angular-resource/angular-resource.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'angular-route.js' %}"></script>
     <script type="text/javascript" src="{% static 'marked-hbp/marked.min.js' %}"></script>
 
     <script type="text/javascript" src="{% static 'angular-hbp-common/dist/angular-hbp-common.min.js' %}"></script>
@@ -56,10 +56,12 @@
     <!-- Collect the nav links, forms, and other content for toggling -->
     <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
       <ul class="nav navbar-nav">
+        <li{% if section == 'modelCatalog' %} class="active"{% endif %}><a href="/model-catalog/">Model Catalog App</a></li>
         <li{% if section == 'models' %} class="active"{% endif %}><a href="/view/models/">Model Catalog</a></li>
         <li{% if section == 'tests' %} class="active"{% endif %}><a href="/view/tests/">Validation Tests</a></li>
         <li{% if section == 'results' %} class="active"{% endif %}><a href="/view/results/">Test Results</a></li>
         <li{% if section == 'home' %} class="active"{% endif %}><a href="/app/">Home Validation</a></li>
+
       </ul>
     </div><!-- /.navbar-collapse -->
   </div><!-- /.container-fluid -->

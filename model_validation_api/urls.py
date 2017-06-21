@@ -33,8 +33,10 @@ from .views import (ValidationTestDefinitionResource,
 
                     ScientificModelRest,
                     ValidationTestDefinitionRest,
+                    ModelCatalogView,
                     ScientificModelInstanceRest,
                     ValidationTestCodeRest
+
                     )
 
 uuid_pattern = "[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}"
@@ -91,6 +93,9 @@ urlpatterns = (
     url(r'^view/models/create$',
         SimpleModelCreateView.as_view(),
         name="simple-model-create-view"),
+    # url(r'^view/models/create/addImage$',
+    #     AddImage.as_view(),
+    #     name="simple-model-add-image"),
     url(r'^view/models/edit/(?P<pk>{})$'.format(uuid_pattern),
         SimpleModelEditView.as_view(),
         name="simple-model-edit-view"),
@@ -163,4 +168,8 @@ urlpatterns = (
     #    SimpleResultEditView.as_view(),
     #    name="simple-result-edit-view"), 
 
+     #model catalog app url
+    url(r'^model-catalog/$',
+        ModelCatalogView.as_view(),
+        name="model-catalog-view"),
 )

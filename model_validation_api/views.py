@@ -34,12 +34,15 @@ from .models import (ValidationTestDefinition,
                         ScientificModelInstance, 
                         ScientificModel, 
                         ScientificModelInstance,
+                        ScientificModelImage,   
                         Comment,
                         CollabParameters,)
 
+
 from .forms import (ValidationTestDefinitionForm, 
                         ValidationTestCodeForm,
-                        ScientificModelForm, 
+                        ScientificModelForm,
+                        ScientificModelImageForm,  
                         ScientificTestForm, 
                         ValidationTestResultForm, 
                         ScientificModelInstanceForm,
@@ -48,6 +51,8 @@ from .forms import (ValidationTestDefinitionForm,
 
 from .serializer import (ValidationTestDefinitionSerializer, 
                             ScientificModelSerializer, 
+                            ScientificModelInstanceSerializer,
+                            ScientificModelImageSerializer,
                             ValidationTestResultSerializer,
                             ValidationTestCodeSerializer,
                             CollabParametersSerializer,
@@ -503,6 +508,19 @@ class SimpleTestEditView(DetailView):
 #         content = self.serializer.serialize(model)
 #         return HttpResponse(content, content_type="application/json; charset=utf-8", status=200)
 
+@method_decorator(login_required(login_url='/login/hbp'), name='dispatch' )
+class AddImage(View):
+    model = ScientificModelImage
+    template_name = "modal.html"
+    login_url='/login/hbp/'
+    form_class = ScientificModelImageForm
+
+    def get(self, request, *args, **kwargs):
+        h = ScientificModelImage()
+        form = self.form_class(instance = h)
+        return render(request, self.template_name, {'form': form})
+
+
 
 @method_decorator(login_required(login_url='/login/hbp'), name='dispatch' )
 class ScientificModelListResource(View):
@@ -668,13 +686,16 @@ class SimpleModelCreateView(View):
     login_url='/login/hbp/'
     form_class = ScientificModelForm
     form_class_instance = ScientificModelInstanceForm
+    form_class_image = ScientificModelImageForm
     serializer = ScientificModelSerializer
     def get(self, request, *args, **kwargs):
         h = ScientificModel()
         form = self.form_class(instance = h)
         model_instance = ScientificModelInstance()
         form_instance = self.form_class_instance(instance=model_instance)
-        return render(request, self.template_name, {'form': form, 'form_instance': form_instance})
+        model_image = ScientificModelImage()
+        form_image = self.form_class_image(instance = model_image)
+        return render(request, self.template_name, {'form': form, 'form_instance': form_instance, 'form_image': form_image})
     
     def post(self, request, *args, **kwargs):
          model_creation = ScientificModel()
@@ -1108,23 +1129,31 @@ class ScientificModelRest(APIView):
 
         if(model_id == '0'):
             models = ScientificModel.objects.all()
+            model_serializer = ScientificModelSerializer(models, context=serializer_context, many=True )
+            return Response({
+            'models': model_serializer.data,
+            })
         else:
             for key, value in self.request.GET.items():
                 if key == 'id':
                     models = ScientificModel.objects.filter(id=value)
-
-        model_serializer = ScientificModelSerializer(models, context=serializer_context, many=True )#data=request.data)
-
+                    model_instance = ScientificModelInstance.objects.filter(model_id=value)
+                    model_images = ScientificModelImage.objects.filter(model_id=value)
+            model_serializer = ScientificModelSerializer(models, context=serializer_context, many=True )#data=request.data)
+            model_instance_serializer = ScientificModelInstanceSerializer(model_instance, context=serializer_context, many=True )
+            model_image_serializer = ScientificModelImageSerializer(model_images, context=serializer_context, many=True )
         #need to transform model_serializer.data :
         # "resource_uri": "/models/{}".format(model.pk)
 
-        return Response({
-            'models': model_serializer.data,
-        })
+            return Response({
+                'models': model_serializer.data,
+                'model_instances': model_instance_serializer.data,
+                'models_images': model_image_serializer.data,
+            })
 
     def post(self, request, format=None):
         serializer_context = {'request': request,}
-
+        print('fdeqr')
         model_serializer = ScientificModelSerializer(data=request.data['model'], context=serializer_context)
         if model_serializer.is_valid():
             model = model_serializer.save()
@@ -1136,7 +1165,17 @@ class ScientificModelRest(APIView):
             model_instance_serializer.save(model_id=model.id)
         else:
             return Response(model_instance_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        
+        print(request.data['model_image'])
+        if request.data['model_image']!={}:
+            for i in request.data['model_image']:
+                model_image_serializer = ScientificModelImageSerializer(data=i, context=serializer_context)
+                if model_image_serializer.is_valid():
+                    print("is valid")
+                    model_image_serializer.save(model_id=model.id)
+                else:
+                    print('is not valid')
+                    return Response(model_image_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
         return Response(status=status.HTTP_201_CREATED)
 
 class ValidationTestCodeRest(APIView):
@@ -1286,3 +1325,18 @@ class CollabParameterRest(APIView):
 #         else:
 #             print(form.data)
 #             return HttpResponseBadRequest(str(form.errors))  # todo: plain text
+
+# #############################################################
+###views for model catalog api
+@method_decorator(login_required(login_url='/login/hbp'), name='dispatch' )
+class ModelCatalogView(View):
+
+    template_name = "model_catalog.html"
+    login_url='/login/hbp/'
+
+    def get(self, request, *args, **kwargs):
+        models = ScientificModel.objects.all()
+        models = serializers.serialize("json", models) 
+        return render(request, self.template_name, {'models':models})
+
+        
