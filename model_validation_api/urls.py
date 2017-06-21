@@ -24,8 +24,8 @@ from .views import (ValidationTestDefinitionResource,
                     SimpleResultDetailView,
                     SimpleResultEditView,
                     HomeValidationView,
-                    ConfigView,
-                    ConfigViewCreateView,
+                    CollabParameterRest,
+                    # ConfigViewCreateView,
                     #SimpleResultCreateView,
                     #ValidationTestResultView, 
                     # ValidationTestResultCreate,
@@ -142,10 +142,13 @@ urlpatterns = (
         ValidationTestCodeRest.as_view(),
         name="validation-test-code"),
 
-    url(r'^ConfigView$',
-        ConfigViewCreateView.as_view(), 
-        name='ConfigView'), 
+    # url(r'^ConfigView$',
+    #     ConfigViewCreateView.as_view(), 
+    #     name='ConfigView'), 
 
+    url(r'^app/collabparameterrest/$',
+        CollabParameterRest.as_view(), 
+        ),
 
 
     # url(r'^view/results/create$',

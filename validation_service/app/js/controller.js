@@ -3,29 +3,27 @@
 /* Controllers */
 var testApp = angular.module('testApp');
 
-testApp.controller('HomeCtrl', ['$scope', '$rootScope', '$http', '$location', "ScientificModelRest", "ValidationTestDefinitionRest",
-    function($scope, $rootScope, $http, $location, ScientificModelRest, ValidationTestDefinitionRest) {
-        // $scope.init = function(tests, models) {
-        //     $scope.tests = tests;
-        //     $scope.models = models;
-        // };
+testApp.controller('HomeCtrl', ['$scope', '$rootScope', '$http', '$location', "ScientificModelRest", "ValidationTestDefinitionRest", 'CollabParameters',
+    function($scope, $rootScope, $http, $location, ScientificModelRest, ValidationTestDefinitionRest, CollabParameters) {
 
+        CollabParameters.setService();
         $scope.models = ScientificModelRest.get({}, function(data) {});
         $scope.tests = ValidationTestDefinitionRest.get({}, function(data) {});
 
     }
 ]);
 
-testApp.controller('ValTestCtrl', ['$scope', '$rootScope', '$http', '$location', 'ValidationTestDefinitionRest',
-    function($scope, $rootScope, $http, $location, ValidationTestDefinitionRest) {
+testApp.controller('ValTestCtrl', ['$scope', '$rootScope', '$http', '$location', 'ValidationTestDefinitionRest', 'CollabParameters',
+    function($scope, $rootScope, $http, $location, ValidationTestDefinitionRest, CollabParameters) {
         $scope.test_list = ValidationTestDefinitionRest.get({}, function(data) {});
+
     }
 ]);
 
-testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$location', '$stateParams', 'ValidationTestDefinitionRest',
-    function($scope, $rootScope, $http, $location, $stateParams, ValidationTestDefinitionRest) {
+testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$location', '$stateParams', 'ValidationTestDefinitionRest', 'CollabParameters',
+    function($scope, $rootScope, $http, $location, $stateParams, ValidationTestDefinitionRest, CollabParameters) {
         // var getvalidationtestsUrl = window.base_url + "app/getvalidationtests/" + $stateParams.uuid+"?format=json";
-        $scope.detail_test = ValidationTestDefinitionRest.get({id : $stateParams.uuid});
+        $scope.detail_test = ValidationTestDefinitionRest.get({ id: $stateParams.uuid });
         // $scope.detail_test = ValidationTestDefinitionRest.get(getvalidationtestsUrl, function(data) {
         //     console.log(data);
         // });
@@ -69,12 +67,12 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
     }
 ]);
 
-testApp.controller('TestResultCtrl', ['$scope', '$rootScope', '$http', '$location',
-    function($scope, $rootScope, $http, $location) {}
+testApp.controller('TestResultCtrl', ['$scope', '$rootScope', '$http', '$location', 'CollabParameters',
+    function($scope, $rootScope, $http, $location, CollabParameters) {}
 ]);
 
-testApp.controller('ValTestCreateCtrl', ['$scope', '$rootScope', '$http', '$location', 'ValidationTestDefinitionRest', 'ValidationTestCodeRest',
-    function($scope, $rootScope, $http, $location, ValidationTestDefinitionRest, ValidationTestCodeRest) {
+testApp.controller('ValTestCreateCtrl', ['$scope', '$rootScope', '$http', '$location', 'ValidationTestDefinitionRest', 'ValidationTestCodeRest', 'CollabParameters',
+    function($scope, $rootScope, $http, $location, ValidationTestDefinitionRest, ValidationTestCodeRest, CollabParameters) {
 
         $scope.make_post = function() {
             var data_to_send = JSON.stringify({ test_data: $scope.test, code_data: $scope.code });
