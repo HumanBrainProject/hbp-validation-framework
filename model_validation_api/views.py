@@ -50,10 +50,8 @@ from .serializer import (ValidationTestDefinitionSerializer,
                             ScientificModelSerializer, 
                             ValidationTestResultSerializer,
                             ValidationTestCodeSerializer,
-
-                            ValidationTestDefinitionWithCodesReadSerializer
-                            
-                            
+                            ValidationTestDefinitionWithCodesReadSerializer,
+                            CommentSerializer,
                             )
 
 from django.shortcuts import get_object_or_404
@@ -1219,6 +1217,28 @@ class ValidationTestDefinitionRest(APIView):
         
         return Response(status=status.HTTP_201_CREATED)
 
+
+class TestCommentRest(APIView):
+    def get(self, request, format=None, **kwargs):
+        serializer_context = {'request': request,}
+        nb_id = str(len(request.GET.getlist('id')))
+        nb_test_id = str(len(request.GET.getlist('test_id')))
+
+        if nb_id == '0' and nb_test_id == '0':
+            comments = Comment.objects.all()
+        else:
+            for key, value in self.request.GET.items():
+                if key == 'id':
+                    comments = Comment.objects.filter(id = value)
+                if key == 'test_id':
+                    logger.info("value : " + value)
+                    comments = Comment.objects.filter(test_id = value)
+
+        comment_serializer = CommentSerializer(comments, context=serializer_context, many=True)
+
+        return Response({
+            'comments': comment_serializer.data,
+        })
 
 # @method_decorator(login_required(login_url='/login/hbp'), name='dispatch' )
 # class ValidationTestResultEdit(TemplateView): 

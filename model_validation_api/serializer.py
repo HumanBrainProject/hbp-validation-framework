@@ -5,6 +5,7 @@ from .models import (ValidationTestDefinition,
                     ValidationTestCode,
                     ScientificModel,
                     ScientificModelInstance,
+                    Comment,
                     )
 
 from rest_framework import serializers
@@ -167,6 +168,8 @@ class ValidationTestDefinitionWithCodesReadSerializer(serializers.HyperlinkedMod
                     'protocol', 'author', 'publication', 'codes')
 
 
-
-
-    
+class CommentSerializer(serializers.HyperlinkedModelSerializer):
+    # test = ValidationTestCodeSerializer(many=True , read_only=True)
+    class Meta:
+        model = Comment
+        fields = ( 'id', 'author', 'text', 'creation_date', 'approved_comment', 'test_id')
