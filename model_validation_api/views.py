@@ -55,15 +55,8 @@ from .serializer import (ValidationTestDefinitionSerializer,
                             ScientificModelImageSerializer,
                             ValidationTestResultSerializer,
                             ValidationTestCodeSerializer,
-<<<<<<< HEAD
                             ValidationTestDefinitionWithCodesReadSerializer,
                             CommentSerializer,
-=======
-                            CollabParametersSerializer,
-                            ValidationTestDefinitionWithCodesReadSerializer
-                            
-                            
->>>>>>> f6b03465ff79930c90a7971e7cf0ba48ef0fb3d3
                             )
 
 from django.shortcuts import get_object_or_404
@@ -1264,7 +1257,6 @@ class ValidationTestDefinitionRest(APIView):
         return Response(status=status.HTTP_201_CREATED)
 
 
-<<<<<<< HEAD
 class TestCommentRest(APIView):
     def get(self, request, format=None, **kwargs):
         serializer_context = {'request': request,}
@@ -1287,44 +1279,6 @@ class TestCommentRest(APIView):
             'comments': comment_serializer.data,
         })
 
-=======
-
-
-class CollabParameterRest(APIView):
-    
-     def get(self, request, format=None, **kwargs):
-
-        serializer_context = {'request': request,}
-        id = str(len(request.GET.getlist('id')))
-
-        if(id == '0'):
-            param = CollabParameters.objects.all()
-        else:
-            for key, value in self.request.GET.items():
-                if key == 'id':
-                    param = CollabParameters.objects.filter(id = value)
-
-        param_serializer = CollabParametersSerializer(param, context=serializer_context, many=True)
-
-        return Response({
-            'param': param_serializer.data,
-        })
-
-
-     def post(self, request, format=None):
-        serializer_context = {'request': request,}
-
-        param_serializer = CollabParametersSerializer(data=request.data['test_data'], context=serializer_context)
-        if param_serializer.is_valid():
-            param = param_serializer.save() 
-        else:
-            return Response(param_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        
-        return Response(status=status.HTTP_201_CREATED)
-
-
-
->>>>>>> f6b03465ff79930c90a7971e7cf0ba48ef0fb3d3
 # @method_decorator(login_required(login_url='/login/hbp'), name='dispatch' )
 # class ValidationTestResultEdit(TemplateView): 
 #     template_name = "simple_result_edit.html"
