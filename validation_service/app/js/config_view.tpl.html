@@ -1,0 +1,68 @@
+<!--<div ng-app="testApp">-->
+
+<div ng-controller="configviewCtrl"> 
+<!--<div ng-controller="configviewDetailCtrl">-->
+
+ <!--   {{ species_list }}-->
+  <!--  {{ scope.species_list }}-->
+    
+         
+
+
+
+<form action="" class="config-view-form" method="POST">
+    
+    <table id="test_table" class="table table-striped">
+       <thead>
+        <!--<tbody ng-app="testApp">-->
+        <tbody>
+
+            <tr>    
+ 
+                <td> Species : 
+
+                     <select>                  
+                       <option value=""> {{ species_list }} </option>
+                    </select>
+
+                </td>
+            </tr>
+            <tr>
+                <td> Brain region : 
+                     <select>                  
+                       <option value=""> {{ brain_region_list }} </option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td> Cell type : 
+                     <select>                  
+                       <option value="">  {{ cell_type_list }} </option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td> Model type : 
+                     <select>                  
+                       <option value=""> {{ model_type_list }} </option>
+                    </select>
+                </td>
+            </tr>
+
+        </tbody>
+     </thread>
+    </table>
+    <br/>
+
+
+    <div class="navbar navbar-form">
+        <button type="submit" class="btn btn-primary">Save</button>
+    </div>
+
+</form>
+
+</div>
+
+
+
+

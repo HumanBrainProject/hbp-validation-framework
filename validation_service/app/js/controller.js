@@ -87,73 +87,12 @@ testApp.controller('configviewCtrl', ['$scope', '$rootScope', '$http', '$locatio
     function($scope, $rootScope, $http, $location, ValidationTestDefinitionRest, ValidationTestCodeRest) {
         //$scope.species_list = 'species controller';
         //var species_list = 'var species';
-        
-        /*
-        $scope.species_list = [
-           {species_list: 'rat'},
-            {species_list: 'human'},
-        ];
-        */
-
-        
-
-        //$scope.species_list ='rat';
         $scope.species_list ='Species';
-
-/*
-        $scope.species_list = [
-           // "Species":[
-          {
-            "species": "rat",
-            "id":1
-          },
-          {
-            "species": "human",
-            "id":2
-          }
-          ];
-  */    
-
-
-
-        
-        
-        //$scope.species_list = [
-        //    {id:0,text:'rat',inUnit:true},
-        //    {id:1,text:'human',inUnit:true},
-        //    ];
-        //];
-
         $scope.brain_region_list = 'Brain region controller';
         $scope.cell_type_list = 'Cell type controller';
         $scope.model_type_list = 'Model type controller';
     }
 ]);
-
-
-
-
-
-// testApp.controller('configviewCtrl', ['$scope', '$rootScope', '$http', '$location',
-//     function($scope, $rootScope, $http, $location) {
-// //        $scope.configview =
-// //        $scope.species_list =
-//         $scope.species_list = 'fdrdfd';
-//         var species_list = 'fdrdfd';
-        
-// //         [{species : 'rat'},
-// //   //       {form.species},
-// //   //       {form.brain_region},
-// //   //       {form.cell_type},
-// //     //     {form.model_type}];
-// //         ];
-//     }]);
- //   .filter('currencyFR', ['numberFilter', function(numberFilter){
- //       return function(input, symbol){
- //       };   
- //    }]);
-
-
 
 
 /*

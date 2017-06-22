@@ -37,7 +37,7 @@ from .models import (ValidationTestDefinition,
                         ScientificModelImage,   
                         Comment,
 
-                        configview)
+                        configview,
 
                         CollabParameters,)
 
@@ -50,7 +50,7 @@ from .forms import (ValidationTestDefinitionForm,
                         ValidationTestResultForm, 
                         ScientificModelInstanceForm,
                         CommentForm,
-                        configviewForm 
+                        configviewForm, 
                         )
 
 from .serializer import (ValidationTestDefinitionSerializer, 
