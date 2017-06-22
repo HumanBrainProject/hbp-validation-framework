@@ -69,16 +69,4 @@ Thumbs.db
 
 #packages
 /static
-validation_service/app/static/
-
-
-
-# Migrations #
-##############
-model_validation_api/migrations/
-
-
-
-# dev DB #
-##########
-db.sqlite3
+/app/static/

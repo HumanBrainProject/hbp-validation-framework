@@ -184,7 +184,7 @@ class ValidationTestResult(models.Model):
 
 
 class Comment(models.Model): 
-    test = models.ForeignKey(ValidationTestDefinition, on_delete=models.CASCADE) 
+    test = models.ForeignKey(ValidationTestDefinition, on_delete=models.CASCADE)
     author = models.CharField(max_length=200, default="")
     text = models.TextField()
     creation_date = models.DateTimeField(auto_now_add=True)
@@ -192,7 +192,23 @@ class Comment(models.Model):
 
 
 @python_2_unicode_compatible
+
+class configview(models.Model): 
+#    id = models.CharField(primary_key=True, max_length=100 , default="")
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)   
+    species = models.CharField(max_length=100, choices=SPECIES_CHOICES ,blank=True, help_text="species")
+    brain_region = models.CharField(max_length=100, choices=BRAIN_REGION_CHOICES, blank=True, help_text="brain region, if applicable")
+    cell_type = models.CharField(max_length=100,choices=CELL_TYPE_CHOICES, blank=True, help_text="cell type, for single-cell models")
+    model_type = models.CharField(max_length=100, choices=MODEL_TYPE, blank=True, help_text="model type: single cell, network or mean field region")
+
+    def __str__(self):
+        return "Model: {} ({})".format(self.name, self.id)
+
+
+
+
 class CollabParameters(models.Model): 
+
     
     id = models.CharField(primary_key=True, max_length=100 , default="")
     data_modalities = models.CharField(max_length=100, choices=SPECIES_CHOICES ,blank=True, help_text="species")
