@@ -1,34 +1,150 @@
 {% extends 'base.html' %} {% load markup %} {% load jsonify %} {% block content %}
-
 <h1>Create new Model</h1>
 <p><a href=".">back</a></p>
 
-<form action="" class="scientific-model-form" method="POST">
-    <table class="table table-condensed">
-        {% csrf_token %} {{ form.non_field_errors }}
-        <tbody>
-            <td>
-                <table>
-                    <tbody>
-                        <tr>
-                            <td>
-                                {{ form.name.label_tag }}
-                            </td>
-                            <td>
-                                {{ form.name }}
-                                <p class="help-text">{{ form.name.errors }}</p>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                {{ form.author.label_tag }}
-                            </td>
-                            <td>
-                                {{form.author}}
-                                <p class="help-text">{{ form.author.errors }}</p>
-                            </td>
-                        </tr>
-                        <tr>
+<!--<form class="panel panel-info ng-cloak" id="Imagepopup" onsubmit="return false" ng-controller="modalController">
+    <style>
+        .ng-cloak {
+            display: none !important;
+        }
+    </style>
+    <div class="panel-heading">Add an image to the model decription <button type="button" class="glyphicon glyphicon-remove" ng-click="close()"></button></div>
+    <div class="panel-body">
+        <table>
+            <tbody>
+                <tr>
+                    <td>
+                        {{ form_image.url.label_tag }}
+                    </td>
+                    <td>
+                        {{ form_image.url }}
+                        <p class="help-text">{{ form_image.url.errors }}</p>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <b>{{form_image.caption.label_tag}}</b>
+                    </td>
+                    <td>
+                        {{form_image.caption}}
+                        <p class="help-text">{{ form_image.caption.errors }}</p>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <button type="button" class="btn btn-primary" ng-click="saveModel()">Save</button>
+    </div>
+
+</form>-->
+<div>
+    <form action="" onsubmit="return false" class="scientific-model-form" method="POST" ng-controller="ScientificModelForm">
+
+        <table class="table">
+            {% csrf_token %} {{ form.non_field_errors }}
+            <tbody>
+                <tr>
+                    <td>
+                        <table class="table">
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        {{ form.name.label_tag }}
+                                    </td>
+                                    <td>
+                                        {{ form.name }}
+                                        <p class="help-text">{{ form.name.errors }}</p>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <b>Version name:</b>
+                                    </td>
+                                    <td>
+                                        {{form_instance.version}}
+                                        <p class="help-text">{{ form_instance.version.errors }}</p>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        {{ form.author.label_tag }}
+                                    </td>
+                                    <td>
+                                        {{form.author}}
+                                        <p class="help-text">{{ form.author.errors }}</p>
+                                    </td>
+                                </tr>
+
+                            </tbody>
+                        </table>
+                    </td>
+                    <td>
+                        <table class="table">
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        {{ form.species.label_tag }}
+                                    </td>
+                                    <td>
+                                        {{ form.species }}
+                                        <p class="help-text">{{ form.species.errors }}</p>
+                                    </td>
+
+                                </tr>
+                                <tr>
+                                    <td>
+                                        {{ form.brain_region.label_tag }}
+                                    </td>
+                                    <td>
+                                        {{form.brain_region}}
+                                        <p class="help-text">{{ form.brain_region.errors }}</p>
+                                    </td>
+                                </tr>
+                                <tr>
+
+                                    <td>
+                                        {{ form.cell_type.label_tag }}
+                                    </td>
+                                    <td>
+                                        {{form.cell_type}}
+                                        <p class="help-text">{{ form.cell_type.errors }}</p>
+                                    </td>
+                                </tr>
+                                <tr>
+
+                                    <td>
+                                        {{ form.model_type.label_tag }}
+                                    </td>
+                                    <td>
+                                        {{form.model_type}}
+                                        <p class="help-text">{{ form.model_type.errors }}</p>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        {{ form_instance.source.label_tag }}
+                                    </td>
+                                    <td>
+                                        {{form_instance.source}}
+                                        <p class="help-text">{{ form_instance.source.errors }}</p>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        {{ form.private.label_tag }}
+                                    </td>
+                                    <td>
+                                        {{form.private}}
+                                        <p class="help-text">{{ form_instance.private.errors }}</p>
+                                    </td>
+                                    {{form.access_control}}
+                                </tr>
+                            </tbody>
+                        </table>
+                    </td>
+                </tr>
+                <tr>
+                    <table class='table'>
+                        <tbody>
                             <td>
                                 {{ form.description.label_tag }}
                             </td>
@@ -36,89 +152,27 @@
                                 {{form.description}}
                                 <p class="help-text">{{ form.description.errors }}</p>
                             </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </td>
-            <td>
-                <table>
-                    <tbody>
-                        <tr>
                             <td>
-                                {{ form.species.label_tag }}
-                            </td>
-                            <td>
-                                {{ form.species }}
-                                <p class="help-text">{{ form.species.errors }}</p>
-                            </td>
 
-                        </tr>
-                        <tr>
-                            <td>
-                                {{ form.brain_region.label_tag }}
+                                <label id="plusI">
+                            <!--<button type="button" id="plusI" class="glyphicon glyphicon-paperclip" ng-click="displayAddImage()"></button>-->
+                            <!--<button type="button" ng-click="showPopup()" class="btn btn-default btn-xs">popup</button>-->
+                            <br> 
+                            </label> <span id=images> 
+                            
+                            </span>
                             </td>
-                            <td>
-                                {{form.brain_region}}
-                                <p class="help-text">{{ form.brain_region.errors }}</p>
-                            </td>
-                        </tr>
-                        <tr>
+                        </tbody>
+                    </table>
+                </tr>
+            </tbody>
+        </table>
 
-                            <td>
-                                {{ form.cell_type.label_tag }}
-                            </td>
-                            <td>
-                                {{form.cell_type}}
-                                <p class="help-text">{{ form.cell_type.errors }}</p>
-                            </td>
-                        </tr>
-                        <tr>
+        <br/>
 
-                            <td>
-                                {{ form.model_type.label_tag }}
-                            </td>
-                            <td>
-                                {{form.model_type}}
-                                <p class="help-text">{{ form.model_type.errors }}</p>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                {{ form_instance.source.label_tag }}
-                            </td>
-                            <td>
-                                {{form_instance.source}}
-                                <p class="help-text">{{ form_instance.source.errors }}</p>
-                            </td>
-                        </tr>
-                        <tr>
-                            <tr>
-                                <td>
-                                    <b>Version name</b>
-                                </td>
-                                <td>
-                                    {{form_instance.version}}
-                                    <p class="help-text">{{ form_instance.version.errors }}</p>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    {{ form.private.label_tag }}
-                                </td>
-                                <td>
-                                    {{form.private}}
-                                    <p class="help-text">{{ form_instance.private.errors }}</p>
-                                </td>
-                                {{form.access_control}}
-                            </tr>
-                    </tbody>
-                </table>
-        </tbody>
-    </table>
-    <br/>
-
-    <div class="navbar navbar-form">
-        <button type="submit" class="btn btn-primary">Save</button>
-    </div>
-</form>
+        <div class="navbar navbar-form">
+            <button type="submit" class="btn btn-primary">Save</button>
+        </div>
+    </form>
+</div>
 {% endblock %}

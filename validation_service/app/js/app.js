@@ -60,4 +60,36 @@ testApp.config(
     }
 );
 
+
+//Model Catalog App
+var ModelCatalogApp = angular.module( 'ModelCatalogApp', [
+    'ui.router',
+    'ng',
+    'ngResource',
+    'ModelCatalogServices',
+]);
+
+ModelCatalogApp.config(
+    function ( $httpProvider, $stateProvider, $locationProvider, $rootScopeProvider, $resourceProvider, $urlRouterProvider)
+    {
+        $resourceProvider.defaults.stripTrailingSlashes = false;
+        $stateProvider
+            .state('ModelCatalog', {
+                url: '/model-catalog',
+                templateUrl: '/static/templates/model-catalog.tpl.html',
+                controller: 'ModelCatalogCtrl'
+            })
+            .state('ModelCatalogCreate', {
+                url: '/model-catalog/create',
+                templateUrl: '/static/templates/model-catalog-create.tpl.html',
+                controller: 'ModelCatalogCreateCtrl'
+            })
+            .state('ModelCatalogDetail', {
+                url: '/model-catalog/detail/:uuid',
+                templateUrl: '/static/templates/model-catalog-detail.tpl.html',
+                controller: 'ModelCatalogDetailCtrl'
+            });
+        $urlRouterProvider.otherwise('/model-catalog');
+
+    });
 // }());

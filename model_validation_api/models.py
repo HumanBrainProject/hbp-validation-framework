@@ -138,10 +138,23 @@ class ScientificModelInstance(models.Model):
     model = models.ForeignKey(ScientificModel, related_name="instances")
     version = models.CharField(max_length=64)
     parameters = models.TextField(null=True, blank=True)
-    source = models.URLField(help_text="Version control repository containing the source code of the model")
+    source = models.URLField(default='' ,help_text="Version control repository containing the source code of the model")
 
     def __str__(self):
         return "Model: {} @ version {}".format(self.model.name, self.version)
+
+@python_2_unicode_compatible
+class ScientificModelImage(models.Model):
+    """
+    A specific instance of a model with a well defined version and parameterization.
+    """
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    model = models.ForeignKey(ScientificModel, related_name="images")
+    url =  models.URLField(default='' ,help_text="Version control repository containing the source code of the model")
+    caption = models.TextField(null=True, blank=True)
+
+    def __str__(self):
+        return "Model: {} (image {})".format(self.model.name, self.id)
 
 
 @python_2_unicode_compatible
@@ -171,7 +184,7 @@ class ValidationTestResult(models.Model):
 
 
 class Comment(models.Model): 
-    test = models.ForeignKey(ValidationTestDefinition, on_delete=models.CASCADE) 
+    test = models.ForeignKey(ValidationTestDefinition, on_delete=models.CASCADE)
     author = models.CharField(max_length=200, default="")
     text = models.TextField()
     creation_date = models.DateTimeField(auto_now_add=True)
@@ -179,9 +192,14 @@ class Comment(models.Model):
 
 
 @python_2_unicode_compatible
-class configview(models.Model): 
+
+#class configview(models.Model): 
+class CollabParameters(models.Model): 
+
     
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    id = models.CharField(primary_key=True, max_length=100 , default="")
+    data_modalities = models.CharField(max_length=100, choices=SPECIES_CHOICES ,blank=True, help_text="species")
+    test_type = models.CharField(max_length=100, choices=SPECIES_CHOICES ,blank=True, help_text="species")
     species = models.CharField(max_length=100, choices=SPECIES_CHOICES ,blank=True, help_text="species")
     brain_region = models.CharField(max_length=100, choices=BRAIN_REGION_CHOICES, blank=True, help_text="brain region, if applicable")
     cell_type = models.CharField(max_length=100,choices=CELL_TYPE_CHOICES, blank=True, help_text="cell type, for single-cell models")

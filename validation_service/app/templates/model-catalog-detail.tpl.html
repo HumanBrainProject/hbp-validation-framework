@@ -1,0 +1,113 @@
+
+<html id="model-detail" ng-controller="ModelCatalogDetailCtrl" >
+<head>
+</head>
+<body>
+     <nav>
+     <a ng-href="#/model-catalog/" class="btn btn-primary">Home </a>
+     <a ng-href="#/model-catalog/edit/{{object.id}}"><button class="btn btn-info">Edit model</button></a>
+     <a ng-href="#/model-catalog/new_version/{{object.id}}?modelID={{object.id}}"><input class="btn btn-info" name="modelID" value="Add a new version"></a>
+     </nav>
+<br>
+<br>
+
+<table class="table" style="border: 1px solid #f4f8ff;">
+    <tbody>
+        <tr>
+            <td> <b> Model type:</b> {{ model.models[0].model_type }} </td>
+            <td> <b> Species:</b> {{ model.models[0].species }} </td>
+            <td> <b> Brain region:</b> {{ model.models[0].brain_region }} </td>
+            <td> <b> Cell type:</b> {{ model.models[0].cell_type }} </td>
+        </tr>
+    </tbody>
+</table>
+<br>
+<table class="table">
+    <thead>
+        <tr style="border: white;">
+            <td style="width: 100px;"><b> Author(s): </b> </td>
+            <td>{{ model.models[0].author }}</td>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td style="width: 100px"><b> Description: </b></td>
+            <td style="border: 1px solid lightgrey; height:20%">{{model.models[0].description}}</td>
+        </tr>
+    </tbody>
+</table>
+<br>
+<br>
+<h2>Model versions</h2>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Version</th>
+            <th>Parameters</th>
+            <th>Code location</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr ng-repeat="model_instance in model.model_instances">
+            <td>{{ model.models[0].model_instance.version }}</td>
+            <td><pre>{{ model.models[0].model_instance.parameters }}</pre></td>
+            <td>{{ model.models[0].model_instance.source }}</td>
+    </tbody>
+</table>
+</body>
+</html>
+
+<!--<table class="table table-striped">
+    <th>
+        <a ng-href="#/model-catalog/edit/{{object.id}}"><button class="btn btn-info">Edit model</button></a>
+        <a ng-href="#/model-catalog/new_version/{{object.id}}?modelID={{object.id}}"><input class="btn btn-info" name="modelID" value="Add a new version"></a>
+    </th>
+</table>
+<br>
+<br>
+<table class="table" style="border: 1px solid #f4f8ff;">
+    <tbody>
+        <tr>
+            <td> <b> Model type:</b> {{ model.model_type }} </td>
+            <td> <b> Species:</b> {{ model.species }} </td>
+            <td> <b> Brain region:</b> {{ model.brain_region }} </td>
+            <td> <b> Cell type:</b> {{ model.cell_type }} </td>
+        </tr>
+    </tbody>
+</table>
+
+<br>
+<table class="table">
+    <thead>
+        <tr style="border: white;">
+            <td style="width: 100px;"><b> Author(s): </b> </td>
+            <td>{{ model.author }}</td>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td style="width: 100px"><b> Description: </b></td>
+            <td style="border: 1px solid lightgrey; height:20%">{{ model.description}}</td>
+        </tr>
+    </tbody>
+</table>
+<br>
+<br>
+<h2>Model versions</h2>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Version</th>
+            <th>Parameters</th>
+            <th>Code location</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr ng-repeat="model_instance in model.model_instances">
+            <td>{{ model_instance.version }}</td>
+            <td><pre>{{ model_instance.parameters }}</pre></td>
+            <td>{{ model_instance.source|urlize }}</td>
+    </tbody>
+</table>
+</body>
+</html>-->
