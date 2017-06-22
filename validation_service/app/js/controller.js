@@ -69,9 +69,9 @@ testApp.controller('TestResultCtrl', ['$scope', '$rootScope', '$http', '$locatio
     function($scope, $rootScope, $http, $location, CollabParameters) {}
 ]);
 
+
 testApp.controller('ValTestCreateCtrl', ['$scope', '$rootScope', '$http', '$location', 'ValidationTestDefinitionRest', 'ValidationTestCodeRest', 'CollabParameters',
     function($scope, $rootScope, $http, $location, ValidationTestDefinitionRest, ValidationTestCodeRest, CollabParameters) {
-
 
         $scope.make_post = function() {
             var data_to_send = JSON.stringify({ test_data: $scope.test, code_data: $scope.code });
@@ -79,6 +79,34 @@ testApp.controller('ValTestCreateCtrl', ['$scope', '$rootScope', '$http', '$loca
         };
     }
 ]);
+
+
+
+
+testApp.controller('configviewCtrl', ['$scope', '$rootScope', '$http', '$location', 'ValidationTestDefinitionRest', 'ValidationTestCodeRest',
+    function($scope, $rootScope, $http, $location, ValidationTestDefinitionRest, ValidationTestCodeRest) {
+        //$scope.species_list = 'species controller';
+        //var species_list = 'var species';
+        $scope.species_list ='Species';
+        $scope.brain_region_list = 'Brain region controller';
+        $scope.cell_type_list = 'Cell type controller';
+        $scope.model_type_list = 'Model type controller';
+    }
+]);
+
+
+/*
+testApp.controller('configviewDetailCtrl', ['$scope', '$rootScope', '$http', '$location', 
+//'$stateParams', 'configviewRest',
+    function($scope, $rootScope, $http, $location, 
+//    $stateParams, configviewRest
+    ) {
+
+    }
+]);
+*/
+
+
 
 //Model catalog
 var ModelCatalogApp = angular.module('ModelCatalogApp');
@@ -159,3 +187,4 @@ ModelCatalogApp.controller('ModelCatalogDetailCtrl', ['$scope', '$rootScope', '$
 
 //     }
 // ]);
+

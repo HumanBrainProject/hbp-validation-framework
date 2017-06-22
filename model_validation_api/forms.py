@@ -1,7 +1,7 @@
 from django.forms import ModelForm
 from django import forms
 
-from .models import ValidationTestDefinition, ValidationTestCode, ScientificModel, ValidationTestResult, ScientificModelInstance, ScientificModelImage, Comment
+from .models import ValidationTestDefinition, ValidationTestCode, ScientificModel, ValidationTestResult, ScientificModelInstance, ScientificModelImage, Comment, configview
 
 
 class ValidationTestDefinitionForm(ModelForm):
@@ -60,6 +60,14 @@ class CommentForm(ModelForm):
         fields = ['text',]
 
 
+
+
+
+class configviewForm(ModelForm):
+
+    class Meta:
+        model = configview
+        fields = "__all__"
 
 
 

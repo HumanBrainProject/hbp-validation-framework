@@ -36,6 +36,9 @@ from .models import (ValidationTestDefinition,
                         ScientificModelInstance,
                         ScientificModelImage,   
                         Comment,
+
+                        configview,
+
                         CollabParameters,)
 
 
@@ -46,7 +49,8 @@ from .forms import (ValidationTestDefinitionForm,
                         ScientificTestForm, 
                         ValidationTestResultForm, 
                         ScientificModelInstanceForm,
-                        CommentForm, 
+                        CommentForm,
+                        configviewForm, 
                         )
 
 from .serializer import (ValidationTestDefinitionSerializer, 
@@ -57,7 +61,9 @@ from .serializer import (ValidationTestDefinitionSerializer,
                             ValidationTestCodeSerializer,
                             ValidationTestDefinitionWithCodesReadSerializer,
                             CommentSerializer,
+#                         configviewSerializer,   
                             )
+
 
 from django.shortcuts import get_object_or_404
 
@@ -1063,30 +1069,223 @@ class HomeValidationView(View):
 
 
 
-# class ConfigViewCreateView(View):
+#@method_decorator(login_required(login_url='/login/hbp'), name='dispatch' )
+#class configviewDetailView(LoginRequiredMixin, DetailView):  
+#    model = configview
+#    template_name = "config_view_detail.html"
+#    login_url='/login/hbp/'
+
+#    def get_context_data(self, **kwargs):
+#        context = super(configviewDetailView, self).get_context_data(**kwargs)
+#        context["section"] = "models"
+#        context["build_info"] = settings.BUILD_INFO
+#        return context
+
+
+
+#class configviewListResource(View):
+#    serializer = configviewSerializer
+#    login_url='/login/hbp/'
+
+#    def post(self, request, *args, **kwargs):
+         
+#         print ("configviewListResource POST")
+#         form = configviewForm(json.loads(request.body))
+#         if form.is_valid():
+#             model = form.save()
+#             content = self.serializer.serialize(model)
+#             return HttpResponse(content, content_type="application/json; charset=utf-8", status=201)
+#         else:
+#             print(form.data)
+#             return HttpResponseBadRequest(str(form.errors))  # todo: plain text
+
+#    def get(self, request, *args, **kwargs):
+#        print ("configviewListResource GET")
+        
+#        models = configview.objects.all()
+#        content = self.serializer.serialize(models)
+#        return HttpResponse(content, content_type="application/json; charset=utf-8", status=200)
+
+
+
+
+#class configviewCreateView(View):
   
-#     model = CollabParameters
-#     template_name = "Config_View.html"
-#     login_url='/login/hbp/'
-#     # form = ConfigViewForm
-#     def get(self, request, *args, **kwargs):
-#         model_ConfigView = CollabParameters()
-#         form = self.form(instance = model_ConfigView)
-#         return render(request, self.template_name, {'form': form})
+#    model = configview
+#    template_name = "config_view.html"
+#    login_url='/login/hbp/'
+#    form = configviewForm
+#    serializer = configviewSerializer
+#    def get(self, request, *args, **kwargs):
+#        model_configview = configview()
+#        form = self.form(instance = model_configview)
+#        return render(request, self.template_name, {'form': form})
    
 
-#     def post(self, request, *args, **kwargs):
-#          model_creation_ConfigView = ConfigView()
-#          form = self.form(request.POST, instance=model_creation_ConfigView)
-#          if form.is_valid():
-#             form = form.save(commit=False)
-#             form.access_control = 3348 #self.get_collab_id()
-#             form.save()
-#             return HttpResponseRedirect(form.id)
+#    def post(self, request, *args, **kwargs):
+#         model_creation_configview = configview()
+#         form = self.form(request.POST, instance=model_creation_configview)
+#         if form.is_valid():
+#            form = form.save(commit=False)
+#            form.access_control = 3348 #self.get_collab_id()
+#            form.save()
+#            return HttpResponseRedirect(form.id)
  
-#          return render(request, self.template_name, {'form': form}, status=400) 
+#         return render(request, self.template_name, {'form': form}, status=400) 
 
-# class AllModelAndTest(APIView):
+    
+#    def get_collab_id(self):
+#        social_auth = self.request.user.social_auth.get()
+#        print("social auth", social_auth.extra_data )
+        
+#        headers = {
+#            'Authorization': get_auth_header(self.request.user.social_auth.get())
+#        }
+
+        #to get collab_id
+#        svc_url = settings.HBP_COLLAB_SERVICE_URL
+#        context = self.request.session["next"][6:]
+#        url = '%scollab/context/%s/' % (svc_url, context)
+#        res = requests.get(url, headers=headers)
+#        collab_id = res.json()['collab']['id']
+#        return collab_id
+     
+
+
+
+
+
+
+#class configviewEditView(DetailView):
+#    model = configview
+#    form_class = configviewForm
+    #template_name = "config_view_edit.html"
+#    template_name = "config_view_detail.tpl.html"
+#    login_url='/login/hbp/'
+
+#    def get_context_data(self, **kwargs):
+#        context = super(configviewEditView, self).get_context_data(**kwargs)
+#        context["section"] = "models"
+#        context["build_info"] = settings.BUILD_INFO
+#        return context
+
+#    def get(self, request, *args, **kwargs):
+#        print(self.get_object().id)
+#        h = configview.objects.get(id = self.get_object().id)
+#        form = self.form_class(instance = h)
+#        return render(request, self.template_name, {'form': form, 'object':h})
+    
+#    def post(self, request, *args, **kwargs):
+#        m = self.get_object()
+#        form = self.form_class(request.POST, instance=m)
+#        if form.is_valid():
+#            form = form.save(commit=False)
+#            form.save()
+#            return self.redirect(request, pk=m.id)
+#        return render(request, self.template_name, {'form': form, "object": m})
+    
+#    @classmethod    
+#    def redirect(self, request, *args, **kwargs): 
+#        url = reverse("config-view-detail-view", kwargs = { 'pk':kwargs['pk']})
+#        return HttpResponseRedirect(url)
+
+
+
+
+
+
+
+#class configviewDetail(APIView):
+
+#    def get(self, request, format=None, **kwargs):
+#        serializer_contextconfigview = {
+#            'request': request,
+#        }
+#        tests_configview = configview.objects.filter(id = self.kwargs['id'])
+#        configview_serializer = configviewSerializer(tests, context=serializer_context, many=True)        
+
+#        return Response({
+#                    'tests_configview': configview_serializer.data,
+#                })
+
+
+
+
+#class configviewRest(APIView):
+    
+#     def get(self, request, format=None, **kwargs):
+
+#        serializer_contextconfigview = {'request': request,}
+
+#        logger.debug("get -- s : " + str(request.GET.items))
+
+
+#        for key, value in self.request.GET.items():
+#            if key == 'id':
+#                tests_configview = configview.objects.filter(id = value)
+#            else:
+#                tests_configview = configview.objects.all()
+
+#        configview_serializer = configviewSerializer(tests_configview, context=serializer_contextconfigview, many=True)
+
+#        return Response({
+#            'tests_configview': configview_serializer.data,
+#        })
+
+        
+#     def post(self, request, format=None):
+#        serializer_context = {'request': request,}
+#
+#        test_serializer = configviewSerializer(data=request.data['test_data'], context=serializer_context)
+#        if test_serializer.is_valid():
+#            test = test_serializer.save() 
+#        else:
+#            return Response(test_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+#
+#        code_serializer = configviewSerializer(data=request.data['code_data'], context=serializer_context)
+#        if code_serializer.is_valid():
+#            code_serializer.save(test_definition_id=test.id)
+#        else:
+#            return Response(code_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+#        
+#        return Response(status=status.HTTP_201_CREATED)
+
+
+
+
+
+
+
+
+#class AllModelAndTest(APIView):
+
+#     def get(self, request, format=None, **kwargs):
+#        models = ScientificModel.objects.all()
+#        tests = ValidationTestDefinition.objects.all()
+
+#        serializer_context = {
+#            'request': request,
+#        }
+
+
+#        model_serializer = ScientificModelSerializer(models, context=serializer_context, many=True )#data=request.data)
+#        test_serializer = ValidationTestDefinitionSerializer(tests, context=serializer_context, many=True)
+#        configview_serializer = configviewSerializer(models, context=serializer_context, many=True )#data=request.data)
+
+
+        #need to transform model_serializer.data :
+        # "resource_uri": "/models/{}".format(model.pk)
+
+        #also need to join "code" data throught serializer
+
+
+
+#        return Response({
+#            'models': model_serializer.data,
+#            'tests': test_serializer.data,
+#        })
+
+
 
 
 # class TestDetail(APIView):
