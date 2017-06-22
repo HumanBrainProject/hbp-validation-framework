@@ -1148,7 +1148,7 @@ class ScientificModelRest(APIView):
             return Response({
                 'models': model_serializer.data,
                 'model_instances': model_instance_serializer.data,
-                'models_images': model_image_serializer.data,
+                'model_images': model_image_serializer.data,
             })
 
     def post(self, request, format=None):
