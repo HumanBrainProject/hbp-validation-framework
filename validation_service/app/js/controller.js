@@ -86,11 +86,53 @@ testApp.controller('ValTestCreateCtrl', ['$scope', '$rootScope', '$http', '$loca
 
 testApp.controller('configviewCtrl', ['$scope', '$rootScope', '$http', '$location', 'ValidationTestDefinitionRest', 'ValidationTestCodeRest',
     function($scope, $rootScope, $http, $location, ValidationTestDefinitionRest, ValidationTestCodeRest) {
-        $scope.species_list = 'fdrdfd';
-        var species_list = 'fdrdfd';
+        //$scope.species_list = 'species controller';
+        //var species_list = 'var species';
         
+        /*
+        $scope.species_list = [
+           {species_list: 'rat'},
+            {species_list: 'human'},
+        ];
+        */
+
+        
+
+        //$scope.species_list ='rat';
+        $scope.species_list ='Species';
+
+/*
+        $scope.species_list = [
+           // "Species":[
+          {
+            "species": "rat",
+            "id":1
+          },
+          {
+            "species": "human",
+            "id":2
+          }
+          ];
+  */    
+
+
+
+        
+        
+        //$scope.species_list = [
+        //    {id:0,text:'rat',inUnit:true},
+        //    {id:1,text:'human',inUnit:true},
+        //    ];
+        //];
+
+        $scope.brain_region_list = 'Brain region controller';
+        $scope.cell_type_list = 'Cell type controller';
+        $scope.model_type_list = 'Model type controller';
     }
 ]);
+
+
+
 
 
 // testApp.controller('configviewCtrl', ['$scope', '$rootScope', '$http', '$location',
@@ -113,6 +155,9 @@ testApp.controller('configviewCtrl', ['$scope', '$rootScope', '$http', '$locatio
  //    }]);
 
 
+
+
+/*
 testApp.controller('configviewDetailCtrl', ['$scope', '$rootScope', '$http', '$location', 
 //'$stateParams', 'configviewRest',
     function($scope, $rootScope, $http, $location, 
@@ -121,4 +166,4 @@ testApp.controller('configviewDetailCtrl', ['$scope', '$rootScope', '$http', '$l
 
     }
 ]);
-
+*/

@@ -43,7 +43,7 @@ validationAppServices.factory('ValidationTestCodeRest', ['$resource',
 
 
 
-
+/*
 validationAppServices.factory('configviewRest', ['$resource',
   function($resource){
     return $resource( base_url + 'app/getconfigview/:uuid', {id:'@eUuid'}, {
@@ -52,3 +52,4 @@ validationAppServices.factory('configviewRest', ['$resource',
     //   post: { method: 'POST', params:{ format:'json' }, headers:{ 'Content-Type':'application/json' } }
     });
   }]);
+*/

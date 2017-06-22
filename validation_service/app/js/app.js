@@ -41,19 +41,20 @@ testApp.config(
                 templateUrl: '/static/js/test_result.tpl.html',
                 controller: 'TestResultCtrl'
             })
-
-
-            
+           
             .state('config_view', {
                 url: '/home/config_view',
                 templateUrl: '/static/js/config_view.tpl.html',
                 controller: 'configviewCtrl'
             })
+
+/*
              .state('config_view_detail', {
                 url: '/home/config_view_detail/:uuid',
                 templateUrl: '/static/js/config_view_detail.tpl.html',
                 controller: 'configviewDetailCtrl'
             })
+*/
             ;
         $urlRouterProvider.otherwise('/home');
     }

@@ -24,11 +24,12 @@ from .views import (ValidationTestDefinitionResource,
                     SimpleResultDetailView,
                     SimpleResultEditView,
                     HomeValidationView,
-                    configviewListResource,
-                    configview,
-                    configviewCreateView,
-                    configviewEditView,
-                    configviewDetailView,
+#                    configviewListResource,
+#                    configview,
+#                    configviewCreateView,
+#                    configviewEditView,
+#                    configviewDetailView,
+
 #                    configviewRest,
                     #SimpleResultCreateView,
                     #ValidationTestResultView, 
@@ -117,15 +118,15 @@ urlpatterns = (
 
 
 
-    url(r'^view/models/(?P<pk>{})$'.format(uuid_pattern),
-        configviewDetailView.as_view(),
-        name="config-view-detail-view"),
-    url(r'^view/models/create$',
-        configviewCreateView.as_view(),
-        name="config-view-create-view"),
-    url(r'^view/models/edit/(?P<pk>{})$'.format(uuid_pattern),
-        configviewEditView.as_view(),
-        name="config-view-edit-view"),
+#    url(r'^view/models/(?P<pk>{})$'.format(uuid_pattern),
+#        configviewDetailView.as_view(),
+#        name="config-view-detail-view"),
+#    url(r'^view/models/create$',
+#        configviewCreateView.as_view(),
+#        name="config-view-create-view"),
+#    url(r'^view/models/edit/(?P<pk>{})$'.format(uuid_pattern),
+#        configviewEditView.as_view(),
+#        name="config-view-edit-view"),
 
 
 
@@ -155,17 +156,23 @@ urlpatterns = (
         name="scientific-model-instance"),
 
 
-   url(r'^app/configview$',
-        configviewListResource.as_view(),
-        name="config-view-resource"),
+#   url(r'^app/configview$',
+#        configviewListResource.as_view(),
+#        name="config-view-resource"),
 
-    url(r'^app/configview$',
-        configviewCreateView.as_view(), 
-        name='configview'), 
+#    url(r'^app/configview$',
+#        configviewCreateView.as_view(), 
+#        name='configview'), 
 
-    url(r'^app/view/configview/edit/(?P<pk>{})$'.format(uuid_pattern), 
-        configviewEditView.as_view(),
-        name="config-view-edit-view"),
+#    url(r'^app/view/configview/edit/(?P<pk>{})$'.format(uuid_pattern), 
+#        configviewEditView.as_view(),
+#        name="config-view-edit-view"),
+
+
+
+
+
+
 
 #    url(r'^app/getconfigview/$',
 #        configviewRest.as_view(),
