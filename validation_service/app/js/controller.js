@@ -82,12 +82,67 @@ testApp.controller('ValTestCreateCtrl', ['$scope', '$rootScope', '$http', '$loca
 
 
 
+
+
+
+
+testApp.controller('SpeciesCtrl2', ['$scope', function ($scope) {
+
+    $scope.species2 = {};
+
+    $scope.species2.messages = [
+        'Mouse (Mus musculus)', 
+        'Rat (Rattus rattus)', 
+        'Marmoset (callithrix jacchus)', 
+        'Human (Homo sapiens)', 
+        'Paxinos Rhesus Monkey (Macaca mulatta)', 
+        'Opossum (Monodelphis domestica)', 
+        'Other'
+    ];
+
+
+
+
+   $scope.species2.messages2 = [
+        'Basal Ganglia',
+        'Cerebellum',
+        'Cortex',
+        'Hippocampus',
+        'Other'
+    ];  
+
+
+
+    $scope.species2.messages3 = [
+        'Granule Cell',
+        'Interneuron',
+        'Pyramidal Cell',
+        'Other'
+    ];
+
+
+     $scope.species2.messages4 = [
+        'Single Cell',
+        'Network',
+        'Mean Field',
+        'Other'
+     ];
+
+}]);
+
+
+
+
+
+
+
+
 // Binding declaratif
 testApp.controller('SpeciesCtrl', ['$scope', function ($scope) {
 
-    $scope.species = {};
+  $scope.species = {};
 
-    $scope.species.messages = [{ 
+  $scope.species.messages = [{ 
         "mouse": "Mouse (Mus musculus)",
         "rat": "Rat (Rattus rattus)",
         "marmoset": "Marmoset (callithrix jacchus)",
@@ -107,7 +162,6 @@ testApp.controller('SpeciesCtrl', ['$scope', function ($scope) {
     }];  
 
 
-
     $scope.species.messages3 = [{
         "granulecell": "Granule Cell",
         "interneuron": "Interneuron",
@@ -124,7 +178,6 @@ testApp.controller('SpeciesCtrl', ['$scope', function ($scope) {
      }];
 
 }]);
-
 
 
 
