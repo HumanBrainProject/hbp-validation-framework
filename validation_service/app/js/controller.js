@@ -82,29 +82,73 @@ testApp.controller('ValTestCreateCtrl', ['$scope', '$rootScope', '$http', '$loca
 
 
 
+// Binding declaratif
+testApp.controller('SpeciesCtrl', ['$scope', function ($scope) {
 
-testApp.controller('configviewCtrl', ['$scope', '$rootScope', '$http', '$location', 'ValidationTestDefinitionRest', 'ValidationTestCodeRest',
+    $scope.species = {};
+
+    $scope.species.messages = [{ 
+        "mouse": "Mouse (Mus musculus)",
+        "rat": "Rat (Rattus rattus)",
+        "marmoset": "Marmoset (callithrix jacchus)",
+        "human": "Human (Homo sapiens)",
+        "paxinos": "Paxinos Rhesus Monkey (Macaca mulatta)",
+        "opossum": "Opossum (Monodelphis domestica)",
+        "other": "Other"
+    }];   
+
+
+    $scope.species.messages2 = [{ 
+        "basalganglia": "Basal Ganglia",
+        "cerebellum": "Cerebellum",
+        "cortex": "Cortex",
+        "hippocampus": "Hippocampus",
+        "other": "Other"
+    }];  
+
+
+
+    $scope.species.messages3 = [{
+        "granulecell": "Granule Cell",
+        "interneuron": "Interneuron",
+        "pyramidalcell": "Pyramidal Cell",
+        "other": "Other",
+    }];
+
+
+     $scope.species.messages4 = [{
+        "singlecell": "Single Cell",
+        "network": "Network",
+        "meanfield": "Mean Field",
+        "other": "Other",
+     }];
+
+}]);
+
+
+
+
+ 
+ 
+
+
+
+
+
+testApp.controller('configviewCtrl', ['$scope', '$rootScope', '$http', '$location',
     function($scope, $rootScope, $http, $location, ValidationTestDefinitionRest, ValidationTestCodeRest) {
         //$scope.species_list = 'species controller';
         //var species_list = 'var species';
-        $scope.species_list ='Species';
+ 
+        $scope.species_list ='Species controller';
         $scope.brain_region_list = 'Brain region controller';
         $scope.cell_type_list = 'Cell type controller';
         $scope.model_type_list = 'Model type controller';
+
     }
 ]);
  
 
-/*
-testApp.controller('configviewDetailCtrl', ['$scope', '$rootScope', '$http', '$location', 
-//'$stateParams', 'configviewRest',
-    function($scope, $rootScope, $http, $location, 
-//    $stateParams, configviewRest
-    ) {
-
-    }
-]);
-*/
 
 
 
