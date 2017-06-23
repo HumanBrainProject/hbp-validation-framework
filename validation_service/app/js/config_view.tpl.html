@@ -1,58 +1,84 @@
-<!--<div ng-app="testApp">-->
+<div ng-app="testApp">
 
-<div ng-controller="configviewCtrl"> 
-<!--<div ng-controller="configviewDetailCtrl">-->
-
- <!--   {{ species_list }}-->
-  <!--  {{ scope.species_list }}-->
-    
-         
-
-
-
-<form action="" class="config-view-form" method="POST">
-    
-    <table id="test_table" class="table table-striped">
-       <thead>
-        <!--<tbody ng-app="testApp">-->
+<!-- Binding declaratif -->
+<div class="inbox" ng-controller="SpeciesCtrl">
+      <thead>
         <tbody>
 
-            <tr>    
- 
-                <td> Species : 
 
-                     <select>                  
-                       <option value=""> {{ species_list }} </option>
-                    </select>
+            <tr> 
+                <td> 
+            <ul ng-repeat="message in species.messages">
+                Species :
+                   <select>   
+                       <option value=""> {{ message.mouse }} </option>
+                       <option value=""> {{ message.rat }} </option>
+                       <option value=""> {{ message.marmoset }} </option>
+                       <option value=""> {{ message.human }} </option>
+                       <option value=""> {{ message.paxinos }} </option>
+                       <option value=""> {{ message.opossum }} </option>
+                       <option value=""> {{ message.other }} </option>
+                   </select>
+            </ul>
+                </td>
+              </tr>
 
+
+
+           <tr> 
+                <td> 
+            <ul ng-repeat="message in species.messages2">
+                Brain region :
+                   <select>   
+                       <option value=""> {{ message.basalganglia }} </option>
+                       <option value=""> {{ message.cerebellum }} </option>
+                       <option value=""> {{ message.cortex }} </option>
+                       <option value=""> {{ message.hippocampus }} </option>
+                       <option value=""> {{ message.other }} </option>
+                   </select>
+            </ul>
                 </td>
-            </tr>
-            <tr>
-                <td> Brain region : 
-                     <select>                  
-                       <option value=""> {{ brain_region_list }} </option>
-                    </select>
+              </tr>
+
+
+
+          <tr> 
+                <td> 
+            <ul ng-repeat="message in species.messages3">
+                Cell type :
+                   <select>   
+                       <option value=""> {{ message.granulecell }} </option>
+                       <option value=""> {{ message.interneuron }} </option>
+                       <option value=""> {{ message.pyramidalcell }} </option>
+                       <option value=""> {{ message.other }} </option>
+                   </select>
+            </ul>
                 </td>
-            </tr>
-            <tr>
-                <td> Cell type : 
-                     <select>                  
-                       <option value="">  {{ cell_type_list }} </option>
-                    </select>
+              </tr>
+
+
+
+           <tr> 
+                <td> 
+            <ul ng-repeat="message in species.messages4">
+                Model type :
+                   <select>   
+                       <option value=""> {{ message.singlecell }} </option>
+                       <option value=""> {{ message.network }} </option>
+                       <option value=""> {{ message.meanfield }} </option>          
+                       <option value=""> {{ message.other }} </option>
+                   </select>
+            </ul> 
                 </td>
-            </tr>
-            <tr>
-                <td> Model type : 
-                     <select>                  
-                       <option value=""> {{ model_type_list }} </option>
-                    </select>
-                </td>
-            </tr>
+              </tr>
+
+
+
 
         </tbody>
      </thread>
-    </table>
-    <br/>
+ </div>
+
 
 
     <div class="navbar navbar-form">

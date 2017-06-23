@@ -66,7 +66,7 @@ class CommentForm(ModelForm):
 class configviewForm(ModelForm):
 
     class Meta:
-        model = configview
+        model = configview 
         fields = "__all__"
 
 
