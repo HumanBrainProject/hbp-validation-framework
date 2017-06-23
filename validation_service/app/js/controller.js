@@ -93,7 +93,7 @@ testApp.controller('configviewCtrl', ['$scope', '$rootScope', '$http', '$locatio
         $scope.model_type_list = 'Model type controller';
     }
 ]);
-
+ 
 
 /*
 testApp.controller('configviewDetailCtrl', ['$scope', '$rootScope', '$http', '$location', 

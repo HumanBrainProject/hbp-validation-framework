@@ -50,7 +50,7 @@ from .forms import (ValidationTestDefinitionForm,
                         ValidationTestResultForm, 
                         ScientificModelInstanceForm,
                         CommentForm,
-                        configviewForm, 
+                        configviewForm,  
                         )
 
 from .serializer import (ValidationTestDefinitionSerializer, 
