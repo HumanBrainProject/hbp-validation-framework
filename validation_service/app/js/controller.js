@@ -83,28 +83,126 @@ testApp.controller('ValTestCreateCtrl', ['$scope', '$rootScope', '$http', '$loca
 
 
 
-testApp.controller('configviewCtrl', ['$scope', '$rootScope', '$http', '$location', 'ValidationTestDefinitionRest', 'ValidationTestCodeRest',
-    function($scope, $rootScope, $http, $location, ValidationTestDefinitionRest, ValidationTestCodeRest) {
-        //$scope.species_list = 'species controller';
-        //var species_list = 'var species';
-        $scope.species_list ='Species';
-        $scope.brain_region_list = 'Brain region controller';
-        $scope.cell_type_list = 'Cell type controller';
-        $scope.model_type_list = 'Model type controller';
-    }
-]);
+
+
+
+
+
+
+testApp.controller('MyCtrl',['$scope',function ($scope) {
+    $scope.test = "Yes";
+    
+    $scope.empList = [
+                    //Test table
+                    {"species":"Mouse (Mus musculus)", "brain_region":"Cerebellum", "cell_type":"Granule Cell", "model_type":"Single Cell"},
+                    {"species":"Mouse (Mus musculus)", "brain_region":"Cerebellum", "cell_type":"Pyramidal Cell", "model_type":"Network"},
+                    {"species":"Rat (Rattus rattus)", "brain_region":"Other", "cell_type":"Pyramidal Cell", "model_type":"Network"},
+                    {"species":"Marmoset (callithrix jacchus)", "brain_region":"Hippocampus", "cell_type":"Interneuron", "model_type":"Mean Field"}, 
+                    {"species":"Human (Homo sapiens)", "brain_region":"Cortex", "cell_type":"Pyramidal Cell", "model_type":"Mean Field"},
+                    {"species":"Human (Homo sapiens)", "brain_region":"Hippocampus", "cell_type":"Pyramidal Cell", "model_type":"Mean Field"},
+                    {"species":"Paxinos Rhesus Monkey (Macaca mulatta)", "brain_region":"Other", "cell_type":"Pyramidal Cell", "model_type":"Mean Field"},
+                    {"species":"Opossum (Monodelphis domestica)", "brain_region":"Other", "cell_type":"Pyramidal Cell", "model_type":"Mean Field"},
+                    {"species":"Mouse (Mus musculus)", "brain_region":"Basal Ganglia", "cell_type":"Granule Cell", "model_type":"Single Cell"},
+                    {"species":"Rat (Rattus rattus)", "brain_region":"Cerebellum", "cell_type":"Pyramidal Cell", "model_type":"Network"},
+                    {"species":"Marmoset (callithrix jacchus)", "brain_region":"Cortex", "cell_type":"Interneuron", "model_type":"Mean Field"}, 
+                    {"species":"Other", "brain_region":"Cortex", "cell_type":"Other", "model_type":"Mean Field"}
+
+                ];
+                
+       $scope.reloadPage = function(){window.location.reload();}
+}]);
+
+
+//Filter multiple
+testApp.filter('filterMultiple',['$filter',function ($filter) {
+	return function (items, keyObj) {
+		var filterObj = {
+							data:items,
+							filteredData:[],
+							applyFilter : function(obj,key){
+								var fData = [];
+								if(this.filteredData.length == 0)
+									this.filteredData = this.data;
+								if(obj){
+									var fObj = {};
+									if(!angular.isArray(obj)){
+										fObj[key] = obj;
+										fData = fData.concat($filter('filter')(this.filteredData,fObj));
+									}else if(angular.isArray(obj)){
+										if(obj.length > 0){	
+											for(var i=0;i<obj.length;i++){
+												if(angular.isDefined(obj[i])){
+													fObj[key] = obj[i];
+													fData = fData.concat($filter('filter')(this.filteredData,fObj));	
+												}
+											}
+											
+										}										
+									}									
+									if(fData.length > 0){
+										this.filteredData = fData;
+									}
+								}
+							}
+				};
+
+		if(keyObj){
+			angular.forEach(keyObj,function(obj,key){
+				filterObj.applyFilter(obj,key);
+			});			
+		}
+		
+		return filterObj.filteredData;
+	}
+}]);
+
+testApp.filter('unique', function() {
+    return function(input, key) {
+        var unique = {};
+        var uniqueList = [];
+        for(var i = 0; i < input.length; i++){
+            if(typeof unique[input[i][key]] == "undefined"){
+                unique[input[i][key]] = "";
+                uniqueList.push(input[i]);
+            }
+        }
+        return uniqueList;
+    };
+});
+
+
+
+
+
+
+
+
+ testApp.controller('ExampleController', ['$scope', function($scope) {
+    }]);
+  
+
+
+
+
+
+
 
 
 /*
-testApp.controller('configviewDetailCtrl', ['$scope', '$rootScope', '$http', '$location', 
-//'$stateParams', 'configviewRest',
-    function($scope, $rootScope, $http, $location, 
-//    $stateParams, configviewRest
-    ) {
+testApp.controller('configviewCtrl', ['$scope', '$rootScope', '$http', '$location',
+    function($scope, $rootScope, $http, $location, ValidationTestDefinitionRest, ValidationTestCodeRest) {
+        //$scope.species_list = 'species controller';
+        //var species_list = 'var species';
+ 
+        $scope.species_list ='Species controller';
+        $scope.brain_region_list = 'Brain region controller';
+        $scope.cell_type_list = 'Cell type controller';
+        $scope.model_type_list = 'Model type controller';
 
     }
 ]);
 */
+
 
 
 

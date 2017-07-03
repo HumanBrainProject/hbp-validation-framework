@@ -1,68 +1,66 @@
-<!--<div ng-app="testApp">-->
-
-<div ng-controller="configviewCtrl"> 
-<!--<div ng-controller="configviewDetailCtrl">-->
-
- <!--   {{ species_list }}-->
-  <!--  {{ scope.species_list }}-->
-    
-         
+<div ng-app="testApp">
 
 
 
-<form action="" class="config-view-form" method="POST">
-    
-    <table id="test_table" class="table table-striped">
-       <thead>
-        <!--<tbody ng-app="testApp">-->
+<div ng-controller="MyCtrl">
+       
+         <table>
+
+          <td><label>Species : </label></td>
+          <td style="width: 150px">
+<select multiple="multiple" ng-model="selectedSp" ng-options="emp.species as emp.species for emp in empList | unique:'species'"></select>
+          </td>
+            
+           
+          <td><label>Brain region : </label></td>
+          <td style="width: 150px">
+<select multiple="multiple" ng-model="selectedBr" ng-options="emp.brain_region as emp.brain_region for emp in empList | filterMultiple:{species:selectedSp,brain_region:selectedBr}"></select>                     
+          </td>
+           
+        
+          <td><label>Cell type : </label></td>
+          <td style="width: 150px">
+<select multiple="multiple" ng-model="selectedCt" ng-options="emp.cell_type as emp.cell_type for emp in empList | filterMultiple:{species:selectedSp,brain_region:selectedBr,cell_type:selectedCt}"></select>
+          </td>
+          
+             
+          <td><label>Model type : </label></td>
+          <td style="width: 150px">
+<select multiple="multiple" ng-model="selectedMt" ng-options="emp.model_type as emp.model_type for emp in empList | filterMultiple:{species:selectedSp,brain_region:selectedBr,cell_type:selectedCt,model_type:selectedMt}"></select>                     
+          </td>
+          
+          <td>
+            <button  ng-click="reloadPage();">Reset</button>
+          </td>
+
+        </table>
+        
+
+
+<h4>Selection</h4>
+    <table class="table empTable table-bordered">
+        <thead>
+           
+                <th>Species</th>
+                <th>Brain region</th>
+                <th>Cell type</th>
+                <th>Model type</th>
+           
+           </thead>
+
         <tbody>
-
-            <tr>    
- 
-                <td> Species : 
-
-                     <select>                  
-                       <option value=""> {{ species_list }} </option>
-                    </select>
-
-                </td>
+        <tr ng-repeat="emp in empList | filterMultiple:{species:selectedSp,brain_region:selectedBr,cell_type:selectedCt,model_type:selectedMt}">             
+                <td>{{emp.species}}</td>
+                <td>{{emp.brain_region}}</td>
+                <td>{{emp.cell_type}}</td>
+                <td>{{emp.model_type}}</td>
             </tr>
-            <tr>
-                <td> Brain region : 
-                     <select>                  
-                       <option value=""> {{ brain_region_list }} </option>
-                    </select>
-                </td>
-            </tr>
-            <tr>
-                <td> Cell type : 
-                     <select>                  
-                       <option value="">  {{ cell_type_list }} </option>
-                    </select>
-                </td>
-            </tr>
-            <tr>
-                <td> Model type : 
-                     <select>                  
-                       <option value=""> {{ model_type_list }} </option>
-                    </select>
-                </td>
-            </tr>
-
         </tbody>
-     </thread>
     </table>
-    <br/>
-
-
-    <div class="navbar navbar-form">
-        <button type="submit" class="btn btn-primary">Save</button>
+       
     </div>
 
-</form>
-
-</div>
 
 
-
+</div> <!-- End of ng-app="testApp" -->
 

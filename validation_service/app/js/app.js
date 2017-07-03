@@ -45,7 +45,8 @@ testApp.config(
             .state('config_view', {
                 url: '/home/config_view',
                 templateUrl: '/static/js/config_view.tpl.html',
-                controller: 'configviewCtrl'
+                controller: 'ExampleController'
+//                controller: 'configviewCtrl'
             })
 
 /*
