@@ -169,9 +169,7 @@ ModelCatalogApp.controller('ModelCatalogCreateCtrl', ['$scope', '$rootScope', '$
     };
     $scope.saveModel = function() {
         var parameters = JSON.stringify({model:$scope.model, model_instance:$scope.model_instance, model_image:$scope.model_image});
-         alert('ok 3');
         ScientificModelRest.save(parameters, function(value) {});
-         alert('ok 4');
     };
 }  
 ]);
@@ -181,10 +179,20 @@ ModelCatalogApp.controller('ModelCatalogDetailCtrl', ['$scope', '$rootScope', '$
         $scope.model = ScientificModelRest.get({id : $stateParams.uuid});
     }
 ]);
-// ModelCatalogApp.controller('ModelCatalogVersionCtrl', ['$scope', '$rootScope', '$http', '$location',
-//     function($scope, $rootScope, $http, $location) {
-    
+ModelCatalogApp.controller('ModelCatalogVersionCtrl', ['$scope', '$rootScope', '$http', '$location','$stateParams', 'ScientificModelRest','ScientificModelInstanceRest',
+    function($scope, $rootScope, $http, $location, $stateParams,  ScientificModelRest, ScientificModelInstanceRest) {
+            $scope.model = ScientificModelRest.get({id : $stateParams.uuid}); //really needed??? just to put model name
+        $scope.saveVersion = function() {
+            alert(JSON.stringify($scope.model_instance));
+            // $scope.model_instance.model_id = $stateParams.uuid;
+            // alert(JSON.stringify($scope.model_instance));            
+            var parameters = JSON.stringify({model_instance:$scope.model_instance});
+            ScientificModelInstanceRest.save(parameters, function(value) {id : $stateParams.uuid});
+        };
 
-//     }
-// ]);
+
+    }
+     
+
+]);
 
