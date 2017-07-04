@@ -1256,6 +1256,24 @@ class CollabParameterRest(APIView):
 
 
 
+
+def _get_collab_id(self):
+    social_auth = self.request.user.social_auth.get()
+    print("social auth", social_auth.extra_data )
+
+    headers = {
+        'Authorization': get_auth_header(self.request.user.social_auth.get())
+    }
+
+    #to get collab_id
+    svc_url = settings.HBP_COLLAB_SERVICE_URL
+    context = self.request.session["next"][6:]
+    url = '%scollab/context/%s/' % (svc_url, context)
+    res = requests.get(url, headers=headers)
+    collab_id = res.json()['collab']['id']
+    return collab_id
+
+
 # @method_decorator(login_required(login_url='/login/hbp'), name='dispatch' )
 # class ValidationTestResultEdit(TemplateView): 
 #     template_name = "simple_result_edit.html"

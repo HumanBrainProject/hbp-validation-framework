@@ -56,37 +56,38 @@ validationAppServices.factory('CollabParameterRest', ['$resource',
 
 // #### Service ### //
 //##################//
-validationAppServices.service('CollabParameters', ['CollabParameterRest',
-    function(CollabParameterRest) {
-        var parameters = {};
+validationAppServices.service('CollabParameters', ['$rootScope', 'CollabParameterRest',
+    function($rootScope, CollabParameterRest) {
+        var parameters;
 
+        var addParameter = function(type, newObj) { //// not finished yet
+            parameters.param[0][type].push(newObj);
 
-        var addParameter = function(type, newObj) {
-            parameters[type].push(newObj);
-
-            //also put the data to base....
+            //also need to put the data to the base....
         };
 
-        var supprParameter = function(type, Obj) {
-            index = parameters[type].indexOf(Obj)
-            parameters[type].splice(index, 1);
+        var supprParameter = function(type, Obj) { //// not finished yet
+            index = parameters.param[0][type].indexOf(Obj)
+            parameters.param[0][type].splice(index, 1);
 
-            //also put the data to base....
+            //also need to put the data to the base....
         };
 
         var getParameters = function(type) {
-            return parameters[type];
+            return parameters.param[0][type];
         };
 
-        var getAllParameters = function(type) {
-            return parameters;
+        var getAllParameters = function() {
+            return parameters.param[0];
         };
 
         var setService = function() {
-
-            if (parameters = {}) {
-                CollabParameterRest.get({}, function(data) {}); //need to get collab number
+            if (typeof(parameters) == "undefined") {
+                console.log("inside IF !");
+                parameters = CollabParameterRest.get({ id: "1" }); //need to get collab number
             }
+
+            return parameters;
         };
 
 

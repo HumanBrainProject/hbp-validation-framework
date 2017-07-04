@@ -178,19 +178,21 @@ class Comment(models.Model):
     approved_comment = models.BooleanField(default=False)
 
 
-@python_2_unicode_compatible
-class CollabParameters(models.Model): 
+# @python_2_unicode_compatible
+# class CollabParameters(models.Model): 
     
-    id = models.CharField(primary_key=True, max_length=100 , default="")
-    data_modalities = models.CharField(max_length=100, choices=SPECIES_CHOICES ,blank=True, help_text="species")
-    test_type = models.CharField(max_length=100, choices=SPECIES_CHOICES ,blank=True, help_text="species")
-    species = models.CharField(max_length=100, choices=SPECIES_CHOICES ,blank=True, help_text="species")
-    brain_region = models.CharField(max_length=100, choices=BRAIN_REGION_CHOICES, blank=True, help_text="brain region, if applicable")
-    cell_type = models.CharField(max_length=100,choices=CELL_TYPE_CHOICES, blank=True, help_text="cell type, for single-cell models")
-    model_type = models.CharField(max_length=100, choices=MODEL_TYPE, blank=True, help_text="model type: single cell, network or mean field region")
+#     id = models.CharField(primary_key=True, max_length=100 , default="")
+#     data_modalities = models.CharField(max_length=100, choices=SPECIES_CHOICES ,blank=True, help_text="species")
+#     test_type = models.CharField(max_length=100, choices=SPECIES_CHOICES ,blank=True, help_text="species")
+#     species = models.CharField(max_length=100, choices=SPECIES_CHOICES ,blank=True, help_text="species")
+#     brain_region = models.CharField(max_length=100, choices=BRAIN_REGION_CHOICES, blank=True, help_text="brain region, if applicable")
+#     cell_type = models.CharField(max_length=100,choices=CELL_TYPE_CHOICES, blank=True, help_text="cell type, for single-cell models")
+#     model_type = models.CharField(max_length=100, choices=MODEL_TYPE, blank=True, help_text="model type: single cell, network or mean field region")
 
-    def __str__(self):
-        return "Model: {} ({})".format(self.name, self.id)
+#     def __str__(self):
+#             return "Model: {} ({})".format(self.name, self.id)
+
+
 
 class Param_DataModalities (models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -215,5 +217,23 @@ class Param_CellType (models.Model):
 class Param_ModelType (models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     authorised_value = models.CharField(max_length=200, default="")
+
+
+
+@python_2_unicode_compatible
+class CollabParameters(models.Model):   
+    id = models.CharField(primary_key=True, max_length=100 , default="")
+    data_modalities = models.ManyToManyField(Param_DataModalities)
+    test_type = models.ManyToManyField(Param_TestType)
+    species = models.ManyToManyField(Param_Species)
+    brain_region = models.ManyToManyField(Param_BrainRegion)
+    cell_type = models.ManyToManyField(Param_CellType)
+    model_type = models.ManyToManyField(Param_ModelType)
+
+    def __str__(self):
+        return "Model: {} ({})".format(self.name, self.id)
+
+
+
 
 
