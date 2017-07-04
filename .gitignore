@@ -69,6 +69,7 @@ Thumbs.db
 
 #packages
 /static
+/app/static/
 validation_service/app/static/
 
 

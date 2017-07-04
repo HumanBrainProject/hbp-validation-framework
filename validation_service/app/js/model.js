@@ -1,8 +1,10 @@
 var validationAppServices = angular.module('validationAppServices', ['ngResource']);
 
 
+
 // #### Factory ### //
 //##################//
+
 validationAppServices.factory('ScientificModelRest', ['$resource',
     function($resource) {
         return $resource(base_url + 'app/scientificmodel/:uuid', { id: '@eUuid' }, {
@@ -34,7 +36,7 @@ validationAppServices.factory('ValidationTestDefinitionRest', ['$resource',
 ]);
 
 validationAppServices.factory('ValidationTestCodeRest', ['$resource',
-    function($resource) {
+ function($resource) {
         return $resource(base_url + 'app/validationtestscode/:uuid', { id: '@eUuid' }, {
             get: { method: 'GET', params: { format: 'json' }, isArray: false },
             //   put: {method:'PUT', params:{format:'json'}, headers:{ 'Content-Type':'application/json' }},
@@ -42,6 +44,20 @@ validationAppServices.factory('ValidationTestCodeRest', ['$resource',
         });
     }
 ]);
+
+
+
+
+/*
+validationAppServices.factory('configviewRest', ['$resource',
+  function($resource){
+    return $resource( base_url + 'app/getconfigview/:uuid', {id:'@eUuid'}, {
+      get: {method:'GET', params:{format:'json'}, isArray:false},
+    //   put: {method:'PUT', params:{format:'json'}, headers:{ 'Content-Type':'application/json' }},
+    //   post: { method: 'POST', params:{ format:'json' }, headers:{ 'Content-Type':'application/json' } }
+    });
+  }]);
+*/
 
 validationAppServices.factory('CollabParameterRest', ['$resource',
     function($resource) {
@@ -52,7 +68,6 @@ validationAppServices.factory('CollabParameterRest', ['$resource',
         });
     }
 ]);
-
 
 // #### Service ### //
 //##################//
@@ -101,3 +116,18 @@ validationAppServices.service('CollabParameters', ['$rootScope', 'CollabParamete
 
     }
 ]);
+
+
+ // for Model catalog app
+var ModelCatalogServices = angular.module('ModelCatalogServices', ['ngResource']);
+
+ModelCatalogServices.factory('ScientificModelRest', ['$resource',
+    function($resource) {
+        return $resource(base_url + 'app/scientificmodel/:uuid', { id: '@eUuid' }, {
+            get: { method: 'GET', params: { format: 'json' }, isArray: false },
+            //   put: {method:'PUT', params:{format:'json'}, headers:{ 'Content-Type':'application/json' }},
+            post: { method: 'POST', params: { format: 'json' }, headers: { 'Content-Type': 'application/json' } }
+        });
+    }
+]);
+

@@ -24,8 +24,16 @@ from .views import (ValidationTestDefinitionResource,
                     SimpleResultDetailView,
                     SimpleResultEditView,
                     HomeValidationView,
-                    CollabParameterRest,
-                    # ConfigViewCreateView,
+#                    configviewListResource,
+#                    configview,
+#                    configviewCreateView,
+#                    configviewEditView,
+#                    configviewDetailView,
+
+#                    configviewRest,
+
+                    # CollabParameterRest,
+ 
                     #SimpleResultCreateView,
                     #ValidationTestResultView, 
                     # ValidationTestResultCreate,
@@ -33,8 +41,10 @@ from .views import (ValidationTestDefinitionResource,
 
                     ScientificModelRest,
                     ValidationTestDefinitionRest,
+                    ModelCatalogView,
                     ScientificModelInstanceRest,
-                    ValidationTestCodeRest
+                    ValidationTestCodeRest,
+                    TestCommentRest,
                     )
 
 uuid_pattern = "[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}"
@@ -91,6 +101,9 @@ urlpatterns = (
     url(r'^view/models/create$',
         SimpleModelCreateView.as_view(),
         name="simple-model-create-view"),
+    # url(r'^view/models/create/addImage$',
+    #     AddImage.as_view(),
+    #     name="simple-model-add-image"),
     url(r'^view/models/edit/(?P<pk>{})$'.format(uuid_pattern),
         SimpleModelEditView.as_view(),
         name="simple-model-edit-view"),
@@ -108,6 +121,23 @@ urlpatterns = (
     url(r'^view/results/(?P<pk>{})$'.format(uuid_pattern),
         SimpleResultDetailView.as_view(),
         name="simple-result-detail-view"),
+
+
+
+
+
+#    url(r'^view/models/(?P<pk>{})$'.format(uuid_pattern),
+#        configviewDetailView.as_view(),
+#        name="config-view-detail-view"),
+#    url(r'^view/models/create$',
+#        configviewCreateView.as_view(),
+#        name="config-view-create-view"),
+#    url(r'^view/models/edit/(?P<pk>{})$'.format(uuid_pattern),
+#        configviewEditView.as_view(),
+#        name="config-view-edit-view"),
+
+
+
 
 
 
@@ -133,22 +163,49 @@ urlpatterns = (
         ScientificModelInstanceRest.as_view(),
         name="scientific-model-instance"),
 
-    url(r'^app/validationtest/$',
-        ValidationTestDefinitionRest.as_view(),
-        name="validation-test-get-data"),
+
+#   url(r'^app/configview$',
+#        configviewListResource.as_view(),
+#        name="config-view-resource"),
+
+#    url(r'^app/configview$',
+#        configviewCreateView.as_view(), 
+#        name='configview'), 
+
+#    url(r'^app/view/configview/edit/(?P<pk>{})$'.format(uuid_pattern), 
+#        configviewEditView.as_view(),
+#        name="config-view-edit-view"),
+
+
+
+
+
+
+
+#    url(r'^app/getconfigview/$',
+#        configviewRest.as_view(),
+#        name="config-view-get-data"),
+
+
 
 
     url(r'^app/validationtestscode/$',
         ValidationTestCodeRest.as_view(),
         name="validation-test-code"),
 
+    url(r'^app/testcomment/$',
+        TestCommentRest.as_view(),
+        name="test-comment"),
+    
+
     # url(r'^ConfigView$',
     #     ConfigViewCreateView.as_view(), 
     #     name='ConfigView'), 
 
-    url(r'^app/collabparameterrest/$',
-        CollabParameterRest.as_view(), 
-        ),
+
+    # url(r'^app/collabparameterrest/$',
+    #     CollabParameterRest.as_view(), 
+    #     ),
 
 
     # url(r'^view/results/create$',
@@ -163,4 +220,8 @@ urlpatterns = (
     #    SimpleResultEditView.as_view(),
     #    name="simple-result-edit-view"), 
 
+     #model catalog app url
+    url(r'^model-catalog/$',
+        ModelCatalogView.as_view(),
+        name="model-catalog-view"),
 )

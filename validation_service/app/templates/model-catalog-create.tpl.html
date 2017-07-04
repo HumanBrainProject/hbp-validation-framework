@@ -1,0 +1,137 @@
+<html id="model-create" ng-controller="ModelCatalogCreateCtrl" >
+<head>
+</head>
+<body>
+     <nav>
+     <a ng-href="#/model-catalog/" class="btn btn-primary">back </a>
+     </nav>
+
+
+<div>
+    <form class="simple-form">
+        <table class="table">
+            <tbody>
+                <tr>
+                    <td>
+                        <table class="table">
+                            <tbody>
+                                <tr>
+                                        <label>Name: <input type="text" ng-model="model.name" required/></label><br />
+                                </tr>
+                                <tr>
+                                     <label>Author: <input type="text" ng-model="model.author" required/></label><br />
+                                </tr>
+
+                                <tr>
+                                     <label>Version Name: <input type="text" ng-model="model_instance.version" required/></label><br />
+                                </tr>
+                                <tr>
+                                    <b>Parameters:</b> <br>
+                                    <textarea class="scrollabletextbox" rows="5" cols="50"  ng-model="model_instance.parameters"> </textarea><br/>
+                                </tr>
+                                
+                            </tbody>
+                        </table>
+                    </td>
+                    <td>
+                        <table class="table">
+                            <tbody>
+                                <tr>
+                                    <label> Species:  </label>
+                                    <select id="select-species" data-style="btn-primary" ng-model="model.species" required>
+                                         <option ng-repeat="s in species" value="{{s.id}}">{{s.name}}</option>
+                                    </select>
+                                    <br />
+                                </tr>
+                                <tr>
+                                    <label> Brain region: </label>
+                                    <select id="select-brain-region" data-style="btn-primary" ng-model="model.brain_region" required>
+                                         <option ng-repeat="br in brain_region" value="{{br.id}}">{{br.name}}</option>
+                                    </select>
+                                    <br />
+                                </tr>
+                                <tr>
+                                    <label>Cell type: </label>
+                                    <select id="select-cell-type" data-style="btn-primary" ng-model="model.cell_type" required>
+                                         <option ng-repeat="ct in cell_type" value="{{ct.id}}">{{ct.name}}</option>
+                                    </select>
+                                    <br />
+                                </tr>
+                                <tr>
+                                    <label>Model type: </label>
+                                    <select id="select-model-type" data-style="btn-primary" ng-model="model.model_type" required>
+                                         <option ng-repeat="mt in model_type" value="{{mt.id}}">{{mt.name}}</option>
+                                    </select>
+                                    <br />
+                                </tr>
+                                <tr>
+                                     <label>Code Source: <input type="url" ng-model="model_instance.source" required/></label><br />
+                                </tr>
+                                <tr>
+                                   <b>Private: </b> <label><input type="radio" ng-model="model.private" value="false"/>no</label> &emsp;
+                                   <label><input type="radio" ng-model="model.private" value="true" />yes</label>
+   
+                                </tr>
+                            </tbody>
+                        </table>
+                    </td>
+                </tr>
+                <tr>
+                    <table class='table'>
+                        <tbody>
+                            <td>
+                            <b>Description:</b> <br>
+                            <textarea class="scrollabletextbox" rows="10" cols="80" ng-model="model.description" required></textarea><br />
+                            </td>
+                            <td>
+                            <button type="button" id="plusI" class="glyphicon glyphicon-paperclip" ng-click="displayAddImage()"></button>
+                            <!--<button type="button" ng-click="showPopup()" class="btn btn-default btn-xs">popup</button>-->
+                            <br/> 
+                
+                                    <span class="panel panel-info" style="overflow:hidden;" id=images ng-repeat=" Image in model_image "> 
+                                    <span class="panel-head" >
+                                    <span class="panel-body" >
+                                        {{Image.url}}
+                                    </span>
+                                    </span>
+                                    </span>
+                                  
+                            </td>
+                        </tbody>
+                    </table>
+                </tr>
+            </tbody>
+        </table>
+
+        <br/>
+    <div class= "panel panel-info ng-cloak" id="ImagePopup">
+    <style>
+        .ng-cloak {
+            display: none !important;
+        }
+    </style>
+    <div class="panel-heading">Add an image to the model decription <button type="button" class="glyphicon glyphicon-remove" ng-click="closeImagePanel()"></button></div>
+    <div class="panel-body">
+        <table>
+            <tbody>
+                <tr>
+                    <label>Url: <input type="url" ng-model="image.url" required/></label><br />
+                </tr>
+                 <tr>
+                    <b>Caption: </b> 
+                    <textarea type="textarea" ng-model="image.caption"> </textarea><br />
+                </tr>
+            </tbody>
+        </table>
+        <button type="button" class="btn btn-primary" ng-click="saveImage()">Save</button>
+    </div></div>
+
+        <div class="navbar navbar-form">
+            <button type="submit" class="btn btn-primary" ng-click=saveModel()>Save</button>
+        </div>
+    </form>
+
+
+
+</body>
+</html>
