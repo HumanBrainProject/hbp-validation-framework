@@ -61,8 +61,11 @@ from .serializer import (ValidationTestDefinitionSerializer,
                             ValidationTestCodeSerializer,
                             ValidationTestDefinitionWithCodesReadSerializer,
                             CommentSerializer,
-#                         configviewSerializer,   
+                            CollabParametersSerializer,
+  
                             )
+
+
 
 
 from django.shortcuts import get_object_or_404
@@ -1302,6 +1305,44 @@ class HomeValidationView(View):
 #                     'tests': test_serializer.data,
 #                 })
 
+
+
+
+class CollabParameterRest(APIView):
+      
+      def get(self, request, format=None, **kwargs):
+ 
+         serializer_context = {'request': request,}
+         id = str(len(request.GET.getlist('id')))
+ 
+         if(id == '0'):
+             param = CollabParameters.objects.all()
+         else:
+             for key, value in self.request.GET.items():
+                 if key == 'id':
+                     param = CollabParameters.objects.filter(id = value)
+ 
+         param_serializer = CollabParametersSerializer(param, context=serializer_context, many=True)
+ 
+         return Response({
+             'param': param_serializer.data,
+         })
+ 
+ 
+      def post(self, request, format=None):
+         serializer_context = {'request': request,}
+ 
+         param_serializer = CollabParametersSerializer(data=request.data['test_data'], context=serializer_context)
+         if param_serializer.is_valid():
+             param = param_serializer.save() 
+         else:
+             return Response(param_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+         
+         return Response(status=status.HTTP_201_CREATED)
+
+
+
+
 class ScientificModelInstanceRest (APIView):
     def post(self, request, format=None):
         serializer_context = {'request': request,}
@@ -1479,7 +1520,7 @@ class TestCommentRest(APIView):
         })
 
 
-     def post(self, request, format=None):
+    def post(self, request, format=None):
         serializer_context = {'request': request,}
 
         param_serializer = CollabParametersSerializer(data=request.data['test_data'], context=serializer_context)

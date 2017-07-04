@@ -235,7 +235,7 @@ class Param_ModelType (models.Model):
 
 @python_2_unicode_compatible
 class CollabParameters(models.Model):   
-    id = models.CharField(primary_key=True, max_length=100 , default="")
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     data_modalities = models.ManyToManyField(Param_DataModalities)
     test_type = models.ManyToManyField(Param_TestType)
     species = models.ManyToManyField(Param_Species)
