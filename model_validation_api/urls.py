@@ -34,6 +34,7 @@ from .views import (ValidationTestDefinitionResource,
 
                     CollabParameterRest,
                     AuthorizedCollabParameterRest,
+
  
                     #SimpleResultCreateView,
                     #ValidationTestResultView, 
@@ -204,9 +205,15 @@ urlpatterns = (
     #     name='ConfigView'), 
 
 
+<<<<<<< HEAD
     url(r'^app/collabparameterrest/$',
         CollabParameterRest.as_view(), 
         ),
+=======
+    # url(r'^app/collabparameterrest/$',
+    #     CollabParameterRest.as_view(), 
+    #     ),
+>>>>>>> 68eaf168302fdab8e27c8dcf2d08be40b15261e4
 
     url(r'^app/authorizedcollabparameterrest/$',
         AuthorizedCollabParameterRest.as_view(), 

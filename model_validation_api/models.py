@@ -193,7 +193,8 @@ class Comment(models.Model):
 
 
 @python_2_unicode_compatible
-class CollabParameters(models.Model):  
+
+class CollabParameters(models.Model): 
     id = models.CharField(primary_key=True, max_length=100 , default="")
     data_modalities = models.CharField(max_length=500 ,blank=True, help_text="species")
     test_type = models.CharField(max_length=500, blank=True, help_text="species")

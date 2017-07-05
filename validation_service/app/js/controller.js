@@ -95,6 +95,7 @@ testApp.controller('ValTestCreateCtrl', ['$scope', '$rootScope', '$http', '$loca
 
 
 
+
 testApp.controller('ConfigCtrl', ['$scope', '$rootScope', '$http', '$location', 'CollabParameters', 'AuthaurizedCollabParameterRest',
     function($scope, $rootScope, $http, $location, CollabParameters, AuthaurizedCollabParameterRest) {
 
@@ -104,6 +105,8 @@ testApp.controller('ConfigCtrl', ['$scope', '$rootScope', '$http', '$location', 
             //ici get la liste de tout ce qui est autorisé
             $scope.list_param = AuthaurizedCollabParameterRest.get({})
             console.log($scope.list_param);
+
+
 
 
 
@@ -142,6 +145,7 @@ testApp.controller('MyCtrl', ['$scope', function($scope) {
     ];
 
     $scope.reloadPage = function() { window.location.reload(); }
+
 }]);
 
 
@@ -192,6 +196,7 @@ testApp.filter('unique', function() {
     return function(input, key) {
         var unique = {};
         var uniqueList = [];
+
         for (var i = 0; i < input.length; i++) {
             if (typeof unique[input[i][key]] == "undefined") {
                 unique[input[i][key]] = "";
@@ -209,7 +214,9 @@ testApp.filter('unique', function() {
 
 
 
+
 testApp.controller('ExampleController', ['$scope', function($scope) {}]);
+
 
 
 
@@ -242,7 +249,9 @@ var ModelCatalogApp = angular.module('ModelCatalogApp');
 
 ModelCatalogApp.controller('ModelCatalogCtrl', ['$scope', '$rootScope', '$http', '$location', 'ScientificModelRest',
     function($scope, $rootScope, $http, $location, ScientificModelRest) {
+
         $scope.models = ScientificModelRest.get({}, function(data) {});
+
 
     }
 ]);
@@ -308,10 +317,12 @@ ModelCatalogApp.controller('ModelCatalogCreateCtrl', ['$scope', '$rootScope', '$
 ModelCatalogApp.controller('ModelCatalogDetailCtrl', ['$scope', '$rootScope', '$http', '$location', '$stateParams', 'ScientificModelRest',
     function($scope, $rootScope, $http, $location, $stateParams, ScientificModelRest) {
         $scope.model = ScientificModelRest.get({ id: $stateParams.uuid });
+
     }
 ]);
 // ModelCatalogApp.controller('ModelCatalogVersionCtrl', ['$scope', '$rootScope', '$http', '$location',
 //     function($scope, $rootScope, $http, $location) {
+
 
 
 //     }

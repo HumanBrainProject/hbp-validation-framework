@@ -41,18 +41,24 @@ testApp.config(
                 controller: 'TestResultCtrl'
             })
 
+
         .state('config', {
             url: '/home/config',
             templateUrl: '/static/js/config.tpl.html',
             controller: 'ConfigCtrl'
         });
+
+
         $urlRouterProvider.otherwise('/home');
 
     });
 
 
+
+
 //Model Catalog App
 var ModelCatalogApp = angular.module('ModelCatalogApp', [
+
     'ui.router',
     'ng',
     'ngResource',
@@ -61,6 +67,7 @@ var ModelCatalogApp = angular.module('ModelCatalogApp', [
 
 ModelCatalogApp.config(
     function($httpProvider, $stateProvider, $locationProvider, $rootScopeProvider, $resourceProvider, $urlRouterProvider) {
+
         $resourceProvider.defaults.stripTrailingSlashes = false;
         $stateProvider
             .state('ModelCatalog', {
@@ -81,4 +88,3 @@ ModelCatalogApp.config(
         $urlRouterProvider.otherwise('/model-catalog');
 
     });
-// }());

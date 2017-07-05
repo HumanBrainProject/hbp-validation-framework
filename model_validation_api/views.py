@@ -37,6 +37,7 @@ from .models import (ValidationTestDefinition,
                         ScientificModelImage,   
                         Comment,
 
+
                         Param_DataModalities,
                         Param_TestType,
                         Param_Species,
@@ -47,7 +48,6 @@ from .models import (ValidationTestDefinition,
 #                        configview,
 
                         CollabParameters,)
-
 
 
 from .forms import (ValidationTestDefinitionForm, 
@@ -80,9 +80,6 @@ from .serializer import (ValidationTestDefinitionSerializer,
                             Param_ModelTypeSerializer,
   
                             )
-
-
-
 
 
 from django.shortcuts import get_object_or_404
@@ -1087,8 +1084,6 @@ class HomeValidationView(View):
         return render(request, self.template_name, { 'tests':tests, 'models':models})
 
 
-
-
 #class AllModelAndTest(APIView):
 
 #     def get(self, request, format=None, **kwargs):
@@ -1116,6 +1111,8 @@ class HomeValidationView(View):
 #            'models': model_serializer.data,
 #            'tests': test_serializer.data,
 #        })
+
+
 
 
 
@@ -1380,6 +1377,7 @@ class TestCommentRest(APIView):
         })
 
 
+
     def post(self, request, format=None):
         serializer_context = {'request': request,}
 
@@ -1409,6 +1407,7 @@ def _get_collab_id(self):
     res = requests.get(url, headers=headers)
     collab_id = res.json()['collab']['id']
     return collab_id
+
 
 
 

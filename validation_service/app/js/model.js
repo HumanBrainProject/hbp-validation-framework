@@ -49,6 +49,7 @@ validationAppServices.factory('ValidationTestCodeRest', ['$resource',
 
 
 
+
 validationAppServices.factory('CollabParameterRest', ['$resource',
     function($resource) {
         return $resource(base_url + 'app/collabparameterrest/:uuid', { id: '@eUuid' }, {
@@ -122,6 +123,7 @@ validationAppServices.service('CollabParameters', ['$rootScope', 'CollabParamete
 ]);
 
 
+
 // for Model catalog app
 var ModelCatalogServices = angular.module('ModelCatalogServices', ['ngResource']);
 
@@ -133,4 +135,5 @@ ModelCatalogServices.factory('ScientificModelRest', ['$resource',
             post: { method: 'POST', params: { format: 'json' }, headers: { 'Content-Type': 'application/json' } }
         });
     }
+
 ]);
