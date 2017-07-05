@@ -98,18 +98,13 @@ testApp.controller('ValTestCreateCtrl', ['$scope', '$rootScope', '$http', '$loca
 testApp.controller('ConfigCtrl', ['$scope', '$rootScope', '$http', '$location', 'CollabParameters', 'AuthaurizedCollabParameterRest',
     function($scope, $rootScope, $http, $location, CollabParameters, AuthaurizedCollabParameterRest) {
 
-        console.log("T1");
         CollabParameters.setService().$promise.then(function() {
-            console.log("T2");
 
 
             //ici get la liste de tout ce qui est autorisé
-            $scope.list_param = AuthaurizedCollabParameterRest.get({}).$promise.then(function() {
-                console.log("T3");
+            $scope.list_param = AuthaurizedCollabParameterRest.get({})
+            console.log($scope.list_param);
 
-                JSON.stringify($scope.list_param);
-            });
-            console.log("T4");
 
 
 
