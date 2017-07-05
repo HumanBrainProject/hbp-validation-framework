@@ -189,7 +189,9 @@ urlpatterns = (
 #        name="config-view-get-data"),
 
 
-
+    url(r'^app/validationtestdef/$',
+        ValidationTestDefinitionRest.as_view(),
+        name="validation-test-definition"),
 
     url(r'^app/validationtestscode/$',
         ValidationTestCodeRest.as_view(),
