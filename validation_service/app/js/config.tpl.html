@@ -1,0 +1,79 @@
+<div ng-app="testApp">
+
+
+
+    <div ng-controller="ConfigCtrl">
+
+        <table>
+
+            <td><label>Data modalities : </label></td>
+            <td style="width: 150px">
+                <select multiple="multiple" ng-model="selected_data_modalities" ng-options="selection for element in list_param.data_modalities "></select>
+            </td>
+
+
+            <td><label>Test type : </label></td>
+            <td style="width: 150px">
+                <select multiple="multiple" ng-model="selected_test_type" ng-options="selection  for element in list_param.test_type "></select>
+            </td>
+
+
+            <td><label>Species: </label></td>
+            <td style="width: 150px">
+                <select multiple="multiple" ng-model="selected_species" ng-options="selection  for element in list_param.species "></select>
+            </td>
+
+
+            <td><label>Brain region : </label></td>
+            <td style="width: 150px">
+                <select multiple="multiple" ng-model="selected_brain_region" ng-options="selection for element in list_param.brain_region "></select>
+            </td>
+
+
+            <td><label>Cell type : </label></td>
+            <td style="width: 150px">
+                <select multiple="multiple" ng-model="selected_cell_type" ng-options="selection for element in list_param.cell_type "></select>
+            </td>
+
+            <td><label>Model type : </label></td>
+            <td style="width: 150px">
+                <select multiple="multiple" ng-model="selected_model_type" ng-options="selection for element in list_param.model_type "></select>
+            </td>
+
+            <td>
+                <button ng-click="reloadPage();">Reset</button>
+            </td>
+
+        </table>
+
+
+
+
+
+        <!--<h4>Selection</h4>
+        <table class="table empTable table-bordered">
+            <thead>
+
+                <th>Species</th>
+                <th>Brain region</th>
+                <th>Cell type</th>
+                <th>Model type</th>
+
+            </thead>
+
+            <tbody>
+                <tr ng-repeat="emp in empList | filterMultiple:{species:selectedSp,brain_region:selectedBr,cell_type:selectedCt,model_type:selectedMt}">
+                    <td>{{emp.species}}</td>
+                    <td>{{emp.brain_region}}</td>
+                    <td>{{emp.cell_type}}</td>
+                    <td>{{emp.model_type}}</td>
+                </tr>
+            </tbody>
+        </table>-->
+
+    </div>
+
+
+
+</div>
+<!-- End of ng-app="testApp" -->

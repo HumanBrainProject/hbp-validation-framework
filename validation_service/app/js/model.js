@@ -60,6 +60,18 @@ validationAppServices.factory('CollabParameterRest', ['$resource',
 ]);
 
 
+
+validationAppServices.factory('AuthaurizedCollabParameterRest', ['$resource',
+    function($resource) {
+        return $resource(base_url + 'app/authorizedcollabparameterrest/', {}, {
+            get: { method: 'GET', params: { format: 'json' }, isArray: false },
+            //   put: {method:'PUT', params:{format:'json'}, headers:{ 'Content-Type':'application/json' }},
+            // post: { method: 'POST', params: { format: 'json' }, headers: { 'Content-Type': 'application/json' } }
+        });
+    }
+]);
+
+
 // #### Service ### //
 //##################//
 validationAppServices.service('CollabParameters', ['$rootScope', 'CollabParameterRest',
@@ -91,6 +103,7 @@ validationAppServices.service('CollabParameters', ['$rootScope', 'CollabParamete
             if (typeof(parameters) == "undefined") {
                 console.log("inside IF !");
                 parameters = CollabParameterRest.get({ id: "1" }); //need to get collab number
+                console.log(parameters)
             }
 
             return parameters;

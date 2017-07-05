@@ -3,7 +3,7 @@
 window.base_url = 'https://127.0.0.1:8000/';
 window.ver_api = '/api/v2/';
 
-var testApp = angular.module( 'testApp', [
+var testApp = angular.module('testApp', [
     'ui.router',
     'ng',
     'ngResource',
@@ -11,8 +11,7 @@ var testApp = angular.module( 'testApp', [
 ]);
 
 testApp.config(
-    function ( $httpProvider, $stateProvider, $locationProvider, $rootScopeProvider, $resourceProvider, $urlRouterProvider )
-    {
+    function($httpProvider, $stateProvider, $locationProvider, $rootScopeProvider, $resourceProvider, $urlRouterProvider) {
         $resourceProvider.defaults.stripTrailingSlashes = false;
 
         $stateProvider
@@ -41,29 +40,19 @@ testApp.config(
                 templateUrl: '/static/js/test_result.tpl.html',
                 controller: 'TestResultCtrl'
             })
-           
-            .state('config_view', {
-                url: '/home/config_view',
-                templateUrl: '/static/js/config_view.tpl.html',
-                controller: 'ExampleController'
-//                controller: 'configviewCtrl'
-            })
 
-/*
-             .state('config_view_detail', {
-                url: '/home/config_view_detail/:uuid',
-                templateUrl: '/static/js/config_view_detail.tpl.html',
-                controller: 'configviewDetailCtrl'
-            })
-*/
-            ;
+        .state('config', {
+            url: '/home/config',
+            templateUrl: '/static/js/config.tpl.html',
+            controller: 'ConfigCtrl'
+        });
         $urlRouterProvider.otherwise('/home');
-    }
-);
+
+    });
 
 
 //Model Catalog App
-var ModelCatalogApp = angular.module( 'ModelCatalogApp', [
+var ModelCatalogApp = angular.module('ModelCatalogApp', [
     'ui.router',
     'ng',
     'ngResource',
@@ -71,8 +60,7 @@ var ModelCatalogApp = angular.module( 'ModelCatalogApp', [
 ]);
 
 ModelCatalogApp.config(
-    function ( $httpProvider, $stateProvider, $locationProvider, $rootScopeProvider, $resourceProvider, $urlRouterProvider)
-    {
+    function($httpProvider, $stateProvider, $locationProvider, $rootScopeProvider, $resourceProvider, $urlRouterProvider) {
         $resourceProvider.defaults.stripTrailingSlashes = false;
         $stateProvider
             .state('ModelCatalog', {
