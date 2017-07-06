@@ -101,20 +101,42 @@ testApp.controller('ConfigCtrl', ['$scope', '$rootScope', '$http', '$location', 
 
         CollabParameters.setService().$promise.then(function() {
 
-
-            //ici get la liste de tout ce qui est autorisé
             $scope.list_param = AuthaurizedCollabParameterRest.get({})
-            console.log($scope.list_param);
-
-
-
-
-
 
             //garder le resultat des selections et remplir callabParam avec un save
+            $scope.make_post = function() {
+
+                $scope.selected_data_modalities.forEach(function(value, i) {
+                    CollabParameters.addParameter("data_modalities", value.authorized_value);
+                });
+
+                $scope.selected_test_type.forEach(function(value, i) {
+                    CollabParameters.addParameter("test_type", value.authorized_value);
+                });
+
+                $scope.selected_model_type.forEach(function(value, i) {
+                    CollabParameters.addParameter("model_type", value.authorized_value);
+                });
+
+                $scope.selected_species.forEach(function(value, i) {
+                    CollabParameters.addParameter("species", value.authorized_value);
+                });
+
+                $scope.selected_brain_region.forEach(function(value, i) {
+                    CollabParameters.addParameter("brain_region", value.authorized_value);
+                });
+
+                $scope.selected_cell_type.forEach(function(value, i) {
+                    CollabParameters.addParameter("cell_type", value.authorized_value);
+                });
 
 
+                CollabParameters.put_parameters();
+            };
 
+
+            //need to do without window.location.... just in angular. goal: do not reload data from server.
+            $scope.reloadPage = function() { window.location.reload(); }
         });
     }
 ]);
@@ -206,40 +228,6 @@ testApp.filter('unique', function() {
         return uniqueList;
     };
 });
-
-
-
-
-
-
-
-
-
-testApp.controller('ExampleController', ['$scope', function($scope) {}]);
-
-
-
-
-
-
-
-
-
-
-/*
-testApp.controller('configviewCtrl', ['$scope', '$rootScope', '$http', '$location',
-    function($scope, $rootScope, $http, $location, ValidationTestDefinitionRest, ValidationTestCodeRest) {
-        //$scope.species_list = 'species controller';
-        //var species_list = 'var species';
- 
-        $scope.species_list ='Species controller';
-        $scope.brain_region_list = 'Brain region controller';
-        $scope.cell_type_list = 'Cell type controller';
-        $scope.model_type_list = 'Model type controller';
-
-    }
-]);
-*/
 
 
 

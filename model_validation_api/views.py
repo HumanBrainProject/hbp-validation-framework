@@ -1176,11 +1176,12 @@ class CollabParameterRest(APIView):
              param = CollabParameters.objects.all()
          else:
              for key, value in self.request.GET.items():
+
                  if key == 'id':
                      param = CollabParameters.objects.filter(id = value)
- 
+
          param_serializer = CollabParametersSerializer(param, context=serializer_context, many=True)
- 
+
          return Response({
              'param': param_serializer.data,
          })
@@ -1189,13 +1190,37 @@ class CollabParameterRest(APIView):
       def post(self, request, format=None):
          serializer_context = {'request': request,}
  
-         param_serializer = CollabParametersSerializer(data=request.data['test_data'], context=serializer_context)
+         param_serializer = CollabParametersSerializer(data=request.data, context=serializer_context)
          if param_serializer.is_valid():
              param = param_serializer.save() 
          else:
              return Response(param_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
          
          return Response(status=status.HTTP_201_CREATED)
+
+
+      def put(self, request, format=None):
+          serializer_context = {'request': request,}
+
+          print ("id : ")
+          print( request.GET.getlist('id'))
+          #get object with num collab
+          param = CollabParameters.objects.get(id = "2" )
+          print (param.__dict__)
+
+          print (request.data)
+
+          param_serializer = CollabParametersSerializer(param, data=request.data, context=serializer_context )#, many=True)
+        #   print (param_serializer)
+
+          print ("1")
+          if param_serializer.is_valid():
+              print ("2")
+              
+              param_serializer.save()
+              return Response(param_serializer.data)
+          return Response(param_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 
 
