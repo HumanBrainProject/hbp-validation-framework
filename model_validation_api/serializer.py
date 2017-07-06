@@ -11,6 +11,16 @@ from .models import (ValidationTestDefinition,
 
                     ScientificModelImage,
                     Comment,
+
+                    CollabParameters,
+
+                    Param_DataModalities,
+                    Param_TestType,
+                    Param_Species,
+                    Param_BrainRegion,
+                    Param_CellType,
+                    Param_ModelType,
+
                     )
 
 from rest_framework import serializers
@@ -177,6 +187,62 @@ class ValidationTestDefinitionWithCodesReadSerializer(serializers.HyperlinkedMod
                     'protocol', 'author', 'publication', 'codes')
 
 
+
+class Param_DataModalitiesSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = Param_DataModalities
+        fields = ('id', 'authorized_value') 
+
+class Param_TestTypeSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = Param_TestType
+        fields = ('id', 'authorized_value')
+    
+
+class Param_SpeciesSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = Param_Species
+        fields = ('id', 'authorized_value')
+
+class Param_BrainRegionSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = Param_BrainRegion
+        fields = ('id', 'authorized_value')
+
+class Param_CellTypeSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = Param_CellType
+        fields = ('id', 'authorized_value')
+
+class Param_ModelTypeSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = Param_ModelType
+        fields = ('id', 'authorized_value')
+
+
+
+class CollabParametersSerializer(serializers.HyperlinkedModelSerializer):
+     class Meta:
+        model = CollabParameters
+        fields = ('id', 'data_modalities', 'test_type', 'species', 'brain_region', 
+                    'cell_type', 'model_type')
+    
+
+# class CollabParametersSerializer(serializers.HyperlinkedModelSerializer):
+#     param = serializers.PrimaryKeyRelatedField(many = True, read_only=True)
+#     # data_modalities = Param_DataModalitiesSerializer(many=True , read_only=True)
+#     # test_type = Param_TestTypeSerializer(many=True , read_only=True)
+#     # species = Param_SpeciesSerializer(many=True , read_only=True)
+#     # brain_region = Param_BrainRegionSerializer(many=True , read_only=True)
+#     # cell_type = Param_CellTypeSerializer(many=True , read_only=True)
+#     # model_type = Param_ModelTypeSerializer(many=True , read_only=True)
+
+#     class Meta:
+#         model = CollabParameters
+#         # fields = ('id', 'data_modalities', 'test_type', 'species', 'brain_region', 
+#         #             'cell_type', 'model_type')
+
+#         fields = ('id', 'param')
 
 
 #class configviewSerializer(object):

@@ -6,25 +6,35 @@ var testApp = angular.module('testApp');
 testApp.controller('HomeCtrl', ['$scope', '$rootScope', '$http', '$location', "ScientificModelRest", "ValidationTestDefinitionRest", 'CollabParameters',
     function($scope, $rootScope, $http, $location, ScientificModelRest, ValidationTestDefinitionRest, CollabParameters) {
 
-        CollabParameters.setService();
-        $scope.models = ScientificModelRest.get({}, function(data) {});
-        $scope.tests = ValidationTestDefinitionRest.get({}, function(data) {});
+        CollabParameters.setService().$promise.then(function() {
+            console.log(CollabParameters.getParameters("species"));
 
+
+            $scope.models = ScientificModelRest.get({}, function(data) {});
+            $scope.tests = ValidationTestDefinitionRest.get({}, function(data) {});
+
+        });
     }
 ]);
 
 testApp.controller('ValTestCtrl', ['$scope', '$rootScope', '$http', '$location', 'ValidationTestDefinitionRest', 'CollabParameters',
     function($scope, $rootScope, $http, $location, ValidationTestDefinitionRest, CollabParameters) {
+        CollabParameters.setService();
+
+
         $scope.test_list = ValidationTestDefinitionRest.get({}, function(data) {});
 
     }
 ]);
 
-testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$location', '$stateParams', 'ValidationTestDefinitionRest', 'ValidationTestCodeRest',
-    function($scope, $rootScope, $http, $location, $stateParams, ValidationTestDefinitionRest, ValidationTestCodeRest) {
+testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$location', '$stateParams', 'ValidationTestDefinitionRest', 'ValidationTestCodeRest', 'CollabParameters', 'TestCommentRest',
+    function($scope, $rootScope, $http, $location, $stateParams, ValidationTestDefinitionRest, ValidationTestCodeRest, CollabParameters, TestCommentRest) {
+        CollabParameters.setService();
         $scope.detail_test = ValidationTestDefinitionRest.get({ id: $stateParams.uuid });
 
         $scope.detail_version_test = ValidationTestCodeRest.get({ test_definition_id: $stateParams.uuid });
+
+        $scope.test_comments = TestCommentRest.get({test_id: $stateParams.uuid});
 
         $scope.selected_tab = "";
 
@@ -66,12 +76,17 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
 ]);
 
 testApp.controller('TestResultCtrl', ['$scope', '$rootScope', '$http', '$location', 'CollabParameters',
-    function($scope, $rootScope, $http, $location, CollabParameters) {}
+    function($scope, $rootScope, $http, $location, CollabParameters) {
+        CollabParameters.setService();
+    }
 ]);
 
 
 testApp.controller('ValTestCreateCtrl', ['$scope', '$rootScope', '$http', '$location', 'ValidationTestDefinitionRest', 'ValidationTestCodeRest', 'CollabParameters',
     function($scope, $rootScope, $http, $location, ValidationTestDefinitionRest, ValidationTestCodeRest, CollabParameters) {
+        CollabParameters.setService();
+        $scope.species = CollabParameters.getParameters("species");
+
 
         $scope.make_post = function() {
             var data_to_send = JSON.stringify({ test_data: $scope.test, code_data: $scope.code });
@@ -83,85 +98,109 @@ testApp.controller('ValTestCreateCtrl', ['$scope', '$rootScope', '$http', '$loca
 
 
 
+testApp.controller('ConfigCtrl', ['$scope', '$rootScope', '$http', '$location', 'CollabParameters', 'AuthaurizedCollabParameterRest',
+    function($scope, $rootScope, $http, $location, CollabParameters, AuthaurizedCollabParameterRest) {
+
+        CollabParameters.setService().$promise.then(function() {
+
+
+            //ici get la liste de tout ce qui est autorisé
+            $scope.list_param = AuthaurizedCollabParameterRest.get({})
+            console.log($scope.list_param);
 
 
 
 
 
 
-testApp.controller('MyCtrl',['$scope',function ($scope) {
+            //garder le resultat des selections et remplir callabParam avec un save
+
+
+
+        });
+    }
+]);
+
+
+
+
+
+
+testApp.controller('MyCtrl', ['$scope', function($scope) {
     $scope.test = "Yes";
-    
-    $scope.empList = [
-                    //Test table
-                    {"species":"Mouse (Mus musculus)", "brain_region":"Cerebellum", "cell_type":"Granule Cell", "model_type":"Single Cell"},
-                    {"species":"Mouse (Mus musculus)", "brain_region":"Cerebellum", "cell_type":"Pyramidal Cell", "model_type":"Network"},
-                    {"species":"Rat (Rattus rattus)", "brain_region":"Other", "cell_type":"Pyramidal Cell", "model_type":"Network"},
-                    {"species":"Marmoset (callithrix jacchus)", "brain_region":"Hippocampus", "cell_type":"Interneuron", "model_type":"Mean Field"}, 
-                    {"species":"Human (Homo sapiens)", "brain_region":"Cortex", "cell_type":"Pyramidal Cell", "model_type":"Mean Field"},
-                    {"species":"Human (Homo sapiens)", "brain_region":"Hippocampus", "cell_type":"Pyramidal Cell", "model_type":"Mean Field"},
-                    {"species":"Paxinos Rhesus Monkey (Macaca mulatta)", "brain_region":"Other", "cell_type":"Pyramidal Cell", "model_type":"Mean Field"},
-                    {"species":"Opossum (Monodelphis domestica)", "brain_region":"Other", "cell_type":"Pyramidal Cell", "model_type":"Mean Field"},
-                    {"species":"Mouse (Mus musculus)", "brain_region":"Basal Ganglia", "cell_type":"Granule Cell", "model_type":"Single Cell"},
-                    {"species":"Rat (Rattus rattus)", "brain_region":"Cerebellum", "cell_type":"Pyramidal Cell", "model_type":"Network"},
-                    {"species":"Marmoset (callithrix jacchus)", "brain_region":"Cortex", "cell_type":"Interneuron", "model_type":"Mean Field"}, 
-                    {"species":"Other", "brain_region":"Cortex", "cell_type":"Other", "model_type":"Mean Field"}
 
-                ];
-                
-       $scope.reloadPage = function(){window.location.reload();}
+    $scope.empList = [
+        //Test table
+        { "species": "Mouse (Mus musculus)", "brain_region": "Cerebellum", "cell_type": "Granule Cell", "model_type": "Single Cell" },
+        { "species": "Mouse (Mus musculus)", "brain_region": "Cerebellum", "cell_type": "Pyramidal Cell", "model_type": "Network" },
+        { "species": "Rat (Rattus rattus)", "brain_region": "Other", "cell_type": "Pyramidal Cell", "model_type": "Network" },
+        { "species": "Marmoset (callithrix jacchus)", "brain_region": "Hippocampus", "cell_type": "Interneuron", "model_type": "Mean Field" },
+        { "species": "Human (Homo sapiens)", "brain_region": "Cortex", "cell_type": "Pyramidal Cell", "model_type": "Mean Field" },
+        { "species": "Human (Homo sapiens)", "brain_region": "Hippocampus", "cell_type": "Pyramidal Cell", "model_type": "Mean Field" },
+        { "species": "Paxinos Rhesus Monkey (Macaca mulatta)", "brain_region": "Other", "cell_type": "Pyramidal Cell", "model_type": "Mean Field" },
+        { "species": "Opossum (Monodelphis domestica)", "brain_region": "Other", "cell_type": "Pyramidal Cell", "model_type": "Mean Field" },
+        { "species": "Mouse (Mus musculus)", "brain_region": "Basal Ganglia", "cell_type": "Granule Cell", "model_type": "Single Cell" },
+        { "species": "Rat (Rattus rattus)", "brain_region": "Cerebellum", "cell_type": "Pyramidal Cell", "model_type": "Network" },
+        { "species": "Marmoset (callithrix jacchus)", "brain_region": "Cortex", "cell_type": "Interneuron", "model_type": "Mean Field" },
+        { "species": "Other", "brain_region": "Cortex", "cell_type": "Other", "model_type": "Mean Field" }
+
+    ];
+
+    $scope.reloadPage = function() { window.location.reload(); }
+
 }]);
 
 
 //Filter multiple
-testApp.filter('filterMultiple',['$filter',function ($filter) {
-	return function (items, keyObj) {
-		var filterObj = {
-							data:items,
-							filteredData:[],
-							applyFilter : function(obj,key){
-								var fData = [];
-								if(this.filteredData.length == 0)
-									this.filteredData = this.data;
-								if(obj){
-									var fObj = {};
-									if(!angular.isArray(obj)){
-										fObj[key] = obj;
-										fData = fData.concat($filter('filter')(this.filteredData,fObj));
-									}else if(angular.isArray(obj)){
-										if(obj.length > 0){	
-											for(var i=0;i<obj.length;i++){
-												if(angular.isDefined(obj[i])){
-													fObj[key] = obj[i];
-													fData = fData.concat($filter('filter')(this.filteredData,fObj));	
-												}
-											}
-											
-										}										
-									}									
-									if(fData.length > 0){
-										this.filteredData = fData;
-									}
-								}
-							}
-				};
+testApp.filter('filterMultiple', ['$filter', function($filter) {
+    return function(items, keyObj) {
+        var filterObj = {
+            data: items,
+            filteredData: [],
+            applyFilter: function(obj, key) {
+                var fData = [];
+                if (this.filteredData.length == 0)
+                    this.filteredData = this.data;
+                if (obj) {
+                    var fObj = {};
+                    if (!angular.isArray(obj)) {
+                        fObj[key] = obj;
+                        fData = fData.concat($filter('filter')(this.filteredData, fObj));
+                    } else if (angular.isArray(obj)) {
+                        if (obj.length > 0) {
+                            for (var i = 0; i < obj.length; i++) {
+                                if (angular.isDefined(obj[i])) {
+                                    fObj[key] = obj[i];
+                                    fData = fData.concat($filter('filter')(this.filteredData, fObj));
+                                }
+                            }
 
-		if(keyObj){
-			angular.forEach(keyObj,function(obj,key){
-				filterObj.applyFilter(obj,key);
-			});			
-		}
-		
-		return filterObj.filteredData;
-	}
+                        }
+                    }
+                    if (fData.length > 0) {
+                        this.filteredData = fData;
+                    }
+                }
+            }
+        };
+
+        if (keyObj) {
+            angular.forEach(keyObj, function(obj, key) {
+                filterObj.applyFilter(obj, key);
+            });
+        }
+
+        return filterObj.filteredData;
+    }
 }]);
 
 testApp.filter('unique', function() {
     return function(input, key) {
         var unique = {};
         var uniqueList = [];
-        for(var i = 0; i < input.length; i++){
-            if(typeof unique[input[i][key]] == "undefined"){
+
+        for (var i = 0; i < input.length; i++) {
+            if (typeof unique[input[i][key]] == "undefined") {
                 unique[input[i][key]] = "";
                 uniqueList.push(input[i]);
             }
@@ -177,9 +216,10 @@ testApp.filter('unique', function() {
 
 
 
- testApp.controller('ExampleController', ['$scope', function($scope) {
-    }]);
-  
+
+testApp.controller('ExampleController', ['$scope', function($scope) {}]);
+
+
 
 
 
@@ -226,14 +266,17 @@ ModelCatalogApp.directive('markdown', function () {
           
 ModelCatalogApp.controller('ModelCatalogCtrl', ['$scope', '$rootScope', '$http', '$location', 'ScientificModelRest',
     function($scope, $rootScope, $http, $location, ScientificModelRest) {
-         $scope.models = ScientificModelRest.get({}, function(data) {});
+
+        $scope.models = ScientificModelRest.get({}, function(data) {});
+
 
     }
 ]);
 
 ModelCatalogApp.controller('ModelCatalogCreateCtrl', ['$scope', '$rootScope', '$http', '$location', 'ScientificModelRest',
+
     function($scope, $rootScope, $http, $location, ScientificModelRest) { 
-    // var markdown = require( "markdown" ).markdown;
+
     $("#ImagePopup").hide();
     $scope.species = [
       {id: 'mouse', name: 'Mouse (Mus musculus)'},
@@ -316,8 +359,6 @@ ModelCatalogApp.controller('ModelCatalogVersionCtrl', ['$scope', '$rootScope', '
     function($scope, $rootScope, $http, $location, $stateParams,  ScientificModelRest, ScientificModelInstanceRest) {
             $scope.model = ScientificModelRest.get({id : $stateParams.uuid}); //really needed??? just to put model name
         $scope.saveVersion = function() {
-            // $scope.model_instance.model_id = $stateParams.uuid;
-            // alert(JSON.stringify($scope.model_instance));
             $scope.model_instance.model_id = $stateParams.uuid       
             var parameters = JSON.stringify($scope.model_instance);
             alert(parameters);
@@ -329,4 +370,3 @@ ModelCatalogApp.controller('ModelCatalogVersionCtrl', ['$scope', '$rootScope', '
      
 
 ]);
-

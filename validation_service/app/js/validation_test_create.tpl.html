@@ -57,6 +57,8 @@
                         Species:
                     </td>
                     <td>
+                        <select ng-options="name as name for name in CollabParameters.test" ng-model="selected"></select>
+
                         <input type="text" ng-model="test.species" required/>
 
                     </td>

@@ -32,7 +32,9 @@ from .views import (ValidationTestDefinitionResource,
 
 #                    configviewRest,
 
-                    # CollabParameterRest,
+                    CollabParameterRest,
+                    AuthorizedCollabParameterRest,
+
  
                     #SimpleResultCreateView,
                     #ValidationTestResultView, 
@@ -187,7 +189,9 @@ urlpatterns = (
 #        name="config-view-get-data"),
 
 
-
+    url(r'^app/validationtestdef/$',
+        ValidationTestDefinitionRest.as_view(),
+        name="validation-test-definition"),
 
     url(r'^app/validationtestscode/$',
         ValidationTestCodeRest.as_view(),
@@ -203,9 +207,15 @@ urlpatterns = (
     #     name='ConfigView'), 
 
 
-    # url(r'^app/collabparameterrest/$',
-    #     CollabParameterRest.as_view(), 
-    #     ),
+    url(r'^app/collabparameterrest/$',
+        CollabParameterRest.as_view(), 
+        ),
+
+
+    url(r'^app/authorizedcollabparameterrest/$',
+        AuthorizedCollabParameterRest.as_view(), 
+        ),
+    
 
 
     # url(r'^view/results/create$',
