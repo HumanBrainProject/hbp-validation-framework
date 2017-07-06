@@ -150,7 +150,7 @@ class ScientificModelImage(models.Model):
     """
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     model = models.ForeignKey(ScientificModel, related_name="images")
-    url =  models.URLField(default='' ,help_text="Version control repository containing the source code of the model")
+    url =  models.URLField(max_length=500, blank=False, help_text="Version control repository containing the source code of the model")
     caption = models.TextField(null=True, blank=True)
 
     def __str__(self):
@@ -204,7 +204,7 @@ class CollabParameters(models.Model):
     model_type = models.CharField(max_length=500, blank=True, help_text="model type: single cell, network or mean field region")
 
     def __str__(self):
-            return "Model: {} ({})".format(self.name, self.id)
+            return "Model: {} ({})".format(self.id)
 
 
     # foo = models.CharField(max_length=200)
