@@ -80,11 +80,22 @@ ModelCatalogApp.config(
                 templateUrl: '/static/templates/model-catalog-create.tpl.html',
                 controller: 'ModelCatalogCreateCtrl'
             })
+            .state('ModelCatalogVersion', {
+                url: '/model-catalog/version',
+                templateUrl: '/static/templates/model-catalog-version.tpl.html',
+                controller: 'ModelCatalogVersionCtrl'
+            })
+            .state('ModelCatalogVersionUuid', {
+                url: '/model-catalog/version/:uuid',
+                templateUrl: '/static/templates/model-catalog-version.tpl.html',
+                controller: 'ModelCatalogVersionCtrl'
+            })
             .state('ModelCatalogDetail', {
                 url: '/model-catalog/detail/:uuid',
                 templateUrl: '/static/templates/model-catalog-detail.tpl.html',
                 controller: 'ModelCatalogDetailCtrl'
             });
+
         $urlRouterProvider.otherwise('/model-catalog');
 
     });

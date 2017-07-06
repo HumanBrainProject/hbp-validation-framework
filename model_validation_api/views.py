@@ -36,17 +36,12 @@ from .models import (ValidationTestDefinition,
                         ScientificModelInstance,
                         ScientificModelImage,   
                         Comment,
-
-
                         Param_DataModalities,
                         Param_TestType,
                         Param_Species,
                         Param_BrainRegion,
                         Param_CellType,
                         Param_ModelType,
-
-#                        configview,
-
                         CollabParameters,)
 
 
@@ -1112,11 +1107,6 @@ class HomeValidationView(View):
 #            'tests': test_serializer.data,
 #        })
 
-
-
-
-
-
 # class TestDetail(APIView):
 
 #     def get(self, request, format=None, **kwargs):
@@ -1228,12 +1218,9 @@ class CollabParameterRest(APIView):
 class ScientificModelInstanceRest (APIView):
     def post(self, request, format=None):
         serializer_context = {'request': request,}
-        model_id = str(len(request.POST.getlist('id')))
-
         serializer = ScientificModelInstanceSerializer(data=request.data, context=serializer_context)
-        
         if serializer.is_valid():        
-            serializer.save(model_id=model_id)  #need to see how to get this value throught kwargs or other ?
+            serializer.save(model_id=request.data['model_id'])  #need to see how to get this value throught kwargs or other ?
             return Response(status=status.HTTP_201_CREATED) #put inside .is_valid
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -1268,35 +1255,33 @@ class ScientificModelRest(APIView):
             return Response({
                 'models': model_serializer.data,
                 'model_instances': model_instance_serializer.data,
-                'models_images': model_image_serializer.data,
+                'model_images': model_image_serializer.data,
             })
 
     def post(self, request, format=None):
         serializer_context = {'request': request,}
         print('fdeqr')
+        # check if data is ok else return error
         model_serializer = ScientificModelSerializer(data=request.data['model'], context=serializer_context)
-        if model_serializer.is_valid():
-            model = model_serializer.save()
-        else:
-            return Response(model_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
         model_instance_serializer = ScientificModelInstanceSerializer(data=request.data['model_instance'], context=serializer_context)
-        if model_instance_serializer.is_valid():
-            model_instance_serializer.save(model_id=model.id)
-        else:
+        
+        if model_serializer.is_valid() is not True:
+            return Response(model_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        if model_instance_serializer.is_valid() is not True:    
             return Response(model_instance_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        print(request.data['model_image'])
         if request.data['model_image']!={}:
             for i in request.data['model_image']:
-                model_image_serializer = ScientificModelImageSerializer(data=i, context=serializer_context)
-                if model_image_serializer.is_valid():
-                    print("is valid")
-                    model_image_serializer.save(model_id=model.id)
-                else:
-                    print('is not valid')
+                model_image_serializer = ScientificModelImageSerializer(data=i, context=serializer_context)  
+                if model_image_serializer.is_valid()  is not True:
                     return Response(model_image_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        # if no error save all 
+        model = model_serializer.save()
+        model_instance_serializer.save(model_id=model.id)    
+        if request.data['model_image']!={}:
+            for i in request.data['model_image']:          
+                model_image_serializer.save(model_id=model.id)
 
-        return Response(status=status.HTTP_201_CREATED)
+        return Response({'uuid':model.id}, status=status.HTTP_201_CREATED)
 
 class ValidationTestCodeRest(APIView):
 

@@ -99,7 +99,42 @@
             <div class="panel-heading">
                 <h3 class="panel-title" id="title-commment"> Comments </h3>
             </div>
+            <div ng-repeat="comment in test_comments.comments" id='CommentToShow-{{comment.id}}'>
 
+                <table class="table table-striped table-condensed">
+                        <div class="comment">
+                            <tbody>
+                                <tr id="table-ticket-detail-comment">
+                                    <td width=200>
+                                        <span class="glyphicon glyphicon-user"></span> {{ comment.author }}
+                                    </td>
+                                    <td width=1000>
+                                    </td>
+                                    <td width=300>
+                                        {{ comment.creation_date}}
+                                    </td>
+                                    <td width=50>
+
+                                    </td>
+                                </tr>
+
+                                <tr id="table-ticket-detail-comment-content">
+                                    <td width=200>
+                                    </td>
+                                    <td width=1000 id='editable-text-{{comment.id}}' contenteditable="false">
+                                        <br/> {{ comment.text }}
+                                    </td>
+                                    <td width=300>
+                                    </td>
+                                    <td>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </div>
+                    </table>
+
+                <div id='panelForButtonSave-{{comment.id}}'></div>
+            </div>
         </main>
 
         <main action="" class="commentForm" method="POST">

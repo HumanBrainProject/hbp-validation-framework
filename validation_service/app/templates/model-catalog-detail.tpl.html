@@ -1,17 +1,21 @@
 
 <html id="model-detail" ng-controller="ModelCatalogDetailCtrl" >
 <head>
+    <nav class="navbar ">   
+    <h1 align=center> Model: {{ model.models[0].name}} (ID:{{ model.models[0].id }})</h1>
+     <h3 align=center> Authors: {{ model.models[0].author }}</h3>
+    </nav>
 </head>
 <body>
      <nav>
-     <a ng-href="#/model-catalog/" class="btn btn-primary">Home </a>
-     <a ng-href="#/model-catalog/edit/{{object.id}}"><button class="btn btn-info">Edit model</button></a>
-     <a ng-href="#/model-catalog/new_version/{{object.id}}?modelID={{object.id}}"><input class="btn btn-info" name="modelID" value="Add a new version"></a>
+     <a ng-href="#/model-catalog/" class="button-MC">Home </a> &ensp;
+     <a ng-href="#/model-catalog/edit/{{model.models[0].id}}"  class="button-MC">Edit model</a>&ensp;
+     <a ng-href="#/model-catalog/version/{{model.models[0].id}}" class="button-MC">New version</a>&ensp;
      </nav>
 <br>
 <br>
 
-<table class="table" style="border: 1px solid #f4f8ff;">
+<table class="table-create">
     <tbody>
         <tr>
             <td> <b> Model type:</b> {{ model.models[0].model_type }} </td>
@@ -22,72 +26,23 @@
     </tbody>
 </table>
 <br>
-<table class="table">
+<table class="table-create">
     <thead>
-        <tr style="border: white;">
-            <td style="width: 100px;"><b> Author(s): </b> </td>
-            <td>{{ model.models[0].author }}</td>
-        </tr>
     </thead>
     <tbody>
         <tr>
-            <td style="width: 100px"><b> Description: </b></td>
-            <td style="border: 1px solid lightgrey; height:20%">{{model.models[0].description}}</td>
-        </tr>
-    </tbody>
-</table>
-<br>
-<br>
-<h2>Model versions</h2>
-<table class="table">
-    <thead>
+            <b> Description: </b> <br><br>
+            <div markdown="model.models[0].description"></div>
+            <br><br>
+        </tr> 
         <tr>
-            <th>Version</th>
-            <th>Parameters</th>
-            <th>Code location</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr ng-repeat="model_instance in model.model_instances">
-            <td>{{ model.models[0].model_instance.version }}</td>
-            <td><pre>{{ model.models[0].model_instance.parameters }}</pre></td>
-            <td>{{ model.models[0].model_instance.source }}</td>
-    </tbody>
-</table>
-</body>
-</html>
+                <div class="group" ng-repeat="img in model.model_images track by $index" >
+                    <figure>
+                <button ng-click='toggleSize($index, img)'><img id="image-$index"  ng-src="{{img.url}}" width="304" height="228"> </button>
+                <figcaption id=figcaptionDetail>{{img.caption}}</figcaption> <br>
+                    </figure>
+            </div> &ensp;
 
-<!--<table class="table table-striped">
-    <th>
-        <a ng-href="#/model-catalog/edit/{{object.id}}"><button class="btn btn-info">Edit model</button></a>
-        <a ng-href="#/model-catalog/new_version/{{object.id}}?modelID={{object.id}}"><input class="btn btn-info" name="modelID" value="Add a new version"></a>
-    </th>
-</table>
-<br>
-<br>
-<table class="table" style="border: 1px solid #f4f8ff;">
-    <tbody>
-        <tr>
-            <td> <b> Model type:</b> {{ model.model_type }} </td>
-            <td> <b> Species:</b> {{ model.species }} </td>
-            <td> <b> Brain region:</b> {{ model.brain_region }} </td>
-            <td> <b> Cell type:</b> {{ model.cell_type }} </td>
-        </tr>
-    </tbody>
-</table>
-
-<br>
-<table class="table">
-    <thead>
-        <tr style="border: white;">
-            <td style="width: 100px;"><b> Author(s): </b> </td>
-            <td>{{ model.author }}</td>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td style="width: 100px"><b> Description: </b></td>
-            <td style="border: 1px solid lightgrey; height:20%">{{ model.description}}</td>
         </tr>
     </tbody>
 </table>
@@ -106,8 +61,27 @@
         <tr ng-repeat="model_instance in model.model_instances">
             <td>{{ model_instance.version }}</td>
             <td><pre>{{ model_instance.parameters }}</pre></td>
-            <td>{{ model_instance.source|urlize }}</td>
+            <td>{{ model_instance.source }}</td>
     </tbody>
 </table>
+
+ <div class= "w3-card-4  w3-hover-shadow ng-cloak" id="ImagePopupDetail">
+    <style>
+        .ng-cloak {
+            display: none !important;
+        }
+    </style>
+<div class="panel-heading">  <button id="close-button" type="button" class="glyphicon glyphicon-remove" ng-click="closeImagePanel()"></button></div>
+    <div class="panel-body"  >
+        <figure>
+        <img id=ImagePopupIm ng-src="{{bigImage.url}}" >
+         <br>
+        <figcaption max-width="304px" markdown="bigImage.caption"></figcaption>
+        <br> 
+        </figure>
+    </div></div>
+
+
 </body>
-</html>-->
+</html>
+
