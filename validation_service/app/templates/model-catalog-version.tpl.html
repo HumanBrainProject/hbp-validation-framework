@@ -1,0 +1,36 @@
+<html id="model-version" ng-controller="ModelCatalogVersionCtrl" >
+<head>
+</head>
+<body>
+     <nav>
+     <a ng-href="#/model-catalog/" class="btn btn-primary">Home</a>
+     </nav>
+
+<form>
+    <table class="table table-condensed">
+        <tbody>
+            <tr>
+                  <b> Model name: {{ model.models[0].name }} (ID: {{ model.models[0].id }})</b>
+            </tr>
+            </br>
+             <tr>
+                  <label>Version Name: <input type="text" ng-model="model_instance.version" required/></label><br />
+            </tr>
+            
+            <tr>
+                 <b>Parameters:</b> <br>
+                <textarea class="scrollabletextbox" rows="5" cols="50"  ng-model="model_instance.parameters"> </textarea><br/>
+            </tr>
+             <tr>
+                 <label>Code Source: <input type="url" ng-model="model_instance.source" required/></label><br />
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="navbar navbar-form">
+            <button type="submit" class="btn btn-primary" ng-click=saveVersion()>Save</button>
+        </div>
+</form>
+
+</body>
+</html>

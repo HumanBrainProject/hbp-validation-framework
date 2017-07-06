@@ -141,5 +141,15 @@ ModelCatalogServices.factory('ScientificModelRest', ['$resource',
             post: { method: 'POST', params: { format: 'json' }, headers: { 'Content-Type': 'application/json' } }
         });
     }
-
 ]);
+
+ModelCatalogServices.factory('ScientificModelInstanceRest', ['$resource',
+    function($resource) {
+        return $resource(base_url + 'app/scientificmodelinstance/:uuid', { id: '@eUuid' }, {
+            get: { method: 'GET', params: { format: 'json' }, isArray: false },
+            //   put: {method:'PUT', params:{format:'json'}, headers:{ 'Content-Type':'application/json' }},
+            post: { method: 'POST', params: { format: 'json' }, headers: { 'Content-Type': 'application/json' } }
+        });
+    }
+]);
+

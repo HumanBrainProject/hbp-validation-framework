@@ -150,7 +150,7 @@ class ScientificModelImage(models.Model):
     """
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     model = models.ForeignKey(ScientificModel, related_name="images")
-    url =  models.URLField(default='' ,help_text="Version control repository containing the source code of the model")
+    url =  models.URLField(max_length=500, blank=False, help_text="Version control repository containing the source code of the model")
     caption = models.TextField(null=True, blank=True)
 
     def __str__(self):
