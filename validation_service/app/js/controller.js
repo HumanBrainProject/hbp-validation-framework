@@ -27,12 +27,14 @@ testApp.controller('ValTestCtrl', ['$scope', '$rootScope', '$http', '$location',
     }
 ]);
 
-testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$location', '$stateParams', 'ValidationTestDefinitionRest', 'ValidationTestCodeRest', 'CollabParameters',
-    function($scope, $rootScope, $http, $location, $stateParams, ValidationTestDefinitionRest, ValidationTestCodeRest, CollabParameters) {
+testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$location', '$stateParams', 'ValidationTestDefinitionRest', 'ValidationTestCodeRest', 'CollabParameters', 'TestCommentRest',
+    function($scope, $rootScope, $http, $location, $stateParams, ValidationTestDefinitionRest, ValidationTestCodeRest, CollabParameters, TestCommentRest) {
         CollabParameters.setService();
         $scope.detail_test = ValidationTestDefinitionRest.get({ id: $stateParams.uuid });
 
         $scope.detail_version_test = ValidationTestCodeRest.get({ test_definition_id: $stateParams.uuid });
+
+        $scope.test_comments = TestCommentRest.get({test_id: $stateParams.uuid});
 
         $scope.selected_tab = "";
 
