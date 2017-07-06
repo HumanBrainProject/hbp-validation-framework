@@ -1376,11 +1376,11 @@ class TestCommentRest(APIView):
             'comments': comment_serializer.data,
         })
 
-
-
     def post(self, request, format=None):
+        logger.debug("*** TestCommentRest post ***")
         serializer_context = {'request': request,}
-
+        logger.debug("serializer_context + " + serializer_context)
+        
         param_serializer = CollabParametersSerializer(data=request.data['test_data'], context=serializer_context)
         if param_serializer.is_valid():
             param = param_serializer.save() 

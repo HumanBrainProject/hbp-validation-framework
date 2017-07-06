@@ -138,19 +138,18 @@
         </main>
 
         <main action="" class="commentForm" method="POST">
-            <form action="" class="comment-form" method="POST">
+            <form class="comment-form" ng-submit="submit_comment()" ng-controller="ValTestDetailCtrl">
                 <div class="comment-form-fields">
-
-
                     <div class="form-group form-group-editor">
                         <h4> Add a comment </h4>
-                        <p id="CommentTextbox"> {{form.text}} </p>
+                        <p id="CommentTextbox"> 
+                            <textarea cols="40" id="txt_comment" name="txt_comment" ng-model="txt_comment" rows="10" required=""></textarea>
+                        </p>
                         <p class="help-text">{{ form.text.errors }}</p>
                     </div>
                 </div>
-
                 <div class="navbar navbar-form">
-                    <button type="submit" class="btn btn-primary">Save</button>
+                    <button type="submit" id="submit" value="Submit" class="btn btn-primary">Save</button>
                 </div>
             </form>
 
