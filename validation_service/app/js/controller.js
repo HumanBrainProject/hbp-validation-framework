@@ -209,6 +209,21 @@ testApp.controller('configviewCtrl', ['$scope', '$rootScope', '$http', '$locatio
 //Model catalog
 var ModelCatalogApp = angular.module('ModelCatalogApp');
 
+ModelCatalogApp.directive('markdown', function () {
+              var converter = new Showdown.converter();
+              return {
+                  restrict: 'A',
+                  link: function (scope, element, attrs) {
+                      function renderMarkdown() {
+                          var htmlText = converter.makeHtml(scope.$eval(attrs.markdown)  || '');
+                          element.html(htmlText);
+                      }
+                      scope.$watch(attrs.markdown, renderMarkdown);
+                      renderMarkdown();
+                  }
+              };
+          });
+          
 ModelCatalogApp.controller('ModelCatalogCtrl', ['$scope', '$rootScope', '$http', '$location', 'ScientificModelRest',
     function($scope, $rootScope, $http, $location, ScientificModelRest) {
          $scope.models = ScientificModelRest.get({}, function(data) {});
@@ -256,10 +271,12 @@ ModelCatalogApp.controller('ModelCatalogCreateCtrl', ['$scope', '$rootScope', '$
          $("#ImagePopup").show();
     };
     $scope.saveImage = function() {
-        alert(JSON.stringify($scope.image));
-         $scope.model_image.push($scope.image);
-         $("#ImagePopup").hide();
-          $scope.image = {};
+        if (JSON.stringify($scope.image) != undefined){
+                alert($scope.image)
+                $scope.model_image.push($scope.image); 
+                $("#ImagePopup").hide();
+                $scope.image = undefined;
+        }else{ alert("you need to add an url!")}
     };
     $scope.closeImagePanel = function() {
         $scope.image = {};
@@ -267,25 +284,44 @@ ModelCatalogApp.controller('ModelCatalogCreateCtrl', ['$scope', '$rootScope', '$
     };
     $scope.saveModel = function() {
         var parameters = JSON.stringify({model:$scope.model, model_instance:$scope.model_instance, model_image:$scope.model_image});
-        ScientificModelRest.save(parameters, function(value) {});
+        var a = ScientificModelRest.save(parameters).$promise.then(function(data){
+            $location.path('/model-catalog/detail/'+data.uuid);
+         } );
+    };
+
+    $scope.deleteImage = function(index) {
+        $scope.model_image.splice(index,1);
     };
 }  
 ]);
 
 ModelCatalogApp.controller('ModelCatalogDetailCtrl', ['$scope', '$rootScope', '$http', '$location','$stateParams', 'ScientificModelRest',
     function($scope, $rootScope, $http, $location, $stateParams,  ScientificModelRest) { 
+        $("#ImagePopupDetail").hide();
         $scope.model = ScientificModelRest.get({id : $stateParams.uuid});
+
+        $scope.toggleSize = function(index, img) {
+            alert('in it')
+            $scope.bigImage = img;
+             $("#ImagePopupDetail").show();
+        }
+
+        $scope.closeImagePanel = function() {
+            $scope.image = {};
+            $("#ImagePopupDetail").hide();
+        };
     }
 ]);
 ModelCatalogApp.controller('ModelCatalogVersionCtrl', ['$scope', '$rootScope', '$http', '$location','$stateParams', 'ScientificModelRest','ScientificModelInstanceRest',
     function($scope, $rootScope, $http, $location, $stateParams,  ScientificModelRest, ScientificModelInstanceRest) {
             $scope.model = ScientificModelRest.get({id : $stateParams.uuid}); //really needed??? just to put model name
         $scope.saveVersion = function() {
-            alert(JSON.stringify($scope.model_instance));
             // $scope.model_instance.model_id = $stateParams.uuid;
-            // alert(JSON.stringify($scope.model_instance));            
-            var parameters = JSON.stringify({model_instance:$scope.model_instance});
-            ScientificModelInstanceRest.save(parameters, function(value) {id : $stateParams.uuid});
+            // alert(JSON.stringify($scope.model_instance));
+            $scope.model_instance.model_id = $stateParams.uuid       
+            var parameters = JSON.stringify($scope.model_instance);
+            alert(parameters);
+            ScientificModelInstanceRest.save(parameters, function(value){});
         };
 
 
