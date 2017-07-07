@@ -70,14 +70,19 @@
 #table-create{
  border-bottom-color: white;   
  border-color: white;
-
-
 }
-/*#table-create:hover {background-color: #f5f5f5}*/
+
+ .glyphicon-question-sign{
+    color: #bad1db;
+ }
+.glyphicon-question-sign:hoover{
+    color: #97bbca;
+ }
 
 table{ 
     padding: 4px;
     }
+.tr-clickable:hover {background-color: #f5f5f5} 
 
 th, td{ 
     padding: 4px;

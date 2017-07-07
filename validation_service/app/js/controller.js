@@ -268,7 +268,9 @@ ModelCatalogApp.controller('ModelCatalogCtrl', ['$scope', '$rootScope', '$http',
     function($scope, $rootScope, $http, $location, ScientificModelRest) {
 
         $scope.models = ScientificModelRest.get({}, function(data) {});
-
+        $scope.goToDetailView = function(model){
+            $location.path('/model-catalog/detail/'+model.id);
+        };
 
     }
 ]);
@@ -362,10 +364,10 @@ ModelCatalogApp.controller('ModelCatalogVersionCtrl', ['$scope', '$rootScope', '
             $scope.model_instance.model_id = $stateParams.uuid       
             var parameters = JSON.stringify($scope.model_instance);
             alert(parameters);
-            ScientificModelInstanceRest.save(parameters, function(value){});
+            ScientificModelInstanceRest.save(parameters).$promise.then(function(){
+                $location.path('/model-catalog/detail/'+$stateParams.uuid);
+         } );;
         };
-
-
     }
      
 

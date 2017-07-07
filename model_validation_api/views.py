@@ -1202,7 +1202,6 @@ class ScientificModelInstanceRest (APIView):
 
 
 class ScientificModelRest(APIView):
-    
     def get(self, request, format=None, **kwargs):
         serializer_context = {
             'request': request,
@@ -1436,6 +1435,7 @@ class ModelCatalogView(View):
     login_url='/login/hbp/'
 
     def get(self, request, *args, **kwargs):
+       
         models = ScientificModel.objects.all()
         models = serializers.serialize("json", models) 
         return render(request, self.template_name, {'models':models})

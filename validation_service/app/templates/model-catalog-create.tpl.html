@@ -20,10 +20,11 @@
                             <tbody>
                                 <tr>
                                     <td>
-                                         <b>Name:</b>
+                                        <b>Name:</b>
                                     </td>
                                     <td>
                                         <input type="text" ng-model="model.name" required/>
+                                        <a class="glyphicon glyphicon-question-sign" aria-hidden="true" data-toggle="tooltip" data-placement="right" title="Example: THis is the name of my model"></a>
                                     </td>    
                                 </tr>
                                 <tr>
@@ -31,7 +32,8 @@
                                          <b>Author:</b>
                                     </td>
                                     <td>
-                                        <input type="text" ng-model="model.author" required/>
+                                        <input type="text" ng-model="model.author" required/>  
+                                        <a class="glyphicon glyphicon-question-sign" aria-hidden="true" data-toggle="tooltip" data-placement="right" title="Example: John Smith"></a>
                                     </td>
                                 </tr>
                                 <tr>
@@ -40,6 +42,7 @@
                                     </td>
                                     <td>
                                         <input type="text" ng-model="model_instance.version" required/>
+                                        <a class="glyphicon glyphicon-question-sign" aria-hidden="true" data-toggle="tooltip" data-placement="right" title="Example: version 1.0"></a>
                                     </td>
                                 </tr>
                                 <tr>
@@ -48,6 +51,7 @@
                                     </td>
                                     <td>
                                         <textarea class="scrollabletextbox" rows="5" cols="50"  ng-model="model_instance.parameters"> </textarea>
+                                        <a class="glyphicon glyphicon-question-sign" aria-hidden="true" data-toggle="tooltip" data-placement="right" title="Example: Vrest = -70 mV"></a>
                                     </td>
                                 </tr>
                             </tbody>
@@ -102,6 +106,7 @@
                                     </td>
                                     <td>
                                         <input type="url" ng-model="model_instance.source" required/>
+                                        <a class="glyphicon glyphicon-question-sign" aria-hidden="true" data-toggle="tooltip" data-placement="right" title="Example: http://github.com"></a>
                                     </td>
                                 </tr>
                                 <tr>
@@ -122,8 +127,9 @@
                     <table >
                         <tbody>
                             <td>
-                            <b>Description:</b> <br>
-                            <textarea class="scrollabletextbox" rows="10" cols="80" ng-model="model.description" required></textarea><br />
+                            <b>Description:</b> <a class="glyphicon glyphicon-question-sign" aria-hidden="true" data-toggle="tooltip" data-placement="right" title="Example: this model is a Integrate and fire model ..."></a><br /> <br>
+                            <textarea class="scrollabletextbox" rows="10" cols="80" ng-model="model.description" required></textarea>
+                            
                             </td>
                         </tbody>
                     </table>
@@ -168,6 +174,7 @@
                     </td>
                     <td>
                         <input type="url" ng-model="image.url" required></input>
+                        <a class="glyphicon glyphicon-question-sign" aria-hidden="true" data-toggle="tooltip" data-placement="right" title="Example: http://linkToImage/image.jpg "></a>
                     </td>
                 </tr>
                  <tr>
@@ -175,7 +182,7 @@
                         <b>Caption: </b>
                     </td>
                     <td>
-                        <textarea type="textarea" ng-model="image.caption"> </textarea>
+                        <textarea type="textarea" ng-model="image.caption"> </textarea> <a class="glyphicon glyphicon-question-sign" aria-hidden="true" data-toggle="tooltip" data-placement="right" title="Example: Fig1: Integrate and Fire spike"></a>
                     </td>
                 </tr>
             </tbody>
