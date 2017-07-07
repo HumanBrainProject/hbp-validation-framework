@@ -504,7 +504,7 @@ class SimpleTestEditView(DetailView):
 
 
 
-@method_decorator(login_required(login_url='/login/hbp'), name='dispatch' )
+# @method_decorator(login_required(login_url='/login/hbp'), name='dispatch' )
 # class ScientificModelResource(View):
 #     serializer = ScientificModelSerializer
 #     login_url='/login/hbp/'
@@ -1155,63 +1155,106 @@ class AuthorizedCollabParameterRest(APIView):
         })
 
 
-class CollabParameterRest(APIView):
-      
-      def get(self, request, format=None, **kwargs):
- 
-         serializer_context = {'request': request,}
-         id = str(len(request.GET.getlist('id')))
- 
-         if(id == '0'):
-             param = CollabParameters.objects.all()
-         else:
-             for key, value in self.request.GET.items():
 
-                 if key == 'id':
-                     param = CollabParameters.objects.filter(id = value)
 
-         param_serializer = CollabParametersSerializer(param, context=serializer_context, many=True)
+from django.views.decorators.csrf import csrf_exempt
+# from rest_framework.permissions import IsAuthenticated
+# @method_decorator(login_required(login_url='/login/hbp'), name='dispatch' )
+# @method_decorator(csrf_exempt)
+class CollabParameterRest( APIView): #LoginRequiredMixin, 
+    # login_url ='/login/hbp'
+    # permission_classes = (IsAuthenticated,)
 
-         return Response({
-             'param': param_serializer.data,
-         })
+    # @method_decorator(login_required(login_url='/login/hbp'))
+    # @csrf_exempt
+    def get(self, request, format=None, **kwargs):
  
+        # print self.request.__dict__
+        # print self.request.user
+        
+
+        
+        serializer_context = {'request': request,}
+        id = str(len(request.GET.getlist('id')))
  
-      def post(self, request, format=None):
-         serializer_context = {'request': request,}
+        if(id == '0'):
+            param = CollabParameters.objects.all()
+        else:
+            for key, value in self.request.GET.items():
+
+                if key == 'id':
+                    param = CollabParameters.objects.filter(id = value)
+
+        param_serializer = CollabParametersSerializer(param, context=serializer_context, many=True)
+
+        # collab_id = self._get_collab_id()
+        # print (collab_id)
+        # print (collab_id)
+        # print (collab_id)
+        # print (collab_id)
+
+        return Response({
+            'param': param_serializer.data,
+        
+        })
  
-         param_serializer = CollabParametersSerializer(data=request.data, context=serializer_context)
-         if param_serializer.is_valid():
-             param = param_serializer.save() 
-         else:
-             return Response(param_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    # @csrf_exempt
+    def post(self, request, format=None):
+        serializer_context = {'request': request,}
+ 
+        param_serializer = CollabParametersSerializer(data=request.data, context=serializer_context)
+        if param_serializer.is_valid():
+            param = param_serializer.save() 
+        else:
+            return Response(param_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
          
-         return Response(status=status.HTTP_201_CREATED)
+        return Response(status=status.HTTP_201_CREATED)
 
+    # @csrf_exempt
+    def put(self, request, format=None):
+        serializer_context = {'request': request,}
 
-      def put(self, request, format=None):
-          serializer_context = {'request': request,}
+        print ("id : ")
+        print( request.GET.getlist('id'))
+        #get object with num collab
+        param = CollabParameters.objects.get(id = "2" )
+        print (param.__dict__)
 
-          print ("id : ")
-          print( request.GET.getlist('id'))
-          #get object with num collab
-          param = CollabParameters.objects.get(id = "2" )
-          print (param.__dict__)
+        print (request.data)
 
-          print (request.data)
-
-          param_serializer = CollabParametersSerializer(param, data=request.data, context=serializer_context )#, many=True)
+        param_serializer = CollabParametersSerializer(param, data=request.data, context=serializer_context )#, many=True)
         #   print (param_serializer)
 
-          print ("1")
-          if param_serializer.is_valid():
-              print ("2")
+        print ("1")
+        if param_serializer.is_valid():
+            print ("2")
               
-              param_serializer.save()
-              return Response(param_serializer.data)
-          return Response(param_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            param_serializer.save()
+            return Response(param_serializer.data)
+        return Response(param_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+    # @method_decorator(csrf_exempt)
+    # def dispatch(self, *args, **kwargs):
+    #     return super(CollabParameterRest, self).dispatch(*args, **kwargs)
+
+
+    # def _get_collab_id(self):
+        
+    #     social_auth = self.request.user.social_auth.get()
+    #     print("social auth", social_auth.extra_data )
+
+    #     headers = {
+    #         'Authorization': get_auth_header(self.request.user.social_auth.get())
+    #     }
+
+    #     #to get collab_id
+    #     svc_url = settings.HBP_COLLAB_SERVICE_URL
+    #     context = self.request.session["next"][6:]
+    #     url = '%scollab/context/%s/' % (svc_url, context)
+    #     res = requests.get(url, headers=headers)
+    #     collab_id = res.json()['collab']['id']
+    #     return collab_id
 
 
 
@@ -1402,21 +1445,7 @@ class TestCommentRest(APIView):
 
 
 
-def _get_collab_id(self):
-    social_auth = self.request.user.social_auth.get()
-    print("social auth", social_auth.extra_data )
 
-    headers = {
-        'Authorization': get_auth_header(self.request.user.social_auth.get())
-    }
-
-    #to get collab_id
-    svc_url = settings.HBP_COLLAB_SERVICE_URL
-    context = self.request.session["next"][6:]
-    url = '%scollab/context/%s/' % (svc_url, context)
-    res = requests.get(url, headers=headers)
-    collab_id = res.json()['collab']['id']
-    return collab_id
 
 
 

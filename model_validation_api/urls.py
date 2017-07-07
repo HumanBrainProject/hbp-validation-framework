@@ -49,6 +49,11 @@ from .views import (ValidationTestDefinitionResource,
                     TestCommentRest,
                     )
 
+# from django.contrib.auth.decorators import login_required
+
+from django.views.decorators.csrf import csrf_exempt
+
+
 uuid_pattern = "[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}"
 # simplified from http://stackoverflow.com/questions/11384589/what-is-the-correct-regex-for-matching-values-generated-by-uuid-uuid4-hex
 # will accept some patterns that are not strictly UUID v4
@@ -207,8 +212,11 @@ urlpatterns = (
     #     name='ConfigView'), 
 
 
+
+
     url(r'^app/collabparameterrest/$',
-        CollabParameterRest.as_view(), 
+        # csrf_exempt(CollabParameterRest.as_view())
+        CollabParameterRest.as_view(), #csrf_exempt(views.LoginView.as_view()) #login_required #login_required(login_url='/login/hbp')
         ),
 
 
