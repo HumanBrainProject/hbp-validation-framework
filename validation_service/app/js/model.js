@@ -79,11 +79,13 @@ validationAppServices.factory('AuthaurizedCollabParameterRest', ['$resource',
 ]);
 
 
+
 // #### Service ### //
 //##################//
 validationAppServices.service('CollabParameters', ['$rootScope', 'CollabParameterRest',
     function($rootScope, CollabParameterRest) {
         var parameters;
+        var collab_id;
 
         var addParameter = function(type, newObj) {
             parameters.param[0][type].push(newObj);
@@ -143,7 +145,7 @@ validationAppServices.service('CollabParameters', ['$rootScope', 'CollabParamete
 
         var setService = function() {
             if (typeof(parameters) == "undefined") {
-                parameters = CollabParameterRest.get({ id: "1" }); //need to get collab number
+                parameters = CollabParameterRest.get({ id: "2" }); //need to get collab number
                 parameters.$promise.then(function() {
 
                     console.log(parameters.param.length)
@@ -151,7 +153,7 @@ validationAppServices.service('CollabParameters', ['$rootScope', 'CollabParamete
 
                         post = _postInitCollab();
                         post.$promise.then(function() {
-                            parameters = CollabParameterRest.get({ id: "1" });
+                            parameters = CollabParameterRest.get({ id: "2" });
 
                         });
                     } else {
@@ -163,6 +165,7 @@ validationAppServices.service('CollabParameters', ['$rootScope', 'CollabParamete
                     }
                 });
             }
+
 
             return parameters;
         };
@@ -258,4 +261,3 @@ ModelCatalogServices.factory('ScientificModelInstanceRest', ['$resource',
         });
     }
 ]);
-
