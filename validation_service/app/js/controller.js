@@ -71,6 +71,11 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
             a.className = b.className = c.className = d.className = "nav-link";
             var e = document.getElementById("li_" + id_tab);
             e.className += " active";
+        };
+
+        $scope.submit_comment = function() {
+            var data_comment = JSON.stringify({ author: $stateParams.uuid, text: this.text, approved_comment: false, test_id: $stateParams.uuid});
+            TestCommentRest.post(data_comment, function(value) {});
         }
     }
 ]);
