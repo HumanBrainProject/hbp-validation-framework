@@ -91,6 +91,7 @@ from rest_framework import (viewsets,
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from django.views.decorators.csrf import csrf_exempt
 
 
 
@@ -1363,9 +1364,9 @@ class ValidationTestDefinitionRest(APIView):
         
         return Response(status=status.HTTP_201_CREATED)
 
-
 class TestCommentRest(APIView):
     def get(self, request, format=None, **kwargs):
+        logger.debug("*** TestCommentRest get ***")
         serializer_context = {'request': request,}
         nb_id = str(len(request.GET.getlist('id')))
         nb_test_id = str(len(request.GET.getlist('test_id')))
@@ -1385,7 +1386,7 @@ class TestCommentRest(APIView):
         return Response({
             'comments': comment_serializer.data,
         })
-
+    @csrf_exempt
     def post(self, request, format=None):
         logger.debug("*** TestCommentRest post ***")
         serializer_context = {'request': request,}
