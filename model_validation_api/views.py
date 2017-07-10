@@ -1157,6 +1157,42 @@ class AuthorizedCollabParameterRest(APIView):
 
 
 
+def _get_collab_id(request):
+        
+    social_auth = request.user.social_auth.get()
+    headers = {
+        'Authorization': get_auth_header(request.user.social_auth.get())
+    }
+
+    #to get collab_id
+    svc_url = settings.HBP_COLLAB_SERVICE_URL
+    context = request.session["next"][6:]
+    url = '%scollab/context/%s/' % (svc_url, context)
+    res = requests.get(url, headers=headers)
+    collab_id = res.json()['collab']['id']
+    return collab_id
+
+
+
+class CollabIDRest(APIView): 
+    def get(self, request, format=None, **kwargs):
+        print self.request.user
+        if self.request.user == "AnonymousUser" :
+            collab_id = self.request.user
+        else :         
+            collab_id = _get_collab_id(request)
+            # collab_id = self.request.user
+    
+            print ("collab id : " +str(collab_id))
+
+        serilized_collab_id = [{ 'id': str(collab_id)  }]
+
+        return Response({
+            'collab_id': serilized_collab_id,
+        })
+
+
+
 from django.views.decorators.csrf import csrf_exempt
 # from rest_framework.permissions import IsAuthenticated
 # @method_decorator(login_required(login_url='/login/hbp'), name='dispatch' )
@@ -1168,40 +1204,18 @@ class CollabParameterRest( APIView): #LoginRequiredMixin,
     # @method_decorator(login_required(login_url='/login/hbp'))
     # @csrf_exempt
     def get(self, request, format=None, **kwargs):
- 
-        # print self.request.__dict__
-        # print self.request.user
-        
-
-        
         serializer_context = {'request': request,}
-        id = str(len(request.GET.getlist('id')))
- 
-        if(id == '0'):
-            param = CollabParameters.objects.all()
-        else:
-            for key, value in self.request.GET.items():
-
-                if key == 'id':
-                    param = CollabParameters.objects.filter(id = value)
-
+        id = request.GET.getlist('id')[0]
+        param = CollabParameters.objects.filter(id = id)
         param_serializer = CollabParametersSerializer(param, context=serializer_context, many=True)
-
-        # collab_id = self._get_collab_id()
-        # print (collab_id)
-        # print (collab_id)
-        # print (collab_id)
-        # print (collab_id)
 
         return Response({
             'param': param_serializer.data,
-        
         })
  
     # @csrf_exempt
     def post(self, request, format=None):
         serializer_context = {'request': request,}
- 
         param_serializer = CollabParametersSerializer(data=request.data, context=serializer_context)
         if param_serializer.is_valid():
             param = param_serializer.save() 
@@ -1213,22 +1227,11 @@ class CollabParameterRest( APIView): #LoginRequiredMixin,
     # @csrf_exempt
     def put(self, request, format=None):
         serializer_context = {'request': request,}
-
-        print ("id : ")
-        print( request.GET.getlist('id'))
-        #get object with num collab
-        param = CollabParameters.objects.get(id = "2" )
-        print (param.__dict__)
-
-        print (request.data)
-
+        id = request.GET.getlist('id')[0]
+        param = CollabParameters.objects.get(id = id )
         param_serializer = CollabParametersSerializer(param, data=request.data, context=serializer_context )#, many=True)
-        #   print (param_serializer)
 
-        print ("1")
-        if param_serializer.is_valid():
-            print ("2")
-              
+        if param_serializer.is_valid():         
             param_serializer.save()
             return Response(param_serializer.data)
         return Response(param_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -1239,22 +1242,7 @@ class CollabParameterRest( APIView): #LoginRequiredMixin,
     #     return super(CollabParameterRest, self).dispatch(*args, **kwargs)
 
 
-    # def _get_collab_id(self):
-        
-    #     social_auth = self.request.user.social_auth.get()
-    #     print("social auth", social_auth.extra_data )
 
-    #     headers = {
-    #         'Authorization': get_auth_header(self.request.user.social_auth.get())
-    #     }
-
-    #     #to get collab_id
-    #     svc_url = settings.HBP_COLLAB_SERVICE_URL
-    #     context = self.request.session["next"][6:]
-    #     url = '%scollab/context/%s/' % (svc_url, context)
-    #     res = requests.get(url, headers=headers)
-    #     collab_id = res.json()['collab']['id']
-    #     return collab_id
 
 
 

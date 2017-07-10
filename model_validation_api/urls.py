@@ -47,6 +47,7 @@ from .views import (ValidationTestDefinitionResource,
                     ScientificModelInstanceRest,
                     ValidationTestCodeRest,
                     TestCommentRest,
+                    CollabIDRest,
                     )
 
 # from django.contrib.auth.decorators import login_required
@@ -219,6 +220,9 @@ urlpatterns = (
         CollabParameterRest.as_view(), #csrf_exempt(views.LoginView.as_view()) #login_required #login_required(login_url='/login/hbp')
         ),
 
+    url(r'^app/collabidrest/$',
+        CollabIDRest.as_view(), 
+        ),
 
     url(r'^app/authorizedcollabparameterrest/$',
         AuthorizedCollabParameterRest.as_view(), 

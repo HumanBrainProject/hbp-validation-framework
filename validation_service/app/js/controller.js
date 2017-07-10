@@ -74,7 +74,7 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
         };
 
         $scope.submit_comment = function() {
-            var data_comment = JSON.stringify({ author: $stateParams.uuid, text: this.text, approved_comment: false, test_id: $stateParams.uuid});
+            var data_comment = JSON.stringify({ author: $stateParams.uuid, text: this.text, approved_comment: false, test_id: $stateParams.uuid });
             TestCommentRest.post(data_comment, function(value) {});
         }
     }
@@ -110,9 +110,7 @@ testApp.controller('ConfigCtrl', ['$scope', '$rootScope', '$http', '$location', 
 
             $scope.list_param = AuthaurizedCollabParameterRest.get({})
 
-            //garder le resultat des selections et remplir callabParam avec un save
             $scope.make_post = function() {
-
                 $scope.selected_data_modalities.forEach(function(value, i) {
                     CollabParameters.addParameter("data_modalities", value.authorized_value);
                 });
@@ -140,14 +138,16 @@ testApp.controller('ConfigCtrl', ['$scope', '$rootScope', '$http', '$location', 
 
                 CollabParameters.put_parameters();
 
-                //just temporary : need to be handle by angular...
-                window.location.reload();
+                $location.path('/home');
 
             };
 
 
-            //need to do without window.location.... just in angular. goal: do not reload data from server.
-            $scope.reloadPage = function() { window.location.reload(); }
+            //not working : might require to clean up the the selectors.
+            $scope.reloadPage = function() {
+                $location.path('/home/config');
+
+            }; // { window.location.reload(); }
         });
     }
 ]);

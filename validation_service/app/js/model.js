@@ -59,13 +59,12 @@ validationAppServices.factory('TestCommentRest', ['$resource',
 validationAppServices.factory('CollabParameterRest', ['$resource',
     function($resource) {
         return $resource(base_url + 'app/collabparameterrest/:uuid', { id: '@eUuid' }, {
-            get: { method: 'GET', params: { format: 'json' }, isArray: false },
-            put: { method: 'PUT', params: { format: 'json' }, headers: { 'Content-Type': 'application/json' } },
-            post: { method: 'POST', params: { format: 'json' }, headers: { 'Content-Type': 'application/json' } }
+            get: { method: 'GET', params: { format: 'json', id: '@eUuid' }, isArray: false },
+            put: { method: 'PUT', params: { format: 'json', id: '@eUuid' }, isArray: false, headers: { 'Content-Type': 'application/json' } },
+            post: { method: 'POST', params: { format: 'json', id: '@eUuid' }, headers: { 'Content-Type': 'application/json' } }
         });
     }
 ]);
-
 
 
 validationAppServices.factory('AuthaurizedCollabParameterRest', ['$resource',
@@ -85,7 +84,7 @@ validationAppServices.factory('AuthaurizedCollabParameterRest', ['$resource',
 validationAppServices.service('CollabParameters', ['$rootScope', 'CollabParameterRest',
     function($rootScope, CollabParameterRest) {
         var parameters;
-        var collab_id;
+        var ctx;
 
         var addParameter = function(type, newObj) {
             parameters.param[0][type].push(newObj);
@@ -94,7 +93,6 @@ validationAppServices.service('CollabParameters', ['$rootScope', 'CollabParamete
         var supprParameter = function(type, Obj) {
             index = parameters.param[0][type].indexOf(Obj);
             parameters.param[0][type].splice(index, 1);
-
         };
 
         var getParameters = function(type) {
@@ -133,7 +131,6 @@ validationAppServices.service('CollabParameters', ['$rootScope', 'CollabParamete
         };
 
         var _setParametersNewValues = function(string_tab) {
-            console.log(string_tab);
             parameters.param[0]['data_modalities'] = string_tab[0];
             parameters.param[0]['species'] = string_tab[1];
             parameters.param[0]['brain_region'] = string_tab[2];
@@ -142,22 +139,32 @@ validationAppServices.service('CollabParameters', ['$rootScope', 'CollabParamete
             parameters.param[0]['test_type'] = string_tab[5];
         };
 
+        var _getCtx = function() {
+            if (typeof(ctx) == "undefined") {
+                var url = (window.location != window.parent.location) ?
+                    document.referrer :
+                    document.location.href;
+
+                ctx = url.split("?")[1]
+                ctx = ctx.substring(4);
+
+                return (ctx);
+            }
+        };
 
         var setService = function() {
+            _getCtx();
             if (typeof(parameters) == "undefined") {
-                parameters = CollabParameterRest.get({ id: "2" }); //need to get collab number
+                parameters = CollabParameterRest.get({ id: ctx }); //need to get collab number
                 parameters.$promise.then(function() {
 
-                    console.log(parameters.param.length)
                     if (parameters.param.length == 0) {
-
                         post = _postInitCollab();
                         post.$promise.then(function() {
-                            parameters = CollabParameterRest.get({ id: "2" });
+                            parameters = CollabParameterRest.get({ id: ctx });
 
                         });
                     } else {
-
                         param_tab = _getParamTabValues();
                         string_tab = _StringTabToArray(param_tab);
                         _setParametersNewValues(string_tab);
@@ -165,8 +172,6 @@ validationAppServices.service('CollabParameters', ['$rootScope', 'CollabParamete
                     }
                 });
             }
-
-
             return parameters;
         };
 
@@ -191,7 +196,7 @@ validationAppServices.service('CollabParameters', ['$rootScope', 'CollabParamete
         var post_parameters = function() {
 
             var data_to_send = JSON.stringify({
-                'id': "2", //need collab id here
+                'id': ctx,
                 'data_modalities': String(parameters.param[0]['data_modalities']),
                 'test_type': String(parameters.param[0]['test_type']),
                 'species': String(parameters.param[0]['species']),
@@ -199,7 +204,6 @@ validationAppServices.service('CollabParameters', ['$rootScope', 'CollabParamete
                 'cell_type': String(parameters.param[0]['cell_type']),
                 'model_type': String(parameters.param[0]['model_type']),
             });
-            console.log(data_to_send);
             post = CollabParameterRest.save(data_to_send, function(value) {});
             return post;
         };
@@ -207,7 +211,7 @@ validationAppServices.service('CollabParameters', ['$rootScope', 'CollabParamete
         var put_parameters = function() {
 
             var data_to_send = JSON.stringify({
-                'id': "2", //need collab id here
+                'id': ctx,
                 'data_modalities': String(parameters.param[0]['data_modalities']),
                 'test_type': String(parameters.param[0]['test_type']),
                 'species': String(parameters.param[0]['species']),
@@ -215,12 +219,9 @@ validationAppServices.service('CollabParameters', ['$rootScope', 'CollabParamete
                 'cell_type': String(parameters.param[0]['cell_type']),
                 'model_type': String(parameters.param[0]['model_type']),
             });
-            console.log("oaoaoaoaoaaoaoaoaoaaoao");
-            console.log(data_to_send);
-            console.log("oaoaoaoaoaaoaoaoaoaaoao");
 
-            post = CollabParameterRest.put(data_to_send, function(value) { id: "2" });
-            return post;
+            put = CollabParameterRest.put({ id: ctx }, data_to_send, function(value) {});
+            return put;
         };
 
 
