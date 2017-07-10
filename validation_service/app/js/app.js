@@ -40,14 +40,11 @@ testApp.config(
                 templateUrl: '/static/js/test_result.tpl.html',
                 controller: 'TestResultCtrl'
             })
-
-
-        .state('config', {
-            url: '/home/config',
-            templateUrl: '/static/js/config.tpl.html',
-            controller: 'ConfigCtrl'
-        });
-
+            .state('config', {
+                url: '/home/config',
+                templateUrl: '/static/js/config.tpl.html',
+                controller: 'ConfigCtrl'
+            });
 
         $urlRouterProvider.otherwise('/home');
 
@@ -95,7 +92,11 @@ ModelCatalogApp.config(
                 templateUrl: '/static/templates/model-catalog-detail.tpl.html',
                 controller: 'ModelCatalogDetailCtrl'
             });
-
         $urlRouterProvider.otherwise('/model-catalog');
+
+        foo.config(['$httpProvider', function($httpProvider) {
+            $httpProvider.defaults.xsrfCookieName = 'csrftoken';
+            $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
+        }]);
 
     });
