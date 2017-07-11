@@ -91,6 +91,7 @@ from rest_framework import (viewsets,
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from django.views.decorators.csrf import csrf_exempt
 
 
 
@@ -504,7 +505,7 @@ class SimpleTestEditView(DetailView):
 
 
 
-@method_decorator(login_required(login_url='/login/hbp'), name='dispatch' )
+# @method_decorator(login_required(login_url='/login/hbp'), name='dispatch' )
 # class ScientificModelResource(View):
 #     serializer = ScientificModelSerializer
 #     login_url='/login/hbp/'
@@ -1155,61 +1156,92 @@ class AuthorizedCollabParameterRest(APIView):
         })
 
 
-class CollabParameterRest(APIView):
-      
-      def get(self, request, format=None, **kwargs):
- 
-         serializer_context = {'request': request,}
-         id = str(len(request.GET.getlist('id')))
- 
-         if(id == '0'):
-             param = CollabParameters.objects.all()
-         else:
-             for key, value in self.request.GET.items():
 
-                 if key == 'id':
-                     param = CollabParameters.objects.filter(id = value)
 
-         param_serializer = CollabParametersSerializer(param, context=serializer_context, many=True)
+def _get_collab_id(request):
+        
+    social_auth = request.user.social_auth.get()
+    headers = {
+        'Authorization': get_auth_header(request.user.social_auth.get())
+    }
 
-         return Response({
-             'param': param_serializer.data,
-         })
+    #to get collab_id
+    svc_url = settings.HBP_COLLAB_SERVICE_URL
+    context = request.session["next"][6:]
+    url = '%scollab/context/%s/' % (svc_url, context)
+    res = requests.get(url, headers=headers)
+    collab_id = res.json()['collab']['id']
+    return collab_id
+
+
+
+class CollabIDRest(APIView): 
+    def get(self, request, format=None, **kwargs):
+        print self.request.user
+        if self.request.user == "AnonymousUser" :
+            collab_id = self.request.user
+        else :         
+            collab_id = _get_collab_id(request)
+            # collab_id = self.request.user
+    
+            print ("collab id : " +str(collab_id))
+
+        serilized_collab_id = [{ 'id': str(collab_id)  }]
+
+        return Response({
+            'collab_id': serilized_collab_id,
+        })
+
+
+
+from django.views.decorators.csrf import csrf_exempt
+# from rest_framework.permissions import IsAuthenticated
+# @method_decorator(login_required(login_url='/login/hbp'), name='dispatch' )
+# @method_decorator(csrf_exempt)
+class CollabParameterRest( APIView): #LoginRequiredMixin, 
+    # login_url ='/login/hbp'
+    # permission_classes = (IsAuthenticated,)
+
+    # @method_decorator(login_required(login_url='/login/hbp'))
+    # @csrf_exempt
+    def get(self, request, format=None, **kwargs):
+        serializer_context = {'request': request,}
+        id = request.GET.getlist('id')[0]
+        param = CollabParameters.objects.filter(id = id)
+        param_serializer = CollabParametersSerializer(param, context=serializer_context, many=True)
+
+        return Response({
+            'param': param_serializer.data,
+        })
  
- 
-      def post(self, request, format=None):
-         serializer_context = {'request': request,}
- 
-         param_serializer = CollabParametersSerializer(data=request.data, context=serializer_context)
-         if param_serializer.is_valid():
-             param = param_serializer.save() 
-         else:
-             return Response(param_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    # @csrf_exempt
+    def post(self, request, format=None):
+        serializer_context = {'request': request,}
+        param_serializer = CollabParametersSerializer(data=request.data, context=serializer_context)
+        if param_serializer.is_valid():
+            param = param_serializer.save() 
+        else:
+            return Response(param_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
          
-         return Response(status=status.HTTP_201_CREATED)
+        return Response(status=status.HTTP_201_CREATED)
+
+    # @csrf_exempt
+    def put(self, request, format=None):
+        serializer_context = {'request': request,}
+        id = request.GET.getlist('id')[0]
+        param = CollabParameters.objects.get(id = id )
+        param_serializer = CollabParametersSerializer(param, data=request.data, context=serializer_context )#, many=True)
+
+        if param_serializer.is_valid():         
+            param_serializer.save()
+            return Response(param_serializer.data)
+        return Response(param_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-      def put(self, request, format=None):
-          serializer_context = {'request': request,}
+    # @method_decorator(csrf_exempt)
+    # def dispatch(self, *args, **kwargs):
+    #     return super(CollabParameterRest, self).dispatch(*args, **kwargs)
 
-          print ("id : ")
-          print( request.GET.getlist('id'))
-          #get object with num collab
-          param = CollabParameters.objects.get(id = "2" )
-          print (param.__dict__)
-
-          print (request.data)
-
-          param_serializer = CollabParametersSerializer(param, data=request.data, context=serializer_context )#, many=True)
-        #   print (param_serializer)
-
-          print ("1")
-          if param_serializer.is_valid():
-              print ("2")
-              
-              param_serializer.save()
-              return Response(param_serializer.data)
-          return Response(param_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 
@@ -1415,9 +1447,9 @@ class ValidationTestDefinitionRest(APIView):
         
         return Response(status=status.HTTP_201_CREATED)
 
-
 class TestCommentRest(APIView):
     def get(self, request, format=None, **kwargs):
+        logger.debug("*** TestCommentRest get ***")
         serializer_context = {'request': request,}
         nb_id = str(len(request.GET.getlist('id')))
         nb_test_id = str(len(request.GET.getlist('test_id')))
@@ -1437,7 +1469,7 @@ class TestCommentRest(APIView):
         return Response({
             'comments': comment_serializer.data,
         })
-
+    @csrf_exempt
     def post(self, request, format=None):
         logger.debug("*** TestCommentRest post ***")
         serializer_context = {'request': request,}
@@ -1454,21 +1486,7 @@ class TestCommentRest(APIView):
 
 
 
-def _get_collab_id(self):
-    social_auth = self.request.user.social_auth.get()
-    print("social auth", social_auth.extra_data )
 
-    headers = {
-        'Authorization': get_auth_header(self.request.user.social_auth.get())
-    }
-
-    #to get collab_id
-    svc_url = settings.HBP_COLLAB_SERVICE_URL
-    context = self.request.session["next"][6:]
-    url = '%scollab/context/%s/' % (svc_url, context)
-    res = requests.get(url, headers=headers)
-    collab_id = res.json()['collab']['id']
-    return collab_id
 
 
 

@@ -110,9 +110,7 @@ testApp.controller('ConfigCtrl', ['$scope', '$rootScope', '$http', '$location', 
 
             $scope.list_param = AuthaurizedCollabParameterRest.get({})
 
-            //garder le resultat des selections et remplir callabParam avec un save
             $scope.make_post = function() {
-
                 $scope.selected_data_modalities.forEach(function(value, i) {
                     CollabParameters.addParameter("data_modalities", value.authorized_value);
                 });
@@ -139,11 +137,17 @@ testApp.controller('ConfigCtrl', ['$scope', '$rootScope', '$http', '$location', 
 
 
                 CollabParameters.put_parameters();
+
+                $location.path('/home');
+
             };
 
 
-            //need to do without window.location.... just in angular. goal: do not reload data from server.
-            $scope.reloadPage = function() { window.location.reload(); }
+            //not working : might require to clean up the the selectors.
+            $scope.reloadPage = function() {
+                $location.path('/home/config');
+
+            }; // { window.location.reload(); }
         });
     }
 ]);
@@ -424,12 +428,6 @@ ModelCatalogApp.controller('ModelCatalogEditCtrl', ['$scope', '$rootScope', '$ht
                 alert('model correctly edited');
             });
         };
-
-        $scope.saveModelInstance = function() {
-
-            var parameters = $scope.model.model_instances;
-            var a = ScientificModelInstanceRest.put(parameters).$promise.then(function(data) { alert('model instances correctly edited') });
-        };
     }
 ]);
 
@@ -439,11 +437,15 @@ ModelCatalogApp.controller('ModelCatalogVersionCtrl', ['$scope', '$rootScope', '
         $scope.saveVersion = function() {
             $scope.model_instance.model_id = $stateParams.uuid
             var parameters = JSON.stringify($scope.model_instance);
-            ScientificModelInstanceRest.save(parameters).$promise.then(function() {
-                $location.path('/model-catalog/detail/' + $stateParams.uuid);
-            });;
+            alert(parameters);
+            ScientificModelInstanceRest.save(parameters, function(value) {});
+        };
+
+        $scope.saveModelInstance = function() {
+
+            var parameters = $scope.model.model_instances;
+            var a = ScientificModelInstanceRest.put(parameters).$promise.then(function(data) { alert('model instances correctly edited') });
         };
     }
-
 
 ]);
