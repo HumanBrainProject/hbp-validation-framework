@@ -265,7 +265,9 @@ ModelCatalogApp.controller('ModelCatalogCtrl', ['$scope', '$rootScope', '$http',
     function($scope, $rootScope, $http, $location, ScientificModelRest) {
 
         $scope.models = ScientificModelRest.get({}, function(data) {});
-
+        $scope.goToDetailView = function(model) {
+            $location.path('/model-catalog/detail/' + model.id);
+        };
 
     }
 ]);
@@ -312,7 +314,6 @@ ModelCatalogApp.controller('ModelCatalogCreateCtrl', ['$scope', '$rootScope', '$
         };
         $scope.saveImage = function() {
             if (JSON.stringify($scope.image) != undefined) {
-                alert($scope.image)
                 $scope.model_image.push($scope.image);
                 $("#ImagePopup").hide();
                 $scope.image = undefined;
@@ -341,7 +342,6 @@ ModelCatalogApp.controller('ModelCatalogDetailCtrl', ['$scope', '$rootScope', '$
         $scope.model = ScientificModelRest.get({ id: $stateParams.uuid });
 
         $scope.toggleSize = function(index, img) {
-            alert('in it')
             $scope.bigImage = img;
             $("#ImagePopupDetail").show();
         }
@@ -352,6 +352,85 @@ ModelCatalogApp.controller('ModelCatalogDetailCtrl', ['$scope', '$rootScope', '$
         };
     }
 ]);
+
+ModelCatalogApp.controller('ModelCatalogEditCtrl', ['$scope', '$rootScope', '$http', '$location', '$state', '$stateParams', 'ScientificModelRest', 'ScientificModelInstanceRest', 'ScientificModelImageRest',
+    function($scope, $rootScope, $http, $location, $state, $stateParams, ScientificModelRest, ScientificModelInstanceRest, ScientificModelImageRest) {
+        $scope.species = [
+            { id: 'mouse', name: 'Mouse (Mus musculus)' },
+            { id: 'rat', name: 'Rat (Rattus rattus)' },
+            { id: 'marmoset', name: 'Marmoset (callithrix jacchus)' },
+            { id: 'human', name: 'Human (Homo sapiens)' },
+            { id: 'rhesus_monkey', name: 'Paxinos Rhesus Monkey (Macaca mulatta)' },
+            { id: 'opossum', name: 'Opossum (Monodelphis domestica)' },
+            { id: 'other', name: 'Other' },
+        ];
+
+        $scope.brain_region = [
+            { id: 'basal ganglia', name: 'Basal Ganglia' },
+            { id: 'cerebellum', name: 'Cerebellum' },
+            { id: 'cortex', name: 'Cortex' },
+            { id: 'hippocampus', name: 'Hippocampus' },
+            { id: 'other', name: 'Other' },
+        ];
+
+        $scope.cell_type = [
+            { id: 'granule cell', name: 'Granule Cell' },
+            { id: 'interneuron', name: 'Interneuron' },
+            { id: 'pyramidal cell', name: 'Pyramidal Cell' },
+            { id: 'other', name: 'Other' },
+        ];
+
+        $scope.model_type = [
+            { id: 'single_cell', name: 'Single Cell' },
+            { id: 'network', name: 'Network' },
+            { id: 'mean_field', name: 'Mean Field' },
+            { id: 'other', name: 'Other' },
+        ];
+        $scope.model = ScientificModelRest.get({ id: $stateParams.uuid });
+        $("#ImagePopup").hide();
+        $scope.deleteImage = function(img) {
+            var image = img
+            ScientificModelImageRest.delete(image).$promise.then(
+                function(data) {
+                    alert('Image ' + img.id + ' has been deleted !');
+                    $state.reload();
+                    // $location.reload(); // $location.path('/model-catalog/edit/' + $stateParams.uuid); //not working. to do after
+                });
+        };
+        $scope.displayAddImage = function() {
+            $("#ImagePopup").show();
+        };
+        $scope.saveImage = function() {
+            if (JSON.stringify($scope.image) != undefined) {
+                var parameters = JSON.stringify({ model_id: $stateParams.uuid, model_image: $scope.image });
+                ScientificModelImageRest.post(parameters).$promise.then(function(data) {
+                    $("#ImagePopup").hide();
+                    alert('Image has been saved !');
+                    $state.reload(); // $location.path('/model-catalog/edit/' + $stateParams.uuid); //not working. to do after
+                });
+            } else { alert("you need to add an url!") }
+        };
+        $scope.closeImagePanel = function() {
+            $scope.image = {};
+            $("#ImagePopup").hide();
+        };
+        $scope.editImages = function() {
+
+            var parameters = $scope.model.model_images;
+            console.log(parameters)
+            var a = ScientificModelImageRest.put(parameters).$promise.then(function(data) {
+                alert('model images have been correctly edited')
+            });
+        };
+        $scope.saveModel = function() {
+            var parameters = $scope.model;
+            var a = ScientificModelRest.put(parameters).$promise.then(function(data) {
+                alert('model correctly edited');
+            });
+        };
+    }
+]);
+
 ModelCatalogApp.controller('ModelCatalogVersionCtrl', ['$scope', '$rootScope', '$http', '$location', '$stateParams', 'ScientificModelRest', 'ScientificModelInstanceRest',
     function($scope, $rootScope, $http, $location, $stateParams, ScientificModelRest, ScientificModelInstanceRest) {
         $scope.model = ScientificModelRest.get({ id: $stateParams.uuid }); //really needed??? just to put model name
@@ -362,8 +441,11 @@ ModelCatalogApp.controller('ModelCatalogVersionCtrl', ['$scope', '$rootScope', '
             ScientificModelInstanceRest.save(parameters, function(value) {});
         };
 
+        $scope.saveModelInstance = function() {
 
+            var parameters = $scope.model.model_instances;
+            var a = ScientificModelInstanceRest.put(parameters).$promise.then(function(data) { alert('model instances correctly edited') });
+        };
     }
-
 
 ]);

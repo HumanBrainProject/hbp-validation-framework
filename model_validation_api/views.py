@@ -1252,14 +1252,52 @@ class ScientificModelInstanceRest (APIView):
         serializer_context = {'request': request,}
         serializer = ScientificModelInstanceSerializer(data=request.data, context=serializer_context)
         if serializer.is_valid():        
-            serializer.save(model_id=request.data['model_id'])  #need to see how to get this value throught kwargs or other ?
-            return Response(status=status.HTTP_201_CREATED) #put inside .is_valid
+            serializer.save(model_id=request.data['model_id'])
+            return Response(status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    def put(self, request, format=None): 
+        for instance in request.data:
+            model_instance = ScientificModelInstance.objects.get(id=instance['id'])
+            serializer_context = {'request': request,}
+
+            model_serializer = ScientificModelInstanceSerializer(model_instance, data=instance, context=serializer_context)
+            if model_serializer.is_valid() :
+                model_instance = model_serializer.save()
+            else: 
+                return Response(model_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response( status=status.HTTP_201_CREATED) 
+
+class ScientificModelImageRest (APIView):
+
+    def post(self, request, format=None):
+        serializer_context = {'request': request,}
+        serializer = ScientificModelImageSerializer(data=request.data['model_image'], context=serializer_context)
+        if serializer.is_valid():        
+            serializer.save(model_id=request.data['model_id'])
+            return Response(status=status.HTTP_201_CREATED) 
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    def put(self, request, format=None):
+        for image in request.data:
+            model_image = ScientificModelImage.objects.get(id=image['id'])
+            serializer_context = {'request': request,}
+            # check if data is ok else return error
+            model_serializer = ScientificModelImageSerializer(model_image, data=image, context=serializer_context)
+            if model_serializer.is_valid() :
+                model_image = model_serializer.save()
+            else: 
+                return Response(model_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response( status=status.HTTP_202_ACCEPTED) 
+
+    def delete(self, request, format=None):
+        image = ScientificModelImage.objects.get(id=request.query_params['id']).delete()
+        return Response( status=status.HTTP_200_OK) 
+
 
 
 class ScientificModelRest(APIView):
-    
     def get(self, request, format=None, **kwargs):
         serializer_context = {
             'request': request,
@@ -1292,7 +1330,6 @@ class ScientificModelRest(APIView):
 
     def post(self, request, format=None):
         serializer_context = {'request': request,}
-        print('fdeqr')
         # check if data is ok else return error
         model_serializer = ScientificModelSerializer(data=request.data['model'], context=serializer_context)
         model_instance_serializer = ScientificModelInstanceSerializer(data=request.data['model_instance'], context=serializer_context)
@@ -1310,10 +1347,27 @@ class ScientificModelRest(APIView):
         model = model_serializer.save()
         model_instance_serializer.save(model_id=model.id)    
         if request.data['model_image']!={}:
-            for i in request.data['model_image']:          
-                model_image_serializer.save(model_id=model.id)
+            for i in request.data['model_image']: 
+                model_image_serializer = ScientificModelImageSerializer(data=i, context=serializer_context)
+                if model_image_serializer.is_valid():          
+                    model_image_serializer.save(model_id=model.id)
 
         return Response({'uuid':model.id}, status=status.HTTP_201_CREATED)
+
+    def put(self, request, format=None):
+        ## save only modifications on model tables. if want to modify images or instances, do separate put.  
+        ##get objects 
+        value = request.data['models'][0]
+        model = ScientificModel.objects.get(id=value['id'])
+        serializer_context = {'request': request,}
+
+        # check if data is ok else return error
+        model_serializer = ScientificModelSerializer(model, data=value, context=serializer_context)
+        if model_serializer.is_valid() :
+            model = model_serializer.save()
+        else: 
+            return Response(model_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response( status=status.HTTP_201_CREATED) 
 
 class ValidationTestCodeRest(APIView):
 
@@ -1351,11 +1405,9 @@ class ValidationTestCodeRest(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
      def get_serializer_class(self):
-         print (self.request.method)
         #  if self.request.method in ('GET', )
         #      return ValidationTestDefinitionWithCodesReadSerializer
          return ValidationTestCodeSerializer
-
 
 class ValidationTestDefinitionRest(APIView):
     
@@ -1479,6 +1531,7 @@ class ModelCatalogView(View):
     login_url='/login/hbp/'
 
     def get(self, request, *args, **kwargs):
+       
         models = ScientificModel.objects.all()
         models = serializers.serialize("json", models) 
         return render(request, self.template_name, {'models':models})
