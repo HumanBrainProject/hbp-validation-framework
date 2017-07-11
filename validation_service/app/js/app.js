@@ -94,6 +94,11 @@ ModelCatalogApp.config(
                 url: '/model-catalog/detail/:uuid',
                 templateUrl: '/static/templates/model-catalog-detail.tpl.html',
                 controller: 'ModelCatalogDetailCtrl'
+            })
+            .state('ModelCatalogEdit', {
+                url: '/model-catalog/edit/:uuid',
+                templateUrl: '/static/templates/model-catalog-edit.tpl.html',
+                controller: 'ModelCatalogEditCtrl'
             });
 
         $urlRouterProvider.otherwise('/model-catalog');
