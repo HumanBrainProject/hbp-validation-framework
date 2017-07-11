@@ -51,8 +51,6 @@ testApp.config(
     });
 
 
-
-
 //Model Catalog App
 var ModelCatalogApp = angular.module('ModelCatalogApp', [
 
@@ -98,10 +96,5 @@ ModelCatalogApp.config(
                 controller: 'ModelCatalogEditCtrl'
             });
         $urlRouterProvider.otherwise('/model-catalog');
-
-        foo.config(['$httpProvider', function($httpProvider) {
-            $httpProvider.defaults.xsrfCookieName = 'csrftoken';
-            $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
-        }]);
 
     });
