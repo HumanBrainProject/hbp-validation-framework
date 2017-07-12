@@ -272,72 +272,48 @@ ModelCatalogApp.controller('ModelCatalogCtrl', ['$scope', '$rootScope', '$http',
     }
 ]);
 
-ModelCatalogApp.controller('ModelCatalogCreateCtrl', ['$scope', '$rootScope', '$http', '$location', 'ScientificModelRest',
+ModelCatalogApp.controller('ModelCatalogCreateCtrl', ['$scope', '$rootScope', '$http', '$location', 'ScientificModelRest', 'CollabParameters',
 
-    function($scope, $rootScope, $http, $location, ScientificModelRest) {
+    function($scope, $rootScope, $http, $location, ScientificModelRest, CollabParameters) {
+        CollabParameters.setService().$promise.then(function() {
+            $scope.addImage = false;
+            $scope.species = CollabParameters.getParameters("species");
+            $scope.brain_region = CollabParameters.getParameters("brain_region");
+            $scope.cell_type = CollabParameters.getParameters("cell_type");
+            $scope.model_type = CollabParameters.getParameters("model_type");
 
-        $("#ImagePopup").hide();
-        $scope.species = [
-            { id: 'mouse', name: 'Mouse (Mus musculus)' },
-            { id: 'rat', name: 'Rat (Rattus rattus)' },
-            { id: 'marmoset', name: 'Marmoset (callithrix jacchus)' },
-            { id: 'human', name: 'Human (Homo sapiens)' },
-            { id: 'rhesus_monkey', name: 'Paxinos Rhesus Monkey (Macaca mulatta)' },
-            { id: 'opossum', name: 'Opossum (Monodelphis domestica)' },
-            { id: 'other', name: 'Other' },
-        ];
+            $scope.model_image = [];
+            $scope.displayAddImage = function() {
+                $scope.addImage = true;
+            };
+            $scope.saveImage = function() {
+                if (JSON.stringify($scope.image) != undefined) {
+                    $scope.model_image.push($scope.image);
+                    $scope.addImage = false;
+                    $scope.image = undefined;
+                } else { alert("you need to add an url!") }
+            };
+            $scope.closeImagePanel = function() {
+                $scope.image = {};
+                $scope.addImage = false;
+            };
+            $scope.saveModel = function() {
+                var parameters = JSON.stringify({ model: $scope.model, model_instance: $scope.model_instance, model_image: $scope.model_image });
+                var a = ScientificModelRest.save(parameters).$promise.then(function(data) {
+                    $location.path('/model-catalog/detail/' + data.uuid);
+                });
+            };
 
-        $scope.brain_region = [
-            { id: 'basal ganglia', name: 'Basal Ganglia' },
-            { id: 'cerebellum', name: 'Cerebellum' },
-            { id: 'cortex', name: 'Cortex' },
-            { id: 'hippocampus', name: 'Hippocampus' },
-            { id: 'other', name: 'Other' },
-        ];
-
-        $scope.cell_type = [
-            { id: 'granule cell', name: 'Granule Cell' },
-            { id: 'interneuron', name: 'Interneuron' },
-            { id: 'pyramidal cell', name: 'Pyramidal Cell' },
-            { id: 'other', name: 'Other' },
-        ];
-
-        $scope.model_type = [
-            { id: 'single_cell', name: 'Single Cell' },
-            { id: 'network', name: 'Network' },
-            { id: 'mean_field', name: 'Mean Field' },
-            { id: 'other', name: 'Other' },
-        ];
-        $scope.model_image = [];
-        $scope.displayAddImage = function() {
-            $("#ImagePopup").show();
-        };
-        $scope.saveImage = function() {
-            if (JSON.stringify($scope.image) != undefined) {
-                $scope.model_image.push($scope.image);
-                $("#ImagePopup").hide();
-                $scope.image = undefined;
-            } else { alert("you need to add an url!") }
-        };
-        $scope.closeImagePanel = function() {
-            $scope.image = {};
-            $("#ImagePopup").hide();
-        };
-        $scope.saveModel = function() {
-            var parameters = JSON.stringify({ model: $scope.model, model_instance: $scope.model_instance, model_image: $scope.model_image });
-            var a = ScientificModelRest.save(parameters).$promise.then(function(data) {
-                $location.path('/model-catalog/detail/' + data.uuid);
-            });
-        };
-
-        $scope.deleteImage = function(index) {
-            $scope.model_image.splice(index, 1);
-        };
+            $scope.deleteImage = function(index) {
+                $scope.model_image.splice(index, 1);
+            };
+        });
     }
+
 ]);
 
 ModelCatalogApp.controller('ModelCatalogDetailCtrl', ['$scope', '$rootScope', '$http', '$location', '$stateParams', 'ScientificModelRest',
-    function($scope, $rootScope, $http, $location, $stateParams, ScientificModelRest) {
+    function($scope, $rootScope, $http, $lcation, $stateParams, ScientificModelRest) {
         $("#ImagePopupDetail").hide();
         $scope.model = ScientificModelRest.get({ id: $stateParams.uuid });
 
@@ -353,81 +329,57 @@ ModelCatalogApp.controller('ModelCatalogDetailCtrl', ['$scope', '$rootScope', '$
     }
 ]);
 
-ModelCatalogApp.controller('ModelCatalogEditCtrl', ['$scope', '$rootScope', '$http', '$location', '$state', '$stateParams', 'ScientificModelRest', 'ScientificModelInstanceRest', 'ScientificModelImageRest',
-    function($scope, $rootScope, $http, $location, $state, $stateParams, ScientificModelRest, ScientificModelInstanceRest, ScientificModelImageRest) {
-        $scope.species = [
-            { id: 'mouse', name: 'Mouse (Mus musculus)' },
-            { id: 'rat', name: 'Rat (Rattus rattus)' },
-            { id: 'marmoset', name: 'Marmoset (callithrix jacchus)' },
-            { id: 'human', name: 'Human (Homo sapiens)' },
-            { id: 'rhesus_monkey', name: 'Paxinos Rhesus Monkey (Macaca mulatta)' },
-            { id: 'opossum', name: 'Opossum (Monodelphis domestica)' },
-            { id: 'other', name: 'Other' },
-        ];
+ModelCatalogApp.controller('ModelCatalogEditCtrl', ['$scope', '$rootScope', '$http', '$location', '$state', '$stateParams', 'ScientificModelRest', 'ScientificModelInstanceRest', 'ScientificModelImageRest', 'CollabParameters',
+    function($scope, $rootScope, $http, $location, $state, $stateParams, ScientificModelRest, ScientificModelInstanceRest, ScientificModelImageRest, CollabParameters) {
+        CollabParameters.setService().$promise.then(function() {
+            $scope.addImage = false;
+            $scope.species = CollabParameters.getParameters("species");
+            $scope.brain_region = CollabParameters.getParameters("brain_region");
+            $scope.cell_type = CollabParameters.getParameters("cell_type");
+            $scope.model_type = CollabParameters.getParameters("model_type");
+            $scope.model = ScientificModelRest.get({ id: $stateParams.uuid });
 
-        $scope.brain_region = [
-            { id: 'basal ganglia', name: 'Basal Ganglia' },
-            { id: 'cerebellum', name: 'Cerebellum' },
-            { id: 'cortex', name: 'Cortex' },
-            { id: 'hippocampus', name: 'Hippocampus' },
-            { id: 'other', name: 'Other' },
-        ];
+            $scope.deleteImage = function(img) {
+                var image = img
+                ScientificModelImageRest.delete(image).$promise.then(
+                    function(data) {
+                        alert('Image ' + img.id + ' has been deleted !');
+                        $state.reload();
+                        // $location.reload(); // $location.path('/model-catalog/edit/' + $stateParams.uuid); //not working. to do after
+                    });
+            };
+            $scope.displayAddImage = function() {
+                $scope.addImage = true;
+            };
+            $scope.saveImage = function() {
+                if (JSON.stringify($scope.image) != undefined) {
+                    var parameters = JSON.stringify({ model_id: $stateParams.uuid, model_image: $scope.image });
+                    ScientificModelImageRest.post(parameters).$promise.then(function(data) {
+                        $scope.addImage = false;
+                        alert('Image has been saved !');
+                        $state.reload(); // $location.path('/model-catalog/edit/' + $stateParams.uuid); //not working. to do after
+                    });
+                } else { alert("you need to add an url!") }
+            };
+            $scope.closeImagePanel = function() {
+                $scope.image = {};
+                $scope.addImage = false;
+            };
+            $scope.editImages = function() {
 
-        $scope.cell_type = [
-            { id: 'granule cell', name: 'Granule Cell' },
-            { id: 'interneuron', name: 'Interneuron' },
-            { id: 'pyramidal cell', name: 'Pyramidal Cell' },
-            { id: 'other', name: 'Other' },
-        ];
-
-        $scope.model_type = [
-            { id: 'single_cell', name: 'Single Cell' },
-            { id: 'network', name: 'Network' },
-            { id: 'mean_field', name: 'Mean Field' },
-            { id: 'other', name: 'Other' },
-        ];
-        $scope.model = ScientificModelRest.get({ id: $stateParams.uuid });
-        $("#ImagePopup").hide();
-        $scope.deleteImage = function(img) {
-            var image = img
-            ScientificModelImageRest.delete(image).$promise.then(
-                function(data) {
-                    alert('Image ' + img.id + ' has been deleted !');
-                    $state.reload();
-                    // $location.reload(); // $location.path('/model-catalog/edit/' + $stateParams.uuid); //not working. to do after
+                var parameters = $scope.model.model_images;
+                console.log(parameters)
+                var a = ScientificModelImageRest.put(parameters).$promise.then(function(data) {
+                    alert('model images have been correctly edited')
                 });
-        };
-        $scope.displayAddImage = function() {
-            $("#ImagePopup").show();
-        };
-        $scope.saveImage = function() {
-            if (JSON.stringify($scope.image) != undefined) {
-                var parameters = JSON.stringify({ model_id: $stateParams.uuid, model_image: $scope.image });
-                ScientificModelImageRest.post(parameters).$promise.then(function(data) {
-                    $("#ImagePopup").hide();
-                    alert('Image has been saved !');
-                    $state.reload(); // $location.path('/model-catalog/edit/' + $stateParams.uuid); //not working. to do after
+            };
+            $scope.saveModel = function() {
+                var parameters = $scope.model;
+                var a = ScientificModelRest.put(parameters).$promise.then(function(data) {
+                    alert('model correctly edited');
                 });
-            } else { alert("you need to add an url!") }
-        };
-        $scope.closeImagePanel = function() {
-            $scope.image = {};
-            $("#ImagePopup").hide();
-        };
-        $scope.editImages = function() {
-
-            var parameters = $scope.model.model_images;
-            console.log(parameters)
-            var a = ScientificModelImageRest.put(parameters).$promise.then(function(data) {
-                alert('model images have been correctly edited')
-            });
-        };
-        $scope.saveModel = function() {
-            var parameters = $scope.model;
-            var a = ScientificModelRest.put(parameters).$promise.then(function(data) {
-                alert('model correctly edited');
-            });
-        };
+            };
+        });
     }
 ]);
 
