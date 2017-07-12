@@ -8,60 +8,21 @@ import uuid
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
 
-
-
-DATA_MODALITIES = (("ephys", "electrophysiology"),
-                   ("fMRI", "fMRI"),
-                   ("2-photon", "2-photon imaging"),
-                   ("em", "electron microscopy"),
-                   ("histology", "histology"))
-TEST_TYPES = (("single cell", "single cell activity"),
-              ("network structure", "network structure"),
-              ("network activity", "network activity"),
-              ("behaviour", "behaviour"),
-              ("subcellular", "subcellular"))
-SPECIES_CHOICES = (
-        ('mouse','Mouse (Mus musculus)'),
-        ('rat','Rat (Rattus rattus)'),
-        ('marmoset','Marmoset (callithrix jacchus)'),
-        ('human', 'Human (Homo sapiens)'),
-        ('rhesus_monkey', 'Paxinos Rhesus Monkey (Macaca mulatta)'),
-        ('opossum', 'Opossum (Monodelphis domestica)'),
-        ('other','Other'),
-    )
-BRAIN_REGION_CHOICES = (
-        ('basal ganglia','Basal Ganglia'),
-        ('cerebellum','Cerebellum'),
-        ('cortex','Cortex'),
-        ('hippocampus','Hippocampus'),
-        ('other','Other'),
-    )
-CELL_TYPE_CHOICES = (
-        ('granule cell','Granule Cell'),
-        ('interneuron','Interneuron'),
-        ('pyramidal cell','Pyramidal Cell'),
-        ('other','Other'),
-    )
-MODEL_TYPE = (
-        ('single_cell','Single Cell'),
-        ('network','Network'),
-        ('mean_field','Mean Field'),
-        ('other','Other'),
-    )    
+  
 
 @python_2_unicode_compatible
 class ValidationTestDefinition(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, )
     name = models.CharField(max_length=200, help_text="short descriptive name")
-    species = models.CharField(max_length=100,choices=SPECIES_CHOICES, help_text="species") # G
-    brain_region = models.CharField(max_length=100, choices=BRAIN_REGION_CHOICES, help_text="brain region")  # I
-    cell_type = models.CharField(max_length=100, choices=CELL_TYPE_CHOICES,help_text="cell type")  # D
+    species = models.CharField(max_length=100, help_text="species") # G
+    brain_region = models.CharField(max_length=100, help_text="brain region")  # I
+    cell_type = models.CharField(max_length=100,help_text="cell type")  # D
     age = models.CharField(max_length=50, null=True, help_text="age of animal, e.g. '6 weeks'")
     data_location = models.CharField(max_length=200, help_text="location of comparison data")  # M
     data_type = models.CharField(max_length=100, help_text="type of comparison data (number, histogram, time series, etc.)")  # S
-    data_modality = models.CharField(max_length=100,  choices=DATA_MODALITIES,
+    data_modality = models.CharField(max_length=100,
                                      help_text="recording modality for comparison data (ephys, fMRI, 2-photon, etc)")  # J, K
-    test_type = models.CharField(max_length=100, choices=TEST_TYPES,
+    test_type = models.CharField(max_length=100, 
                                  help_text="single cell activity, network structure, network activity, subcellular")  # B, C
     protocol = models.TextField(blank=True, help_text="Description of the experimental protocol")  # R (sort of)
     author = models.CharField(max_length=100, help_text="Author of this test")  # H
@@ -116,11 +77,11 @@ class ScientificModel(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=200, help_text="short descriptive name")
     description = models.TextField()
-    species = models.CharField(max_length=100, choices=SPECIES_CHOICES ,blank=True, help_text="species")
-    brain_region = models.CharField(max_length=100, choices=BRAIN_REGION_CHOICES, blank=True, help_text="brain region, if applicable")
-    cell_type = models.CharField(max_length=100,choices=CELL_TYPE_CHOICES, blank=True, help_text="cell type, for single-cell models")
+    species = models.CharField(max_length=100 ,blank=True, help_text="species")
+    brain_region = models.CharField(max_length=100, blank=True, help_text="brain region, if applicable")
+    cell_type = models.CharField(max_length=100, blank=True, help_text="cell type, for single-cell models")
     author = models.TextField(help_text="Author(s) of this model")  # do we need a separate "owner" field?
-    model_type = models.CharField(max_length=100, choices=MODEL_TYPE, blank=True, help_text="model type: single cell, network or mean field region")
+    model_type = models.CharField(max_length=100, blank=True, help_text="model type: single cell, network or mean field region")
     private = models.BooleanField ( default= False ,help_text="privacy of the model: can be private (if true) or public (if false)")
     access_control = models.IntegerField( default=0, help_text="ID of the collab containing the model. Use for access control")
     # todo: 

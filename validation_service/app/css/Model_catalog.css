@@ -19,6 +19,7 @@
     background-color: white;
     max-width: 800px;
     max-height: 600px;
+    overflow: scroll;
 }
 
 #ImagePopupIm {
@@ -27,8 +28,6 @@
     width: 100%;*/
     /*min-height: 100%;
     min-width: 100%;*/
-    max-height: 85%;
-    max-width: 95%;
 }
 
 #ImagePopupHead {
