@@ -244,6 +244,7 @@ testApp.filter('unique', function() {
 
 
 //Model catalog
+//directives and filters 
 var ModelCatalogApp = angular.module('ModelCatalogApp');
 
 ModelCatalogApp.directive('markdown', function() {
@@ -261,14 +262,77 @@ ModelCatalogApp.directive('markdown', function() {
     };
 });
 
-ModelCatalogApp.controller('ModelCatalogCtrl', ['$scope', '$rootScope', '$http', '$location', 'ScientificModelRest',
-    function($scope, $rootScope, $http, $location, ScientificModelRest) {
+//Filter multiple
+ModelCatalogApp.filter('filterMultiple', ['$parse','$filter', function($parse,$filter) {
+    return function(items, keyObj) {
+        var x = false;
+        if (!angular.isArray(items)) {
+            return items;
+        }
+        var filterObj = {
+            data:items,
+            filteredData:[],
+            applyFilter : function(obj,key){
+                var fData = [];
+                if (this.filteredData.length == 0 && x == false)
+                    this.filteredData = this.data;
+                if (obj){
+                    var fObj = {};
+                    if (!angular.isArray(obj)){
+                        fObj[key] = obj;
+                        fData = fData.concat($filter('filter')(this.filteredData,fObj));
+                    } else if (angular.isArray(obj)){
+                        if (obj.length > 0){
+                            for (var i=0;i<obj.length;i++){
+                                if (angular.isDefined(obj[i])){
+                                    fObj[key] = obj[i];
+                                    fData = fData.concat($filter('filter')(this.filteredData,fObj));    
+                                }
+                            }
+                        }
+                    }
+                    if (fData.length > 0){
+                        this.filteredData = fData;
+                    }
+                    if (fData.length == 0) {
+                        if(obj!= "" && obj!= undefined)
+                        {
+                            this.filteredData = fData;
+                            x = true;
+                        }
+                    }
 
-        $scope.models = ScientificModelRest.get({}, function(data) {});
-        $scope.goToDetailView = function(model) {
-            $location.path('/model-catalog/detail/' + model.id);
+                }
+            }
         };
+        if (keyObj){
+            angular.forEach(keyObj,function(obj,key){
+                filterObj.applyFilter(obj,key);
+            });
+        }
 
+        return filterObj.filteredData;
+    }
+}]);
+//controllers
+ModelCatalogApp.controller('ModelCatalogCtrl', ['$scope', '$rootScope', '$http', '$location', 'ScientificModelRest', 'CollabParameters',
+
+    function($scope, $rootScope, $http, $location, ScientificModelRest, CollabParameters) {
+        $scope.selected_species = {};
+        $scope.selected_brain_region = {};
+        $scope.selected_cell_type = {};
+        $scope.selected_model_type = {};
+        CollabParameters.setService().$promise.then(function() {
+            $scope.collab_species = CollabParameters.getParameters("species");
+            $scope.collab_brain_region = CollabParameters.getParameters("brain_region");
+            $scope.collab_cell_type = CollabParameters.getParameters("cell_type");
+            $scope.collab_model_type = CollabParameters.getParameters("model_type");
+            $scope.models = ScientificModelRest.get({}, function(data) {});
+
+            $scope.goToDetailView = function(model) {
+                $location.path('/model-catalog/detail/' + model.id);
+            };
+        });
     }
 ]);
 

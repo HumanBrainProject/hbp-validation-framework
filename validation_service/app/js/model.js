@@ -241,7 +241,7 @@ validationAppServices.service('CollabParameters', ['$rootScope', 'CollabParamete
 
 
 // for Model catalog app
-var ModelCatalogServices = angular.module('ModelCatalogServices', ['ngResource']);
+var ModelCatalogServices = angular.module('ModelCatalogServices', ['ngResource', 'btorfs.multiselect']);
 
 ModelCatalogServices.factory('ScientificModelRest', ['$resource',
     function($resource) {
