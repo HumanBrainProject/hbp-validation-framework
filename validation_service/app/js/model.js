@@ -246,7 +246,7 @@ var ModelCatalogServices = angular.module('ModelCatalogServices', ['ngResource',
 ModelCatalogServices.factory('ScientificModelRest', ['$resource',
     function($resource) {
         return $resource(base_url + 'app/scientificmodel/:uuid', { id: '@eUuid' }, {
-            get: { method: 'GET', params: { format: 'json' }, isArray: false },
+            get: { method: 'GET', params: { format: 'json', ctx: 'ctx' }, isArray: false },
             post: { method: 'POST', params: { format: 'json' }, headers: { 'Content-Type': 'application/json' } },
             put: { method: 'PUT', params: { format: 'json' }, headers: { 'Content-Type': 'application/json' } }
         });
@@ -438,6 +438,9 @@ ModelCatalogServices.service('CollabParameters', ['$rootScope', 'CollabParameter
             return put;
         };
 
+        var getCtx = function() {
+            return ctx;
+        }
 
         return {
             addParameter: addParameter,
@@ -447,6 +450,7 @@ ModelCatalogServices.service('CollabParameters', ['$rootScope', 'CollabParameter
             supprParameter: supprParameter,
             post_parameters: post_parameters,
             put_parameters: put_parameters,
+            getCtx: getCtx,
         };
 
     }

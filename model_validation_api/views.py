@@ -1303,9 +1303,11 @@ class ScientificModelRest(APIView):
             'request': request,
         }
         model_id = str(len(request.GET.getlist('id')))
-
+        ctx = request.query_params['ctx')
         if(model_id == '0'):
-            models = ScientificModel.objects.all()
+            rq1 = ScientificModel.objects.filter(access_control=ctx)
+            rq2 = ScientificModel.objects.filter (private=0)
+            models = rq1.union(rq2)
             model_serializer = ScientificModelSerializer(models, context=serializer_context, many=True )
             return Response({
             'models': model_serializer.data,
