@@ -48,11 +48,14 @@ from .views import (ValidationTestDefinitionResource,
                     ValidationTestCodeRest,
                     TestCommentRest,
                     CollabIDRest,
+                    loginHBP
                     )
 
 # from django.contrib.auth.decorators import login_required
 
 from django.views.decorators.csrf import csrf_exempt
+
+from django.conf.urls import include
 
 
 uuid_pattern = "[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}"
@@ -227,6 +230,11 @@ urlpatterns = (
     url(r'^app/authorizedcollabparameterrest/$',
         AuthorizedCollabParameterRest.as_view(), 
         ),
+
+
+    url(r'^login/hbp2$', loginHBP.as_view()), 
+    
+        
     
 
 
@@ -246,4 +254,8 @@ urlpatterns = (
     url(r'^model-catalog/$',
         ModelCatalogView.as_view(),
         name="model-catalog-view"),
+
+    # url(r'^test/$',
+    #     ModelCatalogView.as_view(),
+    #     name="model-catalog-view")
 )

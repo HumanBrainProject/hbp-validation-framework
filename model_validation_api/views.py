@@ -91,7 +91,7 @@ from rest_framework import (viewsets,
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.csrf import csrf_exempt, csrf_protect, ensure_csrf_cookie
 
 
 
@@ -1123,9 +1123,106 @@ class HomeValidationView(View):
 #                 })
 
 
+# def get_authorization_header(request):
+# def _is_collaborator(request, context):
+
+# @login_required
+@login_required(login_url='/login/hbp')
+def test_login (request):
+    print ("On est la")
+    print request.user
+    if request.user.is_authenticated:
+        print ("youlayoula")
+    else :
+        print ("nopnopnop")
+    return ("yup")
+
+@method_decorator(login_required(login_url='/login/hbp'), name='dispatch' )
+class loginHBP (LoginRequiredMixin,View):
+    # login_url='/login/hbp/'
+  
+    
+    def get(self, request, *args, **kwargs):
+        print ("LOGIN GET")
+        # print ("OOOOOOOOOOOOOOOOOOOOOOOO")
+        # print (request.__dict__)
+        # print ("OOOOOOOOOOOOOOOOOOOOOOOO")
+        
+        # return ("ok")
+        # return render(request, "ppp")
+        return HttpResponse("C'est good")
+        # return response("ok")
+
+        
+    
+from rest_framework import permissions
+# @method_decorator(login_required(login_url='/login/hbp'), name='dispatch')
+class hbpAuthPermission(permissions.BasePermission):
+    message = 'Adding customers not allowed.'
+    # login_url='/login/hbp/'
+
+    # @method_decorator(login_required(login_url='/login/hbp'), name='dispatch')
+
+    # @method_decorator(login_required)
+    # @login_required
+    def has_permission(self, request, view):
+        b = test_login(request)
+        # print ("######")
+        # print (b)
+        # print (b.__dict__)
+
+        # print ("1")
+        # test = _is_collaborator(request, "eb6ae7dc-05d3-48cf-b86f-34adfd0470cb")
+        # print ("2")
+        
+        # print (test)
+
+        # print ("######")
+
+        # print ("NNNNNNNNNNNNNNNNNNNN")
+        # print (request.__dict__)
+        # print ("NNNNNNNNNNNNNNNNNNNN")
+        
+        #request, *args, **kwargs
+        # print ("OOOOOOOOOOOOOOOOOO")
+        # login = loginHBP.as_view()        
+        # a = login(request)
+        # print a
+        # print (a.__dict__)
+        # print a.cookies
+        
+        # print ("AAAAAAAAAAAAAAAAAAA")
+        
+        # print ("passed !")
+        return True
+
+
+
+# @method_decorator(login_required(login_url='/login/hbp'), name='dispatch')
+# class AuthorizedCollabParameterRest(LoginRequiredMixin,APIView):
+# @method_decorator(csrf_exempt, name='dispatch')
 class AuthorizedCollabParameterRest(APIView):
     
+    pagination_class = settings.REST_FRAMEWORK["DEFAULT_PAGINATION_CLASS"]
+    permission_classes = (hbpAuthPermission,)
+    login_url='/login/hbp/'
+
+    # @method_decorator(login_required(login_url='/login/hbp'), name='dispatch')
+    # @method_decorator(ensure_csrf_cookie)
     def get(self, request, format=None, **kwargs):
+        # print ("OKOKOKOKOKOKOK")
+        print ("blabla")
+        print request.user
+
+        # print (request.custom_prop)
+
+        # print (request._request.__dict__)
+        # print (request._request.user)
+        
+
+        # print ("OKOKOKOKOKOKOK")
+        # print (request.__dict__)
+        # print ("OKOKOKOKOKOKOK")
         serializer_context = {'request': request,}
 
         data_modalities = Param_DataModalities.objects.all()
@@ -1154,6 +1251,18 @@ class AuthorizedCollabParameterRest(APIView):
             'cell_type' : cell_type_serializer.data,
             'model_type' : model_type_serializer.data,
         })
+
+    # @method_decorator(csrf_protect)
+    # @method_decorator(csrf_exempt)
+    # @method_decorator(ensure_csrf_cookie)
+    def post (self, request, format=None, **kwargs):
+        print ("POST !!!!!!!!!!!!!")
+
+    # @method_decorator(login_required)
+    # @method_decorator(login_required(login_url='/login/hbp'), name='dispatch') 
+    # @method_decorator(csrf_exempt)   
+    def dispatch(self, *args, **kwargs):
+        return super(AuthorizedCollabParameterRest, self).dispatch(*args, **kwargs)
 
 
 
@@ -1472,15 +1581,27 @@ class TestCommentRest(APIView):
 
 # #############################################################
 ###views for model catalog api
-@method_decorator(login_required(login_url='/login/hbp'), name='dispatch' )
+# @method_decorator(login_required(login_url='/login/hbp'), name='dispatch' )
 class ModelCatalogView(View):
 
     template_name = "model_catalog.html"
     login_url='/login/hbp/'
 
     def get(self, request, *args, **kwargs):
+        print request.user
+        
+        # print request.user.__dict__
+        
+        # for key, value in  request.user.__dict__.items(): #items():
+        #     print (key)
+        #     print value
+        #     try:
+        #         for key2, value2 in value.__dict__.items() :
+        #             print (key2)
+        #             print value2
+        #     except:
+        #         pass
+
         models = ScientificModel.objects.all()
         models = serializers.serialize("json", models) 
         return render(request, self.template_name, {'models':models})
-
-        

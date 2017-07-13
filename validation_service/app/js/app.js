@@ -8,11 +8,20 @@ var testApp = angular.module('testApp', [
     'ng',
     'ngResource',
     'validationAppServices',
+    'ngCookies',
 ]);
 
 testApp.config(
-    function($httpProvider, $stateProvider, $locationProvider, $rootScopeProvider, $resourceProvider, $urlRouterProvider) {
+    function($cookiesProvider, $httpProvider, $stateProvider, $locationProvider, $rootScopeProvider, $resourceProvider, $urlRouterProvider) {
         $resourceProvider.defaults.stripTrailingSlashes = false;
+
+        $httpProvider.defaults.xsrfCookieName = 'csrftoken';
+        $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
+
+
+        // alert($httpProvider.defaults.xsrfHeaderName);
+
+        // $httpProvider.defaults.withCredentials = true;
 
         $stateProvider
             .state('home', {

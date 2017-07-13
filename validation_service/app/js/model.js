@@ -1,4 +1,33 @@
-var validationAppServices = angular.module('validationAppServices', ['ngResource']);
+var validationAppServices = angular.module('validationAppServices', ['ngResource', 'ngCookies']);
+
+// validationAppServices.config(
+//     function($cookiesProvider, $httpProvider, $stateProvider, $locationProvider, $rootScopeProvider, $resourceProvider, $urlRouterProvider) {
+//         $resourceProvider.defaults.stripTrailingSlashes = false;
+
+//         $httpProvider.defaults.xsrfCookieName = 'csrftoken';
+//         // alert($httpProvider.defaults.xsrfCookieName);
+//         // $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
+
+//         // $httpProvider.defaults.xsrfHeaderName = $cookiesProvider.$cookies['csrftoken'];
+
+//         // console.log($cookiesProvider);
+//         // console.log($cookiesProvider);
+//         // console.log($cookiesProvider);
+
+
+//         $httpProvider.defaults.withCredentials = true;
+
+//         // headers = {
+//         //     'Content-Type': 'application/json',
+//         //     // 'X-CSRFToken': $cookies['csrftoken'],
+//         //     // // "x-csrftoken": $cookies.csrftoken,
+//         //     // "x-csrftoken": $cookies.get('csrftoken')
+
+//         // };
+
+
+
+//     });
 
 
 
@@ -65,6 +94,59 @@ validationAppServices.factory('CollabParameterRest', ['$resource',
         });
     }
 ]);
+
+
+
+// validationAppServices.factory('AuthaurizedCollabParameterRest', ['$http', '$cookies',
+//     function($http, $cookies) {
+//         // var $cookies;
+//         // $http.defaults.headers.post['X-CSRFToken'] = $cookies.get('csrftoken');
+//         // alert($cookies.get('csrftoken'));
+//         // alert($cookies.csrftoken);
+//         // console.log($cookies);
+//         // console.log($cookies);
+//         // console.log($cookies);
+//         // console.log($cookies);
+//         // console.log($cookies);
+
+//         return {
+
+//             post: function() {
+
+//                 return $http.get('authorizedcollabparameterrest/', {
+//                         'X-CSRFToken': $cookies['csrftoken'],
+//                         // "x-csrftoken": $cookies.csrftoken,
+//                         "x-csrftoken": $cookies.get('csrftoken'),
+
+//                         type: 'GET',
+//                         ID: 'TP001',
+//                         dataType: 'json',
+//                         data: JSON.stringify({ test: "blabla" }),
+//                         headers: {
+//                             'Content-Type': 'application/json',
+//                             'X-CSRFToken': $cookies['csrftoken'],
+//                             // "x-csrftoken": $cookies.csrftoken,
+//                             "x-csrftoken": $cookies.get('csrftoken')
+
+//                         }
+
+//                     }
+
+//                     // {
+//                     //     // headers: { "x-csrftoken": $cookies.csrftoken } 
+//                     //     headers: {
+//                     //         'Content-Type': 'application/json',
+//                     //         'X-CSRFToken': $cookies['csrftoken'],
+//                     //         // "x-csrftoken": $cookies.csrftoken,
+//                     //         "x-csrftoken": $cookies.get('csrftoken')
+
+//                     //     },
+//                     // }
+//                 );
+//             }
+//         };
+//     }
+// ]);
 
 
 validationAppServices.factory('AuthaurizedCollabParameterRest', ['$resource',
@@ -154,6 +236,7 @@ validationAppServices.service('CollabParameters', ['$rootScope', 'CollabParamete
 
         var setService = function() {
             _getCtx();
+            // alert(ctx);
             if (typeof(parameters) == "undefined") {
                 parameters = CollabParameterRest.get({ id: ctx }); //need to get collab number
                 parameters.$promise.then(function() {

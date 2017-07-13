@@ -8,6 +8,7 @@ import sys
 import json
 import hbp_app_python_auth.settings as auth_settings
 
+
 # ENV = os.environ.get('VALIDATION_SERVICE_ENV', 'production')
 ENV = 'dev'
 
@@ -28,6 +29,7 @@ ALLOWED_HOSTS = ["*"]
 # Application definition
 
 INSTALLED_APPS = [
+    # 'sslserver',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -48,19 +50,39 @@ if ENV == "dev":
     INSTALLED_APPS.append('sslserver')
     sys.path.append("..")
 
+
+
+from django.utils.functional import SimpleLazyObject
+
+
+
+
 MIDDLEWARE_CLASSES = (
-    'corsheaders.middleware.CorsMiddleware',
+    # 'app.middleware.personal_middleware.UserData',
+
+    'app.middleware.personal_middleware.DisableCsrfCheck',
+
+    
     'django.middleware.common.CommonMiddleware',
 
+    'django.middleware.csrf.CsrfViewMiddleware',
+
+    
+
     'django.contrib.sessions.middleware.SessionMiddleware',
+
+    
     'django.middleware.common.CommonMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.security.SecurityMiddleware',
-    #'social_django.middleware.SocialAuthExceptionMiddleware',
+    
     'social.apps.django_app.middleware.SocialAuthExceptionMiddleware',
+    'social_django.middleware.SocialAuthExceptionMiddleware', ####
+    'corsheaders.middleware.CorsMiddleware',
 
+    
     
 )
 
@@ -193,7 +215,47 @@ else:
 # https://github.com/ottoyiu/django-cors-headers
 # CORS_ORIGIN_ALLOW_ALL = True
 
+CSRF_TRUSTED_ORIGINS = [    
+    'localhost:8000',
+    '127.0.0.1:9000',
+    # 'https://localhost:8000/app/'
+
+    ]
+
 CORS_ORIGIN_WHITELIST = (
     'localhost:8000',
-    '127.0.0.1:9000'
+    '127.0.0.1:9000',
+    'https://localhost:8000/app/'
+    
 )
+CORS_ALLOW_CREDENTIALS = True
+
+CSRF_COOKIE_DOMAIN = (
+    # ".mydomain.com",
+    '.localhost:8000',
+    '.127.0.0.1:9000'
+
+)
+
+CORS_ALLOW_HEADERS = (
+'x-requested-with',
+'content-type',
+'accept',
+'origin',
+'authorization',
+'X-CSRFToken'
+)
+
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+    'PAGE_SIZE': 100,
+    # 'DEFAULT_PERMISSION_CLASSES': (
+    #     'rest_framework.permissions.IsAuthenticated',
+    # )
+
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        # 'rest_framework_expiring_authtoken.authentication.ExpiringTokenAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    )
+}

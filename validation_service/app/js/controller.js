@@ -108,7 +108,12 @@ testApp.controller('ConfigCtrl', ['$scope', '$rootScope', '$http', '$location', 
 
         CollabParameters.setService().$promise.then(function() {
 
-            $scope.list_param = AuthaurizedCollabParameterRest.get({})
+            $scope.list_param = AuthaurizedCollabParameterRest.get({});
+            // $scope.list_param = AuthaurizedCollabParameterRest.getSessions();
+            // AuthaurizedCollabParameterRest.post();
+
+
+
 
             $scope.make_post = function() {
                 $scope.selected_data_modalities.forEach(function(value, i) {
