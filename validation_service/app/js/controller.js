@@ -249,6 +249,7 @@ testApp.filter('unique', function() {
 
 
 //Model catalog
+//directives and filters 
 var ModelCatalogApp = angular.module('ModelCatalogApp');
 
 ModelCatalogApp.directive('markdown', function() {
@@ -266,87 +267,134 @@ ModelCatalogApp.directive('markdown', function() {
     };
 });
 
-ModelCatalogApp.controller('ModelCatalogCtrl', ['$scope', '$rootScope', '$http', '$location', 'ScientificModelRest',
-    function($scope, $rootScope, $http, $location, ScientificModelRest) {
+//Filter multiple
+ModelCatalogApp.filter('filterMultiple', ['$parse', '$filter', function($parse, $filter) {
+    return function(items, keyObj) {
+        var x = false;
+        if (!angular.isArray(items)) {
+            return items;
+        }
+        var filterObj = {
+            data: items,
+            filteredData: [],
+            applyFilter: function(obj, key) {
+                var fData = [];
+                if (this.filteredData.length == 0 && x == false)
+                    this.filteredData = this.data;
+                if (obj) {
+                    var fObj = {};
+                    if (!angular.isArray(obj)) {
+                        fObj[key] = obj;
+                        fData = fData.concat($filter('filter')(this.filteredData, fObj));
+                    } else if (angular.isArray(obj)) {
+                        if (obj.length > 0) {
+                            for (var i = 0; i < obj.length; i++) {
+                                if (angular.isDefined(obj[i])) {
+                                    fObj[key] = obj[i];
+                                    fData = fData.concat($filter('filter')(this.filteredData, fObj));
+                                }
+                            }
+                        }
+                    }
+                    if (fData.length > 0) {
+                        this.filteredData = fData;
+                    }
+                    if (fData.length == 0) {
+                        if (obj != "" && obj != undefined) {
+                            this.filteredData = fData;
+                            x = true;
+                        }
+                    }
 
-        $scope.models = ScientificModelRest.get({}, function(data) {});
+                }
+            }
+        };
+        if (keyObj) {
+            angular.forEach(keyObj, function(obj, key) {
+                filterObj.applyFilter(obj, key);
+            });
+        }
 
+        return filterObj.filteredData;
+    }
+}]);
+//controllers
+ModelCatalogApp.controller('ModelCatalogCtrl', ['$scope', '$rootScope', '$http', '$location', 'ScientificModelRest', 'CollabParameters',
 
+    function($scope, $rootScope, $http, $location, ScientificModelRest, CollabParameters) {
+        // $scope.selected_species = {};
+        // $scope.selected_brain_region = {};
+        // $scope.selected_cell_type = {};
+        // $scope.selected_model_type = {};
+        CollabParameters.setService().$promise.then(function() {
+            $scope.collab_species = CollabParameters.getParameters("species");
+            $scope.collab_brain_region = CollabParameters.getParameters("brain_region");
+            $scope.collab_cell_type = CollabParameters.getParameters("cell_type");
+            $scope.collab_model_type = CollabParameters.getParameters("model_type");
+            var ctx = CollabParameters.getCtx();
+            console.log(ctx);
+            $scope.models = ScientificModelRest.get({ ctx: ctx });
+        });
+        $scope.goToDetailView = function(model) {
+            $location.path('/model-catalog/detail/' + model.id);
+        };
     }
 ]);
 
-ModelCatalogApp.controller('ModelCatalogCreateCtrl', ['$scope', '$rootScope', '$http', '$location', 'ScientificModelRest',
+ModelCatalogApp.controller('ModelCatalogCreateCtrl', ['$scope', '$rootScope', '$http', '$location', 'ScientificModelRest', 'CollabParameters',
 
-    function($scope, $rootScope, $http, $location, ScientificModelRest) {
+    function($scope, $rootScope, $http, $location, ScientificModelRest, CollabParameters) {
+        CollabParameters.setService().$promise.then(function() {
+            $scope.addImage = false;
+            $scope.species = CollabParameters.getParameters("species");
+            $scope.brain_region = CollabParameters.getParameters("brain_region");
+            $scope.cell_type = CollabParameters.getParameters("cell_type");
+            $scope.model_type = CollabParameters.getParameters("model_type");
+            $scope.ctx = CollabParameters.getCtx();
+            $scope.model_image = [];
+        });
 
-        $("#ImagePopup").hide();
-        $scope.species = [
-            { id: 'mouse', name: 'Mouse (Mus musculus)' },
-            { id: 'rat', name: 'Rat (Rattus rattus)' },
-            { id: 'marmoset', name: 'Marmoset (callithrix jacchus)' },
-            { id: 'human', name: 'Human (Homo sapiens)' },
-            { id: 'rhesus_monkey', name: 'Paxinos Rhesus Monkey (Macaca mulatta)' },
-            { id: 'opossum', name: 'Opossum (Monodelphis domestica)' },
-            { id: 'other', name: 'Other' },
-        ];
-
-        $scope.brain_region = [
-            { id: 'basal ganglia', name: 'Basal Ganglia' },
-            { id: 'cerebellum', name: 'Cerebellum' },
-            { id: 'cortex', name: 'Cortex' },
-            { id: 'hippocampus', name: 'Hippocampus' },
-            { id: 'other', name: 'Other' },
-        ];
-
-        $scope.cell_type = [
-            { id: 'granule cell', name: 'Granule Cell' },
-            { id: 'interneuron', name: 'Interneuron' },
-            { id: 'pyramidal cell', name: 'Pyramidal Cell' },
-            { id: 'other', name: 'Other' },
-        ];
-
-        $scope.model_type = [
-            { id: 'single_cell', name: 'Single Cell' },
-            { id: 'network', name: 'Network' },
-            { id: 'mean_field', name: 'Mean Field' },
-            { id: 'other', name: 'Other' },
-        ];
-        $scope.model_image = [];
         $scope.displayAddImage = function() {
-            $("#ImagePopup").show();
+            $scope.addImage = true;
         };
         $scope.saveImage = function() {
             if (JSON.stringify($scope.image) != undefined) {
-                alert($scope.image)
                 $scope.model_image.push($scope.image);
-                $("#ImagePopup").hide();
+                $scope.addImage = false;
                 $scope.image = undefined;
             } else { alert("you need to add an url!") }
         };
         $scope.closeImagePanel = function() {
             $scope.image = {};
-            $("#ImagePopup").hide();
+            $scope.addImage = false;
         };
+
+        var _add_access_control = function() {
+            $scope.model.access_control = $scope.ctx;
+        };
+
         $scope.saveModel = function() {
+            _add_access_control();
             var parameters = JSON.stringify({ model: $scope.model, model_instance: $scope.model_instance, model_image: $scope.model_image });
             var a = ScientificModelRest.save(parameters).$promise.then(function(data) {
                 $location.path('/model-catalog/detail/' + data.uuid);
             });
-        };
 
+        };
         $scope.deleteImage = function(index) {
             $scope.model_image.splice(index, 1);
         };
+
     }
+
 ]);
 
 ModelCatalogApp.controller('ModelCatalogDetailCtrl', ['$scope', '$rootScope', '$http', '$location', '$stateParams', 'ScientificModelRest',
-    function($scope, $rootScope, $http, $location, $stateParams, ScientificModelRest) {
+    function($scope, $rootScope, $http, $lcation, $stateParams, ScientificModelRest) {
         $("#ImagePopupDetail").hide();
         $scope.model = ScientificModelRest.get({ id: $stateParams.uuid });
 
         $scope.toggleSize = function(index, img) {
-            alert('in it')
             $scope.bigImage = img;
             $("#ImagePopupDetail").show();
         }
@@ -357,6 +405,61 @@ ModelCatalogApp.controller('ModelCatalogDetailCtrl', ['$scope', '$rootScope', '$
         };
     }
 ]);
+
+ModelCatalogApp.controller('ModelCatalogEditCtrl', ['$scope', '$rootScope', '$http', '$location', '$state', '$stateParams', 'ScientificModelRest', 'ScientificModelInstanceRest', 'ScientificModelImageRest', 'CollabParameters',
+    function($scope, $rootScope, $http, $location, $state, $stateParams, ScientificModelRest, ScientificModelInstanceRest, ScientificModelImageRest, CollabParameters) {
+        CollabParameters.setService().$promise.then(function() {
+            $scope.addImage = false;
+            $scope.species = CollabParameters.getParameters("species");
+            $scope.brain_region = CollabParameters.getParameters("brain_region");
+            $scope.cell_type = CollabParameters.getParameters("cell_type");
+            $scope.model_type = CollabParameters.getParameters("model_type");
+            $scope.model = ScientificModelRest.get({ id: $stateParams.uuid });
+
+            $scope.deleteImage = function(img) {
+                var image = img
+                ScientificModelImageRest.delete(image).$promise.then(
+                    function(data) {
+                        alert('Image ' + img.id + ' has been deleted !');
+                        $state.reload();
+                        // $location.reload(); // $location.path('/model-catalog/edit/' + $stateParams.uuid); //not working. to do after
+                    });
+            };
+            $scope.displayAddImage = function() {
+                $scope.addImage = true;
+            };
+            $scope.saveImage = function() {
+                if (JSON.stringify($scope.image) != undefined) {
+                    var parameters = JSON.stringify({ model_id: $stateParams.uuid, model_image: $scope.image });
+                    ScientificModelImageRest.post(parameters).$promise.then(function(data) {
+                        $scope.addImage = false;
+                        alert('Image has been saved !');
+                        $state.reload(); // $location.path('/model-catalog/edit/' + $stateParams.uuid); //not working. to do after
+                    });
+                } else { alert("you need to add an url!") }
+            };
+            $scope.closeImagePanel = function() {
+                $scope.image = {};
+                $scope.addImage = false;
+            };
+            $scope.editImages = function() {
+
+                var parameters = $scope.model.model_images;
+                console.log(parameters)
+                var a = ScientificModelImageRest.put(parameters).$promise.then(function(data) {
+                    alert('model images have been correctly edited')
+                });
+            };
+            $scope.saveModel = function() {
+                var parameters = $scope.model;
+                var a = ScientificModelRest.put(parameters).$promise.then(function(data) {
+                    alert('model correctly edited');
+                });
+            };
+        });
+    }
+]);
+
 ModelCatalogApp.controller('ModelCatalogVersionCtrl', ['$scope', '$rootScope', '$http', '$location', '$stateParams', 'ScientificModelRest', 'ScientificModelInstanceRest',
     function($scope, $rootScope, $http, $location, $stateParams, ScientificModelRest, ScientificModelInstanceRest) {
         $scope.model = ScientificModelRest.get({ id: $stateParams.uuid }); //really needed??? just to put model name
@@ -367,8 +470,11 @@ ModelCatalogApp.controller('ModelCatalogVersionCtrl', ['$scope', '$rootScope', '
             ScientificModelInstanceRest.save(parameters, function(value) {});
         };
 
+        $scope.saveModelInstance = function() {
 
+            var parameters = $scope.model.model_instances;
+            var a = ScientificModelInstanceRest.put(parameters).$promise.then(function(data) { alert('model instances correctly edited') });
+        };
     }
-
 
 ]);

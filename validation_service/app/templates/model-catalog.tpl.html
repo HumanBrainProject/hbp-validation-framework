@@ -1,38 +1,60 @@
-<html id="model-list" ng-controller="ModelCatalogCtrl" >
+<html id="model-list" ng-controller="ModelCatalogCtrl">
+
 <head>
     <!--<nav class="navbar navbar-form navbar-fixed-top">-->
-     <nav class="navbar ">   
-    <h1 align=center> Model Catalog</h1>
+    <nav class="navbar ">
+        <h1 align=center> Model Catalog</h1>
     </nav>
 </head>
+
 <body>
     <nav>
-       
-        <label> Search :  <input id="search_model"  ng-model='search.$'> </label> 
-                
-            <a class="button-MC" ng-href="#/model-catalog/create" class="btn btn-primary">New model </a>
-        </nav>
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th>Name</th>
-            <th>Species</th>
-            <th>Brain region</th>
-            <th>Cell type</th>
-            <th>Model type</th>
-            <th>Author(s)</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr ng-repeat="model in models.models | filter: search">
-            <td><a href="#/model-catalog/detail/{{model.id}}">{{ model.name }}</a></td>
-            <td>{{ model.species }}</td>
-            <td>{{ model.brain_region }}</td>
-            <td>{{ model.cell_type }}</td>
-            <td>{{ model.model_type }}</td>
-            <td>{{ model.author }}</td>
-        </tr>
-    </tbody>
-</table>
+        <table>
+            <tr>
+                <td>
+                    <label> Search :  <input id="search_model"  ng-model='search.$'> </label>
+                </td>
+
+                <td>
+                    <multiselect ng-model="selected_species" placeholder="Select species" options="collab_species"></multiselect>
+                </td>
+                <td>
+                    <multiselect ng-model="selected_brain_region" placeholder="Select brain region" options="collab_brain_region"></multiselect>
+                </td>
+                <td>
+                    <multiselect ng-model="selected_cell_type" placeholder="Select cell type" options="collab_cell_type"></multiselect>
+                </td>
+                <td>
+                    <multiselect ng-model="selected_model_type" placeholder="Select model type" options="collab_model_type"></multiselect>
+                </td>
+                <td><a class="button-MC" ng-href="#/model-catalog/create" class="btn btn-primary">New model </a></td>
+            </tr>
+        </table>
+        <br>
+
+    </nav>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Species</th>
+                <th>Brain region</th>
+                <th>Cell type</th>
+                <th>Model type</th>
+                <th>Author(s)</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr class="tr-clickable" ng-repeat="model in models.models | filter: search | filterMultiple:{species:selected_species, brain_region:selected_brain_region, cell_type:selected_cell_type, model_type:selected_model_type}  " ng-click="goToDetailView(model)">
+                <td>{{ model.name }}</td>
+                <td>{{ model.species }}</td>
+                <td>{{ model.brain_region }}</td>
+                <td>{{ model.cell_type }}</td>
+                <td>{{ model.model_type }}</td>
+                <td>{{ model.author }}</td>
+            </tr>
+        </tbody>
+    </table>
 </body>
+
 </html>

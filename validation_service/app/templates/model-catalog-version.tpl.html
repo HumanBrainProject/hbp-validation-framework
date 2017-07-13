@@ -1,32 +1,49 @@
 <html id="model-version" ng-controller="ModelCatalogVersionCtrl" >
 <head>
+    <nav class="navbar ">   
+    <h1 align=center> Model: {{ model.models[0].name}} (ID:{{ model.models[0].id }})</h1>
+     <h3 align=center> New version</h3>
+    </nav>
 </head>
 <body>
-     <nav>
-     <a ng-href="#/model-catalog/" class="btn btn-primary">Home</a>
-     </nav>
+    <nav>
+     <a ng-href="#/model-catalog/" class="button-MC">Home </a> &ensp;
+    </nav>
+<br>
+<br>
+
 
 <form>
-    <table class="table table-condensed">
+    <table>
         <tbody>
-            <tr>
-                  <b> Model name: {{ model.models[0].name }} (ID: {{ model.models[0].id }})</b>
-            </tr>
             </br>
              <tr>
-                  <label>Version Name: <input type="text" ng-model="model_instance.version" required/></label><br />
+                <td>
+                    <b>Version Name:</b>
+                </td>
+                <td>
+                    <input type="text" ng-model="model_instance.version" required/>
+                </td>   
             </tr>
-            
             <tr>
-                 <b>Parameters:</b> <br>
-                <textarea class="scrollabletextbox" rows="5" cols="50"  ng-model="model_instance.parameters"> </textarea><br/>
+                 <td>
+                    <b>Parameters:</b>
+                </td>
+                <td>
+                    <textarea class="scrollabletextbox" rows="5" cols="50"  ng-model="model_instance.parameters"> </textarea>
+                </td>
             </tr>
              <tr>
-                 <label>Code Source: <input type="url" ng-model="model_instance.source" required/></label><br />
+                 <td>
+                    <b>Code Source:</b>
+                </td>
+                <td>
+                   <input type="url" ng-model="model_instance.source" required/>
+                </td>
             </tr>
         </tbody>
     </table>
-
+<br> <br>
     <div class="navbar navbar-form">
             <button type="submit" class="btn btn-primary" ng-click=saveVersion()>Save</button>
         </div>

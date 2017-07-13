@@ -60,8 +60,6 @@ testApp.config(
     });
 
 
-
-
 //Model Catalog App
 var ModelCatalogApp = angular.module('ModelCatalogApp', [
 
@@ -100,12 +98,12 @@ ModelCatalogApp.config(
                 url: '/model-catalog/detail/:uuid',
                 templateUrl: '/static/templates/model-catalog-detail.tpl.html',
                 controller: 'ModelCatalogDetailCtrl'
+            })
+            .state('ModelCatalogEdit', {
+                url: '/model-catalog/edit/:uuid',
+                templateUrl: '/static/templates/model-catalog-edit.tpl.html',
+                controller: 'ModelCatalogEditCtrl'
             });
         $urlRouterProvider.otherwise('/model-catalog');
-
-        foo.config(['$httpProvider', function($httpProvider) {
-            $httpProvider.defaults.xsrfCookieName = 'csrftoken';
-            $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
-        }]);
 
     });

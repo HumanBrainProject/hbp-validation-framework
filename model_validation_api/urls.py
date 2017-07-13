@@ -45,6 +45,7 @@ from .views import (ValidationTestDefinitionResource,
                     ValidationTestDefinitionRest,
                     ModelCatalogView,
                     ScientificModelInstanceRest,
+                    ScientificModelImageRest,
                     ValidationTestCodeRest,
                     TestCommentRest,
                     CollabIDRest,
@@ -173,7 +174,10 @@ urlpatterns = (
     url(r'^app/scientificmodelinstance/$',
         ScientificModelInstanceRest.as_view(),
         name="scientific-model-instance"),
-
+    
+    url(r'^app/scientificmodelimage/$',
+        ScientificModelImageRest.as_view(),
+        name="scientific-model-image"),
 
 #   url(r'^app/configview$',
 #        configviewListResource.as_view(),
