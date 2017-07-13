@@ -99,7 +99,7 @@ class ScientificModelInstance(models.Model):
     model = models.ForeignKey(ScientificModel, related_name="instances")
     version = models.CharField(max_length=64)
     parameters = models.TextField(null=True, blank=True)
-    source = models.URLField(default='' ,help_text="Version control repository containing the source code of the model")
+    source = models.URLField(help_text="Version control repository containing the source code of the model")
 
     def __str__(self):
         return "Model: {} @ version {}".format(self.model.name, self.version)

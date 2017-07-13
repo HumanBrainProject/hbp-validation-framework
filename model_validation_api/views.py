@@ -1446,8 +1446,10 @@ class ScientificModelRest(APIView):
         model_instance_serializer = ScientificModelInstanceSerializer(data=request.data['model_instance'], context=serializer_context)
         
         if model_serializer.is_valid() is not True:
+            print('model serializer not valid')
             return Response(model_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        if model_instance_serializer.is_valid() is not True:    
+        if model_instance_serializer.is_valid() is not True: 
+            print('model instance serializer not valid')   
             return Response(model_instance_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         if request.data['model_image']!={}:
             for i in request.data['model_image']:
@@ -1469,11 +1471,13 @@ class ScientificModelRest(APIView):
         ## save only modifications on model tables. if want to modify images or instances, do separate put.  
         ##get objects 
         value = request.data['models'][0]
+        print(value)
         model = ScientificModel.objects.get(id=value['id'])
         serializer_context = {'request': request,}
 
         # check if data is ok else return error
         model_serializer = ScientificModelSerializer(model, data=value, context=serializer_context)
+        print(model_serializer)
         if model_serializer.is_valid() :
             model = model_serializer.save()
         else: 
