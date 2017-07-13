@@ -1303,7 +1303,7 @@ class ScientificModelRest(APIView):
             'request': request,
         }
         model_id = str(len(request.GET.getlist('id')))
-        ctx = request.query_params['ctx')
+        ctx = request.query_params['ctx']
         if(model_id == '0'):
             rq1 = ScientificModel.objects.filter(access_control=ctx)
             rq2 = ScientificModel.objects.filter (private=0)
