@@ -83,7 +83,7 @@ class ScientificModel(models.Model):
     author = models.TextField(help_text="Author(s) of this model")  # do we need a separate "owner" field?
     model_type = models.CharField(max_length=100, blank=True, help_text="model type: single cell, network or mean field region")
     private = models.BooleanField ( default= False ,help_text="privacy of the model: can be private (if true) or public (if false)")
-    access_control = models.IntegerField( default=0, help_text="ID of the collab containing the model. Use for access control")
+    access_control = models.CharField(max_length=100, default=0, help_text="ID of the collab containing the model. Use for access control")
     # todo: 
     # spiking vs rate?
 
