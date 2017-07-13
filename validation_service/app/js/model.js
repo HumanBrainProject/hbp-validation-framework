@@ -1,34 +1,5 @@
 var validationAppServices = angular.module('validationAppServices', ['ngResource', 'ngCookies']);
 
-// validationAppServices.config(
-//     function($cookiesProvider, $httpProvider, $stateProvider, $locationProvider, $rootScopeProvider, $resourceProvider, $urlRouterProvider) {
-//         $resourceProvider.defaults.stripTrailingSlashes = false;
-
-//         $httpProvider.defaults.xsrfCookieName = 'csrftoken';
-//         // alert($httpProvider.defaults.xsrfCookieName);
-//         // $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
-
-//         // $httpProvider.defaults.xsrfHeaderName = $cookiesProvider.$cookies['csrftoken'];
-
-//         // console.log($cookiesProvider);
-//         // console.log($cookiesProvider);
-//         // console.log($cookiesProvider);
-
-
-//         $httpProvider.defaults.withCredentials = true;
-
-//         // headers = {
-//         //     'Content-Type': 'application/json',
-//         //     // 'X-CSRFToken': $cookies['csrftoken'],
-//         //     // // "x-csrftoken": $cookies.csrftoken,
-//         //     // "x-csrftoken": $cookies.get('csrftoken')
-
-//         // };
-
-
-
-//     });
-
 
 
 // #### Factory ### //
@@ -85,6 +56,27 @@ validationAppServices.factory('TestCommentRest', ['$resource',
 ]);
 
 
+// validationAppServices.factory('AuthaurizedCollabParameterRest', ['$http', '$cookies',
+//     function($http, $cookies) {
+//         return {
+//             get: function() {
+//                 return $http.get('authorizedcollabparameterrest/', {
+//                         type: 'POST',
+//                         // ID: 'TP001',
+//                         dataType: 'json',
+//                         data: JSON.stringify({ test: "blabla" }),
+
+//                     }
+
+//                 );
+//             }
+//         };
+//     }
+// ]);
+
+
+
+
 validationAppServices.factory('CollabParameterRest', ['$resource',
     function($resource) {
         return $resource(base_url + 'app/collabparameterrest/:uuid', { id: '@eUuid' }, {
@@ -96,57 +88,6 @@ validationAppServices.factory('CollabParameterRest', ['$resource',
 ]);
 
 
-
-// validationAppServices.factory('AuthaurizedCollabParameterRest', ['$http', '$cookies',
-//     function($http, $cookies) {
-//         // var $cookies;
-//         // $http.defaults.headers.post['X-CSRFToken'] = $cookies.get('csrftoken');
-//         // alert($cookies.get('csrftoken'));
-//         // alert($cookies.csrftoken);
-//         // console.log($cookies);
-//         // console.log($cookies);
-//         // console.log($cookies);
-//         // console.log($cookies);
-//         // console.log($cookies);
-
-//         return {
-
-//             post: function() {
-
-//                 return $http.get('authorizedcollabparameterrest/', {
-//                         'X-CSRFToken': $cookies['csrftoken'],
-//                         // "x-csrftoken": $cookies.csrftoken,
-//                         "x-csrftoken": $cookies.get('csrftoken'),
-
-//                         type: 'GET',
-//                         ID: 'TP001',
-//                         dataType: 'json',
-//                         data: JSON.stringify({ test: "blabla" }),
-//                         headers: {
-//                             'Content-Type': 'application/json',
-//                             'X-CSRFToken': $cookies['csrftoken'],
-//                             // "x-csrftoken": $cookies.csrftoken,
-//                             "x-csrftoken": $cookies.get('csrftoken')
-
-//                         }
-
-//                     }
-
-//                     // {
-//                     //     // headers: { "x-csrftoken": $cookies.csrftoken } 
-//                     //     headers: {
-//                     //         'Content-Type': 'application/json',
-//                     //         'X-CSRFToken': $cookies['csrftoken'],
-//                     //         // "x-csrftoken": $cookies.csrftoken,
-//                     //         "x-csrftoken": $cookies.get('csrftoken')
-
-//                     //     },
-//                     // }
-//                 );
-//             }
-//         };
-//     }
-// ]);
 
 
 validationAppServices.factory('AuthaurizedCollabParameterRest', ['$resource',

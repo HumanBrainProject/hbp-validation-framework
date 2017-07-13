@@ -1079,150 +1079,15 @@ class HomeValidationView(View):
 
         return render(request, self.template_name, { 'tests':tests, 'models':models})
 
-
-#class AllModelAndTest(APIView):
-
-#     def get(self, request, format=None, **kwargs):
-#        models = ScientificModel.objects.all()
-#        tests = ValidationTestDefinition.objects.all()
-
-#        serializer_context = {
-#            'request': request,
-#        }
-
-
-#        model_serializer = ScientificModelSerializer(models, context=serializer_context, many=True )#data=request.data)
-#        test_serializer = ValidationTestDefinitionSerializer(tests, context=serializer_context, many=True)
-#        configview_serializer = configviewSerializer(models, context=serializer_context, many=True )#data=request.data)
-
-
-        #need to transform model_serializer.data :
-        # "resource_uri": "/models/{}".format(model.pk)
-
-        #also need to join "code" data throught serializer
-
-
-
-#        return Response({
-#            'models': model_serializer.data,
-#            'tests': test_serializer.data,
-#        })
-
-# class TestDetail(APIView):
-
-#     def get(self, request, format=None, **kwargs):
-#         serializer_context = {
-#             'request': request,
-#         }
-#         # print (self.kwargs.__dict__)
-#         tests = ValidationTestDefinition.objects.filter(id = self.kwargs['id'])
-#         test_serializer = ValidationTestDefinitionSerializer(tests, context=serializer_context, many=True)        
-
-#         return Response({
-#                     'tests': test_serializer.data,
-#                 })
-
-
-# def get_authorization_header(request):
-# def _is_collaborator(request, context):
-
-# @login_required
-@login_required(login_url='/login/hbp')
-def test_login (request):
-    print ("On est la")
-    print request.user
-    if request.user.is_authenticated:
-        print ("youlayoula")
-    else :
-        print ("nopnopnop")
-    return ("yup")
-
-@method_decorator(login_required(login_url='/login/hbp'), name='dispatch' )
-class loginHBP (LoginRequiredMixin,View):
-    # login_url='/login/hbp/'
-  
     
-    def get(self, request, *args, **kwargs):
-        print ("LOGIN GET")
-        # print ("OOOOOOOOOOOOOOOOOOOOOOOO")
-        # print (request.__dict__)
-        # print ("OOOOOOOOOOOOOOOOOOOOOOOO")
-        
-        # return ("ok")
-        # return render(request, "ppp")
-        return HttpResponse("C'est good")
-        # return response("ok")
-
-        
-    
-from rest_framework import permissions
-# @method_decorator(login_required(login_url='/login/hbp'), name='dispatch')
-class hbpAuthPermission(permissions.BasePermission):
-    message = 'Adding customers not allowed.'
-    # login_url='/login/hbp/'
-
-    # @method_decorator(login_required(login_url='/login/hbp'), name='dispatch')
-
-    # @method_decorator(login_required)
-    # @login_required
-    def has_permission(self, request, view):
-        b = test_login(request)
-        # print ("######")
-        # print (b)
-        # print (b.__dict__)
-
-        # print ("1")
-        # test = _is_collaborator(request, "eb6ae7dc-05d3-48cf-b86f-34adfd0470cb")
-        # print ("2")
-        
-        # print (test)
-
-        # print ("######")
-
-        # print ("NNNNNNNNNNNNNNNNNNNN")
-        # print (request.__dict__)
-        # print ("NNNNNNNNNNNNNNNNNNNN")
-        
-        #request, *args, **kwargs
-        # print ("OOOOOOOOOOOOOOOOOO")
-        # login = loginHBP.as_view()        
-        # a = login(request)
-        # print a
-        # print (a.__dict__)
-        # print a.cookies
-        
-        # print ("AAAAAAAAAAAAAAAAAAA")
-        
-        # print ("passed !")
-        return True
-
-
 
 # @method_decorator(login_required(login_url='/login/hbp'), name='dispatch')
-# class AuthorizedCollabParameterRest(LoginRequiredMixin,APIView):
-# @method_decorator(csrf_exempt, name='dispatch')
 class AuthorizedCollabParameterRest(APIView):
-    
-    pagination_class = settings.REST_FRAMEWORK["DEFAULT_PAGINATION_CLASS"]
-    permission_classes = (hbpAuthPermission,)
+
     login_url='/login/hbp/'
 
-    # @method_decorator(login_required(login_url='/login/hbp'), name='dispatch')
-    # @method_decorator(ensure_csrf_cookie)
     def get(self, request, format=None, **kwargs):
-        # print ("OKOKOKOKOKOKOK")
-        print ("blabla")
-        print request.user
 
-        # print (request.custom_prop)
-
-        # print (request._request.__dict__)
-        # print (request._request.user)
-        
-
-        # print ("OKOKOKOKOKOKOK")
-        # print (request.__dict__)
-        # print ("OKOKOKOKOKOKOK")
         serializer_context = {'request': request,}
 
         data_modalities = Param_DataModalities.objects.all()
@@ -1252,15 +1117,7 @@ class AuthorizedCollabParameterRest(APIView):
             'model_type' : model_type_serializer.data,
         })
 
-    # @method_decorator(csrf_protect)
-    # @method_decorator(csrf_exempt)
-    # @method_decorator(ensure_csrf_cookie)
-    def post (self, request, format=None, **kwargs):
-        print ("POST !!!!!!!!!!!!!")
-
-    # @method_decorator(login_required)
-    # @method_decorator(login_required(login_url='/login/hbp'), name='dispatch') 
-    # @method_decorator(csrf_exempt)   
+ 
     def dispatch(self, *args, **kwargs):
         return super(AuthorizedCollabParameterRest, self).dispatch(*args, **kwargs)
 
@@ -1303,16 +1160,9 @@ class CollabIDRest(APIView):
 
 
 
-from django.views.decorators.csrf import csrf_exempt
-# from rest_framework.permissions import IsAuthenticated
-# @method_decorator(login_required(login_url='/login/hbp'), name='dispatch' )
-# @method_decorator(csrf_exempt)
 class CollabParameterRest( APIView): #LoginRequiredMixin, 
     # login_url ='/login/hbp'
-    # permission_classes = (IsAuthenticated,)
 
-    # @method_decorator(login_required(login_url='/login/hbp'))
-    # @csrf_exempt
     def get(self, request, format=None, **kwargs):
         serializer_context = {'request': request,}
         id = request.GET.getlist('id')[0]
@@ -1323,7 +1173,7 @@ class CollabParameterRest( APIView): #LoginRequiredMixin,
             'param': param_serializer.data,
         })
  
-    # @csrf_exempt
+
     def post(self, request, format=None):
         serializer_context = {'request': request,}
         param_serializer = CollabParametersSerializer(data=request.data, context=serializer_context)
@@ -1334,7 +1184,6 @@ class CollabParameterRest( APIView): #LoginRequiredMixin,
          
         return Response(status=status.HTTP_201_CREATED)
 
-    # @csrf_exempt
     def put(self, request, format=None):
         serializer_context = {'request': request,}
         id = request.GET.getlist('id')[0]

@@ -13,16 +13,7 @@ var testApp = angular.module('testApp', [
 
 testApp.config(
     function($cookiesProvider, $httpProvider, $stateProvider, $locationProvider, $rootScopeProvider, $resourceProvider, $urlRouterProvider) {
-        $resourceProvider.defaults.stripTrailingSlashes = false;
-
-        $httpProvider.defaults.xsrfCookieName = 'csrftoken';
-        $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
-
-
-        // alert($httpProvider.defaults.xsrfHeaderName);
-
-        // $httpProvider.defaults.withCredentials = true;
-
+$resourceProvider.defaults.stripTrailingSlashes = false;
         $stateProvider
             .state('home', {
                 url: '/home',
