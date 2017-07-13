@@ -48,8 +48,8 @@ from .views import (ValidationTestDefinitionResource,
                     ScientificModelImageRest,
                     ValidationTestCodeRest,
                     TestCommentRest,
-                    CollabIDRest,
-                    loginHBP
+                    CollabIDRest
+          
                     )
 
 # from django.contrib.auth.decorators import login_required
@@ -236,7 +236,7 @@ urlpatterns = (
         ),
 
 
-    url(r'^login/hbp2$', loginHBP.as_view()), 
+  
     
         
     
@@ -259,7 +259,5 @@ urlpatterns = (
         ModelCatalogView.as_view(),
         name="model-catalog-view"),
 
-    # url(r'^test/$',
-    #     ModelCatalogView.as_view(),
-    #     name="model-catalog-view")
+
 )
