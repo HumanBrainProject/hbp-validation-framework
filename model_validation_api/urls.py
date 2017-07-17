@@ -170,12 +170,25 @@ urlpatterns = (
     url(r'^app/scientificmodel/$',
         ScientificModelRest.as_view(),
         name="scientific-model"),
+    
+    url(r'^model-catalog/scientificmodel/$',
+        ScientificModelRest.as_view(),
+        name="scientific-model"),
 
     url(r'^app/scientificmodelinstance/$',
         ScientificModelInstanceRest.as_view(),
         name="scientific-model-instance"),
+
+    url(r'^model-catalog/scientificmodelinstance/$',
+        ScientificModelInstanceRest.as_view(),
+        name="scientific-model-instance"),
+
     
     url(r'^app/scientificmodelimage/$',
+        ScientificModelImageRest.as_view(),
+        name="scientific-model-image"),
+
+    url(r'^model-catalog/scientificmodelimage/$',
         ScientificModelImageRest.as_view(),
         name="scientific-model-image"),
 
@@ -227,11 +240,21 @@ urlpatterns = (
         CollabParameterRest.as_view(), #csrf_exempt(views.LoginView.as_view()) #login_required #login_required(login_url='/login/hbp')
         ),
 
+    url(r'^model-catalog/collabparameterrest/$',
+        # csrf_exempt(CollabParameterRest.as_view())
+        CollabParameterRest.as_view(), #csrf_exempt(views.LoginView.as_view()) #login_required #login_required(login_url='/login/hbp')
+        ),
+
     url(r'^app/collabidrest/$',
         CollabIDRest.as_view(), 
         ),
 
     url(r'^app/authorizedcollabparameterrest/$',
+        AuthorizedCollabParameterRest.as_view(), 
+        ),
+
+
+    url(r'^model-catalog/authorizedcollabparameterrest/$',
         AuthorizedCollabParameterRest.as_view(), 
         ),
 
@@ -261,3 +284,6 @@ urlpatterns = (
 
 
 )
+
+
+

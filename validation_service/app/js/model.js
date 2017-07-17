@@ -7,7 +7,7 @@ var validationAppServices = angular.module('validationAppServices', ['ngResource
 
 validationAppServices.factory('ScientificModelRest', ['$resource',
     function($resource) {
-        return $resource(base_url + 'app/scientificmodel/:uuid', { id: '@eUuid' }, {
+        return $resource('scientificmodel/:uuid', { id: '@eUuid' }, {
             get: { method: 'GET', params: { format: 'json' }, isArray: false },
             //   put: {method:'PUT', params:{format:'json'}, headers:{ 'Content-Type':'application/json' }},
             post: { method: 'POST', params: { format: 'json' }, headers: { 'Content-Type': 'application/json' } }
@@ -17,7 +17,7 @@ validationAppServices.factory('ScientificModelRest', ['$resource',
 
 validationAppServices.factory('ScientificModelInstanceRest', ['$resource',
     function($resource) {
-        return $resource(base_url + 'app/scientificmodelinstance/:uuid', { id: '@eUuid' }, {
+        return $resource('scientificmodelinstance/:uuid', { id: '@eUuid' }, {
             get: { method: 'GET', params: { format: 'json' }, isArray: false },
             //   put: {method:'PUT', params:{format:'json'}, headers:{ 'Content-Type':'application/json' }},
             post: { method: 'POST', params: { format: 'json' }, headers: { 'Content-Type': 'application/json' } }
@@ -27,7 +27,7 @@ validationAppServices.factory('ScientificModelInstanceRest', ['$resource',
 
 validationAppServices.factory('ValidationTestDefinitionRest', ['$resource',
     function($resource) {
-        return $resource(base_url + 'app/validationtestdef/:uuid', { id: '@eUuid' }, {
+        return $resource('validationtestdef/:uuid', { id: '@eUuid' }, {
             get: { method: 'GET', params: { format: 'json' }, isArray: false },
             //   put: {method:'PUT', params:{format:'json'}, headers:{ 'Content-Type':'application/json' }},
             post: { method: 'POST', params: { format: 'json' }, headers: { 'Content-Type': 'application/json' } }
@@ -37,7 +37,7 @@ validationAppServices.factory('ValidationTestDefinitionRest', ['$resource',
 
 validationAppServices.factory('ValidationTestCodeRest', ['$resource',
     function($resource) {
-        return $resource(base_url + 'app/validationtestscode/:uuid', { id: '@eUuid' }, {
+        return $resource('validationtestscode/:uuid', { id: '@eUuid' }, {
             get: { method: 'GET', params: { format: 'json' }, isArray: false },
             //   put: {method:'PUT', params:{format:'json'}, headers:{ 'Content-Type':'application/json' }},
             post: { method: 'POST', params: { format: 'json' }, headers: { 'Content-Type': 'application/json' } }
@@ -47,7 +47,7 @@ validationAppServices.factory('ValidationTestCodeRest', ['$resource',
 
 validationAppServices.factory('TestCommentRest', ['$resource',
     function($resource) {
-        return $resource(base_url + 'app/testcomment/:uuid', { id: '@eUuid' }, {
+        return $resource('testcomment/:uuid', { id: '@eUuid' }, {
             get: { method: 'GET', params: { format: 'json' }, isArray: false },
             //   put: {method:'PUT', params:{format:'json'}, headers:{ 'Content-Type':'application/json' }},
             post: { method: 'POST', params: { format: 'json' }, headers: { 'Content-Type': 'application/json' } }
@@ -56,30 +56,14 @@ validationAppServices.factory('TestCommentRest', ['$resource',
 ]);
 
 
-// validationAppServices.factory('AuthaurizedCollabParameterRest', ['$http', '$cookies',
-//     function($http, $cookies) {
-//         return {
-//             get: function() {
-//                 return $http.get('authorizedcollabparameterrest/', {
-//                         type: 'POST',
-//                         // ID: 'TP001',
-//                         dataType: 'json',
-//                         data: JSON.stringify({ test: "blabla" }),
 
-//                     }
-
-//                 );
-//             }
-//         };
-//     }
-// ]);
 
 
 
 
 validationAppServices.factory('CollabParameterRest', ['$resource',
     function($resource) {
-        return $resource(base_url + 'app/collabparameterrest/:uuid', { id: '@eUuid' }, {
+        return $resource( /*/base_url + 'app//*/ 'collabparameterrest/:uuid', { id: '@eUuid' }, {
             get: { method: 'GET', params: { format: 'json', id: '@eUuid' }, isArray: false },
             put: { method: 'PUT', params: { format: 'json', id: '@eUuid' }, isArray: false, headers: { 'Content-Type': 'application/json' } },
             post: { method: 'POST', params: { format: 'json', id: '@eUuid' }, headers: { 'Content-Type': 'application/json' } }
@@ -89,16 +73,128 @@ validationAppServices.factory('CollabParameterRest', ['$resource',
 
 
 
+// validationAppServices.factory('CollabParameterRest', ['$http', '$cookies',
+//     function($http, $cookies) {
+//         return {
+//             post: function() {
+//                 return $http.post(base_url + 'app/collabparameterrest/', { id: '@eUuid' }, {
+//                     method: 'POST',
+//                     params: { format: 'json', id: '@eUuid' },
+//                     dataType: 'json',
+//                 });
+//             },
+
+//             get: function(id) {
+//                 return $http.get(base_url + 'app/collabparameterrest/', {
+//                     method: 'GET',
+//                     params: { format: 'json', id: id },
+//                     dataType: 'json',
+//                 });
+//             },
+//         };
+//     }
+// ]);
+
+
+// validationAppServices.factory('AuthaurizedCollabParameterRest', ['$http', '$cookies',
+//     function($http, $cookies) {
+//         return $http(base_url + 'app/authorizedcollabparameterrest/', {}, {
+//             get: { method: 'GET', params: { format: 'json' }, isArray: false },
+//         });
+//     }
+
+// ]);
+
+
+// validationAppServices.factory('AuthaurizedCollabParameterRest', ['$http', '$cookies',
+//     function($http, $cookies) {
+//         return {
+//             get: function() {
+//                 return $http.get( /*/base_url + 'app//*/ 'authorizedcollabparameterrest/', {
+//                     method: 'GET',
+//                     // params: { format: 'json' },
+//                     // dataType: 'json',
+//                     type: 'getSource',
+//                     ID: 'TP001'
+//                 });
+//             }
+//         };
+//     }
+// ]);
+
 
 validationAppServices.factory('AuthaurizedCollabParameterRest', ['$resource',
     function($resource) {
-        return $resource(base_url + 'app/authorizedcollabparameterrest/', {}, {
+        return $resource('authorizedcollabparameterrest/', {}, {
             get: { method: 'GET', params: { format: 'json' }, isArray: false },
             //   put: {method:'PUT', params:{format:'json'}, headers:{ 'Content-Type':'application/json' }},
             // post: { method: 'POST', params: { format: 'json' }, headers: { 'Content-Type': 'application/json' } }
         });
     }
 ]);
+
+
+
+
+
+
+// for Model catalog app
+var ModelCatalogServices = angular.module('ModelCatalogServices', ['ngResource', 'btorfs.multiselect']);
+
+ModelCatalogServices.factory('ScientificModelRest', ['$resource',
+    function($resource) {
+        return $resource('scientificmodel/:uuid', { id: '@eUuid' }, {
+            get: { method: 'GET', params: { format: 'json', ctx: 'ctx' }, isArray: false },
+            post: { method: 'POST', params: { format: 'json' }, headers: { 'Content-Type': 'application/json' } },
+            put: { method: 'PUT', params: { format: 'json' }, headers: { 'Content-Type': 'application/json' } }
+        });
+    }
+]);
+
+ModelCatalogServices.factory('ScientificModelInstanceRest', ['$resource',
+    function($resource) {
+        return $resource('scientificmodelinstance/:uuid', { id: '@eUuid' }, {
+            get: { method: 'GET', params: { format: 'json' }, isArray: false },
+            post: { method: 'POST', params: { format: 'json' }, headers: { 'Content-Type': 'application/json' } },
+            put: { method: 'PUT', params: { format: 'json' }, headers: { 'Content-Type': 'application/json' } }
+        });
+    }
+]);
+
+ModelCatalogServices.factory('ScientificModelImageRest', ['$resource',
+    function($resource) {
+        return $resource('scientificmodelimage/:uuid', { id: '@eUuid' }, {
+            // get: { method: 'GET', params: { format: 'json' }, isArray: false },
+            post: { method: 'POST', params: { format: 'json' }, headers: { 'Content-Type': 'application/json' } },
+            put: { method: 'PUT', params: { format: 'json' }, headers: { 'Content-Type': 'application/json' } },
+            delete: { method: 'DELETE', params: { format: 'json' }, headers: { 'Content-Type': 'application/json' } }
+        });
+    }
+
+]);
+
+ModelCatalogServices.factory('CollabParameterRest', ['$resource',
+    function($resource) {
+        return $resource('collabparameterrest/:uuid', { id: '@eUuid' }, {
+            get: { method: 'GET', params: { format: 'json', id: '@eUuid' }, isArray: false },
+            put: { method: 'PUT', params: { format: 'json', id: '@eUuid' }, isArray: false, headers: { 'Content-Type': 'application/json' } },
+            post: { method: 'POST', params: { format: 'json', id: '@eUuid' }, headers: { 'Content-Type': 'application/json' } }
+        });
+    }
+]);
+
+ModelCatalogServices.factory('AuthaurizedCollabParameterRest', ['$resource',
+    function($resource) {
+        return $resource('authorizedcollabparameterrest/', {}, {
+            get: { method: 'GET', params: { format: 'json' }, isArray: false },
+            //   put: {method:'PUT', params:{format:'json'}, headers:{ 'Content-Type':'application/json' }},
+            // post: { method: 'POST', params: { format: 'json' }, headers: { 'Content-Type': 'application/json' } }
+        });
+    }
+]);
+
+
+
 
 
 
@@ -179,7 +275,13 @@ validationAppServices.service('CollabParameters', ['$rootScope', 'CollabParamete
             _getCtx();
             // alert(ctx);
             if (typeof(parameters) == "undefined") {
-                parameters = CollabParameterRest.get({ id: ctx }); //need to get collab number
+                parameters = CollabParameterRest.get({ id: ctx });
+
+
+                console.log(parameters);
+                console.log("okok");
+
+
                 parameters.$promise.then(function() {
 
                     if (parameters.param.length == 0) {
@@ -229,6 +331,7 @@ validationAppServices.service('CollabParameters', ['$rootScope', 'CollabParamete
                 'model_type': String(parameters.param[0]['model_type']),
             });
             post = CollabParameterRest.save(data_to_send, function(value) {});
+
             return post;
         };
 
@@ -245,8 +348,13 @@ validationAppServices.service('CollabParameters', ['$rootScope', 'CollabParamete
             });
 
             put = CollabParameterRest.put({ id: ctx }, data_to_send, function(value) {});
+
             return put;
         };
+
+        var getCtx = function() {
+            return ctx;
+        }
 
 
         return {
@@ -257,67 +365,13 @@ validationAppServices.service('CollabParameters', ['$rootScope', 'CollabParamete
             supprParameter: supprParameter,
             post_parameters: post_parameters,
             put_parameters: put_parameters,
+            getCtx: getCtx,
         };
 
     }
 ]);
 
 
-
-// for Model catalog app
-var ModelCatalogServices = angular.module('ModelCatalogServices', ['ngResource', 'btorfs.multiselect']);
-
-ModelCatalogServices.factory('ScientificModelRest', ['$resource',
-    function($resource) {
-        return $resource(base_url + 'app/scientificmodel/:uuid', { id: '@eUuid' }, {
-            get: { method: 'GET', params: { format: 'json', ctx: 'ctx' }, isArray: false },
-            post: { method: 'POST', params: { format: 'json' }, headers: { 'Content-Type': 'application/json' } },
-            put: { method: 'PUT', params: { format: 'json' }, headers: { 'Content-Type': 'application/json' } }
-        });
-    }
-]);
-
-ModelCatalogServices.factory('ScientificModelInstanceRest', ['$resource',
-    function($resource) {
-        return $resource(base_url + 'app/scientificmodelinstance/:uuid', { id: '@eUuid' }, {
-            get: { method: 'GET', params: { format: 'json' }, isArray: false },
-            post: { method: 'POST', params: { format: 'json' }, headers: { 'Content-Type': 'application/json' } },
-            put: { method: 'PUT', params: { format: 'json' }, headers: { 'Content-Type': 'application/json' } }
-        });
-    }
-]);
-
-ModelCatalogServices.factory('ScientificModelImageRest', ['$resource',
-    function($resource) {
-        return $resource(base_url + 'app/scientificmodelimage/:uuid', { id: '@eUuid' }, {
-            // get: { method: 'GET', params: { format: 'json' }, isArray: false },
-            post: { method: 'POST', params: { format: 'json' }, headers: { 'Content-Type': 'application/json' } },
-            put: { method: 'PUT', params: { format: 'json' }, headers: { 'Content-Type': 'application/json' } },
-            delete: { method: 'DELETE', params: { format: 'json' }, headers: { 'Content-Type': 'application/json' } }
-        });
-    }
-
-]);
-
-ModelCatalogServices.factory('CollabParameterRest', ['$resource',
-    function($resource) {
-        return $resource(base_url + 'app/collabparameterrest/:uuid', { id: '@eUuid' }, {
-            get: { method: 'GET', params: { format: 'json', id: '@eUuid' }, isArray: false },
-            put: { method: 'PUT', params: { format: 'json', id: '@eUuid' }, isArray: false, headers: { 'Content-Type': 'application/json' } },
-            post: { method: 'POST', params: { format: 'json', id: '@eUuid' }, headers: { 'Content-Type': 'application/json' } }
-        });
-    }
-]);
-
-ModelCatalogServices.factory('AuthaurizedCollabParameterRest', ['$resource',
-    function($resource) {
-        return $resource(base_url + 'app/authorizedcollabparameterrest/', {}, {
-            get: { method: 'GET', params: { format: 'json' }, isArray: false },
-            //   put: {method:'PUT', params:{format:'json'}, headers:{ 'Content-Type':'application/json' }},
-            // post: { method: 'POST', params: { format: 'json' }, headers: { 'Content-Type': 'application/json' } }
-        });
-    }
-]);
 
 ModelCatalogServices.service('CollabParameters', ['$rootScope', 'CollabParameterRest',
     function($rootScope, CollabParameterRest) {
@@ -385,6 +439,7 @@ ModelCatalogServices.service('CollabParameters', ['$rootScope', 'CollabParameter
 
                 ctx = url.split("?")[1]
                 ctx = ctx.substring(4);
+                
 
                 return (ctx);
             }
@@ -463,6 +518,8 @@ ModelCatalogServices.service('CollabParameters', ['$rootScope', 'CollabParameter
         };
 
         var getCtx = function() {
+            alert(ctx);
+            
             return ctx;
         }
 

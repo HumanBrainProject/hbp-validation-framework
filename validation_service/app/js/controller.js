@@ -7,11 +7,12 @@ testApp.controller('HomeCtrl', ['$scope', '$rootScope', '$http', '$location', "S
     function($scope, $rootScope, $http, $location, ScientificModelRest, ValidationTestDefinitionRest, CollabParameters) {
 
         CollabParameters.setService().$promise.then(function() {
-            console.log(CollabParameters.getParameters("species"));
+            // console.log(CollabParameters.getParameters("species"));
 
 
-            $scope.models = ScientificModelRest.get({}, function(data) {});
-            $scope.tests = ValidationTestDefinitionRest.get({}, function(data) {});
+            // $scope.models = ScientificModelRest.get({}, function(data) {});
+            $scope.models = ScientificModelRest.get({ ctx: CollabParameters.getCtx() }, function(data) {});
+            $scope.tests = ValidationTestDefinitionRest.get({ ctx: CollabParameters.getCtx() }, function(data) {});
 
         });
     }
@@ -22,7 +23,7 @@ testApp.controller('ValTestCtrl', ['$scope', '$rootScope', '$http', '$location',
         CollabParameters.setService();
 
 
-        $scope.test_list = ValidationTestDefinitionRest.get({}, function(data) {});
+        $scope.test_list = ValidationTestDefinitionRest.get({ ctx: CollabParameters.getCtx() }, function(data) {});
 
     }
 ]);
@@ -108,10 +109,12 @@ testApp.controller('ConfigCtrl', ['$scope', '$rootScope', '$http', '$location', 
 
         CollabParameters.setService().$promise.then(function() {
 
-            $scope.list_param = AuthaurizedCollabParameterRest.get({});
-            // $scope.list_param = AuthaurizedCollabParameterRest.getSessions();
-            // AuthaurizedCollabParameterRest.post();
+            // $scope.list_param2 = AuthaurizedCollabParameterRest2.get({});
 
+
+            $scope.list_param = AuthaurizedCollabParameterRest.get();
+
+            // console.log($scope.list_param);
 
 
 

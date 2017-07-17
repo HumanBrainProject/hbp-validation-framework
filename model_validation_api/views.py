@@ -1084,9 +1084,21 @@ class HomeValidationView(View):
 # @method_decorator(login_required(login_url='/login/hbp'), name='dispatch')
 class AuthorizedCollabParameterRest(APIView):
 
-    login_url='/login/hbp/'
+    # login_url='/login/hbp/'
 
     def get(self, request, format=None, **kwargs):
+        # print ("AuthorizedCollabParameterRest")
+        # print (request.__dict__)
+        # for key, value in request.__dict__.items():
+        #     print key 
+        #     try:
+        #         for key2, value2 in value.__dict__.items():
+        #             print key2
+        #             print value2
+        #     except :
+        #         pass
+
+        # print request.user
 
         serializer_context = {'request': request,}
 
@@ -1161,9 +1173,16 @@ class CollabIDRest(APIView):
 
 
 class CollabParameterRest( APIView): #LoginRequiredMixin, 
-    # login_url ='/login/hbp'
+    login_url ='/login/hbp'
 
     def get(self, request, format=None, **kwargs):
+        print ("IN GET ! ")
+       
+        print request.user
+        print request.user
+        print request.user
+        print request.user
+        print request.user
         serializer_context = {'request': request,}
         id = request.GET.getlist('id')[0]
         param = CollabParameters.objects.filter(id = id)
@@ -1175,6 +1194,9 @@ class CollabParameterRest( APIView): #LoginRequiredMixin,
  
 
     def post(self, request, format=None):
+        print request.user
+        
+        print ("IN POST ! ")
         serializer_context = {'request': request,}
         param_serializer = CollabParametersSerializer(data=request.data, context=serializer_context)
         if param_serializer.is_valid():
@@ -1185,6 +1207,7 @@ class CollabParameterRest( APIView): #LoginRequiredMixin,
         return Response(status=status.HTTP_201_CREATED)
 
     def put(self, request, format=None):
+        print ("IN PUT ! ")
         serializer_context = {'request': request,}
         id = request.GET.getlist('id')[0]
         param = CollabParameters.objects.get(id = id )

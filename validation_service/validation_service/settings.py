@@ -60,7 +60,7 @@ from django.utils.functional import SimpleLazyObject
 MIDDLEWARE_CLASSES = (
     # 'app.middleware.personal_middleware.UserData',
 
-    'app.middleware.personal_middleware.DisableCsrfCheck',
+    # 'app.middleware.personal_middleware.DisableCsrfCheck',
 
     
     'django.middleware.common.CommonMiddleware',
