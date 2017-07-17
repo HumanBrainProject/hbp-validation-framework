@@ -89,6 +89,13 @@
                                          <option ng-repeat="mt in model_type" value="{{mt}}">{{mt}}</option>
                                     </select>
                                                 </td>
+                                                <td>
+                                                    <b>Private: </b>
+                                                </td>
+                                                <td>
+                                                    <label><input type="radio" ng-model="model.models[0].private" value="false"/>no</label> &emsp;
+                                                    <label><input type="radio" ng-model="model.models[0].private" value="true" />yes</label>
+                                                </td>
                                             </tr>
                                         </tbody>
                                     </table>

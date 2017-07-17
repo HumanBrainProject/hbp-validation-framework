@@ -455,10 +455,17 @@ ModelCatalogApp.controller('ModelCatalogEditCtrl', ['$scope', '$rootScope', '$ht
             };
             $scope.saveModel = function() {
                 var parameters = $scope.model;
+                console.log(parameters)
                 var a = ScientificModelRest.put(parameters).$promise.then(function(data) {
                     alert('model correctly edited');
                 });
             };
+            $scope.saveModelInstance = function() {
+
+                var parameters = $scope.model.model_instances;
+                var a = ScientificModelInstanceRest.put(parameters).$promise.then(function(data) { alert('model instances correctly edited') });
+            };
+
         });
     }
 ]);
@@ -471,12 +478,6 @@ ModelCatalogApp.controller('ModelCatalogVersionCtrl', ['$scope', '$rootScope', '
             var parameters = JSON.stringify($scope.model_instance);
             alert(parameters);
             ScientificModelInstanceRest.save(parameters, function(value) {});
-        };
-
-        $scope.saveModelInstance = function() {
-
-            var parameters = $scope.model.model_instances;
-            var a = ScientificModelInstanceRest.put(parameters).$promise.then(function(data) { alert('model instances correctly edited') });
         };
     }
 
