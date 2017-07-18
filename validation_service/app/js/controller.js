@@ -414,8 +414,10 @@ ModelCatalogApp.controller('ModelCatalogDetailCtrl', ['$scope', '$rootScope', '$
 
         CollabParameters.setService().$promise.then(function() {
 
+            $scope.ctx = CollabParameters.getCtx()
+
             $("#ImagePopupDetail").hide();
-            $scope.model = ScientificModelRest.get({ ctx: CollabParameters.getCtx(), id: $stateParams.uuid });
+            $scope.model = ScientificModelRest.get({ ctx: $scope.ctx, id: $stateParams.uuid });
 
             $scope.toggleSize = function(index, img) {
                 $scope.bigImage = img;
