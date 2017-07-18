@@ -79,7 +79,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.security.SecurityMiddleware',
     
     'social.apps.django_app.middleware.SocialAuthExceptionMiddleware',
-    'social_django.middleware.SocialAuthExceptionMiddleware', ####
+    # 'social_django.middleware.SocialAuthExceptionMiddleware', ####
     'corsheaders.middleware.CorsMiddleware',
 
     
