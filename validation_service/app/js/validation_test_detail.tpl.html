@@ -111,7 +111,7 @@
                                     <td width=1000>
                                     </td>
                                     <td width=300>
-                                        {{ comment.creation_date}}
+                                        {{ comment.creation_date  | date:'d MMMM yyyy, hh:mm' : 'UTC'  }}
                                     </td>
                                     <td width=50>
 
@@ -122,7 +122,7 @@
                                     <td width=200>
                                     </td>
                                     <td width=1000 id='editable-text-{{comment.id}}' contenteditable="false">
-                                        <br/> {{ comment.text | date:'d MMMM yyyy, hh:mm' : 'UTC'  }}
+                                        <br/> {{ comment.text }}
                                     </td>
                                     <td width=300>
                                     </td>
