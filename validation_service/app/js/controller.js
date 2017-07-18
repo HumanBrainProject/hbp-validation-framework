@@ -84,6 +84,11 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
             }
         });
 
+        $scope.submit_comment = function() {
+            var data_comment = JSON.stringify({ author: $stateParams.uuid, text: this.txt_comment, approved_comment: false, test_id: $stateParams.uuid });
+            console.log("data_comment" + data_comment);
+            TestCommentRest.post(data_comment, function(value) {});
+        }
     }
 ]);
 

@@ -629,20 +629,16 @@ class TestCommentRest(APIView):
         })
   
     def post(self, request, format=None):
-        ctx = request.query_params['ctx']
-        if not _is_collaborator(request, ctx):
-            return HttpResponseForbidden()
-
-        logger.debug("*** TestCommentRest post ***")
         serializer_context = {'request': request,}
-        logger.debug("serializer_context + " + serializer_context)
-        
-        param_serializer = CollabParametersSerializer(data=request.data['test_data'], context=serializer_context)
+        request.data['author'] = str(request.user)
+
+        param_serializer = CommentSerializer(data=request.data, context=serializer_context)
         if param_serializer.is_valid():
-            param = param_serializer.save() 
+            param = param_serializer.save(test_id=request.data['test_id'])
         else:
             return Response(param_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
+        logger.debug("response OK")
         return Response(status=status.HTTP_201_CREATED)
 
 
