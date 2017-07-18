@@ -1495,8 +1495,11 @@ class TestCommentRest(APIView):
         request.data['author'] = str(request.user)
 
         param_serializer = CommentSerializer(data=request.data, context=serializer_context)
+        logger.debug("param_serializer OK")
         if param_serializer.is_valid():
+            logger.debug("param_serializer begin")
             param = param_serializer.save(test_id=request.data['test_id'])
+            logger.debug("param_serializer save OK")
         else:
             return Response(param_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
