@@ -56,7 +56,7 @@
 
                 <tbody>
                     <tr ng-repeat='test in tests.tests | filter:search'>
-                        <td><a href="test{{test.pk}}">{{ test.name }}</a></td>
+                        <td><a href="/app/#/home/validation_test/{{test.id}}">{{ test.name }}</a></td>
                         <td>{{ test.species }}</td>
                         <td>{{ test.age }}</td>
                         <td>{{ test.brain_region }}</td>
@@ -65,13 +65,11 @@
                         <td>{{ test.data_location }}</td>
 
                         <td>{{ test.data_type }}</td>
-                        <td>{{ test.get_data_modality_display }}</td>
-                        <td>{{ test.get_test_type_display }}</td>
+                        <td>{{ test.data_modality }}</td>
+                        <td>{{ test.test_type }}</td>
                         <td>{{ test.get_latest_code.repository}}</td>
                         <td>{{ test.author }}</td>
                         <td>{{ test.publication }}</td>
-
-                        <td>{{ test.validationtestcodes}}</td>
                     </tr>
 
                 </tbody>
