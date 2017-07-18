@@ -7,11 +7,12 @@ testApp.controller('HomeCtrl', ['$scope', '$rootScope', '$http', '$location', "S
     function($scope, $rootScope, $http, $location, ScientificModelRest, ValidationTestDefinitionRest, CollabParameters) {
 
         CollabParameters.setService().$promise.then(function() {
-            console.log(CollabParameters.getParameters("species"));
+            // console.log(CollabParameters.getParameters("species"));
 
 
-            $scope.models = ScientificModelRest.get({}, function(data) {});
-            $scope.tests = ValidationTestDefinitionRest.get({}, function(data) {});
+            // $scope.models = ScientificModelRest.get({}, function(data) {});
+            $scope.models = ScientificModelRest.get({ ctx: CollabParameters.getCtx() }, function(data) {});
+            $scope.tests = ValidationTestDefinitionRest.get({ ctx: CollabParameters.getCtx() }, function(data) {});
 
         });
     }
@@ -19,59 +20,69 @@ testApp.controller('HomeCtrl', ['$scope', '$rootScope', '$http', '$location', "S
 
 testApp.controller('ValTestCtrl', ['$scope', '$rootScope', '$http', '$location', 'ValidationTestDefinitionRest', 'CollabParameters',
     function($scope, $rootScope, $http, $location, ValidationTestDefinitionRest, CollabParameters) {
-        CollabParameters.setService();
+        CollabParameters.setService().$promise.then(function() {
+
+            $scope.test_list = ValidationTestDefinitionRest.get({ ctx: CollabParameters.getCtx() }, function(data) {});
+
+        });
 
 
-        $scope.test_list = ValidationTestDefinitionRest.get({}, function(data) {});
+
 
     }
 ]);
 
 testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$location', '$stateParams', 'ValidationTestDefinitionRest', 'ValidationTestCodeRest', 'CollabParameters', 'TestCommentRest',
     function($scope, $rootScope, $http, $location, $stateParams, ValidationTestDefinitionRest, ValidationTestCodeRest, CollabParameters, TestCommentRest) {
-        CollabParameters.setService();
-        $scope.detail_test = ValidationTestDefinitionRest.get({ id: $stateParams.uuid });
+        CollabParameters.setService().$promise.then(function() {
+            $scope.detail_test = ValidationTestDefinitionRest.get({ ctx: CollabParameters.getCtx(), id: $stateParams.uuid });
 
-        $scope.detail_version_test = ValidationTestCodeRest.get({ test_definition_id: $stateParams.uuid });
+            $scope.detail_version_test = ValidationTestCodeRest.get({ ctx: CollabParameters.getCtx(), test_definition_id: $stateParams.uuid });
 
-        $scope.test_comments = TestCommentRest.get({ test_id: $stateParams.uuid });
+            $scope.test_comments = TestCommentRest.get({ ctx: CollabParameters.getCtx(), test_id: $stateParams.uuid });
 
-        $scope.selected_tab = "";
+            $scope.selected_tab = "";
 
-        $scope.toogleTabs = function(id_tab) {
-            $scope.selected_tab = id_tab;
-            if (id_tab == "tab_description") {
-                document.getElementById("tab_description").style.display = "block";
-                document.getElementById("tab_version").style.display = "none";
-                document.getElementById("tab_results").style.display = "none";
-                document.getElementById("tab_comments").style.display = "none";
+            $scope.toogleTabs = function(id_tab) {
+                $scope.selected_tab = id_tab;
+                if (id_tab == "tab_description") {
+                    document.getElementById("tab_description").style.display = "block";
+                    document.getElementById("tab_version").style.display = "none";
+                    document.getElementById("tab_results").style.display = "none";
+                    document.getElementById("tab_comments").style.display = "none";
+                }
+                if (id_tab == "tab_version") {
+                    document.getElementById("tab_description").style.display = "none";
+                    document.getElementById("tab_version").style.display = "block";
+                    document.getElementById("tab_results").style.display = "none";
+                    document.getElementById("tab_comments").style.display = "none";
+                }
+                if (id_tab == "tab_results") {
+                    document.getElementById("tab_description").style.display = "none";
+                    document.getElementById("tab_version").style.display = "none";
+                    document.getElementById("tab_results").style.display = "block";
+                    document.getElementById("tab_comments").style.display = "none";
+                }
+                if (id_tab == "tab_comments") {
+                    document.getElementById("tab_description").style.display = "none";
+                    document.getElementById("tab_version").style.display = "none";
+                    document.getElementById("tab_results").style.display = "none";
+                    document.getElementById("tab_comments").style.display = "block";
+                }
+                var a = document.getElementById("li_tab_description");
+                var b = document.getElementById("li_tab_version");
+                var c = document.getElementById("li_tab_results");
+                var d = document.getElementById("li_tab_comments");
+                a.className = b.className = c.className = d.className = "nav-link";
+                var e = document.getElementById("li_" + id_tab);
+                e.className += " active";
+            };
+
+            $scope.submit_comment = function() {
+                var data_comment = JSON.stringify({ author: $stateParams.uuid, text: this.text, approved_comment: false, test_id: $stateParams.uuid });
+                TestCommentRest.post(data_comment, function(value) {});
             }
-            if (id_tab == "tab_version") {
-                document.getElementById("tab_description").style.display = "none";
-                document.getElementById("tab_version").style.display = "block";
-                document.getElementById("tab_results").style.display = "none";
-                document.getElementById("tab_comments").style.display = "none";
-            }
-            if (id_tab == "tab_results") {
-                document.getElementById("tab_description").style.display = "none";
-                document.getElementById("tab_version").style.display = "none";
-                document.getElementById("tab_results").style.display = "block";
-                document.getElementById("tab_comments").style.display = "none";
-            }
-            if (id_tab == "tab_comments") {
-                document.getElementById("tab_description").style.display = "none";
-                document.getElementById("tab_version").style.display = "none";
-                document.getElementById("tab_results").style.display = "none";
-                document.getElementById("tab_comments").style.display = "block";
-            }
-            var a = document.getElementById("li_tab_description");
-            var b = document.getElementById("li_tab_version");
-            var c = document.getElementById("li_tab_results");
-            var d = document.getElementById("li_tab_comments");
-            a.className = b.className = c.className = d.className = "nav-link";
-            var e = document.getElementById("li_" + id_tab);
-            e.className += " active";
-        };
+        });
 
         $scope.submit_comment = function() {
             var data_comment = JSON.stringify({ author: $stateParams.uuid, text: this.txt_comment, approved_comment: false, test_id: $stateParams.uuid });
@@ -83,21 +94,25 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
 
 testApp.controller('TestResultCtrl', ['$scope', '$rootScope', '$http', '$location', 'CollabParameters',
     function($scope, $rootScope, $http, $location, CollabParameters) {
-        CollabParameters.setService();
+        CollabParameters.setService().$promise.then(function() {
+
+        });
     }
 ]);
 
 
 testApp.controller('ValTestCreateCtrl', ['$scope', '$rootScope', '$http', '$location', 'ValidationTestDefinitionRest', 'ValidationTestCodeRest', 'CollabParameters',
     function($scope, $rootScope, $http, $location, ValidationTestDefinitionRest, ValidationTestCodeRest, CollabParameters) {
-        CollabParameters.setService();
-        $scope.species = CollabParameters.getParameters("species");
+        CollabParameters.setService().$promise.then(function() {
+            $scope.species = CollabParameters.getParameters("species");
 
 
-        $scope.make_post = function() {
-            var data_to_send = JSON.stringify({ test_data: $scope.test, code_data: $scope.code });
-            ValidationTestDefinitionRest.save(data_to_send, function(value) {});
-        };
+            $scope.make_post = function() {
+                var data_to_send = JSON.stringify({ test_data: $scope.test, code_data: $scope.code });
+                ValidationTestDefinitionRest.save({ ctx: CollabParameters.getCtx() }, data_to_send, function(value) {});
+            };
+        });
+
     }
 ]);
 
@@ -109,14 +124,19 @@ testApp.controller('ConfigCtrl', ['$scope', '$rootScope', '$http', '$location', 
 
         CollabParameters.setService().$promise.then(function() {
 
-            $scope.list_param = AuthaurizedCollabParameterRest.get({});
-            // $scope.list_param = AuthaurizedCollabParameterRest.getSessions();
-            // AuthaurizedCollabParameterRest.post();
+            // $scope.list_param2 = AuthaurizedCollabParameterRest2.get({});
 
+
+            $scope.list_param = AuthaurizedCollabParameterRest.get({ ctx: CollabParameters.getCtx() });
+
+            // console.log($scope.list_param);
 
 
 
             $scope.make_post = function() {
+
+                CollabParameters.initConfiguration();
+
                 $scope.selected_data_modalities.forEach(function(value, i) {
                     CollabParameters.addParameter("data_modalities", value.authorized_value);
                 });
@@ -142,9 +162,11 @@ testApp.controller('ConfigCtrl', ['$scope', '$rootScope', '$http', '$location', 
                 });
 
 
-                CollabParameters.put_parameters();
-
-                $location.path('/home');
+                CollabParameters.put_parameters().$promise.then(function() {
+                    CollabParameters.getRequestParameters().$promise.then(function() {
+                        $location.path('/home');
+                    });
+                });
 
             };
 
@@ -353,57 +375,66 @@ ModelCatalogApp.controller('ModelCatalogCreateCtrl', ['$scope', '$rootScope', '$
             $scope.model_type = CollabParameters.getParameters("model_type");
             $scope.ctx = CollabParameters.getCtx();
             $scope.model_image = [];
+
+            $scope.displayAddImage = function() {
+                $scope.addImage = true;
+            };
+            $scope.saveImage = function() {
+                if (JSON.stringify($scope.image) != undefined) {
+                    $scope.model_image.push($scope.image);
+                    $scope.addImage = false;
+                    $scope.image = undefined;
+                } else { alert("you need to add an url!") }
+            };
+            $scope.closeImagePanel = function() {
+                $scope.image = {};
+                $scope.addImage = false;
+            };
+
+            var _add_access_control = function() {
+                $scope.model.access_control = $scope.ctx;
+            };
+
+            $scope.saveModel = function() {
+                _add_access_control();
+                var parameters = JSON.stringify({ model: $scope.model, model_instance: $scope.model_instance, model_image: $scope.model_image });
+                var a = ScientificModelRest.save({ ctx: CollabParameters.getCtx() }, parameters).$promise.then(function(data) {
+                    $location.path('/model-catalog/detail/' + data.uuid);
+                });
+
+            };
+            $scope.deleteImage = function(index) {
+                $scope.model_image.splice(index, 1);
+            };
         });
 
-        $scope.displayAddImage = function() {
-            $scope.addImage = true;
-        };
-        $scope.saveImage = function() {
-            if (JSON.stringify($scope.image) != undefined) {
-                $scope.model_image.push($scope.image);
-                $scope.addImage = false;
-                $scope.image = undefined;
-            } else { alert("you need to add an url!") }
-        };
-        $scope.closeImagePanel = function() {
-            $scope.image = {};
-            $scope.addImage = false;
-        };
 
-        var _add_access_control = function() {
-            $scope.model.access_control = $scope.ctx;
-        };
-
-        $scope.saveModel = function() {
-            _add_access_control();
-            var parameters = JSON.stringify({ model: $scope.model, model_instance: $scope.model_instance, model_image: $scope.model_image });
-            var a = ScientificModelRest.save(parameters).$promise.then(function(data) {
-                $location.path('/model-catalog/detail/' + data.uuid);
-            });
-
-        };
-        $scope.deleteImage = function(index) {
-            $scope.model_image.splice(index, 1);
-        };
 
     }
 
 ]);
 
-ModelCatalogApp.controller('ModelCatalogDetailCtrl', ['$scope', '$rootScope', '$http', '$location', '$stateParams', 'ScientificModelRest',
-    function($scope, $rootScope, $http, $lcation, $stateParams, ScientificModelRest) {
-        $("#ImagePopupDetail").hide();
-        $scope.model = ScientificModelRest.get({ id: $stateParams.uuid });
+ModelCatalogApp.controller('ModelCatalogDetailCtrl', ['$scope', '$rootScope', '$http', '$location', '$stateParams', 'ScientificModelRest', 'CollabParameters',
+    function($scope, $rootScope, $http, $lcation, $stateParams, ScientificModelRest, CollabParameters) {
 
-        $scope.toggleSize = function(index, img) {
-            $scope.bigImage = img;
-            $("#ImagePopupDetail").show();
-        }
+        CollabParameters.setService().$promise.then(function() {
 
-        $scope.closeImagePanel = function() {
-            $scope.image = {};
             $("#ImagePopupDetail").hide();
-        };
+            $scope.model = ScientificModelRest.get({ ctx: CollabParameters.getCtx(), id: $stateParams.uuid });
+
+            $scope.toggleSize = function(index, img) {
+                $scope.bigImage = img;
+                $("#ImagePopupDetail").show();
+            }
+
+            $scope.closeImagePanel = function() {
+                $scope.image = {};
+                $("#ImagePopupDetail").hide();
+            };
+
+        });
+
+
     }
 ]);
 
@@ -415,7 +446,7 @@ ModelCatalogApp.controller('ModelCatalogEditCtrl', ['$scope', '$rootScope', '$ht
             $scope.brain_region = CollabParameters.getParameters("brain_region");
             $scope.cell_type = CollabParameters.getParameters("cell_type");
             $scope.model_type = CollabParameters.getParameters("model_type");
-            $scope.model = ScientificModelRest.get({ id: $stateParams.uuid });
+            $scope.model = ScientificModelRest.get({ ctx: CollabParameters.getCtx(), id: $stateParams.uuid });
 
             $scope.deleteImage = function(img) {
                 var image = img
@@ -432,7 +463,7 @@ ModelCatalogApp.controller('ModelCatalogEditCtrl', ['$scope', '$rootScope', '$ht
             $scope.saveImage = function() {
                 if (JSON.stringify($scope.image) != undefined) {
                     var parameters = JSON.stringify({ model_id: $stateParams.uuid, model_image: $scope.image });
-                    ScientificModelImageRest.post(parameters).$promise.then(function(data) {
+                    ScientificModelImageRest.post({ ctx: CollabParameters.getCtx() }, parameters).$promise.then(function(data) {
                         $scope.addImage = false;
                         alert('Image has been saved !');
                         $state.reload(); // $location.path('/model-catalog/edit/' + $stateParams.uuid); //not working. to do after
@@ -447,36 +478,40 @@ ModelCatalogApp.controller('ModelCatalogEditCtrl', ['$scope', '$rootScope', '$ht
 
                 var parameters = $scope.model.model_images;
                 console.log(parameters)
-                var a = ScientificModelImageRest.put(parameters).$promise.then(function(data) {
+                var a = ScientificModelImageRest.put({ ctx: CollabParameters.getCtx() }, parameters).$promise.then(function(data) {
                     alert('model images have been correctly edited')
                 });
             };
             $scope.saveModel = function() {
                 var parameters = $scope.model;
                 console.log(parameters)
-                var a = ScientificModelRest.put(parameters).$promise.then(function(data) {
+                var a = ScientificModelRest.put({ ctx: CollabParameters.getCtx() }, parameters).$promise.then(function(data) {
                     alert('model correctly edited');
                 });
             };
             $scope.saveModelInstance = function() {
 
                 var parameters = $scope.model.model_instances;
-                var a = ScientificModelInstanceRest.put(parameters).$promise.then(function(data) { alert('model instances correctly edited') });
+                var a = ScientificModelInstanceRest.put({ ctx: CollabParameters.getCtx() }, parameters).$promise.then(function(data) { alert('model instances correctly edited') });
             };
 
         });
     }
 ]);
 
-ModelCatalogApp.controller('ModelCatalogVersionCtrl', ['$scope', '$rootScope', '$http', '$location', '$stateParams', 'ScientificModelRest', 'ScientificModelInstanceRest',
-    function($scope, $rootScope, $http, $location, $stateParams, ScientificModelRest, ScientificModelInstanceRest) {
-        $scope.model = ScientificModelRest.get({ id: $stateParams.uuid }); //really needed??? just to put model name
-        $scope.saveVersion = function() {
-            $scope.model_instance.model_id = $stateParams.uuid
-            var parameters = JSON.stringify($scope.model_instance);
-            alert(parameters);
-            ScientificModelInstanceRest.save(parameters, function(value) {});
-        };
+ModelCatalogApp.controller('ModelCatalogVersionCtrl', ['$scope', '$rootScope', '$http', '$location', '$stateParams', 'ScientificModelRest', 'ScientificModelInstanceRest', 'CollabParameters',
+    function($scope, $rootScope, $http, $location, $stateParams, ScientificModelRest, ScientificModelInstanceRest, CollabParameters) {
+        CollabParameters.setService().$promise.then(function() {
+            $scope.model = ScientificModelRest.get({ id: $stateParams.uuid }); //really needed??? just to put model name
+            $scope.saveVersion = function() {
+                $scope.model_instance.model_id = $stateParams.uuid
+                var parameters = JSON.stringify($scope.model_instance);
+                alert(parameters);
+                ScientificModelInstanceRest.save({ ctx: CollabParameters.getCtx() }, parameters, function(value) {});
+            };
+        });
+
+
     }
 
 ]);
