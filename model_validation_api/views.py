@@ -139,18 +139,18 @@ def get_authorization_header(request):
 #     return admins
 
 
-# def is_admin(request):
-#     try:
-#         admins = get_admin_list(request)
-#     except Exception as err:
-#         logger.warning(err.message)
-#         return False
-#     try:
-#         user_id = get_user(request)["id"]
-#     except Exception as err:
-#         logger.warning(err.message)
-#         return False
-#     return user_id in admins
+def is_admin(request):
+    try:
+        admins = get_admin_list(request)
+    except Exception as err:
+        logger.warning(err.message)
+        return False
+    try:
+        user_id = get_user(request)["id"]
+    except Exception as err:
+        logger.warning(err.message)
+        return False
+    return user_id in admins
 
 
 
@@ -1081,24 +1081,11 @@ class HomeValidationView(View):
 
     
 
-# @method_decorator(login_required(login_url='/login/hbp'), name='dispatch')
 class AuthorizedCollabParameterRest(APIView):
 
-    # login_url='/login/hbp/'
 
-    def get(self, request, format=None, **kwargs):
-        # print ("AuthorizedCollabParameterRest")
-        # print (request.__dict__)
-        # for key, value in request.__dict__.items():
-        #     print key 
-        #     try:
-        #         for key2, value2 in value.__dict__.items():
-        #             print key2
-        #             print value2
-        #     except :
-        #         pass
-
-        # print request.user
+    def get(self, request,  format=None, **kwargs):
+ 
 
         serializer_context = {'request': request,}
 
@@ -1129,9 +1116,12 @@ class AuthorizedCollabParameterRest(APIView):
             'model_type' : model_type_serializer.data,
         })
 
- 
-    def dispatch(self, *args, **kwargs):
-        return super(AuthorizedCollabParameterRest, self).dispatch(*args, **kwargs)
+    # @method_decorator(login_required) #   (login_url='/login/hbp') )
+    # @login_required
+    # def dispatch(self, *args, **kwargs):
+    #     # if not _is_collaborator(request, ctx):
+    #     #     return HttpResponseForbidden()     
+    #     return super(AuthorizedCollabParameterRest, self).dispatch(*args, **kwargs)
 
 
 
@@ -1173,16 +1163,9 @@ class CollabIDRest(APIView):
 
 
 class CollabParameterRest( APIView): #LoginRequiredMixin, 
-    login_url ='/login/hbp'
 
     def get(self, request, format=None, **kwargs):
-        print ("IN GET ! ")
-       
-        print request.user
-        print request.user
-        print request.user
-        print request.user
-        print request.user
+
         serializer_context = {'request': request,}
         id = request.GET.getlist('id')[0]
         param = CollabParameters.objects.filter(id = id)
@@ -1194,9 +1177,11 @@ class CollabParameterRest( APIView): #LoginRequiredMixin,
  
 
     def post(self, request, format=None):
-        print request.user
-        
-        print ("IN POST ! ")
+        ctx = request.query_params['ctx']
+        if not _is_collaborator(request, ctx):
+            return HttpResponseForbidden() 
+
+
         serializer_context = {'request': request,}
         param_serializer = CollabParametersSerializer(data=request.data, context=serializer_context)
         if param_serializer.is_valid():
@@ -1207,7 +1192,10 @@ class CollabParameterRest( APIView): #LoginRequiredMixin,
         return Response(status=status.HTTP_201_CREATED)
 
     def put(self, request, format=None):
-        print ("IN PUT ! ")
+        ctx = request.query_params['ctx']
+        if not _is_collaborator(request, ctx):
+            return HttpResponseForbidden()
+        
         serializer_context = {'request': request,}
         id = request.GET.getlist('id')[0]
         param = CollabParameters.objects.get(id = id )
@@ -1227,9 +1215,12 @@ class CollabParameterRest( APIView): #LoginRequiredMixin,
 
 
 
-
 class ScientificModelInstanceRest (APIView):
     def post(self, request, format=None):
+        ctx = request.query_params['ctx']
+        if not _is_collaborator(request, ctx):
+            return HttpResponseForbidden()
+
         serializer_context = {'request': request,}
         serializer = ScientificModelInstanceSerializer(data=request.data, context=serializer_context)
         if serializer.is_valid():        
@@ -1238,7 +1229,12 @@ class ScientificModelInstanceRest (APIView):
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
-    def put(self, request, format=None): 
+    def put(self, request, format=None):
+        ctx = request.query_params['ctx']
+        if not _is_collaborator(request, ctx):
+            return HttpResponseForbidden()
+
+
         for instance in request.data:
             model_instance = ScientificModelInstance.objects.get(id=instance['id'])
             serializer_context = {'request': request,}
@@ -1250,9 +1246,15 @@ class ScientificModelInstanceRest (APIView):
                 return Response(model_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         return Response( status=status.HTTP_201_CREATED) 
 
+
+
 class ScientificModelImageRest (APIView):
 
     def post(self, request, format=None):
+        ctx = request.query_params['ctx']
+        if not _is_collaborator(request, ctx):
+            return HttpResponseForbidden()
+
         serializer_context = {'request': request,}
         serializer = ScientificModelImageSerializer(data=request.data['model_image'], context=serializer_context)
         if serializer.is_valid():        
@@ -1261,6 +1263,10 @@ class ScientificModelImageRest (APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
     def put(self, request, format=None):
+        ctx = request.query_params['ctx']
+        if not _is_collaborator(request, ctx):
+            return HttpResponseForbidden()
+
         for image in request.data:
             model_image = ScientificModelImage.objects.get(id=image['id'])
             serializer_context = {'request': request,}
@@ -1273,6 +1279,10 @@ class ScientificModelImageRest (APIView):
         return Response( status=status.HTTP_202_ACCEPTED) 
 
     def delete(self, request, format=None):
+        ctx = request.query_params['ctx']
+        if not _is_collaborator(request, ctx):
+            return HttpResponseForbidden()
+
         image = ScientificModelImage.objects.get(id=request.query_params['id']).delete()
         return Response( status=status.HTTP_200_OK) 
 
@@ -1288,7 +1298,13 @@ class ScientificModelRest(APIView):
         if(model_id == '0'):
             rq1 = ScientificModel.objects.filter(access_control=ctx)
             rq2 = ScientificModel.objects.filter (private=0)
-            models = rq1.union(rq2)
+            
+            if len(rq1) >0:
+                # models = rq1.union(rq2)
+                models  = (rq1 | rq2).distinct()
+            else:
+                models = rq2
+
             model_serializer = ScientificModelSerializer(models, context=serializer_context, many=True )
             return Response({
             'models': model_serializer.data,
@@ -1312,6 +1328,10 @@ class ScientificModelRest(APIView):
             })
 
     def post(self, request, format=None):
+        ctx = request.query_params['ctx']
+        if not _is_collaborator(request, ctx):
+            return HttpResponseForbidden()
+
         serializer_context = {'request': request,}
         # check if data is ok else return error
         model_serializer = ScientificModelSerializer(data=request.data['model'], context=serializer_context)
@@ -1338,6 +1358,10 @@ class ScientificModelRest(APIView):
         return Response({'uuid':model.id}, status=status.HTTP_201_CREATED)
 
     def put(self, request, format=None):
+        ctx = request.query_params['ctx']
+        if not _is_collaborator(request, ctx):
+            return HttpResponseForbidden()
+
         ## save only modifications on model tables. if want to modify images or instances, do separate put.  
         ##get objects 
         value = request.data['models'][0]
@@ -1351,6 +1375,8 @@ class ScientificModelRest(APIView):
         else: 
             return Response(model_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         return Response( status=status.HTTP_201_CREATED) 
+
+
 
 class ValidationTestCodeRest(APIView):
 
@@ -1376,6 +1402,10 @@ class ValidationTestCodeRest(APIView):
 
 
      def post(self, request, format=None):
+        ctx = request.query_params['ctx']
+        if not _is_collaborator(request, ctx):
+            return HttpResponseForbidden()
+
         serializer_context = {'request': request,}
         test_id = str(len(request.POST.getlist('id')))
 
@@ -1391,6 +1421,8 @@ class ValidationTestCodeRest(APIView):
         #  if self.request.method in ('GET', )
         #      return ValidationTestDefinitionWithCodesReadSerializer
          return ValidationTestCodeSerializer
+
+
 
 class ValidationTestDefinitionRest(APIView):
     
@@ -1414,6 +1446,10 @@ class ValidationTestDefinitionRest(APIView):
 
 
      def post(self, request, format=None):
+        ctx = request.query_params['ctx']
+        if not _is_collaborator(request, ctx):
+            return HttpResponseForbidden()
+
         serializer_context = {'request': request,}
 
         test_serializer = ValidationTestDefinitionSerializer(data=request.data['test_data'], context=serializer_context)
@@ -1429,6 +1465,7 @@ class ValidationTestDefinitionRest(APIView):
             return Response(code_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
         return Response(status=status.HTTP_201_CREATED)
+
 
 class TestCommentRest(APIView):
     def get(self, request, format=None, **kwargs):
@@ -1452,8 +1489,12 @@ class TestCommentRest(APIView):
         return Response({
             'comments': comment_serializer.data,
         })
-    @csrf_exempt
+  
     def post(self, request, format=None):
+        ctx = request.query_params['ctx']
+        if not _is_collaborator(request, ctx):
+            return HttpResponseForbidden()
+
         logger.debug("*** TestCommentRest post ***")
         serializer_context = {'request': request,}
         logger.debug("serializer_context + " + serializer_context)

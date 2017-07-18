@@ -8,9 +8,9 @@ var validationAppServices = angular.module('validationAppServices', ['ngResource
 validationAppServices.factory('ScientificModelRest', ['$resource',
     function($resource) {
         return $resource('scientificmodel/:uuid', { id: '@eUuid' }, {
-            get: { method: 'GET', params: { format: 'json' }, isArray: false },
+            get: { method: 'GET', params: { format: 'json', ctx: 'ctx' }, isArray: false },
             //   put: {method:'PUT', params:{format:'json'}, headers:{ 'Content-Type':'application/json' }},
-            post: { method: 'POST', params: { format: 'json' }, headers: { 'Content-Type': 'application/json' } }
+            post: { method: 'POST', params: { format: 'json', ctx: 'ctx' }, headers: { 'Content-Type': 'application/json' } }
         });
     }
 ]);
@@ -18,9 +18,9 @@ validationAppServices.factory('ScientificModelRest', ['$resource',
 validationAppServices.factory('ScientificModelInstanceRest', ['$resource',
     function($resource) {
         return $resource('scientificmodelinstance/:uuid', { id: '@eUuid' }, {
-            get: { method: 'GET', params: { format: 'json' }, isArray: false },
-            //   put: {method:'PUT', params:{format:'json'}, headers:{ 'Content-Type':'application/json' }},
-            post: { method: 'POST', params: { format: 'json' }, headers: { 'Content-Type': 'application/json' } }
+            get: { method: 'GET', params: { format: 'json', ctx: 'ctx' }, isArray: false },
+            //   put: {method:'PUT', params:{format:'json', ctx: 'ctx' }, headers:{ 'Content-Type':'application/json' }},
+            post: { method: 'POST', params: { format: 'json', ctx: 'ctx' }, headers: { 'Content-Type': 'application/json' } }
         });
     }
 ]);
@@ -28,9 +28,9 @@ validationAppServices.factory('ScientificModelInstanceRest', ['$resource',
 validationAppServices.factory('ValidationTestDefinitionRest', ['$resource',
     function($resource) {
         return $resource('validationtestdef/:uuid', { id: '@eUuid' }, {
-            get: { method: 'GET', params: { format: 'json' }, isArray: false },
-            //   put: {method:'PUT', params:{format:'json'}, headers:{ 'Content-Type':'application/json' }},
-            post: { method: 'POST', params: { format: 'json' }, headers: { 'Content-Type': 'application/json' } }
+            get: { method: 'GET', params: { format: 'json', ctx: 'ctx' }, isArray: false },
+            //   put: {method:'PUT', params:{format:'json', ctx: 'ctx' }, headers:{ 'Content-Type':'application/json' }},
+            post: { method: 'POST', params: { format: 'json', ctx: 'ctx' }, headers: { 'Content-Type': 'application/json' } }
         });
     }
 ]);
@@ -38,9 +38,9 @@ validationAppServices.factory('ValidationTestDefinitionRest', ['$resource',
 validationAppServices.factory('ValidationTestCodeRest', ['$resource',
     function($resource) {
         return $resource('validationtestscode/:uuid', { id: '@eUuid' }, {
-            get: { method: 'GET', params: { format: 'json' }, isArray: false },
-            //   put: {method:'PUT', params:{format:'json'}, headers:{ 'Content-Type':'application/json' }},
-            post: { method: 'POST', params: { format: 'json' }, headers: { 'Content-Type': 'application/json' } }
+            get: { method: 'GET', params: { format: 'json', ctx: 'ctx' }, isArray: false },
+            //   put: {method:'PUT', params:{format:'json', ctx: 'ctx' }, headers:{ 'Content-Type':'application/json' }},
+            post: { method: 'POST', params: { format: 'json', ctx: 'ctx' }, headers: { 'Content-Type': 'application/json' } }
         });
     }
 ]);
@@ -48,9 +48,9 @@ validationAppServices.factory('ValidationTestCodeRest', ['$resource',
 validationAppServices.factory('TestCommentRest', ['$resource',
     function($resource) {
         return $resource('testcomment/:uuid', { id: '@eUuid' }, {
-            get: { method: 'GET', params: { format: 'json' }, isArray: false },
-            //   put: {method:'PUT', params:{format:'json'}, headers:{ 'Content-Type':'application/json' }},
-            post: { method: 'POST', params: { format: 'json' }, headers: { 'Content-Type': 'application/json' } }
+            get: { method: 'GET', params: { format: 'json', ctx: 'ctx' }, isArray: false },
+            //   put: {method:'PUT', params:{format:'json', ctx: 'ctx' }, headers:{ 'Content-Type':'application/json' }},
+            post: { method: 'POST', params: { format: 'json', ctx: 'ctx' }, headers: { 'Content-Type': 'application/json' } }
         });
     }
 ]);
@@ -64,9 +64,9 @@ validationAppServices.factory('TestCommentRest', ['$resource',
 validationAppServices.factory('CollabParameterRest', ['$resource',
     function($resource) {
         return $resource( /*/base_url + 'app//*/ 'collabparameterrest/:uuid', { id: '@eUuid' }, {
-            get: { method: 'GET', params: { format: 'json', id: '@eUuid' }, isArray: false },
-            put: { method: 'PUT', params: { format: 'json', id: '@eUuid' }, isArray: false, headers: { 'Content-Type': 'application/json' } },
-            post: { method: 'POST', params: { format: 'json', id: '@eUuid' }, headers: { 'Content-Type': 'application/json' } }
+            get: { method: 'GET', params: { format: 'json', id: '@eUuid', ctx: 'ctx' }, isArray: false },
+            put: { method: 'PUT', params: { format: 'json', id: '@eUuid', ctx: 'ctx' }, isArray: false, headers: { 'Content-Type': 'application/json' } },
+            post: { method: 'POST', params: { format: 'json', id: '@eUuid', ctx: 'ctx' }, headers: { 'Content-Type': 'application/json' } }
         });
     }
 ]);
@@ -126,7 +126,7 @@ validationAppServices.factory('CollabParameterRest', ['$resource',
 validationAppServices.factory('AuthaurizedCollabParameterRest', ['$resource',
     function($resource) {
         return $resource('authorizedcollabparameterrest/', {}, {
-            get: { method: 'GET', params: { format: 'json' }, isArray: false },
+            get: { method: 'GET', params: { format: 'json', ctx: 'ctx' }, isArray: false },
             //   put: {method:'PUT', params:{format:'json'}, headers:{ 'Content-Type':'application/json' }},
             // post: { method: 'POST', params: { format: 'json' }, headers: { 'Content-Type': 'application/json' } }
         });
@@ -145,8 +145,8 @@ ModelCatalogServices.factory('ScientificModelRest', ['$resource',
     function($resource) {
         return $resource('scientificmodel/:uuid', { id: '@eUuid' }, {
             get: { method: 'GET', params: { format: 'json', ctx: 'ctx' }, isArray: false },
-            post: { method: 'POST', params: { format: 'json' }, headers: { 'Content-Type': 'application/json' } },
-            put: { method: 'PUT', params: { format: 'json' }, headers: { 'Content-Type': 'application/json' } }
+            post: { method: 'POST', params: { format: 'json', ctx: 'ctx' }, headers: { 'Content-Type': 'application/json' } },
+            put: { method: 'PUT', params: { format: 'json', ctx: 'ctx' }, headers: { 'Content-Type': 'application/json' } }
         });
     }
 ]);
@@ -154,9 +154,9 @@ ModelCatalogServices.factory('ScientificModelRest', ['$resource',
 ModelCatalogServices.factory('ScientificModelInstanceRest', ['$resource',
     function($resource) {
         return $resource('scientificmodelinstance/:uuid', { id: '@eUuid' }, {
-            get: { method: 'GET', params: { format: 'json' }, isArray: false },
-            post: { method: 'POST', params: { format: 'json' }, headers: { 'Content-Type': 'application/json' } },
-            put: { method: 'PUT', params: { format: 'json' }, headers: { 'Content-Type': 'application/json' } }
+            get: { method: 'GET', params: { format: 'json', ctx: 'ctx' }, isArray: false },
+            post: { method: 'POST', params: { format: 'json', ctx: 'ctx' }, headers: { 'Content-Type': 'application/json' } },
+            put: { method: 'PUT', params: { format: 'json', ctx: 'ctx' }, headers: { 'Content-Type': 'application/json' } }
         });
     }
 ]);
@@ -165,9 +165,9 @@ ModelCatalogServices.factory('ScientificModelImageRest', ['$resource',
     function($resource) {
         return $resource('scientificmodelimage/:uuid', { id: '@eUuid' }, {
             // get: { method: 'GET', params: { format: 'json' }, isArray: false },
-            post: { method: 'POST', params: { format: 'json' }, headers: { 'Content-Type': 'application/json' } },
-            put: { method: 'PUT', params: { format: 'json' }, headers: { 'Content-Type': 'application/json' } },
-            delete: { method: 'DELETE', params: { format: 'json' }, headers: { 'Content-Type': 'application/json' } }
+            post: { method: 'POST', params: { format: 'json', ctx: 'ctx' }, headers: { 'Content-Type': 'application/json' } },
+            put: { method: 'PUT', params: { format: 'json', ctx: 'ctx' }, headers: { 'Content-Type': 'application/json' } },
+            delete: { method: 'DELETE', params: { format: 'json', ctx: 'ctx' }, headers: { 'Content-Type': 'application/json' } }
         });
     }
 
@@ -176,9 +176,9 @@ ModelCatalogServices.factory('ScientificModelImageRest', ['$resource',
 ModelCatalogServices.factory('CollabParameterRest', ['$resource',
     function($resource) {
         return $resource('collabparameterrest/:uuid', { id: '@eUuid' }, {
-            get: { method: 'GET', params: { format: 'json', id: '@eUuid' }, isArray: false },
-            put: { method: 'PUT', params: { format: 'json', id: '@eUuid' }, isArray: false, headers: { 'Content-Type': 'application/json' } },
-            post: { method: 'POST', params: { format: 'json', id: '@eUuid' }, headers: { 'Content-Type': 'application/json' } }
+            get: { method: 'GET', params: { format: 'json', id: '@eUuid', ctx: 'ctx' }, isArray: false },
+            put: { method: 'PUT', params: { format: 'json', id: '@eUuid', ctx: 'ctx' }, isArray: false, headers: { 'Content-Type': 'application/json' } },
+            post: { method: 'POST', params: { format: 'json', id: '@eUuid', ctx: 'ctx' }, headers: { 'Content-Type': 'application/json' } }
         });
     }
 ]);
@@ -186,9 +186,9 @@ ModelCatalogServices.factory('CollabParameterRest', ['$resource',
 ModelCatalogServices.factory('AuthaurizedCollabParameterRest', ['$resource',
     function($resource) {
         return $resource('authorizedcollabparameterrest/', {}, {
-            get: { method: 'GET', params: { format: 'json' }, isArray: false },
-            //   put: {method:'PUT', params:{format:'json'}, headers:{ 'Content-Type':'application/json' }},
-            // post: { method: 'POST', params: { format: 'json' }, headers: { 'Content-Type': 'application/json' } }
+            get: { method: 'GET', params: { format: 'json', ctx: 'ctx' }, isArray: false },
+            //   put: {method:'PUT', params:{format:'json', ctx: 'ctx' }, headers:{ 'Content-Type':'application/json' }},
+            // post: { method: 'POST', params: { format: 'json', ctx: 'ctx'  }, headers: { 'Content-Type': 'application/json' } }
         });
     }
 ]);
@@ -275,7 +275,7 @@ validationAppServices.service('CollabParameters', ['$rootScope', 'CollabParamete
             _getCtx();
             // alert(ctx);
             if (typeof(parameters) == "undefined") {
-                parameters = CollabParameterRest.get({ id: ctx });
+                parameters = CollabParameterRest.get({ ctx: ctx, id: ctx });
 
 
                 console.log(parameters);
@@ -287,7 +287,7 @@ validationAppServices.service('CollabParameters', ['$rootScope', 'CollabParamete
                     if (parameters.param.length == 0) {
                         post = _postInitCollab();
                         post.$promise.then(function() {
-                            parameters = CollabParameterRest.get({ id: ctx });
+                            parameters = CollabParameterRest.get({ ctx: ctx, id: ctx });
 
                         });
                     } else {
@@ -301,18 +301,13 @@ validationAppServices.service('CollabParameters', ['$rootScope', 'CollabParamete
             return parameters;
         };
 
+        var getRequestParameters = function() {
+            parameters = CollabParameterRest.get({ ctx: ctx, id: ctx });
+            return parameters
+        };
+
         var _postInitCollab = function() {
-            parameters = {
-                'param': [{
-                    'data_modalities': [],
-                    'test_type': [],
-                    'species': [],
-                    'brain_region': [],
-                    'cell_type': [],
-                    'model_type': [],
-                }, ],
-                '$promise': true,
-            };
+            initConfiguration();
 
             post = post_parameters();
             return post;
@@ -330,7 +325,9 @@ validationAppServices.service('CollabParameters', ['$rootScope', 'CollabParamete
                 'cell_type': String(parameters.param[0]['cell_type']),
                 'model_type': String(parameters.param[0]['model_type']),
             });
-            post = CollabParameterRest.save(data_to_send, function(value) {});
+
+            // data_to_send2 = {ctx:ctx, data:data_to_send}
+            post = CollabParameterRest.save({ ctx: ctx }, data_to_send, function(value) {});
 
             return post;
         };
@@ -347,14 +344,30 @@ validationAppServices.service('CollabParameters', ['$rootScope', 'CollabParamete
                 'model_type': String(parameters.param[0]['model_type']),
             });
 
-            put = CollabParameterRest.put({ id: ctx }, data_to_send, function(value) {});
+
+            put = CollabParameterRest.put({ ctx: ctx, id: ctx }, data_to_send, function(value) {});
 
             return put;
         };
 
         var getCtx = function() {
             return ctx;
-        }
+        };
+
+        var initConfiguration = function() {
+            parameters = {
+                'param': [{
+                    'data_modalities': [],
+                    'test_type': [],
+                    'species': [],
+                    'brain_region': [],
+                    'cell_type': [],
+                    'model_type': [],
+                }, ],
+                '$promise': true,
+            };
+
+        };
 
 
         return {
@@ -366,6 +379,8 @@ validationAppServices.service('CollabParameters', ['$rootScope', 'CollabParamete
             post_parameters: post_parameters,
             put_parameters: put_parameters,
             getCtx: getCtx,
+            initConfiguration: initConfiguration,
+            getRequestParameters: getRequestParameters,
         };
 
     }
@@ -389,6 +404,11 @@ ModelCatalogServices.service('CollabParameters', ['$rootScope', 'CollabParameter
 
         var getParameters = function(type) {
             return parameters.param[0][type];
+        };
+
+        var getRequestParameters = function() {
+            parameters = CollabParameterRest.get({ ctx: ctx, id: ctx });
+            return parameters
         };
 
         var getAllParameters = function() {
@@ -439,7 +459,7 @@ ModelCatalogServices.service('CollabParameters', ['$rootScope', 'CollabParameter
 
                 ctx = url.split("?")[1]
                 ctx = ctx.substring(4);
-                
+
 
                 return (ctx);
             }
@@ -448,13 +468,13 @@ ModelCatalogServices.service('CollabParameters', ['$rootScope', 'CollabParameter
         var setService = function() {
             _getCtx();
             if (typeof(parameters) == "undefined") {
-                parameters = CollabParameterRest.get({ id: ctx }); //need to get collab number
+                parameters = CollabParameterRest.get({ ctx: ctx, id: ctx }); //need to get collab number
                 parameters.$promise.then(function() {
 
                     if (parameters.param.length == 0) {
                         post = _postInitCollab();
                         post.$promise.then(function() {
-                            parameters = CollabParameterRest.get({ id: ctx });
+                            parameters = CollabParameterRest.get({ ctx: ctx, id: ctx });
 
                         });
                     } else {
@@ -469,17 +489,7 @@ ModelCatalogServices.service('CollabParameters', ['$rootScope', 'CollabParameter
         };
 
         var _postInitCollab = function() {
-            parameters = {
-                'param': [{
-                    'data_modalities': [],
-                    'test_type': [],
-                    'species': [],
-                    'brain_region': [],
-                    'cell_type': [],
-                    'model_type': [],
-                }, ],
-                '$promise': true,
-            };
+            initConfiguration();
 
             post = post_parameters();
             return post;
@@ -497,7 +507,7 @@ ModelCatalogServices.service('CollabParameters', ['$rootScope', 'CollabParameter
                 'cell_type': String(parameters.param[0]['cell_type']),
                 'model_type': String(parameters.param[0]['model_type']),
             });
-            post = CollabParameterRest.save(data_to_send, function(value) {});
+            post = CollabParameterRest.save({ ctx: ctx }, data_to_send, function(value) {});
             return post;
         };
 
@@ -513,15 +523,29 @@ ModelCatalogServices.service('CollabParameters', ['$rootScope', 'CollabParameter
                 'model_type': String(parameters.param[0]['model_type']),
             });
 
-            put = CollabParameterRest.put({ id: ctx }, data_to_send, function(value) {});
+            put = CollabParameterRest.put({ ctx: ctx, id: ctx }, data_to_send, function(value) {});
             return put;
         };
 
         var getCtx = function() {
-            alert(ctx);
-            
+
             return ctx;
         }
+
+        var initConfiguration = function() {
+            parameters = {
+                'param': [{
+                    'data_modalities': [],
+                    'test_type': [],
+                    'species': [],
+                    'brain_region': [],
+                    'cell_type': [],
+                    'model_type': [],
+                }, ],
+                '$promise': true,
+            };
+
+        };
 
         return {
             addParameter: addParameter,
@@ -532,6 +556,7 @@ ModelCatalogServices.service('CollabParameters', ['$rootScope', 'CollabParameter
             post_parameters: post_parameters,
             put_parameters: put_parameters,
             getCtx: getCtx,
+            initConfiguration: initConfiguration,
         };
 
     }
