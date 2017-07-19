@@ -2,8 +2,9 @@ from django.conf.urls import url
 from .views import (
                     ModelCatalogView,
                     HomeValidationView,
+                    ParametersConfigurationView,
 
-                    CollabParameterRest,
+                    ParametersConfigurationRest,
                     AuthorizedCollabParameterRest,
                     ScientificModelRest,
                     ValidationTestDefinitionRest,
@@ -33,6 +34,10 @@ urlpatterns = (
         HomeValidationView.as_view(),
         name="home-validation-view"),
 
+    url(r'^app/parametersconfigurationrest/$',
+        ParametersConfigurationRest.as_view(),
+        ),
+
     url(r'^app/scientificmodel/$',
         ScientificModelRest.as_view(),
         name="scientific-model"),
@@ -57,10 +62,6 @@ urlpatterns = (
         TestCommentRest.as_view(),
         name="test-comment"),
 
-    url(r'^app/collabparameterrest/$',
-        # csrf_exempt(CollabParameterRest.as_view())
-        CollabParameterRest.as_view(), #csrf_exempt(views.LoginView.as_view()) #login_required #login_required(login_url='/login/hbp')
-        ),
     url(r'^app/collabidrest/$',
         CollabIDRest.as_view(), 
         ),
@@ -69,14 +70,14 @@ urlpatterns = (
         ),
 
 
-     #model catalog app url
+######## model catalog app url ##########
     url(r'^model-catalog/$',
         ModelCatalogView.as_view(),
         name="model-catalog-view"),
-    url(r'^model-catalog/collabparameterrest/$',
-        # csrf_exempt(CollabParameterRest.as_view())
-        CollabParameterRest.as_view(), #csrf_exempt(views.LoginView.as_view()) #login_required #login_required(login_url='/login/hbp')
+    url(r'^model-catalog/parametersconfigurationrest/$',
+        ParametersConfigurationRest.as_view(),
         ),
+
     url(r'^model-catalog/scientificmodel/$',
         ScientificModelRest.as_view(),
         name="scientific-model"),
@@ -90,6 +91,20 @@ urlpatterns = (
     url(r'^model-catalog/scientificmodelimage/$',
         ScientificModelImageRest.as_view(),
         name="scientific-model-image"),
+
+
+
+######## ParameterConfiguration ##########
+    url(r'^parametersconfiguration/$',
+        ParametersConfigurationView.as_view(),
+        ),   
+    url(r'^parametersconfiguration/parametersconfigurationrest/$',
+        ParametersConfigurationRest.as_view(),
+        ),   
+
+    url(r'^parametersconfiguration/authorizedcollabparameterrest/$',
+        AuthorizedCollabParameterRest.as_view(),
+        ),   
 
 )
 

@@ -209,7 +209,7 @@ class HomeValidationView(View):
     template_name = "validation_home.html"
     login_url='/login/hbp/'
 
-    def get(self, request, *args, **kwargs):
+    def get(self, request, *args, **kwargs): 
         tests = ValidationTestDefinition.objects.all()
         models = ScientificModel.objects.all()
         tests = serializers.serialize("json", tests)
@@ -300,7 +300,7 @@ class CollabIDRest(APIView):
 
 
 
-class CollabParameterRest( APIView): #LoginRequiredMixin, 
+class ParametersConfigurationRest( APIView): #LoginRequiredMixin, 
 
     def get(self, request, format=None, **kwargs):
 
@@ -653,6 +653,16 @@ class ModelCatalogView(View):
         models = ScientificModel.objects.all()
         models = serializers.serialize("json", models) 
         return render(request, self.template_name, {'models':models})
+
+# @method_decorator(login_required(login_url='/login/hbp'), name='dispatch' )
+class ParametersConfigurationView(View):
+    
+    template_name = "parameters-configuration.html"
+    login_url='/login/hbp/'
+
+    def get(self, request, *args, **kwargs):
+        return render(request, self.template_name, {})
+
 
 
 

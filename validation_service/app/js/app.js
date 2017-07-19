@@ -7,13 +7,14 @@ var testApp = angular.module('testApp', [
     'ui.router',
     'ng',
     'ngResource',
-    'validationAppServices',
+    'ParametersConfigurationServices',
+    'ApiCommunicationServices',
     'ngCookies',
 ]);
 
 testApp.config(
     function($cookiesProvider, $httpProvider, $stateProvider, $locationProvider, $rootScopeProvider, $resourceProvider, $urlRouterProvider) {
-$resourceProvider.defaults.stripTrailingSlashes = false;
+        $resourceProvider.defaults.stripTrailingSlashes = false;
         $stateProvider
             .state('home', {
                 url: '/home',
@@ -57,7 +58,8 @@ var ModelCatalogApp = angular.module('ModelCatalogApp', [
     'ui.router',
     'ng',
     'ngResource',
-    'ModelCatalogServices',
+    'ApiCommunicationServices',
+    'ParametersConfigurationServices',
 ]);
 
 ModelCatalogApp.config(
@@ -96,5 +98,32 @@ ModelCatalogApp.config(
                 controller: 'ModelCatalogEditCtrl'
             });
         $urlRouterProvider.otherwise('/model-catalog');
+
+    });
+
+
+
+
+//Config App
+var ParametersConfigurationApp = angular.module('ParametersConfigurationApp', [
+    'ui.router',
+    'ng',
+    'ngResource',
+    'ParametersConfigurationServices',
+    'ApiCommunicationServices',
+]);
+
+ParametersConfigurationApp.config(
+    function($httpProvider, $stateProvider, $locationProvider, $rootScopeProvider, $resourceProvider, $urlRouterProvider) {
+
+        $resourceProvider.defaults.stripTrailingSlashes = false;
+        $stateProvider
+            .state('ParametersConfiguration', {
+                url: '/parametersconfiguration',
+                templateUrl: '/static/js/parameters-configuration.tpl.html',
+                controller: 'ParametersConfigurationCtrl'
+            })
+
+        $urlRouterProvider.otherwise('/parametersconfiguration');
 
     });
