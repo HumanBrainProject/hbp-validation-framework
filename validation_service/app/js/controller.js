@@ -20,6 +20,7 @@ testApp.controller('HomeCtrl', ['$scope', '$rootScope', '$http', '$location', "S
 
 testApp.controller('ValTestCtrl', ['$scope', '$rootScope', '$http', '$location', 'ValidationTestDefinitionRest', 'CollabParameters',
     function($scope, $rootScope, $http, $location, ValidationTestDefinitionRest, CollabParameters) {
+        console.log("ValTestCtrl");
         CollabParameters.setService().$promise.then(function() {
 
             $scope.test_list = ValidationTestDefinitionRest.get({ ctx: CollabParameters.getCtx() }, function(data) {});
@@ -34,6 +35,7 @@ testApp.controller('ValTestCtrl', ['$scope', '$rootScope', '$http', '$location',
 
 testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$location', '$stateParams', '$state', 'ValidationTestDefinitionRest', 'ValidationTestCodeRest', 'CollabParameters', 'TestCommentRest',
     function($scope, $rootScope, $http, $location, $stateParams, $state, ValidationTestDefinitionRest, ValidationTestCodeRest, CollabParameters, TestCommentRest) {
+        console.log("ValTestDetailCtrl");
         CollabParameters.setService().$promise.then(function() {
             $scope.detail_test = ValidationTestDefinitionRest.get({ ctx: CollabParameters.getCtx(), id: $stateParams.uuid });
 
@@ -98,6 +100,9 @@ testApp.controller('TestResultCtrl', ['$scope', '$rootScope', '$http', '$locatio
         CollabParameters.setService().$promise.then(function() {
 
         });
+        $scope.goToDetailView = function(test) {
+            $location.path('/home/validation_test/:uuid' + test.id);
+        };
     }
 ]);
 
@@ -359,6 +364,11 @@ ModelCatalogApp.controller('ModelCatalogCtrl', ['$scope', '$rootScope', '$http',
             console.log("2");
 
             $scope.collab_species = CollabParameters.getParameters("species");
+            console.log($scope.collab_species);
+            console.log($scope.collab_species);
+            console.log($scope.collab_species);
+            console.log($scope.collab_species);
+            console.log($scope.collab_species);
             $scope.collab_brain_region = CollabParameters.getParameters("brain_region");
             $scope.collab_cell_type = CollabParameters.getParameters("cell_type");
             $scope.collab_model_type = CollabParameters.getParameters("model_type");
@@ -542,7 +552,16 @@ ParametersConfigurationApp.controller('ParametersConfigurationCtrl', ['$scope', 
 
             $scope.list_param = AuthaurizedCollabParameterRest.get({ ctx: CollabParameters.getCtx() });
 
-            // console.log($scope.list_param);
+            $scope.list_param.$promise.then(function() {
+                $scope.data_modalities = $scope.list_param.data_modalities;
+                $scope.test_type = $scope.list_param.test_type;
+                $scope.model_type = $scope.list_param.model_type;
+                $scope.species = $scope.list_param.species;
+                $scope.brain_region = $scope.list_param.brain_region;
+                $scope.cell_type = $scope.list_param.cell_type;
+
+            });
+
 
 
 

@@ -118,12 +118,17 @@ ParametersConfigurationApp.config(
 
         $resourceProvider.defaults.stripTrailingSlashes = false;
         $stateProvider
-            .state('ParametersConfiguration', {
-                url: '/parametersconfiguration',
-                templateUrl: '/static/js/parameters-configuration.tpl.html',
+            .state('ValidationParametersConfiguration', {
+                url: '/validationparametersconfiguration',
+                templateUrl: '/static/js/validation-parameters-configuration.tpl.html',
+                controller: 'ParametersConfigurationCtrl'
+            })
+            .state('ModelParametersConfiguration', {
+                url: '/modelparametersconfiguration',
+                templateUrl: '/static/js/model-parameters-configuration.tpl.html',
                 controller: 'ParametersConfigurationCtrl'
             })
 
-        $urlRouterProvider.otherwise('/parametersconfiguration');
+        $urlRouterProvider.otherwise('/validationparametersconfiguration');
 
     });

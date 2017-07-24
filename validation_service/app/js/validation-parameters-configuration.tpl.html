@@ -1,0 +1,191 @@
+<div ng-app="testApp">
+    <div ng-controller="ParametersConfigurationCtrl">
+
+        <head>
+            <nav class="navbar ">
+                <h1 align=center> Parameters configuration</h1>
+            </nav>
+        </head>
+
+
+        </br>
+        </br>
+        </br>
+        <h3>Selectors:</h3>
+        </br>
+
+
+
+
+        </br>
+        </br>
+        </br>
+        <table>
+            <tr>
+
+
+                <td style="width: 200px">
+                    <select multiple="multiple" ng-model="selected_species" ng-options="element.authorized_value  for element in list_param.species "></select>
+                </td>
+
+
+
+                <td style="width: 200px">
+                    <select multiple="multiple" ng-model="selected_brain_region" ng-options="element.authorized_value for element in list_param.brain_region "></select>
+                </td>
+
+
+                <td style="width: 200px">
+                    <select multiple="multiple" ng-model="selected_cell_type" ng-options="element.authorized_value for element in list_param.cell_type "></select>
+                </td>
+            </tr>
+
+        </table>
+
+
+
+        </br>
+        </br>
+        </br>
+        </br>
+        </br>
+        <h3>Selections:</h3>
+        </br>
+        <table class="table table-bordered">
+
+            <thead>
+                <tr>
+                    <!--<th>Data modalities</th>-->
+                    <th>
+                        <!--<td style="width: 200px">-->
+                        <multiselect placeholder="Data modalities" ng-model="selected_data_modalities" options="data_modalities " display-prop="authorized_value" id-prop="id">
+                        </multiselect>
+                        <!--</td>-->
+                    </th>
+
+                    <th>
+                        <multiselect placeholder="Test type" ng-model="selected_test_type" options="test_type " display-prop="authorized_value" id-prop="id">
+                        </multiselect>
+                    </th>
+                    <th>
+                        <multiselect placeholder="Model type" ng-model="selected_model_type" options="model_type" display-prop="authorized_value" id-prop="id">
+                        </multiselect>
+                    </th>
+                </tr>
+
+            </thead>
+            <tbody>
+                <td>
+                    <table class="table table-striped">
+                        <thead></thead>
+
+                        <tbody>
+
+                            <tr ng-repeat="(key, value) in selected_data_modalities">
+                                <td>{{value.authorized_value}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </td>
+
+                <td>
+                    <table class="table table-striped">
+                        <thead></thead>
+
+                        <tbody>
+                            <tr ng-repeat="(key, value) in selected_test_type">
+                                <td>{{value.authorized_value}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </td>
+
+                <td>
+                    <table class="table table-striped">
+                        <thead></thead>
+
+                        <tbody>
+                            <tr ng-repeat="(key, value) in selected_model_type">
+                                <td>{{value.authorized_value}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </td>
+            </tbody>
+        </table>
+        </br>
+
+
+
+
+
+        <table class="table table-bordered">
+
+            <thead>
+                <tr>
+                    <th>Species</th>
+                    <th>Brain region</th>
+                    <th>Cell type</th>
+                </tr>
+
+            </thead>
+            <tbody>
+                <td>
+                    <table class="table table-striped">
+                        <thead></thead>
+
+                        <tbody>
+                            <tr ng-repeat="(key, value) in selected_species">
+                                <td>{{value.authorized_value}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </td>
+
+                <td>
+                    <table class="table table-striped">
+                        <thead></thead>
+
+                        <tbody>
+                            <tr ng-repeat="(key, value) in selected_brain_region">
+                                <td>{{value.authorized_value}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </td>
+
+                <td>
+                    <table class="table table-striped">
+                        <thead></thead>
+
+                        <tbody>
+                            <tr ng-repeat="(key, value) in selected_cell_type">
+                                <td>{{value.authorized_value}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </td>
+            </tbody>
+        </table>
+
+
+
+
+        </br>
+        <table>
+            <tr>
+                <!--<td>
+                    <button ng-click="reloadPage();">Reset</button>
+                </td>-->
+                <td>
+                    <button ng-click="make_post();">Save</button>
+                </td>
+            </tr>
+
+        </table>
+
+    </div>
+
+
+
+</div>
