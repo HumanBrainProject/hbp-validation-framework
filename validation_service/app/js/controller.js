@@ -364,11 +364,6 @@ ModelCatalogApp.controller('ModelCatalogCtrl', ['$scope', '$rootScope', '$http',
             console.log("2");
 
             $scope.collab_species = CollabParameters.getParameters("species");
-            console.log($scope.collab_species);
-            console.log($scope.collab_species);
-            console.log($scope.collab_species);
-            console.log($scope.collab_species);
-            console.log($scope.collab_species);
             $scope.collab_brain_region = CollabParameters.getParameters("brain_region");
             $scope.collab_cell_type = CollabParameters.getParameters("cell_type");
             $scope.collab_model_type = CollabParameters.getParameters("model_type");
@@ -561,6 +556,14 @@ ParametersConfigurationApp.controller('ParametersConfigurationCtrl', ['$scope', 
                 $scope.cell_type = $scope.list_param.cell_type;
 
             });
+
+
+            $scope.selected_data_modalities = CollabParameters.getParameters_authorized_value_formated("data_modalities");
+            $scope.selected_test_type = CollabParameters.getParameters_authorized_value_formated("test_type");
+            $scope.selected_model_type = CollabParameters.getParameters_authorized_value_formated("model_type");
+            $scope.selected_species = CollabParameters.getParameters_authorized_value_formated("species");
+            $scope.selected_brain_region = CollabParameters.getParameters_authorized_value_formated("brain_region");
+            $scope.selected_cell_type = CollabParameters.getParameters_authorized_value_formated("cell_type");
 
 
 

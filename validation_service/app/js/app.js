@@ -129,6 +129,6 @@ ParametersConfigurationApp.config(
                 controller: 'ParametersConfigurationCtrl'
             })
 
-        $urlRouterProvider.otherwise('/validationparametersconfiguration');
+        $urlRouterProvider.otherwise('/modelparametersconfiguration');
 
     });
