@@ -7,8 +7,6 @@ testApp.controller('HomeCtrl', ['$scope', '$rootScope', '$http', '$location', "S
     function($scope, $rootScope, $http, $location, ScientificModelRest, ValidationTestDefinitionRest, CollabParameters) {
 
         CollabParameters.setService().$promise.then(function() {
-            // console.log(CollabParameters.getParameters("species"));
-
 
             // $scope.models = ScientificModelRest.get({}, function(data) {});
             $scope.models = ScientificModelRest.get({ ctx: CollabParameters.getCtx() }, function(data) {});
@@ -20,7 +18,7 @@ testApp.controller('HomeCtrl', ['$scope', '$rootScope', '$http', '$location', "S
 
 testApp.controller('ValTestCtrl', ['$scope', '$rootScope', '$http', '$location', 'ValidationTestDefinitionRest', 'CollabParameters',
     function($scope, $rootScope, $http, $location, ValidationTestDefinitionRest, CollabParameters) {
-        console.log("ValTestCtrl");
+
         CollabParameters.setService().$promise.then(function() {
 
             $scope.test_list = ValidationTestDefinitionRest.get({ ctx: CollabParameters.getCtx() }, function(data) {});
@@ -129,15 +127,9 @@ testApp.controller('ConfigCtrl', ['$scope', '$rootScope', '$http', '$location', 
     function($scope, $rootScope, $http, $location, CollabParameters, AuthaurizedCollabParameterRest) {
 
         CollabParameters.setService().$promise.then(function() {
-
             // $scope.list_param2 = AuthaurizedCollabParameterRest2.get({});
 
-
             $scope.list_param = AuthaurizedCollabParameterRest.get({ ctx: CollabParameters.getCtx() });
-
-            // console.log($scope.list_param);
-
-
 
             $scope.make_post = function() {
 
@@ -351,24 +343,14 @@ ModelCatalogApp.filter('filterMultiple', ['$parse', '$filter', function($parse, 
 ModelCatalogApp.controller('ModelCatalogCtrl', ['$scope', '$rootScope', '$http', '$location', 'ScientificModelRest', 'CollabParameters',
 
     function($scope, $rootScope, $http, $location, ScientificModelRest, CollabParameters) {
-        // $scope.selected_species = {};
-        // $scope.selected_brain_region = {};
-        // $scope.selected_cell_type = {};
-        // $scope.selected_model_type = {};
-
-        console.log("1");
-
-        console.log(CollabParameters.setService());
 
         CollabParameters.setService().$promise.then(function() {
-            console.log("2");
 
             $scope.collab_species = CollabParameters.getParameters("species");
             $scope.collab_brain_region = CollabParameters.getParameters("brain_region");
             $scope.collab_cell_type = CollabParameters.getParameters("cell_type");
             $scope.collab_model_type = CollabParameters.getParameters("model_type");
             var ctx = CollabParameters.getCtx();
-            console.log(ctx);
             $scope.models = ScientificModelRest.get({ ctx: ctx });
         });
         $scope.goToDetailView = function(model) {
@@ -490,16 +472,13 @@ ModelCatalogApp.controller('ModelCatalogEditCtrl', ['$scope', '$rootScope', '$ht
                 $scope.addImage = false;
             };
             $scope.editImages = function() {
-
                 var parameters = $scope.model.model_images;
-                console.log(parameters)
                 var a = ScientificModelImageRest.put({ ctx: CollabParameters.getCtx() }, parameters).$promise.then(function(data) {
                     alert('model images have been correctly edited')
                 });
             };
             $scope.saveModel = function() {
                 var parameters = $scope.model;
-                console.log(parameters)
                 var a = ScientificModelRest.put({ ctx: CollabParameters.getCtx() }, parameters).$promise.then(function(data) {
                     alert('model correctly edited');
                 });
