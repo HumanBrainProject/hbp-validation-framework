@@ -542,7 +542,7 @@ ModelCatalogApp.controller('ModelCatalogVersionCtrl', ['$scope', '$rootScope', '
 
 var ParametersConfigurationApp = angular.module('ParametersConfigurationApp');
 
-ParametersConfigurationApp.controller('ParametersConfigurationCtrl', ['$scope', '$rootScope', '$http', '$location', 'CollabParameters', 'AuthaurizedCollabParameterRest',
+ParametersConfigurationApp.controller('ParametersConfigurationValidationCtrl', ['$scope', '$rootScope', '$http', '$location', 'CollabParameters', 'AuthaurizedCollabParameterRest',
     function($scope, $rootScope, $http, $location, CollabParameters, AuthaurizedCollabParameterRest) {
 
         CollabParameters.setService().$promise.then(function() {
@@ -604,5 +604,20 @@ ParametersConfigurationApp.controller('ParametersConfigurationCtrl', ['$scope', 
 
 
         });
+    }
+]);
+
+
+ParametersConfigurationApp.controller('ParametersConfigurationCtrl', ['$scope', '$rootScope', '$http', '$location', 'CollabParameters', 'AuthaurizedCollabParameterRest',
+    function($scope, $rootScope, $http, $location, CollabParameters, AuthaurizedCollabParameterRest) {
+        $scope.init = function() {
+            var app_type = document.getElementById("app").getAttribute("value");
+            if (app_type == "model_catalog") {
+                $location.path('/modelparametersconfiguration');
+            } else if (app_type == "validation_app") {
+                $location.path('/validationparametersconfiguration');
+            }
+        }
+
     }
 ]);

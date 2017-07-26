@@ -12,7 +12,10 @@ from .views import (
                     ScientificModelImageRest,
                     ValidationTestCodeRest,
                     TestCommentRest,
-                    CollabIDRest
+                    CollabIDRest,
+
+                    ParametersConfigurationModelView,
+                    ParametersConfigurationValidationView,
                     )
 
 # from django.contrib.auth.decorators import login_required
@@ -97,7 +100,8 @@ urlpatterns = (
 ######## ParameterConfiguration ##########
     url(r'^parametersconfiguration/$',
         ParametersConfigurationView.as_view(),
-        ),   
+        name="parameters-configuration"), 
+
     url(r'^parametersconfiguration/parametersconfigurationrest/$',
         ParametersConfigurationRest.as_view(),
         ),   
@@ -106,6 +110,21 @@ urlpatterns = (
         AuthorizedCollabParameterRest.as_view(),
         ),   
 
+    url(r'^parametersconfiguration-model-catalog/$',
+        ParametersConfigurationModelView.as_view(), 
+        ),  
+
+    url(r'^parametersconfiguration-model-catalog/parametersconfigurationrest/$',
+        ParametersConfigurationRest.as_view(),
+        ),
+
+    url(r'^parametersconfiguration-model-catalog/authorizedcollabparameterrest/$',
+        AuthorizedCollabParameterRest.as_view(),
+        ),
+
+    url(r'^parametersconfiguration-test-app/$',
+        ParametersConfigurationValidationView.as_view(), 
+        ),  
 )
 
 
