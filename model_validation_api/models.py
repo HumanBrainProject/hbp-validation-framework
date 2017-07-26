@@ -158,6 +158,7 @@ class Comment(models.Model):
 
 class CollabParameters(models.Model): 
     id = models.CharField(primary_key=True, max_length=100 , default="")
+    app_type = models.CharField(max_length=100 ,blank=True, help_text="type of application: model catalog or validation test")
     data_modalities = models.CharField(max_length=500 ,blank=True, help_text="species")
     test_type = models.CharField(max_length=500, blank=True, help_text="species")
     species = models.CharField(max_length=500,blank=True, help_text="species")
@@ -166,7 +167,7 @@ class CollabParameters(models.Model):
     model_type = models.CharField(max_length=500, blank=True, help_text="model type: single cell, network or mean field region")
 
     def __str__(self):
-            return "Model: {} ({})".format(self.id)
+            return "Collab Parameters {}".format(self.id)
 
 
     # foo = models.CharField(max_length=200)
