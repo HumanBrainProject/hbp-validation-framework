@@ -12,7 +12,8 @@ from .views import (
                     ScientificModelImageRest,
                     ValidationTestCodeRest,
                     TestCommentRest,
-                    CollabIDRest
+                    CollabIDRest,
+                    IsCollabMemberRest
                     )
 
 # from django.contrib.auth.decorators import login_required
@@ -68,7 +69,7 @@ urlpatterns = (
     url(r'^app/authorizedcollabparameterrest/$',
         AuthorizedCollabParameterRest.as_view(), 
         ),
-    url(r'^app/iscollabmember/$',
+    url(r'^app/iscollabmemberrest/$',
         IsCollabMemberRest.as_view(),
         ), 
 
@@ -95,7 +96,7 @@ urlpatterns = (
         ScientificModelImageRest.as_view(),
         name="scientific-model-image"),
     
-    url(r'^model-catalog/iscollabmember/$',
+    url(r'^model-catalog/iscollabmemberrest/$',
         IsCollabMemberRest.as_view(),
         ), 
 
@@ -113,7 +114,7 @@ urlpatterns = (
         AuthorizedCollabParameterRest.as_view(),
         ),   
 
-    url(r'^parametersconfiguration/iscollabmember/$',
+    url(r'^parametersconfiguration/iscollabmemberrest/$',
         IsCollabMemberRest.as_view(),
         ),   
 
