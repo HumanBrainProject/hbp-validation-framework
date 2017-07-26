@@ -669,6 +669,7 @@ class ParametersConfigurationView(View):
 
 class IsCollabMemberRest (APIView):
     def get(self, request, format=None, **kwargs):
+
         ctx = request.query_params['ctx']
         is_member = _is_collaborator(request, ctx) # bool
 

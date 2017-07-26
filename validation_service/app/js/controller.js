@@ -340,9 +340,9 @@ ModelCatalogApp.filter('filterMultiple', ['$parse', '$filter', function($parse, 
     }
 }]);
 //controllers
-ModelCatalogApp.controller('ModelCatalogCtrl', ['$scope', '$rootScope', '$http', '$location', 'ScientificModelRest', 'CollabParameters',
+ModelCatalogApp.controller('ModelCatalogCtrl', ['$scope', '$rootScope', '$http', '$location', 'ScientificModelRest', 'CollabParameters', 'IsCollabMemberRest',
 
-    function($scope, $rootScope, $http, $location, ScientificModelRest, CollabParameters) {
+    function($scope, $rootScope, $http, $location, ScientificModelRest, CollabParameters, IsCollabMemberRest) {
 
         CollabParameters.setService().$promise.then(function() {
 
@@ -352,6 +352,14 @@ ModelCatalogApp.controller('ModelCatalogCtrl', ['$scope', '$rootScope', '$http',
             $scope.collab_model_type = CollabParameters.getParameters("model_type");
             var ctx = CollabParameters.getCtx();
             $scope.models = ScientificModelRest.get({ ctx: ctx });
+
+
+            $scope.is_collab_member = false;
+            $scope.is_collab_member = IsCollabMemberRest.get({ ctx: ctx, })
+            $scope.is_collab_member.$promise.then(function() {
+                $scope.is_collab_member = $scope.is_collab_member.is_member;
+
+            });
         });
         $scope.goToDetailView = function(model) {
             $location.path('/model-catalog/detail/' + model.id);
@@ -409,8 +417,8 @@ ModelCatalogApp.controller('ModelCatalogCreateCtrl', ['$scope', '$rootScope', '$
 
 ]);
 
-ModelCatalogApp.controller('ModelCatalogDetailCtrl', ['$scope', '$rootScope', '$http', '$location', '$stateParams', 'ScientificModelRest', 'CollabParameters',
-    function($scope, $rootScope, $http, $lcation, $stateParams, ScientificModelRest, CollabParameters) {
+ModelCatalogApp.controller('ModelCatalogDetailCtrl', ['$scope', '$rootScope', '$http', '$location', '$stateParams', 'ScientificModelRest', 'CollabParameters', 'IsCollabMemberRest',
+    function($scope, $rootScope, $http, $lcation, $stateParams, ScientificModelRest, CollabParameters, IsCollabMemberRest) {
 
         CollabParameters.setService().$promise.then(function() {
 
@@ -428,6 +436,13 @@ ModelCatalogApp.controller('ModelCatalogDetailCtrl', ['$scope', '$rootScope', '$
                 $scope.image = {};
                 $("#ImagePopupDetail").hide();
             };
+
+
+            $scope.is_collab_member = false;
+            $scope.is_collab_member = IsCollabMemberRest.get({ ctx: $scope.ctx, })
+            $scope.is_collab_member.$promise.then(function() {
+                $scope.is_collab_member = $scope.is_collab_member.is_member;
+            });
 
         });
 

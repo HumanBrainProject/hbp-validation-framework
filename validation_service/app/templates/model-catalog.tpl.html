@@ -27,7 +27,7 @@
                 <td>
                     <multiselect ng-model="selected_model_type" placeholder="Select model type" options="collab_model_type"></multiselect>
                 </td>
-                <td><a class="button-MC" ng-href="#/model-catalog/create" class="btn btn-primary">New model </a></td>
+                <td><a class="button-MC" ng-href="#/model-catalog/create" ng-if="is_collab_member == true" class="btn btn-primary">New model </a></td>
             </tr>
         </table>
         <br>
