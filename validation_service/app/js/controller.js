@@ -343,7 +343,6 @@ ModelCatalogApp.filter('filterMultiple', ['$parse', '$filter', function($parse, 
 ModelCatalogApp.controller('ModelCatalogCtrl', ['$scope', '$rootScope', '$http', '$location', 'ScientificModelRest', 'CollabParameters',
 
     function($scope, $rootScope, $http, $location, ScientificModelRest, CollabParameters) {
-
         CollabParameters.setService().$promise.then(function() {
 
             $scope.collab_species = CollabParameters.getParameters("species");
@@ -516,11 +515,11 @@ ModelCatalogApp.controller('ModelCatalogVersionCtrl', ['$scope', '$rootScope', '
 
 var ParametersConfigurationApp = angular.module('ParametersConfigurationApp');
 
-ParametersConfigurationApp.controller('ParametersConfigurationValidationCtrl', ['$scope', '$rootScope', '$http', '$location', 'CollabParameters', 'AuthaurizedCollabParameterRest',
+ParametersConfigurationApp.controller('ParametersConfigurationCtrl', ['$scope', '$rootScope', '$http', '$location', 'CollabParameters', 'AuthaurizedCollabParameterRest',
     function($scope, $rootScope, $http, $location, CollabParameters, AuthaurizedCollabParameterRest) {
 
         CollabParameters.setService().$promise.then(function() {
-
+            var app_type = document.getElementById("app").getAttribute("value");
             // $scope.list_param2 = AuthaurizedCollabParameterRest2.get({});
 
 
@@ -575,11 +574,10 @@ ParametersConfigurationApp.controller('ParametersConfigurationValidationCtrl', [
                     CollabParameters.addParameter("cell_type", value.authorized_value);
                 });
 
+                CollabParameters.addParameter("app_type", app_type);
 
                 CollabParameters.put_parameters().$promise.then(function() {
-                    CollabParameters.getRequestParameters().$promise.then(function() {
-                        $location.path('/home');
-                    });
+                    CollabParameters.getRequestParameters().$promise.then(function() {});
                 });
 
             };
@@ -590,7 +588,7 @@ ParametersConfigurationApp.controller('ParametersConfigurationValidationCtrl', [
 ]);
 
 
-ParametersConfigurationApp.controller('ParametersConfigurationCtrl', ['$scope', '$rootScope', '$http', '$location', 'CollabParameters', 'AuthaurizedCollabParameterRest',
+ParametersConfigurationApp.controller('ParametersConfigurationRedirectCtrl', ['$scope', '$rootScope', '$http', '$location', 'CollabParameters', 'AuthaurizedCollabParameterRest',
     function($scope, $rootScope, $http, $location, CollabParameters, AuthaurizedCollabParameterRest) {
         $scope.init = function() {
             var app_type = document.getElementById("app").getAttribute("value");

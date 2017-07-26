@@ -167,7 +167,7 @@ class CollabParameters(models.Model):
     model_type = models.CharField(max_length=500, blank=True, help_text="model type: single cell, network or mean field region")
 
     def __str__(self):
-            return "Model: {} ({})".format(self.id)
+            return "Collab Parameters {}".format(self.id)
 
 
     # foo = models.CharField(max_length=200)

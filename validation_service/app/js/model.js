@@ -223,6 +223,7 @@ ParametersConfigurationServices.service('CollabParameters', ['$rootScope', 'Coll
                 'brain_region': String(parameters.param[0]['brain_region']),
                 'cell_type': String(parameters.param[0]['cell_type']),
                 'model_type': String(parameters.param[0]['model_type']),
+                'app_type': String(parameters.param[0]['app_type']),
             });
             post = CollabParameterRest.save({ ctx: ctx }, data_to_send, function(value) {});
             return post;
@@ -238,6 +239,7 @@ ParametersConfigurationServices.service('CollabParameters', ['$rootScope', 'Coll
                 'brain_region': String(parameters.param[0]['brain_region']),
                 'cell_type': String(parameters.param[0]['cell_type']),
                 'model_type': String(parameters.param[0]['model_type']),
+                'app_type': String(parameters.param[0]['app_type']),
             });
 
             put = CollabParameterRest.put({ ctx: ctx, id: ctx }, data_to_send, function(value) {});
@@ -258,6 +260,7 @@ ParametersConfigurationServices.service('CollabParameters', ['$rootScope', 'Coll
                     'brain_region': [],
                     'cell_type': [],
                     'model_type': [],
+                    'app_type': [],
                 }, ],
                 '$promise': true,
             };

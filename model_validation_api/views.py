@@ -164,10 +164,8 @@ def _is_collaborator(request, context):
         return False
 
     url = '%scollab/context/%s/' % (svc_url, context)
-
     headers = {'Authorization': get_auth_header(request.user.social_auth.get())}
     res = requests.get(url, headers=headers)
-
     if res.status_code != 200:
         return False
 
@@ -283,14 +281,11 @@ def _get_collab_id(request):
 
 class CollabIDRest(APIView): 
     def get(self, request, format=None, **kwargs):
-        print self.request.user
         if self.request.user == "AnonymousUser" :
             collab_id = self.request.user
         else :         
             collab_id = _get_collab_id(request)
             # collab_id = self.request.user
-    
-            print ("collab id : " +str(collab_id))
 
         serilized_collab_id = [{ 'id': str(collab_id)  }]
 
@@ -468,7 +463,6 @@ class ScientificModelRest(APIView):
         ctx = request.query_params['ctx']
         if not _is_collaborator(request, ctx):
             return HttpResponseForbidden()
-
         serializer_context = {'request': request,}
         # check if data is ok else return error
         model_serializer = ScientificModelSerializer(data=request.data['model'], context=serializer_context)
@@ -661,9 +655,8 @@ class ParametersConfigurationValidationView(View):
     
     template_name = "parameters-configuration.html"
     login_url='/login/hbp/'
-
     def get(self, request, *args, **kwargs):
-       return render(request, self.template_name, {'app_type': "test_app"})
+       return render(request, self.template_name, {'app_type': "validation_app"})
 
 # @method_decorator(login_required(login_url='/login/hbp'), name='dispatch' )
 class ParametersConfigurationModelView(View):
