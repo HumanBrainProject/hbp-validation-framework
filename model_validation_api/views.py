@@ -667,7 +667,15 @@ class ParametersConfigurationView(View):
         return render(request, self.template_name, {})
 
 
+class IsCollabMemberRest (APIView):
+    def get(self, request, format=None, **kwargs):
+        ctx = request.query_params['ctx']
+        is_member = _is_collaborator(request, ctx) # bool
 
+        return Response({
+            'is_member': is_member,
+        })
+   
 
 
 

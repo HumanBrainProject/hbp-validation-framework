@@ -68,6 +68,9 @@ urlpatterns = (
     url(r'^app/authorizedcollabparameterrest/$',
         AuthorizedCollabParameterRest.as_view(), 
         ),
+    url(r'^app/iscollabmember/$',
+        IsCollabMemberRest.as_view(),
+        ), 
 
 
 ######## model catalog app url ##########
@@ -91,6 +94,10 @@ urlpatterns = (
     url(r'^model-catalog/scientificmodelimage/$',
         ScientificModelImageRest.as_view(),
         name="scientific-model-image"),
+    
+    url(r'^model-catalog/iscollabmember/$',
+        IsCollabMemberRest.as_view(),
+        ), 
 
 
 
@@ -104,6 +111,10 @@ urlpatterns = (
 
     url(r'^parametersconfiguration/authorizedcollabparameterrest/$',
         AuthorizedCollabParameterRest.as_view(),
+        ),   
+
+    url(r'^parametersconfiguration/iscollabmember/$',
+        IsCollabMemberRest.as_view(),
         ),   
 
 )
