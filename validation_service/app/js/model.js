@@ -111,6 +111,17 @@ ParametersConfigurationServices.service('CollabParameters', ['$rootScope', 'Coll
             return parameters.param[0][type];
         };
 
+        var getParameters_authorized_value_formated = function(type) {
+            data = getParameters(type);
+            formated_data = [];
+
+            size = data.length;
+            for (var i = 0; i < size; i++) {
+                formated_data.push({ authorized_value: data[i] });
+            }
+            return formated_data;
+        };
+
         var getRequestParameters = function() {
             parameters = CollabParameterRest.get({ ctx: ctx, id: ctx });
             return parameters
@@ -256,6 +267,7 @@ ParametersConfigurationServices.service('CollabParameters', ['$rootScope', 'Coll
         return {
             addParameter: addParameter,
             getParameters: getParameters,
+            getParameters_authorized_value_formated: getParameters_authorized_value_formated,
             getAllParameters: getAllParameters,
             setService: setService,
             supprParameter: supprParameter,

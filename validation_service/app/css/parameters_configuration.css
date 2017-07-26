@@ -1,0 +1,12 @@
+#tableTest {
+    border: 2px solid lightgrey;
+    background-color: white;
+}
+
+#tab_title {
+    /*background-color: #b3e0ff;*/
+    /*background-color: #99d6ff;*/
+    /*background-color: #80ccff;*/
+    /*background-color: #3366cc;*/
+    background-color: lightblue;
+}
