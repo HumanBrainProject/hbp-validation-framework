@@ -3,7 +3,7 @@
 <h1>Validation Test </h1>
 
 <body>
-    <table id="test_table" class="table table-striped">
+    <table id="test_table" class="table">
         <thead>
             <th>Name</th>
             <th>Species</th>
@@ -20,7 +20,10 @@
         </thead>
 
         <tbody>
-            <tr classe="tr-clickable" ng-repeat='test in test_list.tests | filter:search' ng-click="goToDetailView(test)">
+
+            <!--<tr class="tr-clickable" ng-repeat="model in models.models  " ng-click="goToDetailView(model)">-->
+
+            <tr classe="tr-clickable" ng-repeat="test in test_list.tests | filter:search" ng-click="goToDetailView(test)">
                 <td>{{ test.name }}</td>
                 <td>{{ test.species }}</td>
                 <td>{{ test.age }}</td>

@@ -86,6 +86,14 @@ ApiCommunicationServices.factory('AuthaurizedCollabParameterRest', ['$resource',
     }
 ]);
 
+ApiCommunicationServices.factory('IsCollabMemberRest', ['$resource',
+    function($resource) {
+        return $resource('iscollabmemberrest/', {}, {
+            get: { method: 'GET', params: { format: 'json', ctx: 'ctx' }, isArray: false },
+        });
+    }
+]);
+
 ///////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////
 var ParametersConfigurationServices = angular.module('ParametersConfigurationServices', ['ngResource', 'btorfs.multiselect', 'ApiCommunicationServices']);
@@ -169,6 +177,7 @@ ParametersConfigurationServices.service('CollabParameters', ['$rootScope', 'Coll
 
         var _getCtx = function() {
             if (typeof(ctx) == "undefined") {
+
                 // var url = (window.location != window.parent.location) ?
                 //     document.referrer :
                 //     document.location.href;
@@ -184,20 +193,25 @@ ParametersConfigurationServices.service('CollabParameters', ['$rootScope', 'Coll
 
         var setService = function() {
             _getCtx();
+
             if (typeof(parameters) == "undefined") {
+
                 parameters = CollabParameterRest.get({ ctx: ctx, id: ctx }); //need to get collab number
                 parameters.$promise.then(function() {
 
                     if (parameters.param.length == 0) {
+
                         post = _postInitCollab();
                         post.$promise.then(function() {
                             parameters = CollabParameterRest.get({ ctx: ctx, id: ctx });
 
                         });
                     } else {
+
                         param_tab = _getParamTabValues();
                         string_tab = _StringTabToArray(param_tab);
                         _setParametersNewValues(string_tab);
+
 
                     }
                 });

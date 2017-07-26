@@ -664,9 +664,21 @@ class ParametersConfigurationModelView(View):
     template_name = "parameters-configuration.html"
     login_url='/login/hbp/'
 
+
     def get(self, request, *args, **kwargs):
         return render(request, self.template_name, {'app_type': "model_catalog"})
 
+
+class IsCollabMemberRest (APIView):
+    def get(self, request, format=None, **kwargs):
+
+        ctx = request.query_params['ctx']
+        is_member = _is_collaborator(request, ctx) # bool
+
+        return Response({
+            'is_member': is_member,
+        })
+   
 
 class ParametersConfigurationView(View):
     

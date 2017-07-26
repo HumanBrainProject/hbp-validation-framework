@@ -13,6 +13,10 @@ testApp.controller('HomeCtrl', ['$scope', '$rootScope', '$http', '$location', "S
             $scope.tests = ValidationTestDefinitionRest.get({ ctx: CollabParameters.getCtx() }, function(data) {});
 
         });
+        $scope.goToTestDetailView = function(test) {
+            $location.path('/home/validation_test/' + test.id);
+        };
+
     }
 ]);
 
@@ -22,10 +26,12 @@ testApp.controller('ValTestCtrl', ['$scope', '$rootScope', '$http', '$location',
         CollabParameters.setService().$promise.then(function() {
 
             $scope.test_list = ValidationTestDefinitionRest.get({ ctx: CollabParameters.getCtx() }, function(data) {});
-
         });
 
 
+        $scope.goToDetailView = function(test) {
+            $location.path('/home/validation_test/' + test.id);
+        };
 
 
     }
@@ -35,6 +41,7 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
     function($scope, $rootScope, $http, $location, $stateParams, $state, ValidationTestDefinitionRest, ValidationTestCodeRest, CollabParameters, TestCommentRest) {
         console.log("ValTestDetailCtrl");
         CollabParameters.setService().$promise.then(function() {
+
             $scope.detail_test = ValidationTestDefinitionRest.get({ ctx: CollabParameters.getCtx(), id: $stateParams.uuid });
 
             $scope.detail_version_test = ValidationTestCodeRest.get({ ctx: CollabParameters.getCtx(), test_definition_id: $stateParams.uuid });
@@ -98,9 +105,7 @@ testApp.controller('TestResultCtrl', ['$scope', '$rootScope', '$http', '$locatio
         CollabParameters.setService().$promise.then(function() {
 
         });
-        $scope.goToDetailView = function(test) {
-            $location.path('/home/validation_test/:uuid' + test.id);
-        };
+
     }
 ]);
 
@@ -340,9 +345,10 @@ ModelCatalogApp.filter('filterMultiple', ['$parse', '$filter', function($parse, 
     }
 }]);
 //controllers
-ModelCatalogApp.controller('ModelCatalogCtrl', ['$scope', '$rootScope', '$http', '$location', 'ScientificModelRest', 'CollabParameters',
+ModelCatalogApp.controller('ModelCatalogCtrl', ['$scope', '$rootScope', '$http', '$location', 'ScientificModelRest', 'CollabParameters', 'IsCollabMemberRest',
 
-    function($scope, $rootScope, $http, $location, ScientificModelRest, CollabParameters) {
+    function($scope, $rootScope, $http, $location, ScientificModelRest, CollabParameters, IsCollabMemberRest) {
+
         CollabParameters.setService().$promise.then(function() {
 
             $scope.collab_species = CollabParameters.getParameters("species");
@@ -351,6 +357,14 @@ ModelCatalogApp.controller('ModelCatalogCtrl', ['$scope', '$rootScope', '$http',
             $scope.collab_model_type = CollabParameters.getParameters("model_type");
             var ctx = CollabParameters.getCtx();
             $scope.models = ScientificModelRest.get({ ctx: ctx });
+
+
+            $scope.is_collab_member = false;
+            $scope.is_collab_member = IsCollabMemberRest.get({ ctx: ctx, })
+            $scope.is_collab_member.$promise.then(function() {
+                $scope.is_collab_member = $scope.is_collab_member.is_member;
+
+            });
         });
         $scope.goToDetailView = function(model) {
             $location.path('/model-catalog/detail/' + model.id);
@@ -408,8 +422,8 @@ ModelCatalogApp.controller('ModelCatalogCreateCtrl', ['$scope', '$rootScope', '$
 
 ]);
 
-ModelCatalogApp.controller('ModelCatalogDetailCtrl', ['$scope', '$rootScope', '$http', '$location', '$stateParams', 'ScientificModelRest', 'CollabParameters',
-    function($scope, $rootScope, $http, $lcation, $stateParams, ScientificModelRest, CollabParameters) {
+ModelCatalogApp.controller('ModelCatalogDetailCtrl', ['$scope', '$rootScope', '$http', '$location', '$stateParams', 'ScientificModelRest', 'CollabParameters', 'IsCollabMemberRest',
+    function($scope, $rootScope, $http, $lcation, $stateParams, ScientificModelRest, CollabParameters, IsCollabMemberRest) {
 
         CollabParameters.setService().$promise.then(function() {
 
@@ -427,6 +441,13 @@ ModelCatalogApp.controller('ModelCatalogDetailCtrl', ['$scope', '$rootScope', '$
                 $scope.image = {};
                 $("#ImagePopupDetail").hide();
             };
+
+
+            $scope.is_collab_member = false;
+            $scope.is_collab_member = IsCollabMemberRest.get({ ctx: $scope.ctx, })
+            $scope.is_collab_member.$promise.then(function() {
+                $scope.is_collab_member = $scope.is_collab_member.is_member;
+            });
 
         });
 

@@ -16,6 +16,9 @@ from .views import (
 
                     ParametersConfigurationModelView,
                     ParametersConfigurationValidationView,
+
+                    IsCollabMemberRest
+
                     )
 
 # from django.contrib.auth.decorators import login_required
@@ -60,6 +63,9 @@ urlpatterns = (
     url(r'^authorizedcollabparameterrest/$',
         AuthorizedCollabParameterRest.as_view(), 
         ),
+    url(r'^iscollabmemberrest/$',
+        IsCollabMemberRest.as_view(),
+        ), 
 
 
 ######## model catalog url ##########
@@ -77,6 +83,7 @@ urlpatterns = (
     url(r'^scientificmodelimage/$',
         ScientificModelImageRest.as_view(),
         name="scientific-model-image"),
+    
 
 
 
@@ -104,6 +111,10 @@ urlpatterns = (
         AuthorizedCollabParameterRest.as_view(),
 
         ),
+    url(r'^parametersconfiguration-model-catalog/iscollabmemberrest/$',
+        IsCollabMemberRest.as_view(),
+        ),  
+
     url(r'^parametersconfigurationrest/$',
         ParametersConfigurationRest.as_view(),
         ),
@@ -118,6 +129,11 @@ urlpatterns = (
     url(r'^parametersconfiguration-validation-app/authorizedcollabparameterrest/$',
         AuthorizedCollabParameterRest.as_view(),
     ),
+
+    url(r'^parametersconfiguration-validation-app/iscollabmemberrest/$',
+        IsCollabMemberRest.as_view(),
+        ),   
+
 )
 
 
