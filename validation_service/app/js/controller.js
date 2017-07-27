@@ -100,17 +100,12 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
     }
 ]);
 
-testApp.controller('TestResultCtrl', ['$scope', '$rootScope', '$http', '$location', 'CollabParameters',
-    function($scope, $rootScope, $http, $location, CollabParameters) {
+testApp.controller('TestResultCtrl', ['$scope', '$rootScope', '$http', '$location', 'CollabParameters', 'ValudationResultRest',
+    function($scope, $rootScope, $http, $location, CollabParameters, ValudationResultRest) {
         CollabParameters.setService().$promise.then(function() {
 
-            // console.log(d);
 
-            /* Chart options */
-            // $scope.options = { /* JSON data */ };
 
-            // /* Chart data */
-            // $scope.data = { /* JSON data */ }
 
             $scope.options = {
                 chart: {
@@ -201,6 +196,140 @@ testApp.controller('TestResultCtrl', ['$scope', '$rootScope', '$http', '$locatio
                     // }
                 ];
             };
+
+
+
+            $scope.options2 = {
+                chart: {
+                    type: 'scatterChart',
+                    height: 450,
+                    color: d3.scale.category10().range(),
+                    scatter: {
+                        onlyCircles: false
+                    },
+                    showDistX: true,
+                    showDistY: true,
+                    //tooltipContent: function(d) {
+                    //    return d.series && '<h3>' + d.series[0].key + '</h3>';
+                    //},
+                    duration: 350,
+                    xAxis: {
+                        axisLabel: 'X Axis',
+                        tickFormat: function(d) {
+                            return d3.format('.02f')(d);
+                        }
+                    },
+                    yAxis: {
+                        axisLabel: 'Y Axis',
+                        tickFormat: function(d) {
+                            return d3.format('.02f')(d);
+                        },
+                        axisLabelDistance: -5
+                    },
+                    zoom: {
+                        //NOTE: All attributes below are optional
+                        enabled: true,
+                        scaleExtent: [1, 10],
+                        useFixedDomain: false,
+                        useNiceScale: false,
+                        horizontalOff: false,
+                        verticalOff: false,
+                        unzoomEventType: 'dblclick.zoom'
+                    }
+                }
+            };
+
+            // $scope.data2 = generateData(4, 40);
+
+            $scope.data_django = ValudationResultRest.get({ ctx: CollabParameters.getCtx() });
+
+            $scope.data_django.$promise.then(function() {
+
+                // $scope.data_django = $scope.data_django.data
+
+                // console.log($scope.data_django.data);
+                $scope.data2 = formatData(1, $scope.data_django.data);
+                // formatData(1, $scope.data_django.data);
+
+
+            })
+
+
+
+
+            function formatData(groups, data) {
+                var new_data = [];
+                var shapes = ['circle'];
+                // random = d3.random.normal();
+
+                console.log("data....");
+                console.log(data[0]);
+                console.log(data[0][0]);
+
+                for (var i = 0; i < groups; i++) {
+                    new_data.push({
+                        key: 'Group ' + i,
+                        values: []
+                    });
+
+                    for (var j = 0; j < data.length; j++) {
+                        console.log("New Line");
+
+
+                        for (var k = 0; k < data[j].length; k++) {
+                            // console.log("for 2");
+                            // console.log(data[j]);
+
+                            // console.log(data[j][k]);
+
+                            new_data[i].values.push({
+                                x: data[j][k],
+                                y: j,
+                                // size: Math.random(),
+                                size: 1,
+
+                                // shape: shapes[j % 6]
+                                shape: shapes[0]
+
+                            });
+                        }
+                    }
+
+                }
+                console.log(new_data);
+                console.log("I just finished");
+                return new_data;
+            }
+
+            /* Random Data Generator (took from nvd3.org) */
+            function generateData(groups, points) {
+                var data = [],
+                    // shapes = ['circle', 'cross', 'triangle-up', 'triangle-down', 'diamond', 'square'],
+                    shapes = ['circle'],
+
+                    random = d3.random.normal();
+
+                for (var i = 0; i < groups; i++) {
+                    data.push({
+                        key: 'Group ' + i,
+                        values: []
+                    });
+
+                    for (var j = 0; j < points; j++) {
+                        data[i].values.push({
+                            x: random(),
+                            y: random(),
+                            // size: Math.random(),
+                            size: 1,
+
+                            // shape: shapes[j % 6]
+                            shape: shapes[0]
+
+                        });
+                    }
+                }
+                return data;
+            }
 
 
         })
