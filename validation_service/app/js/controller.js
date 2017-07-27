@@ -639,7 +639,7 @@ ParametersConfigurationApp.controller('ParametersConfigurationCtrl', ['$scope', 
     function($scope, $rootScope, $http, $location, CollabParameters, AuthaurizedCollabParameterRest) {
 
         CollabParameters.setService().$promise.then(function() {
-
+            var app_type = document.getElementById("app").getAttribute("value");
             // $scope.list_param2 = AuthaurizedCollabParameterRest2.get({});
 
 
@@ -694,16 +694,30 @@ ParametersConfigurationApp.controller('ParametersConfigurationCtrl', ['$scope', 
                     CollabParameters.addParameter("cell_type", value.authorized_value);
                 });
 
+                CollabParameters.addParameter("app_type", app_type);
 
                 CollabParameters.put_parameters().$promise.then(function() {
-                    CollabParameters.getRequestParameters().$promise.then(function() {
-                        $location.path('/home');
-                    });
+                    CollabParameters.getRequestParameters().$promise.then(function() {});
                 });
 
             };
 
 
         });
+    }
+]);
+
+
+ParametersConfigurationApp.controller('ParametersConfigurationRedirectCtrl', ['$scope', '$rootScope', '$http', '$location', 'CollabParameters', 'AuthaurizedCollabParameterRest',
+    function($scope, $rootScope, $http, $location, CollabParameters, AuthaurizedCollabParameterRest) {
+        $scope.init = function() {
+            var app_type = document.getElementById("app").getAttribute("value");
+            if (app_type == "model_catalog") {
+                $location.path('/modelparametersconfiguration');
+            } else if (app_type == "validation_app") {
+                $location.path('/validationparametersconfiguration');
+            }
+        }
+
     }
 ]);

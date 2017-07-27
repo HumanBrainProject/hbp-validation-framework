@@ -13,7 +13,12 @@ from .views import (
                     ValidationTestCodeRest,
                     TestCommentRest,
                     CollabIDRest,
+
+                    ParametersConfigurationModelView,
+                    ParametersConfigurationValidationView,
+
                     IsCollabMemberRest
+
                     )
 
 # from django.contrib.auth.decorators import login_required
@@ -35,86 +40,97 @@ urlpatterns = (
         HomeValidationView.as_view(),
         name="home-validation-view"),
 
-    url(r'^app/parametersconfigurationrest/$',
-        ParametersConfigurationRest.as_view(),
-        ),
-
-    url(r'^app/scientificmodel/$',
-        ScientificModelRest.as_view(),
-        name="scientific-model"),
-    
-    url(r'^app/scientificmodelinstance/$',
-        ScientificModelInstanceRest.as_view(),
-        name="scientific-model-instance"),
-
-    url(r'^app/scientificmodelimage/$',
-        ScientificModelImageRest.as_view(),
-        name="scientific-model-image"),
-
-    url(r'^app/validationtestdef/$',
+    url(r'^validationtestdef/$',
         ValidationTestDefinitionRest.as_view(),
         name="validation-test-definition"),
 
-    url(r'^app/validationtestscode/$',
+    url(r'^validationtestscode/$',
         ValidationTestCodeRest.as_view(),
         name="validation-test-code"),
 
-    url(r'^app/testcomment/$',
+    url(r'^testcomment/$',
         TestCommentRest.as_view(),
         name="test-comment"),
 
-    url(r'^app/collabidrest/$',
-        CollabIDRest.as_view(), 
-        ),
-    url(r'^app/authorizedcollabparameterrest/$',
-        AuthorizedCollabParameterRest.as_view(), 
-        ),
-    url(r'^app/iscollabmemberrest/$',
-        IsCollabMemberRest.as_view(),
-        ), 
-
-
-######## model catalog app url ##########
-    url(r'^model-catalog/$',
-        ModelCatalogView.as_view(),
-        name="model-catalog-view"),
-    url(r'^model-catalog/parametersconfigurationrest/$',
+    url(r'^parametersconfigurationrest/$',
         ParametersConfigurationRest.as_view(),
         ),
 
-    url(r'^model-catalog/scientificmodel/$',
+    url(r'^collabidrest/$',
+        CollabIDRest.as_view(), 
+        ),
+        
+    url(r'^authorizedcollabparameterrest/$',
+        AuthorizedCollabParameterRest.as_view(), 
+        ),
+    url(r'^iscollabmemberrest/$',
+        IsCollabMemberRest.as_view(),
+        ), 
+
+
+######## model catalog url ##########
+    url(r'^model-catalog/$',
+        ModelCatalogView.as_view(),
+        name="model-catalog-view"),
+
+    url(r'^scientificmodel/$',
         ScientificModelRest.as_view(),
         name="scientific-model"),
 
-    url(r'^model-catalog/authorizedcollabparameterrest/$',
-        AuthorizedCollabParameterRest.as_view(), 
-        ),
-    url(r'^model-catalog/scientificmodelinstance/$',
+    url(r'^scientificmodelinstance/$',
         ScientificModelInstanceRest.as_view(),
         name="scientific-model-instance"),
-    url(r'^model-catalog/scientificmodelimage/$',
+    url(r'^scientificmodelimage/$',
         ScientificModelImageRest.as_view(),
         name="scientific-model-image"),
     
-    url(r'^model-catalog/iscollabmemberrest/$',
-        IsCollabMemberRest.as_view(),
-        ), 
 
 
 
 ######## ParameterConfiguration ##########
-    url(r'^parametersconfiguration/$',
-        ParametersConfigurationView.as_view(),
-        ),   
-    url(r'^parametersconfiguration/parametersconfigurationrest/$',
+    # url(r'^parametersconfiguration/$',
+    #     ParametersConfigurationView.as_view(),
+    #     name="parameters-configuration"), 
+
+    # url(r'^parametersconfiguration/parametersconfigurationrest/$',
+    #     ParametersConfigurationRest.as_view(),
+    #     ),   
+
+    # url(r'^parametersconfiguration/authorizedcollabparameterrest/$',
+    #     AuthorizedCollabParameterRest.as_view(),
+    #     ),   
+
+    url(r'^parametersconfiguration-model-catalog/$',
+        ParametersConfigurationModelView.as_view(), 
+        ),  
+    url(r'^parametersconfiguration-model-catalog/parametersconfigurationrest/$',
         ParametersConfigurationRest.as_view(),
-        ),   
+        ),
 
-    url(r'^parametersconfiguration/authorizedcollabparameterrest/$',
+    url(r'^parametersconfiguration-model-catalog/authorizedcollabparameterrest/$',
         AuthorizedCollabParameterRest.as_view(),
-        ),   
 
-    url(r'^parametersconfiguration/iscollabmemberrest/$',
+        ),
+    url(r'^parametersconfiguration-model-catalog/iscollabmemberrest/$',
+        IsCollabMemberRest.as_view(),
+        ),  
+
+    url(r'^parametersconfigurationrest/$',
+        ParametersConfigurationRest.as_view(),
+        ),
+    
+    url(r'^parametersconfiguration-validation-app/$',
+        ParametersConfigurationValidationView.as_view(), 
+        ),  
+    url(r'^parametersconfiguration-validation-app/parametersconfigurationrest/$',
+        ParametersConfigurationRest.as_view(),
+        ),
+
+    url(r'^parametersconfiguration-validation-app/authorizedcollabparameterrest/$',
+        AuthorizedCollabParameterRest.as_view(),
+    ),
+
+    url(r'^parametersconfiguration-validation-app/iscollabmemberrest/$',
         IsCollabMemberRest.as_view(),
         ),   
 

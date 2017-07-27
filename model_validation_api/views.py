@@ -164,10 +164,8 @@ def _is_collaborator(request, context):
         return False
 
     url = '%scollab/context/%s/' % (svc_url, context)
-
     headers = {'Authorization': get_auth_header(request.user.social_auth.get())}
     res = requests.get(url, headers=headers)
-
     if res.status_code != 200:
         return False
 
@@ -283,14 +281,11 @@ def _get_collab_id(request):
 
 class CollabIDRest(APIView): 
     def get(self, request, format=None, **kwargs):
-        print self.request.user
         if self.request.user == "AnonymousUser" :
             collab_id = self.request.user
         else :         
             collab_id = _get_collab_id(request)
             # collab_id = self.request.user
-    
-            print ("collab id : " +str(collab_id))
 
         serilized_collab_id = [{ 'id': str(collab_id)  }]
 
@@ -434,16 +429,16 @@ class ScientificModelRest(APIView):
         model_id = str(len(request.GET.getlist('id')))
         ctx = request.query_params['ctx']
         if(model_id == '0'):
-            rq1 = ScientificModel.objects.filter(access_control=ctx)
-            rq2 = ScientificModel.objects.filter (private=0)
-            
+            collab_params = CollabParameters.objects.get(id = ctx )
+            rq1 = ScientificModel.objects.filter(access_control=ctx, species__in=collab_params.species.split(","), brain_region__in=collab_params.brain_region.split(","), cell_type__in=collab_params.cell_type.split(","), model_type__in=collab_params.model_type.split(","))
+            rq2 = ScientificModel.objects.filter (private=0, species__in=collab_params.species.split(","), brain_region__in=collab_params.brain_region.split(","), cell_type__in=collab_params.cell_type.split(","), model_type__in=collab_params.model_type.split(","))
             if len(rq1) >0:
                 # models = rq1.union(rq2)
                 models  = (rq1 | rq2).distinct()
             else:
                 models = rq2
-
             model_serializer = ScientificModelSerializer(models, context=serializer_context, many=True )
+        
             return Response({
             'models': model_serializer.data,
             })
@@ -464,12 +459,10 @@ class ScientificModelRest(APIView):
                 'model_instances': model_instance_serializer.data,
                 'model_images': model_image_serializer.data,
             })
-
     def post(self, request, format=None):
         ctx = request.query_params['ctx']
         if not _is_collaborator(request, ctx):
             return HttpResponseForbidden()
-
         serializer_context = {'request': request,}
         # check if data is ok else return error
         model_serializer = ScientificModelSerializer(data=request.data['model'], context=serializer_context)
@@ -658,13 +651,22 @@ class ModelCatalogView(View):
         return render(request, self.template_name, {'models':models})
 
 # @method_decorator(login_required(login_url='/login/hbp'), name='dispatch' )
-class ParametersConfigurationView(View):
+class ParametersConfigurationValidationView(View):
+    
+    template_name = "parameters-configuration.html"
+    login_url='/login/hbp/'
+    def get(self, request, *args, **kwargs):
+       return render(request, self.template_name, {'app_type': "validation_app"})
+
+# @method_decorator(login_required(login_url='/login/hbp'), name='dispatch' )
+class ParametersConfigurationModelView(View):
     
     template_name = "parameters-configuration.html"
     login_url='/login/hbp/'
 
+
     def get(self, request, *args, **kwargs):
-        return render(request, self.template_name, {})
+        return render(request, self.template_name, {'app_type': "model_catalog"})
 
 
 class IsCollabMemberRest (APIView):
@@ -678,7 +680,13 @@ class IsCollabMemberRest (APIView):
         })
    
 
+class ParametersConfigurationView(View):
+    
+    template_name = "parameters-configuration.html"
+    login_url='/login/hbp/'
 
+    def get(self, request, *args, **kwargs):
+        return render(request, self.template_name)
 
 
 

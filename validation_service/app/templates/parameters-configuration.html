@@ -1,10 +1,8 @@
 {% extends 'base.html' %} {% block content %}
 
 
-
-
-<div ng-app="ParametersConfigurationApp">
-
+<div ng-app="ParametersConfigurationApp" ng-init="init()" ng-controller="ParametersConfigurationRedirectCtrl">
+    <div id=app value={{app_type}}></div>
 
     <div ui-view></div>
 
