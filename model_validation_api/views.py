@@ -677,7 +677,44 @@ class IsCollabMemberRest (APIView):
         return Response({
             'is_member': is_member,
         })
-   
+
+class ValidationResultRest (APIView):
+    def get(self, request, format=None, **kwargs):
+        #load file 
+
+        import json
+
+
+        with open('app/data_to_test/move_trial0_inh.txt') as data_file:    
+            data = json.load(data_file)
+        
+        new_data = []
+ 
+        print "before for"
+
+        index1 = 0
+        for i in data :
+            print ("i = ", i)
+            new_data.append([])
+            for j in i:
+                print ("j = ", j)
+                
+                # print type(j)
+                # print j
+                # print j[0:-3]
+                new_data[index1].append(j[0:-3])  
+            index1 += 1 
+                
+
+        # print data[0]
+        # print data[1]
+        # print data[1][0]
+        
+        new_data = new_data[0:10]
+
+        return Response({
+            'data': new_data,
+        })
 
 class ParametersConfigurationView(View):
     

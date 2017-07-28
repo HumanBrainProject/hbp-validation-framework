@@ -10,6 +10,7 @@ var testApp = angular.module('testApp', [
     'ParametersConfigurationServices',
     'ApiCommunicationServices',
     'ngCookies',
+    'nvd3',
 ]);
 
 testApp.config(

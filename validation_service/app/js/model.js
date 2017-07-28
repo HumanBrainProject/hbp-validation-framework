@@ -94,6 +94,14 @@ ApiCommunicationServices.factory('IsCollabMemberRest', ['$resource',
     }
 ]);
 
+ApiCommunicationServices.factory('ValudationResultRest', ['$resource',
+    function($resource) {
+        return $resource('validationresultrest/', {}, {
+            get: { method: 'GET', params: { format: 'json', ctx: 'ctx' }, isArray: false },
+        });
+    }
+]);
+
 ///////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////
 var ParametersConfigurationServices = angular.module('ParametersConfigurationServices', ['ngResource', 'btorfs.multiselect', 'ApiCommunicationServices']);
