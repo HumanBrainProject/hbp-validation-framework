@@ -3,16 +3,35 @@
 /* Controllers */
 var testApp = angular.module('testApp');
 
-testApp.controller('HomeCtrl', ['$scope', '$rootScope', '$http', '$location', "ScientificModelRest", "ValidationTestDefinitionRest", 'CollabParameters',
-    function($scope, $rootScope, $http, $location, ScientificModelRest, ValidationTestDefinitionRest, CollabParameters) {
+testApp.controller('HomeCtrl', ['$scope', '$rootScope', '$http', '$location', "ScientificModelRest", "ValidationTestDefinitionRest", 'CollabParameters', 'IsCollabMemberRest',
+    function($scope, $rootScope, $http, $location, ScientificModelRest, ValidationTestDefinitionRest, CollabParameters, IsCollabMemberRest) {
 
         CollabParameters.setService().$promise.then(function() {
 
+            $scope.collab_species = CollabParameters.getParameters("species");
+            $scope.collab_brain_region = CollabParameters.getParameters("brain_region");
+            $scope.collab_cell_type = CollabParameters.getParameters("cell_type");
+            $scope.collab_model_type = CollabParameters.getParameters("model_type");
+            $scope.collab_test_type = CollabParameters.getParameters("test_type");
+            $scope.collab_data_modalities = CollabParameters.getParameters("data_modalities");
+
+            var ctx = CollabParameters.getCtx();
+
+            $scope.is_collab_member = false;
+            $scope.is_collab_member = IsCollabMemberRest.get({ ctx: ctx, })
+            $scope.is_collab_member.$promise.then(function() {
+                $scope.is_collab_member = $scope.is_collab_member.is_member;
+            });
             // $scope.models = ScientificModelRest.get({}, function(data) {});
-            $scope.models = ScientificModelRest.get({ ctx: CollabParameters.getCtx() }, function(data) {});
-            $scope.tests = ValidationTestDefinitionRest.get({ ctx: CollabParameters.getCtx() }, function(data) {});
+            $scope.models = ScientificModelRest.get({ ctx: ctx }, function(data) {});
+            $scope.tests = ValidationTestDefinitionRest.get({ ctx: ctx }, function(data) {});
 
         });
+
+        $scope.goToModelDetailView = function(model) {
+            $location.path('/home/validation_test/' + test.id);
+        };
+
         $scope.goToTestDetailView = function(test) {
             $location.path('/home/validation_test/' + test.id);
         };
@@ -114,12 +133,22 @@ testApp.controller('ValTestCreateCtrl', ['$scope', '$rootScope', '$http', '$loca
     function($scope, $rootScope, $http, $location, ValidationTestDefinitionRest, ValidationTestCodeRest, CollabParameters) {
         CollabParameters.setService().$promise.then(function() {
             $scope.species = CollabParameters.getParameters("species");
+            $scope.brain_region = CollabParameters.getParameters("brain_region");
+            $scope.cell_type = CollabParameters.getParameters("cell_type");
+            $scope.data_type = CollabParameters.getParameters("data_type");
+            $scope.data_modalities = CollabParameters.getParameters("data_modalities");
+            $scope.test_type = CollabParameters.getParameters("test_type");
+            $scope.ctx = CollabParameters.getCtx();
 
 
-            $scope.make_post = function() {
-                var data_to_send = JSON.stringify({ test_data: $scope.test, code_data: $scope.code });
-                ValidationTestDefinitionRest.save({ ctx: CollabParameters.getCtx() }, data_to_send, function(value) {});
+            $scope.saveTest = function() {
+                var parameters = JSON.stringify({ test_data: $scope.test, code_data: $scope.code });
+                var a = ValidationTestDefinitionRest.save({ ctx: CollabParameters.getCtx() }, parameters).$promise.then(function(data) {
+                    $location.path('/model-catalog/detail/' + data.uuid);
+                });
+
             };
+
         });
 
     }
@@ -214,14 +243,18 @@ testApp.controller('MyCtrl', ['$scope', function($scope) {
 
 
 //Filter multiple
-testApp.filter('filterMultiple', ['$filter', function($filter) {
+testApp.filter('filterMultiple', ['$parse', '$filter', function($parse, $filter) {
     return function(items, keyObj) {
+        var x = false;
+        if (!angular.isArray(items)) {
+            return items;
+        }
         var filterObj = {
             data: items,
             filteredData: [],
             applyFilter: function(obj, key) {
                 var fData = [];
-                if (this.filteredData.length == 0)
+                if (this.filteredData.length == 0 && x == false)
                     this.filteredData = this.data;
                 if (obj) {
                     var fObj = {};
@@ -236,16 +269,21 @@ testApp.filter('filterMultiple', ['$filter', function($filter) {
                                     fData = fData.concat($filter('filter')(this.filteredData, fObj));
                                 }
                             }
-
                         }
                     }
                     if (fData.length > 0) {
                         this.filteredData = fData;
                     }
+                    if (fData.length == 0) {
+                        if (obj != "" && obj != undefined) {
+                            this.filteredData = fData;
+                            x = true;
+                        }
+                    }
+
                 }
             }
         };
-
         if (keyObj) {
             angular.forEach(keyObj, function(obj, key) {
                 filterObj.applyFilter(obj, key);
@@ -255,21 +293,6 @@ testApp.filter('filterMultiple', ['$filter', function($filter) {
         return filterObj.filteredData;
     }
 }]);
-
-testApp.filter('unique', function() {
-    return function(input, key) {
-        var unique = {};
-        var uniqueList = [];
-
-        for (var i = 0; i < input.length; i++) {
-            if (typeof unique[input[i][key]] == "undefined") {
-                unique[input[i][key]] = "";
-                uniqueList.push(input[i]);
-            }
-        }
-        return uniqueList;
-    };
-});
 
 
 
@@ -363,8 +386,8 @@ ModelCatalogApp.controller('ModelCatalogCtrl', ['$scope', '$rootScope', '$http',
             $scope.is_collab_member = IsCollabMemberRest.get({ ctx: ctx, })
             $scope.is_collab_member.$promise.then(function() {
                 $scope.is_collab_member = $scope.is_collab_member.is_member;
-
             });
+
         });
         $scope.goToDetailView = function(model) {
             $location.path('/model-catalog/detail/' + model.id);
@@ -599,6 +622,7 @@ ParametersConfigurationApp.controller('ParametersConfigurationCtrl', ['$scope', 
 
                 CollabParameters.put_parameters().$promise.then(function() {
                     CollabParameters.getRequestParameters().$promise.then(function() {});
+                    alert("Your app have been correctly configured")
                 });
 
             };

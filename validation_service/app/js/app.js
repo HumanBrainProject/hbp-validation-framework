@@ -40,11 +40,6 @@ testApp.config(
                 url: '/home/test_result',
                 templateUrl: '/static/js/test_result.tpl.html',
                 controller: 'TestResultCtrl'
-            })
-            .state('config', {
-                url: '/home/config',
-                templateUrl: '/static/js/config.tpl.html',
-                controller: 'ConfigCtrl'
             });
 
         $urlRouterProvider.otherwise('/home');

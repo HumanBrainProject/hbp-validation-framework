@@ -162,7 +162,6 @@ def _is_collaborator(request, context):
     svc_url = settings.HBP_COLLAB_SERVICE_URL
     if not context:
         return False
-
     url = '%scollab/context/%s/' % (svc_url, context)
     headers = {'Authorization': get_auth_header(request.user.social_auth.get())}
     res = requests.get(url, headers=headers)
@@ -674,7 +673,7 @@ class IsCollabMemberRest (APIView):
 
         ctx = request.query_params['ctx']
         is_member = _is_collaborator(request, ctx) # bool
-
+        # is_member =True
         return Response({
             'is_member': is_member,
         })
