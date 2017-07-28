@@ -58,7 +58,6 @@ testApp.controller('ValTestCtrl', ['$scope', '$rootScope', '$http', '$location',
 
 testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$location', '$stateParams', '$state', 'ValidationTestDefinitionRest', 'ValidationTestCodeRest', 'CollabParameters', 'TestCommentRest',
     function($scope, $rootScope, $http, $location, $stateParams, $state, ValidationTestDefinitionRest, ValidationTestCodeRest, CollabParameters, TestCommentRest) {
-        console.log("ValTestDetailCtrl");
         CollabParameters.setService().$promise.then(function() {
 
             $scope.detail_test = ValidationTestDefinitionRest.get({ ctx: CollabParameters.getCtx(), id: $stateParams.uuid });
@@ -543,7 +542,6 @@ ModelCatalogApp.controller('ModelCatalogVersionCtrl', ['$scope', '$rootScope', '
             $scope.saveVersion = function() {
                 $scope.model_instance.model_id = $stateParams.uuid
                 var parameters = JSON.stringify($scope.model_instance);
-                alert(parameters);
                 ScientificModelInstanceRest.save({ ctx: CollabParameters.getCtx() }, parameters, function(value) {});
             };
         });
