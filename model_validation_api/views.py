@@ -426,6 +426,8 @@ class ScientificModelRest(APIView):
         if(model_id == '0'):
             collab_params = CollabParameters.objects.get(id = ctx )
             rq1 = ScientificModel.objects.filter(access_control=ctx, species__in=collab_params.species.split(","), brain_region__in=collab_params.brain_region.split(","), cell_type__in=collab_params.cell_type.split(","), model_type__in=collab_params.model_type.split(","))
+            # rq1 = ScientificModel.objects.filter(access_control=ctx, species__in=collab_params.species.split(","), brain_region__in=collab_params.brain_region.split(","), cell_type__in=collab_params.cell_type.split(","), model_type__in=collab_params.model_type.split(","))
+            
             rq2 = ScientificModel.objects.filter (private=0, species__in=collab_params.species.split(","), brain_region__in=collab_params.brain_region.split(","), cell_type__in=collab_params.cell_type.split(","), model_type__in=collab_params.model_type.split(","))
             if len(rq1) >0:
                 # models = rq1.union(rq2)
@@ -683,14 +685,14 @@ class ValidationResultRest (APIView):
         
         new_data = []
  
-        print "before for"
+        # print "before for"
 
         index1 = 0
         for i in data :
-            print ("i = ", i)
+            # print ("i = ", i)
             new_data.append([])
             for j in i:
-                print ("j = ", j)
+                # print ("j = ", j)
                 
                 # print type(j)
                 # print j

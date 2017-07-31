@@ -98,6 +98,7 @@ class ScientificModelInstance(models.Model):
     """
     A specific instance of a model with a well defined version and parameterization.
     """
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     model = models.ForeignKey(ScientificModel, related_name="instances")
     version = models.CharField(max_length=64)
     parameters = models.TextField(null=True, blank=True)
