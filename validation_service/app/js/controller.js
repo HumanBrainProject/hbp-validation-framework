@@ -113,8 +113,8 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
 //     };
 // });
 
-testApp.controller('TestResultCtrl', ['$scope', '$rootScope', '$http', '$location', 'CollabParameters', 'ValudationResultRest',
-    function($scope, $rootScope, $http, $location, CollabParameters, ValudationResultRest) {
+testApp.controller('TestResultCtrl', ['$scope', '$rootScope', '$http', '$location', 'CollabParameters', 'ValudationResultRest_fortest',
+    function($scope, $rootScope, $http, $location, CollabParameters, ValudationResultRest_fortest) {
         CollabParameters.setService().$promise.then(function() {
 
 
@@ -338,7 +338,7 @@ testApp.controller('TestResultCtrl', ['$scope', '$rootScope', '$http', '$locatio
 
             // $scope.data2 = generateData(4, 40);
 
-            $scope.data_django = ValudationResultRest.get({ ctx: CollabParameters.getCtx() });
+            $scope.data_django = ValudationResultRest_fortest.get({ ctx: CollabParameters.getCtx() });
 
             $scope.data_django.$promise.then(function() {
 

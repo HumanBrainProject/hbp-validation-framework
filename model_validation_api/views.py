@@ -681,7 +681,25 @@ class IsCollabMemberRest (APIView):
             'is_member': is_member,
         })
 
+
 class ValidationResultRest (APIView):
+    def get(self, request, format=None, **kwargs):
+        
+        test_definition_id = request.query_params['test_code_id']
+        model_instance_id  = request.query_params['model_instance_id']
+
+        # ValidationTestCode.objects.filter(id = test_code_id)
+        # ScientificModelInstance.objects.filter(id = model_instance_id)
+
+        validation_result =  ValidationTestResult.objects.filter(test_definition_id = test_definition_id, model_instance_id = model_instance_id )
+
+        return Response({
+            'data': validation_result,
+        })
+
+
+## This is just to make some test with NVD3.js
+class ValidationResultRest_fortest (APIView):
     def get(self, request, format=None, **kwargs):
         #load file 
 
@@ -692,26 +710,14 @@ class ValidationResultRest (APIView):
             data = json.load(data_file)
         
         new_data = []
- 
-        # print "before for"
 
         index1 = 0
         for i in data :
-            # print ("i = ", i)
             new_data.append([])
             for j in i:
-                # print ("j = ", j)
-                
-                # print type(j)
-                # print j
-                # print j[0:-3]
+
                 new_data[index1].append(j[0:-3])  
             index1 += 1 
-                
-
-        # print data[0]
-        # print data[1]
-        # print data[1][0]
         
         new_data = new_data[0:10]
 

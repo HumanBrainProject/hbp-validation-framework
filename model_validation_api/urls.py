@@ -68,6 +68,10 @@ urlpatterns = (
         IsCollabMemberRest.as_view(),
         ), 
 
+    url(r'^validationresultrest_fortest/$',
+        ValidationResultRest_fortest.as_view(),
+        ), 
+
     url(r'^validationresultrest/$',
         ValidationResultRest.as_view(),
         ), 
