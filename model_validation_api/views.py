@@ -262,7 +262,6 @@ class AuthorizedCollabParameterRest(APIView):
 
 
 def _get_collab_id(request):
-        
     social_auth = request.user.social_auth.get()
     headers = {
         'Authorization': get_auth_header(request.user.social_auth.get())
@@ -281,15 +280,12 @@ def _get_collab_id(request):
 class CollabIDRest(APIView): 
     def get(self, request, format=None, **kwargs):
         if self.request.user == "AnonymousUser" :
-            collab_id = self.request.user
+            collab_id = 0
         else :         
             collab_id = _get_collab_id(request)
             # collab_id = self.request.user
-
-        serilized_collab_id = [{ 'id': str(collab_id)  }]
-
         return Response({
-            'collab_id': serilized_collab_id,
+            'collab_id': collab_id,
         })
 
 
@@ -437,7 +433,6 @@ class ScientificModelRest(APIView):
             else:
                 models = rq2
             model_serializer = ScientificModelSerializer(models, context=serializer_context, many=True )
-        
             return Response({
             'models': model_serializer.data,
             })
@@ -452,7 +447,6 @@ class ScientificModelRest(APIView):
             model_image_serializer = ScientificModelImageSerializer(model_images, context=serializer_context, many=True )
         #need to transform model_serializer.data :
         # "resource_uri": "/models/{}".format(model.pk)
-
             return Response({
                 'models': model_serializer.data,
                 'model_instances': model_instance_serializer.data,
@@ -673,7 +667,6 @@ class IsCollabMemberRest (APIView):
 
         ctx = request.query_params['ctx']
         is_member = _is_collaborator(request, ctx) # bool
-        # is_member =True
         return Response({
             'is_member': is_member,
         })
