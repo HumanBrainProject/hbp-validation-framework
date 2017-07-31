@@ -100,14 +100,71 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
     }
 ]);
 
+
+
+// testApp.directive('myClickGraph', function() {
+
+//     // template: "options='options' data='data' id='chart svg'"
+//     chart.lines.dispatch.on('elementMouseover.tooltip', function(event) {
+//         scope.$emit('elementMouseover.tooltip', event);
+//     });
+//     return {
+//         restrict: 'A',
+//     };
+// });
+
 testApp.controller('TestResultCtrl', ['$scope', '$rootScope', '$http', '$location', 'CollabParameters', 'ValudationResultRest',
     function($scope, $rootScope, $http, $location, CollabParameters, ValudationResultRest) {
         CollabParameters.setService().$promise.then(function() {
 
 
-
-
             $scope.options = {
+                chart: {
+                    type: 'multiBarHorizontalChart',
+                    height: 450,
+                    x: function(d) { return d.label; },
+                    y: function(d) { return d.value; },
+                    showControls: true,
+                    showValues: true,
+                    duration: 500,
+                    xAxis: {
+                        showMaxMin: false
+                    },
+                    yAxis: {
+                        axisLabel: 'Values',
+                        tickFormat: function(d) {
+                            return d3.format(',.2f')(d);
+                        }
+                    },
+                    callback: function(chart) {
+                        chart.multibar.dispatch.on('elementClick', function(e) {
+                            console.log('elementClick in callback', e.data);
+                        });
+                    }
+                }
+            };
+            $scope.data = [{
+                'key': 'Series1',
+                'color': '#004433',
+                'values': [
+                    { 'label': 'Group A', 'value': 3 },
+                    { 'label': 'Group B', 'value': 7 },
+                    { 'label': 'Group C', 'value': 5 }
+                ]
+            }];
+
+
+
+
+
+
+
+            // $scope.$on('elementMouseover.tooltip', function(event) {
+            //     console.log('scope.elementMouseover.tooltip', event);
+            // });
+
+
+            $scope.options5 = {
                 chart: {
                     type: 'lineChart',
                     height: 450,
@@ -124,7 +181,10 @@ testApp.controller('TestResultCtrl', ['$scope', '$rootScope', '$http', '$locatio
                         stateChange: function(e) { console.log("stateChange"); },
                         changeState: function(e) { console.log("changeState"); },
                         tooltipShow: function(e) { console.log("tooltipShow"); },
-                        tooltipHide: function(e) { console.log("tooltipHide"); }
+                        tooltipHide: function(e) { console.log("tooltipHide"); },
+                        // elementClick: function(e) { console.log(e); },
+                        // elementClick: function(e) { console.log("klsdklfdhfdkjh"); },
+
                     },
                     xAxis: {
                         axisLabel: 'Time (ms)'
@@ -138,6 +198,9 @@ testApp.controller('TestResultCtrl', ['$scope', '$rootScope', '$http', '$locatio
                     },
                     callback: function(chart) {
                         console.log("!!! lineChart callback !!!");
+                        chart.lines.dispatch.on('elementClick', function(e) {
+                            console.log('elementClick in callback', e);
+                        });
                     }
                 },
                 title: {
@@ -162,7 +225,33 @@ testApp.controller('TestResultCtrl', ['$scope', '$rootScope', '$http', '$locatio
                 }
             };
 
-            $scope.data = sinAndCos();
+
+
+
+            $scope.data5 = sinAndCos();
+
+
+            // $scope.options.chart.lines.dispatch.on("elementClick", function(e) {
+            //     console.log(e);
+            //     console.log("kokokoko");
+            //     //             console.log('element: ' + e.value);
+            //     // console.dir(e.point);
+
+            // });
+
+
+
+            // $(document).on("click", "#chart svg", function(e) {
+            //     console.log(e);
+            //     console.log(e.target.__data__);
+            // });
+
+
+            // $scope.$on('elementClick.directive', function(angularEvent, event) {
+            //     console.log(event);
+            // });
+
+
 
             /*Random Data Generator */
             function sinAndCos() {
@@ -181,7 +270,9 @@ testApp.controller('TestResultCtrl', ['$scope', '$rootScope', '$http', '$locatio
                 return [{
                         values: sin, //values - represents the array of {x,y} data points
                         key: 'Sine Wave', //key  - the name of the series.
-                        color: '#ff7f0e' //color - optional: choose your own line color.
+                        color: '#ff7f0e', //color - optional: choose your own line color.
+                        hahahahaaha: "test",
+                        // area: true
                     },
                     // {
                     //     values: cos,
@@ -196,6 +287,12 @@ testApp.controller('TestResultCtrl', ['$scope', '$rootScope', '$http', '$locatio
                     // }
                 ];
             };
+
+
+
+
+
+
 
 
 
@@ -262,9 +359,9 @@ testApp.controller('TestResultCtrl', ['$scope', '$rootScope', '$http', '$locatio
                 var shapes = ['circle'];
                 // random = d3.random.normal();
 
-                console.log("data....");
-                console.log(data[0]);
-                console.log(data[0][0]);
+                // console.log("data....");
+                // console.log(data[0]);
+                // console.log(data[0][0]);
 
                 for (var i = 0; i < groups; i++) {
                     new_data.push({
@@ -273,7 +370,7 @@ testApp.controller('TestResultCtrl', ['$scope', '$rootScope', '$http', '$locatio
                     });
 
                     for (var j = 0; j < data.length; j++) {
-                        console.log("New Line");
+                        // console.log("New Line");
 
 
                         for (var k = 0; k < data[j].length; k++) {
@@ -296,8 +393,8 @@ testApp.controller('TestResultCtrl', ['$scope', '$rootScope', '$http', '$locatio
                     }
 
                 }
-                console.log(new_data);
-                console.log("I just finished");
+                // console.log(new_data);
+                // console.log("I just finished");
                 return new_data;
             }
 

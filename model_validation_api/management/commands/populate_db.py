@@ -1,5 +1,20 @@
 from django.core.management.base import BaseCommand
-from ...models import Param_Species, Param_DataModalities, Param_TestType, Param_BrainRegion, Param_CellType, Param_ModelType, CollabParameters
+from ...models import (
+                    Param_Species, 
+                    Param_DataModalities, 
+                    Param_TestType, 
+                    Param_BrainRegion, 
+                    Param_CellType, 
+                    Param_ModelType, 
+                    CollabParameters,
+
+                    ScientificModel,
+                    ScientificModelInstance,
+
+                    ValidationTestDefinition,
+                    ValidationTestCode,
+                    ValidationTestResult,
+                    )
 
 class Command(BaseCommand):
     args = '<foo bar ...>'
@@ -61,6 +76,117 @@ class Command(BaseCommand):
 
         collab1.save()
 
+    def _fake_models_test_results(self):
+        
+        import uuid
+        # uuid.uuid4()
+
+        # x = uuid.UUID('{00000000-0000-0000-0000-0000000000t1}')
+        uuid_test1 = uuid.uuid4()
+        uuid_testcode1 = uuid.uuid4()
+        uuid_model1 = uuid.uuid4()
+        uuid_model_instance1 = uuid.uuid4()
+        uuid_result1 = uuid.uuid4()
+        uuid_result2 = uuid.uuid4()
+        uuid_result3 = uuid.uuid4()
+        uuid_result4 = uuid.uuid4()
+        uuid_result5 = uuid.uuid4()
+        
+           
+        test1 = ValidationTestDefinition(id= uuid_test1)
+        test1.name = "name"
+        test1.species = "Mouse (Mus musculus)"
+        test1.brain_region = "Hippocampus"
+        test1.cell_type = "Interneuron"
+        test1.age = "12"
+        test1.data_location = "http://bbbb.com"
+        test1.data_type = "data type"
+        test1.data_modality = "electrophysiology"
+        test1.test_type = "single cell activity"
+        test1.protocol ="protocol"
+        test1.author = "me"
+        test1.publication = "not published"
+        test1.save()
+        
+
+        testcode1 = ValidationTestCode(id = uuid_testcode1)
+        testcode1.repository = ""
+        testcode1.version = ""
+        testcode1.path = ""
+        testcode1.timestamp = "2017-01-24T14:59:26.031Z"
+        testcode1.test_definition = test1
+        testcode1.save()
+
+
+        model1 = ScientificModel(id= uuid_model1)         
+        model1.name = "name"
+        model1.description = "description"
+        model1.species = "Mouse (Mus musculus)"
+        model1.brain_region = "Hippocampus"
+        model1.cell_type = "Interneuron"
+        model1.author = "me"
+        model1.model_type = "Single Cell"
+        model1.private = "0"
+        model1.access_control = "0235296f-b73f-4374-9452-a89f4c20f05b"
+        model1.code_format = "py"
+        model1.save()        
+
+        model_instance1 = ScientificModelInstance(id=uuid_model_instance1)
+        model_instance1.model = model1
+        model_instance1.version = "version "
+        model_instance1.parameters = "param"
+        model_instance1.source = "http://dd.com"
+        model_instance1.save()
+
+
+        result1 = ValidationTestResult(id=uuid_result1)
+        result1.model_instance = model_instance1
+        result1.test_definition = testcode1
+        result1.results_storage ="azerty"
+        result1.result = 0.25
+        result1.passed = None
+        result1.timestamp = "2017-02-24T14:59:26.031Z"
+        result1.platform = "azerty"
+        result1.project = "azerty"
+        result1.save()
+
+
+        result2 = ValidationTestResult(id=uuid_result2)
+        result2.model_instance = model_instance1
+        result2.test_definition = testcode1
+        result2.results_storage ="azerty"
+        result2.result = 0.43
+        result2.passed = None
+        result2.timestamp = "2017-04-24T14:59:26.031Z"
+        result2.platform = "azerty"
+        result2.project = "azerty"
+        result2.save()
+
+
+        result3 = ValidationTestResult(id=uuid_result3)
+        result3.model_instance = model_instance1
+        result3.test_definition = testcode1
+        result3.results_storage ="azerty"
+        result3.result = 0.3666
+        result3.passed = None
+        result3.timestamp = "2017-05-24T14:59:26.031Z"
+        result3.platform = "azerty"
+        result3.project = "azerty"
+        result3.save()
+
+
+        result4 = ValidationTestResult(id=uuid_result4)
+        result4.model_instance = model_instance1
+        result4.test_definition = testcode1
+        result4.results_storage ="azerty"
+        result4.result = 0.795
+        result4.passed = None
+        result4.timestamp = "2017-09-24T14:59:26.031Z"
+        result4.platform = "azerty"
+        result4.project = "azerty"
+        result4.save()
+
+
 
 
     def handle(self, *args, **options):
@@ -71,6 +197,8 @@ class Command(BaseCommand):
         self._create_cell_type()
         self._create_model_type()
         # self._fake_collab()
+
+        self._fake_models_test_results()
 
 
 
