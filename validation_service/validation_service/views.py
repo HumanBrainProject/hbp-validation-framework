@@ -14,7 +14,6 @@ from model_validation_api.serializer import CollabParametersSerializer
 
 @login_required(login_url='/login/hbp/')
 def home(request):
-    ##get collab
     serializer_context = {'request': request,}
     ctx = request.META['QUERY_STRING']
     id = ctx[4:]
