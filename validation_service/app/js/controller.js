@@ -441,34 +441,6 @@ testApp.controller('ConfigCtrl', ['$scope', '$rootScope', '$http', '$location', 
 
 
 
-
-
-
-testApp.controller('MyCtrl', ['$scope', function($scope) {
-    $scope.test = "Yes";
-
-    $scope.empList = [
-        //Test table
-        { "species": "Mouse (Mus musculus)", "brain_region": "Cerebellum", "cell_type": "Granule Cell", "model_type": "Single Cell" },
-        { "species": "Mouse (Mus musculus)", "brain_region": "Cerebellum", "cell_type": "Pyramidal Cell", "model_type": "Network" },
-        { "species": "Rat (Rattus rattus)", "brain_region": "Other", "cell_type": "Pyramidal Cell", "model_type": "Network" },
-        { "species": "Marmoset (callithrix jacchus)", "brain_region": "Hippocampus", "cell_type": "Interneuron", "model_type": "Mean Field" },
-        { "species": "Human (Homo sapiens)", "brain_region": "Cortex", "cell_type": "Pyramidal Cell", "model_type": "Mean Field" },
-        { "species": "Human (Homo sapiens)", "brain_region": "Hippocampus", "cell_type": "Pyramidal Cell", "model_type": "Mean Field" },
-        { "species": "Paxinos Rhesus Monkey (Macaca mulatta)", "brain_region": "Other", "cell_type": "Pyramidal Cell", "model_type": "Mean Field" },
-        { "species": "Opossum (Monodelphis domestica)", "brain_region": "Other", "cell_type": "Pyramidal Cell", "model_type": "Mean Field" },
-        { "species": "Mouse (Mus musculus)", "brain_region": "Basal Ganglia", "cell_type": "Granule Cell", "model_type": "Single Cell" },
-        { "species": "Rat (Rattus rattus)", "brain_region": "Cerebellum", "cell_type": "Pyramidal Cell", "model_type": "Network" },
-        { "species": "Marmoset (callithrix jacchus)", "brain_region": "Cortex", "cell_type": "Interneuron", "model_type": "Mean Field" },
-        { "species": "Other", "brain_region": "Cortex", "cell_type": "Other", "model_type": "Mean Field" }
-
-    ];
-
-    $scope.reloadPage = function() { window.location.reload(); }
-
-}]);
-
-
 //Filter multiple
 testApp.filter('filterMultiple', ['$parse', '$filter', function($parse, $filter) {
     return function(items, keyObj) {
@@ -622,9 +594,9 @@ ModelCatalogApp.controller('ModelCatalogCtrl', ['$scope', '$rootScope', '$http',
     }
 ]);
 
-ModelCatalogApp.controller('ModelCatalogCreateCtrl', ['$scope', '$rootScope', '$http', '$location', 'ScientificModelRest', 'CollabParameters',
+ModelCatalogApp.controller('ModelCatalogCreateCtrl', ['$scope', '$rootScope', '$http', '$location', 'ScientificModelRest', 'CollabParameters', 'CollabIDRest',
 
-    function($scope, $rootScope, $http, $location, ScientificModelRest, CollabParameters) {
+    function($scope, $rootScope, $http, $location, ScientificModelRest, CollabParameters, CollabIDRest) {
         CollabParameters.setService().$promise.then(function() {
             $scope.addImage = false;
             $scope.species = CollabParameters.getParameters("species");
@@ -632,6 +604,7 @@ ModelCatalogApp.controller('ModelCatalogCreateCtrl', ['$scope', '$rootScope', '$
             $scope.cell_type = CollabParameters.getParameters("cell_type");
             $scope.model_type = CollabParameters.getParameters("model_type");
             $scope.ctx = CollabParameters.getCtx();
+            $scope.collab = CollabIDRest.get();
             $scope.model_image = [];
 
             $scope.displayAddImage = function() {
@@ -651,10 +624,15 @@ ModelCatalogApp.controller('ModelCatalogCreateCtrl', ['$scope', '$rootScope', '$
 
             var _add_access_control = function() {
                 $scope.model.access_control = $scope.ctx;
+                $scope.model.collab_id = $scope.collab.collab_id;
+
+
             };
+
 
             $scope.saveModel = function() {
                 _add_access_control();
+                console.log(JSON.stringify($scope.model));
                 var parameters = JSON.stringify({ model: $scope.model, model_instance: $scope.model_instance, model_image: $scope.model_image });
                 var a = ScientificModelRest.save({ ctx: CollabParameters.getCtx() }, parameters).$promise.then(function(data) {
                     $location.path('/model-catalog/detail/' + data.uuid);
