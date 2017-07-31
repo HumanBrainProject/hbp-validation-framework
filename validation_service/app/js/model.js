@@ -94,6 +94,14 @@ ApiCommunicationServices.factory('IsCollabMemberRest', ['$resource',
     }
 ]);
 
+ApiCommunicationServices.factory('CollabIDRest', ['$resource',
+    function($resource) {
+        return $resource('collabidrest/', {}, {
+            get: { method: 'GET', params: { format: 'json', ctx: 'ctx' }, isArray: false },
+        });
+    }
+]);
+
 ApiCommunicationServices.factory('ValudationResultRest', ['$resource',
     function($resource) {
         return $resource('validationresultrest/', {}, {

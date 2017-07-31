@@ -1,14 +1,23 @@
 {% extends 'base.html' %} {% block content %}
 
-<h1>Home Validation</h1>
-
+<!--<h1 align=center>Home Validation</h1>-->
+</br>
 <div ng-app="testApp">
+    <nav id=navbar-Vapp class="navbar navbar-default">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="#">Home Validation</a>
+            </div>
+            <ul class="nav navbar-nav">
+                <li> <a href="#">Home</a>
+                </li>
+                <li><a href="#/home/validation_test">Validation test</a></li>
+                <li><a href="#/home/test_result">Test result</a></li>
 
-    <a href="#/home">Home</a> | 
-    <a href="#/home/validation_test">Validation test</a> |  
-    <a href="#/home/test_result">Test result</a> | 
-    <a href="#/home/config">Config View</a>
-
+            </ul>
+        </div>
+    </nav>
+    </br>
     <div ui-view></div>
 </div>
 {% endblock %}

@@ -3,16 +3,35 @@
 /* Controllers */
 var testApp = angular.module('testApp');
 
-testApp.controller('HomeCtrl', ['$scope', '$rootScope', '$http', '$location', "ScientificModelRest", "ValidationTestDefinitionRest", 'CollabParameters',
-    function($scope, $rootScope, $http, $location, ScientificModelRest, ValidationTestDefinitionRest, CollabParameters) {
+testApp.controller('HomeCtrl', ['$scope', '$rootScope', '$http', '$location', "ScientificModelRest", "ValidationTestDefinitionRest", 'CollabParameters', 'IsCollabMemberRest',
+    function($scope, $rootScope, $http, $location, ScientificModelRest, ValidationTestDefinitionRest, CollabParameters, IsCollabMemberRest) {
 
         CollabParameters.setService().$promise.then(function() {
 
+            $scope.collab_species = CollabParameters.getParameters("species");
+            $scope.collab_brain_region = CollabParameters.getParameters("brain_region");
+            $scope.collab_cell_type = CollabParameters.getParameters("cell_type");
+            $scope.collab_model_type = CollabParameters.getParameters("model_type");
+            $scope.collab_test_type = CollabParameters.getParameters("test_type");
+            $scope.collab_data_modalities = CollabParameters.getParameters("data_modalities");
+
+            var ctx = CollabParameters.getCtx();
+
+            $scope.is_collab_member = false;
+            $scope.is_collab_member = IsCollabMemberRest.get({ ctx: ctx, })
+            $scope.is_collab_member.$promise.then(function() {
+                $scope.is_collab_member = $scope.is_collab_member.is_member;
+            });
             // $scope.models = ScientificModelRest.get({}, function(data) {});
-            $scope.models = ScientificModelRest.get({ ctx: CollabParameters.getCtx() }, function(data) {});
-            $scope.tests = ValidationTestDefinitionRest.get({ ctx: CollabParameters.getCtx() }, function(data) {});
+            $scope.models = ScientificModelRest.get({ ctx: ctx }, function(data) {});
+            $scope.tests = ValidationTestDefinitionRest.get({ ctx: ctx }, function(data) {});
 
         });
+
+        $scope.goToModelDetailView = function(model) {
+            $location.path('/home/validation_test/' + test.id);
+        };
+
         $scope.goToTestDetailView = function(test) {
             $location.path('/home/validation_test/' + test.id);
         };
@@ -39,7 +58,6 @@ testApp.controller('ValTestCtrl', ['$scope', '$rootScope', '$http', '$location',
 
 testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$location', '$stateParams', '$state', 'ValidationTestDefinitionRest', 'ValidationTestCodeRest', 'CollabParameters', 'TestCommentRest',
     function($scope, $rootScope, $http, $location, $stateParams, $state, ValidationTestDefinitionRest, ValidationTestCodeRest, CollabParameters, TestCommentRest) {
-        console.log("ValTestDetailCtrl");
         CollabParameters.setService().$promise.then(function() {
 
             $scope.detail_test = ValidationTestDefinitionRest.get({ ctx: CollabParameters.getCtx(), id: $stateParams.uuid });
@@ -439,12 +457,22 @@ testApp.controller('ValTestCreateCtrl', ['$scope', '$rootScope', '$http', '$loca
     function($scope, $rootScope, $http, $location, ValidationTestDefinitionRest, ValidationTestCodeRest, CollabParameters) {
         CollabParameters.setService().$promise.then(function() {
             $scope.species = CollabParameters.getParameters("species");
+            $scope.brain_region = CollabParameters.getParameters("brain_region");
+            $scope.cell_type = CollabParameters.getParameters("cell_type");
+            $scope.data_type = CollabParameters.getParameters("data_type");
+            $scope.data_modalities = CollabParameters.getParameters("data_modalities");
+            $scope.test_type = CollabParameters.getParameters("test_type");
+            $scope.ctx = CollabParameters.getCtx();
 
 
-            $scope.make_post = function() {
-                var data_to_send = JSON.stringify({ test_data: $scope.test, code_data: $scope.code });
-                ValidationTestDefinitionRest.save({ ctx: CollabParameters.getCtx() }, data_to_send, function(value) {});
+            $scope.saveTest = function() {
+                var parameters = JSON.stringify({ test_data: $scope.test, code_data: $scope.code });
+                var a = ValidationTestDefinitionRest.save({ ctx: CollabParameters.getCtx() }, parameters).$promise.then(function(data) {
+                    $location.path('/model-catalog/detail/' + data.uuid);
+                });
+
             };
+
         });
 
     }
@@ -510,43 +538,19 @@ testApp.controller('ConfigCtrl', ['$scope', '$rootScope', '$http', '$location', 
 
 
 
-
-
-
-testApp.controller('MyCtrl', ['$scope', function($scope) {
-    $scope.test = "Yes";
-
-    $scope.empList = [
-        //Test table
-        { "species": "Mouse (Mus musculus)", "brain_region": "Cerebellum", "cell_type": "Granule Cell", "model_type": "Single Cell" },
-        { "species": "Mouse (Mus musculus)", "brain_region": "Cerebellum", "cell_type": "Pyramidal Cell", "model_type": "Network" },
-        { "species": "Rat (Rattus rattus)", "brain_region": "Other", "cell_type": "Pyramidal Cell", "model_type": "Network" },
-        { "species": "Marmoset (callithrix jacchus)", "brain_region": "Hippocampus", "cell_type": "Interneuron", "model_type": "Mean Field" },
-        { "species": "Human (Homo sapiens)", "brain_region": "Cortex", "cell_type": "Pyramidal Cell", "model_type": "Mean Field" },
-        { "species": "Human (Homo sapiens)", "brain_region": "Hippocampus", "cell_type": "Pyramidal Cell", "model_type": "Mean Field" },
-        { "species": "Paxinos Rhesus Monkey (Macaca mulatta)", "brain_region": "Other", "cell_type": "Pyramidal Cell", "model_type": "Mean Field" },
-        { "species": "Opossum (Monodelphis domestica)", "brain_region": "Other", "cell_type": "Pyramidal Cell", "model_type": "Mean Field" },
-        { "species": "Mouse (Mus musculus)", "brain_region": "Basal Ganglia", "cell_type": "Granule Cell", "model_type": "Single Cell" },
-        { "species": "Rat (Rattus rattus)", "brain_region": "Cerebellum", "cell_type": "Pyramidal Cell", "model_type": "Network" },
-        { "species": "Marmoset (callithrix jacchus)", "brain_region": "Cortex", "cell_type": "Interneuron", "model_type": "Mean Field" },
-        { "species": "Other", "brain_region": "Cortex", "cell_type": "Other", "model_type": "Mean Field" }
-
-    ];
-
-    $scope.reloadPage = function() { window.location.reload(); }
-
-}]);
-
-
 //Filter multiple
-testApp.filter('filterMultiple', ['$filter', function($filter) {
+testApp.filter('filterMultiple', ['$parse', '$filter', function($parse, $filter) {
     return function(items, keyObj) {
+        var x = false;
+        if (!angular.isArray(items)) {
+            return items;
+        }
         var filterObj = {
             data: items,
             filteredData: [],
             applyFilter: function(obj, key) {
                 var fData = [];
-                if (this.filteredData.length == 0)
+                if (this.filteredData.length == 0 && x == false)
                     this.filteredData = this.data;
                 if (obj) {
                     var fObj = {};
@@ -561,16 +565,21 @@ testApp.filter('filterMultiple', ['$filter', function($filter) {
                                     fData = fData.concat($filter('filter')(this.filteredData, fObj));
                                 }
                             }
-
                         }
                     }
                     if (fData.length > 0) {
                         this.filteredData = fData;
                     }
+                    if (fData.length == 0) {
+                        if (obj != "" && obj != undefined) {
+                            this.filteredData = fData;
+                            x = true;
+                        }
+                    }
+
                 }
             }
         };
-
         if (keyObj) {
             angular.forEach(keyObj, function(obj, key) {
                 filterObj.applyFilter(obj, key);
@@ -580,21 +589,6 @@ testApp.filter('filterMultiple', ['$filter', function($filter) {
         return filterObj.filteredData;
     }
 }]);
-
-testApp.filter('unique', function() {
-    return function(input, key) {
-        var unique = {};
-        var uniqueList = [];
-
-        for (var i = 0; i < input.length; i++) {
-            if (typeof unique[input[i][key]] == "undefined") {
-                unique[input[i][key]] = "";
-                uniqueList.push(input[i]);
-            }
-        }
-        return uniqueList;
-    };
-});
 
 
 
@@ -688,8 +682,8 @@ ModelCatalogApp.controller('ModelCatalogCtrl', ['$scope', '$rootScope', '$http',
             $scope.is_collab_member = IsCollabMemberRest.get({ ctx: ctx, })
             $scope.is_collab_member.$promise.then(function() {
                 $scope.is_collab_member = $scope.is_collab_member.is_member;
-
             });
+
         });
         $scope.goToDetailView = function(model) {
             $location.path('/model-catalog/detail/' + model.id);
@@ -697,9 +691,9 @@ ModelCatalogApp.controller('ModelCatalogCtrl', ['$scope', '$rootScope', '$http',
     }
 ]);
 
-ModelCatalogApp.controller('ModelCatalogCreateCtrl', ['$scope', '$rootScope', '$http', '$location', 'ScientificModelRest', 'CollabParameters',
+ModelCatalogApp.controller('ModelCatalogCreateCtrl', ['$scope', '$rootScope', '$http', '$location', 'ScientificModelRest', 'CollabParameters', 'CollabIDRest',
 
-    function($scope, $rootScope, $http, $location, ScientificModelRest, CollabParameters) {
+    function($scope, $rootScope, $http, $location, ScientificModelRest, CollabParameters, CollabIDRest) {
         CollabParameters.setService().$promise.then(function() {
             $scope.addImage = false;
             $scope.species = CollabParameters.getParameters("species");
@@ -707,6 +701,7 @@ ModelCatalogApp.controller('ModelCatalogCreateCtrl', ['$scope', '$rootScope', '$
             $scope.cell_type = CollabParameters.getParameters("cell_type");
             $scope.model_type = CollabParameters.getParameters("model_type");
             $scope.ctx = CollabParameters.getCtx();
+            $scope.collab = CollabIDRest.get();
             $scope.model_image = [];
 
             $scope.displayAddImage = function() {
@@ -726,10 +721,15 @@ ModelCatalogApp.controller('ModelCatalogCreateCtrl', ['$scope', '$rootScope', '$
 
             var _add_access_control = function() {
                 $scope.model.access_control = $scope.ctx;
+                $scope.model.collab_id = $scope.collab.collab_id;
+
+
             };
+
 
             $scope.saveModel = function() {
                 _add_access_control();
+                console.log(JSON.stringify($scope.model));
                 var parameters = JSON.stringify({ model: $scope.model, model_instance: $scope.model_instance, model_image: $scope.model_image });
                 var a = ScientificModelRest.save({ ctx: CollabParameters.getCtx() }, parameters).$promise.then(function(data) {
                     $location.path('/model-catalog/detail/' + data.uuid);
@@ -845,7 +845,6 @@ ModelCatalogApp.controller('ModelCatalogVersionCtrl', ['$scope', '$rootScope', '
             $scope.saveVersion = function() {
                 $scope.model_instance.model_id = $stateParams.uuid
                 var parameters = JSON.stringify($scope.model_instance);
-                alert(parameters);
                 ScientificModelInstanceRest.save({ ctx: CollabParameters.getCtx() }, parameters, function(value) {});
             };
         });
@@ -924,6 +923,7 @@ ParametersConfigurationApp.controller('ParametersConfigurationCtrl', ['$scope', 
 
                 CollabParameters.put_parameters().$promise.then(function() {
                     CollabParameters.getRequestParameters().$promise.then(function() {});
+                    alert("Your app have been correctly configured")
                 });
 
             };
