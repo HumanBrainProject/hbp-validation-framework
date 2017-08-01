@@ -79,6 +79,16 @@ class Command(BaseCommand):
     def _fake_models_test_results(self):
         
         import uuid
+        import time
+        time = time.time()
+
+
+        import datetime
+        # ts = time.time()
+        # st = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')
+
+        # 2012-12-15 01:21:05
+
         # uuid.uuid4()
 
         # x = uuid.UUID('{00000000-0000-0000-0000-0000000000t1}')
@@ -93,6 +103,10 @@ class Command(BaseCommand):
         uuid_result3 = uuid.uuid4()
         uuid_result4 = uuid.uuid4()
         uuid_result5 = uuid.uuid4()
+        uuid_result6 = uuid.uuid4()
+        uuid_result7 = uuid.uuid4()
+        uuid_result8 = uuid.uuid4()
+        
         
            
         test1 = ValidationTestDefinition(id= uuid_test1)
@@ -131,6 +145,7 @@ class Command(BaseCommand):
         model1.private = "0"
         model1.access_control = "0235296f-b73f-4374-9452-a89f4c20f05b"
         model1.code_format = "py"
+        model1.collab_id = 0
         model1.save()        
 
         model_instance1 = ScientificModelInstance(id=uuid_model_instance1)
@@ -141,52 +156,104 @@ class Command(BaseCommand):
         model_instance1.save()
 
 
-        result1 = ValidationTestResult(id=uuid_result1)
-        result1.model_instance = model_instance1
-        result1.test_definition = testcode1
-        result1.results_storage ="azerty"
-        result1.result = 0.25
-        result1.passed = None
-        result1.timestamp = "2017-02-24T14:59:26.031Z"
-        result1.platform = "azerty"
-        result1.project = "azerty"
-        result1.save()
+        result = ValidationTestResult(id=uuid_result1)
+        result.model_instance = model_instance1
+        result.test_definition = testcode1
+        result.results_storage ="azerty"
+        result.result = 0.25
+        result.passed = None
+        result.timestamp = datetime.datetime.fromtimestamp(time).strftime('%Y-%m-%d %H:%M:%S')
+        result.platform = "azerty"
+        result.project = "azerty"
+        result.save()
 
 
-        result2 = ValidationTestResult(id=uuid_result2)
-        result2.model_instance = model_instance1
-        result2.test_definition = testcode1
-        result2.results_storage ="azerty"
-        result2.result = 0.43
-        result2.passed = None
-        result2.timestamp = "2017-04-24T14:59:26.031Z"
-        result2.platform = "azerty"
-        result2.project = "azerty"
-        result2.save()
+        result = ValidationTestResult(id=uuid_result2)
+        result.model_instance = model_instance1
+        result.test_definition = testcode1
+        result.results_storage ="azerty"
+        result.result = 0.43
+        result.passed = None
+        time = time + 1000000000
+        result.timestamp = datetime.datetime.fromtimestamp(time).strftime('%Y-%m-%d %H:%M:%S')
+        result.platform = "azerty"
+        result.project = "azerty"
+        result.save()
 
 
-        result3 = ValidationTestResult(id=uuid_result3)
-        result3.model_instance = model_instance1
-        result3.test_definition = testcode1
-        result3.results_storage ="azerty"
-        result3.result = 0.3666
-        result3.passed = None
-        result3.timestamp = "2017-05-24T14:59:26.031Z"
-        result3.platform = "azerty"
-        result3.project = "azerty"
-        result3.save()
+        result = ValidationTestResult(id=uuid_result3)
+        result.model_instance = model_instance1
+        result.test_definition = testcode1
+        result.results_storage ="azerty"
+        result.result = 0.3666
+        result.passed = None
+        time = time + 1000000000
+        result.timestamp = datetime.datetime.fromtimestamp(time).strftime('%Y-%m-%d %H:%M:%S')
+        result.platform = "azerty"
+        result.project = "azerty"
+        result.save()
 
 
-        result4 = ValidationTestResult(id=uuid_result4)
-        result4.model_instance = model_instance1
-        result4.test_definition = testcode1
-        result4.results_storage ="azerty"
-        result4.result = 0.795
-        result4.passed = None
-        result4.timestamp = "2017-09-24T14:59:26.031Z"
-        result4.platform = "azerty"
-        result4.project = "azerty"
-        result4.save()
+        result = ValidationTestResult(id=uuid_result4)
+        result.model_instance = model_instance1
+        result.test_definition = testcode1
+        result.results_storage ="azerty"
+        result.result = 0.795
+        result.passed = None
+        time = time + 1000000000
+        result.timestamp = datetime.datetime.fromtimestamp(time).strftime('%Y-%m-%d %H:%M:%S')
+        result.platform = "azerty"
+        result.project = "azerty"
+        result.save()
+
+
+        result = ValidationTestResult(id=uuid_result5)
+        result.model_instance = model_instance1
+        result.test_definition = testcode1
+        result.results_storage ="azerty"
+        result.result = 0.695
+        result.passed = None
+        time += 11000000
+        result.timestamp = datetime.datetime.fromtimestamp(time).strftime('%Y-%m-%d %H:%M:%S')
+        result.platform = "azerty"
+        result.project = "azerty"
+        result.save()
+
+        result = ValidationTestResult(id=uuid_result6)
+        result.model_instance = model_instance1
+        result.test_definition = testcode1
+        result.results_storage ="azerty"
+        result.result = 0.4
+        result.passed = None
+        time += 110000000
+        result.timestamp = datetime.datetime.fromtimestamp(time).strftime('%Y-%m-%d %H:%M:%S')
+        result.platform = "azerty"
+        result.project = "azerty"
+        result.save()
+
+        result = ValidationTestResult(id=uuid_result7)
+        result.model_instance = model_instance1
+        result.test_definition = testcode1
+        result.results_storage ="azerty"
+        result.result = 0.7
+        result.passed = None
+        time += 110000000
+        result.timestamp = datetime.datetime.fromtimestamp(time).strftime('%Y-%m-%d %H:%M:%S')
+        result.platform = "azerty"
+        result.project = "azerty"
+        result.save()
+
+        result = ValidationTestResult(id=uuid_result8)
+        result.model_instance = model_instance1
+        result.test_definition = testcode1
+        result.results_storage ="azerty"
+        result.result = 0.3
+        result.passed = None
+        time += 10000000
+        result.timestamp = datetime.datetime.fromtimestamp(time).strftime('%Y-%m-%d %H:%M:%S')
+        result.platform = "azerty"
+        result.project = "azerty"
+        result.save()
 
 
 
