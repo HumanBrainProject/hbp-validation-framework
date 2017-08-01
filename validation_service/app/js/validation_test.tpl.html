@@ -1,6 +1,37 @@
 <html id="model-list" ng-controller="ValTestCtrl">
-<a href="#home/validation_test/create"><button class="btn btn-info">Add new test</button></a>
-<h1>Validation Test </h1>
+
+
+<nav>
+    <table>
+        <tr>
+            <td>
+                <label> Search :  <input id="search_model"  ng-model='search.$'> </label>
+            </td>
+
+            <td>
+                <multiselect ng-model="selected_species" placeholder="Select species" options="collab_species"></multiselect>
+            </td>
+            <td>
+                <multiselect ng-model="selected_brain_region" placeholder="Select brain region" options="collab_brain_region"></multiselect>
+            </td>
+            <td>
+                <multiselect ng-model="selected_cell_type" placeholder="Select cell type" options="collab_cell_type"></multiselect>
+            </td>
+            <td>
+                <multiselect ng-model="selected_model_type" placeholder="Select model type" options="collab_model_type"></multiselect>
+            </td>
+            <td>
+                <multiselect ng-model="selected_data_modalities" placeholder="Select data modality" options="collab_data_modalities"></multiselect>
+            </td>
+            <td>
+                <multiselect ng-model="selected_test_type" placeholder="Select test type" options="collab_test_type"></multiselect>
+            </td>
+            <td> <a class="button-MC" ng-href="#home/validation_test/create" ng-show="is_collab_member" class="btn btn-primary">New test</a></td>
+        </tr>
+    </table>
+    <br>
+
+</nav>
 
 <body>
     <table id="test_table" class="table">
@@ -23,7 +54,7 @@
 
             <!--<tr class="tr-clickable" ng-repeat="model in models.models  " ng-click="goToDetailView(model)">-->
 
-            <tr classe="tr-clickable" ng-repeat="test in test_list.tests | filter:search" ng-click="goToDetailView(test)">
+            <tr class="tr-clickable" ng-repeat="test in test_list.tests | filter:search | filterMultiple:{species:selected_species, brain_region:selected_brain_region, cell_type:selected_cell_type, model_type:selected_model_type}" ng-click="goToDetailView(test) ">
                 <td>{{ test.name }}</td>
                 <td>{{ test.species }}</td>
                 <td>{{ test.age }}</td>

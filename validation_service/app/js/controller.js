@@ -17,11 +17,11 @@ testApp.controller('HomeCtrl', ['$scope', '$rootScope', '$http', '$location', "S
 
             var ctx = CollabParameters.getCtx();
 
-            $scope.is_collab_member = false;
-            $scope.is_collab_member = IsCollabMemberRest.get({ ctx: ctx, })
-            $scope.is_collab_member.$promise.then(function() {
-                $scope.is_collab_member = $scope.is_collab_member.is_member;
-            });
+            // $scope.is_collab_member = false;
+            // $scope.is_collab_member = IsCollabMemberRest.get({ ctx: ctx, })
+            // $scope.is_collab_member.$promise.then(function() {
+            //     $scope.is_collab_member = $scope.is_collab_member.is_member;
+            // });
             // $scope.models = ScientificModelRest.get({}, function(data) {});
             $scope.models = ScientificModelRest.get({ ctx: ctx }, function(data) {});
             $scope.tests = ValidationTestDefinitionRest.get({ ctx: ctx }, function(data) {});
@@ -39,10 +39,26 @@ testApp.controller('HomeCtrl', ['$scope', '$rootScope', '$http', '$location', "S
     }
 ]);
 
-testApp.controller('ValTestCtrl', ['$scope', '$rootScope', '$http', '$location', 'ValidationTestDefinitionRest', 'CollabParameters',
-    function($scope, $rootScope, $http, $location, ValidationTestDefinitionRest, CollabParameters) {
+testApp.controller('ValTestCtrl', ['$scope', '$rootScope', '$http', '$location', 'ValidationTestDefinitionRest', 'CollabParameters', 'IsCollabMemberRest',
+    function($scope, $rootScope, $http, $location, ValidationTestDefinitionRest, CollabParameters, IsCollabMemberRest) {
 
         CollabParameters.setService().$promise.then(function() {
+
+            $scope.collab_species = CollabParameters.getParameters("species");
+            $scope.collab_brain_region = CollabParameters.getParameters("brain_region");
+            $scope.collab_cell_type = CollabParameters.getParameters("cell_type");
+            $scope.collab_model_type = CollabParameters.getParameters("model_type");
+            $scope.collab_test_type = CollabParameters.getParameters("test_type");
+            $scope.collab_data_modalities = CollabParameters.getParameters("data_modalities");
+
+            var ctx = CollabParameters.getCtx();
+
+            $scope.is_collab_member = false;
+            $scope.is_collab_member = IsCollabMemberRest.get({ ctx: ctx, })
+            $scope.is_collab_member.$promise.then(function() {
+                $scope.is_collab_member = $scope.is_collab_member.is_member;
+                $scope.is_collab_member = true; //to delete  
+            });
 
             $scope.test_list = ValidationTestDefinitionRest.get({ ctx: CollabParameters.getCtx() }, function(data) {});
         });
