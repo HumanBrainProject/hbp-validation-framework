@@ -147,14 +147,20 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
 //     };
 // });
 
-testApp.controller('TestResultCtrl', ['$scope', '$rootScope', '$http', '$location', 'CollabParameters', 'ValudationResultRest_fortest', 'ValudationResultRest',
+testApp.controller('TestResultCtrl', ['$scope', '$rootScope', '$http', '$location', '$timeout', 'CollabParameters', 'ValudationResultRest_fortest', 'ValudationResultRest',
 
-    function($scope, $rootScope, $http, $location, CollabParameters, ValudationResultRest_fortest, ValudationResultRest) {
+    function($scope, $rootScope, $http, $location, $timeout, CollabParameters, ValudationResultRest_fortest, ValudationResultRest) {
         CollabParameters.setService().$promise.then(function() {
 
 
             $scope.linechart_id_result_clicked = undefined;
             $scope.current_result_focussed = [];
+
+            var temp_test = data_fromAPI();
+            temp_data5.then(function() {
+                $scope.data5 = temp_data5.$$state.value;
+            })
+
 
             $scope.focus = function(id) {
                 $scope.linechart_id_result_clicked = id;
@@ -242,23 +248,29 @@ testApp.controller('TestResultCtrl', ['$scope', '$rootScope', '$http', '$locatio
             };
 
 
-            //give data for line chart
-            data_fromAPI();
+
+
+
+
+
+
+
 
             function data_fromAPI() {
-                var data_to_return = [];
+                var values = [];
+
                 $scope.results_data = ValudationResultRest.get({
                     ctx: CollabParameters.getCtx(),
                     test_code_id: "622f8ee151c940f3b502980831c7fc09",
                     model_instance_id: "d1135abda9ad46909e6783d41dd42d00"
                 })
-                $scope.results_data.$promise.then(function() {
+                var data_to_return = $scope.results_data.$promise.then(function() {
 
                     var i = 0;
                     for (i; i < $scope.results_data.data.length; i++) {
-                        console.log($scope.results_data.data[i]);
+                        // console.log($scope.results_data.data[i]);
                         // data_to_return.push({ x: i, y: data.data[i].result });
-                        data_to_return.push({
+                        values.push({
                             // x: i,
                             x: new Date($scope.results_data.data[i].timestamp),
                             y: $scope.results_data.data[i].result,
@@ -266,8 +278,8 @@ testApp.controller('TestResultCtrl', ['$scope', '$rootScope', '$http', '$locatio
                         });
                     }
 
-                    $scope.data5 = [{
-                            values: data_to_return, //values - represents the array of {x,y} data points
+                    return [{
+                            values: values, //values - represents the array of {x,y} data points
                             key: 'title', //key  - the name of the series.
                             color: '#ff7f0e', //color - optional: choose your own line color.
                         },
@@ -277,19 +289,11 @@ testApp.controller('TestResultCtrl', ['$scope', '$rootScope', '$http', '$locatio
                         //     color: '#ff7f0e', //color - optional: choose your own line color.
 
                         // },
-
                     ];
                 })
+
+                return data_to_return;
             };
-
-
-
-
-
-
-
-
-
 
 
 
@@ -329,11 +333,6 @@ testApp.controller('TestResultCtrl', ['$scope', '$rootScope', '$http', '$locatio
                     { 'label': 'Group C', 'value': 5 }
                 ]
             }];
-
-
-
-
-
 
 
 
