@@ -676,7 +676,8 @@ class IsCollabMemberRest (APIView):
 
 class ValidationResultRest (APIView):
     def get(self, request, format=None, **kwargs):
-        
+        serializer_context = {'request': request,}
+
         test_definition_id = request.query_params['test_code_id']
         model_instance_id  = request.query_params['model_instance_id']
 
@@ -685,8 +686,14 @@ class ValidationResultRest (APIView):
 
         validation_result =  ValidationTestResult.objects.filter(test_definition_id = test_definition_id, model_instance_id = model_instance_id )
 
+        # for i in validation_result : 
+        #     print 'new one'
+        #     print i
+
+        result_serializer = ValidationTestResultSerializer(validation_result, context=serializer_context, many=True)
+        
         return Response({
-            'data': validation_result,
+            'data': result_serializer.data,
         })
 
 

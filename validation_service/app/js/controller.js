@@ -131,11 +131,13 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
 //     };
 // });
 
-testApp.controller('TestResultCtrl', ['$scope', '$rootScope', '$http', '$location', 'CollabParameters', 'ValudationResultRest_fortest',
-    function($scope, $rootScope, $http, $location, CollabParameters, ValudationResultRest_fortest) {
+testApp.controller('TestResultCtrl', ['$scope', '$rootScope', '$http', '$location', 'CollabParameters', 'ValudationResultRest_fortest', 'ValudationResultRest',
+
+    function($scope, $rootScope, $http, $location, CollabParameters, ValudationResultRest_fortest, ValudationResultRest) {
         CollabParameters.setService().$promise.then(function() {
 
 
+            //Multichart
             $scope.options = {
                 chart: {
                     type: 'multiBarHorizontalChart',
@@ -172,16 +174,7 @@ testApp.controller('TestResultCtrl', ['$scope', '$rootScope', '$http', '$locatio
             }];
 
 
-
-
-
-
-
-            // $scope.$on('elementMouseover.tooltip', function(event) {
-            //     console.log('scope.elementMouseover.tooltip', event);
-            // });
-
-
+            //Line
             $scope.options5 = {
                 chart: {
                     type: 'lineChart',
@@ -200,9 +193,6 @@ testApp.controller('TestResultCtrl', ['$scope', '$rootScope', '$http', '$locatio
                         changeState: function(e) { console.log("changeState"); },
                         tooltipShow: function(e) { console.log("tooltipShow"); },
                         tooltipHide: function(e) { console.log("tooltipHide"); },
-                        // elementClick: function(e) { console.log(e); },
-                        // elementClick: function(e) { console.log("klsdklfdhfdkjh"); },
-
                     },
                     xAxis: {
                         axisLabel: 'Time (ms)'
@@ -215,7 +205,6 @@ testApp.controller('TestResultCtrl', ['$scope', '$rootScope', '$http', '$locatio
                         axisLabelDistance: -10
                     },
                     callback: function(chart) {
-                        console.log("!!! lineChart callback !!!");
                         chart.lines.dispatch.on('elementClick', function(e) {
                             console.log('elementClick in callback', e);
                         });
@@ -245,75 +234,49 @@ testApp.controller('TestResultCtrl', ['$scope', '$rootScope', '$http', '$locatio
 
 
 
+            //give data for line chart
+            data_fromAPI();
 
-            $scope.data5 = sinAndCos();
+            function data_fromAPI() {
+                var data_to_return = [];
+                var data = ValudationResultRest.get({ ctx: CollabParameters.getCtx(), test_code_id: "622f8ee151c940f3b502980831c7fc09", model_instance_id: "d1135abda9ad46909e6783d41dd42d00" })
+                data.$promise.then(function() {
 
+                    var i = 0;
+                    for (i; i < data.data.length; i++) {
+                        console.log(data.data[i]);
+                        // data_to_return.push({ x: i, y: data.data[i].result });
+                        data_to_return.push({
+                            x: i,
+                            y: data.data[i].result,
+                            id: data.data[i].id,
+                            ressourses: {
+                                model_instance_id: data.data[i].model_instance_id,
+                                test_definition_id: data.data[i].test_definition_id,
+                            },
+                        });
+                    }
 
-            // $scope.options.chart.lines.dispatch.on("elementClick", function(e) {
-            //     console.log(e);
-            //     console.log("kokokoko");
-            //     //             console.log('element: ' + e.value);
-            //     // console.dir(e.point);
+                    $scope.data5 = [{
+                            values: data_to_return, //values - represents the array of {x,y} data points
+                            key: 'title', //key  - the name of the series.
+                            color: '#ff7f0e', //color - optional: choose your own line color.
+                        },
+                        // {
+                        //     values: data_to_return, //values - represents the array of {x,y} data points
+                        //     key: 'title', //key  - the name of the series.
+                        //     color: '#ff7f0e', //color - optional: choose your own line color.
 
-            // });
+                        // },
 
-
-
-            // $(document).on("click", "#chart svg", function(e) {
-            //     console.log(e);
-            //     console.log(e.target.__data__);
-            // });
-
-
-            // $scope.$on('elementClick.directive', function(angularEvent, event) {
-            //     console.log(event);
-            // });
-
-
-
-            /*Random Data Generator */
-            function sinAndCos() {
-                var sin = [];
-                // sin2 = [],
-                // cos = [];
-
-                //Data is represented as an array of {x,y} pairs.
-                for (var i = 0; i < 100; i++) {
-                    sin.push({ x: i, y: Math.sin(i / 10) });
-                    // sin2.push({ x: i, y: i % 10 == 5 ? null : Math.sin(i / 10) * 0.25 + 0.5 });
-                    // cos.push({ x: i, y: .5 * Math.cos(i / 10 + 2) + Math.random() / 10 });
-                }
-
-                //Line chart data should be sent as an array of series objects.
-                return [{
-                        values: sin, //values - represents the array of {x,y} data points
-                        key: 'Sine Wave', //key  - the name of the series.
-                        color: '#ff7f0e', //color - optional: choose your own line color.
-                        hahahahaaha: "test",
-                        // area: true
-                    },
-                    // {
-                    //     values: cos,
-                    //     key: 'Cosine Wave',
-                    //     color: '#2ca02c'
-                    // },
-                    // {
-                    //     values: sin2,
-                    //     key: 'Another sine wave',
-                    //     color: '#7777ff',
-                    //     area: true //area - set to true if you want this line to turn into a filled area chart.
-                    // }
-                ];
+                    ];
+                })
             };
 
 
 
 
-
-
-
-
-
+            //Scatter
             $scope.options2 = {
                 chart: {
                     type: 'scatterChart',
@@ -354,23 +317,11 @@ testApp.controller('TestResultCtrl', ['$scope', '$rootScope', '$http', '$locatio
                 }
             };
 
-            // $scope.data2 = generateData(4, 40);
 
             $scope.data_django = ValudationResultRest_fortest.get({ ctx: CollabParameters.getCtx() });
-
             $scope.data_django.$promise.then(function() {
-
-                // $scope.data_django = $scope.data_django.data
-
-                // console.log($scope.data_django.data);
                 $scope.data2 = formatData(1, $scope.data_django.data);
-                // formatData(1, $scope.data_django.data);
-
-
             })
-
-
-
 
             function formatData(groups, data) {
                 var new_data = [];
@@ -415,37 +366,6 @@ testApp.controller('TestResultCtrl', ['$scope', '$rootScope', '$http', '$locatio
                 // console.log("I just finished");
                 return new_data;
             }
-
-            /* Random Data Generator (took from nvd3.org) */
-            function generateData(groups, points) {
-                var data = [],
-                    // shapes = ['circle', 'cross', 'triangle-up', 'triangle-down', 'diamond', 'square'],
-                    shapes = ['circle'],
-
-                    random = d3.random.normal();
-
-                for (var i = 0; i < groups; i++) {
-                    data.push({
-                        key: 'Group ' + i,
-                        values: []
-                    });
-
-                    for (var j = 0; j < points; j++) {
-                        data[i].values.push({
-                            x: random(),
-                            y: random(),
-                            // size: Math.random(),
-                            size: 1,
-
-                            // shape: shapes[j % 6]
-                            shape: shapes[0]
-
-                        });
-                    }
-                }
-                return data;
-            }
-
 
         })
 

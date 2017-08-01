@@ -83,9 +83,11 @@ class Command(BaseCommand):
 
         # x = uuid.UUID('{00000000-0000-0000-0000-0000000000t1}')
         uuid_test1 = uuid.uuid4()
-        uuid_testcode1 = uuid.uuid4()
+        # uuid_testcode1 = uuid.uuid4()
+        uuid_testcode1 =  "622f8ee151c940f3b502980831c7fc09"
         uuid_model1 = uuid.uuid4()
-        uuid_model_instance1 = uuid.uuid4()
+        # uuid_model_instance1 = uuid.uuid4()
+        uuid_model_instance1 = "d1135abda9ad46909e6783d41dd42d00"
         uuid_result1 = uuid.uuid4()
         uuid_result2 = uuid.uuid4()
         uuid_result3 = uuid.uuid4()
