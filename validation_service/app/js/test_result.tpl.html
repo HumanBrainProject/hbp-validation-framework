@@ -1,26 +1,64 @@
+<h1>
+    Test Result </h1>
+
+
+
 <div ng-controller="TestResultCtrl">
-    <h1>Test Result </h1>
+
+    <nvd3 options='options5' data='data5' id='chart svg'></nvd3>
+
+    <br>
+    <br>
+
+    <table class="table" style="border-top: none;">
+
+        <td>
+
+            <table id="model_table" class="table">
+
+                <h3 align=center> Models </h3>
+
+                <thead>
+                    <th>Results storage</th>
+                    <th>Result</th>
+                    <th>Passed</th>
+                    <th>Time</th>
+                    <th>Platform</th>
+                    <th>Project</th>
+                </thead>
+
+                <tbody>
+
+                    <tr class=tr-clickable id="" ng-repeat="result in current_result_focussed" ng-click="goToDetailView(model)">
+                        <td>{{ result.results_storage }}</td>
+                        <td>{{ result.result }}</td>
+                        <td>{{ result.passed }}</td>
+                        <td>{{ result.timestamp }}</td>
+                        <td>{{ result.platform }}</td>
+                        <td>{{ result.project }}</td>
+
+                    </tr>
+                </tbody>
+            </table>
+        </td>
+
+    </table>
+
+
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
 
 
 
-    <div ng-controller="TestResultCtrl">
-
-        <p> ici {{data5}} </p>
-
-        <nvd3 options='options5' data='data5' id='chart svg'></nvd3>
+    <nvd3 options='options' data='data' id='chart svg'></nvd3>
 
 
+    <!--<nvd3 myClickGraph>fdg</nvd3>-->
 
-
-        <nvd3 options='options' data='data' id='chart svg'></nvd3>
-
-
-        <!--<nvd3 myClickGraph>fdg</nvd3>-->
-
-        <nvd3 options='options2' data='data2'></nvd3>
-
-
-    </div>
+    <nvd3 options='options2' data='data2'></nvd3>
 
 
 </div>

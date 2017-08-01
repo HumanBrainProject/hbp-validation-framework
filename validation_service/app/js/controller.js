@@ -153,41 +153,27 @@ testApp.controller('TestResultCtrl', ['$scope', '$rootScope', '$http', '$locatio
         CollabParameters.setService().$promise.then(function() {
 
 
-            //Multichart
-            $scope.options = {
-                chart: {
-                    type: 'multiBarHorizontalChart',
-                    height: 450,
-                    x: function(d) { return d.label; },
-                    y: function(d) { return d.value; },
-                    showControls: true,
-                    showValues: true,
-                    duration: 500,
-                    xAxis: {
-                        showMaxMin: false
-                    },
-                    yAxis: {
-                        axisLabel: 'Values',
-                        tickFormat: function(d) {
-                            return d3.format(',.2f')(d);
-                        }
-                    },
-                    callback: function(chart) {
-                        chart.multibar.dispatch.on('elementClick', function(e) {
-                            console.log('elementClick in callback', e.data);
-                        });
+            $scope.linechart_id_result_clicked = undefined;
+            $scope.current_result_focussed = [];
+
+            $scope.focus = function(id) {
+                $scope.linechart_id_result_clicked = id;
+                $scope.current_result_focussed = $scope.find_result_in_data(id);
+                $scope.$apply();
+            };
+
+
+            $scope.find_result_in_data = function(id) {
+                var i = 0;
+                for (i; i < $scope.results_data.data.length; i++) {
+                    if ($scope.results_data.data[i].id == id) {
+                        return [$scope.results_data.data[i]];
                     }
                 }
+                return [];
+
             };
-            $scope.data = [{
-                'key': 'Series1',
-                'color': '#004433',
-                'values': [
-                    { 'label': 'Group A', 'value': 3 },
-                    { 'label': 'Group B', 'value': 7 },
-                    { 'label': 'Group C', 'value': 5 }
-                ]
-            }];
+
 
 
             //Line
@@ -211,10 +197,16 @@ testApp.controller('TestResultCtrl', ['$scope', '$rootScope', '$http', '$locatio
                         tooltipHide: function(e) { console.log("tooltipHide"); },
                     },
                     xAxis: {
-                        axisLabel: 'Time (ms)'
+                        axisLabel: 'Time (ms)',
+
+
+                        tickFormat: function(d) {
+                            return d3.time.format('%d-%m-%y')(new Date(d))
+                        },
                     },
+
                     yAxis: {
-                        axisLabel: 'Voltage (v)',
+                        axisLabel: 'axisLabel',
                         tickFormat: function(d) {
                             return d3.format('.02f')(d);
                         },
@@ -223,6 +215,7 @@ testApp.controller('TestResultCtrl', ['$scope', '$rootScope', '$http', '$locatio
                     callback: function(chart) {
                         chart.lines.dispatch.on('elementClick', function(e) {
                             console.log('elementClick in callback', e);
+                            $scope.focus(e[0].point.id);
                         });
                     }
                 },
@@ -249,27 +242,27 @@ testApp.controller('TestResultCtrl', ['$scope', '$rootScope', '$http', '$locatio
             };
 
 
-
             //give data for line chart
             data_fromAPI();
 
             function data_fromAPI() {
                 var data_to_return = [];
-                var data = ValudationResultRest.get({ ctx: CollabParameters.getCtx(), test_code_id: "622f8ee151c940f3b502980831c7fc09", model_instance_id: "d1135abda9ad46909e6783d41dd42d00" })
-                data.$promise.then(function() {
+                $scope.results_data = ValudationResultRest.get({
+                    ctx: CollabParameters.getCtx(),
+                    test_code_id: "622f8ee151c940f3b502980831c7fc09",
+                    model_instance_id: "d1135abda9ad46909e6783d41dd42d00"
+                })
+                $scope.results_data.$promise.then(function() {
 
                     var i = 0;
-                    for (i; i < data.data.length; i++) {
-                        console.log(data.data[i]);
+                    for (i; i < $scope.results_data.data.length; i++) {
+                        console.log($scope.results_data.data[i]);
                         // data_to_return.push({ x: i, y: data.data[i].result });
                         data_to_return.push({
-                            x: i,
-                            y: data.data[i].result,
-                            id: data.data[i].id,
-                            ressourses: {
-                                model_instance_id: data.data[i].model_instance_id,
-                                test_definition_id: data.data[i].test_definition_id,
-                            },
+                            // x: i,
+                            x: new Date($scope.results_data.data[i].timestamp),
+                            y: $scope.results_data.data[i].result,
+                            id: $scope.results_data.data[i].id,
                         });
                     }
 
@@ -288,6 +281,59 @@ testApp.controller('TestResultCtrl', ['$scope', '$rootScope', '$http', '$locatio
                     ];
                 })
             };
+
+
+
+
+
+
+
+
+
+
+
+
+            //Multichart
+            $scope.options = {
+                chart: {
+                    type: 'multiBarHorizontalChart',
+                    height: 450,
+                    x: function(d) { return d.label; },
+                    y: function(d) { return d.value; },
+                    showControls: true,
+                    showValues: true,
+                    duration: 500,
+                    xAxis: {
+                        showMaxMin: false
+                    },
+                    yAxis: {
+                        axisLabel: 'Values',
+                        tickFormat: function(d) {
+                            return d3.format(',.2f')(d);
+                        }
+                    },
+                    callback: function(chart) {
+                        chart.multibar.dispatch.on('elementClick', function(e) {
+                            console.log('elementClick in callback', e.data);
+
+                        });
+                    }
+                }
+            };
+            $scope.data = [{
+                'key': 'Series1',
+                'color': '#004433',
+                'values': [
+                    { 'label': 'Group A', 'value': 3 },
+                    { 'label': 'Group B', 'value': 7 },
+                    { 'label': 'Group C', 'value': 5 }
+                ]
+            }];
+
+
+
+
+
 
 
 
