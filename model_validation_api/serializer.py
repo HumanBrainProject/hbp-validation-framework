@@ -151,7 +151,7 @@ class ScientificModelImageSerializer(serializers.HyperlinkedModelSerializer):
 class ScientificModelSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = ScientificModel
-        fields = ('id', 'name', 'description', 'species', 'brain_region', 'cell_type', 'author', 'model_type','private','access_control','collab_id')
+        fields = ('id', 'name', 'description', 'species', 'brain_region', 'cell_type', 'author', 'model_type','private','access_control')
 
 
 #may be need to create one read version
@@ -225,7 +225,7 @@ class CollabParametersSerializer(serializers.HyperlinkedModelSerializer):
      class Meta:
         model = CollabParameters
         fields = ('id', 'data_modalities', 'test_type', 'species', 'brain_region', 
-                    'cell_type', 'model_type', 'app_type')
+                    'cell_type', 'model_type', 'app_type','collab_id')
 
 # class CollabParametersSerializer(serializers.HyperlinkedModelSerializer):
 #     param = serializers.PrimaryKeyRelatedField(many = True, read_only=True)
