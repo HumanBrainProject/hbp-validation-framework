@@ -584,12 +584,12 @@ testApp.controller('ConfigCtrl', ['$scope', '$rootScope', '$http', '$location', 
                     CollabParameters.addParameter("cell_type", value.authorized_value);
                 });
 
-
                 CollabParameters.put_parameters().$promise.then(function() {
                     CollabParameters.getRequestParameters().$promise.then(function() {
                         $location.path('/home');
                     });
                 });
+
 
             };
 
@@ -750,7 +750,6 @@ ModelCatalogApp.controller('ModelCatalogCtrl', ['$scope', '$rootScope', '$http',
             $scope.is_collab_member.$promise.then(function() {
                 $scope.is_collab_member = $scope.is_collab_member.is_member;
             });
-
         });
         $scope.goToDetailView = function(model) {
             console.log(model.id);
@@ -769,7 +768,6 @@ ModelCatalogApp.controller('ModelCatalogCreateCtrl', ['$scope', '$rootScope', '$
             $scope.cell_type = CollabParameters.getParameters("cell_type");
             $scope.model_type = CollabParameters.getParameters("model_type");
             $scope.ctx = CollabParameters.getCtx();
-            $scope.collab = CollabIDRest.get();
             $scope.model_image = [];
 
             $scope.displayAddImage = function() {
@@ -789,7 +787,6 @@ ModelCatalogApp.controller('ModelCatalogCreateCtrl', ['$scope', '$rootScope', '$
 
             var _add_access_control = function() {
                 $scope.model.access_control = $scope.ctx;
-                $scope.model.collab_id = $scope.collab.collab_id;
             };
 
             $scope.saveModel = function() {
@@ -985,6 +982,7 @@ ParametersConfigurationApp.controller('ParametersConfigurationCtrl', ['$scope', 
                 });
 
                 CollabParameters.addParameter("app_type", app_type);
+                CollabParameters.addParameter("collab_id", CollabIDRest.get());
 
                 CollabParameters.put_parameters().$promise.then(function() {
                     CollabParameters.getRequestParameters().$promise.then(function() {});
