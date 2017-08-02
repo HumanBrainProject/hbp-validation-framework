@@ -89,42 +89,80 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
                 if (id_tab == "tab_description") {
                     document.getElementById("tab_description").style.display = "block";
                     document.getElementById("tab_version").style.display = "none";
+                    document.getElementById("tab_new_version").style.display = "none";
                     document.getElementById("tab_results").style.display = "none";
                     document.getElementById("tab_comments").style.display = "none";
                 }
                 if (id_tab == "tab_version") {
                     document.getElementById("tab_description").style.display = "none";
                     document.getElementById("tab_version").style.display = "block";
+                    document.getElementById("tab_new_version").style.display = "none";
+                    document.getElementById("tab_results").style.display = "none";
+                    document.getElementById("tab_comments").style.display = "none";
+                }
+                if (id_tab == "tab_new_version") {
+                    document.getElementById("tab_description").style.display = "none";
+                    document.getElementById("tab_version").style.display = "none";
+                    document.getElementById("tab_new_version").style.display = "block";
                     document.getElementById("tab_results").style.display = "none";
                     document.getElementById("tab_comments").style.display = "none";
                 }
                 if (id_tab == "tab_results") {
                     document.getElementById("tab_description").style.display = "none";
                     document.getElementById("tab_version").style.display = "none";
+                    document.getElementById("tab_new_version").style.display = "none";
                     document.getElementById("tab_results").style.display = "block";
                     document.getElementById("tab_comments").style.display = "none";
                 }
                 if (id_tab == "tab_comments") {
                     document.getElementById("tab_description").style.display = "none";
                     document.getElementById("tab_version").style.display = "none";
+                    document.getElementById("tab_new_version").style.display = "none";
                     document.getElementById("tab_results").style.display = "none";
                     document.getElementById("tab_comments").style.display = "block";
                 }
-                var a = document.getElementById("li_tab_description");
-                var b = document.getElementById("li_tab_version");
-                var c = document.getElementById("li_tab_results");
-                var d = document.getElementById("li_tab_comments");
-                a.className = b.className = c.className = d.className = "nav-link";
-                var e = document.getElementById("li_" + id_tab);
-                e.className += " active";
+                _active_tab(id_tab);
+
             };
+
 
             $scope.submit_comment = function() {
                 var data_comment = JSON.stringify({ author: $stateParams.uuid, text: this.txt_comment, approved_comment: false, test_id: $stateParams.uuid });
                 TestCommentRest.post(data_comment, function(value) {});
                 $state.reload();
             }
+
         });
+
+        var _add_params = function() {
+            $scope.test_code.test_definition_id = $scope.detail_test.tests[0].id;
+        };
+
+        var _active_tab = function(id_tab) {
+            var a = document.getElementById("li_tab_description");
+            var b = document.getElementById("li_tab_version");
+            var c = document.getElementById("li_tab_results");
+            var d = document.getElementById("li_tab_comments");
+            a.className = b.className = c.className = d.className = "nav-link";
+            if (id_tab != "tab_new_version") {
+                var e = document.getElementById("li_" + id_tab);
+                e.className += " active";
+            };
+        }
+
+        $scope.saveVersion = function() {
+            _add_params();
+            var parameters = JSON.stringify($scope.test_code);
+            ValidationTestCodeRest.save({ ctx: CollabParameters.getCtx(), id: $scope.detail_test.tests[0].id }, parameters).$promise.then(function() {
+                document.getElementById("tab_description").style.display = "none";
+                document.getElementById("tab_version").style.display = "block";
+                document.getElementById("tab_new_version").style.display = "none";
+                document.getElementById("tab_results").style.display = "none";
+                document.getElementById("tab_comments").style.display = "none";
+                $state.reload();
+            });
+
+        };
 
         $scope.submit_comment = function() {
             var data_comment = JSON.stringify({ author: $stateParams.uuid, text: this.txt_comment, approved_comment: false, test_id: $stateParams.uuid });
@@ -134,7 +172,20 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
     }
 ]);
 
-
+testApp.directive('markdown', function() {
+    var converter = new Showdown.converter();
+    return {
+        restrict: 'A',
+        link: function(scope, element, attrs) {
+            function renderMarkdown() {
+                var htmlText = converter.makeHtml(scope.$eval(attrs.markdown) || '');
+                element.html(htmlText);
+            }
+            scope.$watch(attrs.markdown, renderMarkdown);
+            renderMarkdown();
+        }
+    };
+});
 
 // testApp.directive('myClickGraph', function() {
 
@@ -702,6 +753,7 @@ ModelCatalogApp.controller('ModelCatalogCtrl', ['$scope', '$rootScope', '$http',
 
         });
         $scope.goToDetailView = function(model) {
+            console.log(model.id);
             $location.path('/model-catalog/detail/' + model.id);
         };
     }
@@ -738,10 +790,7 @@ ModelCatalogApp.controller('ModelCatalogCreateCtrl', ['$scope', '$rootScope', '$
             var _add_access_control = function() {
                 $scope.model.access_control = $scope.ctx;
                 $scope.model.collab_id = $scope.collab.collab_id;
-
-
             };
-
 
             $scope.saveModel = function() {
                 _add_access_control();

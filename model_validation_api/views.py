@@ -283,7 +283,7 @@ class CollabIDRest(APIView):
             collab_id = 0
         else :         
             collab_id = _get_collab_id(request)
-            # collab_id = self.request.user
+            #collab_id = 111
         return Response({
             'collab_id': collab_id,
         })
@@ -533,8 +533,7 @@ class ValidationTestCodeRest(APIView):
             return HttpResponseForbidden()
 
         serializer_context = {'request': request,}
-        test_id = str(len(request.POST.getlist('id')))
-
+        test_id = request.query_params['id']#str(len(request.POST.getlist('id')))
         serializer = ValidationTestCodeSerializer(data=request.data, context=serializer_context)
         
         if serializer.is_valid():        
@@ -669,6 +668,7 @@ class IsCollabMemberRest (APIView):
 
         ctx = request.query_params['ctx']
         is_member = _is_collaborator(request, ctx) # bool
+        #is_member = True
         return Response({
             'is_member': is_member,
         })
