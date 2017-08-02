@@ -18,7 +18,8 @@ from .views import (
                     ParametersConfigurationValidationView,
 
                     IsCollabMemberRest,
-                    ValidationResultRest
+                    ValidationResultRest,
+                    ValidationResultRest_fortest
 
                     )
 
@@ -67,6 +68,10 @@ urlpatterns = (
     url(r'^iscollabmemberrest/$',
         IsCollabMemberRest.as_view(),
         ),
+
+    url(r'^validationresultrest_fortest/$',
+        ValidationResultRest_fortest.as_view(),
+        ), 
 
     url(r'^validationresultrest/$',
         ValidationResultRest.as_view(),

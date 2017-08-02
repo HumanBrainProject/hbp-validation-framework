@@ -198,57 +198,42 @@ testApp.directive('markdown', function() {
 //     };
 // });
 
-testApp.controller('TestResultCtrl', ['$scope', '$rootScope', '$http', '$location', 'CollabParameters', 'ValudationResultRest',
-    function($scope, $rootScope, $http, $location, CollabParameters, ValudationResultRest) {
+testApp.controller('TestResultCtrl', ['$scope', '$rootScope', '$http', '$location', '$timeout', 'CollabParameters', 'ValudationResultRest_fortest', 'ValudationResultRest',
+
+    function($scope, $rootScope, $http, $location, $timeout, CollabParameters, ValudationResultRest_fortest, ValudationResultRest) {
         CollabParameters.setService().$promise.then(function() {
 
 
-            $scope.options = {
-                chart: {
-                    type: 'multiBarHorizontalChart',
-                    height: 450,
-                    x: function(d) { return d.label; },
-                    y: function(d) { return d.value; },
-                    showControls: true,
-                    showValues: true,
-                    duration: 500,
-                    xAxis: {
-                        showMaxMin: false
-                    },
-                    yAxis: {
-                        axisLabel: 'Values',
-                        tickFormat: function(d) {
-                            return d3.format(',.2f')(d);
-                        }
-                    },
-                    callback: function(chart) {
-                        chart.multibar.dispatch.on('elementClick', function(e) {
-                            console.log('elementClick in callback', e.data);
-                        });
+            $scope.linechart_id_result_clicked = undefined;
+            $scope.current_result_focussed = [];
+
+            var temp_test = data_fromAPI();
+            temp_data5.then(function() {
+                $scope.data5 = temp_data5.$$state.value;
+            })
+
+
+            $scope.focus = function(id) {
+                $scope.linechart_id_result_clicked = id;
+                $scope.current_result_focussed = $scope.find_result_in_data(id);
+                $scope.$apply();
+            };
+
+
+            $scope.find_result_in_data = function(id) {
+                var i = 0;
+                for (i; i < $scope.results_data.data.length; i++) {
+                    if ($scope.results_data.data[i].id == id) {
+                        return [$scope.results_data.data[i]];
                     }
                 }
+                return [];
+
             };
-            $scope.data = [{
-                'key': 'Series1',
-                'color': '#004433',
-                'values': [
-                    { 'label': 'Group A', 'value': 3 },
-                    { 'label': 'Group B', 'value': 7 },
-                    { 'label': 'Group C', 'value': 5 }
-                ]
-            }];
 
 
 
-
-
-
-
-            // $scope.$on('elementMouseover.tooltip', function(event) {
-            //     console.log('scope.elementMouseover.tooltip', event);
-            // });
-
-
+            //Line
             $scope.options5 = {
                 chart: {
                     type: 'lineChart',
@@ -267,24 +252,27 @@ testApp.controller('TestResultCtrl', ['$scope', '$rootScope', '$http', '$locatio
                         changeState: function(e) { console.log("changeState"); },
                         tooltipShow: function(e) { console.log("tooltipShow"); },
                         tooltipHide: function(e) { console.log("tooltipHide"); },
-                        // elementClick: function(e) { console.log(e); },
-                        // elementClick: function(e) { console.log("klsdklfdhfdkjh"); },
-
                     },
                     xAxis: {
-                        axisLabel: 'Time (ms)'
+                        axisLabel: 'Time (ms)',
+
+
+                        tickFormat: function(d) {
+                            return d3.time.format('%d-%m-%y')(new Date(d))
+                        },
                     },
+
                     yAxis: {
-                        axisLabel: 'Voltage (v)',
+                        axisLabel: 'axisLabel',
                         tickFormat: function(d) {
                             return d3.format('.02f')(d);
                         },
                         axisLabelDistance: -10
                     },
                     callback: function(chart) {
-                        console.log("!!! lineChart callback !!!");
                         chart.lines.dispatch.on('elementClick', function(e) {
                             console.log('elementClick in callback', e);
+                            $scope.focus(e[0].point.id);
                         });
                     }
                 },
@@ -313,74 +301,94 @@ testApp.controller('TestResultCtrl', ['$scope', '$rootScope', '$http', '$locatio
 
 
 
-            $scope.data5 = sinAndCos();
-
-
-            // $scope.options.chart.lines.dispatch.on("elementClick", function(e) {
-            //     console.log(e);
-            //     console.log("kokokoko");
-            //     //             console.log('element: ' + e.value);
-            //     // console.dir(e.point);
-
-            // });
 
 
 
-            // $(document).on("click", "#chart svg", function(e) {
-            //     console.log(e);
-            //     console.log(e.target.__data__);
-            // });
-
-
-            // $scope.$on('elementClick.directive', function(angularEvent, event) {
-            //     console.log(event);
-            // });
 
 
 
-            /*Random Data Generator */
-            function sinAndCos() {
-                var sin = [];
-                // sin2 = [],
-                // cos = [];
+            function data_fromAPI() {
+                var values = [];
 
-                //Data is represented as an array of {x,y} pairs.
-                for (var i = 0; i < 100; i++) {
-                    sin.push({ x: i, y: Math.sin(i / 10) });
-                    // sin2.push({ x: i, y: i % 10 == 5 ? null : Math.sin(i / 10) * 0.25 + 0.5 });
-                    // cos.push({ x: i, y: .5 * Math.cos(i / 10 + 2) + Math.random() / 10 });
-                }
+                $scope.results_data = ValudationResultRest.get({
+                    ctx: CollabParameters.getCtx(),
+                    test_code_id: "622f8ee151c940f3b502980831c7fc09",
+                    model_instance_id: "d1135abda9ad46909e6783d41dd42d00"
+                })
+                var data_to_return = $scope.results_data.$promise.then(function() {
 
-                //Line chart data should be sent as an array of series objects.
-                return [{
-                        values: sin, //values - represents the array of {x,y} data points
-                        key: 'Sine Wave', //key  - the name of the series.
-                        color: '#ff7f0e', //color - optional: choose your own line color.
-                        hahahahaaha: "test",
-                        // area: true
-                    },
-                    // {
-                    //     values: cos,
-                    //     key: 'Cosine Wave',
-                    //     color: '#2ca02c'
-                    // },
-                    // {
-                    //     values: sin2,
-                    //     key: 'Another sine wave',
-                    //     color: '#7777ff',
-                    //     area: true //area - set to true if you want this line to turn into a filled area chart.
-                    // }
-                ];
+                    var i = 0;
+                    for (i; i < $scope.results_data.data.length; i++) {
+                        // console.log($scope.results_data.data[i]);
+                        // data_to_return.push({ x: i, y: data.data[i].result });
+                        values.push({
+                            // x: i,
+                            x: new Date($scope.results_data.data[i].timestamp),
+                            y: $scope.results_data.data[i].result,
+                            id: $scope.results_data.data[i].id,
+                        });
+                    }
+
+                    return [{
+                            values: values, //values - represents the array of {x,y} data points
+                            key: 'title', //key  - the name of the series.
+                            color: '#ff7f0e', //color - optional: choose your own line color.
+                        },
+                        // {
+                        //     values: data_to_return, //values - represents the array of {x,y} data points
+                        //     key: 'title', //key  - the name of the series.
+                        //     color: '#ff7f0e', //color - optional: choose your own line color.
+
+                        // },
+                    ];
+                })
+
+                return data_to_return;
             };
 
 
 
+            //Multichart
+            $scope.options = {
+                chart: {
+                    type: 'multiBarHorizontalChart',
+                    height: 450,
+                    x: function(d) { return d.label; },
+                    y: function(d) { return d.value; },
+                    showControls: true,
+                    showValues: true,
+                    duration: 500,
+                    xAxis: {
+                        showMaxMin: false
+                    },
+                    yAxis: {
+                        axisLabel: 'Values',
+                        tickFormat: function(d) {
+                            return d3.format(',.2f')(d);
+                        }
+                    },
+                    callback: function(chart) {
+                        chart.multibar.dispatch.on('elementClick', function(e) {
+                            console.log('elementClick in callback', e.data);
+
+                        });
+                    }
+                }
+            };
+            $scope.data = [{
+                'key': 'Series1',
+                'color': '#004433',
+                'values': [
+                    { 'label': 'Group A', 'value': 3 },
+                    { 'label': 'Group B', 'value': 7 },
+                    { 'label': 'Group C', 'value': 5 }
+                ]
+            }];
 
 
 
 
-
-
+            //Scatter
             $scope.options2 = {
                 chart: {
                     type: 'scatterChart',
@@ -421,23 +429,11 @@ testApp.controller('TestResultCtrl', ['$scope', '$rootScope', '$http', '$locatio
                 }
             };
 
-            // $scope.data2 = generateData(4, 40);
 
-            $scope.data_django = ValudationResultRest.get({ ctx: CollabParameters.getCtx() });
-
+            $scope.data_django = ValudationResultRest_fortest.get({ ctx: CollabParameters.getCtx() });
             $scope.data_django.$promise.then(function() {
-
-                // $scope.data_django = $scope.data_django.data
-
-                // console.log($scope.data_django.data);
                 $scope.data2 = formatData(1, $scope.data_django.data);
-                // formatData(1, $scope.data_django.data);
-
-
             })
-
-
-
 
             function formatData(groups, data) {
                 var new_data = [];
@@ -482,37 +478,6 @@ testApp.controller('TestResultCtrl', ['$scope', '$rootScope', '$http', '$locatio
                 // console.log("I just finished");
                 return new_data;
             }
-
-            /* Random Data Generator (took from nvd3.org) */
-            function generateData(groups, points) {
-                var data = [],
-                    // shapes = ['circle', 'cross', 'triangle-up', 'triangle-down', 'diamond', 'square'],
-                    shapes = ['circle'],
-
-                    random = d3.random.normal();
-
-                for (var i = 0; i < groups; i++) {
-                    data.push({
-                        key: 'Group ' + i,
-                        values: []
-                    });
-
-                    for (var j = 0; j < points; j++) {
-                        data[i].values.push({
-                            x: random(),
-                            y: random(),
-                            // size: Math.random(),
-                            size: 1,
-
-                            // shape: shapes[j % 6]
-                            shape: shapes[0]
-
-                        });
-                    }
-                }
-                return data;
-            }
-
 
         })
 
