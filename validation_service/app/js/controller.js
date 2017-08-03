@@ -187,20 +187,9 @@ testApp.directive('markdown', function() {
     };
 });
 
-// testApp.directive('myClickGraph', function() {
+testApp.controller('TestResultCtrl', ['$scope', '$rootScope', '$http', '$location', '$timeout', 'CollabParameters', 'ValidationResultRest_fortest', 'ValidationResultRest',
 
-//     // template: "options='options' data='data' id='chart svg'"
-//     chart.lines.dispatch.on('elementMouseover.tooltip', function(event) {
-//         scope.$emit('elementMouseover.tooltip', event);
-//     });
-//     return {
-//         restrict: 'A',
-//     };
-// });
-
-testApp.controller('TestResultCtrl', ['$scope', '$rootScope', '$http', '$location', '$timeout', 'CollabParameters', 'ValudationResultRest_fortest', 'ValudationResultRest',
-
-    function($scope, $rootScope, $http, $location, $timeout, CollabParameters, ValudationResultRest_fortest, ValudationResultRest) {
+    function($scope, $rootScope, $http, $location, $timeout, CollabParameters, ValidationResultRest_fortest, ValidationResultRest) {
         CollabParameters.setService().$promise.then(function() {
 
 
@@ -310,7 +299,7 @@ testApp.controller('TestResultCtrl', ['$scope', '$rootScope', '$http', '$locatio
             function data_fromAPI() {
                 var values = [];
 
-                $scope.results_data = ValudationResultRest.get({
+                $scope.results_data = ValidationResultRest.get({
                     ctx: CollabParameters.getCtx(),
                     test_code_id: "622f8ee151c940f3b502980831c7fc09",
                     model_instance_id: "d1135abda9ad46909e6783d41dd42d00"
@@ -430,7 +419,7 @@ testApp.controller('TestResultCtrl', ['$scope', '$rootScope', '$http', '$locatio
             };
 
 
-            $scope.data_django = ValudationResultRest_fortest.get({ ctx: CollabParameters.getCtx() });
+            $scope.data_django = ValidationResultRest_fortest.get({ ctx: CollabParameters.getCtx() });
             $scope.data_django.$promise.then(function() {
                 $scope.data2 = formatData(1, $scope.data_django.data);
             })
@@ -734,6 +723,7 @@ ModelCatalogApp.controller('ModelCatalogCreateCtrl', ['$scope', '$rootScope', '$
             $scope.cell_type = CollabParameters.getParameters("cell_type");
             $scope.model_type = CollabParameters.getParameters("model_type");
             $scope.ctx = CollabParameters.getCtx();
+
             $scope.model_image = [];
 
             $scope.displayAddImage = function() {

@@ -266,7 +266,7 @@ def _get_collab_id(request):
     }
 
     #to get collab_id
-    svc_url = settings.HBP_COLLAB_SERVICE_URL
+    svc_url = settings.HBP_COLLAB_SERVICE_URL    
     context = request.session["next"][6:]
     url = '%scollab/context/%s/' % (svc_url, context)
     res = requests.get(url, headers=headers)
@@ -278,6 +278,7 @@ def _get_collab_id(request):
 
 class CollabIDRest(APIView): 
     def get(self, request, format=None, **kwargs):
+
         if self.request.user == "AnonymousUser" :
             collab_id = 0
         else :         
@@ -424,12 +425,25 @@ class ScientificModelRest(APIView):
         collab = _get_collab_id(request)
         if(model_id == '0'):
             collab_params = CollabParameters.objects.get(id = ctx )
+
             all_ctx_from_collab = CollabParameters.objects.filter(collab_id = collab).distinct()
-            rq1 = ScientificModel.objects.filter(private=1,access_control__in=all_ctx_from_collab.values("id"), species__in=collab_params.species.split(","), brain_region__in=collab_params.brain_region.split(","), cell_type__in=collab_params.cell_type.split(","), model_type__in=collab_params.model_type.split(",")).prefetch_related()
+            rq1 = ScientificModel.objects.filter(
+                private=1,access_control__in=all_ctx_from_collab.values("id"), 
+                species__in=collab_params.species.split(","), 
+                brain_region__in=collab_params.brain_region.split(","), 
+                cell_type__in=collab_params.cell_type.split(","), 
+                model_type__in=collab_params.model_type.split(",")).prefetch_related()
+
             print(rq1)
-            rq2 = ScientificModel.objects.filter (private=0, species__in=collab_params.species.split(","), brain_region__in=collab_params.brain_region.split(","), cell_type__in=collab_params.cell_type.split(",")
-            ,model_type__in=collab_params.model_type.split(",")).prefetch_related()
+            
+            rq2 = ScientificModel.objects.filter (
+                private=0, species__in=collab_params.species.split(","), 
+                brain_region__in=collab_params.brain_region.split(","), 
+                cell_type__in=collab_params.cell_type.split(","), 
+                model_type__in=collab_params.model_type.split(",")).prefetch_related()
+
             print(rq2)
+
             if len(rq1) >0:
                 # models = rq1.union(rq2)
                 models  = (rq1 | rq2).distinct()
@@ -457,8 +471,10 @@ class ScientificModelRest(APIView):
             })
     def post(self, request, format=None):
         ctx = request.query_params['ctx']
+
         if not _is_collaborator(request, ctx):
             return HttpResponseForbidden()
+
         serializer_context = {'request': request,}
         # check if data is ok else return error
         model_serializer = ScientificModelSerializer(data=request.data['model'], context=serializer_context)
@@ -670,7 +686,7 @@ class IsCollabMemberRest (APIView):
         is_member = _is_collaborator(request, ctx) # bool
         #is_member = True
         return Response({
-            'is_member': is_member,
+            'is_member':  is_member,
         })
 
 
@@ -685,11 +701,6 @@ class ValidationResultRest (APIView):
         # ScientificModelInstance.objects.filter(id = model_instance_id)
 
         validation_result =  ValidationTestResult.objects.filter(test_definition_id = test_definition_id, model_instance_id = model_instance_id )
-
-        # for i in validation_result : 
-        #     print 'new one'
-        #     print i
-
         result_serializer = ValidationTestResultSerializer(validation_result, context=serializer_context, many=True)
         
         return Response({
@@ -700,10 +711,7 @@ class ValidationResultRest (APIView):
 ## This is just to make some test with NVD3.js
 class ValidationResultRest_fortest (APIView):
     def get(self, request, format=None, **kwargs):
-        #load file 
-
         import json
-
 
         with open('app/data_to_test/move_trial0_inh.txt') as data_file:    
             data = json.load(data_file)

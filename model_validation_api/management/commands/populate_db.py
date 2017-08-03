@@ -267,7 +267,7 @@ class Command(BaseCommand):
         self._create_model_type()
         # self._fake_collab()
 
-        self._fake_models_test_results()
+        # self._fake_models_test_results()
 
 
 

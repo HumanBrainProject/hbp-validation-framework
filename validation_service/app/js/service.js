@@ -198,3 +198,15 @@ ParametersConfigurationServices.service('CollabParameters', ['$rootScope', 'Coll
 
     }
 ]);
+
+
+var GraphicsServices = angular.module('GraphicsServices', ['ngResource', 'btorfs.multiselect', 'ApiCommunicationServices']);
+
+GraphicsServices.service('Graphics', ['$rootScope',
+    function($rootScope, ) {
+
+
+
+
+    }
+]);
