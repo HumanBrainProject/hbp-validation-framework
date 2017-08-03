@@ -715,6 +715,7 @@ ModelCatalogApp.controller('ModelCatalogCtrl', ['$scope', '$rootScope', '$http',
             $scope.is_collab_member.$promise.then(function() {
                 $scope.is_collab_member = $scope.is_collab_member.is_member;
             });
+            console.log($scope.models)
         });
         $scope.goToDetailView = function(model) {
             console.log(model.id);
@@ -751,7 +752,7 @@ ModelCatalogApp.controller('ModelCatalogCreateCtrl', ['$scope', '$rootScope', '$
             };
 
             var _add_access_control = function() {
-                $scope.model.access_control = $scope.ctx;
+                $scope.model.access_control_id = $scope.ctx;
             };
 
             $scope.saveModel = function() {
@@ -872,7 +873,9 @@ ModelCatalogApp.controller('ModelCatalogVersionCtrl', ['$scope', '$rootScope', '
             $scope.saveVersion = function() {
                 $scope.model_instance.model_id = $stateParams.uuid
                 var parameters = JSON.stringify($scope.model_instance);
-                ScientificModelInstanceRest.save({ ctx: CollabParameters.getCtx() }, parameters, function(value) {});
+                ScientificModelInstanceRest.save({ ctx: CollabParameters.getCtx() }, parameters).$promise.then(function(data) {
+                    $location.path('/model-catalog/detail/' + $stateParams.uuid);
+                });
             };
         });
 
@@ -887,13 +890,13 @@ ModelCatalogApp.controller('ModelCatalogVersionCtrl', ['$scope', '$rootScope', '
 
 var ParametersConfigurationApp = angular.module('ParametersConfigurationApp');
 
-ParametersConfigurationApp.controller('ParametersConfigurationCtrl', ['$scope', '$rootScope', '$http', '$location', 'CollabParameters', 'AuthaurizedCollabParameterRest',
-    function($scope, $rootScope, $http, $location, CollabParameters, AuthaurizedCollabParameterRest) {
+ParametersConfigurationApp.controller('ParametersConfigurationCtrl', ['$scope', '$rootScope', '$http', '$location', 'CollabParameters', 'AuthaurizedCollabParameterRest', 'CollabIDRest',
+    function($scope, $rootScope, $http, $location, CollabParameters, AuthaurizedCollabParameterRest, CollabIDRest) {
 
         CollabParameters.setService().$promise.then(function() {
             var app_type = document.getElementById("app").getAttribute("value");
             // $scope.list_param2 = AuthaurizedCollabParameterRest2.get({});
-
+            var collab = CollabIDRest.get();
 
             $scope.list_param = AuthaurizedCollabParameterRest.get({ ctx: CollabParameters.getCtx() });
 
@@ -904,9 +907,7 @@ ParametersConfigurationApp.controller('ParametersConfigurationCtrl', ['$scope', 
                 $scope.species = $scope.list_param.species;
                 $scope.brain_region = $scope.list_param.brain_region;
                 $scope.cell_type = $scope.list_param.cell_type;
-
             });
-
 
             $scope.selected_data_modalities = CollabParameters.getParameters_authorized_value_formated("data_modalities");
             $scope.selected_test_type = CollabParameters.getParameters_authorized_value_formated("test_type");
@@ -914,7 +915,6 @@ ParametersConfigurationApp.controller('ParametersConfigurationCtrl', ['$scope', 
             $scope.selected_species = CollabParameters.getParameters_authorized_value_formated("species");
             $scope.selected_brain_region = CollabParameters.getParameters_authorized_value_formated("brain_region");
             $scope.selected_cell_type = CollabParameters.getParameters_authorized_value_formated("cell_type");
-
 
 
 
@@ -947,7 +947,7 @@ ParametersConfigurationApp.controller('ParametersConfigurationCtrl', ['$scope', 
                 });
 
                 CollabParameters.addParameter("app_type", app_type);
-                CollabParameters.addParameter("collab_id", CollabIDRest.get());
+                CollabParameters.addParameter("collab_id", collab.collab_id);
 
                 CollabParameters.put_parameters().$promise.then(function() {
                     CollabParameters.getRequestParameters().$promise.then(function() {});
