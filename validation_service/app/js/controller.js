@@ -17,12 +17,12 @@ testApp.controller('HomeCtrl', ['$scope', '$rootScope', '$http', '$location', "S
 
             var ctx = CollabParameters.getCtx();
 
-            // $scope.is_collab_member = false;
-            // $scope.is_collab_member = IsCollabMemberRest.get({ ctx: ctx, })
-            // $scope.is_collab_member.$promise.then(function() {
-            //     $scope.is_collab_member = $scope.is_collab_member.is_member;
-            // });
-            // $scope.models = ScientificModelRest.get({}, function(data) {});
+            $scope.is_collab_member = false;
+            $scope.is_collab_member = IsCollabMemberRest.get({ ctx: ctx, })
+            $scope.is_collab_member.$promise.then(function() {
+                $scope.is_collab_member = $scope.is_collab_member.is_member;
+                $scope.is_collab_member = true; //to delete  
+            });
             $scope.models = ScientificModelRest.get({ ctx: ctx }, function(data) {});
             $scope.tests = ValidationTestDefinitionRest.get({ ctx: ctx }, function(data) {});
 

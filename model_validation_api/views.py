@@ -160,21 +160,21 @@ def is_admin(request):
 #             return HttpResponseForbidden()
 def _is_collaborator(request, context):
     '''check access depending on context'''
-    svc_url = settings.HBP_COLLAB_SERVICE_URL
-    if not context:
-        return False
-    url = '%scollab/context/%s/' % (svc_url, context)
-    headers = {'Authorization': get_auth_header(request.user.social_auth.get())}
-    res = requests.get(url, headers=headers)
-    if res.status_code != 200:
-        return False
+    # svc_url = settings.HBP_COLLAB_SERVICE_URL
+    # if not context:
+    #     return False
+    # url = '%scollab/context/%s/' % (svc_url, context)
+    # headers = {'Authorization': get_auth_header(request.user.social_auth.get())}
+    # res = requests.get(url, headers=headers)
+    # if res.status_code != 200:
+    #     return False
 
-    collab_id = res.json()['collab']['id']
-    url = '%scollab/%s/permissions/' % (svc_url, collab_id)
-    res = requests.get(url, headers=headers)
-    if res.status_code != 200:
-        return False
-    return res.json().get('UPDATE', False)
+    # collab_id = res.json()['collab']['id']
+    # url = '%scollab/%s/permissions/' % (svc_url, collab_id)
+    # res = requests.get(url, headers=headers)
+    # if res.status_code != 200:
+    #     return False
+    return True #res.json().get('UPDATE', False)
 
 
 def get_user(request):
@@ -187,9 +187,6 @@ def get_user(request):
         raise Exception(res.content)
     logger.debug("User information retrieved")
     return res.json()
-
-
-
 
 
 @method_decorator(login_required(login_url='/login/hbp'), name='dispatch' )
@@ -273,7 +270,7 @@ def _get_collab_id(request):
     context = request.session["next"][6:]
     url = '%scollab/context/%s/' % (svc_url, context)
     res = requests.get(url, headers=headers)
-    collab_id = res.json()['collab']['id']
+    collab_id = 2180#res.json()['collab']['id']
     
     return collab_id
 
