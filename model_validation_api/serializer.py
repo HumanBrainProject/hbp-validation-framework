@@ -28,44 +28,7 @@ from rest_framework import serializers
 
 
 
-# class ValidationTestResultSerializer(object):
-    
-#     @staticmethod
-#     def _to_dict(result):
-#         data = {
-#             "model_instance": {
-#                 "model_id": result.model_instance.model.pk,
-#                 "version": result.model_instance.version,
-#                 "parameters": result.model_instance.parameters,
-#                 "resource_uri": "/models/{}?instance={}".format(result.model_instance.model.pk,
-#                                                                 result.model_instance.pk)
-#             },
-#             "test_definition": "/tests/{}?version={}".format(result.test_definition.test_definition.pk,
-#                                                              result.test_definition.pk),
-#             "results_storage": result.results_storage,
-#             "result": result.result,
-#             "passed": result.passed,
-#             "platform": result.get_platform_as_dict(),
-#             "timestamp": result.timestamp,
-#             "project": result.project,
-#             "resource_uri": "/results/{}".format(result.pk)
-#         }
-#         return data
-
-#     @classmethod
-#     def serialize(cls, results):
-#         if isinstance(results, ValidationTestResult):
-#             data = cls._to_dict(results)
-#         else:
-#             data = [cls._to_dict(result) for result in results]
-#         encoder = DjangoJSONEncoder(ensure_ascii=False, indent=4)
-#         return encoder.encode(data)
-
-
 #### rest freamework serializers ####
-
-
-
 
 class ValidationTestResultSerializer (serializers.HyperlinkedModelSerializer):
     class Meta:

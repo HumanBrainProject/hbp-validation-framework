@@ -23,7 +23,7 @@ ENV SITEDIR /home/docker/site
 COPY validation_service $SITEDIR
 COPY packages /home/docker/packages
 COPY model_validation_api /home/docker/model_validation_api
-COPY build_info.json $SITEDIR
+# COPY build_info.json $SITEDIR
 
 WORKDIR /home/docker
 RUN pip install -r $SITEDIR/requirements.txt
@@ -32,7 +32,8 @@ ENV PYTHONPATH  /home/docker:/home/docker/site:/usr/local/lib/python2.7/dist-pac
 WORKDIR $SITEDIR
 RUN if [ -f $SITEDIR/db.sqlite3 ]; then rm $SITEDIR/db.sqlite3; fi
 RUN python manage.py check
-RUN python manage.py collectstatic --noinput
+
+# RUN python manage.py collectstatic --noinput
 
 RUN echo "daemon off;" >> /etc/nginx/nginx.conf
 RUN rm /etc/nginx/sites-enabled/default
@@ -41,5 +42,7 @@ RUN ln -s $SITEDIR/deployment/supervisor-app.conf /etc/supervisor/conf.d/
 RUN ln -sf /dev/stdout /var/log/nginx/access.log
 RUN ln -sf /dev/stderr /var/log/nginx/error.log
 
-EXPOSE 443
+# EXPOSE 443
+EXPOSE 8000
+
 CMD ["supervisord", "-n", "-c", "/etc/supervisor/conf.d/supervisor-app.conf"]

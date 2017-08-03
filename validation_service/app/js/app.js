@@ -65,32 +65,32 @@ ModelCatalogApp.config(
         $stateProvider
             .state('ModelCatalog', {
                 url: '/model-catalog',
-                templateUrl: '/static/templates/model-catalog.tpl.html',
+                templateUrl: '/static/js/model-catalog.tpl.html',
                 controller: 'ModelCatalogCtrl'
             })
             .state('ModelCatalogCreate', {
                 url: '/model-catalog/create',
-                templateUrl: '/static/templates/model-catalog-create.tpl.html',
+                templateUrl: '/static/js/model-catalog-create.tpl.html',
                 controller: 'ModelCatalogCreateCtrl'
             })
             .state('ModelCatalogVersion', {
                 url: '/model-catalog/version',
-                templateUrl: '/static/templates/model-catalog-version.tpl.html',
+                templateUrl: '/static/js/model-catalog-version.tpl.html',
                 controller: 'ModelCatalogVersionCtrl'
             })
             .state('ModelCatalogVersionUuid', {
                 url: '/model-catalog/version/:uuid',
-                templateUrl: '/static/templates/model-catalog-version.tpl.html',
+                templateUrl: '/static/js/model-catalog-version.tpl.html',
                 controller: 'ModelCatalogVersionCtrl'
             })
             .state('ModelCatalogDetail', {
                 url: '/model-catalog/detail/:uuid',
-                templateUrl: '/static/templates/model-catalog-detail.tpl.html',
+                templateUrl: '/static/js/model-catalog-detail.tpl.html',
                 controller: 'ModelCatalogDetailCtrl'
             })
             .state('ModelCatalogEdit', {
                 url: '/model-catalog/edit/:uuid',
-                templateUrl: '/static/templates/model-catalog-edit.tpl.html',
+                templateUrl: '/static/js/model-catalog-edit.tpl.html',
                 controller: 'ModelCatalogEditCtrl'
             });
         $urlRouterProvider.otherwise('/model-catalog');

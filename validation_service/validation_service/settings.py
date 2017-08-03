@@ -21,7 +21,7 @@ SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'none')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True#os.environ.get('DEBUG') in ['True', '1']
-LOCAL_DB = True#False  # only applies when ENV='dev'
+LOCAL_DB = False  # only applies when ENV='dev'
 
 ALLOWED_HOSTS = ["*"]
 
@@ -126,11 +126,15 @@ else:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql_psycopg2',
-            'NAME': 'validations',
-            'USER': 'validations_dbadmin',
-            'PASSWORD': os.environ.get("VALIDATION_SERVICE_PASSWORD"),
-            'HOST': os.environ.get("VALIDATION_SERVICE_HOST"),
-            'PORT': os.environ.get("VALIDATION_SERVICE_PORT", "5432"),
+            'NAME': 'validations2',
+            'USER': 'validation_admin',
+            # 'PASSWORD': os.environ.get("VALIDATION_SERVICE_PASSWORD"),
+            # 'HOST': os.environ.get("VALIDATION_SERVICE_HOST"),
+            # 'PORT': os.environ.get("VALIDATION_SERVICE_PORT", "5432"),
+            'PASSWORD': 'abcd012bdd',
+            'HOST': '139.59.130.77',
+            'PORT': '32768',
+          
         },
     }
 

@@ -7,7 +7,9 @@
 #-e packages/task-types-0.0.10
 #-e packages/bbp-services-0.0.15
 #-e packages/bbp-client-0.4.4
-#-e packages/hbp-app-python-auth-0.1.5
+-e packages/hbp-app-python-auth-0.1.5
+
+
 appdirs==1.4.0            # via setuptools
 argparse==1.2.1
 django-sslserver==0.19
@@ -29,6 +31,17 @@ requests-oauthlib==0.7.0  # via python-social-auth, social-auth-core
 requests==2.13.0          # via python-social-auth, requests-oauthlib, social-auth-core
 six==1.10.0               # via packaging, python-dateutil, python-social-auth, setuptools, social-auth-core
 social-auth-core==1.1.0
+
+
+
+django-bower==5.2.0
+django-cors-headers==2.1.0
+django-jsonify==0.3.0
+django-markdown-deux==1.0.5
+djangorestframework==3.6.3
+
+
+
 
 # The following packages are considered to be unsafe in a requirements file:
 # setuptools                # via django-sslserver
