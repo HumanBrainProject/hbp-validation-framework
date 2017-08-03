@@ -11,7 +11,7 @@
 
     <nav>
         <a ng-href="#/model-catalog/" class="button-MC">Home </a> &ensp;
-        <a ng-href="#/model-catalog/edit/{{model.models[0].id}}" ng-if="model.models[0].access_control == ctx && is_collab_member == true" class="button-MC">Edit</a>&ensp;
+        <a ng-href="#/model-catalog/edit/{{model.models[0].id}}" ng-if="model.models[0].access_control.id == ctx && is_collab_member == true" class="button-MC">Edit</a>&ensp;
         <a ng-href="#/model-catalog/version/{{model.models[0].id}}" class="button-MC">New version</a>&ensp;
     </nav>
     <br>
@@ -20,10 +20,10 @@
     <table class="table-create">
         <tbody>
             <tr>
-                <td> <b> Model type:</b> {{ model.models[0].model_type }} </td>
-                <td> <b> Species:</b> {{ model.models[0].species }} </td>
-                <td> <b> Brain region:</b> {{ model.models[0].brain_region }} </td>
-                <td> <b> Cell type:</b> {{ model.models[0].cell_type }} </td>
+                <td> <b> Model type: </b> {{ model.models[0].model_type }} </td>
+                <td> <b> Species: </b> {{ model.models[0].species }} </td>
+                <td> <b> Brain region: </b> {{ model.models[0].brain_region }} </td>
+                <td> <b> Cell type: </b> {{ model.models[0].cell_type }} </td>
             </tr>
         </tbody>
     </table>

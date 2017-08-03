@@ -57,7 +57,8 @@ from .forms import (ValidationTestDefinitionForm,
                         )
 
 from .serializer import (ValidationTestDefinitionSerializer, 
-                            ScientificModelSerializer, 
+                            ScientificModelSerializer,
+                            ScientificModelReadOnlySerializer, 
                             ScientificModelInstanceSerializer,
                             ScientificModelImageSerializer,
                             ValidationTestResultSerializer,
@@ -159,6 +160,7 @@ def is_admin(request):
 #             return HttpResponseForbidden()
 def _is_collaborator(request, context):
     '''check access depending on context'''   
+
     svc_url = settings.HBP_COLLAB_SERVICE_URL
     if not context:
         return False
@@ -172,7 +174,7 @@ def _is_collaborator(request, context):
     res = requests.get(url, headers=headers)
     if res.status_code != 200:
         return False
-    return res.json().get('UPDATE', False) #true
+    return res.json().get('UPDATE', False)
 
 
 def get_user(request):
@@ -272,6 +274,7 @@ def _get_collab_id(request):
     url = '%scollab/context/%s/' % (svc_url, context)
     res = requests.get(url, headers=headers)
     collab_id = res.json()['collab']['id']
+    
     return collab_id
 
 
@@ -283,7 +286,6 @@ class CollabIDRest(APIView):
             collab_id = 0
         else :         
             collab_id = _get_collab_id(request)
-            # collab_id = self.request.user
         return Response({
             'collab_id': collab_id,
         })
@@ -423,16 +425,34 @@ class ScientificModelRest(APIView):
         }
         model_id = str(len(request.GET.getlist('id')))
         ctx = request.query_params['ctx']
+        collab = _get_collab_id(request)
         if(model_id == '0'):
             collab_params = CollabParameters.objects.get(id = ctx )
-            rq1 = ScientificModel.objects.filter(access_control=ctx, species__in=collab_params.species.split(","), brain_region__in=collab_params.brain_region.split(","), cell_type__in=collab_params.cell_type.split(","), model_type__in=collab_params.model_type.split(","))
-            rq2 = ScientificModel.objects.filter (private=0, species__in=collab_params.species.split(","), brain_region__in=collab_params.brain_region.split(","), cell_type__in=collab_params.cell_type.split(","), model_type__in=collab_params.model_type.split(","))
+
+            all_ctx_from_collab = CollabParameters.objects.filter(collab_id = collab).distinct()
+            rq1 = ScientificModel.objects.filter(
+                private=1,access_control__in=all_ctx_from_collab.values("id"), 
+                species__in=collab_params.species.split(","), 
+                brain_region__in=collab_params.brain_region.split(","), 
+                cell_type__in=collab_params.cell_type.split(","), 
+                model_type__in=collab_params.model_type.split(",")).prefetch_related()
+
+            print(rq1)
+            
+            rq2 = ScientificModel.objects.filter (
+                private=0, species__in=collab_params.species.split(","), 
+                brain_region__in=collab_params.brain_region.split(","), 
+                cell_type__in=collab_params.cell_type.split(","), 
+                model_type__in=collab_params.model_type.split(",")).prefetch_related()
+
+            print(rq2)
+
             if len(rq1) >0:
                 # models = rq1.union(rq2)
                 models  = (rq1 | rq2).distinct()
             else:
                 models = rq2
-            model_serializer = ScientificModelSerializer(models, context=serializer_context, many=True )
+            model_serializer = ScientificModelReadOnlySerializer(models, context=serializer_context, many=True )
             return Response({
             'models': model_serializer.data,
             })
@@ -442,7 +462,7 @@ class ScientificModelRest(APIView):
                     models = ScientificModel.objects.filter(id=value)
                     model_instance = ScientificModelInstance.objects.filter(model_id=value)
                     model_images = ScientificModelImage.objects.filter(model_id=value)
-            model_serializer = ScientificModelSerializer(models, context=serializer_context, many=True )#data=request.data)
+            model_serializer = ScientificModelReadOnlySerializer(models, context=serializer_context, many=True )#data=request.data)
             model_instance_serializer = ScientificModelInstanceSerializer(model_instance, context=serializer_context, many=True )
             model_image_serializer = ScientificModelImageSerializer(model_images, context=serializer_context, many=True )
         #need to transform model_serializer.data :
@@ -462,7 +482,6 @@ class ScientificModelRest(APIView):
         # check if data is ok else return error
         model_serializer = ScientificModelSerializer(data=request.data['model'], context=serializer_context)
         model_instance_serializer = ScientificModelInstanceSerializer(data=request.data['model_instance'], context=serializer_context)
-        
         if model_serializer.is_valid() is not True:
             return Response(model_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         if model_instance_serializer.is_valid() is not True:    
@@ -473,7 +492,7 @@ class ScientificModelRest(APIView):
                 if model_image_serializer.is_valid()  is not True:
                     return Response(model_image_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         # if no error save all 
-        model = model_serializer.save()
+        model = model_serializer.save(access_control_id=ctx)
         model_instance_serializer.save(model_id=model.id)    
         if request.data['model_image']!={}:
             for i in request.data['model_image']: 
@@ -533,8 +552,7 @@ class ValidationTestCodeRest(APIView):
             return HttpResponseForbidden()
 
         serializer_context = {'request': request,}
-        test_id = str(len(request.POST.getlist('id')))
-
+        test_id = request.query_params['id']#str(len(request.POST.getlist('id')))
         serializer = ValidationTestCodeSerializer(data=request.data, context=serializer_context)
         
         if serializer.is_valid():        
@@ -669,6 +687,7 @@ class IsCollabMemberRest (APIView):
 
         ctx = request.query_params['ctx']
         is_member = _is_collaborator(request, ctx) # bool
+        #is_member = True
         return Response({
             'is_member':  is_member,
         })

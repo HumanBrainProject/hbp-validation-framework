@@ -123,7 +123,10 @@ urlpatterns = (
         ),
     url(r'^parametersconfiguration-model-catalog/iscollabmemberrest/$',
         IsCollabMemberRest.as_view(),
-        ),  
+        ), 
+    url(r'^parametersconfiguration-model-catalog/collabidrest/$',
+         CollabIDRest.as_view(),
+        ),      
 
     url(r'^parametersconfigurationrest/$',
         ParametersConfigurationRest.as_view(),
@@ -135,7 +138,9 @@ urlpatterns = (
     url(r'^parametersconfiguration-validation-app/parametersconfigurationrest/$',
         ParametersConfigurationRest.as_view(),
         ),
-
+    url(r'^parametersconfiguration-validation-app/collabidrest/$',
+         CollabIDRest.as_view(),
+        ),      
     url(r'^parametersconfiguration-validation-app/authorizedcollabparameterrest/$',
         AuthorizedCollabParameterRest.as_view(),
     ),
