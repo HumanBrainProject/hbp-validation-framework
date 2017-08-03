@@ -8,7 +8,19 @@ import uuid
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
 
-  
+@python_2_unicode_compatible 
+class CollabParameters(models.Model): 
+    id = models.CharField(primary_key=True, max_length=100 , default="")
+    app_type = models.CharField(max_length=100 ,blank=True, help_text="type of application: model catalog or validation test")
+    data_modalities = models.CharField(max_length=500 ,blank=True, help_text="species")
+    test_type = models.CharField(max_length=500, blank=True, help_text="species")
+    species = models.CharField(max_length=500,blank=True, help_text="species")
+    brain_region = models.CharField(max_length=500, blank=True, help_text="brain region, if applicable")
+    cell_type = models.CharField(max_length=500, blank=True, help_text="cell type, for single-cell models")
+    model_type = models.CharField(max_length=500, blank=True, help_text="model type: single cell, network or mean field region")
+    collab_id = models.IntegerField( help_text="ID of the collab")
+    def __str__(self):
+            return "Collab Parameters {}".format(self.id)
 
 @python_2_unicode_compatible
 class ValidationTestDefinition(models.Model):
@@ -83,8 +95,7 @@ class ScientificModel(models.Model):
     author = models.TextField(help_text="Author(s) of this model")  # do we need a separate "owner" field?
     model_type = models.CharField(max_length=100, blank=True, help_text="model type: single cell, network or mean field region")
     private = models.BooleanField ( default= False ,help_text="privacy of the model: can be private (if true) or public (if false)")
-    collab_id = models.IntegerField( help_text="ID of the collab")
-    access_control = models.CharField(max_length=100, default=0, help_text="ctx. Use for access control")
+    access_control = models.ForeignKey(CollabParameters, related_name="collab_params")
     code_format = models.CharField(max_length=100 ,blank=True, help_text=".py, .c, etc...")
     # todo: 
     # spiking vs rate?
@@ -154,31 +165,6 @@ class Comment(models.Model):
     creation_date = models.DateTimeField(auto_now_add=True)
     approved_comment = models.BooleanField(default=False)
 
-
-
-@python_2_unicode_compatible
-
-class CollabParameters(models.Model): 
-    id = models.CharField(primary_key=True, max_length=100 , default="")
-    app_type = models.CharField(max_length=100 ,blank=True, help_text="type of application: model catalog or validation test")
-    data_modalities = models.CharField(max_length=500 ,blank=True, help_text="species")
-    test_type = models.CharField(max_length=500, blank=True, help_text="species")
-    species = models.CharField(max_length=500,blank=True, help_text="species")
-    brain_region = models.CharField(max_length=500, blank=True, help_text="brain region, if applicable")
-    cell_type = models.CharField(max_length=500, blank=True, help_text="cell type, for single-cell models")
-    model_type = models.CharField(max_length=500, blank=True, help_text="model type: single cell, network or mean field region")
-
-    def __str__(self):
-            return "Collab Parameters {}".format(self.id)
-
-
-    # foo = models.CharField(max_length=200)
-
-    # def setfoo(self, x):
-    #     self.foo = json.dumps(x)
-
-    # def getfoo(self):
-    #     return json.loads(self.foo)
 
 
 
