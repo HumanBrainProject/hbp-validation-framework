@@ -18,6 +18,8 @@ RUN unset DEBIAN_FRONTEND
 RUN pip install --upgrade pip
 RUN pip install uwsgi
 
+RUN echo "" >> /var/log/django.log
+
 ENV SITEDIR /home/docker/site
 
 COPY validation_service $SITEDIR
