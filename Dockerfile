@@ -42,7 +42,7 @@ RUN ln -s $SITEDIR/deployment/supervisor-app.conf /etc/supervisor/conf.d/
 RUN ln -sf /dev/stdout /var/log/nginx/access.log
 RUN ln -sf /dev/stderr /var/log/nginx/error.log
 
-# EXPOSE 443
-EXPOSE 8000
+EXPOSE 443
+# EXPOSE 8000
 
 CMD ["supervisord", "-n", "-c", "/etc/supervisor/conf.d/supervisor-app.conf"]

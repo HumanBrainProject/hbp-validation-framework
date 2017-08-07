@@ -9,6 +9,7 @@ var testApp = angular.module('testApp', [
     'ngResource',
     'ParametersConfigurationServices',
     'ApiCommunicationServices',
+    'GraphicsServices',
     'ngCookies',
     'nvd3',
 ]);

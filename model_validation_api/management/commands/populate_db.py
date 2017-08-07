@@ -143,7 +143,7 @@ class Command(BaseCommand):
         model1.author = "me"
         model1.model_type = "Single Cell"
         model1.private = "0"
-        model1.access_control = "0235296f-b73f-4374-9452-a89f4c20f05b"
+        model1.access_control_id = "0235296f-b73f-4374-9452-a89f4c20f05b"
         model1.code_format = "py"
         model1.collab_id = 0
         model1.save()        
@@ -265,6 +265,7 @@ class Command(BaseCommand):
         self._create_brain_region()
         self._create_cell_type()
         self._create_model_type()
+
         # self._fake_collab()
 
         # self._fake_models_test_results()
