@@ -25,7 +25,7 @@ ENV SITEDIR /home/docker/site
 COPY validation_service $SITEDIR
 
 
-# COPY packages /home/docker/packages
+COPY packages /home/docker/packages
 
 
 COPY model_validation_api /home/docker/model_validation_api
