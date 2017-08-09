@@ -21,7 +21,7 @@ SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'none')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True#os.environ.get('DEBUG') in ['True', '1']
-LOCAL_DB = False  # only applies when ENV='dev'
+LOCAL_DB = True  # only applies when ENV='dev'
 
 ALLOWED_HOSTS = ["*"]
 
@@ -173,6 +173,7 @@ STATICFILES_DIRS = [
 HBP_COLLAB_SERVICE_URL = 'https://services.humanbrainproject.eu/collab/v0/'
 HBP_ENV_URL = 'https://collab.humanbrainproject.eu/config.json'
 HBP_IDENTITY_SERVICE_URL = 'https://services.humanbrainproject.eu/idm/v1/api'
+
 
 SOCIAL_AUTH_HBP_KEY = auth_settings.SOCIAL_AUTH_HBP_KEY = os.environ.get('HBP_OIDC_CLIENT_ID')
 SOCIAL_AUTH_HBP_SECRET = auth_settings.SOCIAL_AUTH_HBP_SECRET = os.environ.get('HBP_OIDC_CLIENT_SECRET')
