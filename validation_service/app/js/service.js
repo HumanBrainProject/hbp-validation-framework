@@ -4,6 +4,10 @@ ParametersConfigurationServices.service('CollabParameters', ['$rootScope', 'Coll
         var parameters;
         var ctx;
 
+        var setCollabId = function(type, newObj) {
+            parameters.param[0][type] = newObj;
+        };
+
         var addParameter = function(type, newObj) {
             parameters.param[0][type].push(newObj);
         };
@@ -175,7 +179,7 @@ ParametersConfigurationServices.service('CollabParameters', ['$rootScope', 'Coll
                     'cell_type': [],
                     'model_type': [],
                     'app_type': [],
-                    'collab_id': [],
+                    'collab_id': 0,
                 }, ],
                 '$promise': true,
             };
@@ -194,17 +198,187 @@ ParametersConfigurationServices.service('CollabParameters', ['$rootScope', 'Coll
             getCtx: getCtx,
             initConfiguration: initConfiguration,
             getRequestParameters: getRequestParameters,
+            setCollabId: setCollabId,
         };
 
     }
 ]);
 
 
-var GraphicsServices = angular.module('GraphicsServices', ['ngResource', 'btorfs.multiselect', 'ApiCommunicationServices']);
 
-GraphicsServices.service('Graphics', ['$rootScope',
-    function($rootScope, ) {
 
+
+
+
+var GraphicsServices = angular.module('GraphicsServices', ['ngResource', 'btorfs.multiselect', 'ApiCommunicationServices', 'ParametersConfigurationServices']);
+
+
+
+
+
+GraphicsServices.factory('Graphics', ['$rootScope', 'ValidationResultRest', 'CollabParameters',
+    function($rootScope, ValidationResultRest, CollabParameters) {
+
+
+
+        var linechart_id_result_clicked;
+        var current_result_focussed;
+
+        var results_data;
+
+
+        var focus = function(id) {
+            linechart_id_result_clicked = id;
+            current_result_focussed = find_result_in_data(id);
+
+            //think to put it out
+            // $scope.$apply();
+        };
+
+
+        var find_result_in_data = function(id) {
+            var i = 0;
+            for (i; i < results_data.data.length; i++) {
+                if (results_data.data[i].id == id) {
+                    return [results_data.data[i]];
+                }
+            }
+            return [];
+
+        };
+
+
+        var data_fromAPI = function() {
+            var values = [];
+
+            results_data = ValidationResultRest.get({
+                ctx: CollabParameters.getCtx(),
+                test_code_id: "622f8ee151c940f3b502980831c7fc09",
+                model_instance_id: "d1135abda9ad46909e6783d41dd42d00"
+            })
+
+            console.log("results_data1");
+
+            console.log(results_data);
+
+            var data_to_return = results_data.$promise.then(function() {
+                console.log("results_data2");
+                console.log(results_data);
+
+
+
+
+                var i = 0;
+                for (i; i < results_data.data.length; i++) {
+                    // console.log($scope.results_data.data[i]);
+                    // data_to_return.push({ x: i, y: data.data[i].result });
+                    values.push({
+                        // x: i,
+                        x: new Date(results_data.data[i].timestamp),
+                        y: results_data.data[i].result,
+                        id: results_data.data[i].id,
+                    });
+                }
+
+                return [{
+                        values: values, //values - represents the array of {x,y} data points
+                        key: 'title', //key  - the name of the series.
+                        color: '#ff7f0e', //color - optional: choose your own line color.
+                    },
+                    // {
+                    //     values: data_to_return, //values - represents the array of {x,y} data points
+                    //     key: 'title', //key  - the name of the series.
+                    //     color: '#ff7f0e', //color - optional: choose your own line color.
+
+                    // },
+                ];
+            })
+
+            return data_to_return;
+        };
+
+
+
+
+        var get_lines_options = function() {
+
+
+            options = {
+                chart: {
+                    type: 'lineChart',
+                    height: 450,
+                    margin: {
+                        top: 20,
+                        right: 20,
+                        bottom: 40,
+                        left: 55
+                    },
+                    x: function(d) { return d.x; },
+                    y: function(d) { return d.y; },
+                    useInteractiveGuideline: true,
+                    dispatch: {
+                        stateChange: function(e) { console.log("stateChange"); },
+                        changeState: function(e) { console.log("changeState"); },
+                        tooltipShow: function(e) { console.log("tooltipShow"); },
+                        tooltipHide: function(e) { console.log("tooltipHide"); },
+                    },
+                    xAxis: {
+                        axisLabel: 'Time (ms)',
+
+
+                        tickFormat: function(d) {
+                            return d3.time.format('%d-%m-%y')(new Date(d))
+                        },
+                    },
+
+                    yAxis: {
+                        axisLabel: 'axisLabel',
+                        tickFormat: function(d) {
+                            return d3.format('.02f')(d);
+                        },
+                        axisLabelDistance: -10
+                    },
+                    callback: function(chart) {
+                        chart.lines.dispatch.on('elementClick', function(e) {
+                            console.log('elementClick in callback', e);
+                            focus(e[0].point.id);
+                        });
+                    }
+                },
+                title: {
+                    enable: true,
+                    text: 'Title for Line Chart'
+                },
+                subtitle: {
+                    enable: true,
+                    text: 'Subtitle for simple line chart. Lorem ipsum dolor sit amet, at eam blandit sadipscing, vim adhuc sanctus disputando ex, cu usu affert alienum urbanitas.',
+                    css: {
+                        'text-align': 'center',
+                        'margin': '10px 13px 0px 7px'
+                    }
+                },
+                caption: {
+                    enable: true,
+                    html: '<b>Figure 1.</b> Lorem ipsum dolor sit amet, at eam blandit sadipscing, <span style="text-decoration: underline;">vim adhuc sanctus disputando ex</span>, cu usu affert alienum urbanitas. <i>Cum in purto erat, mea ne nominavi persecuti reformidans.</i> Docendi blandit abhorreant ea has, minim tantas alterum pro eu. <span style="color: darkred;">Exerci graeci ad vix, elit tacimates ea duo</span>. Id mel eruditi fuisset. Stet vidit patrioque in pro, eum ex veri verterem abhorreant, id unum oportere intellegam nec<sup>[1, <a href="https://github.com/krispo/angular-nvd3" target="_blank">2</a>, 3]</sup>.',
+                    css: {
+                        'text-align': 'justify',
+                        'margin': '10px 13px 0px 7px'
+                    }
+                }
+            };
+
+            return options;
+
+
+        }
+
+        return {
+            get_lines_options: get_lines_options,
+            data_fromAPI: data_fromAPI,
+            find_result_in_data: find_result_in_data,
+            focus: focus,
+
+        };
 
 
 

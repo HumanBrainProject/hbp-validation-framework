@@ -18,10 +18,16 @@ RUN unset DEBIAN_FRONTEND
 RUN pip install --upgrade pip
 RUN pip install uwsgi
 
+RUN echo "" >> /var/log/django.log
+
 ENV SITEDIR /home/docker/site
 
 COPY validation_service $SITEDIR
+
+
 COPY packages /home/docker/packages
+
+
 COPY model_validation_api /home/docker/model_validation_api
 # COPY build_info.json $SITEDIR
 
@@ -42,7 +48,7 @@ RUN ln -s $SITEDIR/deployment/supervisor-app.conf /etc/supervisor/conf.d/
 RUN ln -sf /dev/stdout /var/log/nginx/access.log
 RUN ln -sf /dev/stderr /var/log/nginx/error.log
 
-# EXPOSE 443
-EXPOSE 8000
+EXPOSE 443
+# EXPOSE 8000
 
 CMD ["supervisord", "-n", "-c", "/etc/supervisor/conf.d/supervisor-app.conf"]

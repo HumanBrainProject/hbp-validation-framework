@@ -126,7 +126,7 @@ else:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql_psycopg2',
-            'NAME': 'validations2',
+            'NAME': 'validations3',
             'USER': 'validation_admin',
             # 'PASSWORD': os.environ.get("VALIDATION_SERVICE_PASSWORD"),
             # 'HOST': os.environ.get("VALIDATION_SERVICE_HOST"),
