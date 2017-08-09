@@ -219,13 +219,9 @@ var GraphicsServices = angular.module('GraphicsServices', ['ngResource', 'btorfs
 GraphicsServices.factory('Graphics', ['$rootScope', 'ValidationResultRest', 'CollabParameters',
     function($rootScope, ValidationResultRest, CollabParameters) {
 
-
-
         var linechart_id_result_clicked;
         var current_result_focussed;
-
         var results_data;
-
 
         var focus = function(id) {
             linechart_id_result_clicked = id;
@@ -257,20 +253,10 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'ValidationResultRest', 'Col
                 model_instance_id: "d1135abda9ad46909e6783d41dd42d00"
             })
 
-            console.log("results_data1");
-
-            console.log(results_data);
-
             var data_to_return = results_data.$promise.then(function() {
-                console.log("results_data2");
-                console.log(results_data);
-
-
-
 
                 var i = 0;
                 for (i; i < results_data.data.length; i++) {
-                    // console.log($scope.results_data.data[i]);
                     // data_to_return.push({ x: i, y: data.data[i].result });
                     values.push({
                         // x: i,
@@ -298,11 +284,7 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'ValidationResultRest', 'Col
         };
 
 
-
-
         var get_lines_options = function() {
-
-
             options = {
                 chart: {
                     type: 'lineChart',
