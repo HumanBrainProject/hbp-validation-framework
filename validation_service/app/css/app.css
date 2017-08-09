@@ -4,11 +4,52 @@
 }
 
 .nopadding {
-   padding: 0 !important;
-   margin: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
 }
 
 .nopadding-left {
-   padding-left: 0 !important;
-   margin-left: 0 !important;
+    padding-left: 0 !important;
+    margin-left: 0 !important;
+}
+
+#conteneur {
+    display: flex;
+}
+
+.element-left {
+    width: 45%;
+    min-height: 500px;
+    margin-right: 2%;
+    text-overflow: scroll;
+}
+
+.element-middle {
+    background-color: darkgray;
+    width: 2px;
+    margin-right: 1%;
+    margin-left: 1%;
+}
+
+.element-right {
+    width: 45%;
+    margin-left: 2%;
+    text-overflow: scroll;
+}
+
+#VF-model-detail {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: 1000px;
+    height: 200px;
+}
+
+#trunc {
+    display: inline-block;
+    word-wrap: normal;
+    height: 100px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    /*padding: 1%;*/
 }

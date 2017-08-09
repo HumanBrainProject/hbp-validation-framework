@@ -13,7 +13,7 @@ from .views import (
                     ValidationTestCodeRest,
                     TestCommentRest,
                     CollabIDRest,
-
+                    AppIDRest,
                     ParametersConfigurationModelView,
                     ParametersConfigurationValidationView,
 
@@ -76,7 +76,9 @@ urlpatterns = (
     url(r'^validationresultrest/$',
         ValidationResultRest.as_view(),
         ), 
-
+    url(r'^appidrest/$',
+         AppIDRest.as_view(),
+        ), 
 
 ######## model catalog url ##########
     url(r'^model-catalog/$',
@@ -126,7 +128,7 @@ urlpatterns = (
         ), 
     url(r'^parametersconfiguration-model-catalog/collabidrest/$',
          CollabIDRest.as_view(),
-        ),      
+        ),         
 
     url(r'^parametersconfigurationrest/$',
         ParametersConfigurationRest.as_view(),

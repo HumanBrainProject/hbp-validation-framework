@@ -11,6 +11,7 @@ var testApp = angular.module('testApp', [
     'ApiCommunicationServices',
     'ngCookies',
     'nvd3',
+    'ngTextTruncate',
 ]);
 
 testApp.config(
@@ -36,6 +37,11 @@ testApp.config(
                 url: '/home/validation_test/:uuid',
                 templateUrl: '/static/js/validation_test_detail.tpl.html',
                 controller: 'ValTestDetailCtrl'
+            })
+            .state('validation_model_detail', {
+                url: '/home/validation_model_detail/:uuid',
+                templateUrl: '/static/js/validation_model_detail.tpl.html',
+                controller: 'ValModelDetailCtrl'
             })
             .state('test_result', {
                 url: '/home/test_result',

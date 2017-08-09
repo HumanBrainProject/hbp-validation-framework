@@ -160,21 +160,21 @@ def is_admin(request):
 #             return HttpResponseForbidden()
 def _is_collaborator(request, context):
     '''check access depending on context'''
-    # svc_url = settings.HBP_COLLAB_SERVICE_URL
-    # if not context:
-    #     return False
-    # url = '%scollab/context/%s/' % (svc_url, context)
-    # headers = {'Authorization': get_auth_header(request.user.social_auth.get())}
-    # res = requests.get(url, headers=headers)
-    # if res.status_code != 200:
-    #     return False
+    svc_url = settings.HBP_COLLAB_SERVICE_URL
+    if not context:
+        return False
+    url = '%scollab/context/%s/' % (svc_url, context)
+    headers = {'Authorization': get_auth_header(request.user.social_auth.get())}
+    res = requests.get(url, headers=headers)
+    if res.status_code != 200:
+        return False
 
-    # collab_id = res.json()['collab']['id']
-    # url = '%scollab/%s/permissions/' % (svc_url, collab_id)
-    # res = requests.get(url, headers=headers)
-    # if res.status_code != 200:
-    #     return False
-    return True #res.json().get('UPDATE', False)
+    collab_id = res.json()['collab']['id']
+    url = '%scollab/%s/permissions/' % (svc_url, collab_id)
+    res = requests.get(url, headers=headers)
+    if res.status_code != 200:
+        return False
+    return res.json().get('UPDATE', False)
 
 
 def get_user(request):
@@ -270,8 +270,7 @@ def _get_collab_id(request):
     context = request.session["next"][6:]
     url = '%scollab/context/%s/' % (svc_url, context)
     res = requests.get(url, headers=headers)
-    collab_id = 2180#res.json()['collab']['id']
-    
+    collab_id = res.json()['collab']['id']
     return collab_id
 
 
@@ -283,11 +282,37 @@ class CollabIDRest(APIView):
             collab_id = 0
         else :         
             collab_id = _get_collab_id(request)
+
         return Response({
             'collab_id': collab_id,
         })
 
+class AppIDRest(APIView): 
+    def get(self, request, format=None, **kwargs):
 
+        if self.request.user == "AnonymousUser" :
+            app_id = 0
+        else :         
+            app_id = _get_app_id(request)
+
+        return Response({
+            'app_id': app_id,
+        })
+
+def _get_app_id(request):
+    print(request.query_params['ctx'])
+    social_auth = request.user.social_auth.get()
+    headers = {
+        'Authorization': get_auth_header(request.user.social_auth.get())
+    }
+    #to get collab_id
+    svc_url = settings.HBP_COLLAB_SERVICE_URL    
+    context = request.query_params['ctx']
+    url = '%scollab/context/%s/' % (svc_url, context)
+    res = requests.get(url, headers=headers)
+    app_id = res.json()['id']
+    
+    return app_id
 
 class ParametersConfigurationRest( APIView): #LoginRequiredMixin, 
 
@@ -567,7 +592,7 @@ class ValidationTestCodeRest(APIView):
 
 class ValidationTestDefinitionRest(APIView):
     
-     def get(self, request, format=None, **kwargs):
+    def get(self, request, format=None, **kwargs):
 
         serializer_context = {'request': request,}
         nb_id = str(len(request.GET.getlist('id')))
@@ -586,7 +611,7 @@ class ValidationTestDefinitionRest(APIView):
         })
 
 
-     def post(self, request, format=None):
+    def post(self, request, format=None):
         ctx = request.query_params['ctx']
         if not _is_collaborator(request, ctx):
             return HttpResponseForbidden()
@@ -607,6 +632,22 @@ class ValidationTestDefinitionRest(APIView):
         
         return Response(status=status.HTTP_201_CREATED)
 
+    def put(self, request, format=None):
+        ctx = request.query_params['ctx']
+        if not _is_collaborator(request, ctx):
+            return HttpResponseForbidden()
+
+        value = request.data
+        test = ValidationTestDefinition.objects.get(id=value['id'])
+        serializer_context = {'request': request,}
+
+        # check if data is ok else return error
+        test_serializer = ValidationTestDefinitionSerializer(test, data=value, context=serializer_context)
+        if test_serializer.is_valid() :
+            test = test_serializer.save()
+        else: 
+            return Response(test_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response( status=status.HTTP_201_CREATED) 
 
 class TestCommentRest(APIView):
     def get(self, request, format=None, **kwargs):
