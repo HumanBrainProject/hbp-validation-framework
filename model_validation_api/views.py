@@ -204,7 +204,7 @@ class HomeValidationView(View):
 
 
     # model = ValidationTestDefinition
-    template_name = "validation_home.html"
+    template_name = "validation_framework/validation_home.html"
     login_url='/login/hbp/'
 
     def get(self, request, *args, **kwargs): 
@@ -654,7 +654,7 @@ class TestCommentRest(APIView):
 # @method_decorator(login_required(login_url='/login/hbp'), name='dispatch' )
 class ModelCatalogView(View):
 
-    template_name = "model_catalog.html"
+    template_name = "model_catalog/model_catalog.html"
     login_url='/login/hbp/'
 
     def get(self, request, *args, **kwargs):
@@ -666,7 +666,7 @@ class ModelCatalogView(View):
 # @method_decorator(login_required(login_url='/login/hbp'), name='dispatch' )
 class ParametersConfigurationValidationView(View):
     
-    template_name = "parameters-configuration.html"
+    template_name = "configuration/parameters-configuration.html"
     login_url='/login/hbp/'
     def get(self, request, *args, **kwargs):
        return render(request, self.template_name, {'app_type': "validation_app"})
@@ -674,7 +674,7 @@ class ParametersConfigurationValidationView(View):
 # @method_decorator(login_required(login_url='/login/hbp'), name='dispatch' )
 class ParametersConfigurationModelView(View):
     
-    template_name = "parameters-configuration.html"
+    template_name = "configuration/parameters-configuration.html"
     login_url='/login/hbp/'
 
 
@@ -737,7 +737,7 @@ class ValidationResultRest_fortest (APIView):
 
 class ParametersConfigurationView(View):
     
-    template_name = "parameters-configuration.html"
+    template_name = "configuration/parameters-configuration.html"
     login_url='/login/hbp/'
 
     def get(self, request, *args, **kwargs):

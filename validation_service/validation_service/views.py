@@ -20,10 +20,10 @@ def home(request):
     app_params=list(CollabParameters.objects.filter(id = id).values('app_type'))
     if app_params != []:
         if app_params[0]["app_type"]=="model_catalog":
-            return  render(request, 'model_catalog.html', {})
+            return  render(request, 'model_catalog/model_catalog.html', {})
         else: 
             if app_params[0]["app_type"]=="validation_app":
-                return render(request, 'validation_home.html', {})
+                return render(request, 'validation_framework/validation_home.html', {})
 
     return render(request, 'home.html', {})
 
