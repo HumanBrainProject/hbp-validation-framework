@@ -29,8 +29,9 @@
                 </thead>
 
                 <tbody>
+                    <p> ici : {{line_result_focussed}} </p>
 
-                    <tr class=tr-clickable id="" ng-repeat="result in current_result_focussed" ng-click="goToDetailView(model)">
+                    <tr class=tr-clickable id="" ng-repeat="result in line_result_focussed.current_result_focussed" ng-click="goToDetailView(model)">
                         <td>{{ result.results_storage }}</td>
                         <td>{{ result.result }}</td>
                         <td>{{ result.passed }}</td>

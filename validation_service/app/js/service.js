@@ -219,13 +219,19 @@ var GraphicsServices = angular.module('GraphicsServices', ['ngResource', 'btorfs
 GraphicsServices.factory('Graphics', ['$rootScope', 'ValidationResultRest', 'CollabParameters',
     function($rootScope, ValidationResultRest, CollabParameters) {
 
-        var linechart_id_result_clicked;
-        var current_result_focussed;
+        // var current_result_focussed;
         var results_data;
+        //lock the data location for controler scope
+        var line_result_focussed = { current_result_focussed: 1 };
 
         var focus = function(id) {
-            linechart_id_result_clicked = id;
-            current_result_focussed = find_result_in_data(id);
+
+            line_result_focussed.current_result_focussed = find_result_in_data(id);
+
+            console.log("Focus");
+            // console.log(current_result_focussed);
+
+            console.log(line_result_focussed);
 
             //think to put it out
             // $scope.$apply();

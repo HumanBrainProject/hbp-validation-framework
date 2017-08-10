@@ -193,8 +193,7 @@ testApp.controller('TestResultCtrl', ['$scope', '$rootScope', '$http', '$locatio
         CollabParameters.setService().$promise.then(function() {
 
 
-            Graphics.linechart_id_result_clicked = undefined;
-            Graphics.current_result_focussed = [];
+
 
             var temp_test = Graphics.data_fromAPI();
 
@@ -205,6 +204,9 @@ testApp.controller('TestResultCtrl', ['$scope', '$rootScope', '$http', '$locatio
 
 
             $scope.options5 = Graphics.get_lines_options();
+
+            $scope.line_result_focussed = Graphics.line_result_focussed;
+            console.log($scope.line_result_focussed);
 
         })
 
