@@ -206,18 +206,10 @@ ParametersConfigurationServices.service('CollabParameters', ['$rootScope', 'Coll
 
 
 
-
-
-
-
 var GraphicsServices = angular.module('GraphicsServices', ['ngResource', 'btorfs.multiselect', 'ApiCommunicationServices', 'ParametersConfigurationServices']);
 
-
-
-
-
-GraphicsServices.factory('Graphics', ['$rootScope', 'ValidationResultRest', 'CollabParameters',
-    function($rootScope, ValidationResultRest, CollabParameters) {
+GraphicsServices.factory('Graphics', ['$rootScope', 'ValidationResultRest', 'CollabParameters', 'ValidationTestResultRest',
+    function($rootScope, ValidationResultRest, CollabParameters, ValidationTestResultRest) {
 
 
         var focus = function(id) {
@@ -238,43 +230,67 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'ValidationResultRest', 'Col
         };
 
 
-        var data_fromAPI = function() {
-            var values = [];
 
-            results_data = ValidationResultRest.get({
+
+
+        var data_fromAPI = function() {
+
+
+            var tab_test_code_id = ["622f8ee151c940f3b502980831c7fc09"];
+            // var tab_model_instance_id = ["d1135abda9ad46909e6783d41dd42d00", "d1135abda9ad46909e6783d41dd42d01"];
+
+            var tab_model_instance_id = ["d1135abd-a9ad-4690-9e67-83d41dd42d01", "d1135abd-a9ad-4690-9e67-83d41dd42d00"];
+
+            var data_to_return = _prepare_data_to_return(tab_test_code_id, tab_model_instance_id, "test");
+
+
+            results_data = ValidationTestResultRest.get({
                 ctx: CollabParameters.getCtx(),
-                test_code_id: "622f8ee151c940f3b502980831c7fc09",
-                model_instance_id: "d1135abda9ad46909e6783d41dd42d00"
+                test_code_id: tab_test_code_id,
+                tab_model_instance_id: tab_model_instance_id,
             })
 
-            var data_to_return = results_data.$promise.then(function() {
+            final_data = results_data.$promise.then(function() {
+                //for each results from API
+                var indice_result = 0;
+                for (indice_result; indice_result < results_data.data.length; indice_result++) {
 
-                var i = 0;
-                for (i; i < results_data.data.length; i++) {
-                    // data_to_return.push({ x: i, y: data.data[i].result });
-                    values.push({
-                        // x: i,
-                        x: new Date(results_data.data[i].timestamp),
-                        y: results_data.data[i].result,
-                        id: results_data.data[i].id,
-                    });
+                    // read data_to_return to compleat it
+                    var i = 0;
+                    for (i; i < data_to_return.length; i++) {
+
+                        //check if key == result.model to find corresponding data_to_return element
+                        if (data_to_return[i].key == results_data.data[indice_result].model_instance_id) {
+                            // console.log("PASSES IF");
+
+                            data_to_return[i].values.push({
+                                x: new Date(results_data.data[indice_result].timestamp),
+                                y: results_data.data[indice_result].result,
+                                id: results_data.data[indice_result].id,
+                            });
+                        }
+                    }
                 }
 
-                return [{
-                        values: values, //values - represents the array of {x,y} data points
-                        key: 'title', //key  - the name of the series.
-                        color: '#ff7f0e', //color - optional: choose your own line color.
-                    },
-                    // {
-                    //     values: data_to_return, //values - represents the array of {x,y} data points
-                    //     key: 'title', //key  - the name of the series.
-                    //     color: '#ff7f0e', //color - optional: choose your own line color.
-
-                    // },
-                ];
+                return data_to_return;
             })
+            return final_data;
+        };
 
-            return data_to_return;
+        var _prepare_data_to_return = function(tab_test_code_id, tab_model_instance_id, mode) {
+            data_to_return = [];
+            if (mode == "test") {
+                var indice_model_id = 0;
+                for (indice_model_id; indice_model_id < tab_model_instance_id.length; indice_model_id++) {
+                    data_to_return.push({
+                        values: [],
+                        key: tab_model_instance_id[indice_model_id],
+                        color: '#ff7f0e',
+                    });
+                }
+                return data_to_return;
+            }
+
         };
 
 

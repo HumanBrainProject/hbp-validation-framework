@@ -437,7 +437,7 @@ class ScientificModelRest(APIView):
                 cell_type__in=collab_params.cell_type.split(","), 
                 model_type__in=collab_params.model_type.split(",")).prefetch_related()
 
-            print(rq1)
+            # print(rq1)
             
             rq2 = ScientificModel.objects.filter (
                 private=0, species__in=collab_params.species.split(","), 
@@ -445,7 +445,7 @@ class ScientificModelRest(APIView):
                 cell_type__in=collab_params.cell_type.split(","), 
                 model_type__in=collab_params.model_type.split(",")).prefetch_related()
 
-            print(rq2)
+            # print(rq2)
 
             if len(rq1) >0:
                 # models = rq1.union(rq2)
@@ -705,6 +705,34 @@ class ValidationResultRest (APIView):
 
         validation_result =  ValidationTestResult.objects.filter(test_definition_id = test_definition_id, model_instance_id = model_instance_id )
         result_serializer = ValidationTestResultSerializer(validation_result, context=serializer_context, many=True)
+        
+        return Response({
+            'data': result_serializer.data,
+        })
+
+class ValidationTestResultRest (APIView):
+    def get(self, request, format=None, **kwargs):
+
+        serializer_context = {'request': request,}
+
+        test_definition_id = request.query_params['test_code_id']
+        tab_model_instance_id  = request.GET.getlist('tab_model_instance_id')
+
+ 
+        validation_result = []
+
+        for model_instance_id in tab_model_instance_id:
+            aditional_validation_result =  ValidationTestResult.objects.filter(test_definition_id = test_definition_id, model_instance_id = model_instance_id )
+            
+            if len(aditional_validation_result) > 0 :
+                if len(validation_result) > 0:
+                    validation_result = (validation_result | aditional_validation_result)
+                else : 
+                    validation_result = aditional_validation_result
+
+        result_serializer = ValidationTestResultSerializer(validation_result, context=serializer_context, many=True)
+
+
         
         return Response({
             'data': result_serializer.data,

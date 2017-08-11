@@ -80,7 +80,7 @@ class Command(BaseCommand):
         
         import uuid
         import time
-        time = time.time()
+        original_time = time.time()
 
 
         import datetime
@@ -89,14 +89,13 @@ class Command(BaseCommand):
 
         # 2012-12-15 01:21:05
 
-        # uuid.uuid4()
-
-        # x = uuid.UUID('{00000000-0000-0000-0000-0000000000t1}')
+        #ID test
         uuid_test1 = uuid.uuid4()
         # uuid_testcode1 = uuid.uuid4()
         uuid_testcode1 =  "622f8ee151c940f3b502980831c7fc09"
+
+        #ID model1 + results
         uuid_model1 = uuid.uuid4()
-        # uuid_model_instance1 = uuid.uuid4()
         uuid_model_instance1 = "d1135abda9ad46909e6783d41dd42d00"
         uuid_result1 = uuid.uuid4()
         uuid_result2 = uuid.uuid4()
@@ -106,9 +105,22 @@ class Command(BaseCommand):
         uuid_result6 = uuid.uuid4()
         uuid_result7 = uuid.uuid4()
         uuid_result8 = uuid.uuid4()
+
+
+        #ID model2 + results
+        uuid_model2 = uuid.uuid4()
+        uuid_model_instance2 = "d1135abda9ad46909e6783d41dd42d01"
+        uuid_result2_1 = uuid.uuid4()
+        uuid_result2_2 = uuid.uuid4()
+        uuid_result2_3 = uuid.uuid4()
+        uuid_result2_4 = uuid.uuid4()
+        uuid_result2_5 = uuid.uuid4()
+        uuid_result2_6 = uuid.uuid4()
+        uuid_result2_7 = uuid.uuid4()
+        uuid_result2_8 = uuid.uuid4()
         
         
-           
+        #Create the test
         test1 = ValidationTestDefinition(id= uuid_test1)
         test1.name = "name"
         test1.species = "Mouse (Mus musculus)"
@@ -123,7 +135,6 @@ class Command(BaseCommand):
         test1.author = "me"
         test1.publication = "not published"
         test1.save()
-        
 
         testcode1 = ValidationTestCode(id = uuid_testcode1)
         testcode1.repository = ""
@@ -134,6 +145,7 @@ class Command(BaseCommand):
         testcode1.save()
 
 
+        #create the model 1
         model1 = ScientificModel(id= uuid_model1)         
         model1.name = "name"
         model1.description = "description"
@@ -155,7 +167,9 @@ class Command(BaseCommand):
         model_instance1.source = "http://dd.com"
         model_instance1.save()
 
+        time = original_time
 
+        #create the results for test1-model1
         result = ValidationTestResult(id=uuid_result1)
         result.model_instance = model_instance1
         result.test_definition = testcode1
@@ -166,7 +180,6 @@ class Command(BaseCommand):
         result.platform = "azerty"
         result.project = "azerty"
         result.save()
-
 
         result = ValidationTestResult(id=uuid_result2)
         result.model_instance = model_instance1
@@ -180,7 +193,6 @@ class Command(BaseCommand):
         result.project = "azerty"
         result.save()
 
-
         result = ValidationTestResult(id=uuid_result3)
         result.model_instance = model_instance1
         result.test_definition = testcode1
@@ -193,7 +205,6 @@ class Command(BaseCommand):
         result.project = "azerty"
         result.save()
 
-
         result = ValidationTestResult(id=uuid_result4)
         result.model_instance = model_instance1
         result.test_definition = testcode1
@@ -205,7 +216,6 @@ class Command(BaseCommand):
         result.platform = "azerty"
         result.project = "azerty"
         result.save()
-
 
         result = ValidationTestResult(id=uuid_result5)
         result.model_instance = model_instance1
@@ -256,19 +266,158 @@ class Command(BaseCommand):
         result.save()
 
 
+        #create the model 2 
+        model2 = ScientificModel(id= uuid_model2)         
+        model2.name = "name2"
+        model2.description = "description2"
+        model2.species = "Mouse (Mus musculus)"
+        model2.brain_region = "Hippocampus"
+        model2.cell_type = "Interneuron"
+        model2.author = "me2"
+        model2.model_type = "Single Cell"
+        model2.private = "0"
+        model2.access_control_id = "0235296f-b73f-4374-9452-a89f4c20f05b"
+        model2.code_format = "py"
+        model2.collab_id = 0
+        model2.save()        
+
+        model_instance2 = ScientificModelInstance(id=uuid_model_instance2)
+        model_instance2.model = model2
+        model_instance2.version = "version 2 "
+        model_instance2.parameters = "param 2"
+        model_instance2.source = "http://dd2.com"
+        model_instance2.save()
+
+        time = original_time
+        
+
+        #create the results for test1-model2
+        result = ValidationTestResult(id=uuid_result2_1)
+        result.model_instance = model_instance2
+        result.test_definition = testcode1
+        result.results_storage ="azerty2"
+        result.result = 0.1
+        result.passed = None
+        result.timestamp = datetime.datetime.fromtimestamp(time).strftime('%Y-%m-%d %H:%M:%S')
+        result.platform = "azerty2"
+        result.project = "azerty2"
+        result.save()
+
+        result = ValidationTestResult(id=uuid_result2_2)
+        result.model_instance = model_instance2
+        result.test_definition = testcode1
+        result.results_storage ="azerty2"
+        result.result = 0.23
+        result.passed = None
+        time = time + 1000000000
+        result.timestamp = datetime.datetime.fromtimestamp(time).strftime('%Y-%m-%d %H:%M:%S')
+        result.platform = "azerty2"
+        result.project = "azerty2"
+        result.save()
+
+        result = ValidationTestResult(id=uuid_result2_3)
+        result.model_instance = model_instance2
+        result.test_definition = testcode1
+        result.results_storage ="azerty2"
+        result.result = 0.3666
+        result.passed = None
+        time = time + 1000000000
+        result.timestamp = datetime.datetime.fromtimestamp(time).strftime('%Y-%m-%d %H:%M:%S')
+        result.platform = "azerty2"
+        result.project = "azerty2"
+        result.save()
+
+        result = ValidationTestResult(id=uuid_result2_4)
+        result.model_instance = model_instance2
+        result.test_definition = testcode1
+        result.results_storage ="azerty2"
+        result.result = 0.45
+        result.passed = None
+        time = time + 1000000000
+        result.timestamp = datetime.datetime.fromtimestamp(time).strftime('%Y-%m-%d %H:%M:%S')
+        result.platform = "azerty2"
+        result.project = "azerty2"
+        result.save()
+
+        result = ValidationTestResult(id=uuid_result2_5)
+        result.model_instance = model_instance2
+        result.test_definition = testcode1
+        result.results_storage ="azerty2"
+        result.result = 0.55
+        result.passed = None
+        time += 11000000
+        result.timestamp = datetime.datetime.fromtimestamp(time).strftime('%Y-%m-%d %H:%M:%S')
+        result.platform = "azerty2"
+        result.project = "azerty2"
+        result.save()
+
+        result = ValidationTestResult(id=uuid_result2_6)
+        result.model_instance = model_instance2
+        result.test_definition = testcode1
+        result.results_storage ="azerty2"
+        result.result = 0.66
+        result.passed = None
+        time += 110000000
+        result.timestamp = datetime.datetime.fromtimestamp(time).strftime('%Y-%m-%d %H:%M:%S')
+        result.platform = "azerty2"
+        result.project = "azerty2"
+        result.save()
+
+        result = ValidationTestResult(id=uuid_result2_7)
+        result.model_instance = model_instance2
+        result.test_definition = testcode1
+        result.results_storage ="azerty2"
+        result.result = 0.76
+        result.passed = None
+        time += 110000000
+        result.timestamp = datetime.datetime.fromtimestamp(time).strftime('%Y-%m-%d %H:%M:%S')
+        result.platform = "azerty2"
+        result.project = "azerty2"
+        result.save()
+
+        result = ValidationTestResult(id=uuid_result2_8)
+        result.model_instance = model_instance2
+        result.test_definition = testcode1
+        result.results_storage ="azerty2"
+        result.result = 0.86
+        result.passed = None
+        time += 100000000
+        result.timestamp = datetime.datetime.fromtimestamp(time).strftime('%Y-%m-%d %H:%M:%S')
+        result.platform = "azerty2"
+        result.project = "azerty2"
+        result.save()
+
+
+
+
+    def _erase_all_models_test_results (self):
+        
+        tab_models = [
+            ValidationTestCode.objects.all(), 
+            ValidationTestResult.objects.all(),
+            ScientificModelInstance.objects.all(),
+            ScientificModel.objects.all(),
+            ValidationTestDefinition.objects.all(),
+        ]
+
+        for model in tab_models:
+            for element in model:
+                element.delete()
+
 
 
     def handle(self, *args, **options):
-        self._create_data_modalities()
-        self._create_test_types()
-        self._create_species()
-        self._create_brain_region()
-        self._create_cell_type()
-        self._create_model_type()
+        # self._create_data_modalities()
+        # self._create_test_types()
+        # self._create_species()
+        # self._create_brain_region()
+        # self._create_cell_type()
+        # self._create_model_type()
 
         # self._fake_collab()
 
-        # self._fake_models_test_results()
+        self._erase_all_models_test_results()
+        self._fake_models_test_results()
 
 
 

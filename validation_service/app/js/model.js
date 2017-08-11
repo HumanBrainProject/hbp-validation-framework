@@ -98,7 +98,14 @@ ApiCommunicationServices.factory('IsCollabMemberRest', ['$resource',
 ApiCommunicationServices.factory('ValidationResultRest_fortest', ['$resource',
     function($resource) {
         return $resource('validationresultrest_fortest/', {}, {
+            get: { method: 'GET', params: { format: 'json', ctx: 'ctx' }, isArray: false },
+        });
+    }
+]);
 
+ApiCommunicationServices.factory('ValidationTestResultRest', ['$resource',
+    function($resource) {
+        return $resource('validationtestresultrest/', {}, {
             get: { method: 'GET', params: { format: 'json', ctx: 'ctx' }, isArray: false },
         });
     }
