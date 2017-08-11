@@ -416,8 +416,8 @@ class Command(BaseCommand):
 
         # self._fake_collab()
 
-        self._erase_all_models_test_results()
-        self._fake_models_test_results()
+        # self._erase_all_models_test_results()
+        # self._fake_models_test_results()
 
 
 
