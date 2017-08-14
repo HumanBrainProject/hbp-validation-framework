@@ -305,19 +305,19 @@ testApp.controller('TestResultCtrl', ['$scope', '$rootScope', '$http', '$locatio
     function($scope, $rootScope, $http, $location, $timeout, CollabParameters, ValidationResultRest_fortest, ValidationResultRest, Graphics) {
         CollabParameters.setService().$promise.then(function() {
 
-
-            Graphics.linechart_id_result_clicked = undefined;
-            Graphics.current_result_focussed = [];
-
             var temp_test = Graphics.data_fromAPI();
-
-
             temp_test.then(function() {
                 $scope.data5 = temp_test.$$state.value;
             });
 
-
             $scope.options5 = Graphics.get_lines_options();
+
+            $scope.line_result_focussed;
+            $scope.$on('data_focussed:updated', function(event, data) {
+                $scope.line_result_focussed = data;
+                $scope.$apply();
+            });
+
 
         });
 

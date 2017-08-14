@@ -1,6 +1,9 @@
 // (function() {
 
-window.base_url = 'https://127.0.0.1:8000/';
+//window.base_url = 'https://127.0.0.1:8000/';
+window.base_url = 'https://validation-dev.brainsimulation.eu:443/';
+// window.base_url = 'https://138.197.190.105:443/';
+
 window.ver_api = '/api/v2/';
 
 var testApp = angular.module('testApp', [
@@ -21,22 +24,22 @@ testApp.config(
         $stateProvider
             .state('home', {
                 url: '/home',
-                templateUrl: '/static/js/home_1.tpl.html',
+                templateUrl: '/static/templates/validation_framework/home_1.tpl.html',
                 controller: 'HomeCtrl'
             })
             .state('validation_test', {
                 url: '/home/validation_test',
-                templateUrl: '/static/js/validation_test.tpl.html',
+                templateUrl: '/static/templates/validation_framework/validation_test.tpl.html',
                 controller: 'ValTestCtrl'
             })
             .state('create_validation_test', {
                 url: '/home/validation_test/create',
-                templateUrl: '/static/js/validation_test_create.tpl.html',
+                templateUrl: '/static/templates/validation_framework/validation_test_create.tpl.html',
                 controller: 'ValTestCreateCtrl'
             })
             .state('validation_test_detail', {
                 url: '/home/validation_test/:uuid',
-                templateUrl: '/static/js/validation_test_detail.tpl.html',
+                templateUrl: '/static/templates/validation_framework/validation_test_detail.tpl.html',
                 controller: 'ValTestDetailCtrl'
             })
             .state('validation_model_detail', {
@@ -46,7 +49,7 @@ testApp.config(
             })
             .state('test_result', {
                 url: '/home/test_result',
-                templateUrl: '/static/js/test_result.tpl.html',
+                templateUrl: '/static/templates/validation_framework/test_result.tpl.html',
                 controller: 'TestResultCtrl'
             });
 
@@ -72,32 +75,32 @@ ModelCatalogApp.config(
         $stateProvider
             .state('ModelCatalog', {
                 url: '/model-catalog',
-                templateUrl: '/static/js/model-catalog.tpl.html',
+                templateUrl: '/static/templates/model_catalog/model-catalog.tpl.html',
                 controller: 'ModelCatalogCtrl'
             })
             .state('ModelCatalogCreate', {
                 url: '/model-catalog/create',
-                templateUrl: '/static/js/model-catalog-create.tpl.html',
+                templateUrl: '/static/templates/model_catalog/model-catalog-create.tpl.html',
                 controller: 'ModelCatalogCreateCtrl'
             })
             .state('ModelCatalogVersion', {
                 url: '/model-catalog/version',
-                templateUrl: '/static/js/model-catalog-version.tpl.html',
+                templateUrl: '/static/templates/model_catalog/model-catalog-version.tpl.html',
                 controller: 'ModelCatalogVersionCtrl'
             })
             .state('ModelCatalogVersionUuid', {
                 url: '/model-catalog/version/:uuid',
-                templateUrl: '/static/js/model-catalog-version.tpl.html',
+                templateUrl: '/static/templates/model_catalog/model-catalog-version.tpl.html',
                 controller: 'ModelCatalogVersionCtrl'
             })
             .state('ModelCatalogDetail', {
                 url: '/model-catalog/detail/:uuid',
-                templateUrl: '/static/js/model-catalog-detail.tpl.html',
+                templateUrl: '/static/templates/model_catalog/model-catalog-detail.tpl.html',
                 controller: 'ModelCatalogDetailCtrl'
             })
             .state('ModelCatalogEdit', {
                 url: '/model-catalog/edit/:uuid',
-                templateUrl: '/static/js/model-catalog-edit.tpl.html',
+                templateUrl: '/static/templates/model_catalog/model-catalog-edit.tpl.html',
                 controller: 'ModelCatalogEditCtrl'
             });
         $urlRouterProvider.otherwise('/model-catalog');
@@ -123,17 +126,17 @@ ParametersConfigurationApp.config(
         $stateProvider
             .state('ParametersConfiguration', {
                 url: '/parametersconfiguration',
-                templateUrl: '/static/js/parameters-configuration.tpl.html',
+                templateUrl: '/static/templates/configuration/parameters-configuration.tpl.html',
                 controller: 'ParametersConfigurationCtrl'
             })
             .state('ValidationParametersConfiguration', {
                 url: '/validationparametersconfiguration',
-                templateUrl: '/static/js/validation-parameters-configuration.tpl.html',
+                templateUrl: '/static/templates/configuration/validation-parameters-configuration.tpl.html',
                 controller: 'ParametersConfigurationCtrl'
             })
             .state('ModelParametersConfiguration', {
                 url: '/modelparametersconfiguration',
-                templateUrl: '/static/js/model-parameters-configuration.tpl.html',
+                templateUrl: '/static/templates/configuration/model-parameters-configuration.tpl.html',
                 controller: 'ParametersConfigurationCtrl'
             })
 

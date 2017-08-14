@@ -15,8 +15,7 @@ ENV = 'dev'
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'none')
+
 
 
 # SECURITY WARNING: don't run with debug turned on in production!
@@ -126,15 +125,11 @@ else:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql_psycopg2',
-            'NAME': 'validations3',
-            'USER': 'validation_admin',
-            # 'PASSWORD': os.environ.get("VALIDATION_SERVICE_PASSWORD"),
-            # 'HOST': os.environ.get("VALIDATION_SERVICE_HOST"),
-            # 'PORT': os.environ.get("VALIDATION_SERVICE_PORT", "5432"),
-            'PASSWORD': 'abcd012bdd',
-            'HOST': '139.59.130.77',
-            'PORT': '32768',
-          
+            'NAME': 'validations',
+            'USER': 'validations_admin',
+            'PASSWORD': os.environ.get("VALIDATION_SERVICE_PASSWORD"),
+            'HOST': os.environ.get("VALIDATION_SERVICE_HOST"),
+            'PORT': os.environ.get("VALIDATION_SERVICE_PORT", "5432"),          
         },
     }
 
@@ -160,12 +155,12 @@ STATIC_URL = '/static/'
 
 STATIC_ROOT = "%s/static/" % BASE_DIR
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, "lib"),
+    # os.path.join(BASE_DIR, "lib"),
     os.path.join(BASE_DIR, "app"),
-    os.path.join(BASE_DIR, "app/static"),
+    # os.path.join(BASE_DIR, "app/static"),
     # os.path.join(BASE_DIR, "app/scripts"),  
-    os.path.join(BASE_DIR, "app/js"),
-    os.path.join(BASE_DIR, "app/css"),
+    # os.path.join(BASE_DIR, "app/js"),
+    # os.path.join(BASE_DIR, "app/css"),
 
 ]
 
@@ -175,9 +170,14 @@ HBP_ENV_URL = 'https://collab.humanbrainproject.eu/config.json'
 HBP_IDENTITY_SERVICE_URL = 'https://services.humanbrainproject.eu/idm/v1/api'
 
 
-SOCIAL_AUTH_HBP_KEY = auth_settings.SOCIAL_AUTH_HBP_KEY = os.environ.get('HBP_OIDC_CLIENT_ID')
-SOCIAL_AUTH_HBP_SECRET = auth_settings.SOCIAL_AUTH_HBP_SECRET = os.environ.get('HBP_OIDC_CLIENT_SECRET')
+# SECURITY WARNING: keep the secret key used in production secret!
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'none')
 
+auth_settings.SOCIAL_AUTH_HBP_KEY = os.environ.get('HBP_OIDC_CLIENT_ID')
+SOCIAL_AUTH_HBP_KEY = auth_settings.SOCIAL_AUTH_HBP_KEY
+
+auth_settings.SOCIAL_AUTH_HBP_SECRET = os.environ.get('HBP_OIDC_CLIENT_SECRET')
+SOCIAL_AUTH_HBP_SECRET = auth_settings.SOCIAL_AUTH_HBP_SECRET 
 
 LOGGING = {
     'version': 1,

@@ -19,6 +19,7 @@ from .views import (
 
                     IsCollabMemberRest,
                     ValidationResultRest,
+                    ValidationTestResultRest,
                     ValidationResultRest_fortest
 
                     )
@@ -76,9 +77,15 @@ urlpatterns = (
     url(r'^validationresultrest/$',
         ValidationResultRest.as_view(),
         ), 
+
     url(r'^appidrest/$',
          AppIDRest.as_view(),
         ), 
+
+    url(r'^validationtestresultrest/$',
+        ValidationTestResultRest.as_view(),
+        ), 
+
 
 ######## model catalog url ##########
     url(r'^model-catalog/$',
