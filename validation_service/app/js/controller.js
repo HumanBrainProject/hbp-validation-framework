@@ -57,7 +57,6 @@ testApp.controller('ValTestCtrl', ['$scope', '$rootScope', '$http', '$location',
             $scope.is_collab_member = IsCollabMemberRest.get({ ctx: ctx, });
             $scope.is_collab_member.$promise.then(function() {
                 $scope.is_collab_member = $scope.is_collab_member.is_member;
-                $scope.is_collab_member = true; //to delete  
             });
 
             $scope.test_list = ValidationTestDefinitionRest.get({ ctx: CollabParameters.getCtx() }, function(data) {});
@@ -72,8 +71,8 @@ testApp.controller('ValTestCtrl', ['$scope', '$rootScope', '$http', '$location',
     }
 ]);
 
-testApp.controller('ValModelDetailCtrl', ['$scope', '$rootScope', '$http', '$location', '$stateParams', 'ScientificModelRest', 'ScientificModelInstanceRest', 'CollabParameters', 'IsCollabMemberRest', 'AppIDRest',
-    function($scope, $rootScope, $http, $location, $stateParams, ScientificModelRest, ScientificModelInstanceRest, CollabParameters, IsCollabMemberRest, AppIDRest) {
+testApp.controller('ValModelDetailCtrl', ['$scope', '$rootScope', '$http', '$location', '$stateParams', 'ScientificModelRest', 'ScientificModelInstanceRest', 'CollabParameters', 'IsCollabMemberRest', 'AppIDRest', 'Graphics',
+    function($scope, $rootScope, $http, $location, $stateParams, ScientificModelRest, ScientificModelInstanceRest, CollabParameters, IsCollabMemberRest, AppIDRest, Graphics) {
 
         CollabParameters.setService().$promise.then(function() {
             var ctx = CollabParameters.getCtx();
@@ -84,8 +83,20 @@ testApp.controller('ValModelDetailCtrl', ['$scope', '$rootScope', '$http', '$loc
                 $scope.is_collab_member = $scope.is_collab_member.is_member;
             });
             $scope.model = ScientificModelRest.get({ ctx: ctx, id: $stateParams.uuid });
+            $scope.model.$promise.then(function() {
+                //graph and table results
+                Graphics.linechart_id_result_clicked = undefined;
+                Graphics.current_result_focussed = [];
+                $scope.data = Graphics.getResultsfromModelID($scope.model);
+                $scope.options5 = Graphics.get_lines_options('Model/p-value', '', "p-value", "this is a caption");
+                console.log("data    fff", $scope.data);
+
+            });
+
 
         });
+
+
         $scope.goToModelCatalog = function() {
 
             //works 
@@ -151,7 +162,6 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
             $scope.is_collab_member = IsCollabMemberRest.get({ ctx: ctx, });
             $scope.is_collab_member.$promise.then(function() {
                 $scope.is_collab_member = $scope.is_collab_member.is_member;
-                $scope.is_collab_member = true; //to delete  
             });
             $scope.detail_test = ValidationTestDefinitionRest.get({ ctx: CollabParameters.getCtx(), id: $stateParams.uuid });
 
@@ -304,12 +314,12 @@ testApp.controller('TestResultCtrl', ['$scope', '$rootScope', '$http', '$locatio
 
             temp_test.then(function() {
                 $scope.data5 = temp_test.$$state.value;
-            })
+            });
 
 
             $scope.options5 = Graphics.get_lines_options();
 
-        })
+        });
 
     }
 ]);

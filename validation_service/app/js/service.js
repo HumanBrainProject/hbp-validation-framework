@@ -222,6 +222,7 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'ValidationResultRest', 'Col
         var linechart_id_result_clicked;
         var current_result_focussed;
         var results_data;
+        var multiple_result_data = [];
 
         var focus = function(id) {
             linechart_id_result_clicked = id;
@@ -283,8 +284,54 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'ValidationResultRest', 'Col
             return data_to_return;
         };
 
+        var getResultsfromModelID = function(model) {
+            var values = [];
+            var j = 0;
+            for (j; j < model.model_instances.length; j++) {
 
-        var get_lines_options = function() {
+                values[j] = _getDatafromModelID(model.model_instances[j])
+            };
+
+            return values;
+        };
+
+
+        var _getDatafromModelID = function(model_instance) {
+            var values_temp = [];
+            var i = 0;
+            var result_data = ValidationResultRest.get({
+                ctx: CollabParameters.getCtx(),
+                test_code_id: "0",
+                model_instance_id: model_instance.id
+            });
+            result_data.$promise.then(function() {
+
+                for (i; i < result_data.data.length; i++) {
+                    values_temp.push({
+                        x: new Date(result_data.data[i].timestamp),
+                        y: result_data.data[i].result,
+                        id: result_data.data[i].id,
+                    });
+                };
+                multiple_result_data.push(result_data);
+            });
+            return {
+                values: values_temp, //values - represents the array of {x,y} data points
+                key: model_instance.version, //key  - the name of the series.
+                color: _pickRandomColor(), //color - optional: choose your own line color.
+            };
+        };
+
+        var _pickRandomColor = function() {
+            var letters = '0123456789ABCDEF';
+            var color = '#';
+            for (var i = 0; i < 6; i++) {
+                color += letters[Math.floor(Math.random() * 16)];
+            }
+            return color;
+        };
+
+        var get_lines_options = function(title, subtitle, Yaxislabel, caption) {
             options = {
                 chart: {
                     type: 'lineChart',
@@ -314,7 +361,7 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'ValidationResultRest', 'Col
                     },
 
                     yAxis: {
-                        axisLabel: 'axisLabel',
+                        axisLabel: Yaxislabel,
                         tickFormat: function(d) {
                             return d3.format('.02f')(d);
                         },
@@ -329,11 +376,11 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'ValidationResultRest', 'Col
                 },
                 title: {
                     enable: true,
-                    text: 'Title for Line Chart'
+                    text: title
                 },
                 subtitle: {
                     enable: true,
-                    text: 'Subtitle for simple line chart. Lorem ipsum dolor sit amet, at eam blandit sadipscing, vim adhuc sanctus disputando ex, cu usu affert alienum urbanitas.',
+                    text: subtitle,
                     css: {
                         'text-align': 'center',
                         'margin': '10px 13px 0px 7px'
@@ -341,7 +388,7 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'ValidationResultRest', 'Col
                 },
                 caption: {
                     enable: true,
-                    html: '<b>Figure 1.</b> Lorem ipsum dolor sit amet, at eam blandit sadipscing, <span style="text-decoration: underline;">vim adhuc sanctus disputando ex</span>, cu usu affert alienum urbanitas. <i>Cum in purto erat, mea ne nominavi persecuti reformidans.</i> Docendi blandit abhorreant ea has, minim tantas alterum pro eu. <span style="color: darkred;">Exerci graeci ad vix, elit tacimates ea duo</span>. Id mel eruditi fuisset. Stet vidit patrioque in pro, eum ex veri verterem abhorreant, id unum oportere intellegam nec<sup>[1, <a href="https://github.com/krispo/angular-nvd3" target="_blank">2</a>, 3]</sup>.',
+                    html: caption,
                     css: {
                         'text-align': 'justify',
                         'margin': '10px 13px 0px 7px'
@@ -353,13 +400,18 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'ValidationResultRest', 'Col
 
 
         }
+        var get_DataMultipleResult = function() {
+            return multiple_result_data;
+        }
+
 
         return {
             get_lines_options: get_lines_options,
             data_fromAPI: data_fromAPI,
             find_result_in_data: find_result_in_data,
             focus: focus,
-
+            getResultsfromModelID: getResultsfromModelID,
+            get_DataMultipleResult: get_DataMultipleResult,
         };
 
 

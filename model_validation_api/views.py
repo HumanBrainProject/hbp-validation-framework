@@ -738,8 +738,13 @@ class ValidationResultRest (APIView):
         test_definition_id = request.query_params['test_code_id']
         model_instance_id  = request.query_params['model_instance_id']
 
-        # ValidationTestCode.objects.filter(id = test_code_id)
-        # ScientificModelInstance.objects.filter(id = model_instance_id)
+        if(test_definition_id =='0'):
+            print ("in it")
+            validation_result =  ValidationTestResult.objects.filter(model_instance_id = model_instance_id )
+            result_serializer = ValidationTestResultSerializer(validation_result, context=serializer_context, many=True) 
+            return Response({
+                'data': result_serializer.data,
+                })
 
         validation_result =  ValidationTestResult.objects.filter(test_definition_id = test_definition_id, model_instance_id = model_instance_id )
         result_serializer = ValidationTestResultSerializer(validation_result, context=serializer_context, many=True)
