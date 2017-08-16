@@ -30,7 +30,7 @@
             <h4 style="font-size:1.2em" align=center><b>Authors: </b> {{ detail_test.tests[0].author }}</h4>
             <br>
             <div><a ng-click="toogleTabs( 'tab_edit_test')" class="button-MC">Edit</a></div>
-            </br> <br>
+            <br> <br>
             <h4 style="font-size:1em" align=left><b>Publication: </b> {{ detail_test.tests[0].publication }}</h4>
             <br>
             <table class="table-test-detail">
@@ -77,148 +77,81 @@
     </body>
 
 
-</div>
 
-<div class="control-group" id="tab_version" style="display:none;" aria-expanded="true">
-    </br>
-    <h3 style="font-size:1.5em" align=center><b>Code versions</b></h3><br>
-    <div><a ng-click="toogleTabs( 'tab_new_version')" class="button-MC">New version</a></div>
-    </br> <br>
-    <div>
-        <table class="table-create">
-            <thead>
-                <tr>
-                    <th style="width: 25%">Repository</th>
-                    <th style="width: 25%">Version</th>
-                    <th style="width: 25%">Test class</th>
-                    <th style="width: 25%">Date/time</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr ng-repeat='code_version in detail_version_test.tests'>
-                    <td style="width: 25%">{{ code_version.repository }}</td>
-                    <td style="width: 25%">{{ code_version.version }}</td>
-                    <td style="width: 25%"><code>{{ code_version.path }}</code></td>
-                    <td style="width: 25%">{{ code_version.timestamp | date:'d MMMM yyyy, hh:mm' : 'UTC' }}</td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
-</div>
-
-<!--<div class="control-group" id="tab_results" style="display:none;" aria-expanded="true">-->
-
-
-
-
-<div class="control-group" id="tab_new_version" style="display:none;" aria-expanded="true">
-    <br>
-    <h3 style="font-size:1.5em" align=center><b>New version</b></h3><br>
-    <br>
-    <form>
-        <table>
-            <tbody>
-                </br>
-                <tr>
-                    <td>
-                        <b>Version Name:</b>
-                    </td>
-                    <td>
-                        <input type="text" ng-model="test_code.version" required/>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <b>Repository:</b>
-                    </td>
-                    <td>
-                        <input type="url" ng-model="test_code.repository" required/>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <b>Test class:</b>
-                    </td>
-                    <td>
-                        <input type=text rows="5" cols="50" ng-model="test_code.path" required>
-                    </td>
-                </tr>
-
-            </tbody>
-        </table>
+    <div class="control-group" id="tab_version" style="display:none;" aria-expanded="true">
+        <br>
+        <h3 style="font-size:1.5em" align=center><b>Code versions</b></h3><br>
+        <div><a ng-click="toogleTabs( 'tab_new_version')" class="button-MC">New version</a></div>
         <br> <br>
-        <div class="navbar navbar-form">
-            <button type="submit" class="btn btn-primary" ng-click=saveVersion()>Save</button>
-        </div>
-    </form>
-</div>
-
-<div class="control-group" id="tab_comments" style="display:none;" aria-expanded="true">
-    <main class="comment" onsubmit="return false">
-
-        <div class="panel-heading">
-            <h3 class="panel-title" id="title-commment"> Comments </h3>
-        </div>
-        <div ng-repeat="comment in test_comments.comments" id='CommentToShow-{{comment.id}}'>
-
-            <table class="table table-striped table-condensed">
-                <div class="comment">
-                    <tbody>
-                        <tr id="table-ticket-detail-comment">
-                            <td width=200>
-                                <span class="glyphicon glyphicon-user"></span> {{ comment.author }}
-                            </td>
-                            <td width=1000>
-                            </td>
-                            <td width=300>
-                                {{ comment.creation_date | date:'d MMMM yyyy, hh:mm' : 'UTC' }}
-                            </td>
-                            <td width=50>
-
-                            </td>
-                        </tr>
-
-                        <tr id="table-ticket-detail-comment-content">
-                            <td width=200>
-                            </td>
-                            <td width=1000 id='editable-text-{{comment.id}}' contenteditable="false">
-                                <br/> {{ comment.text }}
-                            </td>
-                            <td width=300>
-                            </td>
-                            <td>
-                            </td>
-                        </tr>
-                    </tbody>
-                </div>
+        <div>
+            <table class="table-create">
+                <thead>
+                    <tr>
+                        <th style="width: 25%">Repository</th>
+                        <th style="width: 25%">Version</th>
+                        <th style="width: 25%">Test class</th>
+                        <th style="width: 25%">Date/time</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat='code_version in detail_version_test.tests'>
+                        <td style="width: 25%">{{ code_version.repository }}</td>
+                        <td style="width: 25%">{{ code_version.version }}</td>
+                        <td style="width: 25%"><code>{{ code_version.path }}</code></td>
+                        <td style="width: 25%">{{ code_version.timestamp | date:'d MMMM yyyy, hh:mm' : 'UTC' }}</td>
+                    </tr>
+                </tbody>
             </table>
-
-            <div id='panelForButtonSave-{{comment.id}}'></div>
         </div>
-    </main>
+    </div>
 
-    <main action="" class="commentForm" method="POST">
-        <form class="comment-form" ng-submit="submit_comment()" ng-controller="ValTestDetailCtrl">
-            <div class="comment-form-fields">
-                <div class="form-group form-group-editor">
-                    <h4> Add a comment </h4>
-                    <p id="CommentTextbox">
-                        <textarea cols="40" id="txt_comment" name="txt_comment" ng-model="txt_comment" rows="10" required=""></textarea>
-                    </p>
-                    <p class="help-text">{{ form.text.errors }}</p>
-                </div>
-            </div>
+    <!--<div class="control-group" id="tab_results" style="display:none;" aria-expanded="true">-->
+
+
+
+
+    <div class="control-group" id="tab_new_version" style="display:none;" aria-expanded="true">
+        <br>
+        <h3 style="font-size:1.5em" align=center><b>New version</b></h3><br>
+        <br>
+        <form>
+            <table>
+                <tbody>
+                    <br>
+                    <tr>
+                        <td>
+                            <b>Version Name:</b>
+                        </td>
+                        <td>
+                            <input type="text" ng-model="test_code.version" required/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <b>Repository:</b>
+                        </td>
+                        <td>
+                            <input type="url" ng-model="test_code.repository" required/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <b>Test class:</b>
+                        </td>
+                        <td>
+                            <input type=text rows="5" cols="50" ng-model="test_code.path" required>
+                        </td>
+                    </tr>
+
+                </tbody>
+            </table>
+            <br> <br>
             <div class="navbar navbar-form">
-                <button type="submit" id="submit" value="Submit" class="btn btn-primary">Save</button>
+                <button type="submit" class="btn btn-primary" ng-click=saveVersion()>Save</button>
             </div>
         </form>
+    </div>
 
-    </main>
-</div>
-
-
-
-<div class="control-group" id="tab_results" style="visibility:hidden;" aria-expanded="true">
 
     <div class="control-group" id="tab_edit_test" style="display:none;" aria-expanded="true">
         <br>
@@ -358,50 +291,111 @@
         </form>
     </div>
 
+
     <div class="control-group" id="tab_comments" style="display:none;" aria-expanded="true">
         <main class="comment" onsubmit="return false">
 
+            <div class="panel-heading">
+                <h3 class="panel-title" id="title-commment"> Comments </h3>
+            </div>
+            <div ng-repeat="comment in test_comments.comments" id='CommentToShow-{{comment.id}}'>
 
-            <nvd3 options='graphic_options' data='graphic_data' id='chart svg'></nvd3>
-
-
-            <br>
-            <br>
-
-            <table class="table" style="border-top: none;">
-
-                <td>
-
-                    <table id="model_table" class="table">
-
-                        <h3 align=center> Models </h3>
-
-                        <thead>
-                            <th>Results storage</th>
-                            <th>Result</th>
-                            <th>Passed</th>
-                            <th>Time</th>
-                            <th>Platform</th>
-                            <th>Project</th>
-                        </thead>
-
+                <table class="table table-striped table-condensed">
+                    <div class="comment">
                         <tbody>
+                            <tr id="table-ticket-detail-comment">
+                                <td width=200>
+                                    <span class="glyphicon glyphicon-user"></span> {{ comment.author }}
+                                </td>
+                                <td width=1000>
+                                </td>
+                                <td width=300>
+                                    {{ comment.creation_date | date:'d MMMM yyyy, hh:mm' : 'UTC' }}
+                                </td>
+                                <td width=50>
 
-                            <tr class=tr-clickable id="" ng-repeat="result in result_focussed" ng-click="goToDetailView(model)">
-                                <td>{{ result.results_storage }}</td>
-                                <td>{{ result.result }}</td>
-                                <td>{{ result.passed }}</td>
-                                <td>{{ result.timestamp }}</td>
-                                <td>{{ result.platform }}</td>
-                                <td>{{ result.project }}</td>
+                                </td>
+                            </tr>
 
+                            <tr id="table-ticket-detail-comment-content">
+                                <td width=200>
+                                </td>
+                                <td width=1000 id='editable-text-{{comment.id}}' contenteditable="false">
+                                    <br/> {{ comment.text }}
+                                </td>
+                                <td width=300>
+                                </td>
+                                <td>
+                                </td>
                             </tr>
                         </tbody>
-                    </table>
-                </td>
+                    </div>
+                </table>
 
-            </table>
+                <div id='panelForButtonSave-{{comment.id}}'></div>
+            </div>
+        </main>
+
+        <main action="" class="commentForm" method="POST">
+            <form class="comment-form" ng-submit="submit_comment()" ng-controller="ValTestDetailCtrl">
+                <div class="comment-form-fields">
+                    <div class="form-group form-group-editor">
+                        <h4> Add a comment </h4>
+                        <p id="CommentTextbox">
+                            <textarea cols="40" id="txt_comment" name="txt_comment" ng-model="txt_comment" rows="10" required=""></textarea>
+                        </p>
+                        <p class="help-text">{{ form.text.errors }}</p>
+                    </div>
+                </div>
+                <div class="navbar navbar-form">
+                    <button type="submit" id="submit" value="Submit" class="btn btn-primary">Save</button>
+                </div>
+            </form>
+
+        </main>
     </div>
 
 
+
+    <div class="control-group" id="tab_results" style="visibility:hidden;" aria-expanded="true">
+        <nvd3 options='graphic_options' data='graphic_data' id='chart svg'></nvd3>
+
+
+        <br>
+        <br>
+
+        <table class="table" style="border-top: none;">
+
+            <td>
+
+                <table id="model_table" class="table">
+
+                    <h3 align=center> Models </h3>
+
+                    <thead>
+                        <th>Results storage</th>
+                        <th>Result</th>
+                        <th>Passed</th>
+                        <th>Time</th>
+                        <th>Platform</th>
+                        <th>Project</th>
+                    </thead>
+
+                    <tbody>
+
+                        <tr class=tr-clickable id="" ng-repeat="result in result_focussed" ng-click="goToDetailView(model)">
+                            <td>{{ result.results_storage }}</td>
+                            <td>{{ result.result }}</td>
+                            <td>{{ result.passed }}</td>
+                            <td>{{ result.timestamp }}</td>
+                            <td>{{ result.platform }}</td>
+                            <td>{{ result.project }}</td>
+
+                        </tr>
+                    </tbody>
+                </table>
+            </td>
+
+        </table>
+    </div>
 </div>

@@ -149,6 +149,14 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
 
         CollabParameters.setService().$promise.then(function() {
 
+            $scope.species = CollabParameters.getParameters("species");
+            $scope.brain_region = CollabParameters.getParameters("brain_region");
+            $scope.cell_type = CollabParameters.getParameters("cell_type");
+            $scope.model_type = CollabParameters.getParameters("model_type");
+            $scope.test_type = CollabParameters.getParameters("test_type");
+            $scope.data_modalities = CollabParameters.getParameters("data_modalities");
+
+
             $scope.detail_test = ValidationTestDefinitionRest.get({ ctx: CollabParameters.getCtx(), id: $stateParams.uuid });
             $scope.detail_version_test = ValidationTestCodeRest.get({ ctx: CollabParameters.getCtx(), test_definition_id: $stateParams.uuid });
             $scope.test_comments = TestCommentRest.get({ ctx: CollabParameters.getCtx(), test_id: $stateParams.uuid });
@@ -192,7 +200,8 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
                     "tab_version",
                     "tab_new_version",
                     "tab_results", // this one must be visibility: hidden or visible
-                    "tab_comments"
+                    "tab_comments",
+                    "tab_edit_test",
                 ]
 
                 //set all tabs style display to "none"
