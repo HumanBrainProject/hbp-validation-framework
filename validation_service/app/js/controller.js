@@ -86,41 +86,61 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
 
             $scope.toogleTabs = function(id_tab) {
                 $scope.selected_tab = id_tab;
-                if (id_tab == "tab_description") {
-                    document.getElementById("tab_description").style.display = "block";
-                    document.getElementById("tab_version").style.display = "none";
-                    document.getElementById("tab_new_version").style.display = "none";
-                    document.getElementById("tab_results").style.display = "none";
-                    document.getElementById("tab_comments").style.display = "none";
+
+                var list_tab_id = [
+                    "tab_description",
+                    "tab_version",
+                    "tab_new_version",
+                    "tab_results",
+                    "tab_comments"
+                ]
+
+                //set all tabs style display to "none"
+                var i = 0;
+                for (i; i < list_tab_id.length; i++) {
+                    document.getElementById(list_tab_id[i]).style.display = "none";
                 }
-                if (id_tab == "tab_version") {
-                    document.getElementById("tab_description").style.display = "none";
-                    document.getElementById("tab_version").style.display = "block";
-                    document.getElementById("tab_new_version").style.display = "none";
-                    document.getElementById("tab_results").style.display = "none";
-                    document.getElementById("tab_comments").style.display = "none";
-                }
-                if (id_tab == "tab_new_version") {
-                    document.getElementById("tab_description").style.display = "none";
-                    document.getElementById("tab_version").style.display = "none";
-                    document.getElementById("tab_new_version").style.display = "block";
-                    document.getElementById("tab_results").style.display = "none";
-                    document.getElementById("tab_comments").style.display = "none";
-                }
-                if (id_tab == "tab_results") {
-                    document.getElementById("tab_description").style.display = "none";
-                    document.getElementById("tab_version").style.display = "none";
-                    document.getElementById("tab_new_version").style.display = "none";
-                    document.getElementById("tab_results").style.display = "block";
-                    document.getElementById("tab_comments").style.display = "none";
-                }
-                if (id_tab == "tab_comments") {
-                    document.getElementById("tab_description").style.display = "none";
-                    document.getElementById("tab_version").style.display = "none";
-                    document.getElementById("tab_new_version").style.display = "none";
-                    document.getElementById("tab_results").style.display = "none";
-                    document.getElementById("tab_comments").style.display = "block";
-                }
+
+                //set id_tab style display to "block""
+                document.getElementById(id_tab).style.display = "block";
+
+
+
+                // if (id_tab == "tab_description") {
+                //     document.getElementById("tab_description").style.display = "block";
+                //     document.getElementById("tab_version").style.display = "none";
+                //     document.getElementById("tab_new_version").style.display = "none";
+                //     document.getElementById("tab_results").style.display = "none";
+                //     document.getElementById("tab_comments").style.display = "none";
+                // }
+                // if (id_tab == "tab_version") {
+                //     document.getElementById("tab_description").style.display = "none";
+                //     document.getElementById("tab_version").style.display = "block";
+                //     document.getElementById("tab_new_version").style.display = "none";
+                //     document.getElementById("tab_results").style.display = "none";
+                //     document.getElementById("tab_comments").style.display = "none";
+                // }
+                // if (id_tab == "tab_new_version") {
+                //     document.getElementById("tab_description").style.display = "none";
+                //     document.getElementById("tab_version").style.display = "none";
+                //     document.getElementById("tab_new_version").style.display = "block";
+                //     document.getElementById("tab_results").style.display = "none";
+                //     document.getElementById("tab_comments").style.display = "none";
+                // }
+                // if (id_tab == "tab_results") {
+                //     document.getElementById("tab_description").style.display = "none";
+                //     document.getElementById("tab_version").style.display = "none";
+                //     document.getElementById("tab_new_version").style.display = "none";
+                //     document.getElementById("tab_results").style.display = "block";
+                //     document.getElementById("tab_comments").style.display = "none";
+                // }
+                // if (id_tab == "tab_comments") {
+                //     document.getElementById("tab_description").style.display = "none";
+                //     document.getElementById("tab_version").style.display = "none";
+                //     document.getElementById("tab_new_version").style.display = "none";
+                //     document.getElementById("tab_results").style.display = "none";
+                //     document.getElementById("tab_comments").style.display = "block";
+                // }
                 _active_tab(id_tab);
 
             };
