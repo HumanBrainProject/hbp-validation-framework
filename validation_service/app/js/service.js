@@ -216,9 +216,18 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'ValidationResultRest', 'Col
         // var results_data;
        
 
-        var focus = function(id) {
-            data = find_result_in_data(id);
-            $rootScope.$broadcast('data_focussed:updated', data);
+        var focus = function(list_id) {
+            var list_data = [];
+
+            var i = 0;
+            for (i; i < list_id.length; i++) {
+                var id = list_id[i];
+                data = find_result_in_data(id);
+                list_data.push(data);
+            }
+
+
+            $rootScope.$broadcast('data_focussed:updated', list_data);
         };
 
 
@@ -226,27 +235,21 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'ValidationResultRest', 'Col
             var i = 0;
             for (i; i < results_data.data.length; i++) {
                 if (results_data.data[i].id == id) {
-                    return [results_data.data[i]];
+                    return results_data.data[i];
                 }
             }
-            return [];
-
         };
 
 
 
 
 
-        var data_fromAPI = function() {
+        var data_fromAPI = function(tab_test_code_id, tab_model_instance_id) {
 
-
-            var tab_test_code_id = ["622f8ee151c940f3b502980831c7fc09"];
-            // var tab_model_instance_id = ["d1135abda9ad46909e6783d41dd42d00", "d1135abda9ad46909e6783d41dd42d01"];
-
-            var tab_model_instance_id = ["d1135abd-a9ad-4690-9e67-83d41dd42d01", "d1135abd-a9ad-4690-9e67-83d41dd42d00"];
+            var tab_test_code_id = tab_test_code_id;
+            var tab_model_instance_id = tab_model_instance_id;
 
             var data_to_return = _prepare_data_to_return(tab_test_code_id, tab_model_instance_id, "test");
-
 
             results_data = ValidationTestResultRest.get({
                 ctx: CollabParameters.getCtx(),
@@ -421,7 +424,17 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'ValidationResultRest', 'Col
                     callback: function(chart) {
                         chart.lines.dispatch.on('elementClick', function(e) {
                             // console.log('elementClick in callback', e);
-                            focus(e[0].point.id);
+
+                            //return the list of results for t time.
+                            var list_of_results_id = [];
+                            var i = 0;
+                            for (i; i < e.length; i++) {
+                                list_of_results_id.push(e[i].point.id);
+                            }
+
+                            focus(list_of_results_id);
+
+                            // focus(e[0].point.id);
                         });
                     }
                 },

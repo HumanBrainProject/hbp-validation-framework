@@ -17,12 +17,12 @@ testApp.controller('HomeCtrl', ['$scope', '$rootScope', '$http', '$location', "S
 
             var ctx = CollabParameters.getCtx();
 
-            $scope.is_collab_member = false;
-            $scope.is_collab_member = IsCollabMemberRest.get({ ctx: ctx, });
-            $scope.is_collab_member.$promise.then(function() {
-                $scope.is_collab_member = $scope.is_collab_member.is_member;
-                $scope.is_collab_member = true; //to delete  
-            });
+            // $scope.is_collab_member = false;
+            // $scope.is_collab_member = IsCollabMemberRest.get({ ctx: ctx, });
+            // $scope.is_collab_member.$promise.then(function() {
+            //     $scope.is_collab_member = $scope.is_collab_member.is_member;
+            //     $scope.is_collab_member = true; //to delete  
+            // });
             $scope.models = ScientificModelRest.get({ ctx: ctx }, function(data) {});
             $scope.tests = ValidationTestDefinitionRest.get({ ctx: ctx }, function(data) {});
 
@@ -71,6 +71,7 @@ testApp.controller('ValTestCtrl', ['$scope', '$rootScope', '$http', '$location',
     }
 ]);
 
+
 testApp.controller('ValModelDetailCtrl', ['$scope', '$rootScope', '$http', '$location', '$stateParams', 'ScientificModelRest', 'ScientificModelInstanceRest', 'CollabParameters', 'IsCollabMemberRest', 'AppIDRest', 'Graphics',
     function($scope, $rootScope, $http, $location, $stateParams, ScientificModelRest, ScientificModelInstanceRest, CollabParameters, IsCollabMemberRest, AppIDRest, Graphics) {
 
@@ -89,7 +90,7 @@ testApp.controller('ValModelDetailCtrl', ['$scope', '$rootScope', '$http', '$loc
                 Graphics.current_result_focussed = [];
                 $scope.data = Graphics.getResultsfromModelID($scope.model);
                 $scope.options5 = Graphics.get_lines_options('Model/p-value', '', "p-value", "this is a caption");
-        });
+            });
         });
 
 
@@ -142,84 +143,33 @@ testApp.directive('markdown', function() {
 });
 
 
-testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$location', '$stateParams', '$state', 'ValidationTestDefinitionRest', 'ValidationTestCodeRest', 'CollabParameters', 'TestCommentRest', "IsCollabMemberRest",
+testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$location', '$stateParams', '$state', 'ValidationTestDefinitionRest', 'ValidationTestCodeRest', 'CollabParameters', 'TestCommentRest', "IsCollabMemberRest", "Graphics",
 
-    function($scope, $rootScope, $http, $location, $stateParams, $state, ValidationTestDefinitionRest, ValidationTestCodeRest, CollabParameters, TestCommentRest, IsCollabMemberRest) {
+    function($scope, $rootScope, $http, $location, $stateParams, $state, ValidationTestDefinitionRest, ValidationTestCodeRest, CollabParameters, TestCommentRest, IsCollabMemberRest, Graphics) {
+
         CollabParameters.setService().$promise.then(function() {
-            $scope.collab_species = CollabParameters.getParameters("species");
-            $scope.collab_brain_region = CollabParameters.getParameters("brain_region");
-            $scope.collab_cell_type = CollabParameters.getParameters("cell_type");
-            $scope.collab_model_type = CollabParameters.getParameters("model_type");
-            $scope.collab_test_type = CollabParameters.getParameters("test_type");
-            $scope.collab_data_modalities = CollabParameters.getParameters("data_modalities");
 
-            var ctx = CollabParameters.getCtx();
-            $scope.is_collab_member = false;
-            $scope.is_collab_member = IsCollabMemberRest.get({ ctx: ctx, });
-            $scope.is_collab_member.$promise.then(function() {
-                $scope.is_collab_member = $scope.is_collab_member.is_member;
-            });
             $scope.detail_test = ValidationTestDefinitionRest.get({ ctx: CollabParameters.getCtx(), id: $stateParams.uuid });
-
             $scope.detail_version_test = ValidationTestCodeRest.get({ ctx: CollabParameters.getCtx(), test_definition_id: $stateParams.uuid });
-
             $scope.test_comments = TestCommentRest.get({ ctx: CollabParameters.getCtx(), test_id: $stateParams.uuid });
 
-            $scope.selected_tab = "";
+            //code for the graphic and table focussed results
+            var tab_test_code_id = ["622f8ee151c940f3b502980831c7fc09"];
+            var tab_model_instance_id = ["d1135abd-a9ad-4690-9e67-83d41dd42d01", "d1135abd-a9ad-4690-9e67-83d41dd42d00"];
 
-            $scope.toogleTabs = function(id_tab) {
-                $scope.selected_tab = id_tab;
-                if (id_tab == "tab_description") {
-                    document.getElementById("tab_description").style.display = "block";
-                    document.getElementById("tab_version").style.display = "none";
-                    document.getElementById("tab_new_version").style.display = "none";
-                    document.getElementById("tab_edit_test").style.display = "none";
-                    document.getElementById("tab_results").style.display = "none";
-                    document.getElementById("tab_comments").style.display = "none";
-                }
-                if (id_tab == "tab_version") {
-                    document.getElementById("tab_description").style.display = "none";
-                    document.getElementById("tab_version").style.display = "block";
-                    document.getElementById("tab_new_version").style.display = "none";
-                    document.getElementById("tab_edit_test").style.display = "none";
-                    document.getElementById("tab_results").style.display = "none";
-                    document.getElementById("tab_comments").style.display = "none";
-                }
-                if (id_tab == "tab_new_version") {
-                    document.getElementById("tab_description").style.display = "none";
-                    document.getElementById("tab_version").style.display = "none";
-                    document.getElementById("tab_new_version").style.display = "block";
-                    document.getElementById("tab_edit_test").style.display = "none";
-                    document.getElementById("tab_results").style.display = "none";
-                    document.getElementById("tab_comments").style.display = "none";
-                }
-                if (id_tab == "tab_edit_test") {
-                    document.getElementById("tab_description").style.display = "none";
-                    document.getElementById("tab_version").style.display = "none";
-                    document.getElementById("tab_new_version").style.display = "none";
-                    document.getElementById("tab_edit_test").style.display = "block";
-                    document.getElementById("tab_results").style.display = "none";
-                    document.getElementById("tab_comments").style.display = "none";
-                }
-                if (id_tab == "tab_results") {
-                    document.getElementById("tab_description").style.display = "none";
-                    document.getElementById("tab_version").style.display = "none";
-                    document.getElementById("tab_new_version").style.display = "none";
-                    document.getElementById("tab_edit_test").style.display = "none";
-                    document.getElementById("tab_results").style.display = "block";
-                    document.getElementById("tab_comments").style.display = "none";
-                }
-                if (id_tab == "tab_comments") {
-                    document.getElementById("tab_description").style.display = "none";
-                    document.getElementById("tab_version").style.display = "none";
-                    document.getElementById("tab_new_version").style.display = "none";
-                    document.getElementById("tab_edit_test").style.display = "none";
-                    document.getElementById("tab_results").style.display = "none";
-                    document.getElementById("tab_comments").style.display = "block";
-                }
-                _active_tab(id_tab);
 
-            };
+            var graphic_data = Graphics.data_fromAPI(tab_test_code_id, tab_model_instance_id);
+            graphic_data.then(function() {
+                $scope.graphic_data = graphic_data.$$state.value;
+
+                $scope.graphic_options = Graphics.get_lines_options();
+
+                $scope.result_focussed;
+                $scope.$on('data_focussed:updated', function(event, data) {
+                    $scope.result_focussed = data;
+                    $scope.$apply();
+                });
+            })
 
 
             $scope.submit_comment = function() {
@@ -228,56 +178,98 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
                 $state.reload();
             }
 
+
+            var _add_params = function() {
+                $scope.test_code.test_definition_id = $scope.detail_test.tests[0].id;
+            };
+
+            $scope.selected_tab = "";
+            $scope.toogleTabs = function(id_tab) {
+                $scope.selected_tab = id_tab;
+
+                var list_tab_id = [
+                    "tab_description",
+                    "tab_version",
+                    "tab_new_version",
+                    "tab_results", // this one must be visibility: hidden or visible
+                    "tab_comments"
+                ]
+
+                //set all tabs style display to "none"
+                var i = 0;
+                for (i; i < list_tab_id.length; i++) {
+                    if (list_tab_id[i] == "tab_results") {
+                        document.getElementById(list_tab_id[i]).style.visibility = "hidden";
+
+                    } else {
+                        document.getElementById(list_tab_id[i]).style.display = "none";
+                    }
+
+                }
+
+                //set id_tab style display to "block" or visible
+                if (id_tab == "tab_results") {
+                    document.getElementById(id_tab).style.visibility = "visible";
+                } else {
+                    document.getElementById(id_tab).style.display = "block";
+                }
+
+
+
+
+
+                _active_tab(id_tab);
+
+                var _active_tab = function(id_tab) {
+                    var a = document.getElementById("li_tab_description");
+                    var b = document.getElementById("li_tab_version");
+                    var c = document.getElementById("li_tab_results");
+                    var d = document.getElementById("li_tab_comments");
+                    a.className = b.className = c.className = d.className = "nav-link";
+                    if (id_tab != "tab_new_version" || id_tab != "tab_edit_test") {
+                        var e = document.getElementById("li_" + id_tab);
+                        e.className += " active";
+
+                    };
+                };
+            };
+
+            $scope.saveVersion = function() {
+                _add_params();
+                var parameters = JSON.stringify($scope.test_code);
+                ValidationTestCodeRest.save({ ctx: CollabParameters.getCtx(), id: $scope.detail_test.tests[0].id }, parameters).$promise.then(function() {
+                    document.getElementById("tab_description").style.display = "none";
+                    document.getElementById("tab_version").style.display = "block";
+                    document.getElementById("tab_new_version").style.display = "none";
+                    document.getElementById("tab_results").style.visibility = "hidden";
+                    document.getElementById("tab_comments").style.display = "none";
+                    $state.reload();
+                });
+
+            };
+
+
+
+            $scope.editTest = function() {
+                var parameters = JSON.stringify($scope.detail_test.tests[0]);
+                ValidationTestDefinitionRest.put({ ctx: CollabParameters.getCtx(), id: $scope.detail_test.tests[0].id }, parameters).$promise.then(function() {
+                    document.getElementById("tab_description").style.display = "none";
+                    document.getElementById("tab_version").style.display = "block";
+                    document.getElementById("tab_new_version").style.display = "none";
+                    document.getElementById("tab_results").style.display = "none";
+                    document.getElementById("tab_comments").style.display = "none";
+                    $state.reload();
+                });
+
+            };
+
+            $scope.submit_comment = function() {
+                var data_comment = JSON.stringify({ author: $stateParams.uuid, text: this.txt_comment, approved_comment: false, test_id: $stateParams.uuid });
+                TestCommentRest.post(data_comment, function(value) {});
+                $state.reload();
+            };
         });
 
-        var _add_params = function() {
-            $scope.test_code.test_definition_id = $scope.detail_test.tests[0].id;
-        };
-
-        var _active_tab = function(id_tab) {
-            var a = document.getElementById("li_tab_description");
-            var b = document.getElementById("li_tab_version");
-            var c = document.getElementById("li_tab_results");
-            var d = document.getElementById("li_tab_comments");
-            a.className = b.className = c.className = d.className = "nav-link";
-            if (id_tab != "tab_new_version" || id_tab != "tab_edit_test") {
-                var e = document.getElementById("li_" + id_tab);
-                e.className += " active";
-            };
-        }
-
-        $scope.saveVersion = function() {
-            _add_params();
-            var parameters = JSON.stringify($scope.test_code);
-            ValidationTestCodeRest.save({ ctx: CollabParameters.getCtx(), id: $scope.detail_test.tests[0].id }, parameters).$promise.then(function() {
-                document.getElementById("tab_description").style.display = "none";
-                document.getElementById("tab_version").style.display = "block";
-                document.getElementById("tab_new_version").style.display = "none";
-                document.getElementById("tab_results").style.display = "none";
-                document.getElementById("tab_comments").style.display = "none";
-                $state.reload();
-            });
-
-        };
-
-        $scope.editTest = function() {
-            var parameters = JSON.stringify($scope.detail_test.tests[0]);
-            ValidationTestDefinitionRest.put({ ctx: CollabParameters.getCtx(), id: $scope.detail_test.tests[0].id }, parameters).$promise.then(function() {
-                document.getElementById("tab_description").style.display = "none";
-                document.getElementById("tab_version").style.display = "block";
-                document.getElementById("tab_new_version").style.display = "none";
-                document.getElementById("tab_results").style.display = "none";
-                document.getElementById("tab_comments").style.display = "none";
-                $state.reload();
-            });
-
-        };
-
-        $scope.submit_comment = function() {
-            var data_comment = JSON.stringify({ author: $stateParams.uuid, text: this.txt_comment, approved_comment: false, test_id: $stateParams.uuid });
-            TestCommentRest.post(data_comment, function(value) {});
-            $state.reload();
-        }
     }
 ]);
 
@@ -314,9 +306,7 @@ testApp.controller('TestResultCtrl', ['$scope', '$rootScope', '$http', '$locatio
                 $scope.$apply();
             });
 
-
         });
-
     }
 ]);
 

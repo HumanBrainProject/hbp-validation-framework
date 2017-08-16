@@ -739,7 +739,7 @@ class ValidationResultRest (APIView):
         test_definition_id = request.query_params['test_code_id']
         model_instance_id  = request.query_params['model_instance_id']
 
-        if(test_definition_id =='0'):
+        if(test_definition_id =='0'): ##not used for now
             print ("in it")
             validation_result =  ValidationTestResult.objects.filter(model_instance_id = model_instance_id )
             result_serializer = ValidationTestResultSerializer(validation_result, context=serializer_context, many=True) 
