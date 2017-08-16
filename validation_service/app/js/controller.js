@@ -204,9 +204,7 @@ testApp.controller('TestResultCtrl', ['$scope', '$rootScope', '$http', '$locatio
                 $scope.$apply();
             });
 
-
         })
-
     }
 ]);
 

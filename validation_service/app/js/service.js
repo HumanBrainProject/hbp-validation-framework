@@ -212,9 +212,18 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'ValidationResultRest', 'Col
     function($rootScope, ValidationResultRest, CollabParameters, ValidationTestResultRest) {
 
 
-        var focus = function(id) {
-            data = find_result_in_data(id);
-            $rootScope.$broadcast('data_focussed:updated', data);
+        var focus = function(list_id) {
+            var list_data = [];
+
+            var i = 0;
+            for (i; i < list_id.length; i++) {
+                var id = list_id[i];
+                data = find_result_in_data(id);
+                list_data.push(data);
+            }
+
+
+            $rootScope.$broadcast('data_focussed:updated', list_data);
         };
 
 
@@ -222,11 +231,9 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'ValidationResultRest', 'Col
             var i = 0;
             for (i; i < results_data.data.length; i++) {
                 if (results_data.data[i].id == id) {
-                    return [results_data.data[i]];
+                    return results_data.data[i];
                 }
             }
-            return [];
-
         };
 
 
@@ -333,7 +340,17 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'ValidationResultRest', 'Col
                     callback: function(chart) {
                         chart.lines.dispatch.on('elementClick', function(e) {
                             // console.log('elementClick in callback', e);
-                            focus(e[0].point.id);
+
+                            //return the list of results for t time.
+                            var list_of_results_id = [];
+                            var i = 0;
+                            for (i; i < e.length; i++) {
+                                list_of_results_id.push(e[i].point.id);
+                            }
+
+                            focus(list_of_results_id);
+
+                            // focus(e[0].point.id);
                         });
                     }
                 },
