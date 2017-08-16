@@ -240,16 +240,12 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'ValidationResultRest', 'Col
 
 
 
-        var data_fromAPI = function() {
+        var data_fromAPI = function(tab_test_code_id, tab_model_instance_id) {
 
-
-            var tab_test_code_id = ["622f8ee151c940f3b502980831c7fc09"];
-            // var tab_model_instance_id = ["d1135abda9ad46909e6783d41dd42d00", "d1135abda9ad46909e6783d41dd42d01"];
-
-            var tab_model_instance_id = ["d1135abd-a9ad-4690-9e67-83d41dd42d01", "d1135abd-a9ad-4690-9e67-83d41dd42d00"];
+            var tab_test_code_id = tab_test_code_id;
+            var tab_model_instance_id = tab_model_instance_id;
 
             var data_to_return = _prepare_data_to_return(tab_test_code_id, tab_model_instance_id, "test");
-
 
             results_data = ValidationTestResultRest.get({
                 ctx: CollabParameters.getCtx(),

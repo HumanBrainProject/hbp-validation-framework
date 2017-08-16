@@ -82,7 +82,10 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
             $scope.test_comments = TestCommentRest.get({ ctx: CollabParameters.getCtx(), test_id: $stateParams.uuid });
 
             //code for the graphic and table focussed results
-            var graphic_data = Graphics.data_fromAPI();
+            var tab_test_code_id = ["622f8ee151c940f3b502980831c7fc09"];
+            var tab_model_instance_id = ["d1135abd-a9ad-4690-9e67-83d41dd42d01", "d1135abd-a9ad-4690-9e67-83d41dd42d00"];
+
+            var graphic_data = Graphics.data_fromAPI(tab_test_code_id, tab_model_instance_id);
             graphic_data.then(function() {
                 $scope.graphic_data = graphic_data.$$state.value;
 
