@@ -62,6 +62,7 @@ from .serializer import (ValidationTestDefinitionSerializer,
                             ScientificModelInstanceSerializer,
                             ScientificModelImageSerializer,
                             ValidationTestResultSerializer,
+                            # ValidationTestResultReadOnlySerializer,
                             ValidationTestCodeSerializer,
                             ValidationTestDefinitionWithCodesReadSerializer,
                             CommentSerializer,
@@ -752,6 +753,27 @@ class ValidationResultRest (APIView):
         return Response({
             'data': result_serializer.data,
         })
+
+class ValidationModelResultRest (APIView):
+    def get(self, request, format=None, **kwargs):
+        serializer_context = {'request': request,}
+        model_id  = request.query_params['model_id']
+        model_instances = ScientificModelInstance.objects.filter(model_id=model_id).values("id")
+
+
+        results_all= ValidationTestResult.objects.filter(model_instance_id__in = model_instances )
+        results_all_serializer =  ValidationTestResultSerializer(results_all,context=serializer_context, many=True)
+        versions_id = list(results_all.values("test_definition_id").distinct())
+
+        result_serialized=[]
+        for version in versions_id:
+            r = results_all.filter(test_definition_id = version['test_definition_id'])
+            r_serializer = ValidationTestResultSerializer(r, context = serializer_context, many=True)
+            result_serialized.append(r_serializer.data)   
+        return Response({
+            'data': result_serialized,
+            'test_versions':versions_id,
+        })     
 
 class ValidationTestResultRest (APIView):
     def get(self, request, format=None, **kwargs):

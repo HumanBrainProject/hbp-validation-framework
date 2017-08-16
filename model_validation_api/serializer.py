@@ -43,7 +43,6 @@ class ValidationTestResultSerializer (serializers.HyperlinkedModelSerializer):
         model = ValidationTestResult
         fields = ('id',  'results_storage', 'result', 'passed', 'timestamp', 'platform',   'project', 'model_instance_id', 'test_definition_id')
 
-
 class ScientificModelInstanceSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = ScientificModelInstance
@@ -86,7 +85,7 @@ class ValidationTestDefinitionSerializer(serializers.HyperlinkedModelSerializer)
                     'data_type', 'data_modality', 'test_type', 
                     'protocol', 'author', 'publication')
 
-
+ 
 class ValidationTestDefinitionWithCodesReadSerializer(serializers.HyperlinkedModelSerializer):
     # codes = serializers.PrimaryKeyRelatedField(many = True, read_only=True)
     codes = ValidationTestCodeSerializer(many=True , read_only=True)

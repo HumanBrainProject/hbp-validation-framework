@@ -279,6 +279,11 @@ class Command(BaseCommand):
 	##params
 	ctx = '417f67f1-5dec-4236-b0e4-aa8ccc50d06d'
 
+	##times
+ 	time1 = time
+	time2 = time + 11000
+	time3 = time2+ 11000
+
 	##tests
         uuid_test1 = uuid.uuid4()
         uuid_test2 = uuid.uuid4()
@@ -416,149 +421,10 @@ class Command(BaseCommand):
         result.results_storage ="azerty"
         result.result = 0.25
         result.passed = None
-        result.timestamp = datetime.datetime.fromtimestamp(time).strftime('%Y-%m-%d %H:%M:%S')
+        result.timestamp = datetime.datetime.fromtimestamp(time1).strftime('%Y-%m-%d %H:%M:%S')
         result.platform = "azerty"
         result.project = "azerty"
         result.save()
-
-        #create the model 2 
-        model2 = ScientificModel(id= uuid_model2)         
-        model2.name = "name2"
-        model2.description = "description2"
-        model2.species = "Mouse (Mus musculus)"
-        model2.brain_region = "Hippocampus"
-        model2.cell_type = "Interneuron"
-        model2.author = "me2"
-        model2.model_type = "Single Cell"
-        model2.private = "0"
-        model2.access_control_id = "0235296f-b73f-4374-9452-a89f4c20f05b"
-        model2.code_format = "py"
-        model2.collab_id = 0
-        model2.save()        
-
-        model_instance2 = ScientificModelInstance(id=uuid_model_instance2)
-        model_instance2.model = model2
-        model_instance2.version = "version 2 "
-        model_instance2.parameters = "param 2"
-        model_instance2.source = "http://dd2.com"
-        model_instance2.save()
-
-        time = original_time
-        
-
-        #create the results for test1-model2
-        result = ValidationTestResult(id=uuid_result2_1)
-        result.model_instance = model_instance2
-        result.test_definition = testcode1
-        result.results_storage ="azerty2"
-        result.result = 0.1
-        result.passed = None
-        result.timestamp = datetime.datetime.fromtimestamp(time).strftime('%Y-%m-%d %H:%M:%S')
-        result.platform = "azerty2"
-        result.project = "azerty2"
-        result.save()
-
-        result = ValidationTestResult(id=uuid_result2_2)
-        result.model_instance = model_instance2
-        result.test_definition = testcode1
-        result.results_storage ="azerty2"
-        result.result = 0.23
-        result.passed = None
-        time = time + 1000000000
-        result.timestamp = datetime.datetime.fromtimestamp(time).strftime('%Y-%m-%d %H:%M:%S')
-        result.platform = "azerty2"
-        result.project = "azerty2"
-        result.save()
-
-        result = ValidationTestResult(id=uuid_result2_3)
-        result.model_instance = model_instance2
-        result.test_definition = testcode1
-        result.results_storage ="azerty2"
-        result.result = 0.3666
-        result.passed = None
-        time = time + 1000000000
-        result.timestamp = datetime.datetime.fromtimestamp(time).strftime('%Y-%m-%d %H:%M:%S')
-        result.platform = "azerty2"
-        result.project = "azerty2"
-        result.save()
-
-        result = ValidationTestResult(id=uuid_result2_4)
-        result.model_instance = model_instance2
-        result.test_definition = testcode1
-        result.results_storage ="azerty2"
-        result.result = 0.45
-        result.passed = None
-        time = time + 1000000000
-        result.timestamp = datetime.datetime.fromtimestamp(time).strftime('%Y-%m-%d %H:%M:%S')
-        result.platform = "azerty2"
-        result.project = "azerty2"
-        result.save()
-
-        result = ValidationTestResult(id=uuid_result2_5)
-        result.model_instance = model_instance2
-        result.test_definition = testcode1
-        result.results_storage ="azerty2"
-        result.result = 0.55
-        result.passed = None
-        time += 11000000
-        result.timestamp = datetime.datetime.fromtimestamp(time).strftime('%Y-%m-%d %H:%M:%S')
-        result.platform = "azerty2"
-        result.project = "azerty2"
-        result.save()
-
-        result = ValidationTestResult(id=uuid_result2_6)
-        result.model_instance = model_instance2
-        result.test_definition = testcode1
-        result.results_storage ="azerty2"
-        result.result = 0.66
-        result.passed = None
-        time += 110000000
-        result.timestamp = datetime.datetime.fromtimestamp(time).strftime('%Y-%m-%d %H:%M:%S')
-        result.platform = "azerty2"
-        result.project = "azerty2"
-        result.save()
-
-        result = ValidationTestResult(id=uuid_result2_7)
-        result.model_instance = model_instance2
-        result.test_definition = testcode1
-        result.results_storage ="azerty2"
-        result.result = 0.76
-        result.passed = None
-        time += 110000000
-        result.timestamp = datetime.datetime.fromtimestamp(time).strftime('%Y-%m-%d %H:%M:%S')
-        result.platform = "azerty2"
-        result.project = "azerty2"
-        result.save()
-
-        result = ValidationTestResult(id=uuid_result2_8)
-        result.model_instance = model_instance2
-        result.test_definition = testcode1
-        result.results_storage ="azerty2"
-        result.result = 0.86
-        result.passed = None
-        time += 100000000
-        result.timestamp = datetime.datetime.fromtimestamp(time).strftime('%Y-%m-%d %H:%M:%S')
-        result.platform = "azerty2"
-        result.project = "azerty2"
-        result.save()
-
-
-
-
-    def _erase_all_models_test_results (self):
-        
-        tab_models = [
-            ValidationTestCode.objects.all(), 
-            ValidationTestResult.objects.all(),
-            ScientificModelInstance.objects.all(),
-            ScientificModel.objects.all(),
-            ValidationTestDefinition.objects.all(),
-        ]
-
-        for model in tab_models:
-            for element in model:
-                element.delete()
-
 
         result = ValidationTestResult(id=uuid_result2)
         result.model_instance = model_instance1
@@ -566,8 +432,7 @@ class Command(BaseCommand):
         result.results_storage ="azerty"
         result.result = 0.43
         result.passed = None
-        time2 = time + 1000000000
-        result.timestamp = datetime.datetime.fromtimestamp(time2).strftime('%Y-%m-%d %H:%M:%S')
+        result.timestamp = datetime.datetime.fromtimestamp(time1).strftime('%Y-%m-%d %H:%M:%S')
         result.platform = "azerty"
         result.project = "azerty"
         result.save()
@@ -579,7 +444,7 @@ class Command(BaseCommand):
         result.result = 0.795
         result.passed = None
         time3 = time2 + 1000000000
-        result.timestamp = datetime.datetime.fromtimestamp(time3).strftime('%Y-%m-%d %H:%M:%S')
+        result.timestamp = datetime.datetime.fromtimestamp(time1).strftime('%Y-%m-%d %H:%M:%S')
         result.platform = "azerty"
         result.project = "azerty"
         result.save()
@@ -590,7 +455,7 @@ class Command(BaseCommand):
         result.results_storage ="azerty"
         result.result = 0.8
         result.passed = None
-        result.timestamp = datetime.datetime.fromtimestamp(time).strftime('%Y-%m-%d %H:%M:%S')
+        result.timestamp = datetime.datetime.fromtimestamp(time2).strftime('%Y-%m-%d %H:%M:%S')
         result.platform = "azerty"
         result.project = "azerty"
         result.save()
@@ -613,7 +478,7 @@ class Command(BaseCommand):
         result.results_storage ="azerty"
         result.result = 0.795
         result.passed = None
-        result.timestamp = datetime.datetime.fromtimestamp(time3).strftime('%Y-%m-%d %H:%M:%S')
+        result.timestamp = datetime.datetime.fromtimestamp(time2).strftime('%Y-%m-%d %H:%M:%S')
         result.platform = "azerty"
         result.project = "azerty"
         result.save()
@@ -624,7 +489,7 @@ class Command(BaseCommand):
         result.results_storage ="azerty"
         result.result = 0.5
         result.passed = None
-        result.timestamp = datetime.datetime.fromtimestamp(time).strftime('%Y-%m-%d %H:%M:%S')
+        result.timestamp = datetime.datetime.fromtimestamp(time3).strftime('%Y-%m-%d %H:%M:%S')
         result.platform = "azerty"
         result.project = "azerty"
         result.save()
@@ -635,7 +500,7 @@ class Command(BaseCommand):
         result.results_storage ="azerty"
         result.result = 0.1
         result.passed = None
-        result.timestamp = datetime.datetime.fromtimestamp(time2).strftime('%Y-%m-%d %H:%M:%S')
+        result.timestamp = datetime.datetime.fromtimestamp(time3).strftime('%Y-%m-%d %H:%M:%S')
         result.platform = "azerty"
         result.project = "azerty"
         result.save()
@@ -660,7 +525,7 @@ class Command(BaseCommand):
         #self._create_model_type()
 
         # self._fake_collab()
-
+	#self._fake_models_test_results()
         self._fake_models_test_results_heli()
 
 

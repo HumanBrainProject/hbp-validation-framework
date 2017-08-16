@@ -89,11 +89,7 @@ testApp.controller('ValModelDetailCtrl', ['$scope', '$rootScope', '$http', '$loc
                 Graphics.current_result_focussed = [];
                 $scope.data = Graphics.getResultsfromModelID($scope.model);
                 $scope.options5 = Graphics.get_lines_options('Model/p-value', '', "p-value", "this is a caption");
-                console.log("data    fff", $scope.data);
-
-            });
-
-
+        });
         });
 
 

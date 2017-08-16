@@ -1,7 +1,7 @@
 // (function() {
 
-//window.base_url = 'https://127.0.0.1:8000/';
-window.base_url = 'https://validation-dev.brainsimulation.eu:443/';
+window.base_url = 'https://127.0.0.1:8000/';
+//window.base_url = 'https://validation-dev.brainsimulation.eu:443/';
 // window.base_url = 'https://138.197.190.105:443/';
 
 window.ver_api = '/api/v2/';
