@@ -1,0 +1,104 @@
+<html id="model-detail" ng-controller="ValModelDetailCtrl">
+
+<head>
+    <nav class="navbar ">
+        <br>
+
+        <div align=left> <a class="button-MC" ng-href="#/home" class="btn btn-primary">Home</a></div>
+        <h1 align=center> Model: {{ model.models[0].name}} (ID:{{ model.models[0].id }})</h1>
+        <h3 align=center> Authors: {{ model.models[0].author }}</h3>
+    </nav>
+</head>
+
+<body>
+    <div id=VF-model-detail>
+        <table class="table-create">
+            <tbody>
+                <tr>
+                    <td style="width: 15%"> <b> Model type: </b> {{ model.models[0].model_type }} &nbsp;</td>
+
+                    <td style="width: 15%"> <b> Species: </b> {{ model.models[0].species }} &nbsp;</td>
+
+                    <td style="width: 15%"> <b> Brain region: </b> {{ model.models[0].brain_region }} &nbsp;</td>
+
+                    <td style="width: 15%"> <b> Cell type: </b> {{ model.models[0].cell_type }} </td>
+                </tr>
+            </tbody>
+        </table>
+        <br>
+        <table class="table-create">
+            <tbody>
+                <tr>
+                    <b> Description: </b> <br><br>
+                    <!--<div markdown="model.models[0].description" truncateWords="model.models[0].description"></div>-->
+                    <div markdown="model.models[0].description" ng-text-truncate="model.models[0].description" ng-tt-words-threshold="50" ng-tt-no-toggling></div>
+                    <button type="button" ng-click="goToModelCatalog()"> More details</button>
+                    <br><br>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div id=VF-model-table-all-data>
+        <table class="table">
+            <thead>
+                <th>
+                    test id | model version 
+                </th>
+                <th ng-repeat="version in model.model_instances ">   
+                    {{version.version}}
+                </th>
+            </thead>
+            <tbody>
+                <tr ng-repeat="test in data">
+                    <td>test #{{test.key}} </td>
+                    <td ng-repeat="version in test.values">{{version.y}}       </td>
+                </tr>
+            </tbody>
+        </table>
+
+    </div>
+    <br>
+    <br>
+    <nvd3 options='options5' data='data' id='chart svg'></nvd3>
+
+
+    <br>
+    <br>
+
+    <table class="table" style="border-top: none;">
+
+        <td>
+
+            <table id="model_table" class="table">
+
+                <h3 align=center> Models </h3>
+
+                <thead>
+                    <th>Results storage</th>
+                    <th>Result</th>
+                    <th>Passed</th>
+                    <th>Time</th>
+                    <th>Platform</th>
+                    <th>Project</th>
+                </thead>
+
+                <tbody>
+
+                    <tr class=tr-clickable id="" ng-repeat="result in current_result_focussed" ng-click="goToDetailView(model)">
+                        <td>{{ result.results_storage }}</td>
+                        <td>{{ result.result }}</td>
+                        <td>{{ result.passed }}</td>
+                        <td>{{ result.timestamp }}</td>
+                        <td>{{ result.platform }}</td>
+                        <td>{{ result.project }}</td>
+
+                    </tr>
+                </tbody>
+            </table>
+        </td>
+
+    </table>
+</body>
+
+</html>

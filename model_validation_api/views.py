@@ -62,6 +62,7 @@ from .serializer import (ValidationTestDefinitionSerializer,
                             ScientificModelInstanceSerializer,
                             ScientificModelImageSerializer,
                             ValidationTestResultSerializer,
+                            # ValidationTestResultReadOnlySerializer,
                             ValidationTestCodeSerializer,
                             ValidationTestDefinitionWithCodesReadSerializer,
                             CommentSerializer,
@@ -159,8 +160,7 @@ def is_admin(request):
 # if not _is_collaborator(request, ctx):
 #             return HttpResponseForbidden()
 def _is_collaborator(request, context):
-    '''check access depending on context'''   
-
+    '''check access depending on context'''
     svc_url = settings.HBP_COLLAB_SERVICE_URL
     if not context:
         return False
@@ -169,6 +169,7 @@ def _is_collaborator(request, context):
     res = requests.get(url, headers=headers)
     if res.status_code != 200:
         return False
+
     collab_id = res.json()['collab']['id']
     url = '%scollab/%s/permissions/' % (svc_url, collab_id)
     res = requests.get(url, headers=headers)
@@ -187,9 +188,6 @@ def get_user(request):
         raise Exception(res.content)
     logger.debug("User information retrieved")
     return res.json()
-
-
-
 
 
 @method_decorator(login_required(login_url='/login/hbp'), name='dispatch' )
@@ -274,7 +272,6 @@ def _get_collab_id(request):
     url = '%scollab/context/%s/' % (svc_url, context)
     res = requests.get(url, headers=headers)
     collab_id = res.json()['collab']['id']
-    
     return collab_id
 
 
@@ -286,11 +283,37 @@ class CollabIDRest(APIView):
             collab_id = 0
         else :         
             collab_id = _get_collab_id(request)
+
         return Response({
             'collab_id': collab_id,
         })
 
+class AppIDRest(APIView): 
+    def get(self, request, format=None, **kwargs):
 
+        if self.request.user == "AnonymousUser" :
+            app_id = 0
+        else :         
+            app_id = _get_app_id(request)
+
+        return Response({
+            'app_id': app_id,
+        })
+
+def _get_app_id(request):
+    print(request.query_params['ctx'])
+    social_auth = request.user.social_auth.get()
+    headers = {
+        'Authorization': get_auth_header(request.user.social_auth.get())
+    }
+    #to get collab_id
+    svc_url = settings.HBP_COLLAB_SERVICE_URL    
+    context = request.query_params['ctx']
+    url = '%scollab/context/%s/' % (svc_url, context)
+    res = requests.get(url, headers=headers)
+    app_id = res.json()['id']
+    
+    return app_id
 
 class ParametersConfigurationRest( APIView): #LoginRequiredMixin, 
 
@@ -570,7 +593,7 @@ class ValidationTestCodeRest(APIView):
 
 class ValidationTestDefinitionRest(APIView):
     
-     def get(self, request, format=None, **kwargs):
+    def get(self, request, format=None, **kwargs):
 
         serializer_context = {'request': request,}
         nb_id = str(len(request.GET.getlist('id')))
@@ -589,7 +612,7 @@ class ValidationTestDefinitionRest(APIView):
         })
 
 
-     def post(self, request, format=None):
+    def post(self, request, format=None):
         ctx = request.query_params['ctx']
         if not _is_collaborator(request, ctx):
             return HttpResponseForbidden()
@@ -610,6 +633,22 @@ class ValidationTestDefinitionRest(APIView):
         
         return Response(status=status.HTTP_201_CREATED)
 
+    def put(self, request, format=None):
+        ctx = request.query_params['ctx']
+        if not _is_collaborator(request, ctx):
+            return HttpResponseForbidden()
+
+        value = request.data
+        test = ValidationTestDefinition.objects.get(id=value['id'])
+        serializer_context = {'request': request,}
+
+        # check if data is ok else return error
+        test_serializer = ValidationTestDefinitionSerializer(test, data=value, context=serializer_context)
+        if test_serializer.is_valid() :
+            test = test_serializer.save()
+        else: 
+            return Response(test_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response( status=status.HTTP_201_CREATED) 
 
 class TestCommentRest(APIView):
     def get(self, request, format=None, **kwargs):
@@ -700,8 +739,13 @@ class ValidationResultRest (APIView):
         test_definition_id = request.query_params['test_code_id']
         model_instance_id  = request.query_params['model_instance_id']
 
-        # ValidationTestCode.objects.filter(id = test_code_id)
-        # ScientificModelInstance.objects.filter(id = model_instance_id)
+        if(test_definition_id =='0'): ##not used for now
+            print ("in it")
+            validation_result =  ValidationTestResult.objects.filter(model_instance_id = model_instance_id )
+            result_serializer = ValidationTestResultSerializer(validation_result, context=serializer_context, many=True) 
+            return Response({
+                'data': result_serializer.data,
+                })
 
         validation_result =  ValidationTestResult.objects.filter(test_definition_id = test_definition_id, model_instance_id = model_instance_id )
         result_serializer = ValidationTestResultSerializer(validation_result, context=serializer_context, many=True)
@@ -709,6 +753,27 @@ class ValidationResultRest (APIView):
         return Response({
             'data': result_serializer.data,
         })
+
+class ValidationModelResultRest (APIView):
+    def get(self, request, format=None, **kwargs):
+        serializer_context = {'request': request,}
+        model_id  = request.query_params['model_id']
+        model_instances = ScientificModelInstance.objects.filter(model_id=model_id).values("id")
+
+
+        results_all= ValidationTestResult.objects.filter(model_instance_id__in = model_instances )
+        results_all_serializer =  ValidationTestResultSerializer(results_all,context=serializer_context, many=True)
+        versions_id = list(results_all.values("test_definition_id").distinct())
+
+        result_serialized=[]
+        for version in versions_id:
+            r = results_all.filter(test_definition_id = version['test_definition_id'])
+            r_serializer = ValidationTestResultSerializer(r, context = serializer_context, many=True)
+            result_serialized.append(r_serializer.data)   
+        return Response({
+            'data': result_serialized,
+            'test_versions':versions_id,
+        })     
 
 class ValidationTestResultRest (APIView):
     def get(self, request, format=None, **kwargs):

@@ -1,7 +1,7 @@
 // (function() {
 
-//window.base_url = 'https://127.0.0.1:8000/';
-window.base_url = 'https://validation-dev.brainsimulation.eu:443/';
+window.base_url = 'https://127.0.0.1:8000/';
+//window.base_url = 'https://validation-dev.brainsimulation.eu:443/';
 // window.base_url = 'https://138.197.190.105:443/';
 
 window.ver_api = '/api/v2/';
@@ -15,6 +15,7 @@ var testApp = angular.module('testApp', [
     'GraphicsServices',
     'ngCookies',
     'nvd3',
+    'ngTextTruncate',
 ]);
 
 testApp.config(
@@ -40,6 +41,11 @@ testApp.config(
                 url: '/home/validation_test/:uuid',
                 templateUrl: '/static/templates/validation_framework/validation_test_detail.tpl.html',
                 controller: 'ValTestDetailCtrl'
+            })
+            .state('validation_model_detail', {
+                url: '/home/validation_model_detail/:uuid',
+                templateUrl: '/static/js/validation_model_detail.tpl.html',
+                controller: 'ValModelDetailCtrl'
             })
             .state('test_result', {
                 url: '/home/test_result',

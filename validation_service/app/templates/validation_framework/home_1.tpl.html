@@ -1,114 +1,203 @@
-<html id="notebooks" ng-controller="HomeCtrl">
+<div ng-controller="HomeCtrl">
 
-<head></head>
-<!--<h1> Home validation </h1>-->
-
-<body>
-
-    <nav>
-        <table>
-            <tr>
-                <td>
-                    <label> Search :  <input id="search_model"  ng-model='search.$'> </label>
-                </td>
-
-                <td>
-                    <multiselect ng-model="selected_species" placeholder="Select species" options="collab_species"></multiselect>
-                </td>
-                <td>
-                    <multiselect ng-model="selected_brain_region" placeholder="Select brain region" options="collab_brain_region"></multiselect>
-                </td>
-                <td>
-                    <multiselect ng-model="selected_cell_type" placeholder="Select cell type" options="collab_cell_type"></multiselect>
-                </td>
-                <td>
-                    <multiselect ng-model="selected_model_type" placeholder="Select model type" options="collab_model_type"></multiselect>
-                </td>
-                <td>
-                    <multiselect ng-model="selected_data_modalities" placeholder="Select data modality" options="collab_data_modalities"></multiselect>
-                </td>
-                <td>
-                    <multiselect ng-model="selected_test_type" placeholder="Select test type" options="collab_test_type"></multiselect>
-                </td>
-            </tr>
-        </table>
+    <nav class="navbar">
         <br>
-
+        <div align=left> <a class="button-MC" ng-href="#/home" class="btn btn-primary">Home</a></div>
+        <h1 align=center> Valitation Framework </h1>
     </nav>
 
-    <table class="table" style="border-top: none;">
-        <td>
 
-            <table id="model_table" class="table">
+    <header>
+        <nav>
+            <table class="table-create">
+                <tr>
+                    <td>
+                        <label> Search :  <input id="search_model"  ng-model='search.$'> </label>
+                    </td>
 
-                <h3 align=center> Models </h3>
+                    <td>
+                        <multiselect ng-model="selected_species" placeholder="Select species" options="collab_species"></multiselect>
+                    </td>
+                    <td>
+                        <multiselect ng-model="selected_brain_region" placeholder="Select brain region" options="collab_brain_region"></multiselect>
+                    </td>
+                    <td>
+                        <multiselect ng-model="selected_cell_type" placeholder="Select cell type" options="collab_cell_type"></multiselect>
+                    </td>
+                    <td>
+                        <multiselect ng-model="selected_model_type" placeholder="Select model type" options="collab_model_type"></multiselect>
+                    </td>
+                    <td>
+                        <multiselect ng-model="selected_data_modalities" placeholder="Select data modality" options="collab_data_modalities"></multiselect>
+                    </td>
+                    <td>
+                        <multiselect ng-model="selected_test_type" placeholder="Select test type" options="collab_test_type"></multiselect>
+                    </td>
+                </tr>
+            </table>
+            <br>
+            <div align=right> <a class="button-MC" ng-href="#/home/validation_test" class="btn btn-primary">Go to Test catalog</a></div>
+            <br>
+            <br>
+        </nav>
+    </header>
 
+    <div id="conteneur">
+
+        <div class="element-left">
+
+            <table class="table-create table" id=test-table>
                 <thead>
-                    <th>Name</th>
-                    <th>Species</th>
-                    <th>Brain region</th>
-                    <th>Cell type</th>
-                    <th>Author(s)</th>
+                    <h3 align=center> Models</h3>
+                    <th>name</th>
+                    <th>id</th>
+                    <th>author</th>
                 </thead>
+                <br>
+                <tr class=tr-clickable id="test1" ng-repeat="model in models.models | filter: search | filterMultiple:{species:selected_species, brain_region:selected_brain_region, cell_type:selected_cell_type, model_type:selected_model_type}" ng-click="goToModelDetailView(model)">
+                    <td> {{model.name}} </td>
+                    <td>{{model.id}}</td>
+                    <td>{{model.author}}</td>
+                    <br>
+                </tr>
+            </table>
+        </div>
+        <div class="element-middle"></div>
+        <div class="element-right">
+            <table class="table-create table" id=test-table>
+                <thead>
+                    <h3 align=center> Tests</h3>
+                    <th>name</th>
+                    <th>id</th>
+                    <th>author</th>
+                </thead>
+                <br>
+                <tr class="tr-clickable" ng-repeat="test in tests.tests | filter:search | filterMultiple:{species:selected_species, brain_region:selected_brain_region, cell_type:selected_cell_type, model_type:selected_model_type}" ng-click="goToTestDetailView(test)">
+                    <td> {{test.name}} </td>
+                    <td> {{test.id}}</td>
+                    <td>{{test.author}}</td>
+                    <br>
+                </tr>
+            </table>
+        </div>
 
-                <tbody>
+    </div>
+    <!--<article>
+        <table class="table-create" id=test-table>
+            <thead> Model</thead>
+            <tr class=tr-clickable id="test1" ng-repeat="model in models.models | filter: search | filterMultiple:{species:selected_species, brain_region:selected_brain_region, cell_type:selected_cell_type, model_type:selected_model_type}" ng-click="goToDetailView(model)">
+                <td><b> {{model.name}} </b> (id: {{model.id}}) <br> by {{model.author}}</td>
+            </tr>
+        </table>
+    </article>
+    <aside>
+        <table class="table-create" id=test-table>
+            <thead> Test</thead>
+            <tr class="tr-clickable" ng-repeat="test in tests.tests | filter:search | filterMultiple:{species:selected_species, brain_region:selected_brain_region, cell_type:selected_cell_type, model_type:selected_model_type}" ng-click="goToTestDetailView(test)">
+                <td> {{test.name}} </td>
+                <td>(id: {{test.id}})</td>
+                <td>by {{test.author}}</td>
+            </tr>
+        </table>
+    </aside>-->
+    <!--<table class="table" id=test-table>
+        <thead>
+            <th> Models </th>
+            <th> Tests </th>
+        </thead>
+        <tbody>
+            <td item-width="50%" id="model_table">
+                <table class="table-create table-striped" id=test-table>
                     <tr class=tr-clickable id="test1" ng-repeat="model in models.models | filter: search | filterMultiple:{species:selected_species, brain_region:selected_brain_region, cell_type:selected_cell_type, model_type:selected_model_type}" ng-click="goToDetailView(model)">
-                        <td>{{ model.name }}</td>
-                        <td>{{ model.species }}</td>
-                        <td>{{ model.brain_region }}</td>
-                        <td>{{ model.cell_type }}</td>
-
-                        <td></td>
-                        <td>{{ model.author }}</td>
+                        <td><b> {{model.name}} </b> (id: {{model.id}}) <br> by {{model.author}}</td>
                     </tr>
-                </tbody>
-            </table>
-        </td>
-
-        <td>
-            <table id="test_table" class="table">
-
-                <h3 align=center> Tests </h3>
-
-                <thead>
-                    <th>Name</th>
-                    <th>Species</th>
-                    <th>Age</th>
-                    <th>Brain region</th>
-                    <th>Cell type</th>
-                    <th>Data location</th>
-                    <th>Data type</th>
-                    <th>Data modality</th>
-                    <th>Test type</th>
-                    <th>Code location</th>
-                    <th>Author</th>
-                    <th>Publication</th>
-                </thead>
-
-                <tbody>
-
+                </table>
+            </td>
+            <td item-width="50%">
+                <table class="table-create" id=test-table>
                     <tr class="tr-clickable" ng-repeat="test in tests.tests | filter:search | filterMultiple:{species:selected_species, brain_region:selected_brain_region, cell_type:selected_cell_type, model_type:selected_model_type}" ng-click="goToTestDetailView(test)">
-                        <td>{{ test.name }}</td>
-                        <td>{{ test.species }}</td>
-                        <td>{{ test.age }}</td>
-                        <td>{{ test.brain_region }}</td>
-
-                        <td>{{ test.cell_type }}</td>
-                        <td>{{ test.data_location }}</td>
-
-                        <td>{{ test.data_type }}</td>
-                        <td>{{ test.data_modality }}</td>
-                        <td>{{ test.test_type }}</td>
-                        <td>{{ test.get_latest_code.repository}}</td>
-                        <td>{{ test.author }}</td>
-                        <td>{{ test.publication }}</td>
+                        <td> {{test.name}} </td>
+                        <td>(id: {{test.id}})</td>
+                        <td>by {{test.author}}</td>
                     </tr>
+                </table>
+            </td>
+        </tbody>
+    </table>-->
 
-                </tbody>
-            </table>
-        </td>
-    </table>
+    <!--<table class="table">
+            <td>
 
-</body>
+                <table id="model_table" class="table">
 
-</html>
+                    <h3 align=center> Models </h3>
+
+                    <thead>
+                        <th>Name</th>
+                        <th>Species</th>
+                        <th>Brain region</th>
+                        <th>Cell type</th>
+                        <th>Author(s)</th>
+                    </thead>
+
+                    <tbody>
+                        <tr class=tr-clickable id="test1" ng-repeat="model in models.models | filter: search | filterMultiple:{species:selected_species, brain_region:selected_brain_region, cell_type:selected_cell_type, model_type:selected_model_type}" ng-click="goToDetailView(model)">
+                            <td>{{ model.name }}</td>
+                            <td>{{ model.species }}</td>
+                            <td>{{ model.brain_region }}</td>
+                            <td>{{ model.cell_type }}</td>
+
+                            <td></td>
+                            <td>{{ model.author }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </td>
+
+            <td>
+                <table id="test_table" class="table">
+
+                    <h3 align=center> Tests </h3>
+
+                    <thead>
+                        <th>Name</th>
+                        <th>Species</th>
+                        <th>Age</th>
+                        <th>Brain region</th>
+                        <th>Cell type</th>
+                        <th>Data location</th>
+                        <th>Data type</th>
+                        <th>Data modality</th>
+                        <th>Test type</th>
+                        <th>Code location</th>
+                        <th>Author</th>
+                        <th>Publication</th>
+                    </thead>
+
+                    <tbody>
+
+                        <tr class="tr-clickable" ng-repeat="test in tests.tests | filter:search | filterMultiple:{species:selected_species, brain_region:selected_brain_region, cell_type:selected_cell_type, model_type:selected_model_type}" ng-click="goToTestDetailView(test)">
+                            <td>{{ test.name }}</td>
+                            <td>{{ test.species }}</td>
+                            <td>{{ test.age }}</td>
+                            <td>{{ test.brain_region }}</td>
+
+                            <td>{{ test.cell_type }}</td>
+                            <td>{{ test.data_location }}</td>
+
+                            <td>{{ test.data_type }}</td>
+                            <td>{{ test.data_modality }}</td>
+                            <td>{{ test.test_type }}</td>
+                            <td>{{ test.get_latest_code.repository}}</td>
+                            <td>{{ test.author }}</td>
+                            <td>{{ test.publication }}</td>
+                        </tr>
+
+                    </tbody>
+                </table>
+            </td>
+        </table>-->
+
+    </body>
+
+</div>

@@ -76,7 +76,7 @@ class Command(BaseCommand):
 
         collab1.save()
 
-    def _fake_models_test_results(self):
+   def _fake_models_test_results(self):
         
         import uuid
         import time
@@ -404,20 +404,267 @@ class Command(BaseCommand):
             for element in model:
                 element.delete()
 
+    def _fake_models_test_results_heli(self):
+        
+        import uuid
+        import time
+        time = time.time()
+	
 
+        import datetime
+
+	##params
+	ctx = '417f67f1-5dec-4236-b0e4-aa8ccc50d06d'
+
+	##times
+ 	time1 = time
+	time2 = time + 11000
+	time3 = time2+ 11000
+
+	##tests
+        uuid_test1 = uuid.uuid4()
+        uuid_test2 = uuid.uuid4()
+	uuid_test3 = uuid.uuid4()
+	
+	uuid_testcode1 = uuid.uuid4()
+        uuid_testcode2 = uuid.uuid4()
+	uuid_testcode3 = uuid.uuid4()
+
+   	#model
+        uuid_model1 = uuid.uuid4()
+    
+        uuid_model_instance1 = uuid.uuid4()
+	uuid_model_instance2 = uuid.uuid4()
+	uuid_model_instance3 = uuid.uuid4()
+
+        uuid_result1 = uuid.uuid4()
+        uuid_result2 = uuid.uuid4()
+        uuid_result3 = uuid.uuid4()
+        uuid_result4 = uuid.uuid4()
+	uuid_result5 = uuid.uuid4()
+	uuid_result6 = uuid.uuid4()
+	uuid_result7 = uuid.uuid4()
+	uuid_result8 = uuid.uuid4()
+	uuid_result9 = uuid.uuid4()
+           
+        test1 = ValidationTestDefinition(id= uuid_test1)
+        test1.name = "name 1"
+        test1.species = "Mouse (Mus musculus)"
+        test1.brain_region = "Hippocampus"
+        test1.cell_type = "Interneuron"
+        test1.age = "12"
+        test1.data_location = "http://bbbb.com"
+        test1.data_type = "data type"
+        test1.data_modality = "electrophysiology"
+        test1.test_type = "single cell activity"
+        test1.protocol ="protocol"
+        test1.author = "me"
+        test1.publication = "not published"
+        test1.save()
+
+	test2 = ValidationTestDefinition(id= uuid_test2)
+        test2.name = "name 2"
+        test2.species = "Mouse (Mus musculus)"
+        test2.brain_region = "Hippocampus"
+        test2.cell_type = "Interneuron"
+        test2.age = "12"
+        test2.data_location = "http://bbbb.com"
+        test2.data_type = "data type"
+        test2.data_modality = "electrophysiology"
+        test2.test_type = "single cell activity"
+        test2.protocol ="protocol"
+        test2.author = "me"
+        test2.publication = "not published"
+        test2.save()
+
+	test3 = ValidationTestDefinition(id= uuid_test3)
+        test3.name = "name 3"
+        test3.species = "Mouse (Mus musculus)"
+        test3.brain_region = "Hippocampus"
+        test3.cell_type = "Interneuron"
+        test3.age = "12"
+        test3.data_location = "http://bbbb.com"
+        test3.data_type = "data type"
+        test3.data_modality = "electrophysiology"
+        test3.test_type = "single cell activity"
+        test3.protocol ="protocol"
+        test3.author = "me"
+        test3.publication = "not published"
+        test3.save()
+        
+
+        testcode1 = ValidationTestCode(id = uuid_testcode1)
+        testcode1.repository = ""
+        testcode1.version = "1.1"
+        testcode1.path = ""
+        testcode1.timestamp = "2017-01-24T14:59:26.031Z"
+        testcode1.test_definition = test1
+        testcode1.save()
+
+	testcode2 = ValidationTestCode(id = uuid_testcode2)
+        testcode2.repository = ""
+        testcode2.version = "1.1"
+        testcode2.path = ""
+        testcode2.timestamp = "2017-01-24T14:59:26.031Z"
+        testcode2.test_definition = test2
+        testcode2.save()
+
+	testcode3 = ValidationTestCode(id = uuid_testcode3)
+        testcode3.repository = ""
+        testcode3.version = "1.1"
+        testcode3.path = ""
+        testcode3.timestamp = "2017-01-24T14:59:26.031Z"
+        testcode3.test_definition = test3
+        testcode3.save()
+
+
+        model1 = ScientificModel(id= uuid_model1)         
+        model1.name = "model for result test"
+        model1.description = "description"
+        model1.species = "Mouse (Mus musculus)"
+        model1.brain_region = "Hippocampus"
+        model1.cell_type = "Interneuron"
+        model1.author = "me"
+        model1.model_type = "Single Cell"
+        model1.private = "0"
+        model1.access_control_id = ctx
+        model1.code_format = "py"
+        model1.save()        
+
+        model_instance1 = ScientificModelInstance(id=uuid_model_instance1)
+        model_instance1.model = model1
+        model_instance1.version = "version 1"
+        model_instance1.parameters = "param"
+        model_instance1.source = "http://dd.com"
+        model_instance1.save()
+
+	model_instance2 = ScientificModelInstance(id=uuid_model_instance2)
+        model_instance2.model = model1
+        model_instance2.version = "version 2"
+        model_instance2.parameters = "param"
+        model_instance2.source = "http://dd.com"
+        model_instance2.save()
+	
+	model_instance3 = ScientificModelInstance(id=uuid_model_instance3)
+        model_instance3.model = model1
+        model_instance3.version = "version 3"
+        model_instance3.parameters = "param"
+        model_instance3.source = "http://dd.com"
+        model_instance3.save()
+
+        result = ValidationTestResult(id=uuid_result1)
+        result.model_instance = model_instance1
+        result.test_definition = testcode1
+        result.results_storage ="azerty"
+        result.result = 0.25
+        result.passed = None
+        result.timestamp = datetime.datetime.fromtimestamp(time1).strftime('%Y-%m-%d %H:%M:%S')
+        result.platform = "azerty"
+        result.project = "azerty"
+        result.save()
+
+        result = ValidationTestResult(id=uuid_result2)
+        result.model_instance = model_instance1
+        result.test_definition = testcode2
+        result.results_storage ="azerty"
+        result.result = 0.43
+        result.passed = None
+        result.timestamp = datetime.datetime.fromtimestamp(time1).strftime('%Y-%m-%d %H:%M:%S')
+        result.platform = "azerty"
+        result.project = "azerty"
+        result.save()
+
+	result = ValidationTestResult(id=uuid_result3)
+        result.model_instance = model_instance1
+        result.test_definition = testcode3
+        result.results_storage ="azerty"
+        result.result = 0.795
+        result.passed = None
+        time3 = time2 + 1000000000
+        result.timestamp = datetime.datetime.fromtimestamp(time1).strftime('%Y-%m-%d %H:%M:%S')
+        result.platform = "azerty"
+        result.project = "azerty"
+        result.save()
+
+        result = ValidationTestResult(id=uuid_result4)
+        result.model_instance = model_instance2
+        result.test_definition = testcode1
+        result.results_storage ="azerty"
+        result.result = 0.8
+        result.passed = None
+        result.timestamp = datetime.datetime.fromtimestamp(time2).strftime('%Y-%m-%d %H:%M:%S')
+        result.platform = "azerty"
+        result.project = "azerty"
+        result.save()
+
+
+        result = ValidationTestResult(id=uuid_result5)
+        result.model_instance = model_instance2
+        result.test_definition = testcode2
+        result.results_storage ="azerty"
+        result.result = 0.888
+        result.passed = None
+        result.timestamp = datetime.datetime.fromtimestamp(time2).strftime('%Y-%m-%d %H:%M:%S')
+        result.platform = "azerty"
+        result.project = "azerty"
+        result.save()
+
+	result = ValidationTestResult(id=uuid_result6)
+        result.model_instance = model_instance2
+        result.test_definition = testcode3
+        result.results_storage ="azerty"
+        result.result = 0.795
+        result.passed = None
+        result.timestamp = datetime.datetime.fromtimestamp(time2).strftime('%Y-%m-%d %H:%M:%S')
+        result.platform = "azerty"
+        result.project = "azerty"
+        result.save()
+
+	result = ValidationTestResult(id=uuid_result7)
+        result.model_instance = model_instance3
+        result.test_definition = testcode1
+        result.results_storage ="azerty"
+        result.result = 0.5
+        result.passed = None
+        result.timestamp = datetime.datetime.fromtimestamp(time3).strftime('%Y-%m-%d %H:%M:%S')
+        result.platform = "azerty"
+        result.project = "azerty"
+        result.save()
+
+	result = ValidationTestResult(id=uuid_result8)
+        result.model_instance = model_instance3
+        result.test_definition = testcode2
+        result.results_storage ="azerty"
+        result.result = 0.1
+        result.passed = None
+        result.timestamp = datetime.datetime.fromtimestamp(time3).strftime('%Y-%m-%d %H:%M:%S')
+        result.platform = "azerty"
+        result.project = "azerty"
+        result.save()
+
+	result = ValidationTestResult(id=uuid_result9)
+        result.model_instance = model_instance3
+        result.test_definition = testcode3
+        result.results_storage ="azerty"
+        result.result = 0.796
+        result.passed = None
+        result.timestamp = datetime.datetime.fromtimestamp(time3).strftime('%Y-%m-%d %H:%M:%S')
+        result.platform = "azerty"
+        result.project = "azerty"
+        result.save()
 
     def handle(self, *args, **options):
-        # self._create_data_modalities()
-        # self._create_test_types()
-        # self._create_species()
-        # self._create_brain_region()
-        # self._create_cell_type()
-        # self._create_model_type()
+        #self._create_data_modalities()
+        #self._create_test_types()
+        #self._create_species()
+        #self._create_brain_region()
+        #self._create_cell_type()
+        #self._create_model_type()
 
         # self._fake_collab()
+	#self._fake_models_test_results()
+        #self._fake_models_test_results_heli()
 
-        # self._erase_all_models_test_results()
-        # self._fake_models_test_results()
 
 
 

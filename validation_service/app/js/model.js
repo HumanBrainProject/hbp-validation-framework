@@ -37,7 +37,7 @@ ApiCommunicationServices.factory('ValidationTestDefinitionRest', ['$resource',
     function($resource) {
         return $resource('validationtestdef/:uuid', { id: '@eUuid' }, {
             get: { method: 'GET', params: { format: 'json', ctx: 'ctx' }, isArray: false },
-            //   put: {method:'PUT', params:{format:'json', ctx: 'ctx' }, headers:{ 'Content-Type':'application/json' }},
+            put: { method: 'PUT', params: { format: 'json', ctx: 'ctx' }, headers: { 'Content-Type': 'application/json' } },
             post: { method: 'POST', params: { format: 'json', ctx: 'ctx' }, headers: { 'Content-Type': 'application/json' } }
         });
     }
@@ -119,9 +119,26 @@ ApiCommunicationServices.factory('ValidationResultRest', ['$resource',
     }
 ]);
 
+ApiCommunicationServices.factory('ValidationModelResultRest', ['$resource',
+    function($resource) {
+        return $resource('validationmodelresultrest/', {}, {
+            get: { method: 'GET', params: { format: 'json', ctx: 'ctx'}, isArray: false },
+        });
+    }
+]);
+
 ApiCommunicationServices.factory('CollabIDRest', ['$resource',
     function($resource) {
         return $resource('collabidrest/', {}, {
+
+            get: { method: 'GET', params: { format: 'json', ctx: 'ctx' }, isArray: false },
+        });
+    }
+]);
+
+ApiCommunicationServices.factory('AppIDRest', ['$resource',
+    function($resource) {
+        return $resource('appidrest/', {}, {
 
             get: { method: 'GET', params: { format: 'json', ctx: 'ctx' }, isArray: false },
         });
