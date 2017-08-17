@@ -52,7 +52,7 @@
                 </th>
             </thead>
             <tbody>
-                <tr  ng-repeat="test in data" >
+                <tr ng-repeat="test in data">
                     <td class=tr-clickable ng-click=goToDetailTest(test.infosup[0].test_definition.test_definition_id)>test #{{test.key}} </td>
                     <td class=tr-clickable ng-click=goToDetailTestResult(version.id_test_result) ng-repeat="version in test.values">{{version.y}} </td>
                 </tr>
