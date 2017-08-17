@@ -62,3 +62,19 @@
     text-overflow: ellipsis;
     /*padding: 1%;*/
 }
+
+.linkbutton {
+    background: none!important;
+    border: none;
+    padding: 0!important;
+    font: inherit;
+    /*border is optional*/
+    color: #42a1f4;
+    cursor: pointer;
+}
+
+.linkbutton:hover {
+    color: #42a1f4;
+    cursor: pointer;
+    border-bottom: 1px solid #42a1f4;
+}

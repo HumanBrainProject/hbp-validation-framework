@@ -235,28 +235,23 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
                     document.getElementById(id_tab).style.visibility = "visible";
                 } else {
                     document.getElementById(id_tab).style.display = "block";
-                }
-
-
-
-
+                };
 
                 _active_tab(id_tab);
-
-                var _active_tab = function(id_tab) {
-                    var a = document.getElementById("li_tab_description");
-                    var b = document.getElementById("li_tab_version");
-                    var c = document.getElementById("li_tab_results");
-                    var d = document.getElementById("li_tab_comments");
-                    a.className = b.className = c.className = d.className = "nav-link";
-                    if (id_tab != "tab_new_version" || id_tab != "tab_edit_test") {
-                        var e = document.getElementById("li_" + id_tab);
-                        e.className += " active";
-
-                    };
-                };
             };
 
+            var _active_tab = function(id_tab) {
+                var a = document.getElementById("li_tab_description");
+                var b = document.getElementById("li_tab_version");
+                var c = document.getElementById("li_tab_results");
+                var d = document.getElementById("li_tab_comments");
+                a.className = b.className = c.className = d.className = "nav-link";
+                if (id_tab != "tab_new_version" || id_tab != "tab_edit_test") {
+                    var e = document.getElementById("li_" + id_tab);
+                    e.className += " active";
+
+                };
+            };
             $scope.saveVersion = function() {
                 _add_params();
                 var parameters = JSON.stringify($scope.test_code);
@@ -296,8 +291,8 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
     }
 ]);
 
-testApp.controller('ValTestResultDetailCtrl', ['$scope', '$rootScope', '$http', '$location', '$stateParams', 'IsCollabMemberRest', 'AppIDRest', 'ValidationResultRest', 'CollabParameters',
-    function($scope, $rootScope, $http, $location, $stateParams, IsCollabMemberRest, AppIDRest, ValidationResultRest, CollabParameters) {
+testApp.controller('ValTestResultDetailCtrl', ['$scope', '$rootScope', '$http', '$location', '$stateParams', 'IsCollabMemberRest', 'AppIDRest', 'ValidationResultRest', 'CollabParameters', 'ScientificModelRest', 'ValidationTestDefinitionRest',
+    function($scope, $rootScope, $http, $location, $stateParams, IsCollabMemberRest, AppIDRest, ValidationResultRest, CollabParameters, ScientificModelRest, ValidationTestDefinitionRest) {
 
         CollabParameters.setService().$promise.then(function() {
             var ctx = CollabParameters.getCtx();
@@ -306,11 +301,31 @@ testApp.controller('ValTestResultDetailCtrl', ['$scope', '$rootScope', '$http', 
             $scope.is_collab_member.$promise.then(function() {
                 $scope.is_collab_member = $scope.is_collab_member.is_member;
             });
-
             $scope.test_result = ValidationResultRest.get({ ctx: ctx, id: $stateParams.uuid });
 
-        });
+            $scope.test_result.$promise.then(function() {
+                $scope.model = ScientificModelRest.get({ ctx: ctx, id: $scope.test_result.data.model_instance.model_id });
+                $scope.test = ValidationTestDefinitionRest.get({ ctx: ctx, id: $scope.test_result.data.test_definition.test_definition_id });
+            });
 
+        });
+        $scope.goToDetailTest = function(test_id) {
+            console.log("test id", test_id)
+            $location.path('/home/validation_test/' + test_id);
+        };
+        $scope.goToModelCatalog = function() {
+
+            var collab_id = $scope.model.models[0].access_control.collab_id;
+            var app_id = AppIDRest.get({ ctx: $scope.model.models[0].access_control.id });
+            app_id.$promise.then(function() {
+                app_id = app_id.app_id;
+                var url = "https://collab.humanbrainproject.eu/#/collab/" + collab_id + "/nav/" + app_id; //to go to collab api
+                //var url = 'https://localhost:8000/?ctx=' + $scope.model.models[0].access_control.id + '#/model-catalog/detail/' + $scope.model.models[0].id; //to go outside collab but directly to model detail
+
+                var win = window.open(url, 'modelCatalog');
+
+            });
+        }
     }
 ]);
 
