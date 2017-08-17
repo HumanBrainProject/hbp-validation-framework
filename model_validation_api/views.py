@@ -454,7 +454,8 @@ class ScientificModelRest(APIView):
 
             all_ctx_from_collab = CollabParameters.objects.filter(collab_id = collab).distinct()
             rq1 = ScientificModel.objects.filter(
-                private=1,access_control__in=all_ctx_from_collab.values("id"), 
+                private=1,
+                access_control__in=all_ctx_from_collab.values("id"), 
                 species__in=collab_params.species.split(","), 
                 brain_region__in=collab_params.brain_region.split(","), 
                 cell_type__in=collab_params.cell_type.split(","), 
@@ -463,7 +464,8 @@ class ScientificModelRest(APIView):
             # print(rq1)
             
             rq2 = ScientificModel.objects.filter (
-                private=0, species__in=collab_params.species.split(","), 
+                private=0, 
+                species__in=collab_params.species.split(","), 
                 brain_region__in=collab_params.brain_region.split(","), 
                 cell_type__in=collab_params.cell_type.split(","), 
                 model_type__in=collab_params.model_type.split(",")).prefetch_related()
@@ -781,26 +783,25 @@ class ValidationTestResultRest (APIView):
         serializer_context = {'request': request,}
 
         test_definition_id = request.query_params['test_code_id']
-        tab_model_instance_id  = request.GET.getlist('tab_model_instance_id')
 
- 
-        validation_result = []
+        print test_definition_id
 
-        for model_instance_id in tab_model_instance_id:
-            aditional_validation_result =  ValidationTestResult.objects.filter(test_definition_id = test_definition_id, model_instance_id = model_instance_id )
-            
-            if len(aditional_validation_result) > 0 :
-                if len(validation_result) > 0:
-                    validation_result = (validation_result | aditional_validation_result)
-                else : 
-                    validation_result = aditional_validation_result
+        results_all = ValidationTestResult.objects.filter(test_definition_id = test_definition_id)
 
-        result_serializer = ValidationTestResultSerializer(validation_result, context=serializer_context, many=True)
+        print result_all
+        
+        model_instance_id = list(results_all.values("model_instance_id").distinct())
 
+        result_serialized = []
 
+        for model_instance in model_instance_id:
+            r = results_all.filter(model_instance_id = model_instance['model_instance_id'])
+            r_serializer = ValidationTestResultSerializer(r, context = serializer_context, many=True)
+            result_serialized.append(r_serializer.data)   
         
         return Response({
-            'data': result_serializer.data,
+            'data': result_serialized,
+            'model_instance':model_instance_id,
         })
 
 

@@ -208,13 +208,11 @@ ParametersConfigurationServices.service('CollabParameters', ['$rootScope', 'Coll
 
 var GraphicsServices = angular.module('GraphicsServices', ['ngResource', 'btorfs.multiselect', 'ApiCommunicationServices', 'ParametersConfigurationServices']);
 
-GraphicsServices.factory('Graphics', ['$rootScope', 'ValidationResultRest', 'CollabParameters', 'ValidationTestResultRest','ValidationModelResultRest',
+GraphicsServices.factory('Graphics', ['$rootScope', 'ValidationResultRest', 'CollabParameters', 'ValidationTestResultRest', 'ValidationModelResultRest',
     function($rootScope, ValidationResultRest, CollabParameters, ValidationTestResultRest, ValidationModelResultRest) {
 
-        // var linechart_id_result_clicked;
-        // var current_result_focussed;
-        // var results_data;
-       
+        var results_data = undefined;
+
 
         var focus = function(list_id) {
             var list_data = [];
@@ -241,7 +239,25 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'ValidationResultRest', 'Col
         };
 
 
+        var getResultsfromTestID = function(test) {
 
+            var values = [];
+            var j = 0;
+            result_data = ValidationTestResultRest.get({
+                ctx: CollabParameters.getCtx(),
+                test_code_id: test.tests[0].id,
+            });
+
+            console.log(test);
+            console.log(result_data);
+
+            result_data.$promise.then(function() {
+                for (j; j < result_data.model_instance.length; j++) {
+                    values[j] = _manageDataForGraph(result_data.data[j], result_data.model_instance[j].model_instance_id)
+                };
+            });
+            return values;
+        };
 
 
         var data_fromAPI = function(tab_test_code_id, tab_model_instance_id) {
@@ -310,40 +326,40 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'ValidationResultRest', 'Col
         //     return values;
         // };
 
-         var getResultsfromModelID = function(model) {
+        var getResultsfromModelID = function(model) {
             var values = [];
             var j = 0;
             var result_data = ValidationModelResultRest.get({
                 ctx: CollabParameters.getCtx(),
                 model_id: model.models[0].id,
             });
-            result_data.$promise.then(function(){
-                 for (j; j < model.model_instances.length; j++) {
-                    values[j] = _manageDataByTest(result_data.data[j], result_data.test_versions[j])
-            };
+            result_data.$promise.then(function() {
+                for (j; j < model.model_instances.length; j++) {
+                    values[j] = _manageDataForGraph(result_data.data[j], result_data.test_versions[j].test_definition_id)
+                };
 
             });
-           
+
             return values;
         };
 
-        var _manageDataByTest = function(data, version) {
+        var _manageDataForGraph = function(data, line_id) {
             // var multiple_result_data = [];
             var values_temp = [];
             var ij = 0;
-           
-                for (ij; ij<data.length; ij++) {
-                    var temp = {
-                        x: new Date(data[ij].timestamp),
-                        y: data[ij].result,
-                        id: version.test_definition_id,
-                    };
-                    values_temp.push(temp);
+
+            for (ij; ij < data.length; ij++) {
+                var temp = {
+                    x: new Date(data[ij].timestamp),
+                    y: data[ij].result,
+                    id: line_id,
                 };
-                // multiple_result_data.push(data);
+                values_temp.push(temp);
+            };
+            // multiple_result_data.push(data);
             var data_to_return = {
                 values: values_temp, //values - represents the array of {x,y} data points
-                key: version.test_definition_id, //key  - the name of the series.
+                key: line_id, //key  - the name of the series.
                 color: _pickRandomColor(), //color - optional: choose your own line color.
             };
             return data_to_return;
@@ -378,7 +394,7 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'ValidationResultRest', 'Col
         var _pickRandomColor = function() {
             var letters = '0123456789ABCDEF';
             var color = '#';
-            var i=0;
+            var i = 0;
             for (i; i < 6; i++) {
                 color += letters[Math.floor(Math.random() * 16)];
             }
@@ -475,6 +491,7 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'ValidationResultRest', 'Col
             find_result_in_data: find_result_in_data,
             focus: focus,
             getResultsfromModelID: getResultsfromModelID,
+            getResultsfromTestID: getResultsfromTestID,
         };
 
     }

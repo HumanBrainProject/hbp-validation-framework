@@ -157,27 +157,27 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
             $scope.data_modalities = CollabParameters.getParameters("data_modalities");
 
 
-            $scope.detail_test = ValidationTestDefinitionRest.get({ ctx: CollabParameters.getCtx(), id: $stateParams.uuid });
             $scope.detail_version_test = ValidationTestCodeRest.get({ ctx: CollabParameters.getCtx(), test_definition_id: $stateParams.uuid });
             $scope.test_comments = TestCommentRest.get({ ctx: CollabParameters.getCtx(), test_id: $stateParams.uuid });
-
-            //code for the graphic and table focussed results
-            var tab_test_code_id = ["622f8ee151c940f3b502980831c7fc09"];
-            var tab_model_instance_id = ["d1135abd-a9ad-4690-9e67-83d41dd42d01", "d1135abd-a9ad-4690-9e67-83d41dd42d00"];
+            $scope.detail_test = ValidationTestDefinitionRest.get({ ctx: CollabParameters.getCtx(), id: $stateParams.uuid });
 
 
-            var graphic_data = Graphics.data_fromAPI(tab_test_code_id, tab_model_instance_id);
-            graphic_data.then(function() {
-                $scope.graphic_data = graphic_data.$$state.value;
+            $scope.detail_test.$promise.then(function() {
+                var graphic_data = Graphics.getResultsfromTestID($scope.detail_test);
+                graphic_data.then(function() {
+                    $scope.graphic_data = graphic_data.$$state.value;
 
-                $scope.graphic_options = Graphics.get_lines_options();
+                    $scope.graphic_options = Graphics.get_lines_options();
 
-                $scope.result_focussed;
-                $scope.$on('data_focussed:updated', function(event, data) {
-                    $scope.result_focussed = data;
-                    $scope.$apply();
-                });
-            })
+                    $scope.result_focussed;
+                    $scope.$on('data_focussed:updated', function(event, data) {
+                        $scope.result_focussed = data;
+                        $scope.$apply();
+                    });
+                })
+            });
+
+
 
 
             $scope.submit_comment = function() {
@@ -229,19 +229,21 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
 
                 _active_tab(id_tab);
 
-                var _active_tab = function(id_tab) {
-                    var a = document.getElementById("li_tab_description");
-                    var b = document.getElementById("li_tab_version");
-                    var c = document.getElementById("li_tab_results");
-                    var d = document.getElementById("li_tab_comments");
-                    a.className = b.className = c.className = d.className = "nav-link";
-                    if (id_tab != "tab_new_version" || id_tab != "tab_edit_test") {
-                        var e = document.getElementById("li_" + id_tab);
-                        e.className += " active";
+            };
 
-                    };
+            var _active_tab = function(id_tab) {
+                var a = document.getElementById("li_tab_description");
+                var b = document.getElementById("li_tab_version");
+                var c = document.getElementById("li_tab_results");
+                var d = document.getElementById("li_tab_comments");
+                a.className = b.className = c.className = d.className = "nav-link";
+                if (id_tab != "tab_new_version" || id_tab != "tab_edit_test") {
+                    var e = document.getElementById("li_" + id_tab);
+                    e.className += " active";
+
                 };
             };
+
 
             $scope.saveVersion = function() {
                 _add_params();
