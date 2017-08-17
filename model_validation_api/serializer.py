@@ -75,6 +75,13 @@ class ValidationTestCodeSerializer(serializers.HyperlinkedModelSerializer):
         fields = ('id', 'repository', 'version', 'path', 'timestamp', 'test_definition_id')
         # read_only_fields = ('test_definition_id')
 
+class ValidationTestResultReadOnlySerializer (serializers.HyperlinkedModelSerializer):
+    model_instance = ScientificModelInstanceSerializer(read_only=True)
+    test_definition = ValidationTestCodeSerializer(read_only=True)
+    class Meta:
+        model = ValidationTestResult
+        fields = ('id',  'results_storage', 'result', 'passed', 'timestamp', 'platform',   'project', 'model_instance', 'test_definition')
+
 
 class ValidationTestDefinitionSerializer(serializers.HyperlinkedModelSerializer):
 

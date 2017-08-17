@@ -213,7 +213,6 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'ValidationResultRest', 'Col
 
         var results_data = undefined;
 
-
         var focus = function(list_id) {
             var list_data = [];
 
@@ -334,7 +333,8 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'ValidationResultRest', 'Col
                 model_id: model.models[0].id,
             });
             result_data.$promise.then(function() {
-                for (j; j < model.model_instances.length; j++) {
+
+                for (j; j < result_data.test_versions.length; j++) {
                     values[j] = _manageDataForGraph(result_data.data[j], result_data.test_versions[j].test_definition_id)
                 };
 
@@ -353,6 +353,7 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'ValidationResultRest', 'Col
                     x: new Date(data[ij].timestamp),
                     y: data[ij].result,
                     id: line_id,
+                    id_test_result: data[ij].id,
                 };
                 values_temp.push(temp);
             };
@@ -361,6 +362,7 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'ValidationResultRest', 'Col
                 values: values_temp, //values - represents the array of {x,y} data points
                 key: line_id, //key  - the name of the series.
                 color: _pickRandomColor(), //color - optional: choose your own line color.
+                infosup: data, //maybe not usefull. need to see
             };
             return data_to_return;
         };
