@@ -10,6 +10,8 @@
     </nav>
 </head>
 
+<br>
+
 <body>
     <div id=VF-model-detail>
         <table class="table-create">
@@ -43,21 +45,21 @@
         <table class="table">
             <thead>
                 <th>
-                    test id | model version 
+                    test id | model version
                 </th>
-                <th ng-repeat="version in model.model_instances ">   
+                <th ng-repeat="version in model.model_instances ">
                     {{version.version}}
                 </th>
             </thead>
             <tbody>
-                <tr ng-repeat="test in data">
-                    <td>test #{{test.key}} </td>
-                    <td ng-repeat="version in test.values">{{version.y}}       </td>
+                <tr  ng-repeat="test in data" >
+                    <td class=tr-clickable ng-click=goToDetailTest(test.infosup[0].test_definition.test_definition_id)>test #{{test.key}} </td>
+                    <td class=tr-clickable ng-click=goToDetailTestResult(version.id_test_result) ng-repeat="version in test.values">{{version.y}} </td>
                 </tr>
             </tbody>
         </table>
-
     </div>
+
     <br>
     <br>
     <nvd3 options='options5' data='data' id='chart svg'></nvd3>
@@ -85,7 +87,7 @@
 
                 <tbody>
 
-                    <tr class=tr-clickable id="" ng-repeat="result in current_result_focussed" ng-click="goToDetailView(model)">
+                    <tr class=tr-clickable id="" ng-repeat="result in result_focussed" ng-click="goToDetailView(model)">
                         <td>{{ result.results_storage }}</td>
                         <td>{{ result.result }}</td>
                         <td>{{ result.passed }}</td>

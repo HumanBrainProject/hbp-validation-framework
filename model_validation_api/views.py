@@ -62,7 +62,7 @@ from .serializer import (ValidationTestDefinitionSerializer,
                             ScientificModelInstanceSerializer,
                             ScientificModelImageSerializer,
                             ValidationTestResultSerializer,
-                            # ValidationTestResultReadOnlySerializer,
+                            ValidationTestResultReadOnlySerializer,
                             ValidationTestCodeSerializer,
                             ValidationTestDefinitionWithCodesReadSerializer,
                             CommentSerializer,
@@ -736,19 +736,10 @@ class ValidationResultRest (APIView):
     def get(self, request, format=None, **kwargs):
         serializer_context = {'request': request,}
 
-        test_definition_id = request.query_params['test_code_id']
-        model_instance_id  = request.query_params['model_instance_id']
+        test_result_id = request.query_params['test_result_id']
 
-        if(test_definition_id =='0'): ##not used for now
-            print ("in it")
-            validation_result =  ValidationTestResult.objects.filter(model_instance_id = model_instance_id )
-            result_serializer = ValidationTestResultSerializer(validation_result, context=serializer_context, many=True) 
-            return Response({
-                'data': result_serializer.data,
-                })
-
-        validation_result =  ValidationTestResult.objects.filter(test_definition_id = test_definition_id, model_instance_id = model_instance_id )
-        result_serializer = ValidationTestResultSerializer(validation_result, context=serializer_context, many=True)
+        validation_result =  ValidationTestResult.objects.get(id = test_result_id )
+        result_serializer = ValidationTestResultReadOnlySerializer(validation_result, context=serializer_context, many=True) 
         
         return Response({
             'data': result_serializer.data,
@@ -768,7 +759,7 @@ class ValidationModelResultRest (APIView):
         result_serialized=[]
         for version in versions_id:
             r = results_all.filter(test_definition_id = version['test_definition_id'])
-            r_serializer = ValidationTestResultSerializer(r, context = serializer_context, many=True)
+            r_serializer = ValidationTestResultReadOnlySerializer(r, context = serializer_context, many=True)
             result_serialized.append(r_serializer.data)   
         return Response({
             'data': result_serialized,

@@ -86,13 +86,27 @@ testApp.controller('ValModelDetailCtrl', ['$scope', '$rootScope', '$http', '$loc
             $scope.model = ScientificModelRest.get({ ctx: ctx, id: $stateParams.uuid });
             $scope.model.$promise.then(function() {
                 //graph and table results
-                Graphics.linechart_id_result_clicked = undefined;
-                Graphics.current_result_focussed = [];
+
+                $scope.line_result_focussed;
+                $scope.$on('data_focussed:updated', function(event, data) {
+                    $scope.line_result_focussed = data;
+                    $scope.$apply();
+                });
                 $scope.data = Graphics.getResultsfromModelID($scope.model);
                 $scope.options5 = Graphics.get_lines_options('Model/p-value', '', "p-value", "this is a caption");
+                console.log("data ", $scope.data)
             });
         });
 
+        $scope.goToDetailTest = function(test_id) {
+            console.log("test id", test_id)
+            $location.path('/home/validation_test/' + test_id);
+        };
+
+        $scope.goToDetailTestResult = function(test_result_id) {
+            console.log("test id", test_result_id)
+            $location.path('/home/validation_test_result/' + test_result_id);
+        };
 
         $scope.goToModelCatalog = function() {
 
@@ -177,14 +191,14 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
                     $scope.result_focussed = data;
                     $scope.$apply();
                 });
-            })
+            });
 
 
             $scope.submit_comment = function() {
                 var data_comment = JSON.stringify({ author: $stateParams.uuid, text: this.txt_comment, approved_comment: false, test_id: $stateParams.uuid });
                 TestCommentRest.post(data_comment, function(value) {});
                 $state.reload();
-            }
+            };
 
 
             var _add_params = function() {
@@ -282,20 +296,24 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
     }
 ]);
 
-testApp.directive('markdown', function() {
-    var converter = new Showdown.converter();
-    return {
-        restrict: 'A',
-        link: function(scope, element, attrs) {
-            function renderMarkdown() {
-                var htmlText = converter.makeHtml(scope.$eval(attrs.markdown) || '');
-                element.html(htmlText);
-            }
-            scope.$watch(attrs.markdown, renderMarkdown);
-            renderMarkdown();
-        }
-    };
-});
+testApp.controller('ValTestResultDetailCtrl', ['$scope', '$rootScope', '$http', '$location', '$stateParams', 'IsCollabMemberRest', 'AppIDRest', 'ValidationResultRest', 'CollabParameters',
+    function($scope, $rootScope, $http, $location, $stateParams, IsCollabMemberRest, AppIDRest, ValidationResultRest, CollabParameters) {
+
+        CollabParameters.setService().$promise.then(function() {
+            var ctx = CollabParameters.getCtx();
+            $scope.is_collab_member = false;
+            $scope.is_collab_member = IsCollabMemberRest.get({ ctx: ctx, });
+            $scope.is_collab_member.$promise.then(function() {
+                $scope.is_collab_member = $scope.is_collab_member.is_member;
+            });
+
+            $scope.test_result = ValidationResultRest.get({ ctx: ctx, id: $stateParams.uuid });
+
+        });
+
+    }
+]);
+
 
 testApp.controller('TestResultCtrl', ['$scope', '$rootScope', '$http', '$location', '$timeout', 'CollabParameters', 'ValidationResultRest_fortest', 'ValidationResultRest', 'Graphics',
 
