@@ -42,9 +42,16 @@ testApp.config(
                 templateUrl: '/static/templates/validation_framework/validation_test_detail.tpl.html',
                 controller: 'ValTestDetailCtrl'
             })
-            .state('validation_model_detail', {
+
+        .state('validation_test_result_detail', {
+            url: '/home/validation_test_result/:uuid',
+            templateUrl: '/static/templates/validation_framework/validation_test_result_detail.tpl.html',
+            controller: 'ValTestResultDetailCtrl'
+        })
+
+        .state('validation_model_detail', {
                 url: '/home/validation_model_detail/:uuid',
-                templateUrl: '/static/js/validation_model_detail.tpl.html',
+                templateUrl: '/static/templates/validation_framework/validation_model_detail.tpl.html',
                 controller: 'ValModelDetailCtrl'
             })
             .state('test_result', {
