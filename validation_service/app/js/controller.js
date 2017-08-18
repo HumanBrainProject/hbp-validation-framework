@@ -77,7 +77,6 @@ testApp.controller('ValModelDetailCtrl', ['$scope', '$rootScope', '$http', '$loc
 
         CollabParameters.setService().$promise.then(function() {
             var ctx = CollabParameters.getCtx();
-            console.log(ctx)
             $scope.is_collab_member = false;
             $scope.is_collab_member = IsCollabMemberRest.get({ ctx: ctx, });
             $scope.is_collab_member.$promise.then(function() {
@@ -94,7 +93,6 @@ testApp.controller('ValModelDetailCtrl', ['$scope', '$rootScope', '$http', '$loc
                 });
                 $scope.data = Graphics.getResultsfromModelID($scope.model);
                 $scope.options5 = Graphics.get_lines_options('Model/p-value', '', "p-value", "this is a caption");
-                console.log("data ", $scope.data)
             });
         });
 
@@ -162,6 +160,8 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
     function($scope, $rootScope, $http, $location, $stateParams, $state, ValidationTestDefinitionRest, ValidationTestCodeRest, CollabParameters, TestCommentRest, IsCollabMemberRest, Graphics) {
 
         CollabParameters.setService().$promise.then(function() {
+            $scope.detail_test = ValidationTestDefinitionRest.get({ ctx: CollabParameters.getCtx(), id: $stateParams.uuid });
+
 
             $scope.species = CollabParameters.getParameters("species");
             $scope.brain_region = CollabParameters.getParameters("brain_region");
@@ -173,22 +173,23 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
 
             $scope.detail_version_test = ValidationTestCodeRest.get({ ctx: CollabParameters.getCtx(), test_definition_id: $stateParams.uuid });
             $scope.test_comments = TestCommentRest.get({ ctx: CollabParameters.getCtx(), test_id: $stateParams.uuid });
-            $scope.detail_test = ValidationTestDefinitionRest.get({ ctx: CollabParameters.getCtx(), id: $stateParams.uuid });
 
 
             $scope.detail_test.$promise.then(function() {
-                var graphic_data = Graphics.getResultsfromTestID($scope.detail_test);
-                graphic_data.then(function() {
-                    $scope.graphic_data = graphic_data.$$state.value;
-
-                    $scope.graphic_options = Graphics.get_lines_options();
-
+                Graphics.getResultsfromTestID($scope.detail_test).then(function(graphic_data) {
                     $scope.result_focussed;
                     $scope.$on('data_focussed:updated', function(event, data) {
                         $scope.result_focussed = data;
                         $scope.$apply();
                     });
-                })
+                    $scope.graphic_data = graphic_data;
+                    $scope.graphic_options = Graphics.get_lines_options('Test/result', '', "", "this is a caption");
+
+                }).catch(function(err) {
+                    console.error('Erreur !');
+                    console.dir(err);
+                    console.log(err);
+                });
             });
 
 

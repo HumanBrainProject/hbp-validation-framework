@@ -52,7 +52,7 @@
                 </th>
             </thead>
             <tbody>
-                <tr  ng-repeat="test in data" >
+                <tr ng-repeat="test in data">
                     <td class=tr-clickable ng-click=goToDetailTest(test.infosup[0].test_definition.test_definition_id)>test #{{test.key}} </td>
                     <td class=tr-clickable ng-click=goToDetailTestResult(version.id_test_result) ng-repeat="version in test.values">{{version.y}} </td>
                 </tr>
@@ -87,7 +87,7 @@
 
                 <tbody>
 
-                    <tr class=tr-clickable id="" ng-repeat="result in result_focussed" ng-click="goToDetailView(model)">
+                    <tr class=tr-clickable id="" ng-repeat="result in line_result_focussed" ng-click="goToDetailView(model)">
                         <td>{{ result.results_storage }}</td>
                         <td>{{ result.result }}</td>
                         <td>{{ result.passed }}</td>
