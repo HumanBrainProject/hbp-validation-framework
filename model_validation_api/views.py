@@ -738,10 +738,10 @@ class ValidationResultRest (APIView):
     def get(self, request, format=None, **kwargs):
         serializer_context = {'request': request,}
 
-        test_result_id = request.query_params['test_result_id']
+        test_result_id = request.query_params['id']
 
         validation_result =  ValidationTestResult.objects.get(id = test_result_id )
-        result_serializer = ValidationTestResultReadOnlySerializer(validation_result, context=serializer_context, many=True) 
+        result_serializer = ValidationTestResultReadOnlySerializer(validation_result, context=serializer_context) 
         
         return Response({
             'data': result_serializer.data,
