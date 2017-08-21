@@ -358,17 +358,15 @@
 
 
     <div class="control-group" id="tab_results" style="visibility:hidden;" aria-expanded="true">
+        <br>
+        <br>
 
         <nvd3 options='graphic_options' data='graphic_data' id='chart svg'></nvd3>
 
 
-
-        <br>
-        <br>
-
         <table class="table" style="border-top: none;">
 
-            <td>
+            <td id="td-clicked-results">
 
                 <table id="model_table" class="table">
 
@@ -424,7 +422,7 @@
             </thead>
 
 
-            <tbody ng-repeat="datablock in graphic_data">
+            <tbody id="tbody-all-results" ng-repeat="datablock in graphic_data">
                 <!--<tr id="table-all-result" class=tr-clickable ng-repeat="values in datablock.infosup" ng-click=goToDetailTestResult(values.id) bgcolor={{datablock.color}}>-->
                 <!--<tr id="table-all-result" class=tr-clickable ng-repeat="values in datablock.infosup" ng-click=goToDetailTestResult(values.id) style="border-right: 3px solid datablock.color ; border-left: 3px solid datablock.color;">-->
                 <tr class=tr-clickable ng-repeat="values in datablock.infosup" ng-click=goToDetailTestResult(values.id)>
@@ -433,7 +431,6 @@
                     <td>{{values.model_instance.version}}</td>
                     <td>{{values.test_definition.version}}</td>
                     <td>{{values.result}}</td>
-                    <td>{{datablock.color}}</td>
                 </tr>
 
             </tbody>
