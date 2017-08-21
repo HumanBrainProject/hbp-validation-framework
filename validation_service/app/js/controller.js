@@ -85,13 +85,12 @@ testApp.controller('ValModelDetailCtrl', ['$scope', '$rootScope', '$http', '$loc
             $scope.model = ScientificModelRest.get({ ctx: ctx, id: $stateParams.uuid });
             $scope.model.$promise.then(function() {
                 //graph and table results
-
+                $scope.data = Graphics.getResultsfromModelID($scope.model);
                 $scope.line_result_focussed;
                 $scope.$on('data_focussed:updated', function(event, data) {
                     $scope.line_result_focussed = data;
                     $scope.$apply();
                 });
-                $scope.data = Graphics.getResultsfromModelID($scope.model);
                 $scope.options5 = Graphics.get_lines_options('Model/p-value', '', "p-value", "this is a caption");
             });
         });
