@@ -320,9 +320,17 @@ testApp.controller('ValTestResultDetailCtrl', ['$window', '$scope', '$rootScope'
 
         });
         $scope.goToDetailTest = function(test_id) {
-            console.log("test id", test_id)
+            console.log("test id", test_id);
             $location.path('/home/validation_test/' + test_id);
         };
+
+
+
+        $scope.goToModelResults = function(model_id) {
+            console.log("model id", model_id);
+            $location.path('/home/validation_model_detail/' + model_id);
+        };
+
         $scope.goToModelCatalog = function(test_id) {
 
             var collab_id = $scope.model.models[0].access_control.collab_id;

@@ -135,6 +135,8 @@
                         <b> Description: </b> <br><br>
 
                         <div markdown="model.models[0].description" ng-text-truncate="model.models[0].description" ng-tt-words-threshold="100" ng-tt-no-toggling></div>
+                        <button class=linkbutton align=right text-align=right type="button" ng-click="goToModelResults(model.models[0].id)"> (more details on model results page)</button>
+                        <br>
                         <button class=linkbutton align=right text-align=right type="button" ng-click="goToModelCatalog(model.models[0].id)"> (more details on model catalog)</button>
 
                         <br><br>
@@ -170,7 +172,7 @@
                     <tr>
                         <b>Protocol: </b> <br><br>
                         <div markdown="test.tests[0].protocol" ng-text-truncate="test.tests[0].protocol" ng-tt-words-threshold="100" ng-tt-no-toggling></div>
-                        <button class=linkbutton align=right text-align=right type="button" ng-click="goToDetailTest(test.tests[0].id)">(more details on test catalog)</button>
+                        <button class=linkbutton align=right text-align=right type="button" ng-click="goToDetailTest(test.tests[0].id)">(more details on test results page)</button>
                         <br><br>
                     </tr>
                 </tbody>
