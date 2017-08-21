@@ -77,7 +77,6 @@ testApp.controller('ValModelDetailCtrl', ['$scope', '$rootScope', '$http', '$loc
 
         CollabParameters.setService().$promise.then(function() {
             var ctx = CollabParameters.getCtx();
-            console.log(ctx)
             $scope.is_collab_member = false;
             $scope.is_collab_member = IsCollabMemberRest.get({ ctx: ctx, });
             $scope.is_collab_member.$promise.then(function() {
@@ -94,7 +93,6 @@ testApp.controller('ValModelDetailCtrl', ['$scope', '$rootScope', '$http', '$loc
                 });
                 $scope.data = Graphics.getResultsfromModelID($scope.model);
                 $scope.options5 = Graphics.get_lines_options('Model/p-value', '', "p-value", "this is a caption");
-                console.log("data ", $scope.data)
             });
         });
 
@@ -162,6 +160,8 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
     function($scope, $rootScope, $http, $location, $stateParams, $state, ValidationTestDefinitionRest, ValidationTestCodeRest, CollabParameters, TestCommentRest, IsCollabMemberRest, Graphics) {
 
         CollabParameters.setService().$promise.then(function() {
+            $scope.detail_test = ValidationTestDefinitionRest.get({ ctx: CollabParameters.getCtx(), id: $stateParams.uuid });
+
 
             $scope.species = CollabParameters.getParameters("species");
             $scope.brain_region = CollabParameters.getParameters("brain_region");
@@ -171,25 +171,24 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
             $scope.data_modalities = CollabParameters.getParameters("data_modalities");
 
 
-            $scope.detail_test = ValidationTestDefinitionRest.get({ ctx: CollabParameters.getCtx(), id: $stateParams.uuid });
             $scope.detail_version_test = ValidationTestCodeRest.get({ ctx: CollabParameters.getCtx(), test_definition_id: $stateParams.uuid });
             $scope.test_comments = TestCommentRest.get({ ctx: CollabParameters.getCtx(), test_id: $stateParams.uuid });
 
-            //code for the graphic and table focussed results
-            var tab_test_code_id = ["622f8ee151c940f3b502980831c7fc09"];
-            var tab_model_instance_id = ["d1135abd-a9ad-4690-9e67-83d41dd42d01", "d1135abd-a9ad-4690-9e67-83d41dd42d00"];
 
+            $scope.detail_test.$promise.then(function() {
+                Graphics.getResultsfromTestID($scope.detail_test).then(function(graphic_data) {
+                    $scope.result_focussed;
+                    $scope.$on('data_focussed:updated', function(event, data) {
+                        $scope.result_focussed = data;
+                        $scope.$apply();
+                    });
+                    $scope.graphic_data = graphic_data;
+                    $scope.graphic_options = Graphics.get_lines_options('Test/result', '', "", "this is a caption");
 
-            var graphic_data = Graphics.data_fromAPI(tab_test_code_id, tab_model_instance_id);
-            graphic_data.then(function() {
-                $scope.graphic_data = graphic_data.$$state.value;
-
-                $scope.graphic_options = Graphics.get_lines_options();
-
-                $scope.result_focussed;
-                $scope.$on('data_focussed:updated', function(event, data) {
-                    $scope.result_focussed = data;
-                    $scope.$apply();
+                }).catch(function(err) {
+                    console.error('Erreur !');
+                    console.dir(err);
+                    console.log(err);
                 });
             });
 
@@ -240,6 +239,8 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
                 _active_tab(id_tab);
             };
 
+
+
             var _active_tab = function(id_tab) {
                 var a = document.getElementById("li_tab_description");
                 var b = document.getElementById("li_tab_version");
@@ -252,6 +253,9 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
 
                 };
             };
+
+
+
             $scope.saveVersion = function() {
                 _add_params();
                 var parameters = JSON.stringify($scope.test_code);

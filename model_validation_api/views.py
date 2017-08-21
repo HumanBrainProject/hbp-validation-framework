@@ -454,7 +454,8 @@ class ScientificModelRest(APIView):
 
             all_ctx_from_collab = CollabParameters.objects.filter(collab_id = collab).distinct()
             rq1 = ScientificModel.objects.filter(
-                private=1,access_control__in=all_ctx_from_collab.values("id"), 
+                private=1,
+                access_control__in=all_ctx_from_collab.values("id"), 
                 species__in=collab_params.species.split(","), 
                 brain_region__in=collab_params.brain_region.split(","), 
                 cell_type__in=collab_params.cell_type.split(","), 
@@ -463,7 +464,8 @@ class ScientificModelRest(APIView):
             # print(rq1)
             
             rq2 = ScientificModel.objects.filter (
-                private=0, species__in=collab_params.species.split(","), 
+                private=0, 
+                species__in=collab_params.species.split(","), 
                 brain_region__in=collab_params.brain_region.split(","), 
                 cell_type__in=collab_params.cell_type.split(","), 
                 model_type__in=collab_params.model_type.split(",")).prefetch_related()
@@ -749,49 +751,59 @@ class ValidationModelResultRest (APIView):
     def get(self, request, format=None, **kwargs):
         serializer_context = {'request': request,}
         model_id  = request.query_params['model_id']
-        model_instances = ScientificModelInstance.objects.filter(model_id=model_id).values("id")
 
+        try :      
+            model_instances = ScientificModelInstance.objects.filter(model_id=model_id).values("id")
+        except:    
+            model_instances = [ScientificModelInstance.objects.get(model_id= model_id).id]
 
         results_all= ValidationTestResult.objects.filter(model_instance_id__in = model_instances )
-        results_all_serializer =  ValidationTestResultSerializer(results_all,context=serializer_context, many=True)
+        # results_all_serializer =  ValidationTestResultSerializer(results_all,context=serializer_context, many=True)
         versions_id = list(results_all.values("test_definition_id").distinct())
-
+        
         result_serialized=[]
+        new_id = []
         for version in versions_id:
             r = results_all.filter(test_definition_id = version['test_definition_id'])
             r_serializer = ValidationTestResultReadOnlySerializer(r, context = serializer_context, many=True)
-            result_serialized.append(r_serializer.data)   
+            result_serialized.append(r_serializer.data)  
+            #change the label to generalize datablock_id
+            new_id.append({"id":version['test_definition_id']})
+
         return Response({
             'data': result_serialized,
-            'test_versions':versions_id,
-        })     
+            'data_block_id':new_id,
+        })    
 
 class ValidationTestResultRest (APIView):
     def get(self, request, format=None, **kwargs):
 
         serializer_context = {'request': request,}
 
-        test_definition_id = request.query_params['test_code_id']
-        tab_model_instance_id  = request.GET.getlist('tab_model_instance_id')
-
- 
-        validation_result = []
-
-        for model_instance_id in tab_model_instance_id:
-            aditional_validation_result =  ValidationTestResult.objects.filter(test_definition_id = test_definition_id, model_instance_id = model_instance_id )
-            
-            if len(aditional_validation_result) > 0 :
-                if len(validation_result) > 0:
-                    validation_result = (validation_result | aditional_validation_result)
-                else : 
-                    validation_result = aditional_validation_result
-
-        result_serializer = ValidationTestResultSerializer(validation_result, context=serializer_context, many=True)
+        test_definition_id = request.query_params['test_id']
 
 
+        try : 
+            test_codes = ValidationTestCode.objects.filter(test_definition_id= test_definition_id).value("id")
+        except:
+            test_codes = [ValidationTestCode.objects.get(test_definition_id= test_definition_id).id]
+
+        #need to rename in model test_code_id
+        results_all = ValidationTestResult.objects.filter(test_definition_id__in = test_codes)
         
+        model_instance_id = list(results_all.values("model_instance_id").distinct())
+        result_serialized = []
+        new_id = []
+        for model_instance in model_instance_id:
+            r = results_all.filter(model_instance_id = model_instance['model_instance_id'])
+            r_serializer = ValidationTestResultReadOnlySerializer(r, context = serializer_context, many=True)
+            result_serialized.append(r_serializer.data)  
+            #change the label to generalize datablock_id
+            new_id.append({"id":model_instance['model_instance_id']})
+
         return Response({
-            'data': result_serializer.data,
+            'data': result_serialized,
+            'data_block_id': new_id,
         })
 
 

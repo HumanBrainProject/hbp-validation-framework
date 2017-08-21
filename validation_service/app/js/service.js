@@ -211,93 +211,71 @@ var GraphicsServices = angular.module('GraphicsServices', ['ngResource', 'btorfs
 GraphicsServices.factory('Graphics', ['$rootScope', 'ValidationResultRest', 'CollabParameters', 'ValidationTestResultRest', 'ValidationModelResultRest',
     function($rootScope, ValidationResultRest, CollabParameters, ValidationTestResultRest, ValidationModelResultRest) {
 
-        // var linechart_id_result_clicked;
-        // var current_result_focussed;
-        var results_data;
+        var results_data = undefined;
 
-
-        var focus = function(list_id) {
+        var focus = function(list_id_couple) {
             var list_data = [];
-
             var i = 0;
-            for (i; i < list_id.length; i++) {
-                var id = list_id[i];
-                data = find_result_in_data(id);
+            for (i; i < list_id_couple.length; i++) {
+                data = find_result_in_data(list_id_couple[i]);
                 list_data.push(data);
             }
-
-
             $rootScope.$broadcast('data_focussed:updated', list_data);
         };
 
 
-        var find_result_in_data = function(id) {
+        var find_result_in_data = function(id_couple) {
+            var result_to_return = undefined;
+
+            var id_line = id_couple.id_line;
+            var id_result = id_couple.id_result;
+
+            //find the correct datablock
+            var datablock = undefined;
             var i = 0;
-            for (i; i < results_data.data.length; i++) {
-                if (results_data.data[i].id == id) {
-                    return results_data.data[i];
+            for (i; i < results_data.data_block_id.length; i++) {
+                // console.log(results_data.data[i]);
+
+                if (results_data.data_block_id[i].id == id_line) {
+                    datablock = results_data.data[i];
+                    i = results_data.data_block_id.length;
                 }
             }
-        };
 
+            //find the correct result in datablock
+            var j = 0;
+            for (j; j < datablock.length; j++) {
 
-
-
-
-        var data_fromAPI = function(tab_test_code_id, tab_model_instance_id) {
-
-            var tab_test_code_id = tab_test_code_id;
-            var tab_model_instance_id = tab_model_instance_id;
-
-            var data_to_return = _prepare_data_to_return(tab_test_code_id, tab_model_instance_id, "test");
-
-            results_data = ValidationTestResultRest.get({
-                ctx: CollabParameters.getCtx(),
-                test_code_id: tab_test_code_id,
-                tab_model_instance_id: tab_model_instance_id,
-            })
-
-            final_data = results_data.$promise.then(function() {
-                //for each results from API
-                var indice_result = 0;
-                for (indice_result; indice_result < results_data.data.length; indice_result++) {
-
-                    // read data_to_return to compleat it
-                    var i = 0;
-                    for (i; i < data_to_return.length; i++) {
-
-                        //check if key == result.model to find corresponding data_to_return element
-                        if (data_to_return[i].key == results_data.data[indice_result].model_instance_id) {
-                            // console.log("PASSES IF");
-
-                            data_to_return[i].values.push({
-                                x: new Date(results_data.data[indice_result].timestamp),
-                                y: results_data.data[indice_result].result,
-                                id: results_data.data[indice_result].id,
-                            });
-                        }
-                    }
+                if (datablock[j].id == id_result) {
+                    result_to_return = datablock[j];
                 }
-
-                return data_to_return;
-            })
-            return final_data;
-        };
-
-        var _prepare_data_to_return = function(tab_test_code_id, tab_model_instance_id, mode) {
-            data_to_return = [];
-            if (mode == "test") {
-                var indice_model_id = 0;
-                for (indice_model_id; indice_model_id < tab_model_instance_id.length; indice_model_id++) {
-                    data_to_return.push({
-                        values: [],
-                        key: tab_model_instance_id[indice_model_id],
-                        color: '#ff7f0e',
-                    });
-                }
-                return data_to_return;
             }
+            return result_to_return;
         };
+
+        var getResultsfromTestID = function(test) {
+            return new Promise(function(resolve, reject) {
+                // resolve("Succès !");
+                // ou
+                // reject("Erreur !");
+
+                var values = [];
+                var j = 0;
+                results_data = ValidationTestResultRest.get({
+                    ctx: CollabParameters.getCtx(),
+                    test_id: test.tests[0].id,
+                });
+
+                results_data.$promise.then(function() {
+                    for (j; j < results_data.data_block_id.length; j++) {
+                        values[j] = _manageDataForGraph(results_data.data[j], results_data.data_block_id[j].id)
+                    };
+                    resolve(values);
+                });
+            });
+        };
+
+
         // could still be usefull
         // var getResultsfromModelID = function(model) {
         //     var values = [];
@@ -313,13 +291,14 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'ValidationResultRest', 'Col
         var getResultsfromModelID = function(model) {
             var values = [];
             var j = 0;
-            var result_data = ValidationModelResultRest.get({
+            results_data = ValidationModelResultRest.get({
                 ctx: CollabParameters.getCtx(),
                 model_id: model.models[0].id,
             });
-            result_data.$promise.then(function() {
-                for (j; j < result_data.test_versions.length; j++) {
-                    values[j] = _manageDataByTest(result_data.data[j], result_data.test_versions[j])
+            results_data.$promise.then(function() {
+
+                for (j; j < results_data.data_block_id.length; j++) {
+                    values[j] = _manageDataForGraph(results_data.data[j], results_data.data_block_id[j].id)
                 };
 
             });
@@ -327,7 +306,7 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'ValidationResultRest', 'Col
             return values;
         };
 
-        var _manageDataByTest = function(data, version) {
+        var _manageDataForGraph = function(data, line_id) {
             // var multiple_result_data = [];
             var values_temp = [];
             var ij = 0;
@@ -336,7 +315,7 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'ValidationResultRest', 'Col
                 var temp = {
                     x: new Date(data[ij].timestamp),
                     y: data[ij].result,
-                    id: version.test_definition_id,
+                    id: line_id,
                     id_test_result: data[ij].id,
                 };
                 values_temp.push(temp);
@@ -344,7 +323,7 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'ValidationResultRest', 'Col
             // multiple_result_data.push(data);
             var data_to_return = {
                 values: values_temp, //values - represents the array of {x,y} data points
-                key: version.test_definition_id, //key  - the name of the series.
+                key: line_id, //key  - the name of the series.
                 color: _pickRandomColor(), //color - optional: choose your own line color.
                 infosup: data, //maybe not usefull. need to see
             };
@@ -431,12 +410,10 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'ValidationResultRest', 'Col
                             var list_of_results_id = [];
                             var i = 0;
                             for (i; i < e.length; i++) {
-                                list_of_results_id.push(e[i].point.id);
+                                list_of_results_id.push({ id_line: e[i].point.id, id_result: e[i].point.id_test_result });
                             }
 
                             focus(list_of_results_id);
-
-                            // focus(e[0].point.id);
                         });
                     }
                 },
@@ -473,10 +450,10 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'ValidationResultRest', 'Col
 
         return {
             get_lines_options: get_lines_options,
-            data_fromAPI: data_fromAPI,
             find_result_in_data: find_result_in_data,
             focus: focus,
             getResultsfromModelID: getResultsfromModelID,
+            getResultsfromTestID: getResultsfromTestID,
         };
 
     }
