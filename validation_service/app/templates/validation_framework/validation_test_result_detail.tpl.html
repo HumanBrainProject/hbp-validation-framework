@@ -1,0 +1,210 @@
+<html id="test-result-detail" ng-controller="ValTestResultDetailCtrl">
+
+<head>
+    <nav class="navbar ">
+        <br>
+
+        <div align=left> <a class="button-MC" ng-href="#/home" class="btn btn-primary">Home</a></div>
+        <h1 align=center> Test result: {{test_result.data.id}}</h1>
+    </nav>
+</head>
+
+<br>
+
+<body>
+
+    <!--test result data -->
+    <table class='table-create'>
+        <tr>
+            <td style="width: 15%">
+                <table class="table-create">
+                    <tbody>
+                        <tr>
+                            <tr>
+                                <td>
+                                    <b> Project: </b>
+                                </td>
+                                <td> {{test_result.data.project}} </td>
+                            </tr>
+                            <td>
+                                <b> Date: </b>
+                            </td>
+                            <td> {{test_result.data.timestamp}} </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <b> Result value: </b>
+                            </td>
+                            <td> {{test_result.data.result}} </td>
+                        </tr>
+
+                    </tbody>
+                </table>
+            </td>
+            <td style="width: 10%">
+                <table class="table-create">
+                    <tbody>
+                        <tr>
+                            <td>
+                                <b>  Model type: </b>
+                            </td>
+                            <td>{{ model.models[0].model_type }} </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <b>  Species: </b>
+                            </td>
+                            <td>{{ model.models[0].species }} </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <b>   Brain region: </b>
+                            </td>
+                            <td>{{ model.models[0].brain_region }} </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <b>  Cell type: </b>
+                            </td>
+                            <td>{{ model.models[0].cell_type }} </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </td>
+            <td style="width: 10%">
+                <table class="table-create">
+                    <tbody>
+                        <tr>
+                            <td>
+                                <b> Test type:</b>
+                            </td>
+                            <td>{{ test.tests[0].test_type }} </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <b>  Data type: </b>
+                            </td>
+                            <td>{{ test.tests[0].data_type }}</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <b>  Data modality: </b>
+                            </td>
+                            <td>{{ test.tests[0].data_modality }} </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <b> Age:</b>
+                            </td>
+                            <td>{{ test.tests[0].age }} </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </td>
+        </tr>
+    </table>
+    <br>
+    <br>
+    <!--model and test info-->
+    <div id="conteneur">
+
+        <div class="element-left">
+            <br>
+            <table>
+                <tr>
+                    <h3 align=center> Model information </h3>
+                </tr>
+
+
+            </table>
+            <br>
+
+            <table class="table-create">
+                <tbody>
+                    <tr>
+                        <td style="width: 15%"> <b> Model name:  </b> {{ model.models[0].name }} &nbsp;</td>
+                        <td style="width: 15%"> <b> version name: </b> {{ test_result.data.model_instance.version}} &nbsp;</td>
+
+                    </tr>
+                </tbody>
+            </table>
+            <br>
+            <table class="table-create">
+                <tbody>
+                    <tr>
+                        <b> Description: </b> <br><br>
+
+                        <div markdown="model.models[0].description" ng-text-truncate="model.models[0].description" ng-tt-words-threshold="100" ng-tt-no-toggling></div>
+                        <button class=linkbutton align=right text-align=right type="button" ng-click="goToModelCatalog(model.models[0].id)"> (more details on model catalog)</button>
+
+                        <br><br>
+                    </tr>
+                </tbody>
+            </table>
+
+
+        </div>
+        <div class="element-middle"></div>
+        <div class="element-right">
+            <br>
+            <table>
+
+                <tr>
+                    <h3 align=center> Test information </h3>
+                </tr>
+            </table>
+            <br>
+
+            <table class="table-create">
+                <tbody>
+                    <tr>
+                        <td style="width: 15%"> <b> Test name: </b> {{ test.tests[0].name }} &nbsp;</td>
+                        <td style="width: 15%"> <b> version name: </b> {{ test_result.data.test_definition.version}} &nbsp;</td>
+                    </tr>
+                </tbody>
+            </table>
+            <br>
+
+            <table class="table-create">
+                <tbody>
+                    <tr>
+                        <b>Protocol: </b> <br><br>
+                        <div markdown="test.tests[0].protocol" ng-text-truncate="test.tests[0].protocol" ng-tt-words-threshold="100" ng-tt-no-toggling></div>
+                        <button class=linkbutton align=right text-align=right type="button" ng-click="goToDetailTest(test.tests[0].id)">(more details on test catalog)</button>
+                        <br><br>
+                    </tr>
+                </tbody>
+            </table>
+
+
+
+        </div>
+
+    </div>
+
+
+    <!--additionnal data-->
+
+    <!--provenance-->
+    <br>
+    <br>
+    <table class="table-create">
+        <tbody>
+            <tr>
+                <td>
+                    <b> Platform: </b>
+                </td>
+                <td> {{test_result.data.platform}} </td>
+            </tr>
+            <tr>
+                <td>
+                    <b> Result storage: </b>
+                </td>
+                <td> {{test_result.data.results_storage}} </td>
+            </tr>
+        </tbody>
+    </table>
+
+</body>
+
+</html>

@@ -85,13 +85,12 @@ testApp.controller('ValModelDetailCtrl', ['$scope', '$rootScope', '$http', '$loc
             $scope.model = ScientificModelRest.get({ ctx: ctx, id: $stateParams.uuid });
             $scope.model.$promise.then(function() {
                 //graph and table results
-
+                $scope.data = Graphics.getResultsfromModelID($scope.model);
                 $scope.line_result_focussed;
                 $scope.$on('data_focussed:updated', function(event, data) {
                     $scope.line_result_focussed = data;
                     $scope.$apply();
                 });
-                $scope.data = Graphics.getResultsfromModelID($scope.model);
                 $scope.options5 = Graphics.get_lines_options('Model/p-value', '', "p-value", "this is a caption");
             });
         });
@@ -295,8 +294,8 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
     }
 ]);
 
-testApp.controller('ValTestResultDetailCtrl', ['$scope', '$rootScope', '$http', '$location', '$stateParams', 'IsCollabMemberRest', 'AppIDRest', 'ValidationResultRest', 'CollabParameters', 'ScientificModelRest', 'ValidationTestDefinitionRest',
-    function($scope, $rootScope, $http, $location, $stateParams, IsCollabMemberRest, AppIDRest, ValidationResultRest, CollabParameters, ScientificModelRest, ValidationTestDefinitionRest) {
+testApp.controller('ValTestResultDetailCtrl', ['$window', '$scope', '$rootScope', '$http', '$location', '$stateParams', 'IsCollabMemberRest', 'AppIDRest', 'ValidationResultRest', 'CollabParameters', 'ScientificModelRest', 'ValidationTestDefinitionRest',
+    function($window, $scope, $rootScope, $http, $location, $stateParams, IsCollabMemberRest, AppIDRest, ValidationResultRest, CollabParameters, ScientificModelRest, ValidationTestDefinitionRest) {
 
         CollabParameters.setService().$promise.then(function() {
             var ctx = CollabParameters.getCtx();
@@ -317,16 +316,23 @@ testApp.controller('ValTestResultDetailCtrl', ['$scope', '$rootScope', '$http', 
             console.log("test id", test_id)
             $location.path('/home/validation_test/' + test_id);
         };
-        $scope.goToModelCatalog = function() {
+        $scope.goToModelCatalog = function(test_id) {
 
             var collab_id = $scope.model.models[0].access_control.collab_id;
             var app_id = AppIDRest.get({ ctx: $scope.model.models[0].access_control.id });
             app_id.$promise.then(function() {
                 app_id = app_id.app_id;
-                var url = "https://collab.humanbrainproject.eu/#/collab/" + collab_id + "/nav/" + app_id; //to go to collab api
-                //var url = 'https://localhost:8000/?ctx=' + $scope.model.models[0].access_control.id + '#/model-catalog/detail/' + $scope.model.models[0].id; //to go outside collab but directly to model detail
-
-                var win = window.open(url, 'modelCatalog');
+                var referrer = "https://collab.humanbrainproject.eu/#/collab/" + collab_id + "/nav/" + app_id; //to go to collab api
+                var url = 'https://localhost:8000/?ctx=' + $scope.model.models[0].access_control.id + '#/model-catalog/detail/' + $scope.model.models[0].id; //to go outside collab but directly to model detail
+                var sm_url = '#/model-catalog/detail/' + $scope.model.models[0].id;
+                var win = $window.open(referrer, 'modelCatalog');
+                // win.$location .href('/model-catalog/detail/' + test_id)
+                // console.log(win)
+                // console.log(window.window.document);
+                // // win.window.document.location = url
+                // console.log(win.window.document)
+                // win.window.document.location = url
+                // win.addEventListener('load', win.$location.path(sm_url), true);
 
             });
         }
