@@ -386,16 +386,17 @@
 
                     <tbody>
 
-                        <tr class=tr-clickable id="" ng-repeat="result in result_focussed" ng-click="goToDetailView(model)">
+                        <tr class=tr-clickable id="" ng-repeat="result in result_focussed" ng-click="goToDetailTestResult(result.id_test_result)">
                             <td>{{ result.timestamp }}</td>
                             <td>{{ result.results_storage }}</td>
                             <td>{{ result.result }}</td>
                             <td>{{ result.passed }}</td>
-
                             <td>{{ result.platform }}</td>
                             <td>{{ result.project }}</td>
 
                         </tr>
+
+
                     </tbody>
                 </table>
             </td>
@@ -425,12 +426,15 @@
 
 
             <tbody ng-repeat="datablock in graphic_data">
-                <tr ng-repeat="values in datablock.infosup">
+                <!--<tr id="table-all-result" class=tr-clickable ng-repeat="values in datablock.infosup" ng-click=goToDetailTestResult(values.id) bgcolor={{datablock.color}}>-->
+                <!--<tr id="table-all-result" class=tr-clickable ng-repeat="values in datablock.infosup" ng-click=goToDetailTestResult(values.id) style="border-right: 3px solid datablock.color ; border-left: 3px solid datablock.color;">-->
+                <tr class=tr-clickable ng-repeat="values in datablock.infosup" ng-click=goToDetailTestResult(values.id)>
                     <td>{{values.timestamp}}</td>
                     <td>{{values.model_instance.model.name}}</td>
                     <td>{{values.model_instance.version}}</td>
                     <td>{{values.test_definition.version}}</td>
                     <td>{{values.result}}</td>
+                    <td>{{datablock.color}}</td>
                 </tr>
 
             </tbody>

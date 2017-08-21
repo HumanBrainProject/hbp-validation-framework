@@ -87,7 +87,7 @@
 
                 <tbody>
 
-                    <tr class=tr-clickable id="" ng-repeat="result in line_result_focussed" ng-click="goToDetailView(model)">
+                    <tr class=tr-clickable id="" ng-repeat="result in line_result_focussed" ng-click="goToDetailTestResult(result.id_test_result)">
                         <td>{{ result.results_storage }}</td>
                         <td>{{ result.result }}</td>
                         <td>{{ result.passed }}</td>

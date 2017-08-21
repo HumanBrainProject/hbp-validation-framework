@@ -291,6 +291,11 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
                 TestCommentRest.post(data_comment, function(value) {});
                 $state.reload();
             };
+
+            $scope.goToDetailTestResult = function(test_result_id) {
+                console.log("test id", test_result_id)
+                $location.path('/home/validation_test_result/' + test_result_id);
+            };
         });
 
     }

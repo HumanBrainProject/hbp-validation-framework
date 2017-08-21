@@ -245,6 +245,8 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'ValidationResultRest', 'Col
             //find the correct result in datablock
             var j = 0;
             for (j; j < datablock.length; j++) {
+                console.log("ACCES :");
+                console.log(datablock);
 
                 if (datablock[j].id == id_result) {
                     result_to_return = datablock[j];
