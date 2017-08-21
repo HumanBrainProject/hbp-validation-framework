@@ -183,6 +183,8 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
                         $scope.$apply();
                     });
                     $scope.graphic_data = graphic_data;
+                    console.log("graphic_data");
+                    console.log(graphic_data);
                     $scope.graphic_options = Graphics.get_lines_options('Test/result', '', "", "this is a caption");
 
                 }).catch(function(err) {

@@ -266,6 +266,10 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'ValidationResultRest', 'Col
                     test_id: test.tests[0].id,
                 });
 
+                console.log("results_data");
+                console.log(results_data);
+
+
                 results_data.$promise.then(function() {
                     for (j; j < results_data.data_block_id.length; j++) {
                         values[j] = _manageDataForGraph(results_data.data[j], results_data.data_block_id[j].id)

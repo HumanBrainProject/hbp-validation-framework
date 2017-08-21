@@ -63,6 +63,7 @@ from .serializer import (ValidationTestDefinitionSerializer,
                             ScientificModelImageSerializer,
                             ValidationTestResultSerializer,
                             ValidationTestResultReadOnlySerializer,
+                            ValidationModelResultReadOnlySerializer,
                             ValidationTestCodeSerializer,
                             ValidationTestDefinitionWithCodesReadSerializer,
                             CommentSerializer,
@@ -765,7 +766,7 @@ class ValidationModelResultRest (APIView):
         new_id = []
         for version in versions_id:
             r = results_all.filter(test_definition_id = version['test_definition_id'])
-            r_serializer = ValidationTestResultReadOnlySerializer(r, context = serializer_context, many=True)
+            r_serializer = ValidationModelResultReadOnlySerializer(r, context = serializer_context, many=True)
             result_serialized.append(r_serializer.data)  
             #change the label to generalize datablock_id
             new_id.append({"id":version['test_definition_id']})
@@ -797,6 +798,11 @@ class ValidationTestResultRest (APIView):
         for model_instance in model_instance_id:
             r = results_all.filter(model_instance_id = model_instance['model_instance_id'])
             r_serializer = ValidationTestResultReadOnlySerializer(r, context = serializer_context, many=True)
+
+            print "***********************************"
+            for i in r_serializer.data:
+                print i
+                print ""
             result_serialized.append(r_serializer.data)  
             #change the label to generalize datablock_id
             new_id.append({"id":model_instance['model_instance_id']})
