@@ -245,9 +245,6 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'ValidationResultRest', 'Col
             //find the correct result in datablock
             var j = 0;
             for (j; j < datablock.length; j++) {
-                console.log("ACCES :");
-                console.log(datablock);
-
                 if (datablock[j].id == id_result) {
                     result_to_return = datablock[j];
                 }
@@ -267,10 +264,6 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'ValidationResultRest', 'Col
                     ctx: CollabParameters.getCtx(),
                     test_id: test.tests[0].id,
                 });
-
-                console.log("results_data");
-                console.log(results_data);
-
 
                 results_data.$promise.then(function() {
                     for (j; j < results_data.data_block_id.length; j++) {

@@ -386,14 +386,13 @@
 
                     <tbody>
 
-                        <tr class=tr-clickable id="" ng-repeat="result in result_focussed" ng-click="goToDetailTestResult(result.id_test_result)">
+                        <tr class=tr-clickable id="" ng-repeat="result in result_focussed" ng-click="goToDetailTestResult(result.id)">
                             <td>{{ result.timestamp }}</td>
                             <td>{{ result.results_storage }}</td>
                             <td>{{ result.result }}</td>
                             <td>{{ result.passed }}</td>
                             <td>{{ result.platform }}</td>
                             <td>{{ result.project }}</td>
-
                         </tr>
 
 
