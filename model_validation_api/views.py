@@ -602,9 +602,18 @@ class ValidationTestDefinitionRest(APIView):
 
         serializer_context = {'request': request,}
         nb_id = str(len(request.GET.getlist('id')))
-
+        ctx = request.query_params['ctx']
         if(nb_id == '0'):
-            tests = ValidationTestDefinition.objects.all()
+            collab = _get_collab_id(request)
+            collab_params = CollabParameters.objects.get(id = ctx )
+
+            all_ctx_from_collab = CollabParameters.objects.filter(collab_id = collab).distinct()  
+            tests= ValidationTestDefinition.objects.filter (
+                species__in=collab_params.species.split(","), 
+                brain_region__in=collab_params.brain_region.split(","), 
+                cell_type__in=collab_params.cell_type.split(","),
+                data_modality__in=collab_params.data_modalities.split(","),
+                test_type__in=collab_params.test_type.split(",")).prefetch_related().distinct()
         else:
             for key, value in self.request.GET.items():
                 if key == 'id':
