@@ -172,6 +172,8 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
                         $scope.$apply();
                     });
                     $scope.graphic_data = graphic_data;
+                    console.log("graphic_data");
+                    console.log(graphic_data);
                     $scope.graphic_options = Graphics.get_lines_options('Test/result', '', "", "this is a caption");
 
                 }).catch(function(err) {
@@ -353,6 +355,11 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
             $scope.isInArray = function(value, array) {
                 return array.indexOf(value) > -1;
             }
+
+            $scope.goToDetailTestResult = function(test_result_id) {
+                console.log("test id", test_result_id)
+                $location.path('/home/validation_test_result/' + test_result_id);
+            };
         });
 
     }
@@ -379,6 +386,14 @@ testApp.controller('ValTestResultDetailCtrl', ['$window', '$scope', '$rootScope'
         $scope.goToDetailTest = function(test_id) {
             $location.path('/home/validation_test/' + test_id);
         };
+
+
+
+        $scope.goToModelResults = function(model_id) {
+            console.log("model id", model_id);
+            $location.path('/home/validation_model_detail/' + model_id);
+        };
+
         $scope.goToModelCatalog = function(test_id) {
 
             var collab_id = $scope.model.models[0].access_control.collab_id;

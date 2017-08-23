@@ -43,20 +43,43 @@ class ValidationTestResultSerializer (serializers.HyperlinkedModelSerializer):
         model = ValidationTestResult
         fields = ('id',  'results_storage', 'result', 'passed', 'timestamp', 'platform',   'project', 'model_instance_id', 'test_definition_id')
 
+
+
+class ScientificModelSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = ScientificModel
+        fields = ('id', 'name', 'description', 'species', 'brain_region', 'cell_type', 'author', 'model_type','private','access_control_id')
+
+class ScientificModelNameSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = ScientificModel
+        fields = ('id', 'name')
+
+
 class ScientificModelInstanceSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = ScientificModelInstance
         fields = ('id', 'version', 'parameters', 'source', 'model_id')
+
+
+class ScientificModelInstanceReadOnlySerializer(serializers.HyperlinkedModelSerializer):
+    model = ScientificModelNameSerializer(read_only=True)
+    
+    
+    class Meta:
+        model = ScientificModelInstance
+        fields = ('id', 'version', 'parameters', 'source', 'model')
+
+
+
 
 class ScientificModelImageSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = ScientificModelImage
         fields = ('id', 'url', 'caption','model_id')
 
-class ScientificModelSerializer(serializers.HyperlinkedModelSerializer):
-    class Meta:
-        model = ScientificModel
-        fields = ('id', 'name', 'description', 'species', 'brain_region', 'cell_type', 'author', 'model_type','private','access_control_id')
+
+
 
 class ScientificModelReadOnlySerializer(serializers.HyperlinkedModelSerializer):
     access_control = CollabParametersSerializer( read_only=True)
@@ -76,11 +99,22 @@ class ValidationTestCodeSerializer(serializers.HyperlinkedModelSerializer):
         # read_only_fields = ('test_definition_id')
 
 class ValidationTestResultReadOnlySerializer (serializers.HyperlinkedModelSerializer):
+    model_instance = ScientificModelInstanceReadOnlySerializer(read_only=True)
+    test_definition = ValidationTestCodeSerializer(read_only=True)
+
+    class Meta:
+        model = ValidationTestResult
+        fields = ('id',  'results_storage', 'result', 'passed', 'timestamp', 'platform',   'project', 'model_instance', 'test_definition')
+
+
+
+class ValidationModelResultReadOnlySerializer (serializers.HyperlinkedModelSerializer):
     model_instance = ScientificModelInstanceSerializer(read_only=True)
     test_definition = ValidationTestCodeSerializer(read_only=True)
     class Meta:
         model = ValidationTestResult
         fields = ('id',  'results_storage', 'result', 'passed', 'timestamp', 'platform',   'project', 'model_instance', 'test_definition')
+
 
 
 class ValidationTestDefinitionSerializer(serializers.HyperlinkedModelSerializer):
