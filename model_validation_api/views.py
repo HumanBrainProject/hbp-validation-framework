@@ -729,7 +729,7 @@ class TestCommentRest(APIView):
         serializer_context = {'request': request,}
         comment_id = request.data['id']
         comment = Comments.objects.get(id=comment_id)
-        param_serializer = CommentsSerializer(comment, data=request.data, context=serializer_context )#, many=True)
+        param_serializer = CommentSerializer(comment, data=request.data, context=serializer_context )#, many=True)
 
         if param_serializer.is_valid():         
             param_serializer.save()

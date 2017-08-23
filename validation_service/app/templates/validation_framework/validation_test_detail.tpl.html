@@ -368,10 +368,15 @@
                                             <br/> {{ comment.text }}
                                         </td>
                                         <td width=300>
-                                            <td> <button ng-show="isInArray(comment.id, button_save_ticket)" id="btn-edit-save-{{comment.id}}" type="submit" class="btn btn-primary" ng-click=saveEditedComment(comment.id)>Save</button></td>
                                         </td>
                                         <td>
                                         </td>
+                                    </tr>
+                                    <tr id="table-ticket-footer">
+                                        <td></td>
+                                        <td> <button ng-show="isInArray(comment.id, button_save_ticket)" id="btn-edit-save-{{comment.id}}" type="submit" class="btn btn-primary" ng-click=saveEditedComment(comment.id)>Save</button></td>
+                                        <td></td>
+                                        <td></td>
                                     </tr>
                                 </tbody>
                             </div>
@@ -379,7 +384,7 @@
 
                         <div id='panelForButtonSave-{{comment.id}}'></div>
                     </div>
-                    <div class="commentary"><span class="glyphicon glyphicon-plus button-click" id="btn-create-comment-{{ticket_show.id}}" ng-click=showCreateComment(ticket_show.id)>Add a comment</span></div>
+                    <div class="commentary"><span class="btn-reply button-click" id="btn-create-comment-{{ticket_show.id}}" ng-click=showCreateComment(ticket_show.id)>Reply</span></div>
                     <div class=commentary ng-show="isInArray(ticket_show.id, create_comment_to_show)">
                         <form action="" class="comment-form" method="POST">
                             <table class="table table-striped table-condensed">
