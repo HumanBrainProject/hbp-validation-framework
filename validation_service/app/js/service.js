@@ -1,6 +1,107 @@
-var ParametersConfigurationServices = angular.module('ParametersConfigurationServices', ['ngResource', 'btorfs.multiselect', 'ApiCommunicationServices']);
-ParametersConfigurationServices.service('CollabParameters', ['$rootScope', 'CollabParameterRest',
-    function($rootScope, CollabParameterRest) {
+var ContextServices = angular.module('ContextServices', ['ngResource', 'btorfs.multiselect', 'ApiCommunicationServices']);
+
+ContextServices.service('Context', ['$rootScope',
+    function($rootScope) {
+        var ctx;
+        var state = undefined;
+
+        var setService = function() {
+            _getState();
+            _getCtx();
+
+        };
+        var setState = function(id) {
+            state = id;
+        };
+
+        var _getState = function() {
+            // console.log("_getState");
+            // console.log();
+            state = window.location.search.split("&")[1]
+                // console.log(state);
+
+            if (state != undefined) {
+                state = state.substring(15);
+                // console.log(state);
+
+            }
+
+        };
+
+        var _getCtx = function() {
+            if (typeof(ctx) == "undefined") {
+                ctx = window.location.search.split("&")[0].substring(5);
+            }
+        };
+
+        var getCtx = function() {
+            if (ctx == undefined) {
+                _getCtx();
+            }
+            return ctx;
+        };
+        var getState = function() {
+            return state;
+        };
+
+        var sendState = function(id) {
+            window.parent.postMessage({
+                eventName: 'workspace.context',
+
+                data: {
+                    state: 'model.' + id
+                }
+            }, 'https://collab.humanbrainproject.eu/');
+        };
+
+
+        var clearState = function() {
+            // window.location.search = "ctx=df7a74fe-7bf6-4c40-bfa9-5c04c7cb4a3c&ctxstate=model.n";
+
+            window.parent.postMessage({
+                eventName: 'workspace.context',
+
+                data: {
+                    state: 'model.n'
+                }
+            }, 'https://collab.humanbrainproject.eu/');
+
+
+            //cmt just for dev
+            // _getState();
+            state = "n"
+
+            window.location.search = "ctx=df7a74fe-7bf6-4c40-bfa9-5c04c7cb4a3c&ctxstate=model.n";
+
+
+            // setTimeout(function() {
+
+            // }, 3000);
+
+
+
+
+        };
+
+        return {
+            setService: setService,
+            getCtx: getCtx,
+            getState: getState,
+            sendState: sendState,
+            clearState: clearState,
+            setState: setState,
+        }
+    }
+]);
+
+
+
+
+
+
+var ParametersConfigurationServices = angular.module('ParametersConfigurationServices', ['ngResource', 'btorfs.multiselect', 'ApiCommunicationServices', 'ContextServices']);
+ParametersConfigurationServices.service('CollabParameters', ['$rootScope', 'CollabParameterRest', 'Context',
+    function($rootScope, CollabParameterRest, Context) {
         var parameters;
         var ctx;
 
@@ -79,15 +180,8 @@ ParametersConfigurationServices.service('CollabParameters', ['$rootScope', 'Coll
 
         var _getCtx = function() {
             if (typeof(ctx) == "undefined") {
+                ctx = Context.getCtx()
 
-                // var url = (window.location != window.parent.location) ?
-                //     document.referrer :
-                //     document.location.href;
-
-                ctx = document.location.href;
-                ctx = ctx.split("?")[1]
-                ctx = ctx.split("#")[0]
-                ctx = ctx.substring(4);
 
                 return (ctx);
             }
@@ -203,6 +297,7 @@ ParametersConfigurationServices.service('CollabParameters', ['$rootScope', 'Coll
 
     }
 ]);
+
 
 
 

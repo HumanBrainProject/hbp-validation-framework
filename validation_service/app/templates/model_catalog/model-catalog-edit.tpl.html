@@ -11,7 +11,8 @@
     <body>
 
         <nav>
-            <a ng-href="#/model-catalog/" class="button-MC">Home </a> &ensp; <a ng-href="#/model-catalog/detail/{{model.models[0].id}}" class="button-MC">Back to model detail </a> &ensp;
+            <button class="button-MC" ng-click="goToHomeView();">Home</button>&ensp;
+            <a ng-href="#/model-catalog/detail/{{model.models[0].id}}" class="button-MC">Back to model detail </a> &ensp;
         </nav>
 
         <br>

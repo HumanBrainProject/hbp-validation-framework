@@ -73,6 +73,7 @@ var ModelCatalogApp = angular.module('ModelCatalogApp', [
     'ngResource',
     'ApiCommunicationServices',
     'ParametersConfigurationServices',
+    'ContextServices',
 ]);
 
 ModelCatalogApp.config(
