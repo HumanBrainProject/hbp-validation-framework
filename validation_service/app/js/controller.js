@@ -96,12 +96,10 @@ testApp.controller('ValModelDetailCtrl', ['$scope', '$rootScope', '$http', '$loc
         });
 
         $scope.goToDetailTest = function(test_id) {
-            console.log("test id", test_id)
             $location.path('/home/validation_test/' + test_id);
         };
 
         $scope.goToDetailTestResult = function(test_result_id) {
-            console.log("test id", test_result_id)
             $location.path('/home/validation_test_result/' + test_result_id);
         };
 
@@ -119,20 +117,11 @@ testApp.controller('ValModelDetailCtrl', ['$scope', '$rootScope', '$http', '$loc
                 // var url = "https://collab.humanbrainproject.eu/#/collab/" + collab_id + "/nav/" + app_id; //to go to collab api
                 //var url = 'https://localhost:8000/?ctx=' + $scope.model.models[0].access_control.id + '#/model-catalog/detail/' + $scope.model.models[0].id; //to go outside collab but directly to model detail
 
-
                 var url = "https://collab.humanbrainproject.eu/#/collab/" + collab_id + "/nav/" + app_id +
                     "?state=model.5e4905da1f1440909ae1ff095566d98b"; //to go to collab api
 
+                window.open(url, 'modelCatalog');
 
-
-
-                console.log("url");
-                console.log(url);
-
-                var win = window.open(url, 'modelCatalog');
-                console.log(win);
-
-                console.log(win.document);
                 // win.document.location = 'https://localhost:8000/?ctx=' + $scope.model.models[0].access_control.id + '#/model-catalog/detail/' + $scope.model.models[0].id;
                 // win.document.location.href = 'https://localhost:8000/?ctx='+$scope.model.models[0].access_control.id+'#/model-catalog/detail/'+$scope.model.models[0].id;
                 // win.location.path('#/model-catalog/detail/'+$scope.model.models[0].id);
@@ -142,9 +131,6 @@ testApp.controller('ValModelDetailCtrl', ['$scope', '$rootScope', '$http', '$loc
                 // document.location.href = 'https://localhost:8000/?ctx='+$scope.model.models[0].access_control.id+'#/model-catalog/detail/'+$scope.model.models[0].id;
 
             });
-
-
-
 
         }
     }
@@ -166,9 +152,10 @@ testApp.directive('markdown', function() {
 });
 
 
-testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$location', '$stateParams', '$state', 'ValidationTestDefinitionRest', 'ValidationTestCodeRest', 'CollabParameters', 'TestCommentRest', "IsCollabMemberRest", "Graphics", "Context",
+testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$location', '$stateParams', '$state', 'ValidationTestDefinitionRest', 'ValidationTestCodeRest', 'CollabParameters', 'TestCommentRest', "IsCollabMemberRest", "Graphics", "Context", 'TestTicketRest',
 
-    function($scope, $rootScope, $http, $location, $stateParams, $state, ValidationTestDefinitionRest, ValidationTestCodeRest, CollabParameters, TestCommentRest, IsCollabMemberRest, Graphics, Context) {
+    function($scope, $rootScope, $http, $location, $stateParams, $state, ValidationTestDefinitionRest, ValidationTestCodeRest, CollabParameters, TestCommentRest, IsCollabMemberRest, Graphics, Context, TestTicketRest) {
+
 
         CollabParameters.setService().$promise.then(function() {
             $scope.detail_test = ValidationTestDefinitionRest.get({ ctx: Context.getCtx(), id: $stateParams.uuid });
@@ -180,10 +167,9 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
             $scope.model_type = CollabParameters.getParameters("model_type");
             $scope.test_type = CollabParameters.getParameters("test_type");
             $scope.data_modalities = CollabParameters.getParameters("data_modalities");
-
-
             $scope.detail_version_test = ValidationTestCodeRest.get({ ctx: Context.getCtx(), test_definition_id: $stateParams.uuid });
-            $scope.test_comments = TestCommentRest.get({ ctx: Context.getCtx(), test_id: $stateParams.uuid });
+
+
 
 
             $scope.detail_test.$promise.then(function() {
@@ -203,15 +189,16 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
                     console.dir(err);
                     console.log(err);
                 });
+
+                //for tab_comments
+                $scope.test_tickets = TestTicketRest.get({ ctx: CollabParameters.getCtx(), test_id: $stateParams.uuid });
+                console.log($scope.test_tickets)
+
+                $scope.comments_to_show = [];
+                $scope.create_comment_to_show = [];
+                $scope.button_save_ticket = [];
+
             });
-
-
-            $scope.submit_comment = function() {
-                var data_comment = JSON.stringify({ author: $stateParams.uuid, text: this.txt_comment, approved_comment: false, test_id: $stateParams.uuid });
-                TestCommentRest.post(data_comment, function(value) {});
-                $state.reload();
-            };
-
 
             var _add_params = function() {
                 $scope.test_code.test_definition_id = $scope.detail_test.tests[0].id;
@@ -252,8 +239,6 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
                 _active_tab(id_tab);
             };
 
-
-
             var _active_tab = function(id_tab) {
                 var a = document.getElementById("li_tab_description");
                 var b = document.getElementById("li_tab_version");
@@ -266,8 +251,6 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
 
                 };
             };
-
-
 
             $scope.saveVersion = function() {
                 _add_params();
@@ -298,11 +281,88 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
 
             };
 
-            $scope.submit_comment = function() {
-                var data_comment = JSON.stringify({ author: $stateParams.uuid, text: this.txt_comment, approved_comment: false, test_id: $stateParams.uuid });
-                TestCommentRest.post(data_comment, function(value) {});
-                $state.reload();
+            $scope.saveTicket = function() {
+                $scope.ticket.test_id = $stateParams.uuid;
+                var data = JSON.stringify($scope.ticket);
+                TestTicketRest.post(data, function(value) {}).$promise.then(function() {
+                    $state.reload();
+                });
+
             };
+            $scope.saveComment = function(ticket_id, comment_post) {
+                comment_post.Ticket_id = ticket_id;
+                var data = JSON.stringify(comment_post);
+                TestCommentRest.post(data, function(value) {}).$promise.then(function() {
+                    $scope.create_comment_to_show.splice($scope.create_comment_to_show.indexOf(ticket_id));
+                    $state.reload();
+                });
+            };
+            $scope.showComments = function(ticket_id) {
+                var classe = document.getElementById("button-com-" + ticket_id).className;
+                if (classe == "glyphicon glyphicon-plus button-click") {
+                    $scope.comments_to_show.push(ticket_id);
+                    document.getElementById("button-com-" + ticket_id).className = "glyphicon glyphicon-minus button-click";
+                    document.getElementById("button-com-" + ticket_id).innerHTML = "Hide";
+                } else {
+                    $scope.comments_to_show.splice($scope.comments_to_show.indexOf(ticket_id));
+                    document.getElementById("button-com-" + ticket_id).className = "glyphicon glyphicon-plus button-click";
+                    document.getElementById("button-com-" + ticket_id).innerHTML = "Show";
+                };
+            };
+            $scope.showCreateComment = function(ticket_id) {
+                var button = document.getElementById("btn-create-comment-" + ticket_id);
+                if (button.innerHTML == "Reply") {
+                    $scope.create_comment_to_show.push(ticket_id);
+                    button.innerHTML = "Hide";
+                    // button.className = "glyphicon glyphicon-minus button-click";
+                } else {
+                    $scope.create_comment_to_show.splice($scope.create_comment_to_show.indexOf(ticket_id));
+                    button.innerHTML = "Reply";
+                    // button.className = "glyphicon glyphicon-plus button-click";
+
+                };
+
+
+            };
+
+            $scope.editTicket = function(ticket_id) {
+                angular.element(document.querySelector("#editable-title-" + ticket_id)).attr('contenteditable', "true");
+                angular.element(document.querySelector("#editable-title-" + ticket_id)).attr('bgcolor', 'ghostwhite');
+                angular.element(document.querySelector("#editable-text-" + ticket_id)).attr('contenteditable', "true");
+                angular.element(document.querySelector("#editable-text-" + ticket_id)).attr('bgcolor', 'ghostwhite');
+                $scope.button_save_ticket.push(ticket_id);
+            };
+
+            $scope.saveEditedTicket = function(ticket_id) {
+                var text = $("#editable-text-" + ticket_id).text();
+                var title = $("#editable-title-" + ticket_id).text();
+                var parameters = JSON.stringify({ 'id': ticket_id, 'title': title, 'text': text });
+                var a = TestTicketRest.put({ ctx: CollabParameters.getCtx() }, parameters).$promise.then(function(data) {
+                    angular.element(document.querySelector("#editable-title-" + ticket_id)).attr('contenteditable', "false");
+                    angular.element(document.querySelector("#editable-title-" + ticket_id)).attr('bgcolor', '');
+                    angular.element(document.querySelector("#editable-text-" + ticket_id)).attr('contenteditable', "false");
+                    angular.element(document.querySelector("#editable-text-" + ticket_id)).attr('bgcolor', 'white');
+                    $scope.button_save_ticket.splice($scope.button_save_ticket.indexOf(ticket_id));
+                });
+            };
+            $scope.editComment = function(com_id) {
+                angular.element(document.querySelector("#editable-text-" + com_id)).attr('contenteditable', "true");
+                angular.element(document.querySelector("#editable-text-" + com_id)).attr('bgcolor', 'ghostwhite');
+                $scope.button_save_ticket.push(com_id);
+            };
+
+            $scope.saveEditedComment = function(com_id) {
+                var text = $("#editable-text-" + com_id).text();
+                var parameters = JSON.stringify({ 'id': com_id, 'text': text });
+                var a = TestCommentRest.put({ ctx: CollabParameters.getCtx() }, parameters).$promise.then(function(data) {
+                    angular.element(document.querySelector("#editable-text-" + com_id)).attr('contenteditable', "false");
+                    angular.element(document.querySelector("#editable-text-" + com_id)).attr('bgcolor', 'white');
+                    $scope.button_save_ticket.splice($scope.button_save_ticket.indexOf(com_id));
+                });
+            }
+            $scope.isInArray = function(value, array) {
+                return array.indexOf(value) > -1;
+            }
 
             $scope.goToDetailTestResult = function(test_result_id) {
                 console.log("test id", test_result_id)
@@ -332,7 +392,6 @@ testApp.controller('ValTestResultDetailCtrl', ['$window', '$scope', '$rootScope'
 
         });
         $scope.goToDetailTest = function(test_id) {
-            console.log("test id", test_id);
             $location.path('/home/validation_test/' + test_id);
         };
 
@@ -357,14 +416,6 @@ testApp.controller('ValTestResultDetailCtrl', ['$window', '$scope', '$rootScope'
                 console.log(referrer);
 
                 var win = $window.open(referrer, 'modelCatalog');
-                // win.$location .href('/model-catalog/detail/' + test_id)
-                // console.log(win)
-                // console.log(window.window.document);
-                // // win.window.document.location = url
-                // console.log(win.window.document)
-                // win.window.document.location = url
-                // win.addEventListener('load', win.$location.path(sm_url), true);
-
             });
         }
     }
@@ -426,7 +477,6 @@ testApp.controller('ConfigCtrl', ['$scope', '$rootScope', '$http', '$location', 
     function($scope, $rootScope, $http, $location, CollabParameters, AuthaurizedCollabParameterRest, Context) {
 
         CollabParameters.setService().$promise.then(function() {
-            // $scope.list_param2 = AuthaurizedCollabParameterRest2.get({});
 
             $scope.list_param = AuthaurizedCollabParameterRest.get({ ctx: Context.getCtx() });
 
@@ -471,8 +521,7 @@ testApp.controller('ConfigCtrl', ['$scope', '$rootScope', '$http', '$location', 
             //not working : might require to clean up the the selectors.
             $scope.reloadPage = function() {
                 $location.path('/home/config');
-
-            }; // { window.location.reload(); }
+            };
         });
     }
 ]);
@@ -696,7 +745,6 @@ ModelCatalogApp.controller('ModelCatalogCreateCtrl', ['$scope', '$rootScope', '$
 
             $scope.saveModel = function() {
                 _add_access_control();
-                console.log(JSON.stringify($scope.model));
                 var parameters = JSON.stringify({ model: $scope.model, model_instance: $scope.model_instance, model_image: $scope.model_image });
                 var a = ScientificModelRest.save({ ctx: Context.getCtx() }, parameters).$promise.then(function(data) {
                     $location.path('/model-catalog/detail/' + data.uuid);

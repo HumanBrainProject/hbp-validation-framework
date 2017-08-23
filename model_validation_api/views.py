@@ -35,7 +35,8 @@ from .models import (ValidationTestDefinition,
                         ScientificModel, 
                         ScientificModelInstance,
                         ScientificModelImage,   
-                        Comment,
+                        Comments,
+                        Tickets,
                         Param_DataModalities,
                         Param_TestType,
                         Param_Species,
@@ -67,6 +68,8 @@ from .serializer import (ValidationTestDefinitionSerializer,
                             ValidationTestCodeSerializer,
                             ValidationTestDefinitionWithCodesReadSerializer,
                             CommentSerializer,
+                            TicketReadOnlySerializer,
+                            TicketSerializer,
 
                             CollabParametersSerializer,
 
@@ -602,9 +605,18 @@ class ValidationTestDefinitionRest(APIView):
 
         serializer_context = {'request': request,}
         nb_id = str(len(request.GET.getlist('id')))
-
+        ctx = request.query_params['ctx']
         if(nb_id == '0'):
-            tests = ValidationTestDefinition.objects.all()
+            collab = _get_collab_id(request)
+            collab_params = CollabParameters.objects.get(id = ctx )
+
+            all_ctx_from_collab = CollabParameters.objects.filter(collab_id = collab).distinct()  
+            tests= ValidationTestDefinition.objects.filter (
+                species__in=collab_params.species.split(","), 
+                brain_region__in=collab_params.brain_region.split(","), 
+                cell_type__in=collab_params.cell_type.split(","),
+                data_modality__in=collab_params.data_modalities.split(","),
+                test_type__in=collab_params.test_type.split(",")).prefetch_related().distinct()
         else:
             for key, value in self.request.GET.items():
                 if key == 'id':
@@ -655,45 +667,86 @@ class ValidationTestDefinitionRest(APIView):
             return Response(test_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         return Response( status=status.HTTP_201_CREATED) 
 
-class TestCommentRest(APIView):
+class TestTicketRest(APIView):
     def get(self, request, format=None, **kwargs):
         logger.debug("*** TestCommentRest get ***")
         serializer_context = {'request': request,}
-        nb_id = str(len(request.GET.getlist('id')))
-        nb_test_id = str(len(request.GET.getlist('test_id')))
-
-        if nb_id == '0' and nb_test_id == '0':
-            comments = Comment.objects.all()
-        else:
-            for key, value in self.request.GET.items():
-                if key == 'id':
-                    comments = Comment.objects.filter(id = value)
-                if key == 'test_id':
-                    logger.info("value : " + value)
-                    comments = Comment.objects.filter(test_id = value)
-
-        comment_serializer = CommentSerializer(comments, context=serializer_context, many=True)
+        nb_test_id = request.query_params['test_id']
+        tickets = Tickets.objects.filter(test_id = nb_test_id)
+        for ticket in tickets:
+            ticket.comments = Comments.objects.filter(Ticket_id = ticket.id)
+        ticket_serializer = TicketReadOnlySerializer(tickets, context=serializer_context, many=True)
 
         return Response({
-            'comments': comment_serializer.data,
+            'tickets': ticket_serializer.data,
+            'user_connected':str(request.user)
         })
   
     def post(self, request, format=None):
         serializer_context = {'request': request,}
         request.data['author'] = str(request.user)
-
-        param_serializer = CommentSerializer(data=request.data, context=serializer_context)
-        logger.debug("param_serializer OK")
+        param_serializer = TicketSerializer(data=request.data, context=serializer_context)
         if param_serializer.is_valid():
-            logger.debug("param_serializer begin")
             param = param_serializer.save(test_id=request.data['test_id'])
-            logger.debug("param_serializer save OK")
+        else:
+            return Response(param_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(status=status.HTTP_201_CREATED)
+
+    def put(self, request, format=None):
+        ctx = request.query_params['ctx']
+        if not _is_collaborator(request, ctx):
+            return HttpResponseForbidden()
+        
+        serializer_context = {'request': request,}
+        ticket_id = request.data['id']
+        ticket = Tickets.objects.get(id=ticket_id)
+        param_serializer = TicketSerializer(ticket, data=request.data, context=serializer_context )#, many=True)
+
+        if param_serializer.is_valid():         
+            param_serializer.save()
+            return Response(param_serializer.data)
+        return Response(param_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+class TestCommentRest(APIView):
+    def get(self, request, format=None, **kwargs):
+        logger.debug("*** TestCommentRest get ***")
+        serializer_context = {'request': request,}
+        nb_ticket_id = str(len(request.GET.getlist('Ticket_id')))
+
+        comments = Comments.objects.filter(Ticket_id = nb_ticket_id)
+        comments_serializer = CommentsSerializer(comments, context=serializer_context, many=True)
+
+        return Response({
+            'comments': comments_serializer.data,
+        })
+  
+    def post(self, request, format=None):
+        serializer_context = {'request': request,}
+        request.data['author'] = str(request.user)
+        param_serializer = CommentSerializer(data=request.data, context=serializer_context)
+        if param_serializer.is_valid():
+            param = param_serializer.save(Ticket_id=request.data['Ticket_id'])
         else:
             return Response(param_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
-        logger.debug("response OK")
         return Response(status=status.HTTP_201_CREATED)
 
+    def put(self, request, format=None):
+        ctx = request.query_params['ctx']
+        if not _is_collaborator(request, ctx):
+            return HttpResponseForbidden()
+        
+        serializer_context = {'request': request,}
+        comment_id = request.data['id']
+        comment = Comments.objects.get(id=comment_id)
+        param_serializer = CommentSerializer(comment, data=request.data, context=serializer_context )#, many=True)
+
+        if param_serializer.is_valid():         
+            param_serializer.save()
+            return Response(param_serializer.data)
+        return Response(param_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 # @method_decorator(login_required(login_url='/login/hbp'), name='dispatch' )
 class ModelCatalogView(View):

@@ -21,7 +21,7 @@
     width: 45%;
     min-height: 500px;
     margin-right: 2%;
-    text-overflow: scroll;
+    overflow: auto;
 }
 
 .element-middle {
@@ -34,7 +34,7 @@
 .element-right {
     width: 45%;
     margin-left: 2%;
-    text-overflow: scroll;
+    overflow: auto;
 }
 
 #VF-model-detail {
@@ -51,7 +51,7 @@
     margin-right: auto;
     width: 1100px;
     height: 200px;
-    text-overflow: scroll;
+    overflow: auto;
 }
 
 #trunc {
@@ -77,6 +77,75 @@
     color: #42a1f4;
     cursor: pointer;
     border-bottom: 1px solid #42a1f4;
+}
+
+#table-ticket-detail-comment {
+    background-color: #f4f7fa;
+    border: 2px solid #f4f7fa;
+    font-weight: bold;
+}
+
+#table-ticket-detail-comment-content {
+    background-color: white;
+    border: 2px solid #f4f7fa;
+}
+
+#CommentTextbox {
+    max-height: 200px !important;
+    min-height: 150px;
+}
+
+#panel-title-style {
+    font-weight: bold;
+}
+
+#title-commment {
+    font-weight: bold;
+}
+
+#table-create-ticket-content {
+    background-color: #f7f6f7;
+    border: 2px solid #f7f6f7;
+}
+
+#title-ticket {
+    font-weight: bold;
+    color: black;
+}
+
+#table-ticket-detail {
+    background-color: #dfe7ef;
+    border: 3px solid #dfe7ef;
+    font-weight: bold;
+}
+
+#table-ticket-footer {
+    background-color: white;
+    font-weight: bold;
+}
+
+#table-ticket-detail-content {
+    background-color: white;
+    border: 3px solid #dfe7ef;
+}
+
+.commentary {
+    padding-left: 60px;
+    padding-right: 30px;
+}
+
+.Ticketlist {
+    padding-bottom: 15px;
+    padding-top: 15px;
+}
+
+.button-click:hover {
+    cursor: pointer;
+}
+
+.btn-reply {
+    background-color: #f4d430;
+    padding: 10px;
 }
 
 #table-test-result-bottom-up-th {
