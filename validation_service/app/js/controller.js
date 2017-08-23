@@ -303,14 +303,14 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
             };
             $scope.showCreateComment = function(ticket_id) {
                 var button = document.getElementById("btn-create-comment-" + ticket_id);
-                if (button.innerHTML == "Add a comment") {
+                if (button.innerHTML == "Reply") {
                     $scope.create_comment_to_show.push(ticket_id);
                     button.innerHTML = "Hide";
-                    button.className = "glyphicon glyphicon-minus button-click";
+                    // button.className = "glyphicon glyphicon-minus button-click";
                 } else {
                     $scope.create_comment_to_show.splice($scope.create_comment_to_show.indexOf(ticket_id));
-                    button.innerHTML = "Add a comment";
-                    button.className = "glyphicon glyphicon-plus button-click";
+                    button.innerHTML = "Reply";
+                    // button.className = "glyphicon glyphicon-plus button-click";
 
                 };
 
