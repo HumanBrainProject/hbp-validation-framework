@@ -29,7 +29,7 @@
                             <td>
                                 <b> Date: </b>
                             </td>
-                            <td> {{test_result.data.timestamp}} </td>
+                            <td> {{test_result.data.timestamp | date:'d MMMM yyyy, hh:mm' : 'UTC' }} </td>
                         </tr>
                         <tr>
                             <td>

@@ -295,64 +295,140 @@
     <div class="control-group" id="tab_comments" style="display:none;" aria-expanded="true">
         <main class="comment" onsubmit="return false">
 
-            <div class="panel-heading">
+            <!--<div class="panel-heading">
                 <h3 class="panel-title" id="title-commment"> Comments </h3>
-            </div>
-            <div ng-repeat="comment in test_comments.comments" id='CommentToShow-{{comment.id}}'>
+            </div>-->
 
+            <br>
+            <div class=Ticketlist ng-repeat="ticket_show in test_tickets.tickets">
                 <table class="table table-striped table-condensed">
-                    <div class="comment">
-                        <tbody>
-                            <tr id="table-ticket-detail-comment">
-                                <td width=200>
-                                    <span class="glyphicon glyphicon-user"></span> {{ comment.author }}
-                                </td>
-                                <td width=1000>
-                                </td>
-                                <td width=300>
-                                    {{ comment.creation_date | date:'d MMMM yyyy, hh:mm' : 'UTC' }}
-                                </td>
-                                <td width=50>
+                    <tbody>
+                        <tr id="table-ticket-detail">
+                            <td width=200>
+                                <span class="glyphicon glyphicon-user"></span> {{ticket_show.author}}
+                            </td>
+                            <td id='editable-title-{{ticket_show.id}}' class=title width=1000 contenteditable="False">
+                                {{ticket_show.title}}
+                            </td>
+                            <td width=300>
+                                {{ticket_show.creation_date | date:'d MMMM yyyy, hh:mm' : 'UTC' }}
+                            </td>
+                            <td width=50>
+                                <button ng-if="test_tickets.user_connected == ticket_show.author" type="active" class="glyphicon glyphicon-pencil" align=right ng-click="editTicket(ticket_show.id)"></button>
+                            </td>
 
-                                </td>
-                            </tr>
+                        </tr>
 
-                            <tr id="table-ticket-detail-comment-content">
-                                <td width=200>
-                                </td>
-                                <td width=1000 id='editable-text-{{comment.id}}' contenteditable="false">
-                                    <br/> {{ comment.text }}
-                                </td>
-                                <td width=300>
-                                </td>
-                                <td>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </div>
+                        <tr id="table-ticket-detail-content">
+                            <td>
+                                <br>
+                            </td>
+                            <td id='editable-text-{{ticket_show.id}}' markdown=ticket_show.text>
+                            </td>
+                            <td>
+                            </td>
+                            <td>
+                            </td>
+                        </tr>
+                        <tr id="table-ticket-footer">
+                            <td>
+                            </td>
+                            <td> <button ng-show="isInArray(ticket_show.id, button_save_ticket)" id="btn-edit-save-{{ticket_show.id}}" type="submit" class="btn btn-primary" ng-click=saveEditedTicket(ticket_show.id)>Save</button></td>
+                            <td></td>
+                            <td><span id='button-com-{{ticket_show.id}}' class="glyphicon glyphicon-plus button-click" align=right ng-click="showComments(ticket_show.id)">Show</span></td>
+
+                        </tr>
+                    </tbody>
+
                 </table>
+                <div ng-show="isInArray(ticket_show.id, comments_to_show)">
+                    <div class=commentary ng-repeat="comment in ticket_show.comments" id='CommentToShow-{{comment.id}}'>
 
-                <div id='panelForButtonSave-{{comment.id}}'></div>
-            </div>
-        </main>
+                        <table class="table table-striped table-condensed">
+                            <div class="comment">
+                                <tbody>
+                                    <tr id="table-ticket-detail-comment">
+                                        <td width=200>
+                                            <span class="glyphicon glyphicon-user"></span> {{ comment.author }}
+                                        </td>
+                                        <td width=1000>
+                                        </td>
+                                        <td width=300>
+                                            {{ comment.creation_date | date:'d MMMM yyyy, hh:mm' : 'UTC' }}
+                                        </td>
+                                        <td width=50>
+                                            <button ng-if="test_tickets.user_connected == comment.author" type="active" class="glyphicon glyphicon-pencil" align=right ng-click="editComment(comment.id)"></button>
+                                        </td>
+                                    </tr>
 
-        <main action="" class="commentForm" method="POST">
-            <form class="comment-form" ng-submit="submit_comment()" ng-controller="ValTestDetailCtrl">
-                <div class="comment-form-fields">
-                    <div class="form-group form-group-editor">
-                        <h4> Add a comment </h4>
-                        <p id="CommentTextbox">
-                            <textarea cols="40" id="txt_comment" name="txt_comment" ng-model="txt_comment" rows="10" required=""></textarea>
-                        </p>
-                        <p class="help-text">{{ form.text.errors }}</p>
+                                    <tr id="table-ticket-detail-comment-content">
+                                        <td width=200>
+                                        </td>
+                                        <td width=1000 id='editable-text-{{comment.id}}' contenteditable="false">
+                                            <br/> {{ comment.text }}
+                                        </td>
+                                        <td width=300>
+                                            <td> <button ng-show="isInArray(comment.id, button_save_ticket)" id="btn-edit-save-{{comment.id}}" type="submit" class="btn btn-primary" ng-click=saveEditedComment(comment.id)>Save</button></td>
+                                        </td>
+                                        <td>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </div>
+                        </table>
+
+                        <div id='panelForButtonSave-{{comment.id}}'></div>
                     </div>
+                    <div class="commentary"><span class="glyphicon glyphicon-plus button-click" id="btn-create-comment-{{ticket_show.id}}" ng-click=showCreateComment(ticket_show.id)>Add a comment</span></div>
+                    <div class=commentary ng-show="isInArray(ticket_show.id, create_comment_to_show)">
+                        <form action="" class="comment-form" method="POST">
+                            <table class="table table-striped table-condensed">
+                                <thead>
+                                </thead>
+                                <tbody>
+                                    <br>
+                                    <tr id="table-create-ticket-content">
+                                        <b>Comment:</b> <br>
+                                        <textarea ng-model="comment_post.text" rows="5" cols="150" required=""></textarea>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div class="navbar">
+                                <button type="submit" class="btn btn-primary" ng-click=saveComment(ticket_show.id,comment_post)>Save</button>
+                            </div>
+                        </form>
+                    </div>
+
                 </div>
-                <div class="navbar navbar-form">
-                    <button type="submit" id="submit" value="Submit" class="btn btn-primary">Save</button>
+            </div>
+            <br><br>
+            <form action="" class="ticket-form" method="POST">
+                <h4 align=center> New post </h4>
+                <br>
+                <table class="table table-striped table-condensed">
+                    <thead>
+                        <tr id="table-create-ticket-content">
+
+                            <b>Title: <input type="text" ng-model="ticket.title" required/></b>
+                        </tr>
+                    </thead>
+                    <tbody>
+
+                        <br>
+                        <tr id="table-create-ticket-content">
+                            <b>Text:</b> <br>
+                            <textarea id="txt_ticket" name="txt_ticket" ng-model="ticket.text" rows="5" cols="150" required=""></textarea>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="navbar">
+                    <button type="submit" class="btn btn-primary" ng-click=saveTicket()>Save</button>
                 </div>
             </form>
 
+
         </main>
+
     </div>
 
 

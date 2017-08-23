@@ -10,8 +10,8 @@ from .models import (ValidationTestDefinition,
                     ScientificModelInstance,
 
                     ScientificModelImage,
-                    Comment,
-
+                    Comments,
+                    Tickets,
                     CollabParameters,
 
                     Param_DataModalities,
@@ -186,12 +186,22 @@ class Param_ModelTypeSerializer(serializers.HyperlinkedModelSerializer):
 #        fields = ('species', 'brain_region', 'cell_type', 'model_type')
 
 
-    
-
 
 class CommentSerializer(serializers.HyperlinkedModelSerializer):
     # test = ValidationTestCodeSerializer(many=True , read_only=True)
     class Meta:
-        model = Comment
-        fields = ( 'id', 'author', 'text', 'creation_date', 'approved_comment', 'test_id')
+        model = Comments
+        fields = ( 'id', 'author', 'text', 'creation_date', 'Ticket_id')
 
+class TicketReadOnlySerializer(serializers.HyperlinkedModelSerializer):
+    # test = ValidationTestCodeSerializer(many=True , read_only=True)
+    comments = CommentSerializer (many=True, read_only=True)
+    class Meta:
+        model = Tickets
+        fields = ( 'id', 'author', 'title', 'text', 'creation_date', 'test_id', 'comments')
+
+class TicketSerializer(serializers.HyperlinkedModelSerializer):
+    # test = ValidationTestCodeSerializer(many=True , read_only=True)
+    class Meta:
+        model = Tickets
+        fields = ( 'id', 'author', 'title', 'text', 'creation_date', 'test_id')
