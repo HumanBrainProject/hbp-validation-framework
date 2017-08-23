@@ -158,14 +158,20 @@ class ValidationTestResult(models.Model):
         return "Validation test result {}".format(self.id,)
 
 
-class Comment(models.Model): 
+class Tickets(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     test = models.ForeignKey(ValidationTestDefinition, on_delete=models.CASCADE)
+    author = models.CharField(max_length=200, default="")
+    title = models.CharField(max_length=200, default="")
+    text = models.TextField()
+    creation_date = models.DateTimeField(auto_now_add=True)
+
+class Comments(models.Model): 
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    Ticket = models.ForeignKey(Tickets)
     author = models.CharField(max_length=200, default="")
     text = models.TextField()
     creation_date = models.DateTimeField(auto_now_add=True)
-    approved_comment = models.BooleanField(default=False)
-
-
 
 
 class Param_DataModalities (models.Model):

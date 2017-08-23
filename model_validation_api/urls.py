@@ -16,7 +16,7 @@ from .views import (
                     AppIDRest,
                     ParametersConfigurationModelView,
                     ParametersConfigurationValidationView,
-
+                    TestTicketRest,
                     IsCollabMemberRest,
                     ValidationResultRest,
                     ValidationTestResultRest,
@@ -55,6 +55,9 @@ urlpatterns = (
     url(r'^testcomment/$',
         TestCommentRest.as_view(),
         name="test-comment"),
+    url(r'^testticket/$',
+        TestTicketRest.as_view(),
+        name="test-ticket"),
 
     url(r'^parametersconfigurationrest/$',
         ParametersConfigurationRest.as_view(),
