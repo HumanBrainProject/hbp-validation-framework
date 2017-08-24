@@ -660,7 +660,6 @@ class ValidationTestDefinitionRest(APIView):
         ctx = request.GET.getlist('ctx')[0]
         if not _is_collaborator(request, ctx):
             return HttpResponseForbidden()
-
         value = request.data
         test = ValidationTestDefinition.objects.get(id=value['id'])
         serializer_context = {'request': request,}
@@ -696,7 +695,9 @@ class TestTicketRest(APIView):
             param = param_serializer.save(test_id=request.data['test_id'])
         else:
             return Response(param_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        return Response(status=status.HTTP_201_CREATED)
+        new_ticket = Tickets.objects.filter(id=param.id)
+        new_ticket_serializer = TicketReadOnlySerializer(new_ticket, context=serializer_context, many=True)
+        return Response({'new_ticket' : new_ticket_serializer.data})
 
     def put(self, request, format=None):
         ctx = request.query_params['ctx']
@@ -738,8 +739,9 @@ class TestCommentRest(APIView):
             param = param_serializer.save(Ticket_id=request.data['Ticket_id'])
         else:
             return Response(param_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        
-        return Response(status=status.HTTP_201_CREATED)
+        new_comment = Comments.objects.filter(id=param.id)
+        new_comment_serializer = CommentSerializer (new_comment, context=serializer_context, many=True)
+        return Response({'new_comment' : new_comment_serializer.data})
 
     def put(self, request, format=None):
         ctx = request.query_params['ctx']

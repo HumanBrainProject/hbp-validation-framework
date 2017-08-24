@@ -88,6 +88,7 @@ testApp.controller('ValModelDetailCtrl', ['$scope', '$rootScope', '$http', '$loc
             $scope.model.$promise.then(function() {
                 //graph and table results
                 $scope.data = Graphics.getResultsfromModelID($scope.model);
+                console.log($scope.data)
                 $scope.line_result_focussed;
                 $scope.$on('data_focussed:updated', function(event, data) {
                     $scope.line_result_focussed = data;
@@ -264,29 +265,41 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
             $scope.saveTicket = function() {
                 $scope.ticket.test_id = $stateParams.uuid;
                 var data = JSON.stringify($scope.ticket);
-                TestTicketRest.post(data, function(value) {}).$promise.then(function() {
-                    $state.reload();
+                $scope.new_ticket = TestTicketRest.post(data, function(value) {})
+                $scope.new_ticket.$promise.then(function() {
+                    $scope.test_tickets.tickets.push($scope.new_ticket.new_ticket[0]);
+                    document.getElementById("formT").reset();
                 });
 
             };
-            $scope.saveComment = function(ticket_id, comment_post) {
+            $scope.saveComment = function(ticket_id, comment_post, ticket_index) {
                 comment_post.Ticket_id = ticket_id;
                 var data = JSON.stringify(comment_post);
-                TestCommentRest.post(data, function(value) {}).$promise.then(function() {
+                $scope.new_comment = TestCommentRest.post(data, function(value) {})
+                $scope.new_comment.$promise.then(function() {
                     $scope.create_comment_to_show.splice($scope.create_comment_to_show.indexOf(ticket_id));
-                    $state.reload();
+                    $scope.test_tickets.tickets[ticket_index].comments.push($scope.new_comment.new_comment[0]);
+                    document.getElementById("btn-create-comment-" + ticket_id).innerHTML = "Reply";
+                    document.getElementById("formC-" + ticket_id).reset();
                 });
+
             };
+
+            $scope._reset = function(form) {
+                if (form) {
+                    form.$setPristine();
+                    form.$setUntouched();
+                };
+            };
+
             $scope.showComments = function(ticket_id) {
                 var classe = document.getElementById("button-com-" + ticket_id).className;
                 if (classe == "glyphicon glyphicon-plus button-click") {
                     $scope.comments_to_show.push(ticket_id);
                     document.getElementById("button-com-" + ticket_id).className = "glyphicon glyphicon-minus button-click";
-                    document.getElementById("button-com-" + ticket_id).innerHTML = "Hide";
                 } else {
                     $scope.comments_to_show.splice($scope.comments_to_show.indexOf(ticket_id));
                     document.getElementById("button-com-" + ticket_id).className = "glyphicon glyphicon-plus button-click";
-                    document.getElementById("button-com-" + ticket_id).innerHTML = "Show";
                 };
             };
             $scope.showCreateComment = function(ticket_id) {
@@ -294,11 +307,9 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
                 if (button.innerHTML == "Reply") {
                     $scope.create_comment_to_show.push(ticket_id);
                     button.innerHTML = "Hide";
-                    // button.className = "glyphicon glyphicon-minus button-click";
                 } else {
                     $scope.create_comment_to_show.splice($scope.create_comment_to_show.indexOf(ticket_id));
                     button.innerHTML = "Reply";
-                    // button.className = "glyphicon glyphicon-plus button-click";
 
                 };
             };

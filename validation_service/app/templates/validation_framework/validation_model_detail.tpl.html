@@ -41,66 +41,71 @@
         </table>
     </div>
 
-    <div id=VF-model-table-all-data>
-        <table class="table">
-            <thead>
-                <th>
-                    test id | model version
-                </th>
-                <th ng-repeat="version in model.model_instances ">
-                    {{version.version}}
-                </th>
-            </thead>
-            <tbody>
-                <tr ng-repeat="test in data">
-                    <td class=tr-clickable ng-click=goToDetailTest(test.infosup[0].test_definition.test_definition_id)>test #{{test.key}} </td>
-                    <td class=tr-clickable ng-click=goToDetailTestResult(version.id_test_result) ng-repeat="version in test.values">{{version.y}} </td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
-
-    <br>
-    <br>
-    <nvd3 options='options5' data='data' id='chart svg'></nvd3>
-
-
-    <br>
-    <br>
-
-    <table class="table" style="border-top: none;">
-
-        <td id="td-clicked-results">
-
-            <table id="model_table" class="table">
-
-                <h3 align=center> Models </h3>
-
+    <div id=panel-results ng-if="data.length != 0">
+        <div id=VF-model-table-all-data>
+            <table class="table">
                 <thead>
-                    <th>Results storage</th>
-                    <th>Result</th>
-                    <th>Passed</th>
-                    <th>Time</th>
-                    <th>Platform</th>
-                    <th>Project</th>
+                    <th>
+                        test id | model version
+                    </th>
+                    <th ng-repeat="version in model.model_instances ">
+                        {{version.version}}
+                    </th>
                 </thead>
-
                 <tbody>
-
-                    <tr class=tr-clickable id="" ng-repeat="result in line_result_focussed" ng-click="goToDetailTestResult(result.id)">
-                        <td>{{ result.results_storage }}</td>
-                        <td>{{ result.result }}</td>
-                        <td>{{ result.passed }}</td>
-                        <td>{{ result.timestamp }}</td>
-                        <td>{{ result.platform }}</td>
-                        <td>{{ result.project }}</td>
-
+                    <tr ng-repeat="test in data">
+                        <td class=tr-clickable ng-click=goToDetailTest(test.infosup[0].test_definition.test_definition_id)>test #{{test.key}} </td>
+                        <td class=tr-clickable ng-click=goToDetailTestResult(version.id_test_result) ng-repeat="version in test.values">{{version.y}} </td>
                     </tr>
                 </tbody>
             </table>
-        </td>
+        </div>
 
-    </table>
+        <br>
+        <br>
+        <nvd3 options='options5' data='data' id='chart svg'></nvd3>
+
+
+        <br>
+        <br>
+
+        <table class="table" style="border-top: none;">
+
+            <td id="td-clicked-results">
+
+                <table id="model_table" class="table">
+
+                    <h3 align=center> Models </h3>
+
+                    <thead>
+                        <th>Results storage</th>
+                        <th>Result</th>
+                        <th>Passed</th>
+                        <th>Time</th>
+                        <th>Platform</th>
+                        <th>Project</th>
+                    </thead>
+
+                    <tbody>
+
+                        <tr class=tr-clickable id="" ng-repeat="result in line_result_focussed" ng-click="goToDetailTestResult(result.id)">
+                            <td>{{ result.results_storage }}</td>
+                            <td>{{ result.result }}</td>
+                            <td>{{ result.passed }}</td>
+                            <td>{{ result.timestamp }}</td>
+                            <td>{{ result.platform }}</td>
+                            <td>{{ result.project }}</td>
+
+                        </tr>
+                    </tbody>
+                </table>
+            </td>
+
+        </table>
+    </div>
+    <div ng-show="data.length == 0">
+        <h3 align=center> No result available for this model </h3>
+    </div>
 </body>
 
 </html>
