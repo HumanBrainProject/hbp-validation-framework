@@ -166,17 +166,9 @@ ParametersConfigurationServices.service('CollabParameters', ['$rootScope', 'Coll
             parameters.param[0]['test_type'] = string_tab[5];
         };
 
-        var _getCtx = function() {
-            if (typeof(ctx) == "undefined") {
-                ctx = Context.getCtx()
 
-
-                return (ctx);
-            }
-        };
-
-        var setService = function() {
-            _getCtx();
+        var setService = function(ctx_param) {
+            ctx = ctx_param;
 
             if (typeof(parameters) == "undefined") {
 
@@ -195,7 +187,6 @@ ParametersConfigurationServices.service('CollabParameters', ['$rootScope', 'Coll
                         param_tab = _getParamTabValues();
                         string_tab = _StringTabToArray(param_tab);
                         _setParametersNewValues(string_tab);
-
 
                     }
                 });
@@ -246,11 +237,6 @@ ParametersConfigurationServices.service('CollabParameters', ['$rootScope', 'Coll
             return put;
         };
 
-        var getCtx = function() {
-
-            return ctx;
-        }
-
         var initConfiguration = function() {
             parameters = {
                 'param': [{
@@ -277,7 +263,6 @@ ParametersConfigurationServices.service('CollabParameters', ['$rootScope', 'Coll
             supprParameter: supprParameter,
             post_parameters: post_parameters,
             put_parameters: put_parameters,
-            getCtx: getCtx,
             initConfiguration: initConfiguration,
             getRequestParameters: getRequestParameters,
             setCollabId: setCollabId,
@@ -289,10 +274,10 @@ ParametersConfigurationServices.service('CollabParameters', ['$rootScope', 'Coll
 
 
 
-var GraphicsServices = angular.module('GraphicsServices', ['ngResource', 'btorfs.multiselect', 'ApiCommunicationServices', 'ParametersConfigurationServices']);
+var GraphicsServices = angular.module('GraphicsServices', ['ngResource', 'btorfs.multiselect', 'ApiCommunicationServices', 'ParametersConfigurationServices', 'ContextServices']);
 
-GraphicsServices.factory('Graphics', ['$rootScope', 'ValidationResultRest', 'CollabParameters', 'ValidationTestResultRest', 'ValidationModelResultRest',
-    function($rootScope, ValidationResultRest, CollabParameters, ValidationTestResultRest, ValidationModelResultRest) {
+GraphicsServices.factory('Graphics', ['$rootScope', 'ValidationResultRest', 'CollabParameters', 'ValidationTestResultRest', 'ValidationModelResultRest', 'Context',
+    function($rootScope, ValidationResultRest, CollabParameters, ValidationTestResultRest, ValidationModelResultRest, Context) {
 
         var results_data = undefined;
 
@@ -344,7 +329,7 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'ValidationResultRest', 'Col
                 var values = [];
                 var j = 0;
                 results_data = ValidationTestResultRest.get({
-                    ctx: CollabParameters.getCtx(),
+                    ctx: Context.getCtx(),
                     test_id: test.tests[0].id,
                 });
 
@@ -374,7 +359,7 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'ValidationResultRest', 'Col
             var values = [];
             var j = 0;
             results_data = ValidationModelResultRest.get({
-                ctx: CollabParameters.getCtx(),
+                ctx: Context.getCtx(),
                 model_id: model.models[0].id,
             });
             results_data.$promise.then(function() {

@@ -76,7 +76,7 @@ class Command(BaseCommand):
 
         collab1.save()
 
-   def _fake_models_test_results(self):
+    def _fake_models_test_results(self):
         
         import uuid
         import time
@@ -654,15 +654,15 @@ class Command(BaseCommand):
         result.save()
 
     def handle(self, *args, **options):
-        #self._create_data_modalities()
-        #self._create_test_types()
-        #self._create_species()
-        #self._create_brain_region()
-        #self._create_cell_type()
-        #self._create_model_type()
+        # self._create_data_modalities()
+        # self._create_test_types()
+        # self._create_species()
+        # self._create_brain_region()
+        # self._create_cell_type()
+        # self._create_model_type()
 
         # self._fake_collab()
-	#self._fake_models_test_results()
+	# self._fake_models_test_results()
         #self._fake_models_test_results_heli()
 
 
