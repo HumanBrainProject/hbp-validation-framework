@@ -66,21 +66,9 @@ ContextServices.service('Context', ['$rootScope',
                 }
             }, 'https://collab.humanbrainproject.eu/');
 
-
-            //cmt just for dev
-            // _getState();
             state = "n"
 
-            window.location.search = "ctx=df7a74fe-7bf6-4c40-bfa9-5c04c7cb4a3c&ctxstate=model.n";
-
-
-            // setTimeout(function() {
-
-            // }, 3000);
-
-
-
-
+            window.location.search = "ctx=" + getCtx() + "&ctxstate=model.n";
         };
 
         return {

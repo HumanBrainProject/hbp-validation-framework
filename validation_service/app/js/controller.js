@@ -118,7 +118,7 @@ testApp.controller('ValModelDetailCtrl', ['$scope', '$rootScope', '$http', '$loc
                 //var url = 'https://localhost:8000/?ctx=' + $scope.model.models[0].access_control.id + '#/model-catalog/detail/' + $scope.model.models[0].id; //to go outside collab but directly to model detail
 
                 var url = "https://collab.humanbrainproject.eu/#/collab/" + collab_id + "/nav/" + app_id +
-                    "?state=model.5e4905da1f1440909ae1ff095566d98b"; //to go to collab api
+                    "?state=model." + $scope.model.models[0].id; //to go to collab api
 
                 window.open(url, 'modelCatalog');
 
@@ -180,8 +180,6 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
                         $scope.$apply();
                     });
                     $scope.graphic_data = graphic_data;
-                    console.log("graphic_data");
-                    console.log(graphic_data);
                     $scope.graphic_options = Graphics.get_lines_options('Test/result', '', "", "this is a caption");
 
                 }).catch(function(err) {
