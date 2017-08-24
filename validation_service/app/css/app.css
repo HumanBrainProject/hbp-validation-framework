@@ -175,3 +175,9 @@
     border-right: 0px solid #ddd;
     border-left: 0px solid #ddd;
 }
+
+#panel-results {
+    width: 100%;
+    min-width: 100%;
+    max-width: 100%;
+}

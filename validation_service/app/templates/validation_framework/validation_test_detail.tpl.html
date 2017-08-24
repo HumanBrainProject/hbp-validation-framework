@@ -146,7 +146,7 @@
                 </tbody>
             </table>
             <br> <br>
-            <div class="navbar navbar-form">
+            <div class="navbar ">
                 <button type="submit" class="btn btn-primary" ng-click=saveVersion()>Save</button>
             </div>
         </form>
@@ -441,81 +441,85 @@
     <div class="control-group" id="tab_results" style="visibility:hidden;" aria-expanded="true">
         <br>
         <br>
-
-        <nvd3 options='graphic_options' data='graphic_data' id='chart svg'></nvd3>
-
-
-        <table class="table" style="border-top: none;">
-
-            <td id="td-clicked-results">
-
-                <table id="model_table" class="table">
-
-                    <h3 align=center> selection </h3>
-
-                    <thead>
-                        <th>Date/Time</th>
-                        <th>Results storage</th>
-                        <th>Result</th>
-                        <th>Passed</th>
-
-                        <th>Platform</th>
-                        <th>Project</th>
-                    </thead>
-
-                    <tbody>
-
-                        <tr class=tr-clickable id="" ng-repeat="result in result_focussed" ng-click="goToDetailTestResult(result.id)">
-                            <td>{{ result.timestamp }}</td>
-                            <td>{{ result.results_storage }}</td>
-                            <td>{{ result.result }}</td>
-                            <td>{{ result.passed }}</td>
-                            <td>{{ result.platform }}</td>
-                            <td>{{ result.project }}</td>
-                        </tr>
+        <div id=panel-results ng-if="graphic_data.length != 0">
+            <nvd3 options='graphic_options' data='graphic_data' id='chart svg'></nvd3>
 
 
-                    </tbody>
-                </table>
-            </td>
+            <table class="table" style="border-top: none;">
 
-        </table>
-        <br> <br>
+                <td id="td-clicked-results">
 
-        <table class="table">
+                    <table id="model_table" class="table">
 
-            <h3 align=center> Result list </h3>
+                        <h3 align=center> selection </h3>
 
-            <thead>
-                <tr>
-                    <th id="table-test-result-bottom-up-th">Date/Time</th>
-                    <th id="table-test-result-bottom-up-th" colspan="2">Models </th>
-                    <th id="table-test-result-bottom-up-th">Test version</th>
-                    <th id="table-test-result-bottom-up-th">Score</th>
-                </tr>
-                <tr>
-                    <th id="table-test-result-bottom-down-th"></th>
-                    <th id="table-test-result-bottom-down-th">Name</th>
-                    <th id="table-test-result-bottom-down-th">Version</th>
-                    <th id="table-test-result-bottom-down-th"></th>
-                    <th id="table-test-result-bottom-down-th"></th>
-                </tr>
-            </thead>
+                        <thead>
+                            <th>Date/Time</th>
+                            <th>Results storage</th>
+                            <th>Result</th>
+                            <th>Passed</th>
+
+                            <th>Platform</th>
+                            <th>Project</th>
+                        </thead>
+
+                        <tbody>
+
+                            <tr class=tr-clickable id="" ng-repeat="result in result_focussed" ng-click="goToDetailTestResult(result.id)">
+                                <td>{{ result.timestamp }}</td>
+                                <td>{{ result.results_storage }}</td>
+                                <td>{{ result.result }}</td>
+                                <td>{{ result.passed }}</td>
+                                <td>{{ result.platform }}</td>
+                                <td>{{ result.project }}</td>
+                            </tr>
 
 
-            <tbody id="tbody-all-results" ng-repeat="datablock in graphic_data">
-                <!--<tr id="table-all-result" class=tr-clickable ng-repeat="values in datablock.infosup" ng-click=goToDetailTestResult(values.id) bgcolor={{datablock.color}}>-->
-                <!--<tr id="table-all-result" class=tr-clickable ng-repeat="values in datablock.infosup" ng-click=goToDetailTestResult(values.id) style="border-right: 3px solid datablock.color ; border-left: 3px solid datablock.color;">-->
-                <tr class=tr-clickable ng-repeat="values in datablock.infosup" ng-click=goToDetailTestResult(values.id)>
-                    <td>{{values.timestamp}}</td>
-                    <td>{{values.model_instance.model.name}}</td>
-                    <td>{{values.model_instance.version}}</td>
-                    <td>{{values.test_definition.version}}</td>
-                    <td>{{values.result}}</td>
-                </tr>
+                        </tbody>
+                    </table>
+                </td>
 
-            </tbody>
-        </table>
+            </table>
+            <br> <br>
+
+            <table class="table">
+
+                <h3 align=center> Result list </h3>
+
+                <thead>
+                    <tr>
+                        <th id="table-test-result-bottom-up-th">Date/Time</th>
+                        <th id="table-test-result-bottom-up-th" colspan="2">Models </th>
+                        <th id="table-test-result-bottom-up-th">Test version</th>
+                        <th id="table-test-result-bottom-up-th">Score</th>
+                    </tr>
+                    <tr>
+                        <th id="table-test-result-bottom-down-th"></th>
+                        <th id="table-test-result-bottom-down-th">Name</th>
+                        <th id="table-test-result-bottom-down-th">Version</th>
+                        <th id="table-test-result-bottom-down-th"></th>
+                        <th id="table-test-result-bottom-down-th"></th>
+                    </tr>
+                </thead>
+
+
+                <tbody id="tbody-all-results" ng-repeat="datablock in graphic_data">
+                    <!--<tr id="table-all-result" class=tr-clickable ng-repeat="values in datablock.infosup" ng-click=goToDetailTestResult(values.id) bgcolor={{datablock.color}}>-->
+                    <!--<tr id="table-all-result" class=tr-clickable ng-repeat="values in datablock.infosup" ng-click=goToDetailTestResult(values.id) style="border-right: 3px solid datablock.color ; border-left: 3px solid datablock.color;">-->
+                    <tr class=tr-clickable ng-repeat="values in datablock.infosup" ng-click=goToDetailTestResult(values.id)>
+                        <td>{{values.timestamp}}</td>
+                        <td>{{values.model_instance.model.name}}</td>
+                        <td>{{values.model_instance.version}}</td>
+                        <td>{{values.test_definition.version}}</td>
+                        <td>{{values.result}}</td>
+                    </tr>
+
+                </tbody>
+            </table>
+        </div>
+        <div ng-show="graphic_data.length == 0">
+            <h3 align=center> No result available for this Test </h3>
+        </div>
     </div>
 
 </div>

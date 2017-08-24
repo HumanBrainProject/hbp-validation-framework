@@ -86,6 +86,7 @@ testApp.controller('ValModelDetailCtrl', ['$scope', '$rootScope', '$http', '$loc
             $scope.model.$promise.then(function() {
                 //graph and table results
                 $scope.data = Graphics.getResultsfromModelID($scope.model);
+                console.log($scope.data)
                 $scope.line_result_focussed;
                 $scope.$on('data_focussed:updated', function(event, data) {
                     $scope.line_result_focussed = data;
