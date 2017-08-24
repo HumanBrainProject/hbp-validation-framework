@@ -291,7 +291,6 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
 
             };
             $scope.saveComment = function(ticket_id, comment_post, ticket_index) {
-                console.log(ticket_index)
                 comment_post.Ticket_id = ticket_id;
                 var data = JSON.stringify(comment_post);
                 $scope.new_comment = TestCommentRest.post(data, function(value) {})
@@ -300,8 +299,6 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
                     $scope.test_tickets.tickets[ticket_index].comments.push($scope.new_comment.new_comment[0]);
                     document.getElementById("btn-create-comment-" + ticket_id).innerHTML = "Reply";
                     document.getElementById("formC-" + ticket_id).reset();
-
-                    // $scope._reset(form);
                 });
 
             };
@@ -318,11 +315,9 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
                 if (classe == "glyphicon glyphicon-plus button-click") {
                     $scope.comments_to_show.push(ticket_id);
                     document.getElementById("button-com-" + ticket_id).className = "glyphicon glyphicon-minus button-click";
-                    // document.getElementById("button-com-" + ticket_id).innerHTML = "Hide";
                 } else {
                     $scope.comments_to_show.splice($scope.comments_to_show.indexOf(ticket_id));
                     document.getElementById("button-com-" + ticket_id).className = "glyphicon glyphicon-plus button-click";
-                    // document.getElementById("button-com-" + ticket_id).innerHTML = "Show";
                 };
             };
             $scope.showCreateComment = function(ticket_id) {
