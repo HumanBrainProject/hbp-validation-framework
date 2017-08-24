@@ -459,10 +459,7 @@ class ScientificModelRest(APIView):
             'request': request,
         }
         model_id = str(len(request.GET.getlist('id')))
-
         ctx = request.GET.getlist('ctx')[0]
-
-        print ctx
 
         collab = _get_collab_id(request)
         if(model_id == '0'):
@@ -793,14 +790,9 @@ class IsCollabMemberRest (APIView):
     def get(self, request, format=None, **kwargs):
 
         ctx = request.GET.getlist('ctx')[0]
-
-        print "IsCollabMemberRest"
-        print ctx
-        
+     
         is_member = _is_collaborator(request, ctx) # bool
 
-        print "is_member"
-        print is_member
         #is_member = True
         return Response({
             'is_member':  is_member,
