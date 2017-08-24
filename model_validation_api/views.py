@@ -846,14 +846,13 @@ class ValidationTestResultRest (APIView):
     def get(self, request, format=None, **kwargs):
 
         serializer_context = {'request': request,}
-
+        
         test_definition_id = request.query_params['test_id']
 
-
         try : 
-            test_codes = ValidationTestCode.objects.filter(test_definition_id= test_definition_id).value("id")
+            test_codes = ValidationTestCode.objects.filter(test_definition_id= test_definition_id).values("id")
         except:
-            test_codes = [ValidationTestCode.objects.get(test_definition_id= test_definition_id).id]
+            test_codes = [ValidationTestCode.objects.get(test_definition_id= test_definition_id).id]   
         #need to rename in model test_code_id
         results_all = ValidationTestResult.objects.filter(test_definition_id__in = test_codes)
         model_instance_id = list(results_all.values("model_instance_id").distinct())
