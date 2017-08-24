@@ -99,7 +99,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.views.decorators.csrf import csrf_exempt, csrf_protect, ensure_csrf_cookie
 
-from model_validation_api.url_handler import get_url_ctx, get_url_args
+# from model_validation_api.url_handler import get_url_ctx, get_url_args
 
 
 
@@ -313,8 +313,9 @@ def _get_app_id(request):
     }
     #to get collab_id
     svc_url = settings.HBP_COLLAB_SERVICE_URL    
-    context = get_url_ctx(request)
-    url = '%scollab/context/%s/' % (svc_url, context)
+    ctx = request.GET.getlist('ctx')[0]
+    
+    url = '%scollab/context/%s/' % (svc_url, ctx)
     res = requests.get(url, headers=headers)
     app_id = res.json()['id']
     
@@ -334,7 +335,8 @@ class ParametersConfigurationRest( APIView): #LoginRequiredMixin,
  
 
     def post(self, request, format=None):
-        ctx = get_url_ctx(request)
+        ctx = request.GET.getlist('ctx')[0]
+
         if not _is_collaborator(request, ctx):
             return HttpResponseForbidden() 
 
@@ -349,7 +351,8 @@ class ParametersConfigurationRest( APIView): #LoginRequiredMixin,
         return Response(status=status.HTTP_201_CREATED)
 
     def put(self, request, format=None):
-        ctx = get_url_ctx(request)
+        ctx = request.GET.getlist('ctx')[0]
+
         if not _is_collaborator(request, ctx):
             return HttpResponseForbidden()
         
@@ -374,7 +377,8 @@ class ParametersConfigurationRest( APIView): #LoginRequiredMixin,
 
 class ScientificModelInstanceRest (APIView):
     def post(self, request, format=None):
-        ctx = get_url_ctx(request)
+        ctx = request.GET.getlist('ctx')[0]
+
         if not _is_collaborator(request, ctx):
             return HttpResponseForbidden()
 
@@ -387,7 +391,8 @@ class ScientificModelInstanceRest (APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
     def put(self, request, format=None):
-        ctx = get_url_ctx(request)
+        ctx = request.GET.getlist('ctx')[0]
+
         if not _is_collaborator(request, ctx):
             return HttpResponseForbidden()
 
@@ -408,7 +413,8 @@ class ScientificModelInstanceRest (APIView):
 class ScientificModelImageRest (APIView):
 
     def post(self, request, format=None):
-        ctx = get_url_ctx(request)
+        ctx = request.GET.getlist('ctx')[0]
+
         if not _is_collaborator(request, ctx):
             return HttpResponseForbidden()
 
@@ -420,7 +426,8 @@ class ScientificModelImageRest (APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
     def put(self, request, format=None):
-        ctx = get_url_ctx(request)
+        ctx = request.GET.getlist('ctx')[0]
+
         if not _is_collaborator(request, ctx):
             return HttpResponseForbidden()
 
@@ -436,7 +443,7 @@ class ScientificModelImageRest (APIView):
         return Response( status=status.HTTP_202_ACCEPTED) 
 
     def delete(self, request, format=None):
-        ctx = get_url_ctx(request)
+        ctx = request.GET.getlist('ctx')[0]
         if not _is_collaborator(request, ctx):
             return HttpResponseForbidden()
 
@@ -453,7 +460,9 @@ class ScientificModelRest(APIView):
         }
         model_id = str(len(request.GET.getlist('id')))
 
-        ctx = get_url_ctx(request)
+        ctx = request.GET.getlist('ctx')[0]
+
+        print ctx
 
         collab = _get_collab_id(request)
         if(model_id == '0'):
@@ -505,7 +514,7 @@ class ScientificModelRest(APIView):
                 'model_images': model_image_serializer.data,
             })
     def post(self, request, format=None):
-        ctx = get_url_ctx(request)
+        ctx = request.GET.getlist('ctx')[0]
 
         if not _is_collaborator(request, ctx):
             return HttpResponseForbidden()
@@ -535,7 +544,7 @@ class ScientificModelRest(APIView):
         return Response({'uuid':model.id}, status=status.HTTP_201_CREATED)
 
     def put(self, request, format=None):
-        ctx = get_url_ctx(request)
+        ctx = request.GET.getlist('ctx')[0]
         if not _is_collaborator(request, ctx):
             return HttpResponseForbidden()
 
@@ -578,7 +587,7 @@ class ValidationTestCodeRest(APIView):
 
 
      def post(self, request, format=None):
-        ctx = get_url_ctx(request)
+        ctx = request.GET.getlist('ctx')[0]
         if not _is_collaborator(request, ctx):
             return HttpResponseForbidden()
 
@@ -630,7 +639,7 @@ class ValidationTestDefinitionRest(APIView):
 
 
     def post(self, request, format=None):
-        ctx = get_url_ctx(request)
+        ctx = request.GET.getlist('ctx')[0]
         if not _is_collaborator(request, ctx):
             return HttpResponseForbidden()
 
@@ -651,7 +660,7 @@ class ValidationTestDefinitionRest(APIView):
         return Response(status=status.HTTP_201_CREATED)
 
     def put(self, request, format=None):
-        ctx = get_url_ctx(request)
+        ctx = request.GET.getlist('ctx')[0]
         if not _is_collaborator(request, ctx):
             return HttpResponseForbidden()
 
@@ -694,6 +703,8 @@ class TestTicketRest(APIView):
 
     def put(self, request, format=None):
         ctx = request.query_params['ctx']
+        ctx = request.GET.getlist('ctx')[0]
+
         if not _is_collaborator(request, ctx):
             return HttpResponseForbidden()
         
@@ -781,8 +792,15 @@ class ParametersConfigurationModelView(View):
 class IsCollabMemberRest (APIView):
     def get(self, request, format=None, **kwargs):
 
-        ctx = get_url_ctx(request)
+        ctx = request.GET.getlist('ctx')[0]
+
+        print "IsCollabMemberRest"
+        print ctx
+        
         is_member = _is_collaborator(request, ctx) # bool
+
+        print "is_member"
+        print is_member
         #is_member = True
         return Response({
             'is_member':  is_member,
