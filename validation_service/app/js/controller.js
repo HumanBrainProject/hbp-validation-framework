@@ -278,7 +278,15 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
                 $scope.new_comment = TestCommentRest.post(data, function(value) {})
                 $scope.new_comment.$promise.then(function() {
                     $scope.create_comment_to_show.splice($scope.create_comment_to_show.indexOf(ticket_id));
-                    $scope.test_tickets.tickets[ticket_index].comments.push($scope.new_comment.new_comment[0]);
+
+                    if ($scope.test_tickets.tickets[ticket_index].comments) {
+                        $scope.test_tickets.tickets[ticket_index].comments.push($scope.new_comment.new_comment[0]);
+                    } else {
+                        $scope.test_tickets.tickets[ticket_index].comments = [];
+                        $scope.test_tickets.tickets[ticket_index].comments.push($scope.new_comment.new_comment[0]);
+                    }
+
+
                     document.getElementById("btn-create-comment-" + ticket_id).innerHTML = "Reply";
                     document.getElementById("formC-" + ticket_id).reset();
                 });
