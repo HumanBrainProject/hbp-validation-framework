@@ -13,14 +13,12 @@ testApp.controller('HomeCtrl', ['$scope', '$rootScope', '$http', '$location', "S
         if (Context.getStateType() == "" || Context.getStateType() == undefined) {
             CollabParameters.setService(ctx).$promise.then(function() {
 
-
                 $scope.collab_species = CollabParameters.getParameters("species");
                 $scope.collab_brain_region = CollabParameters.getParameters("brain_region");
                 $scope.collab_cell_type = CollabParameters.getParameters("cell_type");
                 $scope.collab_model_type = CollabParameters.getParameters("model_type");
                 $scope.collab_test_type = CollabParameters.getParameters("test_type");
                 $scope.collab_data_modalities = CollabParameters.getParameters("data_modalities");
-
 
                 // $scope.is_collab_member = false;
                 // $scope.is_collab_member = IsCollabMemberRest.get({ ctx: ctx, });
