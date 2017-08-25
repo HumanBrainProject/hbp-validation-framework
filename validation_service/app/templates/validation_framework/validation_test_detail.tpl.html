@@ -3,7 +3,9 @@
     <head>
         <nav class="navbar">
             <br>
-            <div align=left> <a class="button-MC" ng-href="#/home" class="btn btn-primary">Home</a></div>
+            <button class="button-MC" ng-click="Context.validation_goToHomeView();">Home</button>&ensp;
+
+
             <h1 align=center> Valitation Framework </h1>
         </nav>
     </head>
@@ -465,7 +467,7 @@
 
                     <tbody>
 
-                        <tr class=tr-clickable id="" ng-repeat="result in result_focussed" ng-click="goToDetailTestResult(result.id)">
+                        <tr class=tr-clickable id="" ng-repeat="result in result_focussed" ng-click="Context.validation_goToDetailTestResult(result.id)">
                             <td>{{ result.timestamp }}</td>
                             <td>{{ result.results_storage }}</td>
                             <td>{{ result.result }}</td>
@@ -506,7 +508,7 @@
             <tbody id="tbody-all-results" ng-repeat="datablock in graphic_data">
                 <!--<tr id="table-all-result" class=tr-clickable ng-repeat="values in datablock.infosup" ng-click=goToDetailTestResult(values.id) bgcolor={{datablock.color}}>-->
                 <!--<tr id="table-all-result" class=tr-clickable ng-repeat="values in datablock.infosup" ng-click=goToDetailTestResult(values.id) style="border-right: 3px solid datablock.color ; border-left: 3px solid datablock.color;">-->
-                <tr class=tr-clickable ng-repeat="values in datablock.infosup" ng-click=goToDetailTestResult(values.id)>
+                <tr class=tr-clickable ng-repeat="values in datablock.infosup" ng-click=Context.validation_goToDetailTestResult(values.id)>
                     <td>{{values.timestamp}}</td>
                     <td>{{values.model_instance.model.name}}</td>
                     <td>{{values.model_instance.version}}</td>
