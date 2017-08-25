@@ -110,19 +110,19 @@ testApp.controller('ValModelDetailCtrl', ['$scope', '$rootScope', '$http', '$loc
             });
         });
 
-        $scope.goToModelCatalog = function() {
-            var collab_id = $scope.model.models[0].access_control.collab_id;
-            var app_id = AppIDRest.get({ ctx: $scope.model.models[0].access_control.id });
-            app_id.$promise.then(function() {
-                app_id = app_id.app_id;
+        // $scope.goToModelCatalog = function() {
+        //     var collab_id = $scope.model.models[0].access_control.collab_id;
+        //     var app_id = AppIDRest.get({ ctx: $scope.model.models[0].access_control.id });
+        //     app_id.$promise.then(function() {
+        //         app_id = app_id.app_id;
 
-                var url = "https://collab.humanbrainproject.eu/#/collab/" + collab_id + "/nav/" + app_id +
-                    "?state=model." + $scope.model.models[0].id; //to go to collab api
+        //         var url = "https://collab.humanbrainproject.eu/#/collab/" + collab_id + "/nav/" + app_id +
+        //             "?state=model." + $scope.model.models[0].id; //to go to collab api
 
-                window.open(url, 'modelCatalog');
-            });
+        //         window.open(url, 'modelCatalog');
+        //     });
 
-        }
+        // }
     }
 ]);
 
@@ -390,22 +390,22 @@ testApp.controller('ValTestResultDetailCtrl', ['$window', '$scope', '$rootScope'
 
         });
 
-        $scope.goToModelCatalog = function(test_id) {
+        // $scope.goToModelCatalog = function(test_id) {
 
-            var collab_id = $scope.model.models[0].access_control.collab_id;
-            var app_id = AppIDRest.get({ ctx: $scope.model.models[0].access_control.id });
-            app_id.$promise.then(function() {
-                app_id = app_id.app_id;
-                var referrer = "https://collab.humanbrainproject.eu/#/collab/" + collab_id + "/nav/" + app_id; //to go to collab api
-                var url = 'https://localhost:8000/?ctx=' + $scope.model.models[0].access_control.id + '#/model-catalog/detail/' + $scope.model.models[0].id; //to go outside collab but directly to model detail
-                var sm_url = '#/model-catalog/detail/' + $scope.model.models[0].id;
+        //     var collab_id = $scope.model.models[0].access_control.collab_id;
+        //     var app_id = AppIDRest.get({ ctx: $scope.model.models[0].access_control.id });
+        //     app_id.$promise.then(function() {
+        //         app_id = app_id.app_id;
+        //         var referrer = "https://collab.humanbrainproject.eu/#/collab/" + collab_id + "/nav/" + app_id; //to go to collab api
+        //         var url = 'https://localhost:8000/?ctx=' + $scope.model.models[0].access_control.id + '#/model-catalog/detail/' + $scope.model.models[0].id; //to go outside collab but directly to model detail
+        //         var sm_url = '#/model-catalog/detail/' + $scope.model.models[0].id;
 
-                console.log("referrer");
-                console.log(referrer);
+        //         console.log("referrer");
+        //         console.log(referrer);
 
-                var win = $window.open(referrer, 'modelCatalog');
-            });
-        }
+        //         var win = $window.open(referrer, 'modelCatalog');
+        //     });
+        // }
     }
 ]);
 

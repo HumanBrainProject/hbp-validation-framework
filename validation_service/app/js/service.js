@@ -1,7 +1,7 @@
 var ContextServices = angular.module('ContextServices', ['ngResource', 'btorfs.multiselect', 'ApiCommunicationServices', ]);
 
-ContextServices.service('Context', ['$rootScope', '$location',
-    function($rootScope, $location) {
+ContextServices.service('Context', ['$rootScope', '$location', 'AppIDRest',
+    function($rootScope, $location, AppIDRest) {
         var ctx;
         var state_type = undefined;
         var state = undefined;
@@ -31,10 +31,25 @@ ContextServices.service('Context', ['$rootScope', '$location',
             setState(test_id);
             $location.path('/home/validation_test/' + test_id);
         };
-        var validation_goToResultDetail = function(test_result_id) {
-
-            $location.path('/home/validation_test_result/' + test_result_id);
+        var validation_goToResultDetailView = function(result_id) {
+            sendState("result", result_id);
+            setState(result_id);
+            $location.path('/home/validation_test_result/' + result_id);
         };
+
+        var validation_goToModelCatalog = function(model) {
+            var collab_id = model.access_control.collab_id;
+            var app_id = AppIDRest.get({ ctx: model.access_control.id });
+            app_id.$promise.then(function() {
+                app_id = app_id.app_id;
+
+                var url = "https://collab.humanbrainproject.eu/#/collab/" + collab_id + "/nav/" + app_id +
+                    "?state=model." + model.id; //to go to collab api
+
+                window.open(url, 'modelCatalog');
+            });
+
+        }
 
 
 
@@ -120,7 +135,8 @@ ContextServices.service('Context', ['$rootScope', '$location',
             validation_goToHomeView: validation_goToHomeView,
             validation_goToModelDetailView: validation_goToModelDetailView,
             validation_goToTestDetailView: validation_goToTestDetailView,
-            validation_goToResultDetail: validation_goToResultDetail,
+            validation_goToResultDetailView: validation_goToResultDetailView,
+            validation_goToModelCatalog: validation_goToModelCatalog,
         }
     }
 ]);
