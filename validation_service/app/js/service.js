@@ -356,8 +356,6 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'ValidationResultRest', 'Col
             var datablock = undefined;
             var i = 0;
             for (i; i < results_data.data_block_id.length; i++) {
-                // console.log(results_data.data[i]);
-
                 if (results_data.data_block_id[i].id == id_line) {
                     datablock = results_data.data[i];
                     i = results_data.data_block_id.length;
@@ -376,10 +374,6 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'ValidationResultRest', 'Col
 
         var getResultsfromTestID = function(test) {
             return new Promise(function(resolve, reject) {
-                // resolve("Succès !");
-                // ou
-                // reject("Erreur !");
-
                 var values = [];
                 var j = 0;
                 results_data = ValidationTestResultRest.get({
@@ -415,7 +409,6 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'ValidationResultRest', 'Col
         };
 
         var _manageDataForGraph = function(data, line_id) {
-            // var multiple_result_data = [];
             var values_temp = [];
             var ij = 0;
 
@@ -428,12 +421,11 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'ValidationResultRest', 'Col
                 };
                 values_temp.push(temp);
             };
-            // multiple_result_data.push(data);
             var data_to_return = {
                 values: values_temp, //values - represents the array of {x,y} data points
                 key: line_id, //key  - the name of the series.
                 color: _pickRandomColor(), //color - optional: choose your own line color.
-                infosup: data, //maybe not usefull. need to see
+                infosup: data,
             };
             return data_to_return;
         };
@@ -486,9 +478,6 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'ValidationResultRest', 'Col
                     },
                     callback: function(chart) {
                         chart.lines.dispatch.on('elementClick', function(e) {
-                            // console.log('elementClick in callback', e);
-
-                            //return the list of results for t time.
                             var list_of_results_id = [];
                             var i = 0;
                             for (i; i < e.length; i++) {

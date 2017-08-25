@@ -145,14 +145,13 @@ class ValidationTestResult(models.Model):
     platform = models.TextField(help_text="Computer system on which the simulation was run")
     project = models.CharField(help_text="Project with which this test run is associated(optional)",
                                max_length=200,
-                               blank=True)  # project==collab_id for HBP
+                               blank=True)  # project==collab_id for HBP ??rename o collab_id?
 
     class Meta:
         get_latest_by = "timestamp"
 
     def get_platform_as_dict(self):
         return json.loads(self.platform)
-#        return 'OK'
 
     def __str__(self):
         return "Validation test result {}".format(self.id,)
@@ -197,24 +196,6 @@ class Param_CellType (models.Model):
 class Param_ModelType (models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     authorized_value = models.CharField(max_length=200, default="")
-
-
-
-# @python_2_unicode_compatible
-# class CollabParameters(models.Model):   
-#     # id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-
-#     id =  models.CharField(primary_key=True, max_length=200) #just for dev
-
-#     data_modalities = models.ManyToManyField(Param_DataModalities)
-#     test_type = models.ManyToManyField(Param_TestType)
-#     species = models.ManyToManyField(Param_Species)
-#     brain_region = models.ManyToManyField(Param_BrainRegion)
-#     cell_type = models.ManyToManyField(Param_CellType)
-#     model_type = models.ManyToManyField(Param_ModelType)
-
-#     def __str__(self):
-#         return "Model: {} ({})".format(self.name, self.id)
 
 
 

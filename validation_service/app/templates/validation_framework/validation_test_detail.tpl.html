@@ -13,13 +13,13 @@
 
         <nav class="navbar ">
             <h2 align=center> <b>Test: </b> {{ detail_test.tests[0].name}} (ID:{{ detail_test.tests[0].id }})</h2>
-
+            <br>
 
             <ul class="nav nav-perso">
-                <li id="li_tab_description" class="active"><a class="nav-link" ng-click="toogleTabs('tab_description')" data-toggle="tab">Description</a></li>
-                <li id="li_tab_version"><a class="nav-link" ng-click="toogleTabs('tab_version')" data-toggle="tab">Version</a></li>
-                <li id="li_tab_results"><a class="nav-link" ng-click="toogleTabs('tab_results')" data-toggle="tab">Results</a></li>
-                <li id="li_tab_comments"><a class="nav-link" ng-click="toogleTabs('tab_comments')" data-toggle="tab">Comments</a></li>
+                <li id="li_tab_description" class="active"><a class="nav-link tab-perso" ng-click="toogleTabs('tab_description')" data-toggle="tab">Description</a></li>
+                <li id="li_tab_version"><a class="nav-link tab-perso" ng-click="toogleTabs('tab_version')" data-toggle="tab">Version</a></li>
+                <li id="li_tab_results"><a class="nav-link tab-perso" ng-click="toogleTabs('tab_results')" data-toggle="tab">Results</a></li>
+                <li id="li_tab_comments"><a class="nav-link tab-perso" ng-click="toogleTabs('tab_comments')" data-toggle="tab">Comments</a></li>
             </ul>
         </nav>
     </header>
@@ -31,7 +31,7 @@
             <h3 style="font-size:1.5em" align=center><b>Description of test {{ detail_test.tests[0].name }}</b></h3>
             <h4 style="font-size:1.2em" align=center><b>Authors: </b> {{ detail_test.tests[0].author }}</h4>
             <br>
-            <div><a ng-click="toogleTabs( 'tab_edit_test')" class="button-MC">Edit</a></div>
+            <div><a ng-click="toogleTabs( 'tab_edit_test')" class="button-MC button-right">Edit</a></div>
             <br> <br>
             <h4 style="font-size:1em" align=left><b>Publication: </b> {{ detail_test.tests[0].publication }}</h4>
             <br>
@@ -83,7 +83,7 @@
     <div class="control-group" id="tab_version" style="display:none;" aria-expanded="true">
         <br>
         <h3 style="font-size:1.5em" align=center><b>Code versions</b></h3><br>
-        <div><a ng-click="toogleTabs( 'tab_new_version')" class="button-MC">New version</a></div>
+        <div><a ng-click="toogleTabs( 'tab_new_version')" class="button-MC button-right">New version</a></div>
         <br> <br>
         <div>
             <table class="table-create">
@@ -106,10 +106,6 @@
             </table>
         </div>
     </div>
-
-    <!--<div class="control-group" id="tab_results" style="display:none;" aria-expanded="true">-->
-
-
 
 
     <div class="control-group" id="tab_new_version" style="display:none;" aria-expanded="true">
@@ -297,9 +293,6 @@
     <div class="control-group" id="tab_comments" style="display:none;" aria-expanded="true">
         <main class="comment" onsubmit="return false">
 
-            <!--<div class="panel-heading">
-                <h3 class="panel-title" id="title-commment"> Comments </h3>
-            </div>-->
 
             <br>
             <div class=Ticketlist ng-repeat="(keyT,ticket_show) in test_tickets.tickets">
@@ -448,6 +441,35 @@
     <div class="control-group" id="tab_results" style="visibility:hidden;" aria-expanded="true">
         <br>
         <br>
+
+        <table class="table" id=table-test-result>
+
+            <h3 align=center> Result list </h3>
+
+            <thead>
+                <th id="table-test-result-bottom-up-th">Date/Time</th>
+                <th id="table-test-result-bottom-down-th">Model Name</th>
+                <th id="table-test-result-bottom-down-th">Model Version</th>
+                <th id="table-test-result-bottom-up-th">Test version</th>
+                <th id="table-test-result-bottom-up-th">Score</th>
+            </thead>
+
+
+            <tbody id="tbody-all-results" ng-repeat="datablock in graphic_data">
+                <tr class=tr-clickable ng-repeat="values in datablock.infosup" ng-click=Context.validation_goToResultDetailView(values.id)>
+                    <td>{{values.timestamp}}</td>
+                    <td>{{values.model_instance.model.name}}</td>
+                    <td>{{values.model_instance.version}}</td>
+                    <td>{{values.test_definition.version}}</td>
+                    <td>{{values.result}}</td>
+                </tr>
+
+            </tbody>
+        </table>
+
+        <br><br>
+        <br><br>
+
         <div id=panel-results ng-if="graphic_data.length != 0">
             <nvd3 options='graphic_options' data='graphic_data' id='chart svg'></nvd3>
 
@@ -488,39 +510,6 @@
             </table>
             <br> <br>
 
-            <table class="table">
-
-                <h3 align=center> Result list </h3>
-
-                <thead>
-                    <tr>
-                        <th id="table-test-result-bottom-up-th">Date/Time</th>
-                        <th id="table-test-result-bottom-up-th" colspan="2">Models </th>
-                        <th id="table-test-result-bottom-up-th">Test version</th>
-                        <th id="table-test-result-bottom-up-th">Score</th>
-                    </tr>
-                    <tr>
-                        <th id="table-test-result-bottom-down-th"></th>
-                        <th id="table-test-result-bottom-down-th">Name</th>
-                        <th id="table-test-result-bottom-down-th">Version</th>
-                        <th id="table-test-result-bottom-down-th"></th>
-                        <th id="table-test-result-bottom-down-th"></th>
-                    </tr>
-                </thead>
-
-
-                <tbody id="tbody-all-results" ng-repeat="datablock in graphic_data">
-                    <tr class=tr-clickable ng-repeat="values in datablock.infosup" ng-click=Context.validation_goToResultDetailView(values.id)>
-                        <td>{{values.timestamp}}</td>
-                        <td>{{values.model_instance.model.name}}</td>
-                        <td>{{values.model_instance.version}}</td>
-                        <td>{{values.test_definition.version}}</td>
-                        <td>{{values.result}}</td>
-                    </tr>
-
-
-                </tbody>
-            </table>
         </div>
         <div ng-show="graphic_data.length == 0">
             <h3 align=center> No result available for this Test </h3>
