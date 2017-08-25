@@ -60,7 +60,6 @@
     height: 100px;
     overflow: hidden;
     text-overflow: ellipsis;
-    /*padding: 1%;*/
 }
 
 .linkbutton {
@@ -68,7 +67,6 @@
     border: none;
     padding: 0!important;
     font: inherit;
-    /*border is optional*/
     color: #42a1f4;
     cursor: pointer;
 }
@@ -181,8 +179,4 @@
 
 #table-test-result {
     padding: 5px;
-    /*border-bottom: 1px solid #ddd;
-    border-top: 1px solid #ddd;
-    border-right: 1px solid #ddd;
-    border-left: 1px solid #ddd;*/
 }

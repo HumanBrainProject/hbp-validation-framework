@@ -1,7 +1,8 @@
 <div ng-controller="ValTestCreateCtrl">
     <nav class="navbar">
         <br>
-        <div align=left> <a class="button-MC" ng-href="#/home" class="btn btn-primary">Home</a></div>
+        <button class="button-MC" ng-click="Context.validation_goToHomeView();">Home</button>&ensp;
+
         <h1 align=center> Test catalog </h1>
     </nav>
     <h2 align=center>Create new Test</h2>
@@ -137,9 +138,6 @@
                                         </td>
                                         <td>
                                             <input type="text" id="select-data_type" data-style="btn-primary" ng-model="test.data_type" required>
-                                            <!--<select id="select-data-type" data-style="btn-primary" ng-model="test.data_type" required>
-                                         <option ng-repeat="dt in data_type" value="{{dt}}">{{dt}}</option>
-                                    </select>-->
                                         </td>
                                     </tr>
                                     <tr>
@@ -197,7 +195,6 @@
 
             <br/>
             <div class="navbar navbar-form ">
-                <!--<button type="submit " class="btn btn-primary " >Save</button>    #on-submit=view.redirect()-->
                 <button ng-click="saveTest()" class="btn btn-primary ">Save</button>
 
             </div>

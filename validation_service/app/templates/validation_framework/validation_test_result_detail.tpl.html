@@ -4,7 +4,9 @@
     <nav class="navbar ">
         <br>
 
-        <div align=left> <a class="button-MC" ng-href="#/home" class="btn btn-primary">Home</a></div>
+        <button class="button-MC" ng-click="Context.validation_goToHomeView();">Home</button>&ensp;
+
+
         <h1 align=center> Test result: {{test_result.data.id}}</h1>
     </nav>
 </head>
@@ -135,9 +137,9 @@
                         <b> Description: </b> <br><br>
 
                         <div markdown="model.models[0].description" ng-text-truncate="model.models[0].description" ng-tt-words-threshold="100" ng-tt-no-toggling></div>
-                        <button class=linkbutton align=right text-align=right type="button" ng-click="goToModelResults(model.models[0].id)"> (more details on model results page)</button>
+                        <button class=linkbutton align=right text-align=right type="button" ng-click="Context.validation_goToModelDetailView(model.models[0].id)"> (more details on model results page)</button>
                         <br>
-                        <button class=linkbutton align=right text-align=right type="button" ng-click="goToModelCatalog(model.models[0].id)"> (more details on model catalog)</button>
+                        <button class=linkbutton align=right text-align=right type="button" ng-click="Context.validation_goToModelCatalog(model.models[0])"> (more details on model catalog)</button>
 
                         <br><br>
                     </tr>
@@ -172,7 +174,7 @@
                     <tr>
                         <b>Protocol: </b> <br><br>
                         <div markdown="test.tests[0].protocol" ng-text-truncate="test.tests[0].protocol" ng-tt-words-threshold="100" ng-tt-no-toggling></div>
-                        <button class=linkbutton align=right text-align=right type="button" ng-click="goToDetailTest(test.tests[0].id)">(more details on test results page)</button>
+                        <button class=linkbutton align=right text-align=right type="button" ng-click="Context.validation_goToTestDetailView(test.tests[0].id)">(more details on test results page)</button>
                         <br><br>
                     </tr>
                 </tbody>

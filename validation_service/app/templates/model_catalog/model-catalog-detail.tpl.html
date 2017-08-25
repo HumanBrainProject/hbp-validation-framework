@@ -11,10 +11,7 @@
 
     <nav>
 
-        <button class="button-MC" ng-click="goToHomeView();">Home</button>&ensp;
-        <!--<p> model.models[0].access_control.id {{model.models[0].access_control.id}} </p>
-        <p> ctx {{ctx}} </p>
-        <p>is_collab_member {{is_collab_member}} </p>-->
+        <button class="button-MC" ng-click="Context.modelCatalog_goToHomeView();">Home</button>&ensp;
 
         <a ng-href="#/model-catalog/edit/{{model.models[0].id}}" ng-if="model.models[0].access_control.id == ctx && is_collab_member == true" class="button-MC">Edit</a>&ensp;
         <a ng-href="#/model-catalog/version/{{model.models[0].id}}" class="button-MC">New version</a>&ensp;
@@ -82,7 +79,6 @@
         <div class="panel-body" class="imgwrapper">
             <figure id="ImagePopupDetailfig">
                 <img class="img-fluid img-responsive" id=ImagePopupIm ng-src={{bigImage.url}}>
-                <!--<img class=img-responsive id=ImagePopupIm ng-src="{{bigImage.url}}">-->
                 <br>
                 <figcaption markdown="bigImage.caption"></figcaption>
                 <br>

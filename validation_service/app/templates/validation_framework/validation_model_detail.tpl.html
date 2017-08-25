@@ -4,7 +4,8 @@
     <nav class="navbar ">
         <br>
 
-        <div align=left> <a class="button-MC" ng-href="#/home" class="btn btn-primary">Home</a></div>
+        <button class="button-MC" ng-click="Context.validation_goToHomeView();">Home</button>&ensp;
+
         <h1 align=center> Model: {{ model.models[0].name}} (ID:{{ model.models[0].id }})</h1>
         <h3 align=center> Authors: {{ model.models[0].author }}</h3>
     </nav>
@@ -32,14 +33,14 @@
             <tbody>
                 <tr>
                     <b> Description: </b> <br><br>
-                    <!--<div markdown="model.models[0].description" truncateWords="model.models[0].description"></div>-->
                     <div markdown="model.models[0].description" ng-text-truncate="model.models[0].description" ng-tt-words-threshold="50" ng-tt-no-toggling></div>
-                    <button class=linkbutton align=right text-align=right type="button" ng-click="goToModelCatalog()"> (more details on model catalog)</button>
+                    <button class=linkbutton align=right text-align=right type="button" ng-click="Context.validation_goToModelCatalog(model.models[0])"> (more details on model catalog)</button>
                     <br><br>
                 </tr>
             </tbody>
         </table>
     </div>
+
 
     <div id=panel-results ng-if="data.length != 0">
         <div id=VF-model-table-all-data>
@@ -54,8 +55,8 @@
                 </thead>
                 <tbody>
                     <tr ng-repeat="test in data">
-                        <td class=tr-clickable ng-click=goToDetailTest(test.infosup[0].test_definition.test_definition_id)>test #{{test.key}} </td>
-                        <td class=tr-clickable ng-click=goToDetailTestResult(version.id_test_result) ng-repeat="version in test.values">{{version.y}} </td>
+                        <td class=tr-clickable ng-click=Context.validation_goToDetailTest(test.infosup[0].test_definition.test_definition_id)>test #{{test.key}} </td>
+                        <td class=tr-clickable ng-click=Context.validation_goToResultDetailView(version.id_test_result) ng-repeat="version in test.values">{{version.y}} </td>
                     </tr>
                 </tbody>
             </table>
@@ -88,13 +89,14 @@
 
                     <tbody>
 
-                        <tr class=tr-clickable id="" ng-repeat="result in line_result_focussed" ng-click="goToDetailTestResult(result.id)">
+                        <tr class=tr-clickable id="" ng-repeat="result in line_result_focussed" ng-click="Context.validation_goToResultDetailView(result.id)">
                             <td>{{ result.results_storage }}</td>
                             <td>{{ result.result }}</td>
                             <td>{{ result.passed }}</td>
                             <td>{{ result.timestamp }}</td>
                             <td>{{ result.platform }}</td>
                             <td>{{ result.project }}</td>
+
 
                         </tr>
                     </tbody>

@@ -2,8 +2,8 @@
 
     <nav class="navbar">
         <br>
-        <br>
-        <div align=left> </div>
+        <button class="button-MC" ng-click="Context.validation_goToHomeView();">Home</button>&ensp;
+
         <h1 align=center> Valitation Framework </h1>
     </nav>
 
@@ -56,7 +56,7 @@
                         <th>author</th>
                     </thead>
                     <br>
-                    <tr class=tr-clickable id="test1" ng-repeat="model in models.models | filter: search | filterMultiple:{species:selected_species, brain_region:selected_brain_region, cell_type:selected_cell_type, model_type:selected_model_type}" ng-click="goToModelDetailView(model)">
+                    <tr class=tr-clickable id="test1" ng-repeat="model in models.models | filter: search | filterMultiple:{species:selected_species, brain_region:selected_brain_region, cell_type:selected_cell_type, model_type:selected_model_type}" ng-click="Context.validation_goToModelDetailView(model.id)">
                         <td> {{model.name}} </td>
                         <td>{{model.id}}</td>
                         <td>{{model.author}}</td>
@@ -74,7 +74,9 @@
                         <th>author</th>
                     </thead>
                     <br>
-                    <tr class="tr-clickable" ng-repeat="test in tests.tests | filter:search | filterMultiple:{species:selected_species, brain_region:selected_brain_region, cell_type:selected_cell_type, model_type:selected_model_type}" ng-click="goToTestDetailView(test)">
+
+                    <tr class="tr-clickable" ng-repeat="test in tests.tests | filter:search | filterMultiple:{species:selected_species, brain_region:selected_brain_region, cell_type:selected_cell_type, model_type:selected_model_type}" ng-click="Context.validation_goToTestDetailView(test.id)">
+
                         <td> {{test.name}} </td>
                         <td> {{test.id}}</td>
                         <td>{{test.author}}</td>
@@ -84,122 +86,6 @@
             </div>
 
         </div>
-        <!--<article>
-        <table class="table-create" id=test-table>
-            <thead> Model</thead>
-            <tr class=tr-clickable id="test1" ng-repeat="model in models.models | filter: search | filterMultiple:{species:selected_species, brain_region:selected_brain_region, cell_type:selected_cell_type, model_type:selected_model_type}" ng-click="goToDetailView(model)">
-                <td><b> {{model.name}} </b> (id: {{model.id}}) <br> by {{model.author}}</td>
-            </tr>
-        </table>
-    </article>
-    <aside>
-        <table class="table-create" id=test-table>
-            <thead> Test</thead>
-            <tr class="tr-clickable" ng-repeat="test in tests.tests | filter:search | filterMultiple:{species:selected_species, brain_region:selected_brain_region, cell_type:selected_cell_type, model_type:selected_model_type}" ng-click="goToTestDetailView(test)">
-                <td> {{test.name}} </td>
-                <td>(id: {{test.id}})</td>
-                <td>by {{test.author}}</td>
-            </tr>
-        </table>
-    </aside>-->
-        <!--<table class="table" id=test-table>
-        <thead>
-            <th> Models </th>
-            <th> Tests </th>
-        </thead>
-        <tbody>
-            <td item-width="50%" id="model_table">
-                <table class="table-create table-striped" id=test-table>
-                    <tr class=tr-clickable id="test1" ng-repeat="model in models.models | filter: search | filterMultiple:{species:selected_species, brain_region:selected_brain_region, cell_type:selected_cell_type, model_type:selected_model_type}" ng-click="goToDetailView(model)">
-                        <td><b> {{model.name}} </b> (id: {{model.id}}) <br> by {{model.author}}</td>
-                    </tr>
-                </table>
-            </td>
-            <td item-width="50%">
-                <table class="table-create" id=test-table>
-                    <tr class="tr-clickable" ng-repeat="test in tests.tests | filter:search | filterMultiple:{species:selected_species, brain_region:selected_brain_region, cell_type:selected_cell_type, model_type:selected_model_type}" ng-click="goToTestDetailView(test)">
-                        <td> {{test.name}} </td>
-                        <td>(id: {{test.id}})</td>
-                        <td>by {{test.author}}</td>
-                    </tr>
-                </table>
-            </td>
-        </tbody>
-    </table>-->
-
-        <!--<table class="table">
-            <td>
-
-                <table id="model_table" class="table">
-
-                    <h3 align=center> Models </h3>
-
-                    <thead>
-                        <th>Name</th>
-                        <th>Species</th>
-                        <th>Brain region</th>
-                        <th>Cell type</th>
-                        <th>Author(s)</th>
-                    </thead>
-
-                    <tbody>
-                        <tr class=tr-clickable id="test1" ng-repeat="model in models.models | filter: search | filterMultiple:{species:selected_species, brain_region:selected_brain_region, cell_type:selected_cell_type, model_type:selected_model_type}" ng-click="goToDetailView(model)">
-                            <td>{{ model.name }}</td>
-                            <td>{{ model.species }}</td>
-                            <td>{{ model.brain_region }}</td>
-                            <td>{{ model.cell_type }}</td>
-
-                            <td></td>
-                            <td>{{ model.author }}</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </td>
-
-            <td>
-                <table id="test_table" class="table">
-
-                    <h3 align=center> Tests </h3>
-
-                    <thead>
-                        <th>Name</th>
-                        <th>Species</th>
-                        <th>Age</th>
-                        <th>Brain region</th>
-                        <th>Cell type</th>
-                        <th>Data location</th>
-                        <th>Data type</th>
-                        <th>Data modality</th>
-                        <th>Test type</th>
-                        <th>Code location</th>
-                        <th>Author</th>
-                        <th>Publication</th>
-                    </thead>
-
-                    <tbody>
-
-                        <tr class="tr-clickable" ng-repeat="test in tests.tests | filter:search | filterMultiple:{species:selected_species, brain_region:selected_brain_region, cell_type:selected_cell_type, model_type:selected_model_type}" ng-click="goToTestDetailView(test)">
-                            <td>{{ test.name }}</td>
-                            <td>{{ test.species }}</td>
-                            <td>{{ test.age }}</td>
-                            <td>{{ test.brain_region }}</td>
-
-                            <td>{{ test.cell_type }}</td>
-                            <td>{{ test.data_location }}</td>
-
-                            <td>{{ test.data_type }}</td>
-                            <td>{{ test.data_modality }}</td>
-                            <td>{{ test.test_type }}</td>
-                            <td>{{ test.get_latest_code.repository}}</td>
-                            <td>{{ test.author }}</td>
-                            <td>{{ test.publication }}</td>
-                        </tr>
-
-                    </tbody>
-                </table>
-            </td>
-        </table>-->
-
     </body>
 
 </div>

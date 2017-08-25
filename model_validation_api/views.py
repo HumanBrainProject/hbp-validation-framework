@@ -31,7 +31,6 @@ from hbp_app_python_auth.auth import get_access_token, get_auth_header
 from .models import (ValidationTestDefinition, 
                         ValidationTestCode,
                         ValidationTestResult, 
-                        ScientificModelInstance, 
                         ScientificModel, 
                         ScientificModelInstance,
                         ScientificModelImage,   
@@ -46,16 +45,16 @@ from .models import (ValidationTestDefinition,
                         CollabParameters,)
 
 
-from .forms import (ValidationTestDefinitionForm, 
-                        ValidationTestCodeForm,
-                        ScientificModelForm,
-                        ScientificModelImageForm,  
-                        ScientificTestForm, 
-                        ValidationTestResultForm, 
-                        ScientificModelInstanceForm,
-                        CommentForm,
-#                        configviewForm,  
-                        )
+# from .forms import (ValidationTestDefinitionForm, 
+#                         ValidationTestCodeForm,
+#                         ScientificModelForm,
+#                         ScientificModelImageForm,  
+#                         ScientificTestForm, 
+#                         ValidationTestResultForm, 
+#                         ScientificModelInstanceForm,
+#                         CommentForm,
+# #                        configviewForm,  
+#                         )
 
 from .serializer import (ValidationTestDefinitionSerializer, 
                             ScientificModelSerializer,
@@ -104,18 +103,18 @@ from django.views.decorators.csrf import csrf_exempt, csrf_protect, ensure_csrf_
 
 
 CROSSREF_URL = "http://api.crossref.org/works/"
-VALID_FILTER_NAMES = ('name', 'age', 'brain_region', 'cell_type',
-                      'data_type', 'data_modality', 'test_type',
-                      'author', 'species', 'data_location', 'publication')
-VALID_MODEL_FILTER_NAMES = ('brain_region', 'cell_type',
-                            'author', 'species')
-VALID_RESULT_FILTERS = {
-    'model': 'model_instance__model__name__icontains',
-    'validation': 'test_definition__test_definition__name__icontains',
-    'project': 'project',
-    'collab_id': 'project',
-    'brain_region': 'test_definition__test_definition__brain_region__icontains',
-}
+# VALID_FILTER_NAMES = ('name', 'age', 'brain_region', 'cell_type',
+#                       'data_type', 'data_modality', 'test_type',
+#                       'author', 'species', 'data_location', 'publication')
+# VALID_MODEL_FILTER_NAMES = ('brain_region', 'cell_type',
+#                             'author', 'species')
+# VALID_RESULT_FILTERS = {
+#     'model': 'model_instance__model__name__icontains',
+#     'validation': 'test_definition__test_definition__name__icontains',
+#     'project': 'project',
+#     'collab_id': 'project',
+#     'brain_region': 'test_definition__test_definition__brain_region__icontains',
+# }
 
 logger = logging.getLogger("model_validation_api")
 
@@ -198,16 +197,6 @@ def get_user(request):
 
 @method_decorator(login_required(login_url='/login/hbp'), name='dispatch' )
 class HomeValidationView(View):
-    # model = ValidationTestDefinition
-    # template_name = "validation_home.html"
-    # login_url='/login/hbp/'
-
-    # def get(self, request, *args, **kwargs):
-    #     template = loader.get_template(self.template_name)
-    #     return HttpResponse(template.render())
-
-
-    # model = ValidationTestDefinition
     template_name = "validation_framework/validation_home.html"
     login_url='/login/hbp/'
 
@@ -256,15 +245,17 @@ class AuthorizedCollabParameterRest(APIView):
             'model_type' : model_type_serializer.data,
         })
 
-    # @method_decorator(login_required) #   (login_url='/login/hbp') )
-    # @login_required
-    # def dispatch(self, *args, **kwargs):
-    #     # if not _is_collaborator(request, ctx):
-    #     #     return HttpResponseForbidden()     
-    #     return super(AuthorizedCollabParameterRest, self).dispatch(*args, **kwargs)
+class CollabIDRest(APIView): 
+    def get(self, request, format=None, **kwargs):
 
+        if self.request.user == "AnonymousUser" :
+            collab_id = 0
+        else :         
+            collab_id = _get_collab_id(request)
 
-
+        return Response({
+            'collab_id': collab_id,
+        })
 
 def _get_collab_id(request):
     social_auth = request.user.social_auth.get()
@@ -279,20 +270,6 @@ def _get_collab_id(request):
     res = requests.get(url, headers=headers)
     collab_id = res.json()['collab']['id']
     return collab_id
-
-
-
-class CollabIDRest(APIView): 
-    def get(self, request, format=None, **kwargs):
-
-        if self.request.user == "AnonymousUser" :
-            collab_id = 0
-        else :         
-            collab_id = _get_collab_id(request)
-
-        return Response({
-            'collab_id': collab_id,
-        })
 
 class AppIDRest(APIView): 
     def get(self, request, format=None, **kwargs):
@@ -359,19 +336,12 @@ class ParametersConfigurationRest( APIView): #LoginRequiredMixin,
         serializer_context = {'request': request,}
         id = request.GET.getlist('id')[0]
         param = CollabParameters.objects.get(id = id )
-        param_serializer = CollabParametersSerializer(param, data=request.data, context=serializer_context )#, many=True)
+        param_serializer = CollabParametersSerializer(param, data=request.data, context=serializer_context )
 
         if param_serializer.is_valid():         
             param_serializer.save()
             return Response(param_serializer.data)
         return Response(param_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-    # @method_decorator(csrf_exempt)
-    # def dispatch(self, *args, **kwargs):
-    #     return super(CollabParameterRest, self).dispatch(*args, **kwargs)
-
-
 
 
 
@@ -482,7 +452,6 @@ class ScientificModelRest(APIView):
                 model_type__in=collab_params.model_type.split(",")).prefetch_related()
 
             if len(rq1) >0:
-                # models = rq1.union(rq2)
                 models  = (rq1 | rq2).distinct()
             else:
                 models = rq2
@@ -500,11 +469,10 @@ class ScientificModelRest(APIView):
 
                 
 
-            model_serializer = ScientificModelReadOnlySerializer(models, context=serializer_context, many=True )#data=request.data)
+            model_serializer = ScientificModelReadOnlySerializer(models, context=serializer_context, many=True )
             model_instance_serializer = ScientificModelInstanceSerializer(model_instance, context=serializer_context, many=True )
             model_image_serializer = ScientificModelImageSerializer(model_images, context=serializer_context, many=True )
-        #need to transform model_serializer.data :
-        # "resource_uri": "/models/{}".format(model.pk)
+
             return Response({
                 'models': model_serializer.data,
                 'model_instances': model_instance_serializer.data,
@@ -709,7 +677,7 @@ class TestTicketRest(APIView):
         serializer_context = {'request': request,}
         ticket_id = request.data['id']
         ticket = Tickets.objects.get(id=ticket_id)
-        param_serializer = TicketSerializer(ticket, data=request.data, context=serializer_context )#, many=True)
+        param_serializer = TicketSerializer(ticket, data=request.data, context=serializer_context )
 
         if param_serializer.is_valid():         
             param_serializer.save()
@@ -751,7 +719,7 @@ class TestCommentRest(APIView):
         serializer_context = {'request': request,}
         comment_id = request.data['id']
         comment = Comments.objects.get(id=comment_id)
-        param_serializer = CommentSerializer(comment, data=request.data, context=serializer_context )#, many=True)
+        param_serializer = CommentSerializer(comment, data=request.data, context=serializer_context )
 
         if param_serializer.is_valid():         
             param_serializer.save()
@@ -825,7 +793,6 @@ class ValidationModelResultRest (APIView):
             model_instances = [ScientificModelInstance.objects.get(model_id= model_id).id]
 
         results_all= ValidationTestResult.objects.filter(model_instance_id__in = model_instances )
-        # results_all_serializer =  ValidationTestResultSerializer(results_all,context=serializer_context, many=True)
         versions_id = list(results_all.values("test_definition_id").distinct())
         
         result_serialized=[]
@@ -869,31 +836,6 @@ class ValidationTestResultRest (APIView):
         return Response({
             'data': result_serialized,
             'data_block_id': new_id,
-        })
-
-
-## This is just to make some test with NVD3.js
-class ValidationResultRest_fortest (APIView):
-    def get(self, request, format=None, **kwargs):
-        import json
-
-        with open('app/data_to_test/move_trial0_inh.txt') as data_file:    
-            data = json.load(data_file)
-        
-        new_data = []
-
-        index1 = 0
-        for i in data :
-            new_data.append([])
-            for j in i:
-
-                new_data[index1].append(j[0:-3])  
-            index1 += 1 
-        
-        new_data = new_data[0:10]
-
-        return Response({
-            'data': new_data,
         })
 
 class ParametersConfigurationView(View):

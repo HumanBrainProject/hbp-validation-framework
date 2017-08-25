@@ -1,37 +1,83 @@
-var ContextServices = angular.module('ContextServices', ['ngResource', 'btorfs.multiselect', 'ApiCommunicationServices']);
+var ContextServices = angular.module('ContextServices', ['ngResource', 'btorfs.multiselect', 'ApiCommunicationServices', ]);
 
-ContextServices.service('Context', ['$rootScope',
-    function($rootScope) {
+ContextServices.service('Context', ['$rootScope', '$location', 'AppIDRest',
+    function($rootScope, $location, AppIDRest) {
         var ctx;
+        var state_type = undefined;
         var state = undefined;
+
+
+        var modelCatalog_goToHomeView = function() {
+            clearState();
+            $location.path('/model-catalog/');
+        };
+        var modelCatalog_goToModelDetailView = function(model_id) {
+            sendState("model", model_id);
+            setState(model_id);
+            $location.path('/model-catalog/detail/' + model_id);
+        };
+
+        var validation_goToHomeView = function() {
+            clearState();
+            $location.path('/home/');
+        };
+        var validation_goToModelDetailView = function(model_id) {
+            sendState("model", model_id);
+            setState(model_id);
+            $location.path('/home/validation_model_detail/' + model_id);
+        };
+        var validation_goToTestDetailView = function(test_id) {
+            sendState("test", test_id);
+            setState(test_id);
+            $location.path('/home/validation_test/' + test_id);
+        };
+        var validation_goToResultDetailView = function(result_id) {
+            sendState("result", result_id);
+            setState(result_id);
+            $location.path('/home/validation_test_result/' + result_id);
+        };
+
+        var validation_goToModelCatalog = function(model) {
+            var collab_id = model.access_control.collab_id;
+            var app_id = AppIDRest.get({ ctx: model.access_control.id });
+            app_id.$promise.then(function() {
+                app_id = app_id.app_id;
+
+                var url = "https://collab.humanbrainproject.eu/#/collab/" + collab_id + "/nav/" + app_id +
+                    "?state=model." + model.id; //to go to collab api
+
+                window.open(url, 'modelCatalog');
+            });
+
+        }
+
+
 
         var setService = function() {
             _getState();
             _getCtx();
-
         };
+
         var setState = function(id) {
             state = id;
         };
 
         var _getState = function() {
-            // console.log("_getState");
-            // console.log();
-            state = window.location.search.split("&")[1]
-                // console.log(state);
+            temp_state = window.location.search.split("&")[1]
 
-            if (state != undefined) {
-                state = state.substring(15);
-                // console.log(state);
-
+            if (temp_state != undefined) {
+                temp_state = temp_state.substring(9);
+                state_type = temp_state.split(".")[0]
+                state = temp_state.split(".")[1]
             }
-
         };
 
         var _getCtx = function() {
+
             if (typeof(ctx) == "undefined") {
                 ctx = window.location.search.split("&")[0].substring(5);
             }
+
         };
 
         var getCtx = function() {
@@ -44,32 +90,37 @@ ContextServices.service('Context', ['$rootScope',
             return state;
         };
 
-        var sendState = function(id) {
+        var sendState = function(type, id) {
+            state_type = type;
             window.parent.postMessage({
                 eventName: 'workspace.context',
 
                 data: {
-                    state: 'model.' + id
+                    state: type + '.' + id
                 }
             }, 'https://collab.humanbrainproject.eu/');
         };
 
 
         var clearState = function() {
-            // window.location.search = "ctx=df7a74fe-7bf6-4c40-bfa9-5c04c7cb4a3c&ctxstate=model.n";
 
             window.parent.postMessage({
                 eventName: 'workspace.context',
 
                 data: {
-                    state: 'model.n'
+                    state: ''
                 }
             }, 'https://collab.humanbrainproject.eu/');
 
-            state = "n"
+            state = "";
+            state_type = undefined;
 
-            window.location.search = "ctx=" + getCtx() + "&ctxstate=model.n";
+            window.location.search = "ctx=" + getCtx() + "&ctxstate=";
         };
+
+        var getStateType = function() {
+            return state_type;
+        }
 
         return {
             setService: setService,
@@ -78,12 +129,17 @@ ContextServices.service('Context', ['$rootScope',
             sendState: sendState,
             clearState: clearState,
             setState: setState,
+            getStateType: getStateType,
+            modelCatalog_goToHomeView: modelCatalog_goToHomeView,
+            modelCatalog_goToModelDetailView: modelCatalog_goToModelDetailView,
+            validation_goToHomeView: validation_goToHomeView,
+            validation_goToModelDetailView: validation_goToModelDetailView,
+            validation_goToTestDetailView: validation_goToTestDetailView,
+            validation_goToResultDetailView: validation_goToResultDetailView,
+            validation_goToModelCatalog: validation_goToModelCatalog,
         }
     }
 ]);
-
-
-
 
 
 
@@ -272,8 +328,6 @@ ParametersConfigurationServices.service('CollabParameters', ['$rootScope', 'Coll
 ]);
 
 
-
-
 var GraphicsServices = angular.module('GraphicsServices', ['ngResource', 'btorfs.multiselect', 'ApiCommunicationServices', 'ParametersConfigurationServices', 'ContextServices']);
 
 GraphicsServices.factory('Graphics', ['$rootScope', 'ValidationResultRest', 'CollabParameters', 'ValidationTestResultRest', 'ValidationModelResultRest', 'Context',
@@ -302,8 +356,6 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'ValidationResultRest', 'Col
             var datablock = undefined;
             var i = 0;
             for (i; i < results_data.data_block_id.length; i++) {
-                // console.log(results_data.data[i]);
-
                 if (results_data.data_block_id[i].id == id_line) {
                     datablock = results_data.data[i];
                     i = results_data.data_block_id.length;
@@ -322,10 +374,6 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'ValidationResultRest', 'Col
 
         var getResultsfromTestID = function(test) {
             return new Promise(function(resolve, reject) {
-                // resolve("Succès !");
-                // ou
-                // reject("Erreur !");
-
                 var values = [];
                 var j = 0;
                 results_data = ValidationTestResultRest.get({
@@ -341,19 +389,6 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'ValidationResultRest', 'Col
                 });
             });
         };
-
-
-        // could still be usefull
-        // var getResultsfromModelID = function(model) {
-        //     var values = [];
-        //     var j = 0;
-        //     for (j; j < model.model_instances.length; j++) {
-
-        //         values[j] = _getDatafromModelID(model.model_instances[j])
-        //     };
-
-        //     return values;
-        // };
 
         var getResultsfromModelID = function(model) {
             var values = [];
@@ -374,7 +409,6 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'ValidationResultRest', 'Col
         };
 
         var _manageDataForGraph = function(data, line_id) {
-            // var multiple_result_data = [];
             var values_temp = [];
             var ij = 0;
 
@@ -387,41 +421,14 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'ValidationResultRest', 'Col
                 };
                 values_temp.push(temp);
             };
-            // multiple_result_data.push(data);
             var data_to_return = {
                 values: values_temp, //values - represents the array of {x,y} data points
                 key: line_id, //key  - the name of the series.
                 color: _pickRandomColor(), //color - optional: choose your own line color.
-                infosup: data, //maybe not usefull. need to see
+                infosup: data,
             };
             return data_to_return;
         };
-        //to keep. could be usefull
-        // var _getDatafromModelID = function(model_instance) {
-        //     var values_temp = [];
-        //     var i = 0;
-        //     var result_data = ValidationResultRest.get({
-        //         ctx: CollabParameters.getCtx(),
-        //         test_code_id: "0",
-        //         model_instance_id: model_instance.id
-        //     });
-        //     result_data.$promise.then(function() {
-
-        //         for (i; i < result_data.data.length; i++) {
-        //             values_temp.push({
-        //                 x: new Date(result_data.data[i].timestamp),
-        //                 y: result_data.data[i].result,
-        //                 id: result_data.data[i].id,
-        //             });
-        //         };
-        //         multiple_result_data.push(result_data);
-        //     });
-        //     return {
-        //         values: values_temp, //values - represents the array of {x,y} data points
-        //         key: model_instance.version, //key  - the name of the series.
-        //         color: _pickRandomColor(), //color - optional: choose your own line color.
-        //     };
-        // };
 
         var _pickRandomColor = function() {
             var letters = '0123456789ABCDEF';
@@ -471,9 +478,6 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'ValidationResultRest', 'Col
                     },
                     callback: function(chart) {
                         chart.lines.dispatch.on('elementClick', function(e) {
-                            // console.log('elementClick in callback', e);
-
-                            //return the list of results for t time.
                             var list_of_results_id = [];
                             var i = 0;
                             for (i; i < e.length; i++) {

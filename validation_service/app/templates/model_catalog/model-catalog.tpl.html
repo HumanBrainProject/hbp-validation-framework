@@ -1,7 +1,6 @@
 <html id="model-list" ng-controller="ModelCatalogCtrl">
 
 <head>
-    <!--<nav class="navbar navbar-form navbar-fixed-top">-->
     <nav class="navbar ">
         <h1 align=center> Model Catalog</h1>
     </nav>
@@ -46,7 +45,7 @@
             </tr>
         </thead>
         <tbody>
-            <tr class="tr-clickable" ng-repeat="model in models.models | filter: search | filterMultiple:{species:selected_species, brain_region:selected_brain_region, cell_type:selected_cell_type, model_type:selected_model_type}  " ng-click="goToDetailView(model)">
+            <tr class="tr-clickable" ng-repeat="model in models.models | filter: search | filterMultiple:{species:selected_species, brain_region:selected_brain_region, cell_type:selected_cell_type, model_type:selected_model_type}  " ng-click="Context.modelCatalog_goToModelDetailView(model.id)">
                 <td>{{ model.name }}</td>
                 <td>{{ model.species }}</td>
                 <td>{{ model.brain_region }}</td>

@@ -1,7 +1,8 @@
 <html id="model-list" ng-controller="ValTestCtrl">
 <nav class="navbar">
     <br>
-    <div align=left> <a class="button-MC" ng-href="#/home" class="btn btn-primary">Home</a></div>
+    <button class="button-MC" ng-click="Context.validation_goToHomeView();">Home</button>&ensp;
+
     <h1 align=center> Test catalog</h1>
 </nav>
 <nav>
@@ -52,9 +53,8 @@
 
         <tbody>
 
-            <!--<tr class="tr-clickable" ng-repeat="model in models.models  " ng-click="goToDetailView(model)">-->
-
-            <tr class="tr-clickable" ng-repeat="test in test_list.tests | filter:search | filterMultiple:{species:selected_species, brain_region:selected_brain_region, cell_type:selected_cell_type, model_type:selected_model_type}" ng-click="goToDetailView(test) ">
+            <tr class="tr-clickable" ng-repeat="test in test_list.tests | filter:search | filterMultiple:{species:selected_species, brain_region:selected_brain_region, cell_type:selected_cell_type, data_modality:selected_data_modalities, test_type:selected_test_type}"
+                ng-click="Context.validation_goToTestDetailView(test) ">
                 <td>{{ test.name }}</td>
                 <td>{{ test.species }}</td>
                 <td>{{ test.age }}</td>
