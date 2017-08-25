@@ -31,7 +31,7 @@ ContextServices.service('Context', ['$rootScope', '$location',
             setState(test_id);
             $location.path('/home/validation_test/' + test_id);
         };
-        var validation_goToDetailTestResult = function(test_result_id) {
+        var validation_goToResultDetail = function(test_result_id) {
 
             $location.path('/home/validation_test_result/' + test_result_id);
         };
@@ -120,7 +120,7 @@ ContextServices.service('Context', ['$rootScope', '$location',
             validation_goToHomeView: validation_goToHomeView,
             validation_goToModelDetailView: validation_goToModelDetailView,
             validation_goToTestDetailView: validation_goToTestDetailView,
-            validation_goToDetailTestResult: validation_goToDetailTestResult,
+            validation_goToResultDetail: validation_goToResultDetail,
         }
     }
 ]);

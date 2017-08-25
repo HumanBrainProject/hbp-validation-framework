@@ -41,10 +41,12 @@ testApp.controller('HomeCtrl', ['$scope', '$rootScope', '$http', '$location', "S
 
             if (state_type == "model") {
                 Context.validation_goToModelDetailView(element);
-            }
-            if (state_type == "test") {
+            } else if (state_type == "test") {
                 Context.validation_goToTestDetailView(element);
+            } else if (state_type == "result") {
+                Context.validation_goToResultDetailView(element);
             }
+
         }
 
 
