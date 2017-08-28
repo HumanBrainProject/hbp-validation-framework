@@ -3,12 +3,9 @@ from django.core.serializers.json import DjangoJSONEncoder
 
 from .models import (ValidationTestDefinition, 
                     ValidationTestCode,
+                    ValidationTestResult,
                     ScientificModel,
-
-#                    configview,
-
                     ScientificModelInstance,
-
                     ScientificModelImage,
                     Comments,
                     Tickets,
@@ -19,16 +16,14 @@ from .models import (ValidationTestDefinition,
                     Param_Species,
                     Param_BrainRegion,
                     Param_CellType,
-                    Param_ModelType,
-                    ValidationTestResult
-
+                    Param_ModelType
                     )
 
 from rest_framework import serializers
 
 
 
-#### rest freamework serializers ####
+#### rest framework serializers ####
 
 
 class CollabParametersSerializer(serializers.HyperlinkedModelSerializer):
@@ -88,20 +83,15 @@ class ScientificModelReadOnlySerializer(serializers.HyperlinkedModelSerializer):
         fields = ('id', 'name', 'description', 'species', 'brain_region', 'cell_type', 'author', 'model_type','private','access_control')
 
 
-#may be need to create one read version
-class ValidationTestCodeSerializer(serializers.HyperlinkedModelSerializer):
-    # test_definition_id = serializers.SlugRelatedField(slug_field='id', read_only=True)#queryset=test.objects.all())
-    # test_definition_id = serializers.RelatedField(source='test.id', read_only=True)
 
+class ValidationTestCodeSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = ValidationTestCode
         fields = ('id', 'repository', 'version', 'path', 'timestamp', 'test_definition_id')
-        # read_only_fields = ('test_definition_id')
 
 class ValidationTestResultReadOnlySerializer (serializers.HyperlinkedModelSerializer):
     model_instance = ScientificModelInstanceReadOnlySerializer(read_only=True)
     test_definition = ValidationTestCodeSerializer(read_only=True)
-
     class Meta:
         model = ValidationTestResult
         fields = ('id',  'results_storage', 'result', 'passed', 'timestamp', 'platform',   'project', 'model_instance', 'test_definition')
@@ -118,7 +108,6 @@ class ValidationModelResultReadOnlySerializer (serializers.HyperlinkedModelSeria
 
 
 class ValidationTestDefinitionSerializer(serializers.HyperlinkedModelSerializer):
-
     class Meta:
         model = ValidationTestDefinition
         fields = ('id', 'name', 'species', 'brain_region', 
@@ -128,9 +117,7 @@ class ValidationTestDefinitionSerializer(serializers.HyperlinkedModelSerializer)
 
  
 class ValidationTestDefinitionWithCodesReadSerializer(serializers.HyperlinkedModelSerializer):
-    # codes = serializers.PrimaryKeyRelatedField(many = True, read_only=True)
     codes = ValidationTestCodeSerializer(many=True , read_only=True)
-
     class Meta:
         model = ValidationTestDefinition
         fields = ('id', 'name', 'species', 'brain_region', 

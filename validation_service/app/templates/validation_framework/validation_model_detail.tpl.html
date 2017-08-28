@@ -33,7 +33,6 @@
             <tbody>
                 <tr>
                     <b> Description: </b> <br><br>
-                    <!--<div markdown="model.models[0].description" truncateWords="model.models[0].description"></div>-->
                     <div markdown="model.models[0].description" ng-text-truncate="model.models[0].description" ng-tt-words-threshold="50" ng-tt-no-toggling></div>
                     <button class=linkbutton align=right text-align=right type="button" ng-click="Context.validation_goToModelCatalog(model.models[0])"> (more details on model catalog)</button>
                     <br><br>
@@ -65,7 +64,17 @@
 
         <br>
         <br>
-        <nvd3 options='options5' data='data' id='chart svg'></nvd3>
+        <table>
+            <tbody> 
+                <tr style="width: 80%">
+                     <nvd3 options='options5' data='data' id='chart svg'></nvd3>
+                </tr>
+                <tr style="width: 20%">
+                </tr>
+            </tbody>
+
+        </table>
+       
 
 
         <br>

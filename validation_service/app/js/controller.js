@@ -13,14 +13,12 @@ testApp.controller('HomeCtrl', ['$scope', '$rootScope', '$http', '$location', "S
         if (Context.getStateType() == "" || Context.getStateType() == undefined) {
             CollabParameters.setService(ctx).$promise.then(function() {
 
-
                 $scope.collab_species = CollabParameters.getParameters("species");
                 $scope.collab_brain_region = CollabParameters.getParameters("brain_region");
                 $scope.collab_cell_type = CollabParameters.getParameters("cell_type");
                 $scope.collab_model_type = CollabParameters.getParameters("model_type");
                 $scope.collab_test_type = CollabParameters.getParameters("test_type");
                 $scope.collab_data_modalities = CollabParameters.getParameters("data_modalities");
-
 
                 // $scope.is_collab_member = false;
                 // $scope.is_collab_member = IsCollabMemberRest.get({ ctx: ctx, });
@@ -99,7 +97,9 @@ testApp.controller('ValModelDetailCtrl', ['$scope', '$rootScope', '$http', '$loc
             $scope.model = ScientificModelRest.get({ ctx: ctx, id: $stateParams.uuid });
             $scope.model.$promise.then(function() {
                 //graph and table results
-                $scope.data = Graphics.getResultsfromModelID($scope.model);
+                // $scope.init_graph= Graphics.getResultsfromModelID($scope.model, []);
+                $scope.init_graph= Graphics.getResultsfromModelID($scope.model); 
+                $scope.data = $scope.init_graph;
                 console.log($scope.data)
                 $scope.line_result_focussed;
                 $scope.$on('data_focussed:updated', function(event, data) {
@@ -109,20 +109,6 @@ testApp.controller('ValModelDetailCtrl', ['$scope', '$rootScope', '$http', '$loc
                 $scope.options5 = Graphics.get_lines_options('Model/p-value', '', "p-value", "this is a caption");
             });
         });
-
-        // $scope.goToModelCatalog = function() {
-        //     var collab_id = $scope.model.models[0].access_control.collab_id;
-        //     var app_id = AppIDRest.get({ ctx: $scope.model.models[0].access_control.id });
-        //     app_id.$promise.then(function() {
-        //         app_id = app_id.app_id;
-
-        //         var url = "https://collab.humanbrainproject.eu/#/collab/" + collab_id + "/nav/" + app_id +
-        //             "?state=model." + $scope.model.models[0].id; //to go to collab api
-
-        //         window.open(url, 'modelCatalog');
-        //     });
-
-        // }
     }
 ]);
 
@@ -389,23 +375,6 @@ testApp.controller('ValTestResultDetailCtrl', ['$window', '$scope', '$rootScope'
             });
 
         });
-
-        // $scope.goToModelCatalog = function(test_id) {
-
-        //     var collab_id = $scope.model.models[0].access_control.collab_id;
-        //     var app_id = AppIDRest.get({ ctx: $scope.model.models[0].access_control.id });
-        //     app_id.$promise.then(function() {
-        //         app_id = app_id.app_id;
-        //         var referrer = "https://collab.humanbrainproject.eu/#/collab/" + collab_id + "/nav/" + app_id; //to go to collab api
-        //         var url = 'https://localhost:8000/?ctx=' + $scope.model.models[0].access_control.id + '#/model-catalog/detail/' + $scope.model.models[0].id; //to go outside collab but directly to model detail
-        //         var sm_url = '#/model-catalog/detail/' + $scope.model.models[0].id;
-
-        //         console.log("referrer");
-        //         console.log(referrer);
-
-        //         var win = $window.open(referrer, 'modelCatalog');
-        //     });
-        // }
     }
 ]);
 
@@ -770,18 +739,11 @@ ModelCatalogApp.controller('ModelCatalogDetailCtrl', ['$scope', '$rootScope', '$
     function($scope, $rootScope, $http, $location, $stateParams, ScientificModelRest, CollabParameters, IsCollabMemberRest, Context) {
 
         $scope.Context = Context;
-
         $scope.ctx = Context.getCtx();
 
-
         if (Context.getState() == "" || Context.getState() == undefined) {
-
             $location.path('/model-catalog/');
-
-
         } else {
-
-
             CollabParameters.setService($scope.ctx).$promise.then(function() {
 
                 $("#ImagePopupDetail").hide();
@@ -802,9 +764,7 @@ ModelCatalogApp.controller('ModelCatalogDetailCtrl', ['$scope', '$rootScope', '$
                 $scope.is_collab_member.$promise.then(function() {
                     $scope.is_collab_member = $scope.is_collab_member.is_member;
                 });
-
             });
-
         }
     }
 ]);
@@ -830,7 +790,6 @@ ModelCatalogApp.controller('ModelCatalogEditCtrl', ['$scope', '$rootScope', '$ht
                     function(data) {
                         alert('Image ' + img.id + ' has been deleted !');
                         $state.reload();
-                        // $location.reload(); // $location.path('/model-catalog/edit/' + $stateParams.uuid); //not working. to do after
                     });
             };
             $scope.displayAddImage = function() {
@@ -842,7 +801,7 @@ ModelCatalogApp.controller('ModelCatalogEditCtrl', ['$scope', '$rootScope', '$ht
                     ScientificModelImageRest.post({ ctx: ctx }, parameters).$promise.then(function(data) {
                         $scope.addImage = false;
                         alert('Image has been saved !');
-                        $state.reload(); // $location.path('/model-catalog/edit/' + $stateParams.uuid); //not working. to do after
+                        $state.reload();
                     });
                 } else { alert("you need to add an url!") }
             };
@@ -867,7 +826,6 @@ ModelCatalogApp.controller('ModelCatalogEditCtrl', ['$scope', '$rootScope', '$ht
                 var parameters = $scope.model.model_instances;
                 var a = ScientificModelInstanceRest.put({ ctx: ctx }, parameters).$promise.then(function(data) { alert('model instances correctly edited') });
             };
-
         });
     }
 ]);
@@ -879,7 +837,7 @@ ModelCatalogApp.controller('ModelCatalogVersionCtrl', ['$scope', '$rootScope', '
 
         var ctx = Context.getCtx();
         CollabParameters.setService(ctx).$promise.then(function() {
-            $scope.model = ScientificModelRest.get({ id: $stateParams.uuid }); //really needed??? just to put model name
+            $scope.model = ScientificModelRest.get({ id: $stateParams.uuid });
             $scope.saveVersion = function() {
                 $scope.model_instance.model_id = $stateParams.uuid;
                 var parameters = JSON.stringify($scope.model_instance);
@@ -888,9 +846,7 @@ ModelCatalogApp.controller('ModelCatalogVersionCtrl', ['$scope', '$rootScope', '
                 });
             };
         });
-
     }
-
 ]);
 
 
@@ -908,9 +864,8 @@ ParametersConfigurationApp.controller('ParametersConfigurationCtrl', ['$scope', 
         CollabParameters.setService(ctx).$promise.then(function() {
 
             var app_type = document.getElementById("app").getAttribute("value");
-            // $scope.list_param2 = AuthaurizedCollabParameterRest2.get({});
-            var collab = CollabIDRest.get();
-
+            var collab = CollabIDRest.get({ ctx: ctx });
+            
             $scope.list_param = AuthaurizedCollabParameterRest.get({ ctx: ctx });
 
             $scope.list_param.$promise.then(function() {
