@@ -786,7 +786,7 @@ class ValidationModelResultRest (APIView):
     def get(self, request, format=None, **kwargs):
         serializer_context = {'request': request,}
         model_id  = request.query_params['model_id']
-        list_test_id  = request.query_params['list_id']
+        # list_test_id  = request.query_params['list_id']
 
         try :      
             model_instances = ScientificModelInstance.objects.filter(model_id=model_id).values("id")

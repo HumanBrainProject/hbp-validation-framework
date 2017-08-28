@@ -97,7 +97,8 @@ testApp.controller('ValModelDetailCtrl', ['$scope', '$rootScope', '$http', '$loc
             $scope.model = ScientificModelRest.get({ ctx: ctx, id: $stateParams.uuid });
             $scope.model.$promise.then(function() {
                 //graph and table results
-                $scope.init_graph= Graphics.getResultsfromModelID($scope.model, []); 
+                // $scope.init_graph= Graphics.getResultsfromModelID($scope.model, []);
+                $scope.init_graph= Graphics.getResultsfromModelID($scope.model); 
                 $scope.data = $scope.init_graph;
                 console.log($scope.data)
                 $scope.line_result_focussed;
