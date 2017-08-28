@@ -99,7 +99,8 @@ testApp.controller('ValModelDetailCtrl', ['$scope', '$rootScope', '$http', '$loc
             $scope.model = ScientificModelRest.get({ ctx: ctx, id: $stateParams.uuid });
             $scope.model.$promise.then(function() {
                 //graph and table results
-                $scope.data = Graphics.getResultsfromModelID($scope.model);
+                $scope.init_graph= Graphics.getResultsfromModelID($scope.model, []); 
+                $scope.data = $scope.init_graph;
                 console.log($scope.data)
                 $scope.line_result_focussed;
                 $scope.$on('data_focussed:updated', function(event, data) {
@@ -847,8 +848,8 @@ ParametersConfigurationApp.controller('ParametersConfigurationCtrl', ['$scope', 
         CollabParameters.setService(ctx).$promise.then(function() {
 
             var app_type = document.getElementById("app").getAttribute("value");
-            var collab = CollabIDRest.get();
-
+            var collab = CollabIDRest.get({ ctx: ctx });
+            
             $scope.list_param = AuthaurizedCollabParameterRest.get({ ctx: ctx });
 
             $scope.list_param.$promise.then(function() {
