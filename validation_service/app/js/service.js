@@ -5,11 +5,17 @@ ContextServices.service('Context', ['$rootScope', '$location', 'AppIDRest',
         var ctx;
         var state_type = undefined;
         var state = undefined;
+        var external = undefined;
 
 
         var modelCatalog_goToHomeView = function() {
             clearState();
-            $location.path('/model-catalog/');
+            setTimeout(function() {
+                // console.log("YOOOOOOOOOOOOOOOOOOOO")
+                $location.path('/model-catalog/');
+
+            }, 300);
+            // $location.path('/model-catalog/');
         };
         var modelCatalog_goToModelDetailView = function(model_id) {
             sendState("model", model_id);
@@ -43,8 +49,14 @@ ContextServices.service('Context', ['$rootScope', '$location', 'AppIDRest',
             app_id.$promise.then(function() {
                 app_id = app_id.app_id;
 
+                // console.log(collab_id);
+                // console.log(app_id);
+
                 var url = "https://collab.humanbrainproject.eu/#/collab/" + collab_id + "/nav/" + app_id +
-                    "?state=model." + model.id; //to go to collab api
+                    "?state=model." + model.id + ",external"; //to go to collab api
+
+                // console.log("URLLL");
+                // console.log(url);
 
                 window.open(url, 'modelCatalog');
             });
@@ -54,21 +66,37 @@ ContextServices.service('Context', ['$rootScope', '$location', 'AppIDRest',
 
 
         var setService = function() {
+            // console.log(window.location);
+
             _getState();
             _getCtx();
+
         };
 
         var setState = function(id) {
             state = id;
         };
 
+
+        var getExternal = function() {
+            return external;
+        }
+
         var _getState = function() {
-            temp_state = window.location.search.split("&")[1]
+            //%2C
+
+            temp_state = window.location.search.split("&")[1];
 
             if (temp_state != undefined) {
-                temp_state = temp_state.substring(9);
-                state_type = temp_state.split(".")[0]
-                state = temp_state.split(".")[1]
+                temp_state2 = temp_state.split("%2C")[0];
+                temp_state2 = temp_state2.substring(9);
+                state_type = temp_state2.split(".")[0]
+                state = temp_state2.split(".")[1]
+
+                if (temp_state.split("%2C")[1] != undefined) {
+                    external = temp_state.split("%2C")[1];
+                }
+
             }
         };
 
@@ -115,12 +143,27 @@ ContextServices.service('Context', ['$rootScope', '$location', 'AppIDRest',
             state = "";
             state_type = undefined;
 
+            // console.log("clear state")
+            console.log(window.location);
+
+            setTimeout(function() {
+                window.location.hash = "ctx=" + getCtx() + "&ctxstate=";
+                window.location.search = "ctx=" + getCtx() + "&ctxstate=";
+
+
+            }, 0);
+
+        };
+
+        var clearExternal = function() {
+            sendState(state_type, state);
+            // window.location.search = "ctx=" + getCtx() + "&ctxstate="+state_type+"."+state;
             window.location.search = "ctx=" + getCtx() + "&ctxstate=";
         };
 
         var getStateType = function() {
             return state_type;
-        }
+        };
 
         return {
             setService: setService,
@@ -128,7 +171,9 @@ ContextServices.service('Context', ['$rootScope', '$location', 'AppIDRest',
             getState: getState,
             sendState: sendState,
             clearState: clearState,
+            clearExternal: clearExternal,
             setState: setState,
+            getExternal: getExternal,
             getStateType: getStateType,
             modelCatalog_goToHomeView: modelCatalog_goToHomeView,
             modelCatalog_goToModelDetailView: modelCatalog_goToModelDetailView,

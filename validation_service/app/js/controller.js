@@ -660,9 +660,32 @@ ModelCatalogApp.controller('ModelCatalogCtrl', [
         $scope.Context = Context;
 
         Context.setService();
+
+        // console.log(window);
+
+        // console.log(window.location)
+
+        // console.log("now");
+        // console.log("Context.getCtx()");
+        // console.log(Context.getCtx());
+        // console.log("Context.getState()");
+        // console.log(Context.getState());
+        // console.log("Context.getStateType()");
+        // console.log(Context.getStateType());
+
+        // alert(Context.getState());
+
+        // if (Context.getExternal() == "external") {
+        //     console.log(Context.getExternal());
+        //     console.log(Context.getExternal());
+        //     Context.clearExternal();
+
+        // }
+
         var ctx = Context.getCtx();
 
         if (Context.getState() == "" || Context.getState() == undefined) {
+            // console.log("IN IF");
             CollabParameters.setService(ctx).$promise.then(function() {
 
                 $scope.collab_species = CollabParameters.getParameters("species");
@@ -674,13 +697,6 @@ ModelCatalogApp.controller('ModelCatalogCtrl', [
                 // will have data here to make redirection directly
                 $scope.models = ScientificModelRest.get({ ctx: ctx });
 
-                // //uses state from url...
-                // $scope.models.$promise.then(function() {
-                //     if ($scope.models.state != undefined) {
-                //         Context.goToDetailView($scope.models.state);
-                //     }
-                // });
-
                 $scope.is_collab_member = false;
                 $scope.is_collab_member = IsCollabMemberRest.get({ ctx: ctx, });
                 $scope.is_collab_member.$promise.then(function() {
@@ -688,6 +704,7 @@ ModelCatalogApp.controller('ModelCatalogCtrl', [
                 });
             });
         } else {
+            // console.log("IN ELSE");
             var model_id = Context.getState();
             Context.modelCatalog_goToModelDetailView(model_id);
         }
