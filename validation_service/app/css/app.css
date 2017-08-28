@@ -180,3 +180,9 @@
 #table-test-result {
     padding: 5px;
 }
+
+#chart{
+    max-width: 80%;
+    min-width: 80%;
+    width: 80%;
+}

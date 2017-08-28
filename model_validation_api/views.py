@@ -262,13 +262,13 @@ def _get_collab_id(request):
     headers = {
         'Authorization': get_auth_header(request.user.social_auth.get())
     }
-
-    #to get collab_id
+    ctx = request.GET.getlist('ctx')[0]
     svc_url = settings.HBP_COLLAB_SERVICE_URL    
-    context = request.session["next"][6:]
+    context =  ctx
     url = '%scollab/context/%s/' % (svc_url, context)
     res = requests.get(url, headers=headers)
     collab_id = res.json()['collab']['id']
+    print("collab id", collab_id)
     return collab_id
 
 class AppIDRest(APIView): 
@@ -786,6 +786,7 @@ class ValidationModelResultRest (APIView):
     def get(self, request, format=None, **kwargs):
         serializer_context = {'request': request,}
         model_id  = request.query_params['model_id']
+        list_test_id  = request.query_params['list_id']
 
         try :      
             model_instances = ScientificModelInstance.objects.filter(model_id=model_id).values("id")
@@ -794,7 +795,11 @@ class ValidationModelResultRest (APIView):
 
         results_all= ValidationTestResult.objects.filter(model_instance_id__in = model_instances )
         versions_id = list(results_all.values("test_definition_id").distinct())
-        
+        ##if list_test_id == [] (default) return last version code of each test 
+#         if list_test_id == []:
+#             test_def_id = 
+#             versions_id = results_all.order_by('test_definition_id',''). 
+# Score.objects.order_by('student__username', '-date').distinct('student__username')
         result_serialized=[]
         new_id = []
         for version in versions_id:
