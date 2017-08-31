@@ -350,7 +350,7 @@ ParametersConfigurationServices.service('CollabParameters', ['$rootScope', 'Coll
             console.log(Context.getCollabID());
             console.log(Context.getAppID());
 
-            parameters = CollabParameterRest.get({ collab_id: Context.getCollabID(), app_id: Context.getAppID() });
+            parameters = CollabParameterRest.get({ app_id: Context.getAppID() });
             return parameters
         };
 
@@ -404,14 +404,14 @@ ParametersConfigurationServices.service('CollabParameters', ['$rootScope', 'Coll
                 console.log(Context.getCollabID());
                 console.log(Context.getAppID());
 
-                parameters = CollabParameterRest.get({ collab_id: Context.getCollabID(), app_id: Context.getAppID() }); //need to get collab number
+                parameters = CollabParameterRest.get({ app_id: Context.getAppID() }); //need to get collab number
                 parameters.$promise.then(function() {
 
                     if (parameters.param.length == 0) {
 
                         post = _postInitCollab();
                         post.$promise.then(function() {
-                            parameters = CollabParameterRest.get({ collab_id: Context.getCollabID(), app_id: Context.getAppID() });
+                            parameters = CollabParameterRest.get({ app_id: Context.getAppID() });
 
                         });
                     } else {
@@ -447,7 +447,7 @@ ParametersConfigurationServices.service('CollabParameters', ['$rootScope', 'Coll
                 'app_type': String(parameters.param[0]['app_type']),
                 'collab_id': String(parameters.param[0]['collab_id']),
             });
-            post = CollabParameterRest.save({ collab_id: Context.getCollabID(), app_id: Context.getAppID() }, data_to_send, function(value) {});
+            post = CollabParameterRest.save({ app_id: Context.getAppID() }, data_to_send, function(value) {});
             return post;
         };
 
@@ -465,7 +465,7 @@ ParametersConfigurationServices.service('CollabParameters', ['$rootScope', 'Coll
                 'collab_id': String(parameters.param[0]['collab_id']),
             });
 
-            put = CollabParameterRest.put({ collab_id: Context.getCollabID(), app_id: Context.getAppID() }, data_to_send, function(value) {});
+            put = CollabParameterRest.put({ app_id: Context.getAppID() }, data_to_send, function(value) {});
             return put;
         };
 
@@ -552,10 +552,7 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'ValidationResultRest', 'Col
             return new Promise(function(resolve, reject) {
                 var values = [];
                 var j = 0;
-                results_data = ValidationTestResultRest.get({
-                    collab_id: Context.getCollabID(),
-                    test_id: test.tests[0].id,
-                });
+                results_data = ValidationTestResultRest.get({ app_id: Context.getAppID(), test_id: test.tests[0].id });
 
                 results_data.$promise.then(function() {
                     for (j; j < results_data.data_block_id.length; j++) {
@@ -569,10 +566,7 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'ValidationResultRest', 'Col
         var getResultsfromModelID = function(model) {
             var values = [];
             var j = 0;
-            results_data = ValidationModelResultRest.get({
-                collab_id: Context.getCollabID(),
-                model_id: model.models[0].id,
-            });
+            results_data = ValidationModelResultRest.get({ app_id: Context.getAppID(), model_id: model.models[0].id, });
             results_data.$promise.then(function() {
 
                 for (j; j < results_data.data_block_id.length; j++) {

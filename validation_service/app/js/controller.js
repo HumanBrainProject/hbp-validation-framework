@@ -79,6 +79,13 @@ testApp.controller('ValTestCtrl', ['$scope', '$rootScope', '$http', '$location',
                     $scope.is_collab_member = $scope.is_collab_member.is_member;
                 });
 
+                console.log($scope.is_collab_member);
+                console.log($scope.is_collab_member);
+                console.log($scope.is_collab_member);
+                console.log($scope.is_collab_member);
+                console.log($scope.is_collab_member);
+                console.log($scope.is_collab_member);
+
                 $scope.test_list = ValidationTestDefinitionRest.get({ app_id: app_id }, function(data) {});
             });
         });
@@ -695,6 +702,10 @@ ModelCatalogApp.controller('ModelCatalogCtrl', [
                     $scope.is_collab_member.$promise.then(function() {
                         $scope.is_collab_member = $scope.is_collab_member.is_member;
                     });
+                    console.log($scope.is_collab_member);
+                    console.log($scope.is_collab_member);
+                    console.log($scope.is_collab_member);
+                    console.log($scope.is_collab_member);
                 });
             } else {
                 var model_id = Context.getState();

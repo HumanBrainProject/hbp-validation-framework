@@ -158,14 +158,14 @@ def is_admin(request):
     return user_id in admins
 
 
-def _is_collaborator(request, context):
+def _is_collaborator(request, collab_id):
     '''check access depending on context'''
     svc_url = settings.HBP_COLLAB_SERVICE_URL
 
     print "svc_url", svc_url
 
-    if not context:
-        return False
+    # if not context:
+    #     return False
     # url = '%scollab/context/%s/' % (svc_url, context)
 
     # print "url", url
@@ -177,7 +177,7 @@ def _is_collaborator(request, context):
     #     return False
 
     # collab_id = res.json()['collab']['id']
-    collab_id = '2169'
+    # collab_id = '2169'
     url = '%scollab/%s/permissions/' % (svc_url, collab_id)
     res = requests.get(url, headers=headers)
     print "res", res
@@ -201,6 +201,11 @@ def get_user(request):
     logger.debug("User information retrieved")
     return res.json()
 
+def get_collab_id_from_app_id (app_id):
+    collab_param = CollabParameters.objects.filter(id = app_id)
+    collab_id = collab_param.values('collab_id')[0]['collab_id']
+
+    return collab_id
 
 @method_decorator(login_required(login_url='/login/hbp'), name='dispatch' )
 class HomeValidationView(View):
@@ -321,7 +326,8 @@ class ParametersConfigurationRest( APIView): #LoginRequiredMixin,
 
     def post(self, request, format=None):
         # ctx = request.GET.getlist('ctx')[0]
-        collab_id = request.GET.getlist('collab_id')[0]
+        app_id = request.GET.getlist('app_id')[0]
+        collab_id = get_collab_id_from_app_id(app_id)
 
         if not _is_collaborator(request, collab_id):
             return HttpResponseForbidden() 
@@ -338,14 +344,15 @@ class ParametersConfigurationRest( APIView): #LoginRequiredMixin,
 
     def put(self, request, format=None):
         # ctx = request.GET.getlist('ctx')[0]
-        collab_id = request.GET.getlist('collab_id')[0]
+        app_id = request.GET.getlist('app_id')[0]
+        collab_id = get_collab_id_from_app_id(app_id)
 
         if not _is_collaborator(request, collab_id):
             return HttpResponseForbidden()
         
         serializer_context = {'request': request,}
-        id = request.GET.getlist('app_id')[0]
-        param = CollabParameters.objects.get(id = id )
+  
+        param = CollabParameters.objects.get(id = app_id )
         param_serializer = CollabParametersSerializer(param, data=request.data, context=serializer_context )
 
         if param_serializer.is_valid():         
@@ -357,7 +364,8 @@ class ParametersConfigurationRest( APIView): #LoginRequiredMixin,
 
 class ScientificModelInstanceRest (APIView):
     def post(self, request, format=None):
-        collab_id = request.GET.getlist('collab_id')[0]
+        app_id = request.GET.getlist('app_id')[0]
+        collab_id = get_collab_id_from_app_id(app_id)
 
         if not _is_collaborator(request, collab_id):
             return HttpResponseForbidden()
@@ -371,7 +379,8 @@ class ScientificModelInstanceRest (APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
     def put(self, request, format=None):
-        collab_id = request.GET.getlist('collab_id')[0]
+        app_id = request.GET.getlist('app_id')[0]
+        collab_id = get_collab_id_from_app_id(app_id)
 
         if not _is_collaborator(request, collab_id):
             return HttpResponseForbidden()
@@ -393,7 +402,8 @@ class ScientificModelInstanceRest (APIView):
 class ScientificModelImageRest (APIView):
 
     def post(self, request, format=None):
-        collab_id = request.GET.getlist('collab_id')[0]
+        app_id = request.GET.getlist('app_id')[0]
+        collab_id = get_collab_id_from_app_id(app_id)
 
         if not _is_collaborator(request, collab_id):
             return HttpResponseForbidden()
@@ -406,7 +416,8 @@ class ScientificModelImageRest (APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
     def put(self, request, format=None):
-        collab_id = request.GET.getlist('collab_id')[0]
+        app_id = request.GET.getlist('app_id')[0]
+        collab_id = get_collab_id_from_app_id(app_id)
 
         if not _is_collaborator(request, collab_id):
             return HttpResponseForbidden()
@@ -423,7 +434,8 @@ class ScientificModelImageRest (APIView):
         return Response( status=status.HTTP_202_ACCEPTED) 
 
     def delete(self, request, format=None):
-        collab_id = request.GET.getlist('collab_id')[0]
+        app_id = request.GET.getlist('app_id')[0]
+        collab_id = get_collab_id_from_app_id(app_id)
 
         if not _is_collaborator(request, collab_id):
             return HttpResponseForbidden()
@@ -440,8 +452,9 @@ class ScientificModelRest(APIView):
             'request': request,
         }
         model_id = str(len(request.GET.getlist('id')))
-        collab_id = request.GET.getlist('collab_id')[0]
+        
         app_id = request.GET.getlist('app_id')[0]
+        collab_id = get_collab_id_from_app_id(app_id)
 
         # collab = _get_collab_id(request)
         if(model_id == '0'):
@@ -491,8 +504,9 @@ class ScientificModelRest(APIView):
                 'model_images': model_image_serializer.data,
             })
     def post(self, request, format=None):
-        collab_id = request.GET.getlist('collab_id')[0]
+
         app_id = request.GET.getlist('app_id')[0]
+        collab_id = get_collab_id_from_app_id(app_id)
 
         if not _is_collaborator(request, collab_id):
             return HttpResponseForbidden()
@@ -523,7 +537,8 @@ class ScientificModelRest(APIView):
         return Response({'uuid':model.id}, status=status.HTTP_201_CREATED)
 
     def put(self, request, format=None):
-        collab_id = request.GET.getlist('collab_id')[0]
+        app_id = request.GET.getlist('app_id')[0]
+        collab_id = get_collab_id_from_app_id(app_id)
 
         if not _is_collaborator(request, collab_id):
             return HttpResponseForbidden()
@@ -567,7 +582,8 @@ class ValidationTestCodeRest(APIView):
 
 
      def post(self, request, format=None):
-        collab_id = request.GET.getlist('collab_id')[0]
+        app_id = request.GET.getlist('app_id')[0]
+        collab_id = get_collab_id_from_app_id(app_id)
 
         if not _is_collaborator(request, collab_id):
             return HttpResponseForbidden()
@@ -602,8 +618,9 @@ class ValidationTestDefinitionRest(APIView):
         # ctx = request.query_params['ctx']
         print 'ValidationTestDefinitionRest3'
         
-        collab_id = request.query_params['collab_id']
+        
         app_id = request.query_params['app_id']
+        collab_id = get_collab_id_from_app_id(app_id)
         print 'ValidationTestDefinitionRest4'
         
         if(nb_id == '0'):
@@ -636,7 +653,8 @@ class ValidationTestDefinitionRest(APIView):
 
     def post(self, request, format=None):
         # ctx = request.GET.getlist('ctx')[0]
-        collab_id = request.GET.getlist('collab_id')[0]
+        app_id = request.GET.getlist('app_id')[0]
+        collab_id = get_collab_id_from_app_id(app_id)
         if not _is_collaborator(request, collab_id):
             return HttpResponseForbidden()
 
@@ -657,7 +675,8 @@ class ValidationTestDefinitionRest(APIView):
         return Response(status=status.HTTP_201_CREATED)
 
     def put(self, request, format=None):
-        collab_id = request.GET.getlist('collab_id')[0]
+        app_id = request.GET.getlist('app_id')[0]
+        collab_id = get_collab_id_from_app_id(app_id)
         if not _is_collaborator(request, collab_id):
             return HttpResponseForbidden()
         value = request.data
@@ -700,7 +719,8 @@ class TestTicketRest(APIView):
         return Response({'new_ticket' : new_ticket_serializer.data})
 
     def put(self, request, format=None):
-        collab_id = request.GET.getlist('collab_id')[0]
+        app_id = request.GET.getlist('app_id')[0]
+        collab_id = get_collab_id_from_app_id(app_id)
 
         if not _is_collaborator(request, collab_id):
             return HttpResponseForbidden()
@@ -743,7 +763,8 @@ class TestCommentRest(APIView):
         return Response({'new_comment' : new_comment_serializer.data})
 
     def put(self, request, format=None):
-        collab_id = request.query_params['collab_id']
+        app_id = request.query_params['app_id']
+        collab_id = get_collab_id_from_app_id(app_id)
         if not _is_collaborator(request, collab_id):
             return HttpResponseForbidden()
         
@@ -789,7 +810,8 @@ class ParametersConfigurationModelView(View):
 
 class IsCollabMemberRest (APIView):
     def get(self, request, format=None, **kwargs):
-        collab_id = request.GET.getlist('collab_id')[0]
+        app_id = request.GET.getlist('app_id')[0]
+        collab_id = get_collab_id_from_app_id(app_id)
         
         is_member = _is_collaborator(request, collab_id) 
 

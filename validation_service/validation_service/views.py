@@ -32,11 +32,7 @@ def home(request):
     app_id = res.json()['id']
 
 
-
-
-    # id = ctx
-    id = app_id
-    app_params=list(CollabParameters.objects.filter(id = id).values('app_type'))
+    app_params=list(CollabParameters.objects.filter(id = app_id).values('app_type'))
     if app_params != []:
         if app_params[0]["app_type"]=="model_catalog":
             return  render(request, 'model_catalog/model_catalog.html', {})
