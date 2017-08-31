@@ -162,31 +162,14 @@ def _is_collaborator(request, collab_id):
     '''check access depending on context'''
     svc_url = settings.HBP_COLLAB_SERVICE_URL
 
-    print "svc_url", svc_url
-
-    # if not context:
-    #     return False
-    # url = '%scollab/context/%s/' % (svc_url, context)
-
-    # print "url", url
-
     headers = {'Authorization': get_auth_header(request.user.social_auth.get())}
         
-    # res = requests.get(url, headers=headers)
-    # if res.status_code != 200:
-    #     return False
-
-    # collab_id = res.json()['collab']['id']
-    # collab_id = '2169'
     url = '%scollab/%s/permissions/' % (svc_url, collab_id)
     res = requests.get(url, headers=headers)
-    print "res", res
-    print "res.__dict__", res.__dict__
 
     if res.status_code != 200:
         return False
-    
-    print 'haiohapohaoihzoiahoaooooooooooooooooooooooooooooooooo'
+
     return res.json().get('UPDATE', False)
 
 
@@ -213,7 +196,6 @@ class HomeValidationView(View):
     login_url='/login/hbp/'
 
     def get(self, request, *args, **kwargs): 
-        print "HomeValidationView"
         tests = ValidationTestDefinition.objects.all()
         models = ScientificModel.objects.all()
         tests = serializers.serialize("json", tests)
@@ -608,24 +590,13 @@ class ValidationTestCodeRest(APIView):
 class ValidationTestDefinitionRest(APIView):
     
     def get(self, request, format=None, **kwargs):
-        
-        print 'ValidationTestDefinitionRest'
-
         serializer_context = {'request': request,}
         nb_id = str(len(request.GET.getlist('id')))
-        print 'ValidationTestDefinitionRest2'
-        
-        # ctx = request.query_params['ctx']
-        print 'ValidationTestDefinitionRest3'
-        
         
         app_id = request.query_params['app_id']
         collab_id = get_collab_id_from_app_id(app_id)
-        print 'ValidationTestDefinitionRest4'
-        
+
         if(nb_id == '0'):
-            print "in if"
-            # collab = _get_collab_id(request)
             collab_params = CollabParameters.objects.get(id = app_id )
 
             all_ctx_from_collab = CollabParameters.objects.filter(collab_id = collab_id).distinct()  
@@ -636,15 +607,12 @@ class ValidationTestDefinitionRest(APIView):
                 data_modality__in=collab_params.data_modalities.split(","),
                 test_type__in=collab_params.test_type.split(",")).prefetch_related().distinct()
         else:
-            print "in else"
             
             for key, value in self.request.GET.items():
                 if key == 'id':
                     tests = ValidationTestDefinition.objects.filter(id = value)
 
         test_serializer = ValidationTestDefinitionSerializer(tests, context=serializer_context, many=True)
-
-        print 'ValidationTestDefinitionRest end'
 
         return Response({
             'tests': test_serializer.data,
