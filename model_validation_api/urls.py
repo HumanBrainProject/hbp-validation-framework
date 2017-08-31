@@ -115,7 +115,10 @@ urlpatterns = (
         ), 
     url(r'^parametersconfiguration-model-catalog/collabidrest/$',
          CollabIDRest.as_view(),
-        ),         
+        ),   
+    url(r'^parametersconfiguration-model-catalog/appidrest/$',
+         AppIDRest.as_view(),
+        ),        
 
         ## model_catalog configuration
     url(r'^parametersconfiguration-validation-app/$',
@@ -132,7 +135,10 @@ urlpatterns = (
         ),   
     url(r'^parametersconfiguration-validation-app/collabidrest/$',
          CollabIDRest.as_view(),
-        ),      
+        ),    
+    url(r'^parametersconfiguration-validation-app/appidrest/$',
+         AppIDRest.as_view(),
+        ),        
 
 )
 

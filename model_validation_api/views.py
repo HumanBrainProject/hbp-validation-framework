@@ -98,8 +98,6 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.views.decorators.csrf import csrf_exempt, csrf_protect, ensure_csrf_cookie
 
-# from model_validation_api.url_handler import get_url_ctx, get_url_args
-
 
 
 CROSSREF_URL = "http://api.crossref.org/works/"
@@ -160,26 +158,35 @@ def is_admin(request):
     return user_id in admins
 
 
-
-# to put inside views
-# if not _is_collaborator(request, ctx):
-#             return HttpResponseForbidden()
 def _is_collaborator(request, context):
     '''check access depending on context'''
     svc_url = settings.HBP_COLLAB_SERVICE_URL
+
+    print "svc_url", svc_url
+
     if not context:
         return False
-    url = '%scollab/context/%s/' % (svc_url, context)
-    headers = {'Authorization': get_auth_header(request.user.social_auth.get())}
-    res = requests.get(url, headers=headers)
-    if res.status_code != 200:
-        return False
+    # url = '%scollab/context/%s/' % (svc_url, context)
 
-    collab_id = res.json()['collab']['id']
+    # print "url", url
+
+    headers = {'Authorization': get_auth_header(request.user.social_auth.get())}
+        
+    # res = requests.get(url, headers=headers)
+    # if res.status_code != 200:
+    #     return False
+
+    # collab_id = res.json()['collab']['id']
+    collab_id = '2169'
     url = '%scollab/%s/permissions/' % (svc_url, collab_id)
     res = requests.get(url, headers=headers)
+    print "res", res
+    print "res.__dict__", res.__dict__
+
     if res.status_code != 200:
         return False
+    
+    print 'haiohapohaoihzoiahoaooooooooooooooooooooooooooooooooo'
     return res.json().get('UPDATE', False)
 
 
@@ -201,10 +208,12 @@ class HomeValidationView(View):
     login_url='/login/hbp/'
 
     def get(self, request, *args, **kwargs): 
+        print "HomeValidationView"
         tests = ValidationTestDefinition.objects.all()
         models = ScientificModel.objects.all()
         tests = serializers.serialize("json", tests)
         models = serializers.serialize("json", models) 
+
 
         return render(request, self.template_name, { 'tests':tests, 'models':models})
 
@@ -247,7 +256,6 @@ class AuthorizedCollabParameterRest(APIView):
 
 class CollabIDRest(APIView): 
     def get(self, request, format=None, **kwargs):
-
         if self.request.user == "AnonymousUser" :
             collab_id = 0
         else :         
@@ -264,11 +272,10 @@ def _get_collab_id(request):
     }
     ctx = request.GET.getlist('ctx')[0]
     svc_url = settings.HBP_COLLAB_SERVICE_URL    
-    context =  ctx
-    url = '%scollab/context/%s/' % (svc_url, context)
+    url = '%scollab/context/%s/' % (svc_url, ctx)
     res = requests.get(url, headers=headers)
     collab_id = res.json()['collab']['id']
-    print("collab id", collab_id)
+
     return collab_id
 
 class AppIDRest(APIView): 
@@ -302,7 +309,8 @@ class ParametersConfigurationRest( APIView): #LoginRequiredMixin,
 
     def get(self, request, format=None, **kwargs):
         serializer_context = {'request': request,}
-        id = request.GET.getlist('id')[0]
+
+        id = request.GET.getlist('app_id')[0]
         param = CollabParameters.objects.filter(id = id)
         param_serializer = CollabParametersSerializer(param, context=serializer_context, many=True)
 
@@ -312,9 +320,10 @@ class ParametersConfigurationRest( APIView): #LoginRequiredMixin,
  
 
     def post(self, request, format=None):
-        ctx = request.GET.getlist('ctx')[0]
+        # ctx = request.GET.getlist('ctx')[0]
+        collab_id = request.GET.getlist('collab_id')[0]
 
-        if not _is_collaborator(request, ctx):
+        if not _is_collaborator(request, collab_id):
             return HttpResponseForbidden() 
 
 
@@ -328,13 +337,14 @@ class ParametersConfigurationRest( APIView): #LoginRequiredMixin,
         return Response(status=status.HTTP_201_CREATED)
 
     def put(self, request, format=None):
-        ctx = request.GET.getlist('ctx')[0]
+        # ctx = request.GET.getlist('ctx')[0]
+        collab_id = request.GET.getlist('collab_id')[0]
 
-        if not _is_collaborator(request, ctx):
+        if not _is_collaborator(request, collab_id):
             return HttpResponseForbidden()
         
         serializer_context = {'request': request,}
-        id = request.GET.getlist('id')[0]
+        id = request.GET.getlist('app_id')[0]
         param = CollabParameters.objects.get(id = id )
         param_serializer = CollabParametersSerializer(param, data=request.data, context=serializer_context )
 
@@ -347,9 +357,9 @@ class ParametersConfigurationRest( APIView): #LoginRequiredMixin,
 
 class ScientificModelInstanceRest (APIView):
     def post(self, request, format=None):
-        ctx = request.GET.getlist('ctx')[0]
+        collab_id = request.GET.getlist('collab_id')[0]
 
-        if not _is_collaborator(request, ctx):
+        if not _is_collaborator(request, collab_id):
             return HttpResponseForbidden()
 
         serializer_context = {'request': request,}
@@ -361,9 +371,9 @@ class ScientificModelInstanceRest (APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
     def put(self, request, format=None):
-        ctx = request.GET.getlist('ctx')[0]
+        collab_id = request.GET.getlist('collab_id')[0]
 
-        if not _is_collaborator(request, ctx):
+        if not _is_collaborator(request, collab_id):
             return HttpResponseForbidden()
 
 
@@ -383,9 +393,9 @@ class ScientificModelInstanceRest (APIView):
 class ScientificModelImageRest (APIView):
 
     def post(self, request, format=None):
-        ctx = request.GET.getlist('ctx')[0]
+        collab_id = request.GET.getlist('collab_id')[0]
 
-        if not _is_collaborator(request, ctx):
+        if not _is_collaborator(request, collab_id):
             return HttpResponseForbidden()
 
         serializer_context = {'request': request,}
@@ -396,9 +406,9 @@ class ScientificModelImageRest (APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
     def put(self, request, format=None):
-        ctx = request.GET.getlist('ctx')[0]
+        collab_id = request.GET.getlist('collab_id')[0]
 
-        if not _is_collaborator(request, ctx):
+        if not _is_collaborator(request, collab_id):
             return HttpResponseForbidden()
 
         for image in request.data:
@@ -413,8 +423,9 @@ class ScientificModelImageRest (APIView):
         return Response( status=status.HTTP_202_ACCEPTED) 
 
     def delete(self, request, format=None):
-        ctx = request.GET.getlist('ctx')[0]
-        if not _is_collaborator(request, ctx):
+        collab_id = request.GET.getlist('collab_id')[0]
+
+        if not _is_collaborator(request, collab_id):
             return HttpResponseForbidden()
 
         image = ScientificModelImage.objects.get(id=request.query_params['id']).delete()
@@ -429,13 +440,14 @@ class ScientificModelRest(APIView):
             'request': request,
         }
         model_id = str(len(request.GET.getlist('id')))
-        ctx = request.GET.getlist('ctx')[0]
+        collab_id = request.GET.getlist('collab_id')[0]
+        app_id = request.GET.getlist('app_id')[0]
 
-        collab = _get_collab_id(request)
+        # collab = _get_collab_id(request)
         if(model_id == '0'):
-            collab_params = CollabParameters.objects.get(id = ctx )
+            collab_params = CollabParameters.objects.get(id = app_id )
 
-            all_ctx_from_collab = CollabParameters.objects.filter(collab_id = collab).distinct()
+            all_ctx_from_collab = CollabParameters.objects.filter(collab_id = collab_id).distinct()
             rq1 = ScientificModel.objects.filter(
                 private=1,
                 access_control__in=all_ctx_from_collab.values("id"), 
@@ -479,9 +491,10 @@ class ScientificModelRest(APIView):
                 'model_images': model_image_serializer.data,
             })
     def post(self, request, format=None):
-        ctx = request.GET.getlist('ctx')[0]
+        collab_id = request.GET.getlist('collab_id')[0]
+        app_id = request.GET.getlist('app_id')[0]
 
-        if not _is_collaborator(request, ctx):
+        if not _is_collaborator(request, collab_id):
             return HttpResponseForbidden()
 
         serializer_context = {'request': request,}
@@ -498,7 +511,8 @@ class ScientificModelRest(APIView):
                 if model_image_serializer.is_valid()  is not True:
                     return Response(model_image_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         # if no error save all 
-        model = model_serializer.save(access_control_id=ctx)
+        # model = model_serializer.save(access_control_id=ctx)
+        model = model_serializer.save(access_control_id=app_id)
         model_instance_serializer.save(model_id=model.id)    
         if request.data['model_image']!={}:
             for i in request.data['model_image']: 
@@ -509,8 +523,9 @@ class ScientificModelRest(APIView):
         return Response({'uuid':model.id}, status=status.HTTP_201_CREATED)
 
     def put(self, request, format=None):
-        ctx = request.GET.getlist('ctx')[0]
-        if not _is_collaborator(request, ctx):
+        collab_id = request.GET.getlist('collab_id')[0]
+
+        if not _is_collaborator(request, collab_id):
             return HttpResponseForbidden()
 
         ## save only modifications on model tables. if want to modify images or instances, do separate put.  
@@ -552,8 +567,9 @@ class ValidationTestCodeRest(APIView):
 
 
      def post(self, request, format=None):
-        ctx = request.GET.getlist('ctx')[0]
-        if not _is_collaborator(request, ctx):
+        collab_id = request.GET.getlist('collab_id')[0]
+
+        if not _is_collaborator(request, collab_id):
             return HttpResponseForbidden()
 
         serializer_context = {'request': request,}
@@ -576,15 +592,26 @@ class ValidationTestCodeRest(APIView):
 class ValidationTestDefinitionRest(APIView):
     
     def get(self, request, format=None, **kwargs):
+        
+        print 'ValidationTestDefinitionRest'
 
         serializer_context = {'request': request,}
         nb_id = str(len(request.GET.getlist('id')))
-        ctx = request.query_params['ctx']
+        print 'ValidationTestDefinitionRest2'
+        
+        # ctx = request.query_params['ctx']
+        print 'ValidationTestDefinitionRest3'
+        
+        collab_id = request.query_params['collab_id']
+        app_id = request.query_params['app_id']
+        print 'ValidationTestDefinitionRest4'
+        
         if(nb_id == '0'):
-            collab = _get_collab_id(request)
-            collab_params = CollabParameters.objects.get(id = ctx )
+            print "in if"
+            # collab = _get_collab_id(request)
+            collab_params = CollabParameters.objects.get(id = app_id )
 
-            all_ctx_from_collab = CollabParameters.objects.filter(collab_id = collab).distinct()  
+            all_ctx_from_collab = CollabParameters.objects.filter(collab_id = collab_id).distinct()  
             tests= ValidationTestDefinition.objects.filter (
                 species__in=collab_params.species.split(","), 
                 brain_region__in=collab_params.brain_region.split(","), 
@@ -592,11 +619,15 @@ class ValidationTestDefinitionRest(APIView):
                 data_modality__in=collab_params.data_modalities.split(","),
                 test_type__in=collab_params.test_type.split(",")).prefetch_related().distinct()
         else:
+            print "in else"
+            
             for key, value in self.request.GET.items():
                 if key == 'id':
                     tests = ValidationTestDefinition.objects.filter(id = value)
 
         test_serializer = ValidationTestDefinitionSerializer(tests, context=serializer_context, many=True)
+
+        print 'ValidationTestDefinitionRest end'
 
         return Response({
             'tests': test_serializer.data,
@@ -604,8 +635,9 @@ class ValidationTestDefinitionRest(APIView):
 
 
     def post(self, request, format=None):
-        ctx = request.GET.getlist('ctx')[0]
-        if not _is_collaborator(request, ctx):
+        # ctx = request.GET.getlist('ctx')[0]
+        collab_id = request.GET.getlist('collab_id')[0]
+        if not _is_collaborator(request, collab_id):
             return HttpResponseForbidden()
 
         serializer_context = {'request': request,}
@@ -625,8 +657,8 @@ class ValidationTestDefinitionRest(APIView):
         return Response(status=status.HTTP_201_CREATED)
 
     def put(self, request, format=None):
-        ctx = request.GET.getlist('ctx')[0]
-        if not _is_collaborator(request, ctx):
+        collab_id = request.GET.getlist('collab_id')[0]
+        if not _is_collaborator(request, collab_id):
             return HttpResponseForbidden()
         value = request.data
         test = ValidationTestDefinition.objects.get(id=value['id'])
@@ -668,10 +700,9 @@ class TestTicketRest(APIView):
         return Response({'new_ticket' : new_ticket_serializer.data})
 
     def put(self, request, format=None):
-        ctx = request.query_params['ctx']
-        ctx = request.GET.getlist('ctx')[0]
+        collab_id = request.GET.getlist('collab_id')[0]
 
-        if not _is_collaborator(request, ctx):
+        if not _is_collaborator(request, collab_id):
             return HttpResponseForbidden()
         
         serializer_context = {'request': request,}
@@ -712,8 +743,8 @@ class TestCommentRest(APIView):
         return Response({'new_comment' : new_comment_serializer.data})
 
     def put(self, request, format=None):
-        ctx = request.query_params['ctx']
-        if not _is_collaborator(request, ctx):
+        collab_id = request.query_params['collab_id']
+        if not _is_collaborator(request, collab_id):
             return HttpResponseForbidden()
         
         serializer_context = {'request': request,}
@@ -758,12 +789,10 @@ class ParametersConfigurationModelView(View):
 
 class IsCollabMemberRest (APIView):
     def get(self, request, format=None, **kwargs):
+        collab_id = request.GET.getlist('collab_id')[0]
+        
+        is_member = _is_collaborator(request, collab_id) 
 
-        ctx = request.GET.getlist('ctx')[0]
-     
-        is_member = _is_collaborator(request, ctx) # bool
-
-        #is_member = True
         return Response({
             'is_member':  is_member,
         })

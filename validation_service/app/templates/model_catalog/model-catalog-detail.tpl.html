@@ -13,7 +13,7 @@
 
         <button class="button-MC" ng-click="Context.modelCatalog_goToHomeView();">Home</button>&ensp;
 
-        <a ng-href="#/model-catalog/edit/{{model.models[0].id}}" ng-if="model.models[0].access_control.id == ctx && is_collab_member == true" class="button-MC">Edit</a>&ensp;
+        <a ng-href="#/model-catalog/edit/{{model.models[0].id}}" ng-if="model.models[0].access_control.id == app_id && is_collab_member == true" class="button-MC">Edit</a>&ensp;
         <a ng-href="#/model-catalog/version/{{model.models[0].id}}" class="button-MC">New version</a>&ensp;
     </nav>
     <br>
