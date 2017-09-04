@@ -100,6 +100,29 @@ from django.views.decorators.csrf import csrf_exempt, csrf_protect, ensure_csrf_
 
 
 
+#dirty logg ... need a module 
+import logging
+
+from logging.handlers import RotatingFileHandler
+logger = logging.getLogger()
+logger.setLevel(logging.DEBUG)
+formatter = logging.Formatter('%(asctime)s :: %(levelname)s :: %(message)s')
+file_handler = RotatingFileHandler('activity.log', 'a', 1000000, 1)
+file_handler.setLevel(logging.DEBUG)
+file_handler.setFormatter(formatter)
+logger.addHandler(file_handler)
+stream_handler = logging.StreamHandler()
+stream_handler.setLevel(logging.DEBUG)
+logger.addHandler(stream_handler)
+
+
+
+
+
+
+
+
+
 CROSSREF_URL = "http://api.crossref.org/works/"
 # VALID_FILTER_NAMES = ('name', 'age', 'brain_region', 'cell_type',
 #                       'data_type', 'data_modality', 'test_type',
@@ -309,11 +332,10 @@ class ParametersConfigurationRest( APIView): #LoginRequiredMixin,
     def post(self, request, format=None):
         # ctx = request.GET.getlist('ctx')[0]
         app_id = request.GET.getlist('app_id')[0]
-        collab_id = get_collab_id_from_app_id(app_id)
+        collab_id = request.GET.getlist('collab_id')[0]
 
         if not _is_collaborator(request, collab_id):
             return HttpResponseForbidden() 
-
 
         serializer_context = {'request': request,}
         param_serializer = CollabParametersSerializer(data=request.data, context=serializer_context)

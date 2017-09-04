@@ -445,9 +445,9 @@ ParametersConfigurationServices.service('CollabParameters', ['$rootScope', 'Coll
                 'cell_type': String(parameters.param[0]['cell_type']),
                 'model_type': String(parameters.param[0]['model_type']),
                 'app_type': String(parameters.param[0]['app_type']),
-                'collab_id': String(parameters.param[0]['collab_id']),
+                'collab_id': Context.getCollabID(),
             });
-            post = CollabParameterRest.save({ app_id: Context.getAppID() }, data_to_send, function(value) {});
+            post = CollabParameterRest.save({ app_id: Context.getAppID(), collab_id: Context.getCollabID() }, data_to_send, function(value) {});
             return post;
         };
 
@@ -462,7 +462,7 @@ ParametersConfigurationServices.service('CollabParameters', ['$rootScope', 'Coll
                 'cell_type': String(parameters.param[0]['cell_type']),
                 'model_type': String(parameters.param[0]['model_type']),
                 'app_type': String(parameters.param[0]['app_type']),
-                'collab_id': String(parameters.param[0]['collab_id']),
+                'collab_id': Context.getCollabID(),
             });
 
             put = CollabParameterRest.put({ app_id: Context.getAppID() }, data_to_send, function(value) {});

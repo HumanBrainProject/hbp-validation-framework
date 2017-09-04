@@ -79,7 +79,7 @@ ApiCommunicationServices.factory('CollabParameterRest', ['$resource',
         return $resource('parametersconfigurationrest/', {}, {
             get: { method: 'GET', params: { format: 'json', app_id: 'app_id' }, isArray: false },
             put: { method: 'PUT', params: { format: 'json', app_id: 'app_id' }, isArray: false, headers: { 'Content-Type': 'application/json' } },
-            post: { method: 'POST', params: { format: 'json', app_id: 'app_id' }, headers: { 'Content-Type': 'application/json' } }
+            post: { method: 'POST', params: { format: 'json', app_id: 'app_id', collab_id: 'collab_id' }, headers: { 'Content-Type': 'application/json' } }
         });
     }
 ]);
