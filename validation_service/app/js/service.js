@@ -332,21 +332,20 @@ var GraphicsServices = angular.module('GraphicsServices', ['ngResource', 'btorfs
 
 GraphicsServices.factory('Graphics', ['$rootScope', 'ValidationResultRest', 'CollabParameters', 'ValidationTestResultRest', 'ValidationModelResultRest', 'Context',
     function($rootScope, ValidationResultRest, CollabParameters, ValidationTestResultRest, ValidationModelResultRest, Context) {
+        // var results_data = undefined;
 
-        var results_data = undefined;
-
-        var focus = function(list_id_couple) {
+        var focus = function(list_id_couple, results_data) {
             var list_data = [];
             var i = 0;
             for (i; i < list_id_couple.length; i++) {
-                data = find_result_in_data(list_id_couple[i]);
+                data = find_result_in_data(list_id_couple[i], results_data);
                 list_data.push(data);
             }
             $rootScope.$broadcast('data_focussed:updated', list_data);
         };
 
 
-        var find_result_in_data = function(id_couple) {
+        var find_result_in_data = function(id_couple, results_data) {
             var result_to_return = undefined;
 
             var id_line = id_couple.id_line;
@@ -371,12 +370,15 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'ValidationResultRest', 'Col
             }
             return result_to_return;
         };
+        // var getListID = function() {
+        //     return list_ids;
+        // }
 
         var getResultsfromTestID = function(test) {
             return new Promise(function(resolve, reject) {
                 var values = [];
                 var j = 0;
-                results_data = ValidationTestResultRest.get({
+                var results_data = ValidationTestResultRest.get({
                     ctx: Context.getCtx(),
                     test_id: test.tests[0].id,
                 });
@@ -390,22 +392,26 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'ValidationResultRest', 'Col
             });
         };
 
-        var getResultsfromModelID = function(model) {
+        var getResultsfromModelID = function(model, ids) {
             var values = [];
+            var list_ids = [];
             var j = 0;
-            results_data = ValidationModelResultRest.get({
+            var x = 0;
+            var results_data = ValidationModelResultRest.get({
                 ctx: Context.getCtx(),
                 model_id: model.models[0].id,
+                list_id: ids,
             });
             results_data.$promise.then(function() {
-
-                for (j; j < results_data.data_block_id.length; j++) {
+                for (j; j < results_data.data.length; j++) {
                     values[j] = _manageDataForGraph(results_data.data[j], results_data.data_block_id[j].id)
                 };
-
+                for (x; x < results_data.versions_id_all.length; x++) {
+                    list_ids[x] = results_data.versions_id_all[x];
+                };
             });
 
-            return values;
+            return { 'values': values, 'ids_all': list_ids, 'results': results_data };
         };
 
         var _manageDataForGraph = function(data, line_id) {
@@ -440,7 +446,7 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'ValidationResultRest', 'Col
             return color;
         };
 
-        var get_lines_options = function(title, subtitle, Yaxislabel, caption) {
+        var get_lines_options = function(title, subtitle, Yaxislabel, caption, results_data) {
             options = {
                 chart: {
                     type: 'lineChart',
@@ -484,7 +490,7 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'ValidationResultRest', 'Col
                                 list_of_results_id.push({ id_line: e[i].point.id, id_result: e[i].point.id_test_result });
                             }
 
-                            focus(list_of_results_id);
+                            focus(list_of_results_id, results_data);
                         });
                     }
                 },

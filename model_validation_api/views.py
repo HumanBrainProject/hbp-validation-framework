@@ -22,7 +22,7 @@ from django.http import (HttpResponse, JsonResponse,
                          HttpResponseNotAllowed,     # 405
                          HttpResponseNotModified,    # 304
                          HttpResponseRedirect)       # 302
-
+from django.db.models import Max, Count
 from django.conf import settings
 from django.template import loader
 import requests
@@ -268,7 +268,6 @@ def _get_collab_id(request):
     url = '%scollab/context/%s/' % (svc_url, context)
     res = requests.get(url, headers=headers)
     collab_id = res.json()['collab']['id']
-    print("collab id", collab_id)
     return collab_id
 
 class AppIDRest(APIView): 
@@ -317,11 +316,10 @@ class ParametersConfigurationRest( APIView): #LoginRequiredMixin,
         if not _is_collaborator(request, ctx):
             return HttpResponseForbidden() 
 
-
         serializer_context = {'request': request,}
         param_serializer = CollabParametersSerializer(data=request.data, context=serializer_context)
         if param_serializer.is_valid():
-            param = param_serializer.save() 
+            param = param_serializer.save(id =request.data['id'] ) 
         else:
             return Response(param_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
          
@@ -786,32 +784,44 @@ class ValidationModelResultRest (APIView):
     def get(self, request, format=None, **kwargs):
         serializer_context = {'request': request,}
         model_id  = request.query_params['model_id']
-        # list_test_id  = request.query_params['list_id']
+        list_test_id  = request.GET.getlist('list_id')
 
         try :      
             model_instances = ScientificModelInstance.objects.filter(model_id=model_id).values("id")
         except:    
             model_instances = [ScientificModelInstance.objects.get(model_id= model_id).id]
 
-        results_all= ValidationTestResult.objects.filter(model_instance_id__in = model_instances )
-        versions_id = list(results_all.values("test_definition_id").distinct())
-        ##if list_test_id == [] (default) return last version code of each test 
-#         if list_test_id == []:
-#             test_def_id = 
-#             versions_id = results_all.order_by('test_definition_id',''). 
-# Score.objects.order_by('student__username', '-date').distinct('student__username')
+        results_all= ValidationTestResult.objects.filter(model_instance_id__in = model_instances ).select_related()
+  
+        list_code_id = []
+        if list_test_id == []:
+            def_ids = results_all.values_list('test_code__test_definition_id', flat=True).distinct()
+            for def_id in def_ids:
+                last_code_id = results_all.filter(test_code__test_definition_id = def_id).order_by('-test_code__timestamp').first().test_code_id
+                list_code_id.append(last_code_id)
+            versions = list_code_id
+        else:
+            if list_test_id[0] == 'all':
+                versions = results_all.values_list('test_code_id', flat=True).distinct()
+            else:
+                versions = list_test_id
         result_serialized=[]
         new_id = []
-        for version in versions_id:
-            r = results_all.filter(test_definition_id = version['test_definition_id'])
+        for version in versions:
+            r =results_all.filter(test_code_id = version)
             r_serializer = ValidationModelResultReadOnlySerializer(r, context = serializer_context, many=True)
             result_serialized.append(r_serializer.data)  
             #change the label to generalize datablock_id
-            new_id.append({"id":version['test_definition_id']})
-
+            version_object = ValidationTestCode.objects.get(id=version)
+            new_id.append({"id":"T"+str(version_object.test_definition_id) +"C"+str(version_object.id)})   
+        #get list of all test_code to show in checkbox
+        versions_id = results_all.values_list("test_code_id", flat=True).distinct() 
+        versions_all = ValidationTestCode.objects.filter(id__in=versions_id).order_by('test_definition_id')
+        versions_all_ser = ValidationTestCodeSerializer(versions_all, many=True).data
         return Response({
             'data': result_serialized,
             'data_block_id':new_id,
+            'versions_id_all': versions_all_ser,
         })    
 
 class ValidationTestResultRest (APIView):

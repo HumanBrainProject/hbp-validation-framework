@@ -181,8 +181,24 @@
     padding: 5px;
 }
 
-#chart{
+#chart {
     max-width: 80%;
     min-width: 80%;
     width: 80%;
+}
+
+#checkbox {
+    width: 80%;
+    height: 15%;
+    border: 1px solid #ddd;
+    overflow: auto;
+}
+
+[ng\:cloak],
+[ng-cloak],
+[data-ng-cloak],
+[x-ng-cloak],
+.ng-cloak,
+.x-ng-cloak {
+    display: none !important;
 }

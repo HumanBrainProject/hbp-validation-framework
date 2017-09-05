@@ -82,33 +82,55 @@ testApp.controller('ValTestCtrl', ['$scope', '$rootScope', '$http', '$location',
 
 
 testApp.controller('ValModelDetailCtrl', ['$scope', '$rootScope', '$http', '$location', '$stateParams', 'ScientificModelRest', 'ScientificModelInstanceRest', 'CollabParameters', 'IsCollabMemberRest', 'AppIDRest', 'Graphics', 'Context',
-    function($scope, $rootScope, $http, $location, $stateParams, ScientificModelRest, ScientificModelInstanceRest, CollabParameters, IsCollabMemberRest, AppIDRest, Graphics, Context) {
-
+    function($scope, $rootScope, $http, $location, $stateParams, ScientificModelRest, ScientificModelInstanceRest, CollabParameters, IsCollabMemberRest, AppIDRest, Graphics, Context, ValidationModelResultRest) {
         $scope.Context = Context;
 
         var ctx = Context.getCtx();
         CollabParameters.setService(ctx).$promise.then(function() {
-
             $scope.is_collab_member = false;
             $scope.is_collab_member = IsCollabMemberRest.get({ ctx: ctx, });
             $scope.is_collab_member.$promise.then(function() {
                 $scope.is_collab_member = $scope.is_collab_member.is_member;
             });
+
             $scope.model = ScientificModelRest.get({ ctx: ctx, id: $stateParams.uuid });
             $scope.model.$promise.then(function() {
                 //graph and table results
-                // $scope.init_graph= Graphics.getResultsfromModelID($scope.model, []);
-                $scope.init_graph= Graphics.getResultsfromModelID($scope.model); 
-                $scope.data = $scope.init_graph;
-                console.log($scope.data)
+                $scope.init_graph = Graphics.getResultsfromModelID($scope.model, []);
+                //$scope.init_graph= Graphics.getResultsfromModelID($scope.model); 
+                $scope.data = $scope.init_graph.values;
+                $scope.init_checkbox = $scope.init_graph.ids_all;
                 $scope.line_result_focussed;
                 $scope.$on('data_focussed:updated', function(event, data) {
                     $scope.line_result_focussed = data;
                     $scope.$apply();
-                });
-                $scope.options5 = Graphics.get_lines_options('Model/p-value', '', "p-value", "this is a caption");
+                })
+                $scope.options5 = Graphics.get_lines_options('Model/p-value', '', "p-value", "this is a caption", $scope.init_graph.results);
+                //main table result
+                $scope.results_all = _getAllResultTable();
+
             });
+
         });
+        var _getAllResultTable = function() {
+            return Graphics.getResultsfromModelID($scope.model, ['all']);
+        };
+        $scope.updateGraph = function() {
+            var list_ids = _IsCheck();
+            $scope.init_graph = Graphics.getResultsfromModelID($scope.model, list_ids);
+            $scope.data = $scope.init_graph.values;
+        };
+
+        var _IsCheck = function() {
+            var list_ids = [];
+            var i = 0;
+            for (i; i < $scope.init_checkbox.length; i++) {
+                if (document.getElementById('check-' + $scope.init_checkbox[i].id).checked) {
+                    list_ids.push($scope.init_checkbox[i].id);
+                };
+            };
+            return list_ids
+        };
     }
 ]);
 
@@ -848,7 +870,7 @@ ParametersConfigurationApp.controller('ParametersConfigurationCtrl', ['$scope', 
 
             var app_type = document.getElementById("app").getAttribute("value");
             var collab = CollabIDRest.get({ ctx: ctx });
-            
+
             $scope.list_param = AuthaurizedCollabParameterRest.get({ ctx: ctx });
 
             $scope.list_param.$promise.then(function() {

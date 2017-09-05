@@ -36,7 +36,7 @@ class CollabParametersSerializer(serializers.HyperlinkedModelSerializer):
 class ValidationTestResultSerializer (serializers.HyperlinkedModelSerializer):
     class Meta:
         model = ValidationTestResult
-        fields = ('id',  'results_storage', 'result', 'passed', 'timestamp', 'platform',   'project', 'model_instance_id', 'test_definition_id')
+        fields = ('id',  'results_storage', 'result', 'passed', 'timestamp', 'platform',   'project', 'model_instance_id', 'test_code_id')
 
 
 
@@ -91,19 +91,19 @@ class ValidationTestCodeSerializer(serializers.HyperlinkedModelSerializer):
 
 class ValidationTestResultReadOnlySerializer (serializers.HyperlinkedModelSerializer):
     model_instance = ScientificModelInstanceReadOnlySerializer(read_only=True)
-    test_definition = ValidationTestCodeSerializer(read_only=True)
+    test_code = ValidationTestCodeSerializer(read_only=True)
     class Meta:
         model = ValidationTestResult
-        fields = ('id',  'results_storage', 'result', 'passed', 'timestamp', 'platform',   'project', 'model_instance', 'test_definition')
+        fields = ('id',  'results_storage', 'result', 'passed', 'timestamp', 'platform',   'project', 'model_instance', 'test_code')
 
 
 
 class ValidationModelResultReadOnlySerializer (serializers.HyperlinkedModelSerializer):
     model_instance = ScientificModelInstanceSerializer(read_only=True)
-    test_definition = ValidationTestCodeSerializer(read_only=True)
+    test_code = ValidationTestCodeSerializer(read_only=True)
     class Meta:
         model = ValidationTestResult
-        fields = ('id',  'results_storage', 'result', 'passed', 'timestamp', 'platform',   'project', 'model_instance', 'test_definition')
+        fields = ('id',  'results_storage', 'result', 'passed', 'timestamp', 'platform',   'project', 'model_instance', 'test_code')
 
 
 
