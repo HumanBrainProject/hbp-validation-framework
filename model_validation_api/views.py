@@ -183,7 +183,6 @@ class HomeValidationView(View):
 
 class AuthorizedCollabParameterRest(APIView):
 
-
     def get(self, request,  format=None, **kwargs):
  
 
@@ -517,6 +516,7 @@ class ScientificModelRest(APIView):
                 collab_id = get_collab_id_from_app_id(app_id)
                 if not is_authorised(request, collab_id) :
                     return HttpResponse('Unauthorized', status=401)
+                    return HttpResponseForbidden()
             
             model_serializer = ScientificModelFullReadOnlySerializer(models, context=serializer_context, many=True )
 
@@ -715,6 +715,12 @@ class TestTicketRest(APIView):
   
     def post(self, request, format=None):
         serializer_context = {'request': request,}
+
+        app_id = request.GET.getlist('app_id')[0]
+        collab_id = get_collab_id_from_app_id(app_id)
+        if not is_authorised(request, collab_id):
+            return HttpResponseForbidden()
+
         request.data['author'] = str(request.user)
         param_serializer = TicketSerializer(data=request.data, context=serializer_context)
         if param_serializer.is_valid():
@@ -759,6 +765,13 @@ class TestCommentRest(APIView):
   
     def post(self, request, format=None):
         serializer_context = {'request': request,}
+
+        app_id = request.GET.getlist('app_id')[0]
+        collab_id = get_collab_id_from_app_id(app_id)
+        if not is_authorised(request, collab_id):
+            return HttpResponseForbidden()
+
+
         request.data['author'] = str(request.user)
         param_serializer = CommentSerializer(data=request.data, context=serializer_context)
         if param_serializer.is_valid():
