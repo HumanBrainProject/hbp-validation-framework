@@ -3,9 +3,9 @@ var ApiCommunicationServices = angular.module('ApiCommunicationServices', ['ngRe
 ApiCommunicationServices.factory('ScientificModelRest', ['$resource',
     function($resource) {
         return $resource('scientificmodel/:uuid', { id: '@eUuid' }, {
-            get: { method: 'GET', params: { format: 'json', app_id: 'app_id' }, isArray: false },
-            post: { method: 'POST', params: { format: 'json', app_id: 'app_id' }, headers: { 'Content-Type': 'application/json' } },
-            put: { method: 'PUT', params: { format: 'json', app_id: 'app_id' }, headers: { 'Content-Type': 'application/json' } }
+            get: { method: 'GET', params: { format: 'json', app_id: 'app_id', web_app: 'True' }, isArray: false },
+            post: { method: 'POST', params: { format: 'json', app_id: 'app_id', web_app: 'True' }, headers: { 'Content-Type': 'application/json' } },
+            put: { method: 'PUT', params: { format: 'json', app_id: 'app_id', web_app: 'True' }, headers: { 'Content-Type': 'application/json' } }
         });
     }
 ]);

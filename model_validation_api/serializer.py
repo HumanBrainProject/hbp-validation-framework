@@ -76,12 +76,21 @@ class ScientificModelImageSerializer(serializers.HyperlinkedModelSerializer):
 
 
 
+class ScientificModelFullReadOnlySerializer(serializers.HyperlinkedModelSerializer):
+    # access_control = CollabParametersSerializer( read_only=True)
+    instances = ScientificModelInstanceSerializer (read_only=True, many=True )
+    images = ScientificModelImageSerializer (read_only=True , many=True )
+
+    class Meta:
+        model = ScientificModel
+        fields = ('id', 'name', 'description', 'species', 'brain_region', 'cell_type', 'author', 'model_type','private', 'access_control_id', 'instances', 'images')
+
+
 class ScientificModelReadOnlySerializer(serializers.HyperlinkedModelSerializer):
     access_control = CollabParametersSerializer( read_only=True)
     class Meta:
         model = ScientificModel
         fields = ('id', 'name', 'description', 'species', 'brain_region', 'cell_type', 'author', 'model_type','private','access_control')
-
 
 
 class ValidationTestCodeSerializer(serializers.HyperlinkedModelSerializer):

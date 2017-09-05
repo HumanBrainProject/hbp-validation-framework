@@ -130,6 +130,7 @@ else:
             'PASSWORD': os.environ.get("VALIDATION_SERVICE_PASSWORD"),
             'HOST': os.environ.get("VALIDATION_SERVICE_HOST"),
             'PORT': os.environ.get("VALIDATION_SERVICE_PORT", "5432"),          
+
         },
     }
 
