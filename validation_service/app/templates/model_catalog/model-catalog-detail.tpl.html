@@ -40,7 +40,7 @@
                 <br><br>
             </tr>
             <tr>
-                <div class="group" ng-repeat="img in model.model_images track by $index">
+                <div class="group" ng-repeat="img in model.models[0].images track by $index">
                     <figure>
                         <button ng-click='toggleSize($index, img)'><img id="image-$index"  ng-src="{{img.url}}" width="304" height="228"> </button>
                         <figcaption id=figcaptionDetail>{{img.caption}}</figcaption> <br>
@@ -62,7 +62,7 @@
             </tr>
         </thead>
         <tbody>
-            <tr ng-repeat="model_instance in model.model_instances">
+            <tr ng-repeat="model_instance in model.models[0].instances">
                 <td>{{ model_instance.version }}</td>
                 <td><pre>{{ model_instance.parameters }}</pre></td>
                 <td>{{ model_instance.source }}</td>

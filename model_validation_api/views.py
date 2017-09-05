@@ -462,7 +462,7 @@ class ScientificModelRest(APIView):
                 else:
                     models = rq2
                 
-                model_serializer = ScientificModelReadOnlySerializer(models, context=serializer_context, many=True )
+                model_serializer = ScientificModelFullReadOnlySerializer(models, context=serializer_context, many=True )
                 return Response({
                 'models': model_serializer.data,
                 })
@@ -501,7 +501,7 @@ class ScientificModelRest(APIView):
 
 
                 models = q
-                model_serializer = ScientificModelFullReadOnlySerializer(models, context=serializer_context, many=True )
+                model_serializer = ScientificModelReadOnlySerializer(models, context=serializer_context, many=True )
 
                 return Response({
                 'models': model_serializer.data,
@@ -509,15 +509,9 @@ class ScientificModelRest(APIView):
 
         # a model ID has been specified 
         else:
-
-            #TODO : change all that tu use the FULLREADONLY serializer            
-            
+        
             id =request.GET.getlist('id')[0]
             models = ScientificModel.objects.filter(id=id)
-            model_instance = ScientificModelInstance.objects.filter(model_id=id)
-            model_images = ScientificModelImage.objects.filter(model_id=id)
-
-
 
             #check if private 
             if models.values("private")[0]["private"] == 1 :
@@ -527,14 +521,10 @@ class ScientificModelRest(APIView):
                 if not is_authorised(request, collab_id) :
                     return HttpResponse('Unauthorized', status=401)
             
-            model_serializer = ScientificModelReadOnlySerializer(models, context=serializer_context, many=True )
-            model_instance_serializer = ScientificModelInstanceSerializer(model_instance, context=serializer_context, many=True )
-            model_image_serializer = ScientificModelImageSerializer(model_images, context=serializer_context, many=True )
+            model_serializer = ScientificModelFullReadOnlySerializer(models, context=serializer_context, many=True )
 
             return Response({
                 'models': model_serializer.data,
-                'model_instances': model_instance_serializer.data,
-                'model_images': model_image_serializer.data,
             })
 
     def post(self, request, format=None):
