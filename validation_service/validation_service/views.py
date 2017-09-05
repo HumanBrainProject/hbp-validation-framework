@@ -10,6 +10,8 @@ import requests
 from hbp_app_python_auth.auth import get_access_token, get_token_type, get_auth_header
 from model_validation_api.models import CollabParameters
 from model_validation_api.serializer import CollabParametersSerializer
+from model_validation_api.views import _get_app_id
+
 
 from model_validation_api.url_handler import get_url_ctx
 
@@ -18,9 +20,19 @@ def home(request):
     
     ctx = get_url_ctx(request)
 
-    serializer_context = {'request': request,}
-    id = ctx
-    app_params=list(CollabParameters.objects.filter(id = id).values('app_type'))
+    #to get app_id
+    social_auth = request.user.social_auth.get()
+    headers = {
+        'Authorization': get_auth_header(request.user.social_auth.get())
+    }
+    #to get collab_id
+    svc_url = settings.HBP_COLLAB_SERVICE_URL    
+    url = '%scollab/context/%s/' % (svc_url, ctx)
+    res = requests.get(url, headers=headers)
+    app_id = res.json()['id']
+
+
+    app_params=list(CollabParameters.objects.filter(id = app_id).values('app_type'))
     if app_params != []:
         if app_params[0]["app_type"]=="model_catalog":
             return  render(request, 'model_catalog/model_catalog.html', {})

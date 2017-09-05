@@ -125,6 +125,7 @@ var ParametersConfigurationApp = angular.module('ParametersConfigurationApp', [
     'ngResource',
     'ParametersConfigurationServices',
     'ApiCommunicationServices',
+    'ContextServices',
 ]);
 
 ParametersConfigurationApp.config(

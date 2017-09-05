@@ -1,20 +1,50 @@
 var ContextServices = angular.module('ContextServices', ['ngResource', 'btorfs.multiselect', 'ApiCommunicationServices', ]);
 
-ContextServices.service('Context', ['$rootScope', '$location', 'AppIDRest',
-    function($rootScope, $location, AppIDRest) {
+ContextServices.service('Context', ['$rootScope', '$location', 'AppIDRest', 'CollabIDRest',
+    function($rootScope, $location, AppIDRest, CollabIDRest) {
         var ctx;
         var state_type = undefined;
         var state = undefined;
+        var external = undefined;
+        var collabID = undefined;
+        var appID = undefined;
 
 
         var modelCatalog_goToHomeView = function() {
             clearState();
-            $location.path('/model-catalog/');
+            setTimeout(function() {
+                // console.log("YOOOOOOOOOOOOOOOOOOOO")
+                $location.path('/model-catalog/');
+
+            }, 300);
+            // $location.path('/model-catalog/');
         };
         var modelCatalog_goToModelDetailView = function(model_id) {
+
+
+
+            console.log("heuuu")
             sendState("model", model_id);
             setState(model_id);
+
+            console.log(state);
+            console.log(state_type);
+
             $location.path('/model-catalog/detail/' + model_id);
+            // $location.replace();
+
+
+            // $scope.$apply()
+
+            setTimeout(function() {
+
+
+
+            }, 0);
+
+
+
+
         };
 
         var validation_goToHomeView = function() {
@@ -39,56 +69,175 @@ ContextServices.service('Context', ['$rootScope', '$location', 'AppIDRest',
 
         var validation_goToModelCatalog = function(model) {
             var collab_id = model.access_control.collab_id;
-            var app_id = AppIDRest.get({ ctx: model.access_control.id });
-            app_id.$promise.then(function() {
-                app_id = app_id.app_id;
+            // var app_id = AppIDRest.get({ ctx: model.access_control.id });
+            var app_id = model.access_control.id;
 
-                var url = "https://collab.humanbrainproject.eu/#/collab/" + collab_id + "/nav/" + app_id +
-                    "?state=model." + model.id; //to go to collab api
 
-                window.open(url, 'modelCatalog');
-            });
+            // console.log(collab_id);
+            // console.log(app_id);
+
+            var url = "https://collab.humanbrainproject.eu/#/collab/" + collab_id + "/nav/" + app_id +
+                "?state=model." + model.id + ",external"; //to go to collab api
+
+            // console.log("URLLL");
+            // console.log(url);
+
+            window.open(url, 'modelCatalog');
+
 
         }
 
 
 
         var setService = function() {
-            _getState();
-            _getCtx();
+            return new Promise(function(resolve, reject) {
+
+                console.log("window.location.search", window.location.search);
+
+                console.log("0 state", state);
+
+                // _getState();
+                temp_state = window.location.search.split("&")[1];
+
+                console.log("temp state : ", temp_state);
+
+                if (temp_state != undefined && temp_state != "ctxstate=") {
+                    temp_state2 = temp_state.split("%2C")[0];
+                    temp_state2 = temp_state2.substring(9);
+                    state_type = temp_state2.split(".")[0]
+                    state = temp_state2.split(".")[1]
+
+                    if (temp_state.split("%2C")[1] != undefined) {
+                        external = temp_state.split("%2C")[1];
+                    }
+                }
+                console.log("1 state", state);
+
+
+
+                // _getCtx();
+                if (ctx == undefined) {
+                    ctx = window.location.search.split("&")[0].substring(5);
+                }
+
+                // getCollabID();
+                if (collabID == undefined || collabID == "") {
+                    var collab_request = CollabIDRest.get({ ctx: ctx }); //.collab_id;
+                    collab_request.$promise.then(function() {
+                        collabID = collab_request.collab_id
+                    });
+                }
+
+                // getAppID();
+                if (appID == undefined || appID == "") {
+                    var app_request = AppIDRest.get({ ctx: ctx }); //.collab_id;
+                    app_request.$promise.then(function() {
+                        appID = app_request.app_id
+                    });
+                }
+
+
+                if (app_request == undefined) {
+                    if (collab_request == undefined) {
+                        resolve();
+                    } else {
+                        collab_request.$promise.then(function() {
+                            resolve();
+                        });
+                    }
+                } else {
+                    app_request.$promise.then(function() {
+
+                        if (collab_request == undefined) {
+                            resolve();
+
+                        } else {
+                            collab_request.$promise.then(function() {
+                                resolve();
+                            });
+                        }
+                    });
+                }
+            });
         };
 
         var setState = function(id) {
             state = id;
         };
 
-        var _getState = function() {
-            temp_state = window.location.search.split("&")[1]
 
-            if (temp_state != undefined) {
-                temp_state = temp_state.substring(9);
-                state_type = temp_state.split(".")[0]
-                state = temp_state.split(".")[1]
-            }
-        };
+        var getExternal = function() {
+            return external;
+        }
 
-        var _getCtx = function() {
+        // var _getState = function() {
 
-            if (typeof(ctx) == "undefined") {
-                ctx = window.location.search.split("&")[0].substring(5);
-            }
 
-        };
+        //     temp_state = window.location.search.split("&")[1];
 
-        var getCtx = function() {
-            if (ctx == undefined) {
-                _getCtx();
-            }
-            return ctx;
-        };
+        //     if (temp_state != undefined) {
+        //         temp_state2 = temp_state.split("%2C")[0];
+        //         temp_state2 = temp_state2.substring(9);
+        //         state_type = temp_state2.split(".")[0]
+        //         state = temp_state2.split(".")[1]
+
+        //         if (temp_state.split("%2C")[1] != undefined) {
+        //             external = temp_state.split("%2C")[1];
+        //         }
+
+        //     }
+        // };
+
         var getState = function() {
             return state;
         };
+        // var _getCtx = function() {
+        //     if (ctx == undefined) {
+        //         ctx = window.location.search.split("&")[0].substring(5);
+        //     }
+
+        // };
+
+
+        var getCtx = function() {
+            // if (ctx == undefined) {
+            //     _getCtx();
+            // }
+            return ctx;
+        };
+
+        var getCollabID = function() {
+            return collabID;
+
+            // if (collabID == undefined || collabID == "") {
+            //     var request = CollabIDRest.get({ ctx: ctx }); //.collab_id;
+            //     request.$promise.then(function() {
+            //         collabID = request.collab_id
+            //         return collabID;
+            //     });
+
+            // } else {
+            //     return collabID;
+            // }
+        };
+
+        var getAppID = function() {
+            return appID;
+
+
+            // if (appID == undefined || appID == "") {
+            //     var request = AppIDRest.get({ ctx: ctx }); //.collab_id;
+            //     request.$promise.then(function() {
+            //         appID = request.app_id
+            //         return appID;
+            //     });
+
+            // } else {
+            //     return appID;
+            // }
+        };
+
+
 
         var sendState = function(type, id) {
             state_type = type;
@@ -115,20 +264,39 @@ ContextServices.service('Context', ['$rootScope', '$location', 'AppIDRest',
             state = "";
             state_type = undefined;
 
+            // console.log("clear state")
+            console.log(window.location);
+
+            setTimeout(function() {
+                window.location.hash = "ctx=" + getCtx() + "&ctxstate=";
+                window.location.search = "ctx=" + getCtx() + "&ctxstate=";
+
+
+            }, 0);
+
+        };
+
+        var clearExternal = function() {
+            sendState(state_type, state);
+            // window.location.search = "ctx=" + getCtx() + "&ctxstate="+state_type+"."+state;
             window.location.search = "ctx=" + getCtx() + "&ctxstate=";
         };
 
         var getStateType = function() {
             return state_type;
-        }
+        };
 
         return {
             setService: setService,
             getCtx: getCtx,
+            getCollabID: getCollabID,
+            getAppID: getAppID,
             getState: getState,
             sendState: sendState,
             clearState: clearState,
+            clearExternal: clearExternal,
             setState: setState,
+            getExternal: getExternal,
             getStateType: getStateType,
             modelCatalog_goToHomeView: modelCatalog_goToHomeView,
             modelCatalog_goToModelDetailView: modelCatalog_goToModelDetailView,
@@ -178,7 +346,11 @@ ParametersConfigurationServices.service('CollabParameters', ['$rootScope', 'Coll
         };
 
         var getRequestParameters = function() {
-            parameters = CollabParameterRest.get({ ctx: ctx, id: ctx });
+            console.log("getRequestParameters");
+            console.log(Context.getCollabID());
+            console.log(Context.getAppID());
+
+            parameters = CollabParameterRest.get({ app_id: Context.getAppID() });
             return parameters
         };
 
@@ -224,18 +396,22 @@ ParametersConfigurationServices.service('CollabParameters', ['$rootScope', 'Coll
 
 
         var setService = function(ctx_param) {
-            ctx = ctx_param;
+            // ctx = ctx_param;
 
             if (typeof(parameters) == "undefined") {
 
-                parameters = CollabParameterRest.get({ ctx: ctx, id: ctx }); //need to get collab number
+                console.log("setService");
+                console.log(Context.getCollabID());
+                console.log(Context.getAppID());
+
+                parameters = CollabParameterRest.get({ app_id: Context.getAppID() }); //need to get collab number
                 parameters.$promise.then(function() {
 
                     if (parameters.param.length == 0) {
 
                         post = _postInitCollab();
                         post.$promise.then(function() {
-                            parameters = CollabParameterRest.get({ ctx: ctx, id: ctx });
+                            parameters = CollabParameterRest.get({ app_id: Context.getAppID() });
 
                         });
                     } else {
@@ -261,7 +437,7 @@ ParametersConfigurationServices.service('CollabParameters', ['$rootScope', 'Coll
         var post_parameters = function() {
 
             var data_to_send = JSON.stringify({
-                'id': ctx,
+                'id': Context.getAppID(),
                 'data_modalities': String(parameters.param[0]['data_modalities']),
                 'test_type': String(parameters.param[0]['test_type']),
                 'species': String(parameters.param[0]['species']),
@@ -271,14 +447,14 @@ ParametersConfigurationServices.service('CollabParameters', ['$rootScope', 'Coll
                 'app_type': String(parameters.param[0]['app_type']),
                 'collab_id': String(parameters.param[0]['collab_id']),
             });
-            post = CollabParameterRest.save({ ctx: ctx }, data_to_send, function(value) {});
+            post = CollabParameterRest.save({ app_id: Context.getAppID() }, data_to_send, function(value) {});
             return post;
         };
 
         var put_parameters = function() {
 
             var data_to_send = JSON.stringify({
-                'id': ctx,
+                'id': Context.getAppID(),
                 'data_modalities': String(parameters.param[0]['data_modalities']),
                 'test_type': String(parameters.param[0]['test_type']),
                 'species': String(parameters.param[0]['species']),
@@ -289,7 +465,7 @@ ParametersConfigurationServices.service('CollabParameters', ['$rootScope', 'Coll
                 'collab_id': String(parameters.param[0]['collab_id']),
             });
 
-            put = CollabParameterRest.put({ ctx: ctx, id: ctx }, data_to_send, function(value) {});
+            put = CollabParameterRest.put({ app_id: Context.getAppID() }, data_to_send, function(value) {});
             return put;
         };
 
@@ -378,10 +554,9 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'ValidationResultRest', 'Col
             return new Promise(function(resolve, reject) {
                 var values = [];
                 var j = 0;
-                var results_data = ValidationTestResultRest.get({
-                    ctx: Context.getCtx(),
-                    test_id: test.tests[0].id,
-                });
+
+                var results_data = ValidationTestResultRest.get({ app_id: Context.getAppID(), test_id: test.tests[0].id });
+
 
                 results_data.$promise.then(function() {
                     for (j; j < results_data.data_block_id.length; j++) {
@@ -397,11 +572,8 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'ValidationResultRest', 'Col
             var list_ids = [];
             var j = 0;
             var x = 0;
-            var results_data = ValidationModelResultRest.get({
-                ctx: Context.getCtx(),
-                model_id: model.models[0].id,
-                list_id: ids,
-            });
+
+            var results_data = ValidationModelResultRest.get({ app_id: Context.getAppID(), model_id: model.models[0].id, list_id: ids, });
             results_data.$promise.then(function() {
                 for (j; j < results_data.data.length; j++) {
                     values[j] = _manageDataForGraph(results_data.data[j], results_data.data_block_id[j].id)

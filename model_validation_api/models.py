@@ -10,7 +10,7 @@ from django.utils.encoding import python_2_unicode_compatible
 
 @python_2_unicode_compatible 
 class CollabParameters(models.Model): 
-    id = models.UUIDField(primary_key=True, default='', editable=False)
+    id = models.CharField(primary_key=True, max_length=100 , default="")
     app_type = models.CharField(max_length=100 ,blank=True, help_text="type of application: model catalog or validation test")
     data_modalities = models.CharField(max_length=500 ,blank=True, help_text="species")
     test_type = models.CharField(max_length=500, blank=True, help_text="species")
