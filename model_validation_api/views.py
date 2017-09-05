@@ -286,7 +286,7 @@ class ParametersConfigurationRest( APIView): #LoginRequiredMixin,
         app_id = request.GET.getlist('app_id')[0]
         collab_id = request.GET.getlist('collab_id')[0]
 
-        if not _is_collaborator(request, collab_id):
+        if not is_authorised(request, collab_id):
             return HttpResponseForbidden() 
 
         serializer_context = {'request': request,}
@@ -303,7 +303,7 @@ class ParametersConfigurationRest( APIView): #LoginRequiredMixin,
         app_id = request.GET.getlist('app_id')[0]
         collab_id = get_collab_id_from_app_id(app_id)
 
-        if not _is_collaborator(request, collab_id):
+        if not is_authorised(request, collab_id):
             return HttpResponseForbidden()
         
         serializer_context = {'request': request,}
@@ -323,7 +323,7 @@ class ScientificModelInstanceRest (APIView):
         app_id = request.GET.getlist('app_id')[0]
         collab_id = get_collab_id_from_app_id(app_id)
 
-        if not _is_collaborator(request, collab_id):
+        if not is_authorised(request, collab_id):
             return HttpResponseForbidden()
 
         serializer_context = {'request': request,}
@@ -338,7 +338,7 @@ class ScientificModelInstanceRest (APIView):
         app_id = request.GET.getlist('app_id')[0]
         collab_id = get_collab_id_from_app_id(app_id)
 
-        if not _is_collaborator(request, collab_id):
+        if not is_authorised(request, collab_id):
             return HttpResponseForbidden()
 
 
@@ -361,7 +361,7 @@ class ScientificModelImageRest (APIView):
         app_id = request.GET.getlist('app_id')[0]
         collab_id = get_collab_id_from_app_id(app_id)
 
-        if not _is_collaborator(request, collab_id):
+        if not is_authorised(request, collab_id):
             return HttpResponseForbidden()
 
         serializer_context = {'request': request,}
@@ -375,7 +375,7 @@ class ScientificModelImageRest (APIView):
         app_id = request.GET.getlist('app_id')[0]
         collab_id = get_collab_id_from_app_id(app_id)
 
-        if not _is_collaborator(request, collab_id):
+        if not is_authorised(request, collab_id):
             return HttpResponseForbidden()
 
         for image in request.data:
@@ -393,7 +393,7 @@ class ScientificModelImageRest (APIView):
         app_id = request.GET.getlist('app_id')[0]
         collab_id = get_collab_id_from_app_id(app_id)
 
-        if not _is_collaborator(request, collab_id):
+        if not is_authorised(request, collab_id):
             return HttpResponseForbidden()
 
         image = ScientificModelImage.objects.get(id=request.query_params['id']).delete()
@@ -430,9 +430,6 @@ class ScientificModelRest(APIView):
                 
                 app_id = request.GET.getlist('app_id')[0]
                 collab_id = get_collab_id_from_app_id(app_id)
-
-                
-
 
                 collab_params = CollabParameters.objects.get(id = app_id )
 
@@ -532,7 +529,7 @@ class ScientificModelRest(APIView):
         app_id = request.GET.getlist('app_id')[0]
         collab_id = get_collab_id_from_app_id(app_id)
 
-        if not _is_collaborator(request, collab_id):
+        if not is_authorised(request, collab_id):
             return HttpResponseForbidden()
 
         serializer_context = {'request': request,}
@@ -564,7 +561,7 @@ class ScientificModelRest(APIView):
         app_id = request.GET.getlist('app_id')[0]
         collab_id = get_collab_id_from_app_id(app_id)
 
-        if not _is_collaborator(request, collab_id):
+        if not is_authorised(request, collab_id):
             return HttpResponseForbidden()
 
         ## save only modifications on model tables. if want to modify images or instances, do separate put.  
@@ -609,7 +606,7 @@ class ValidationTestCodeRest(APIView):
         app_id = request.GET.getlist('app_id')[0]
         collab_id = get_collab_id_from_app_id(app_id)
 
-        if not _is_collaborator(request, collab_id):
+        if not is_authorised(request, collab_id):
             return HttpResponseForbidden()
 
         serializer_context = {'request': request,}
@@ -665,7 +662,7 @@ class ValidationTestDefinitionRest(APIView):
         # ctx = request.GET.getlist('ctx')[0]
         app_id = request.GET.getlist('app_id')[0]
         collab_id = get_collab_id_from_app_id(app_id)
-        if not _is_collaborator(request, collab_id):
+        if not is_authorised(request, collab_id):
             return HttpResponseForbidden()
 
         serializer_context = {'request': request,}
@@ -687,7 +684,7 @@ class ValidationTestDefinitionRest(APIView):
     def put(self, request, format=None):
         app_id = request.GET.getlist('app_id')[0]
         collab_id = get_collab_id_from_app_id(app_id)
-        if not _is_collaborator(request, collab_id):
+        if not is_authorised(request, collab_id):
             return HttpResponseForbidden()
         value = request.data
         test = ValidationTestDefinition.objects.get(id=value['id'])
@@ -732,7 +729,7 @@ class TestTicketRest(APIView):
         app_id = request.GET.getlist('app_id')[0]
         collab_id = get_collab_id_from_app_id(app_id)
 
-        if not _is_collaborator(request, collab_id):
+        if not is_authorised(request, collab_id):
             return HttpResponseForbidden()
         
         serializer_context = {'request': request,}
@@ -775,7 +772,7 @@ class TestCommentRest(APIView):
     def put(self, request, format=None):
         app_id = request.query_params['app_id']
         collab_id = get_collab_id_from_app_id(app_id)
-        if not _is_collaborator(request, collab_id):
+        if not is_authorised(request, collab_id):
             return HttpResponseForbidden()
         
         serializer_context = {'request': request,}
@@ -823,7 +820,7 @@ class IsCollabMemberRest (APIView):
         app_id = request.GET.getlist('app_id')[0]
         collab_id = get_collab_id_from_app_id(app_id)
         
-        is_member = _is_collaborator(request, collab_id) 
+        is_member = is_authorised(request, collab_id) 
         
 
         return Response({
