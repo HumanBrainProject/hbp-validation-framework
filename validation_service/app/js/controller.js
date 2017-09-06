@@ -112,12 +112,12 @@ testApp.controller('ValModelDetailCtrl', ['$scope', '$rootScope', '$http', '$loc
                     $scope.init_checkbox = $scope.init_graph.ids_all;
                     $scope.line_result_focussed;
                     $scope.$on('data_focussed:updated', function(event, data) {
-                        $scope.line_result_focussed = data;
-                        $scope.$apply();
-                    })
-                    $scope.options5 = Graphics.get_lines_options('Model/p-value', '', "p-value", "this is a caption", $scope.init_graph.results);
-                    //main table result
+                            $scope.line_result_focussed = data;
+                            $scope.$apply();
+                        })
+                        //main table result
                     $scope.results_all = _getAllResultTable();
+                    $scope.options5 = Graphics.get_lines_options('Model/p-value', '', "p-value", "this is a caption", $scope.results_all.results);
 
                 });
 
@@ -130,7 +130,7 @@ testApp.controller('ValModelDetailCtrl', ['$scope', '$rootScope', '$http', '$loc
             var list_ids = _IsCheck();
             $scope.init_graph = Graphics.getResultsfromModelID($scope.model, list_ids);
             $scope.data = $scope.init_graph.values;
-            $scope.$apply();
+
         };
 
         var _IsCheck = function() {
@@ -198,10 +198,11 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
                         });
                         $scope.graphic_data = init_graph.values;
                         $scope.init_checkbox = init_graph.ids_all;
-                        $scope.graphic_options = Graphics.get_lines_options('Test/result', '', "", "this is a caption", init_graph.results);
                         //main table result
                         Graphics.getResultsfromTestID($scope.detail_test, ['all']).then(function(results_all) {
                             $scope.results_all = results_all;
+                            $scope.graphic_options = Graphics.get_lines_options('Test/result', '', "", "this is a caption", results_all.results);
+
                         });
 
                     }).catch(function(err) {
@@ -215,6 +216,7 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
                     $scope.comments_to_show = [];
                     $scope.create_comment_to_show = [];
                     $scope.button_save_ticket = [];
+                    $scope.button_save_comment = [];
                 });
 
                 var _add_params = function() {
@@ -274,6 +276,7 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
                     Graphics.getResultsfromTestID($scope.detail_test, list_ids).then(function(init_graph) {
                         $scope.graphic_data = init_graph.values;
                         $scope.$apply();
+                        $scope.api.refresh();
                     });
 
                 };
@@ -395,18 +398,18 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
                     });
                 };
                 $scope.editComment = function(com_id) {
-                    angular.element(document.querySelector("#editable-text-" + com_id)).attr('contenteditable', "true");
-                    angular.element(document.querySelector("#editable-text-" + com_id)).attr('bgcolor', 'ghostwhite');
-                    $scope.button_save_ticket.push(com_id);
+                    angular.element(document.querySelector("#editable-ctext-" + com_id)).attr('contenteditable', "true");
+                    angular.element(document.querySelector("#editable-ctext-" + com_id)).attr('bgcolor', 'ghostwhite');
+                    $scope.button_save_comment.push(com_id);
                 };
 
                 $scope.saveEditedComment = function(com_id) {
                     var text = $("#editable-text-" + com_id).text();
                     var parameters = JSON.stringify({ 'id': com_id, 'text': text });
                     var a = TestCommentRest.put({ app_id: app_id }, parameters).$promise.then(function(data) {
-                        angular.element(document.querySelector("#editable-text-" + com_id)).attr('contenteditable', "false");
-                        angular.element(document.querySelector("#editable-text-" + com_id)).attr('bgcolor', 'white');
-                        $scope.button_save_ticket.splice($scope.button_save_ticket.indexOf(com_id));
+                        angular.element(document.querySelector("#editable-ctext-" + com_id)).attr('contenteditable', "false");
+                        angular.element(document.querySelector("#editable-ctext-" + com_id)).attr('bgcolor', 'white');
+                        $scope.button_save_comment.splice($scope.button_save_comment.indexOf(com_id));
                     });
                 }
                 $scope.isInArray = function(value, array) {
