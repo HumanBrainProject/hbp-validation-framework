@@ -59,6 +59,7 @@ from .models import (ValidationTestDefinition,
 from .serializer import (ValidationTestDefinitionSerializer, 
                             ScientificModelSerializer,
                             ScientificModelReadOnlySerializer, 
+                            ScientificModelFullReadOnlySerializer,
                             ScientificModelInstanceSerializer,
                             ScientificModelImageSerializer,
                             ValidationTestResultSerializer,
@@ -99,6 +100,31 @@ from rest_framework.response import Response
 from django.views.decorators.csrf import csrf_exempt, csrf_protect, ensure_csrf_cookie
 
 
+from .user_auth_functions import _is_collaborator, is_authorised
+
+
+#dirty logg ... need a module 
+import logging
+
+from logging.handlers import RotatingFileHandler
+logger = logging.getLogger("model_validation_api")
+logger.setLevel(logging.DEBUG)
+formatter = logging.Formatter('%(asctime)s :: %(levelname)s :: %(message)s')
+file_handler = RotatingFileHandler('activity.log', 'a', 1000000, 1)
+file_handler.setLevel(logging.DEBUG)
+file_handler.setFormatter(formatter)
+logger.addHandler(file_handler)
+stream_handler = logging.StreamHandler()
+stream_handler.setLevel(logging.DEBUG)
+logger.addHandler(stream_handler)
+
+
+
+
+
+
+
+
 
 CROSSREF_URL = "http://api.crossref.org/works/"
 # VALID_FILTER_NAMES = ('name', 'age', 'brain_region', 'cell_type',
@@ -114,21 +140,9 @@ CROSSREF_URL = "http://api.crossref.org/works/"
 #     'brain_region': 'test_definition__test_definition__brain_region__icontains',
 # }
 
-logger = logging.getLogger("model_validation_api")
 
 
-def get_authorization_header(request):
-    auth = request.META.get("HTTP_AUTHORIZATION", None)
-    if auth is None:
-        try:
-#            auth = get_auth_header(request.user.social_auth.get())
-            logger.debug("Got authorization from database")
-        except AttributeError:
-            pass
-    # in case of 401 error, need to trap and redirect to login
-    else:
-        logger.debug("Got authorization from HTTP header")
-    return {'Authorization': auth}
+
 
 
 # def get_admin_list(request):
@@ -144,45 +158,6 @@ def get_authorization_header(request):
 #     return admins
 
 
-def is_admin(request):
-    try:
-        admins = get_admin_list(request)
-    except Exception as err:
-        logger.warning(err.message)
-        return False
-    try:
-        user_id = get_user(request)["id"]
-    except Exception as err:
-        logger.warning(err.message)
-        return False
-    return user_id in admins
-
-
-def _is_collaborator(request, collab_id):
-    '''check access depending on context'''
-    svc_url = settings.HBP_COLLAB_SERVICE_URL
-
-    headers = {'Authorization': get_auth_header(request.user.social_auth.get())}
-        
-    url = '%scollab/%s/permissions/' % (svc_url, collab_id)
-    res = requests.get(url, headers=headers)
-
-    if res.status_code != 200:
-        return False
-
-    return res.json().get('UPDATE', False)
-
-
-def get_user(request):
-    url = "{}/user/me".format(settings.HBP_IDENTITY_SERVICE_URL)
-    headers = get_authorization_header(request)
-    logger.debug("Requesting user information for given access token")
-    res = requests.get(url, headers=headers)
-    if res.status_code != 200:
-        logger.debug("Error" + res.content)
-        raise Exception(res.content)
-    logger.debug("User information retrieved")
-    return res.json()
 
 def get_collab_id_from_app_id (app_id):
     collab_param = CollabParameters.objects.filter(id = app_id)
@@ -309,9 +284,9 @@ class ParametersConfigurationRest( APIView): #LoginRequiredMixin,
     def post(self, request, format=None):
         # ctx = request.GET.getlist('ctx')[0]
         app_id = request.GET.getlist('app_id')[0]
-        collab_id = get_collab_id_from_app_id(app_id)
+        collab_id = request.GET.getlist('collab_id')[0]
 
-        if not _is_collaborator(request, collab_id):
+        if not is_authorised(request, collab_id):
             return HttpResponseForbidden() 
 
         serializer_context = {'request': request,}
@@ -328,7 +303,7 @@ class ParametersConfigurationRest( APIView): #LoginRequiredMixin,
         app_id = request.GET.getlist('app_id')[0]
         collab_id = get_collab_id_from_app_id(app_id)
 
-        if not _is_collaborator(request, collab_id):
+        if not is_authorised(request, collab_id):
             return HttpResponseForbidden()
         
         serializer_context = {'request': request,}
@@ -348,7 +323,7 @@ class ScientificModelInstanceRest (APIView):
         app_id = request.GET.getlist('app_id')[0]
         collab_id = get_collab_id_from_app_id(app_id)
 
-        if not _is_collaborator(request, collab_id):
+        if not is_authorised(request, collab_id):
             return HttpResponseForbidden()
 
         serializer_context = {'request': request,}
@@ -363,7 +338,7 @@ class ScientificModelInstanceRest (APIView):
         app_id = request.GET.getlist('app_id')[0]
         collab_id = get_collab_id_from_app_id(app_id)
 
-        if not _is_collaborator(request, collab_id):
+        if not is_authorised(request, collab_id):
             return HttpResponseForbidden()
 
 
@@ -386,7 +361,7 @@ class ScientificModelImageRest (APIView):
         app_id = request.GET.getlist('app_id')[0]
         collab_id = get_collab_id_from_app_id(app_id)
 
-        if not _is_collaborator(request, collab_id):
+        if not is_authorised(request, collab_id):
             return HttpResponseForbidden()
 
         serializer_context = {'request': request,}
@@ -400,7 +375,7 @@ class ScientificModelImageRest (APIView):
         app_id = request.GET.getlist('app_id')[0]
         collab_id = get_collab_id_from_app_id(app_id)
 
-        if not _is_collaborator(request, collab_id):
+        if not is_authorised(request, collab_id):
             return HttpResponseForbidden()
 
         for image in request.data:
@@ -418,7 +393,7 @@ class ScientificModelImageRest (APIView):
         app_id = request.GET.getlist('app_id')[0]
         collab_id = get_collab_id_from_app_id(app_id)
 
-        if not _is_collaborator(request, collab_id):
+        if not is_authorised(request, collab_id):
             return HttpResponseForbidden()
 
         image = ScientificModelImage.objects.get(id=request.query_params['id']).delete()
@@ -432,63 +407,128 @@ class ScientificModelRest(APIView):
         serializer_context = {
             'request': request,
         }
-        model_id = str(len(request.GET.getlist('id')))
-        app_id = request.GET.getlist('app_id')[0]
-        collab_id = get_collab_id_from_app_id(app_id)
 
-        # collab = _get_collab_id(request)
-        if(model_id == '0'):
-            collab_params = CollabParameters.objects.get(id = app_id )
+        #if model id not specified
+        if(len(request.GET.getlist('id')) == 0):
 
-            all_ctx_from_collab = CollabParameters.objects.filter(collab_id = collab_id).distinct()
-            rq1 = ScientificModel.objects.filter(
-                private=1,
-                access_control__in=all_ctx_from_collab.values("id"), 
-                species__in=collab_params.species.split(","), 
-                brain_region__in=collab_params.brain_region.split(","), 
-                cell_type__in=collab_params.cell_type.split(","), 
-                model_type__in=collab_params.model_type.split(",")).prefetch_related()
- 
-            rq2 = ScientificModel.objects.filter (
-                private=0, 
-                species__in=collab_params.species.split(","), 
-                brain_region__in=collab_params.brain_region.split(","), 
-                cell_type__in=collab_params.cell_type.split(","), 
-                model_type__in=collab_params.model_type.split(",")).prefetch_related()
+            web_app = request.GET.getlist('web_app')
+            name =request.GET.getlist('name')
+            description =request.GET.getlist('description')
+            species =request.GET.getlist('species')
+            brain_region =request.GET.getlist('brain_region')
+            cell_type =request.GET.getlist('cell_type')
+            author =request.GET.getlist('author')
+            model_type =request.GET.getlist('model_type')
+            private =request.GET.getlist('private')
+            code_format =request.GET.getlist('code_format')
+            access_control =request.GET.getlist('access_control')
 
-            if len(rq1) >0:
-                models  = (rq1 | rq2).distinct()
-            else:
-                models = rq2
-            model_serializer = ScientificModelReadOnlySerializer(models, context=serializer_context, many=True )
-            return Response({
-            'models': model_serializer.data,
-            })
-        else:
-            
-            for key, value in self.request.GET.items():
-                if key == 'id':
-                    models = ScientificModel.objects.filter(id=value)
-                    model_instance = ScientificModelInstance.objects.filter(model_id=value)
-                    model_images = ScientificModelImage.objects.filter(model_id=value)
 
+            #if the request comes from the webapp using collab_parameters
+            if len(web_app) > 0 and web_app[0] == 'True' :        
                 
+                app_id = request.GET.getlist('app_id')[0]
+                collab_id = get_collab_id_from_app_id(app_id)
 
-            model_serializer = ScientificModelReadOnlySerializer(models, context=serializer_context, many=True )
-            model_instance_serializer = ScientificModelInstanceSerializer(model_instance, context=serializer_context, many=True )
-            model_image_serializer = ScientificModelImageSerializer(model_images, context=serializer_context, many=True )
+                collab_params = CollabParameters.objects.get(id = app_id )
+
+                all_ctx_from_collab = CollabParameters.objects.filter(collab_id = collab_id).distinct()
+
+                if is_authorised(request, collab_id) :
+                    rq1 = ScientificModel.objects.filter(
+                        private=1,
+                        access_control__in=all_ctx_from_collab.values("id"), 
+                        species__in=collab_params.species.split(","), 
+                        brain_region__in=collab_params.brain_region.split(","), 
+                        cell_type__in=collab_params.cell_type.split(","), 
+                        model_type__in=collab_params.model_type.split(",")).prefetch_related()
+                else :
+                    rq1 = []
+                    
+    
+                rq2 = ScientificModel.objects.filter (
+                    private=0, 
+                    species__in=collab_params.species.split(","), 
+                    brain_region__in=collab_params.brain_region.split(","), 
+                    cell_type__in=collab_params.cell_type.split(","), 
+                    model_type__in=collab_params.model_type.split(",")).prefetch_related()
+
+                if len(rq1) >0:
+                    models  = (rq1 | rq2).distinct()
+                else:
+                    models = rq2
+                
+                model_serializer = ScientificModelFullReadOnlySerializer(models, context=serializer_context, many=True )
+                return Response({
+                'models': model_serializer.data,
+                })
+            
+
+            else :                 
+                q = ScientificModel.objects.all()
+
+                if len(name) > 0 :
+                    q = q.filter(name__in = name)
+                if len(description) > 0 :
+                    q = q.filter(description__in = description)  
+                if len(species) > 0 :
+                    q = q.filter(species__in = species)   
+                if len(brain_region) > 0 :
+                   q = q.filter(brain_region__in = brain_region)   
+                if len(cell_type ) > 0 :
+                    q = q.filter(cell_type__in = cell_type )
+                if len(author) > 0 :
+                    q = q.filter(author__in = author)   
+                if len(model_type) > 0 :
+                    q = q.filter(model_type__in = model_type)
+                if len(code_format) > 0 :
+                    q = q.filter(code_format__in = code_format)    
+                if len(access_control) > 0 :
+                    q = q.filter(access_control__in = access_control)
+                       
+                #For each models, check if collab member, if not then just return the publics....
+                list_app_id = q.values("access_control").distinct()
+                for app_id in list_app_id :
+                    app_id = app_id['access_control']
+                    collab_id = get_collab_id_from_app_id(app_id)
+                    if not is_authorised(request, collab_id) :
+                        #exclude it here
+                        q.exclude(access_control=app_id, private=1)
+
+
+                models = q
+                model_serializer = ScientificModelReadOnlySerializer(models, context=serializer_context, many=True )
+
+                return Response({
+                'models': model_serializer.data,
+                })
+
+        # a model ID has been specified 
+        else:
+        
+            id =request.GET.getlist('id')[0]
+            models = ScientificModel.objects.filter(id=id)
+
+            #check if private 
+            if models.values("private")[0]["private"] == 1 :
+                #if private check if collab member
+                app_id = models.values("access_control")[0]['access_control']
+                collab_id = get_collab_id_from_app_id(app_id)
+                if not is_authorised(request, collab_id) :
+                    return HttpResponse('Unauthorized', status=401)
+            
+            model_serializer = ScientificModelFullReadOnlySerializer(models, context=serializer_context, many=True )
 
             return Response({
                 'models': model_serializer.data,
-                'model_instances': model_instance_serializer.data,
-                'model_images': model_image_serializer.data,
             })
+
     def post(self, request, format=None):
 
         app_id = request.GET.getlist('app_id')[0]
         collab_id = get_collab_id_from_app_id(app_id)
 
-        if not _is_collaborator(request, collab_id):
+        if not is_authorised(request, collab_id):
             return HttpResponseForbidden()
 
         serializer_context = {'request': request,}
@@ -520,7 +560,7 @@ class ScientificModelRest(APIView):
         app_id = request.GET.getlist('app_id')[0]
         collab_id = get_collab_id_from_app_id(app_id)
 
-        if not _is_collaborator(request, collab_id):
+        if not is_authorised(request, collab_id):
             return HttpResponseForbidden()
 
         ## save only modifications on model tables. if want to modify images or instances, do separate put.  
@@ -565,7 +605,7 @@ class ValidationTestCodeRest(APIView):
         app_id = request.GET.getlist('app_id')[0]
         collab_id = get_collab_id_from_app_id(app_id)
 
-        if not _is_collaborator(request, collab_id):
+        if not is_authorised(request, collab_id):
             return HttpResponseForbidden()
 
         serializer_context = {'request': request,}
@@ -621,7 +661,7 @@ class ValidationTestDefinitionRest(APIView):
         # ctx = request.GET.getlist('ctx')[0]
         app_id = request.GET.getlist('app_id')[0]
         collab_id = get_collab_id_from_app_id(app_id)
-        if not _is_collaborator(request, collab_id):
+        if not is_authorised(request, collab_id):
             return HttpResponseForbidden()
 
         serializer_context = {'request': request,}
@@ -643,7 +683,7 @@ class ValidationTestDefinitionRest(APIView):
     def put(self, request, format=None):
         app_id = request.GET.getlist('app_id')[0]
         collab_id = get_collab_id_from_app_id(app_id)
-        if not _is_collaborator(request, collab_id):
+        if not is_authorised(request, collab_id):
             return HttpResponseForbidden()
         value = request.data
         test = ValidationTestDefinition.objects.get(id=value['id'])
@@ -688,7 +728,7 @@ class TestTicketRest(APIView):
         app_id = request.GET.getlist('app_id')[0]
         collab_id = get_collab_id_from_app_id(app_id)
 
-        if not _is_collaborator(request, collab_id):
+        if not is_authorised(request, collab_id):
             return HttpResponseForbidden()
         
         serializer_context = {'request': request,}
@@ -731,7 +771,7 @@ class TestCommentRest(APIView):
     def put(self, request, format=None):
         app_id = request.query_params['app_id']
         collab_id = get_collab_id_from_app_id(app_id)
-        if not _is_collaborator(request, collab_id):
+        if not is_authorised(request, collab_id):
             return HttpResponseForbidden()
         
         serializer_context = {'request': request,}
@@ -779,7 +819,8 @@ class IsCollabMemberRest (APIView):
         app_id = request.GET.getlist('app_id')[0]
         collab_id = get_collab_id_from_app_id(app_id)
         
-        is_member = _is_collaborator(request, collab_id) 
+        is_member = is_authorised(request, collab_id) 
+        
 
         return Response({
             'is_member':  is_member,

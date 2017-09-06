@@ -3,9 +3,9 @@ var ApiCommunicationServices = angular.module('ApiCommunicationServices', ['ngRe
 ApiCommunicationServices.factory('ScientificModelRest', ['$resource',
     function($resource) {
         return $resource('scientificmodel/:uuid', { id: '@eUuid' }, {
-            get: { method: 'GET', params: { format: 'json', app_id: 'app_id' }, isArray: false },
-            post: { method: 'POST', params: { format: 'json', app_id: 'app_id' }, headers: { 'Content-Type': 'application/json' } },
-            put: { method: 'PUT', params: { format: 'json', app_id: 'app_id' }, headers: { 'Content-Type': 'application/json' } }
+            get: { method: 'GET', params: { format: 'json', app_id: 'app_id', web_app: 'True' }, isArray: false },
+            post: { method: 'POST', params: { format: 'json', app_id: 'app_id', web_app: 'True' }, headers: { 'Content-Type': 'application/json' } },
+            put: { method: 'PUT', params: { format: 'json', app_id: 'app_id', web_app: 'True' }, headers: { 'Content-Type': 'application/json' } }
         });
     }
 ]);
@@ -79,7 +79,7 @@ ApiCommunicationServices.factory('CollabParameterRest', ['$resource',
         return $resource('parametersconfigurationrest/', {}, {
             get: { method: 'GET', params: { format: 'json', app_id: 'app_id' }, isArray: false },
             put: { method: 'PUT', params: { format: 'json', app_id: 'app_id' }, isArray: false, headers: { 'Content-Type': 'application/json' } },
-            post: { method: 'POST', params: { format: 'json', app_id: 'app_id' }, headers: { 'Content-Type': 'application/json' } }
+            post: { method: 'POST', params: { format: 'json', app_id: 'app_id', collab_id: 'collab_id' }, headers: { 'Content-Type': 'application/json' } }
         });
     }
 ]);
