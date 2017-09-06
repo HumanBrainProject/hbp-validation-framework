@@ -109,7 +109,7 @@ class ScientificModelInstance(models.Model):
     version = models.CharField(max_length=64)
     parameters = models.TextField(null=True, blank=True)
     source = models.URLField(help_text="Version control repository containing the source code of the model")
-    timestamp = models.DateTimeField(auto_now_add=False, help_text="Timestamp of when the version was created")
+    timestamp = models.DateTimeField(auto_now_add=True, help_text="Timestamp of when the version was created")
     def __str__(self):
         return "Model: {} @ version {}".format(self.model.name, self.version)
 

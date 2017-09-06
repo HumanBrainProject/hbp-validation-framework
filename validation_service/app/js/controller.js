@@ -507,8 +507,8 @@ testApp.controller('ValTestCreateCtrl', ['$scope', '$rootScope', '$http', '$loca
 
                 $scope.saveTest = function() {
                     var parameters = JSON.stringify({ test_data: $scope.test, code_data: $scope.code });
-                    var a = ValidationTestDefinitionRest.save({ app_id: app_id }, parameters).$promise.then(function(data) {
-                        $location.path('/model-catalog/detail/' + data.uuid);
+                    ValidationTestDefinitionRest.save({ app_id: app_id }, parameters).$promise.then(function(data) {
+                        Context.validation_goToTestDetailView(data.id);
                     });
 
                 };
@@ -879,7 +879,7 @@ ModelCatalogApp.controller('ModelCatalogEditCtrl', ['$scope', '$rootScope', '$ht
 
                 $scope.deleteImage = function(img) {
                     var image = img
-                    ScientificModelImageRest.delete(image).$promise.then(
+                    ScientificModelImageRest.delete({ app_id: app_id, id: image.id }).$promise.then(
                         function(data) {
                             alert('Image ' + img.id + ' has been deleted !');
                             $state.reload();
@@ -903,7 +903,7 @@ ModelCatalogApp.controller('ModelCatalogEditCtrl', ['$scope', '$rootScope', '$ht
                     $scope.addImage = false;
                 };
                 $scope.editImages = function() {
-                    var parameters = $scope.model.model_images;
+                    var parameters = $scope.model.models[0].images;
                     var a = ScientificModelImageRest.put({ app_id: app_id }, parameters).$promise.then(function(data) {
                         alert('model images have been correctly edited');
                     });
@@ -915,8 +915,7 @@ ModelCatalogApp.controller('ModelCatalogEditCtrl', ['$scope', '$rootScope', '$ht
                     });
                 };
                 $scope.saveModelInstance = function() {
-
-                    var parameters = $scope.model.model_instances;
+                    var parameters = $scope.model.models[0].instances;
                     var a = ScientificModelInstanceRest.put({ app_id: app_id }, parameters).$promise.then(function(data) { alert('model instances correctly edited') });
                 };
             });
