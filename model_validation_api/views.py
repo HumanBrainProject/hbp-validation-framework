@@ -533,41 +533,56 @@ class ScientificModelRest(APIView):
             return HttpResponseForbidden()
 
         serializer_context = {'request': request,}
+
         # check if data is ok else return error
         model_serializer = ScientificModelSerializer(data=request.data['model'], context=serializer_context)
-        model_instance_serializer = ScientificModelInstanceSerializer(data=request.data['model_instance'], context=serializer_context)
         if model_serializer.is_valid() is not True:
             return Response(model_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        if model_instance_serializer.is_valid() is not True:    
-            return Response(model_instance_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        if request.data['model_image']!={}:
-            for i in request.data['model_image']:
-                model_image_serializer = ScientificModelImageSerializer(data=i, context=serializer_context)  
-                if model_image_serializer.is_valid()  is not True:
-                    return Response(model_image_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        # if no error save all 
-        # model = model_serializer.save(access_control_id=ctx)
+               
+        for i in request.data['model_instance']:
+            model_instance_serializer = ScientificModelInstanceSerializer(data=i, context=serializer_context)
+            if model_instance_serializer.is_valid() is not True:    
+                return Response(model_instance_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        for i in request.data['model_image']:
+            model_image_serializer = ScientificModelImageSerializer(data=i, context=serializer_context)  
+            if model_image_serializer.is_valid()  is not True:
+                return Response(model_image_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+        
+        # no error then save all 
         model = model_serializer.save(access_control_id=app_id)
-        model_instance_serializer.save(model_id=model.id)    
-        if request.data['model_image']!={}:
-            for i in request.data['model_image']: 
-                model_image_serializer = ScientificModelImageSerializer(data=i, context=serializer_context)
-                if model_image_serializer.is_valid():          
-                    model_image_serializer.save(model_id=model.id)
+
+        for i in request.data['model_instance'] :
+            model_instance_serializer = ScientificModelInstanceSerializer(data=i, context=serializer_context)
+            if model_instance_serializer.is_valid():
+                model_instance_serializer.save(model_id=model.id) 
+
+        # if request.data['model_image']!={}:
+        for i in request.data['model_image']: 
+            model_image_serializer = ScientificModelImageSerializer(data=i, context=serializer_context) 
+            if model_image_serializer.is_valid()   :     
+                model_image_serializer.save(model_id=model.id)
 
         return Response({'uuid':model.id}, status=status.HTTP_201_CREATED)
 
     def put(self, request, format=None):
-        app_id = request.GET.getlist('app_id')[0]
-        collab_id = get_collab_id_from_app_id(app_id)
+        
 
-        if not is_authorised(request, collab_id):
-            return HttpResponseForbidden()
-
-        ## save only modifications on model tables. if want to modify images or instances, do separate put.  
+        ## save only modifications on model. if you want to modify images or instances, do separate put.  
         ##get objects 
         value = request.data['models'][0]
         model = ScientificModel.objects.get(id=value['id'])
+
+        print model.access_control_id
+
+        #security
+        app_id = model.access_control_id
+        collab_id = get_collab_id_from_app_id(app_id)
+        if not is_authorised(request, collab_id):
+            return HttpResponseForbidden()
+
+
         serializer_context = {'request': request,}
 
         # check if data is ok else return error

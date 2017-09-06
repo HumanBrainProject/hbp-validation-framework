@@ -761,7 +761,7 @@ ModelCatalogApp.controller('ModelCatalogCreateCtrl', ['$scope', '$rootScope', '$
 
                 $scope.saveModel = function() {
                     _add_access_control();
-                    var parameters = JSON.stringify({ model: $scope.model, model_instance: $scope.model_instance, model_image: $scope.model_image });
+                    var parameters = JSON.stringify({ model: $scope.model, model_instance: [$scope.model_instance], model_image: $scope.model_image });
                     var a = ScientificModelRest.save({ app_id: app_id }, parameters).$promise.then(function(data) {
                         Context.modelCatalog_goToModelDetailView(data.uuid);
                         // $location.path('/model-catalog/detail/' + data.uuid);
