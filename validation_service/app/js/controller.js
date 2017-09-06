@@ -683,9 +683,9 @@ ModelCatalogApp.controller('ModelCatalogCtrl', [
             var ctx = Context.getCtx();
             var app_id = Context.getAppID();
 
+            if (Context.getState() == "" || Context.getState() == undefined || Context.getState() == "n") {
+                Context.sendState("model", "n");
 
-
-            if (Context.getState() == "" || Context.getState() == undefined) {
                 CollabParameters.setService(ctx).$promise.then(function() {
 
                     $scope.collab_species = CollabParameters.getParameters("species");
@@ -702,10 +702,7 @@ ModelCatalogApp.controller('ModelCatalogCtrl', [
                     $scope.is_collab_member.$promise.then(function() {
                         $scope.is_collab_member = $scope.is_collab_member.is_member;
                     });
-                    console.log($scope.is_collab_member);
-                    console.log($scope.is_collab_member);
-                    console.log($scope.is_collab_member);
-                    console.log($scope.is_collab_member);
+
                 });
             } else {
                 var model_id = Context.getState();

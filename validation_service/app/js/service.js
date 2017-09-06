@@ -92,14 +92,9 @@ ContextServices.service('Context', ['$rootScope', '$location', 'AppIDRest', 'Col
         var setService = function() {
             return new Promise(function(resolve, reject) {
 
-                console.log("window.location.search", window.location.search);
-
-                console.log("0 state", state);
-
                 // _getState();
                 temp_state = window.location.search.split("&")[1];
 
-                console.log("temp state : ", temp_state);
 
                 if (temp_state != undefined && temp_state != "ctxstate=") {
                     temp_state2 = temp_state.split("%2C")[0];
@@ -111,8 +106,6 @@ ContextServices.service('Context', ['$rootScope', '$location', 'AppIDRest', 'Col
                         external = temp_state.split("%2C")[1];
                     }
                 }
-                console.log("1 state", state);
-
 
 
                 // _getCtx();
@@ -170,71 +163,20 @@ ContextServices.service('Context', ['$rootScope', '$location', 'AppIDRest', 'Col
             return external;
         }
 
-        // var _getState = function() {
-
-
-        //     temp_state = window.location.search.split("&")[1];
-
-        //     if (temp_state != undefined) {
-        //         temp_state2 = temp_state.split("%2C")[0];
-        //         temp_state2 = temp_state2.substring(9);
-        //         state_type = temp_state2.split(".")[0]
-        //         state = temp_state2.split(".")[1]
-
-        //         if (temp_state.split("%2C")[1] != undefined) {
-        //             external = temp_state.split("%2C")[1];
-        //         }
-
-        //     }
-        // };
-
         var getState = function() {
             return state;
         };
-        // var _getCtx = function() {
-        //     if (ctx == undefined) {
-        //         ctx = window.location.search.split("&")[0].substring(5);
-        //     }
-
-        // };
-
 
         var getCtx = function() {
-            // if (ctx == undefined) {
-            //     _getCtx();
-            // }
             return ctx;
         };
 
         var getCollabID = function() {
             return collabID;
-
-            // if (collabID == undefined || collabID == "") {
-            //     var request = CollabIDRest.get({ ctx: ctx }); //.collab_id;
-            //     request.$promise.then(function() {
-            //         collabID = request.collab_id
-            //         return collabID;
-            //     });
-
-            // } else {
-            //     return collabID;
-            // }
         };
 
         var getAppID = function() {
             return appID;
-
-
-            // if (appID == undefined || appID == "") {
-            //     var request = AppIDRest.get({ ctx: ctx }); //.collab_id;
-            //     request.$promise.then(function() {
-            //         appID = request.app_id
-            //         return appID;
-            //     });
-
-            // } else {
-            //     return appID;
-            // }
         };
 
 
@@ -264,8 +206,6 @@ ContextServices.service('Context', ['$rootScope', '$location', 'AppIDRest', 'Col
             state = "";
             state_type = undefined;
 
-            // console.log("clear state")
-            console.log(window.location);
 
             setTimeout(function() {
                 window.location.hash = "ctx=" + getCtx() + "&ctxstate=";
