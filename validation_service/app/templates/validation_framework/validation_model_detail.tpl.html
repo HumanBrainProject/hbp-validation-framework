@@ -1,19 +1,21 @@
 <html id="model-detail" ng-controller="ValModelDetailCtrl">
 
-<head>
-    <nav class="navbar ">
-        <br>
-
-        <button class="button-MC" ng-click="Context.validation_goToHomeView();">Home</button>&ensp;
-
-        <h1 align=center> Model: {{ model.models[0].name}} (ID:{{ model.models[0].id }})</h1>
-        <h3 align=center> Authors: {{ model.models[0].author }}</h3>
-    </nav>
-</head>
-
-<br>
-
 <body>
+
+    <header>
+        <nav class="navbar ">
+            <br>
+
+            <button class="button-MC" ng-click="Context.validation_goToHomeView();">Home</button>&ensp;
+
+            <h1 align=center> Model: {{ model.models[0].name}} (ID:{{ model.models[0].id }})</h1>
+            <h3 align=center> Authors: {{ model.models[0].author }}</h3>
+        </nav>
+    </header>
+
+    <br>
+
+
     <div id=VF-model-detail>
         <table class="table-create">
             <tbody>
@@ -41,7 +43,9 @@
         </table>
     </div>
 
-
+    <div id='panel-no-results' ng-if="data.length == 0">
+        <h3 align=center> No result available for this model </h3>
+    </div>
     <div id=panel-results ng-if="data.length != 0">
         <div id=VF-model-table-all-data>
             <table class="table">
@@ -54,7 +58,7 @@
                     </th>
                 </thead>
                 <tbody>
-                    <tr ng-repeat="test in data">
+                    <tr ng-repeat="test in results_all.values">
                         <td class=tr-clickable ng-click=Context.validation_goToDetailTest(test.infosup[0].test_definition.test_definition_id)>test #{{test.key}} </td>
                         <td class=tr-clickable ng-click=Context.validation_goToResultDetailView(version.id_test_result) ng-repeat="version in test.values">{{version.y}} </td>
                     </tr>
@@ -64,17 +68,27 @@
 
         <br>
         <br>
+
         <table>
-            <tbody> 
-                <tr style="width: 80%">
-                     <nvd3 options='options5' data='data' id='chart svg'></nvd3>
-                </tr>
-                <tr style="width: 20%">
+            <tbody>
+                <tr>
+                    <td style="width: 85%">
+                        <nvd3 options='options5' data='data' id='chart svg'></nvd3>
+                    </td>
+                    <td style="width: 15%">
+                        <div id="checkbox">
+                            <div ng-repeat="test_code in init_checkbox" class=checkbox>
+                                <label> <input id="check-{{test_code.id}}" type="checkbox" value={{test_code.id}} > &ensp; T{{test_code.test_definition_id}}C{{test_code.id}}   </label>
+                            </div>
+                        </div>
+                        <br>
+                        <a class="button-MC" class="btn btn-primary" ng-click=updateGraph()>Update graph</a>
+                    </td>
                 </tr>
             </tbody>
 
         </table>
-       
+
 
 
         <br>
@@ -115,9 +129,7 @@
 
         </table>
     </div>
-    <div ng-show="data.length == 0">
-        <h3 align=center> No result available for this model </h3>
-    </div>
+
 </body>
 
 </html>

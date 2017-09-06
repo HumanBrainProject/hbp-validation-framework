@@ -22,7 +22,7 @@ from django.http import (HttpResponse, JsonResponse,
                          HttpResponseNotAllowed,     # 405
                          HttpResponseNotModified,    # 304
                          HttpResponseRedirect)       # 302
-
+from django.db.models import Max, Count
 from django.conf import settings
 from django.template import loader
 import requests
@@ -161,8 +161,8 @@ CROSSREF_URL = "http://api.crossref.org/works/"
 
 def get_collab_id_from_app_id (app_id):
     collab_param = CollabParameters.objects.filter(id = app_id)
+    print(collab_param.values('collab_id'))
     collab_id = collab_param.values('collab_id')[0]['collab_id']
-
     return collab_id
 
 @method_decorator(login_required(login_url='/login/hbp'), name='dispatch' )
@@ -292,7 +292,7 @@ class ParametersConfigurationRest( APIView): #LoginRequiredMixin,
         serializer_context = {'request': request,}
         param_serializer = CollabParametersSerializer(data=request.data, context=serializer_context)
         if param_serializer.is_valid():
-            param = param_serializer.save() 
+            param = param_serializer.save(id =request.data['id'] ) 
         else:
             return Response(param_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
          
@@ -407,7 +407,6 @@ class ScientificModelRest(APIView):
         serializer_context = {
             'request': request,
         }
-
 
         #if model id not specified
         if(len(request.GET.getlist('id')) == 0):
@@ -845,32 +844,42 @@ class ValidationModelResultRest (APIView):
     def get(self, request, format=None, **kwargs):
         serializer_context = {'request': request,}
         model_id  = request.query_params['model_id']
-        # list_test_id  = request.query_params['list_id']
+        list_test_id  = request.GET.getlist('list_id')
 
         try :      
             model_instances = ScientificModelInstance.objects.filter(model_id=model_id).values("id")
         except:    
             model_instances = [ScientificModelInstance.objects.get(model_id= model_id).id]
-
-        results_all= ValidationTestResult.objects.filter(model_instance_id__in = model_instances )
-        versions_id = list(results_all.values("test_definition_id").distinct())
-        ##if list_test_id == [] (default) return last version code of each test 
-#         if list_test_id == []:
-#             test_def_id = 
-#             versions_id = results_all.order_by('test_definition_id',''). 
-# Score.objects.order_by('student__username', '-date').distinct('student__username')
+        results_all= ValidationTestResult.objects.filter(model_version_id__in = model_instances )
+        list_code_id = []
+        if list_test_id == []:
+            def_ids = results_all.values_list('test_code__test_definition_id', flat=True).distinct()
+            for def_id in def_ids:
+                last_code_id = results_all.filter(test_code__test_definition_id = def_id).order_by('-test_code__timestamp').first().test_code_id
+                list_code_id.append(last_code_id)
+            versions = list_code_id
+        else:
+            if list_test_id[0] == 'all':
+                versions = results_all.values_list('test_code_id', flat=True).distinct()
+            else:
+                versions = list_test_id
         result_serialized=[]
         new_id = []
-        for version in versions_id:
-            r = results_all.filter(test_definition_id = version['test_definition_id'])
+        for version in versions:
+            r =results_all.filter(test_code_id = version)
             r_serializer = ValidationModelResultReadOnlySerializer(r, context = serializer_context, many=True)
             result_serialized.append(r_serializer.data)  
             #change the label to generalize datablock_id
-            new_id.append({"id":version['test_definition_id']})
-
+            version_object = ValidationTestCode.objects.get(id=version)
+            new_id.append({"id":"T"+str(version_object.test_definition_id) +"C"+str(version_object.id)})   
+        #get list of all test_code to show in checkbox
+        versions_id = results_all.values_list("test_code_id", flat=True).distinct() 
+        versions_all = ValidationTestCode.objects.filter(id__in=versions_id).order_by('test_definition_id')
+        versions_all_ser = ValidationTestCodeSerializer(versions_all, many=True).data
         return Response({
             'data': result_serialized,
             'data_block_id':new_id,
+            'versions_id_all': versions_all_ser,
         })    
 
 class ValidationTestResultRest (APIView):
@@ -879,27 +888,44 @@ class ValidationTestResultRest (APIView):
         serializer_context = {'request': request,}
         
         test_definition_id = request.query_params['test_id']
-
+        list_model_id  = request.GET.getlist('list_id')
         try : 
             test_codes = ValidationTestCode.objects.filter(test_definition_id= test_definition_id).values("id")
         except:
             test_codes = [ValidationTestCode.objects.get(test_definition_id= test_definition_id).id]   
         #need to rename in model test_code_id
-        results_all = ValidationTestResult.objects.filter(test_definition_id__in = test_codes)
-        model_instance_id = list(results_all.values("model_instance_id").distinct())
+        results_all = ValidationTestResult.objects.filter(test_code_id__in = test_codes)
+
+        list_version_id = []
+        if list_model_id == []:
+            def_ids = results_all.values_list('model_version__model_id', flat=True).distinct()
+            for def_id in def_ids:
+                last_version_id = results_all.filter(model_version__model_id = def_id).order_by('-model_version__timestamp').first().model_version_id
+                list_version_id.append(last_version_id)
+            versions = list_version_id
+        else:
+            if list_model_id[0] == 'all':
+                versions = results_all.values_list('model_version_id', flat=True).distinct()
+            else:
+                versions = list_model_id
+        # model_instance_id = list(results_all.values("model_instance_id").distinct())
         result_serialized = []
         new_id = []
-        for model_instance in model_instance_id:
-            r = results_all.filter(model_instance_id = model_instance['model_instance_id'])
+        for version in versions:
+            r = results_all.filter(model_version_id = version)
             r_serializer = ValidationTestResultReadOnlySerializer(r, context = serializer_context, many=True)
-
             result_serialized.append(r_serializer.data)  
             #change the label to generalize datablock_id
-            new_id.append({"id":model_instance['model_instance_id']})
-
+            version_object = ScientificModelInstance.objects.get(id=version)
+            new_id.append({"id":"M"+str(version_object.model_id)+"V"+str(version_object.id)})
+        #get list of all model_versions to show in checkbox
+        versions_id = results_all.values_list("model_version_id", flat=True).distinct() 
+        versions_all = ScientificModelInstance.objects.filter(id__in=versions_id).order_by('model_id')
+        versions_all_ser =ScientificModelInstanceSerializer(versions_all, many=True).data
         return Response({
             'data': result_serialized,
             'data_block_id': new_id,
+            'versions_id_all': versions_all_ser,
         })
 
 class ParametersConfigurationView(View):
