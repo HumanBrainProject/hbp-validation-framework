@@ -799,7 +799,7 @@ ModelCatalogApp.controller('ModelCatalogCreateCtrl', ['$scope', '$rootScope', '$
                 };
 
                 var _add_access_control = function() {
-                    $scope.model.access_control_id = ctx;
+                    $scope.model.app_id = app_id;
                 };
 
                 $scope.saveModel = function() {

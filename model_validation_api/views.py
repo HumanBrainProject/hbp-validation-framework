@@ -392,7 +392,7 @@ class ScientificModelImageRest (APIView):
     def delete(self, request, format=None):
         app_id = request.GET.getlist('app_id')[0]
         collab_id = get_collab_id_from_app_id(app_id)
-        
+
         if not is_authorised(request, collab_id):
             return HttpResponseForbidden()
 
@@ -421,7 +421,7 @@ class ScientificModelRest(APIView):
             model_type =request.GET.getlist('model_type')
             private =request.GET.getlist('private')
             code_format =request.GET.getlist('code_format')
-            access_control =request.GET.getlist('access_control')
+            app =request.GET.getlist('app')
 
 
             #if the request comes from the webapp using collab_parameters
@@ -437,7 +437,7 @@ class ScientificModelRest(APIView):
                 if is_authorised(request, collab_id) :
                     rq1 = ScientificModel.objects.filter(
                         private=1,
-                        access_control__in=all_ctx_from_collab.values("id"), 
+                        app__in=all_ctx_from_collab.values("id"), 
                         species__in=collab_params.species.split(","), 
                         brain_region__in=collab_params.brain_region.split(","), 
                         cell_type__in=collab_params.cell_type.split(","), 
@@ -483,17 +483,17 @@ class ScientificModelRest(APIView):
                     q = q.filter(model_type__in = model_type)
                 if len(code_format) > 0 :
                     q = q.filter(code_format__in = code_format)    
-                if len(access_control) > 0 :
-                    q = q.filter(access_control__in = access_control)
+                if len(app) > 0 :
+                    q = q.filter(app__in = app)
                        
                 #For each models, check if collab member, if not then just return the publics....
-                list_app_id = q.values("access_control").distinct()
+                list_app_id = q.values("app").distinct()
                 for app_id in list_app_id :
-                    app_id = app_id['access_control']
+                    app_id = app_id['app']
                     collab_id = get_collab_id_from_app_id(app_id)
                     if not is_authorised(request, collab_id) :
                         #exclude it here
-                        q.exclude(access_control=app_id, private=1)
+                        q.exclude(app=app_id, private=1)
 
 
                 models = q
@@ -512,7 +512,7 @@ class ScientificModelRest(APIView):
             #check if private 
             if models.values("private")[0]["private"] == 1 :
                 #if private check if collab member
-                app_id = models.values("access_control")[0]['access_control']
+                app_id = models.values("app")[0]['app']
                 collab_id = get_collab_id_from_app_id(app_id)
                 if not is_authorised(request, collab_id) :
                     return HttpResponse('Unauthorized', status=401)
@@ -545,8 +545,7 @@ class ScientificModelRest(APIView):
                 if model_image_serializer.is_valid()  is not True:
                     return Response(model_image_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         # if no error save all 
-        # model = model_serializer.save(access_control_id=ctx)
-        model = model_serializer.save(access_control_id=app_id)
+        model = model_serializer.save(app_id=app_id)
         model_instance_serializer.save(model_id=model.id)    
         if request.data['model_image']!={}:
             for i in request.data['model_image']: 
