@@ -562,30 +562,32 @@ class ScientificModelRest(APIView):
         if model_serializer.is_valid() is not True:
             return Response(model_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
                
-        for i in request.data['model_instance']:
-            model_instance_serializer = ScientificModelInstanceSerializer(data=i, context=serializer_context)
-            if model_instance_serializer.is_valid() is not True:    
-                return Response(model_instance_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-        for i in request.data['model_image']:
-            model_image_serializer = ScientificModelImageSerializer(data=i, context=serializer_context)  
-            if model_image_serializer.is_valid()  is not True:
-                return Response(model_image_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        if len(request.data['model_instance']) >  0 :
+            for i in request.data['model_instance']:
+                model_instance_serializer = ScientificModelInstanceSerializer(data=i, context=serializer_context)
+                if model_instance_serializer.is_valid() is not True:    
+                    return Response(model_instance_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        if len(request.data['model_image']) >  0 :
+            for i in request.data['model_image']:
+                model_image_serializer = ScientificModelImageSerializer(data=i, context=serializer_context)  
+                if model_image_serializer.is_valid()  is not True:
+                    return Response(model_image_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
         
         # no error then save all 
         model = model_serializer.save(access_control_id=app_id)
 
-        for i in request.data['model_instance'] :
-            model_instance_serializer = ScientificModelInstanceSerializer(data=i, context=serializer_context)
-            if model_instance_serializer.is_valid():
-                model_instance_serializer.save(model_id=model.id) 
+        if len(request.data['model_instance']) >  0 :
+            for i in request.data['model_instance'] :
+                model_instance_serializer = ScientificModelInstanceSerializer(data=i, context=serializer_context)
+                if model_instance_serializer.is_valid():
+                    model_instance_serializer.save(model_id=model.id) 
 
-        # if request.data['model_image']!={}:
-        for i in request.data['model_image']: 
-            model_image_serializer = ScientificModelImageSerializer(data=i, context=serializer_context) 
-            if model_image_serializer.is_valid()   :     
-                model_image_serializer.save(model_id=model.id)
+        if len(request.data['model_image']) >  0 :
+            for i in request.data['model_image']: 
+                model_image_serializer = ScientificModelImageSerializer(data=i, context=serializer_context) 
+                if model_image_serializer.is_valid()   :     
+                    model_image_serializer.save(model_id=model.id)
 
         return Response({'uuid':model.id}, status=status.HTTP_201_CREATED)
 
