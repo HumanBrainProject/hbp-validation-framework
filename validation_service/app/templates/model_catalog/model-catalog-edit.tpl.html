@@ -140,7 +140,7 @@
                     <label> <button type="button" id="plusI" class="glyphicon glyphicon-plus" ng-click="displayAddImage()"></button> Add an image</label> <br>
                 </tr>
                 <tr>
-                    <div class="group" ng-repeat="img in model.model_images track by $index">
+                    <div class="group" ng-repeat="img in model.models[0].images track by $index">
                         <figure>
                             <button id="button-sup" type="button" ng-click='deleteImage(img)' class='glyphicon glyphicon-remove'></button>
                             <button><img id="image-$index"  ng-src="{{img.url}}" width="304" height="228"> </button>
@@ -153,7 +153,7 @@
         </table>
         <br>
         <nav class=navbar>
-            <button ng-show="model.model_images[0]" type="submit" class="btn btn-primary" ng-click=editImages()>Edit images</button>
+            <button ng-show="model.models[0].images[0]" type="submit" class="btn btn-primary" ng-click=editImages()>Edit images</button>
         </nav>
         <br>
         <br>
@@ -173,7 +173,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr ng-repeat="model_instance in model.model_instances">
+                        <tr ng-repeat="model_instance in model.models[0].instances">
                             <td> <input type="text" ng-model=model_instance.version required/></td>
                             <td><textarea ng-model="model_instance.parameters" rows="3" cols="30"> </textarea></td>
                             <td><input type="text" ng-model=model_instance.source required/></td>

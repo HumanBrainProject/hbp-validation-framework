@@ -392,11 +392,11 @@ class ScientificModelImageRest (APIView):
     def delete(self, request, format=None):
         app_id = request.GET.getlist('app_id')[0]
         collab_id = get_collab_id_from_app_id(app_id)
-
+        
         if not is_authorised(request, collab_id):
             return HttpResponseForbidden()
 
-        image = ScientificModelImage.objects.get(id=request.query_params['id']).delete()
+        image = ScientificModelImage.objects.get(id=request.GET.getlist('id')[0]).delete()
         return Response( status=status.HTTP_200_OK) 
 
 
@@ -678,7 +678,7 @@ class ValidationTestDefinitionRest(APIView):
         else:
             return Response(code_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
-        return Response(status=status.HTTP_201_CREATED)
+        return Response({'id':test.id})
 
     def put(self, request, format=None):
         app_id = request.GET.getlist('app_id')[0]

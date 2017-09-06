@@ -28,15 +28,12 @@ ContextServices.service('Context', ['$rootScope', '$location', 'AppIDRest', 'Col
 
             // $scope.$apply()
 
-            setTimeout(function() {
-
-
-
-            }, 0);
-
-
-
-
+            setTimeout(function() {}, 0);
+        };
+        var validation_goToTestCatalogView = function() {
+            sendState("id", '0');
+            setState('0');
+            $location.path('/home/validation_test');
         };
 
         var validation_goToHomeView = function() {
@@ -65,14 +62,8 @@ ContextServices.service('Context', ['$rootScope', '$location', 'AppIDRest', 'Col
 
             var url = "https://collab.humanbrainproject.eu/#/collab/" + collab_id + "/nav/" + app_id +
                 "?state=model." + model.id + ",external"; //to go to collab api
-
-
             window.open(url, 'modelCatalog');
-
-
         }
-
-
 
         var setService = function() {
             return new Promise(function(resolve, reject) {
@@ -290,6 +281,7 @@ ContextServices.service('Context', ['$rootScope', '$location', 'AppIDRest', 'Col
             validation_goToTestDetailView: validation_goToTestDetailView,
             validation_goToResultDetailView: validation_goToResultDetailView,
             validation_goToModelCatalog: validation_goToModelCatalog,
+            validation_goToTestCatalogView: validation_goToTestCatalogView,
         }
     }
 ]);
