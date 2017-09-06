@@ -57,8 +57,8 @@ ContextServices.service('Context', ['$rootScope', '$location', 'AppIDRest', 'Col
         };
 
         var validation_goToModelCatalog = function(model) {
-            var collab_id = model.access_control.collab_id;
-            var app_id = model.access_control.id;
+            var collab_id = model.app.collab_id;
+            var app_id = model.app.id;
 
             var url = "https://collab.humanbrainproject.eu/#/collab/" + collab_id + "/nav/" + app_id +
                 "?state=model." + model.id + ",external"; //to go to collab api

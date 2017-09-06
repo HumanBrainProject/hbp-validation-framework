@@ -43,7 +43,7 @@ class ValidationTestResultSerializer (serializers.HyperlinkedModelSerializer):
 class ScientificModelSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = ScientificModel
-        fields = ('id', 'name', 'description', 'species', 'brain_region', 'cell_type', 'author', 'model_type','private','access_control_id')
+        fields = ('id', 'name', 'description', 'species', 'brain_region', 'cell_type', 'author', 'model_type','private','app_id')
 
 class ScientificModelNameSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
@@ -77,22 +77,21 @@ class ScientificModelImageSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class ScientificModelReadOnlySerializer(serializers.HyperlinkedModelSerializer):
-    # access_control = CollabParametersSerializer( read_only=True)
     instances = ScientificModelInstanceSerializer (read_only=True, many=True )
     images = ScientificModelImageSerializer (read_only=True , many=True )
 
     class Meta:
         model = ScientificModel
-        fields = ('id', 'name', 'description', 'species', 'brain_region', 'cell_type', 'author', 'model_type','private', 'access_control_id', 'instances', 'images')
+        fields = ('id', 'name', 'description', 'species', 'brain_region', 'cell_type', 'author', 'model_type','private', 'app_id', 'instances', 'images')
 
 
 class ScientificModelFullReadOnlySerializer(serializers.HyperlinkedModelSerializer):
-    access_control = CollabParametersSerializer( read_only=True)
+    app = CollabParametersSerializer( read_only=True)
     instances = ScientificModelInstanceSerializer (read_only=True, many=True )
     images = ScientificModelImageSerializer (read_only=True , many=True )
     class Meta:
         model = ScientificModel
-        fields = ('id', 'name', 'description', 'species', 'brain_region', 'cell_type', 'author', 'model_type','private','access_control','instances', 'images')
+        fields = ('id', 'name', 'description', 'species', 'brain_region', 'cell_type', 'author', 'model_type','private','app','instances', 'images')
 
 
 class ValidationTestCodeSerializer(serializers.HyperlinkedModelSerializer):
