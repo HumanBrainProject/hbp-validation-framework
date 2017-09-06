@@ -363,7 +363,7 @@
                                     <tr id="table-ticket-detail-comment-content">
                                         <td width=200>
                                         </td>
-                                        <td width=1000 id='editable-text-{{comment.id}}' contenteditable="false">
+                                        <td width=1000 id='editable-ctext-{{comment.id}}' contenteditable="false">
                                             <br/> {{ comment.text }}
                                         </td>
                                         <td width=300>
@@ -373,7 +373,7 @@
                                     </tr>
                                     <tr id="table-ticket-footer">
                                         <td></td>
-                                        <td> <button ng-show="isInArray(comment.id, button_save_ticket)" id="btn-edit-save-{{comment.id}}" type="submit" class="btn btn-primary" ng-click='saveEditedComment(comment.id)'>Save</button></td>
+                                        <td> <button ng-show="isInArray(comment.id, button_save_comment)" id="btn-edit-save-{{comment.id}}" type="submit" class="btn btn-primary" ng-click='saveEditedComment(comment.id)'>Save</button></td>
                                         <td></td>
                                         <td></td>
                                     </tr>
@@ -475,7 +475,7 @@
                 <tbody>
                     <tr>
                         <td style="width: 85%">
-                            <nvd3 options='graphic_options' data='graphic_data' id='chart-svg'></nvd3>
+                            <nvd3 options='graphic_options' data='graphic_data' id='chart-svg' api='api'></nvd3>
                         </td>
                         <td style="width: 15%">
                             <div id="checkbox">

@@ -13,22 +13,14 @@ ContextServices.service('Context', ['$rootScope', '$location', 'AppIDRest', 'Col
         var modelCatalog_goToHomeView = function() {
             clearState();
             setTimeout(function() {
-                // console.log("YOOOOOOOOOOOOOOOOOOOO")
                 $location.path('/model-catalog/');
 
             }, 300);
-            // $location.path('/model-catalog/');
         };
         var modelCatalog_goToModelDetailView = function(model_id) {
 
-
-
-            console.log("heuuu")
             sendState("model", model_id);
             setState(model_id);
-
-            console.log(state);
-            console.log(state_type);
 
             $location.path('/model-catalog/detail/' + model_id);
             // $location.replace();
@@ -69,18 +61,11 @@ ContextServices.service('Context', ['$rootScope', '$location', 'AppIDRest', 'Col
 
         var validation_goToModelCatalog = function(model) {
             var collab_id = model.access_control.collab_id;
-            // var app_id = AppIDRest.get({ ctx: model.access_control.id });
             var app_id = model.access_control.id;
-
-
-            // console.log(collab_id);
-            // console.log(app_id);
 
             var url = "https://collab.humanbrainproject.eu/#/collab/" + collab_id + "/nav/" + app_id +
                 "?state=model." + model.id + ",external"; //to go to collab api
 
-            // console.log("URLLL");
-            // console.log(url);
 
             window.open(url, 'modelCatalog');
 
@@ -346,9 +331,9 @@ ParametersConfigurationServices.service('CollabParameters', ['$rootScope', 'Coll
         };
 
         var getRequestParameters = function() {
-            console.log("getRequestParameters");
-            console.log(Context.getCollabID());
-            console.log(Context.getAppID());
+            // console.log("getRequestParameters");
+            // console.log(Context.getCollabID());
+            // console.log(Context.getAppID());
 
             parameters = CollabParameterRest.get({ app_id: Context.getAppID() });
             return parameters
@@ -400,9 +385,9 @@ ParametersConfigurationServices.service('CollabParameters', ['$rootScope', 'Coll
 
             if (typeof(parameters) == "undefined") {
 
-                console.log("setService");
-                console.log(Context.getCollabID());
-                console.log(Context.getAppID());
+                // console.log("setService");
+                // console.log(Context.getCollabID());
+                // console.log(Context.getAppID());
 
                 parameters = CollabParameterRest.get({ app_id: Context.getAppID() }); //need to get collab number
                 parameters.$promise.then(function() {
@@ -546,9 +531,6 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'ValidationResultRest', 'Col
             }
             return result_to_return;
         };
-        // var getListID = function() {
-        //     return list_ids;
-        // }
 
         var getResultsfromTestID = function(test, ids) {
             return new Promise(function(resolve, reject) {
@@ -665,7 +647,6 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'ValidationResultRest', 'Col
                             for (i; i < e.length; i++) {
                                 list_of_results_id.push({ id_line: e[i].point.id, id_result: e[i].point.id_test_result });
                             }
-
                             focus(list_of_results_id, results_data);
                         });
                     }
