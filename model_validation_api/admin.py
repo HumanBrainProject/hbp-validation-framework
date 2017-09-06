@@ -20,10 +20,10 @@ class ValidationTestCodeAdmin(admin.ModelAdmin):
 
 @admin.register(ValidationTestResult)
 class ValidationTestResultAdmin(admin.ModelAdmin):
-    list_display = ('model_instance', 'test_code',
+    list_display = ('model_version', 'test_code',
                     'result', 'passed', 'timestamp',
                     'platform')
-    search_fields = ('model_instance', 'test_code')
+    search_fields = ('model_version', 'test_code')
 
 
 admin.site.register(ScientificModel)

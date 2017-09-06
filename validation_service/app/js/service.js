@@ -550,19 +550,23 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'ValidationResultRest', 'Col
         //     return list_ids;
         // }
 
-        var getResultsfromTestID = function(test) {
+        var getResultsfromTestID = function(test, ids) {
             return new Promise(function(resolve, reject) {
                 var values = [];
+                var list_ids = [];
                 var j = 0;
+                var x = 0;
 
-                var results_data = ValidationTestResultRest.get({ app_id: Context.getAppID(), test_id: test.tests[0].id });
-
-
+                var results_data = ValidationTestResultRest.get({ app_id: Context.getAppID(), test_id: test.tests[0].id, list_id: ids, });
                 results_data.$promise.then(function() {
-                    for (j; j < results_data.data_block_id.length; j++) {
+                    for (j; j < results_data.data.length; j++) {
                         values[j] = _manageDataForGraph(results_data.data[j], results_data.data_block_id[j].id)
                     };
-                    resolve(values);
+                    for (x; x < results_data.versions_id_all.length; x++) {
+                        list_ids[x] = results_data.versions_id_all[x];
+                    };
+                    var data = { 'values': values, 'ids_all': list_ids, 'results': results_data }
+                    resolve(data);
                 });
             });
         };

@@ -809,7 +809,7 @@ class ValidationModelResultRest (APIView):
             model_instances = ScientificModelInstance.objects.filter(model_id=model_id).values("id")
         except:    
             model_instances = [ScientificModelInstance.objects.get(model_id= model_id).id]
-        results_all= ValidationTestResult.objects.filter(model_instance_id__in = model_instances )
+        results_all= ValidationTestResult.objects.filter(model_version_id__in = model_instances )
         list_code_id = []
         if list_test_id == []:
             def_ids = results_all.values_list('test_code__test_definition_id', flat=True).distinct()
@@ -847,27 +847,44 @@ class ValidationTestResultRest (APIView):
         serializer_context = {'request': request,}
         
         test_definition_id = request.query_params['test_id']
-
+        list_model_id  = request.GET.getlist('list_id')
         try : 
             test_codes = ValidationTestCode.objects.filter(test_definition_id= test_definition_id).values("id")
         except:
             test_codes = [ValidationTestCode.objects.get(test_definition_id= test_definition_id).id]   
         #need to rename in model test_code_id
-        results_all = ValidationTestResult.objects.filter(test_definition_id__in = test_codes)
-        model_instance_id = list(results_all.values("model_instance_id").distinct())
+        results_all = ValidationTestResult.objects.filter(test_code_id__in = test_codes)
+
+        list_version_id = []
+        if list_model_id == []:
+            def_ids = results_all.values_list('model_version__model_id', flat=True).distinct()
+            for def_id in def_ids:
+                last_version_id = results_all.filter(model_version__model_id = def_id).order_by('-model_version__timestamp').first().model_version_id
+                list_version_id.append(last_version_id)
+            versions = list_version_id
+        else:
+            if list_model_id[0] == 'all':
+                versions = results_all.values_list('model_version_id', flat=True).distinct()
+            else:
+                versions = list_model_id
+        # model_instance_id = list(results_all.values("model_instance_id").distinct())
         result_serialized = []
         new_id = []
-        for model_instance in model_instance_id:
-            r = results_all.filter(model_instance_id = model_instance['model_instance_id'])
+        for version in versions:
+            r = results_all.filter(model_version_id = version)
             r_serializer = ValidationTestResultReadOnlySerializer(r, context = serializer_context, many=True)
-
             result_serialized.append(r_serializer.data)  
             #change the label to generalize datablock_id
-            new_id.append({"id":model_instance['model_instance_id']})
-
+            version_object = ScientificModelInstance.objects.get(id=version)
+            new_id.append({"id":"M"+str(version_object.model_id)+"V"+str(version_object.id)})
+        #get list of all model_versions to show in checkbox
+        versions_id = results_all.values_list("model_version_id", flat=True).distinct() 
+        versions_all = ScientificModelInstance.objects.filter(id__in=versions_id).order_by('model_id')
+        versions_all_ser =ScientificModelInstanceSerializer(versions_all, many=True).data
         return Response({
             'data': result_serialized,
             'data_block_id': new_id,
+            'versions_id_all': versions_all_ser,
         })
 
 class ParametersConfigurationView(View):

@@ -10,7 +10,7 @@ from django.utils.encoding import python_2_unicode_compatible
 
 @python_2_unicode_compatible 
 class CollabParameters(models.Model): 
-    id = models.CharField(primary_key=True, max_length=100 , default="")
+    id = models.CharField(primary_key=True, default='',max_length=100, editable=False)
     app_type = models.CharField(max_length=100 ,blank=True, help_text="type of application: model catalog or validation test")
     data_modalities = models.CharField(max_length=500 ,blank=True, help_text="species")
     test_type = models.CharField(max_length=500, blank=True, help_text="species")
@@ -109,7 +109,7 @@ class ScientificModelInstance(models.Model):
     version = models.CharField(max_length=64)
     parameters = models.TextField(null=True, blank=True)
     source = models.URLField(help_text="Version control repository containing the source code of the model")
-
+    timestamp = models.DateTimeField(auto_now_add=False, help_text="Timestamp of when the version was created")
     def __str__(self):
         return "Model: {} @ version {}".format(self.model.name, self.version)
 
@@ -128,7 +128,7 @@ class ScientificModelImage(models.Model):
 
 @python_2_unicode_compatible
 class ValidationTestResult(models.Model):
-    model_instance = models.ForeignKey(ScientificModelInstance)
+    model_version = models.ForeignKey(ScientificModelInstance)
     test_code = models.ForeignKey(ValidationTestCode)
     results_storage = models.TextField(help_text="Location of data files produced by the test run")  # or store locations of individual files?
     result = models.FloatField(help_text="A numerical measure of the difference between model and experiment")  # name this 'score'? like sciunit

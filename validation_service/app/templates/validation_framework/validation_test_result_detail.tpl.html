@@ -125,7 +125,7 @@
                 <tbody>
                     <tr>
                         <td style="width: 15%"> <b> Model name:  </b> {{ model.models[0].name }} &nbsp;</td>
-                        <td style="width: 15%"> <b> version name: </b> {{ test_result.data.model_instance.version}} &nbsp;</td>
+                        <td style="width: 15%"> <b> version name: </b> {{ test_result.data.model_version.version}} &nbsp;</td>
 
                     </tr>
                 </tbody>
@@ -163,7 +163,7 @@
                 <tbody>
                     <tr>
                         <td style="width: 15%"> <b> Test name: </b> {{ test.tests[0].name }} &nbsp;</td>
-                        <td style="width: 15%"> <b> version name: </b> {{ test_result.data.test_definition.version}} &nbsp;</td>
+                        <td style="width: 15%"> <b> version name: </b> {{ test_result.data.test_code.version}} &nbsp;</td>
                     </tr>
                 </tbody>
             </table>

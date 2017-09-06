@@ -93,9 +93,9 @@ testApp.controller('ValModelDetailCtrl', ['$scope', '$rootScope', '$http', '$loc
         $scope.Context = Context;
         Context.setService().then(function() {
             $scope.Context = Context;
-
             var ctx = Context.getCtx();
             var app_id = Context.getAppID();
+
             CollabParameters.setService(ctx).$promise.then(function() {
                 $scope.is_collab_member = false;
                 $scope.is_collab_member = IsCollabMemberRest.get({ app_id: app_id });
@@ -130,6 +130,7 @@ testApp.controller('ValModelDetailCtrl', ['$scope', '$rootScope', '$http', '$loc
             var list_ids = _IsCheck();
             $scope.init_graph = Graphics.getResultsfromModelID($scope.model, list_ids);
             $scope.data = $scope.init_graph.values;
+            $scope.$apply();
         };
 
         var _IsCheck = function() {
@@ -166,15 +167,17 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
     function($scope, $rootScope, $http, $location, $stateParams, $state, ValidationTestDefinitionRest, ValidationTestCodeRest, CollabParameters, TestCommentRest, IsCollabMemberRest, Graphics, Context, TestTicketRest) {
         Context.setService().then(function() {
             $scope.Context = Context;
-
             var ctx = Context.getCtx();
             var app_id = Context.getAppID();
 
-
             CollabParameters.setService(ctx).$promise.then(function() {
+                $scope.is_collab_member = false;
+                $scope.is_collab_member = IsCollabMemberRest.get({ app_id: app_id });
+                $scope.is_collab_member.$promise.then(function() {
+                    $scope.is_collab_member = $scope.is_collab_member.is_member;
+                });
 
                 $scope.detail_test = ValidationTestDefinitionRest.get({ app_id: app_id, id: $stateParams.uuid });
-
 
                 $scope.species = CollabParameters.getParameters("species");
                 $scope.brain_region = CollabParameters.getParameters("brain_region");
@@ -186,14 +189,20 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
 
 
                 $scope.detail_test.$promise.then(function() {
-                    Graphics.getResultsfromTestID($scope.detail_test).then(function(graphic_data) {
+                    Graphics.getResultsfromTestID($scope.detail_test, []).then(function(init_graph) {
+
                         $scope.result_focussed;
                         $scope.$on('data_focussed:updated', function(event, data) {
                             $scope.result_focussed = data;
                             $scope.$apply();
                         });
-                        $scope.graphic_data = graphic_data;
-                        $scope.graphic_options = Graphics.get_lines_options('Test/result', '', "", "this is a caption");
+                        $scope.graphic_data = init_graph.values;
+                        $scope.init_checkbox = init_graph.ids_all;
+                        $scope.graphic_options = Graphics.get_lines_options('Test/result', '', "", "this is a caption", init_graph.results);
+                        //main table result
+                        Graphics.getResultsfromTestID($scope.detail_test, ['all']).then(function(results_all) {
+                            $scope.results_all = results_all;
+                        });
 
                     }).catch(function(err) {
                         console.error('Erreur !');
@@ -260,6 +269,24 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
                     };
                 };
 
+                $scope.updateGraph = function() {
+                    var list_ids = _IsCheck();
+                    Graphics.getResultsfromTestID($scope.detail_test, list_ids).then(function(init_graph) {
+                        $scope.graphic_data = init_graph.values;
+                        $scope.$apply();
+                    });
+
+                };
+                var _IsCheck = function() {
+                    var list_ids = [];
+                    var i = 0;
+                    for (i; i < $scope.init_checkbox.length; i++) {
+                        if (document.getElementById('check-' + $scope.init_checkbox[i].id).checked) {
+                            list_ids.push($scope.init_checkbox[i].id);
+                        };
+                    };
+                    return list_ids
+                };
                 $scope.saveVersion = function() {
                     _add_params();
                     var parameters = JSON.stringify($scope.test_code);
@@ -413,8 +440,8 @@ testApp.controller('ValTestResultDetailCtrl', ['$window', '$scope', '$rootScope'
                 $scope.test_result = ValidationResultRest.get({ app_id: app_id, id: $stateParams.uuid });
 
                 $scope.test_result.$promise.then(function() {
-                    $scope.model = ScientificModelRest.get({ app_id: app_id, id: $scope.test_result.data.model_instance.model_id });
-                    $scope.test = ValidationTestDefinitionRest.get({ app_id: app_id, id: $scope.test_result.data.test_definition.test_definition_id });
+                    $scope.model = ScientificModelRest.get({ app_id: app_id, id: $scope.test_result.data.model_version.model_id });
+                    $scope.test = ValidationTestDefinitionRest.get({ app_id: app_id, id: $scope.test_result.data.test_code.test_definition_id });
                 });
 
             });
