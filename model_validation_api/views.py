@@ -318,38 +318,61 @@ class ParametersConfigurationRest( APIView): #LoginRequiredMixin,
 
 
 class ScientificModelInstanceRest (APIView):
-    def post(self, request, format=None):
-        app_id = request.GET.getlist('app_id')[0]
-        collab_id = get_collab_id_from_app_id(app_id)
-
-        if not is_authorised(request, collab_id):
-            return HttpResponseForbidden()
-
+    def post(self, request, format=None):       
         serializer_context = {'request': request,}
-        serializer = ScientificModelInstanceSerializer(data=request.data, context=serializer_context)
-        if serializer.is_valid():        
-            serializer.save(model_id=request.data['model_id'])
-            return Response(status=status.HTTP_201_CREATED)
 
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        print request.data
+
+        #check if valid + security
+        for instance in request.data :
+
+            serializer = ScientificModelInstanceSerializer(data=instance, context=serializer_context)
+            if serializer.is_valid():   
+
+                #security
+                app_id = ScientificModel.objects.get(id=instance['model_id']).access_control_id
+                collab_id = get_collab_id_from_app_id(app_id)
+                if not is_authorised(request, collab_id):
+                    return HttpResponseForbidden()
+            else :
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        for instance in request.data :
+            serializer = ScientificModelInstanceSerializer(data=instance, context=serializer_context)
+
+            if serializer.is_valid(): 
+                serializer.save(model_id=instance['model_id'])
+
+        return Response(status=status.HTTP_201_CREATED)
+
+            
     
     def put(self, request, format=None):
-        app_id = request.GET.getlist('app_id')[0]
-        collab_id = get_collab_id_from_app_id(app_id)
+        serializer_context = {'request': request,}
 
-        if not is_authorised(request, collab_id):
-            return HttpResponseForbidden()
-
-
+        #check if valid
         for instance in request.data:
             model_instance = ScientificModelInstance.objects.get(id=instance['id'])
-            serializer_context = {'request': request,}
+
+            #security
+            app_id =ScientificModel.objects.get(id=model_instance.model_id).access_control_id
+            collab_id = get_collab_id_from_app_id(app_id)
+            if not is_authorised(request, collab_id):
+                return HttpResponseForbidden()
 
             model_serializer = ScientificModelInstanceSerializer(model_instance, data=instance, context=serializer_context)
-            if model_serializer.is_valid() :
-                model_instance = model_serializer.save()
-            else: 
+
+            if  model_serializer.is_valid() is False :
                 return Response(model_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        #is valid + authaurised : save it
+        for instance in request.data: 
+            model_instance = ScientificModelInstance.objects.get(id=instance['id'])
+            model_serializer = ScientificModelInstanceSerializer(model_instance, data=instance, context=serializer_context)
+
+            if  model_serializer.is_valid() :
+                model_instance = model_serializer.save()
+
         return Response( status=status.HTTP_201_CREATED) 
 
 
@@ -573,8 +596,6 @@ class ScientificModelRest(APIView):
         ##get objects 
         value = request.data['models'][0]
         model = ScientificModel.objects.get(id=value['id'])
-
-        print model.access_control_id
 
         #security
         app_id = model.access_control_id

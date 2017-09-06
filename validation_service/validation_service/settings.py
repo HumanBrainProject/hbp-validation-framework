@@ -129,8 +129,8 @@ else:
             'USER': 'validations_admin',
             'PASSWORD': os.environ.get("VALIDATION_SERVICE_PASSWORD"),
             'HOST': os.environ.get("VALIDATION_SERVICE_HOST"),
-            'PORT': os.environ.get("VALIDATION_SERVICE_PORT", "5432"),          
-
+            'PORT': os.environ.get("VALIDATION_SERVICE_PORT", "5432"),  
+            
         },
     }
 
