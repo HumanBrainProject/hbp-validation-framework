@@ -42,7 +42,8 @@ from .models import (ValidationTestDefinition,
                         Param_BrainRegion,
                         Param_CellType,
                         Param_ModelType,
-                        CollabParameters,)
+                        CollabParameters,
+                        Param_ScoreType,)
 
 
 # from .forms import (ValidationTestDefinitionForm, 
@@ -79,6 +80,7 @@ from .serializer import (ValidationTestDefinitionSerializer,
                             Param_BrainRegionSerializer,
                             Param_CellTypeSerializer,
                             Param_ModelTypeSerializer,
+                            Param_ScoreTypeSerializer,
   
                             )
 
@@ -179,8 +181,6 @@ class HomeValidationView(View):
 
         return render(request, self.template_name, { 'tests':tests, 'models':models})
 
-    
-
 class AuthorizedCollabParameterRest(APIView):
 
 
@@ -207,6 +207,9 @@ class AuthorizedCollabParameterRest(APIView):
         model_type = Param_ModelType.objects.all()
         model_type_serializer = Param_ModelTypeSerializer(model_type, context=serializer_context, many=True)     
 
+        score_type = Param_ScoreType.objects.all()
+        score_type_serializer = Param_ScoreTypeSerializer(score_type, context=serializer_context, many=True)     
+
         return Response({
             'data_modalities': data_modalities_serializer.data,
             'test_type' : test_type_serializer.data,
@@ -214,6 +217,7 @@ class AuthorizedCollabParameterRest(APIView):
             'brain_region' : brain_region_serializer.data,
             'cell_type' : cell_type_serializer.data,
             'model_type' : model_type_serializer.data,
+            'score_type': score_type_serializer.data,
         })
 
 class CollabIDRest(APIView): 

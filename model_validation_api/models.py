@@ -9,8 +9,9 @@ from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
 
 @python_2_unicode_compatible 
-class CollabParameters(models.Model): 
-    id = models.CharField(primary_key=True, default='',max_length=100, editable=False)
+class CollabParameters(models.Model):
+    # id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, ) 
+    id = models.CharField(primary_key=True, max_length=100 , default="")
     app_type = models.CharField(max_length=100 ,blank=True, help_text="type of application: model catalog or validation test")
     data_modalities = models.CharField(max_length=500 ,blank=True, help_text="species")
     test_type = models.CharField(max_length=500, blank=True, help_text="species")
@@ -19,11 +20,13 @@ class CollabParameters(models.Model):
     cell_type = models.CharField(max_length=500, blank=True, help_text="cell type, for single-cell models")
     model_type = models.CharField(max_length=500, blank=True, help_text="model type: single cell, network or mean field region")
     collab_id = models.IntegerField( help_text="ID of the collab")
+    # app_id = models.IntegerField( help_text="ID of the app")
     def __str__(self):
             return "Collab Parameters {}".format(self.id)
 
 @python_2_unicode_compatible
 class ValidationTestDefinition(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, )
     name = models.CharField(max_length=200, help_text="short descriptive name")
     species = models.CharField(max_length=100, help_text="species") # G
     brain_region = models.CharField(max_length=100, help_text="brain region")  # I
@@ -38,7 +41,8 @@ class ValidationTestDefinition(models.Model):
     protocol = models.TextField(blank=True, help_text="Description of the experimental protocol")  # R (sort of)
     author = models.CharField(max_length=100, help_text="Author of this test")  # H
     publication = models.CharField(max_length=200, null=True, help_text="Publication in which the validation data set was reported")  # E
-
+    score_type = models.CharField(help_text="Type of score: p-value, r square ..", max_length=20)
+    alias = models.CharField(max_length=200, unique=True, help_text="alias of the test")
     # missing fields wrt Lungsi's spreadsheet
     # L - file format  - infer from file suffix?
     # N - registered with NIP?
@@ -57,6 +61,7 @@ class ValidationTestDefinition(models.Model):
 
 @python_2_unicode_compatible
 class ValidationTestCode(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, )
     repository = models.CharField(max_length=200, help_text="location of the code that defines the test")
     version = models.CharField(max_length=128, help_text="version of the code that defines the test")
     path = models.CharField(max_length=200, help_text="path to test class within Python code")
@@ -83,6 +88,7 @@ class ScientificModel(models.Model):
 
     The model may change over time or have different parameterisations.
     """
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, )
     name = models.CharField(max_length=200, help_text="short descriptive name")
     description = models.TextField()
     species = models.CharField(max_length=100 ,blank=True, help_text="species")
@@ -93,6 +99,7 @@ class ScientificModel(models.Model):
     private = models.BooleanField ( default= False ,help_text="privacy of the model: can be private (if true) or public (if false)")
     app = models.ForeignKey(CollabParameters, related_name="collab_params")
     code_format = models.CharField(max_length=100 ,blank=True, help_text=".py, .c, etc...")
+    alias = models.CharField(max_length=200, help_text="alias of the model")
     # todo: 
     # spiking vs rate?
 
@@ -105,6 +112,7 @@ class ScientificModelInstance(models.Model):
     """
     A specific instance of a model with a well defined version and parameterization.
     """
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, )
     model = models.ForeignKey(ScientificModel, related_name="instances")
     version = models.CharField(max_length=64)
     parameters = models.TextField(null=True, blank=True)
@@ -118,6 +126,7 @@ class ScientificModelImage(models.Model):
     """
     A specific instance of a model with a well defined version and parameterization.
     """
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, )
     model = models.ForeignKey(ScientificModel, related_name="images")
     url =  models.URLField(max_length=500, blank=False, help_text="Version control repository containing the source code of the model")
     caption = models.TextField(null=True, blank=True)
@@ -128,10 +137,11 @@ class ScientificModelImage(models.Model):
 
 @python_2_unicode_compatible
 class ValidationTestResult(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, )
     model_version = models.ForeignKey(ScientificModelInstance)
     test_code = models.ForeignKey(ValidationTestCode)
     results_storage = models.TextField(help_text="Location of data files produced by the test run")  # or store locations of individual files?
-    result = models.FloatField(help_text="A numerical measure of the difference between model and experiment")  # name this 'score'? like sciunit
+    score = models.FloatField(help_text="A numerical measure of the difference between model and experiment")  # name this 'score'? like sciunit
     # should result be a Quantity?
     passed = models.NullBooleanField(help_text="Whether the test passed or failed")
     timestamp = models.DateTimeField(auto_now_add=False, help_text="Timestamp of when the simulation was run")
@@ -139,6 +149,7 @@ class ValidationTestResult(models.Model):
     project = models.CharField(help_text="Project with which this test run is associated(optional)",
                                max_length=200,
                                blank=True)  # project==collab_id for HBP ??rename o collab_id?
+    normalized_score = models.FloatField(help_text="A normalized numerical measure of the difference between model and experiment") 
 
     class Meta:
         get_latest_by = "timestamp"
@@ -151,6 +162,7 @@ class ValidationTestResult(models.Model):
 
 
 class Tickets(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, )
     test = models.ForeignKey(ValidationTestDefinition, on_delete=models.CASCADE)
     author = models.CharField(max_length=200, default="")
     title = models.CharField(max_length=200, default="")
@@ -158,6 +170,7 @@ class Tickets(models.Model):
     creation_date = models.DateTimeField(auto_now_add=True)
 
 class Comments(models.Model): 
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, )
     Ticket = models.ForeignKey(Tickets)
     author = models.CharField(max_length=200, default="")
     text = models.TextField()
@@ -165,23 +178,32 @@ class Comments(models.Model):
 
 
 class Param_DataModalities (models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, )
     authorized_value = models.CharField(max_length=200, default="")
 
 class Param_TestType (models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, )
     authorized_value = models.CharField(max_length=200, default="")
 
 class Param_Species (models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, )
     authorized_value = models.CharField(max_length=200, default="")
 
 class Param_BrainRegion (models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, )
     authorized_value = models.CharField(max_length=200, default="")
 
 class Param_CellType (models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, )
     authorized_value = models.CharField(max_length=200, default="")
 
 class Param_ModelType (models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, )
     authorized_value = models.CharField(max_length=200, default="")
 
+class Param_ScoreType (models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, )
+    authorized_value = models.CharField(max_length=200, default="")
 
 
 
