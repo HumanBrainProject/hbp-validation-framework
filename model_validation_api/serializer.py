@@ -36,14 +36,14 @@ class CollabParametersSerializer(serializers.HyperlinkedModelSerializer):
 class ValidationTestResultSerializer (serializers.HyperlinkedModelSerializer):
     class Meta:
         model = ValidationTestResult
-        fields = ('id',  'results_storage', 'result', 'passed', 'timestamp', 'platform',   'project', 'model_instance_id', 'test_definition_id')
+        fields = ('id',  'results_storage', 'result', 'passed', 'timestamp', 'platform',   'project', 'model_instance_id', 'test_code_id')
 
 
 
 class ScientificModelSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = ScientificModel
-        fields = ('id', 'name', 'description', 'species', 'brain_region', 'cell_type', 'author', 'model_type','private','access_control_id')
+        fields = ('id', 'name', 'description', 'species', 'brain_region', 'cell_type', 'author', 'model_type','private','app_id')
 
 class ScientificModelNameSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
@@ -77,22 +77,21 @@ class ScientificModelImageSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class ScientificModelReadOnlySerializer(serializers.HyperlinkedModelSerializer):
-    # access_control = CollabParametersSerializer( read_only=True)
     instances = ScientificModelInstanceSerializer (read_only=True, many=True )
     images = ScientificModelImageSerializer (read_only=True , many=True )
 
     class Meta:
         model = ScientificModel
-        fields = ('id', 'name', 'description', 'species', 'brain_region', 'cell_type', 'author', 'model_type','private', 'access_control_id', 'instances', 'images')
+        fields = ('id', 'name', 'description', 'species', 'brain_region', 'cell_type', 'author', 'model_type','private', 'app_id', 'instances', 'images')
 
 
 class ScientificModelFullReadOnlySerializer(serializers.HyperlinkedModelSerializer):
-    access_control = CollabParametersSerializer( read_only=True)
+    app = CollabParametersSerializer( read_only=True)
     instances = ScientificModelInstanceSerializer (read_only=True, many=True )
     images = ScientificModelImageSerializer (read_only=True , many=True )
     class Meta:
         model = ScientificModel
-        fields = ('id', 'name', 'description', 'species', 'brain_region', 'cell_type', 'author', 'model_type','private','access_control','instances', 'images')
+        fields = ('id', 'name', 'description', 'species', 'brain_region', 'cell_type', 'author', 'model_type','private','app','instances', 'images')
 
 
 class ValidationTestCodeSerializer(serializers.HyperlinkedModelSerializer):
@@ -101,20 +100,20 @@ class ValidationTestCodeSerializer(serializers.HyperlinkedModelSerializer):
         fields = ('id', 'repository', 'version', 'path', 'timestamp', 'test_definition_id')
 
 class ValidationTestResultReadOnlySerializer (serializers.HyperlinkedModelSerializer):
-    model_instance = ScientificModelInstanceReadOnlySerializer(read_only=True)
-    test_definition = ValidationTestCodeSerializer(read_only=True)
+    model_version = ScientificModelInstanceReadOnlySerializer(read_only=True)
+    test_code = ValidationTestCodeSerializer(read_only=True)
     class Meta:
         model = ValidationTestResult
-        fields = ('id',  'results_storage', 'result', 'passed', 'timestamp', 'platform',   'project', 'model_instance', 'test_definition')
+        fields = ('id',  'results_storage', 'result', 'passed', 'timestamp', 'platform',   'project', 'model_version', 'test_code')
 
 
 
 class ValidationModelResultReadOnlySerializer (serializers.HyperlinkedModelSerializer):
-    model_instance = ScientificModelInstanceSerializer(read_only=True)
-    test_definition = ValidationTestCodeSerializer(read_only=True)
+    model_version = ScientificModelInstanceSerializer(read_only=True)
+    test_code = ValidationTestCodeSerializer(read_only=True)
     class Meta:
         model = ValidationTestResult
-        fields = ('id',  'results_storage', 'result', 'passed', 'timestamp', 'platform',   'project', 'model_instance', 'test_definition')
+        fields = ('id',  'results_storage', 'result', 'passed', 'timestamp', 'platform',   'project', 'model_version', 'test_code')
 
 
 

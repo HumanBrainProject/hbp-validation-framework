@@ -363,7 +363,7 @@
                                     <tr id="table-ticket-detail-comment-content">
                                         <td width=200>
                                         </td>
-                                        <td width=1000 id='editable-text-{{comment.id}}' contenteditable="false">
+                                        <td width=1000 id='editable-ctext-{{comment.id}}' contenteditable="false">
                                             <br/> {{ comment.text }}
                                         </td>
                                         <td width=300>
@@ -373,7 +373,7 @@
                                     </tr>
                                     <tr id="table-ticket-footer">
                                         <td></td>
-                                        <td> <button ng-show="isInArray(comment.id, button_save_ticket)" id="btn-edit-save-{{comment.id}}" type="submit" class="btn btn-primary" ng-click='saveEditedComment(comment.id)'>Save</button></td>
+                                        <td> <button ng-show="isInArray(comment.id, button_save_comment)" id="btn-edit-save-{{comment.id}}" type="submit" class="btn btn-primary" ng-click='saveEditedComment(comment.id)'>Save</button></td>
                                         <td></td>
                                         <td></td>
                                     </tr>
@@ -454,13 +454,12 @@
                 <th id="table-test-result-bottom-up-th">Score</th>
             </thead>
 
-
-            <tbody id="tbody-all-results" ng-repeat="datablock in graphic_data">
-                <tr class=tr-clickable ng-repeat="values in datablock.infosup" ng-click=Context.validation_goToResultDetailView(values.id)>
+            <tbody id="tbody-all-results" ng-repeat="data_block in results_all.results.data">
+                <tr class=tr-clickable ng-repeat="values in data_block" ng-click=Context.validation_goToResultDetailView(values.id)>
                     <td>{{values.timestamp}}</td>
-                    <td>{{values.model_instance.model.name}}</td>
-                    <td>{{values.model_instance.version}}</td>
-                    <td>{{values.test_definition.version}}</td>
+                    <td>{{values.model_version.model.name}}</td>
+                    <td>{{values.model_version.version}}</td>
+                    <td>{{values.test_code.version}}</td>
                     <td>{{values.result}}</td>
                 </tr>
 
@@ -471,7 +470,30 @@
         <br><br>
 
         <div id=panel-results ng-if="graphic_data.length != 0">
-            <nvd3 options='graphic_options' data='graphic_data' id='chart svg'></nvd3>
+
+            <table>
+                <tbody>
+                    <tr>
+                        <td style="width: 85%">
+                            <nvd3 options='graphic_options' data='graphic_data' id='chart-svg' api='api'></nvd3>
+                        </td>
+                        <td style="width: 15%">
+                            <div id="checkbox">
+                                <div ng-repeat="model_instance in init_checkbox" class=checkbox>
+                                    <label> <input id="check-{{model_instance.id}}" type="checkbox" value={{test_code.id}} > &ensp; M{{model_instance.model_id}}V{{model_instance.id}}   </label>
+                                </div>
+                            </div>
+                            <br>
+                            <a class="button-MC" class="btn btn-primary" ng-click=updateGraph()>Update graph</a>
+                        </td>
+                    </tr>
+                </tbody>
+
+            </table>
+
+
+
+
 
 
             <table class="table" style="border-top: none;">

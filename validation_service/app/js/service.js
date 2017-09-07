@@ -13,22 +13,14 @@ ContextServices.service('Context', ['$rootScope', '$location', 'AppIDRest', 'Col
         var modelCatalog_goToHomeView = function() {
             clearState();
             setTimeout(function() {
-                // console.log("YOOOOOOOOOOOOOOOOOOOO")
                 $location.path('/model-catalog/');
 
             }, 300);
-            // $location.path('/model-catalog/');
         };
         var modelCatalog_goToModelDetailView = function(model_id) {
 
-
-
-            console.log("heuuu")
             sendState("model", model_id);
             setState(model_id);
-
-            console.log(state);
-            console.log(state_type);
 
             $location.path('/model-catalog/detail/' + model_id);
             // $location.replace();
@@ -36,15 +28,12 @@ ContextServices.service('Context', ['$rootScope', '$location', 'AppIDRest', 'Col
 
             // $scope.$apply()
 
-            setTimeout(function() {
-
-
-
-            }, 0);
-
-
-
-
+            setTimeout(function() {}, 0);
+        };
+        var validation_goToTestCatalogView = function() {
+            sendState("id", '0');
+            setState('0');
+            $location.path('/home/validation_test');
         };
 
         var validation_goToHomeView = function() {
@@ -68,26 +57,13 @@ ContextServices.service('Context', ['$rootScope', '$location', 'AppIDRest', 'Col
         };
 
         var validation_goToModelCatalog = function(model) {
-            var collab_id = model.access_control.collab_id;
-            // var app_id = AppIDRest.get({ ctx: model.access_control.id });
-            var app_id = model.access_control.id;
-
-
-            // console.log(collab_id);
-            // console.log(app_id);
+            var collab_id = model.app.collab_id;
+            var app_id = model.app.id;
 
             var url = "https://collab.humanbrainproject.eu/#/collab/" + collab_id + "/nav/" + app_id +
                 "?state=model." + model.id + ",external"; //to go to collab api
-
-            // console.log("URLLL");
-            // console.log(url);
-
             window.open(url, 'modelCatalog');
-
-
         }
-
-
 
         var setService = function() {
             return new Promise(function(resolve, reject) {
@@ -245,6 +221,7 @@ ContextServices.service('Context', ['$rootScope', '$location', 'AppIDRest', 'Col
             validation_goToTestDetailView: validation_goToTestDetailView,
             validation_goToResultDetailView: validation_goToResultDetailView,
             validation_goToModelCatalog: validation_goToModelCatalog,
+            validation_goToTestCatalogView: validation_goToTestCatalogView,
         }
     }
 ]);
@@ -286,9 +263,9 @@ ParametersConfigurationServices.service('CollabParameters', ['$rootScope', 'Coll
         };
 
         var getRequestParameters = function() {
-            console.log("getRequestParameters");
-            console.log(Context.getCollabID());
-            console.log(Context.getAppID());
+            // console.log("getRequestParameters");
+            // console.log(Context.getCollabID());
+            // console.log(Context.getAppID());
 
             parameters = CollabParameterRest.get({ app_id: Context.getAppID() });
             return parameters
@@ -340,9 +317,9 @@ ParametersConfigurationServices.service('CollabParameters', ['$rootScope', 'Coll
 
             if (typeof(parameters) == "undefined") {
 
-                console.log("setService");
-                console.log(Context.getCollabID());
-                console.log(Context.getAppID());
+                // console.log("setService");
+                // console.log(Context.getCollabID());
+                // console.log(Context.getAppID());
 
                 parameters = CollabParameterRest.get({ app_id: Context.getAppID() }); //need to get collab number
                 parameters.$promise.then(function() {
@@ -448,21 +425,20 @@ var GraphicsServices = angular.module('GraphicsServices', ['ngResource', 'btorfs
 
 GraphicsServices.factory('Graphics', ['$rootScope', 'ValidationResultRest', 'CollabParameters', 'ValidationTestResultRest', 'ValidationModelResultRest', 'Context',
     function($rootScope, ValidationResultRest, CollabParameters, ValidationTestResultRest, ValidationModelResultRest, Context) {
+        // var results_data = undefined;
 
-        var results_data = undefined;
-
-        var focus = function(list_id_couple) {
+        var focus = function(list_id_couple, results_data) {
             var list_data = [];
             var i = 0;
             for (i; i < list_id_couple.length; i++) {
-                data = find_result_in_data(list_id_couple[i]);
+                data = find_result_in_data(list_id_couple[i], results_data);
                 list_data.push(data);
             }
             $rootScope.$broadcast('data_focussed:updated', list_data);
         };
 
 
-        var find_result_in_data = function(id_couple) {
+        var find_result_in_data = function(id_couple, results_data) {
             var result_to_return = undefined;
 
             var id_line = id_couple.id_line;
@@ -488,34 +464,44 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'ValidationResultRest', 'Col
             return result_to_return;
         };
 
-        var getResultsfromTestID = function(test) {
+        var getResultsfromTestID = function(test, ids) {
             return new Promise(function(resolve, reject) {
                 var values = [];
+                var list_ids = [];
                 var j = 0;
-                results_data = ValidationTestResultRest.get({ app_id: Context.getAppID(), test_id: test.tests[0].id });
+                var x = 0;
 
+                var results_data = ValidationTestResultRest.get({ app_id: Context.getAppID(), test_id: test.tests[0].id, list_id: ids, });
                 results_data.$promise.then(function() {
-                    for (j; j < results_data.data_block_id.length; j++) {
+                    for (j; j < results_data.data.length; j++) {
                         values[j] = _manageDataForGraph(results_data.data[j], results_data.data_block_id[j].id)
                     };
-                    resolve(values);
+                    for (x; x < results_data.versions_id_all.length; x++) {
+                        list_ids[x] = results_data.versions_id_all[x];
+                    };
+                    var data = { 'values': values, 'ids_all': list_ids, 'results': results_data }
+                    resolve(data);
                 });
             });
         };
 
-        var getResultsfromModelID = function(model) {
+        var getResultsfromModelID = function(model, ids) {
             var values = [];
+            var list_ids = [];
             var j = 0;
-            results_data = ValidationModelResultRest.get({ app_id: Context.getAppID(), model_id: model.models[0].id, });
-            results_data.$promise.then(function() {
+            var x = 0;
 
-                for (j; j < results_data.data_block_id.length; j++) {
+            var results_data = ValidationModelResultRest.get({ app_id: Context.getAppID(), model_id: model.models[0].id, list_id: ids, });
+            results_data.$promise.then(function() {
+                for (j; j < results_data.data.length; j++) {
                     values[j] = _manageDataForGraph(results_data.data[j], results_data.data_block_id[j].id)
                 };
-
+                for (x; x < results_data.versions_id_all.length; x++) {
+                    list_ids[x] = results_data.versions_id_all[x];
+                };
             });
 
-            return values;
+            return { 'values': values, 'ids_all': list_ids, 'results': results_data };
         };
 
         var _manageDataForGraph = function(data, line_id) {
@@ -550,7 +536,7 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'ValidationResultRest', 'Col
             return color;
         };
 
-        var get_lines_options = function(title, subtitle, Yaxislabel, caption) {
+        var get_lines_options = function(title, subtitle, Yaxislabel, caption, results_data) {
             options = {
                 chart: {
                     type: 'lineChart',
@@ -593,8 +579,7 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'ValidationResultRest', 'Col
                             for (i; i < e.length; i++) {
                                 list_of_results_id.push({ id_line: e[i].point.id, id_result: e[i].point.id_test_result });
                             }
-
-                            focus(list_of_results_id);
+                            focus(list_of_results_id, results_data);
                         });
                     }
                 },

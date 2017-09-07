@@ -21,46 +21,46 @@ class Command(BaseCommand):
     help = 'our help string comes here'    
 
     def _create_data_modalities(self):
-        Param_DataModalities(authorized_value='electrophysiology').save()
-        Param_DataModalities(authorized_value='fMRI').save()
-        Param_DataModalities(authorized_value='2-photon imaging').save()
-        Param_DataModalities(authorized_value='electron microscopy').save()
-        Param_DataModalities(authorized_value='histology').save()   
+        Param_DataModalities(id='1',authorized_value='electrophysiology').save()
+        Param_DataModalities(id='2',authorized_value='fMRI').save()
+        Param_DataModalities(id='3',authorized_value='2-photon imaging').save()
+        Param_DataModalities(id='4',authorized_value='electron microscopy').save()
+        Param_DataModalities(id='5',authorized_value='histology').save()   
         
     def _create_test_types(self): 
-        Param_TestType(authorized_value='single cell activity').save()
-        Param_TestType(authorized_value='network structure').save()
-        Param_TestType(authorized_value='network activity').save()
-        Param_TestType(authorized_value='behaviour').save()
-        Param_TestType(authorized_value='subcellular').save()        
+        Param_TestType(id='1',authorized_value='single cell activity').save()
+        Param_TestType(id='2',authorized_value='network structure').save()
+        Param_TestType(id='3',authorized_value='network activity').save()
+        Param_TestType(id='4',authorized_value='behaviour').save()
+        Param_TestType(id='5',authorized_value='subcellular').save()        
 
     def _create_species(self):
-        Param_Species(authorized_value='Mouse (Mus musculus)').save()
-        Param_Species(authorized_value='Rat (Rattus rattus)').save()
-        Param_Species(authorized_value='Marmoset (callithrix jacchus)').save()
-        Param_Species(authorized_value='Human (Homo sapiens)').save()
-        Param_Species(authorized_value='Paxinos Rhesus Monkey (Macaca mulatta)').save()
-        Param_Species(authorized_value='Opossum (Monodelphis domestica)').save()
-        Param_Species(authorized_value='Other').save()
+        Param_Species(id='1',authorized_value='Mouse (Mus musculus)').save()
+        Param_Species(id='2',authorized_value='Rat (Rattus rattus)').save()
+        Param_Species(id='3',authorized_value='Marmoset (callithrix jacchus)').save()
+        Param_Species(id='4',authorized_value='Human (Homo sapiens)').save()
+        Param_Species(id='5',authorized_value='Paxinos Rhesus Monkey (Macaca mulatta)').save()
+        Param_Species(id='6',authorized_value='Opossum (Monodelphis domestica)').save()
+        Param_Species(id='7',authorized_value='Other').save()
         
     def _create_brain_region(self):
-        Param_BrainRegion(authorized_value='Basal Ganglia').save()
-        Param_BrainRegion(authorized_value='Cerebellum').save()
-        Param_BrainRegion(authorized_value='Cortex').save()
-        Param_BrainRegion(authorized_value='Hippocampus').save()
-        Param_BrainRegion(authorized_value='Other').save()
+        Param_BrainRegion(id='1',authorized_value='Basal Ganglia').save()
+        Param_BrainRegion(id='2',authorized_value='Cerebellum').save()
+        Param_BrainRegion(id='3',authorized_value='Cortex').save()
+        Param_BrainRegion(id='4',authorized_value='Hippocampus').save()
+        Param_BrainRegion(id='5',authorized_value='Other').save()
         
     def _create_cell_type(self):
-        Param_CellType(authorized_value='Granule Cell').save()
-        Param_CellType(authorized_value='Interneuron').save()
-        Param_CellType(authorized_value='Pyramidal Cell').save()
-        Param_CellType(authorized_value='Other').save()     
+        Param_CellType(id='1',authorized_value='Granule Cell').save()
+        Param_CellType(id='2',authorized_value='Interneuron').save()
+        Param_CellType(id='3',authorized_value='Pyramidal Cell').save()
+        Param_CellType(id='4',authorized_value='Other').save()     
         
     def _create_model_type(self):
-        Param_ModelType(authorized_value='Single Cell').save()
-        Param_ModelType(authorized_value='Network').save()
-        Param_ModelType(authorized_value='Mean Field').save()
-        Param_ModelType(authorized_value='Other').save()
+        Param_ModelType(id='1',authorized_value='Single Cell').save()
+        Param_ModelType(id='2',authorized_value='Network').save()
+        Param_ModelType(id='3',authorized_value='Mean Field').save()
+        Param_ModelType(id='4',authorized_value='Other').save()
 
 
     def _fake_collab(self):
@@ -420,34 +420,50 @@ class Command(BaseCommand):
  	time1 = time
 	time2 = time + 11000
 	time3 = time2+ 11000
+	time4 = time3+ 11000
 
 	##tests
-        uuid_test1 = uuid.uuid4()
-        uuid_test2 = uuid.uuid4()
-	uuid_test3 = uuid.uuid4()
+        uuid_test1 = 1
+        uuid_test2 = 2
+	uuid_test3 = 3
 	
-	uuid_testcode1 = uuid.uuid4()
-        uuid_testcode2 = uuid.uuid4()
-	uuid_testcode3 = uuid.uuid4()
+	uuid_testcode1_1 = 1
+        uuid_testcode2_1 = 2
+	uuid_testcode3_1 = 3
+	
+	uuid_testcode1_2 = 4
+        uuid_testcode2_2 = 5
+	uuid_testcode3_2 = 6
+
 
    	#model
-        uuid_model1 = uuid.uuid4()
+        uuid_model1 = 1
     
-        uuid_model_instance1 = uuid.uuid4()
-	uuid_model_instance2 = uuid.uuid4()
-	uuid_model_instance3 = uuid.uuid4()
+        uuid_model_instance1 = 2
+	uuid_model_instance2 = 3
+	uuid_model_instance3 = 4
 
-        uuid_result1 = uuid.uuid4()
-        uuid_result2 = uuid.uuid4()
-        uuid_result3 = uuid.uuid4()
-        uuid_result4 = uuid.uuid4()
-	uuid_result5 = uuid.uuid4()
-	uuid_result6 = uuid.uuid4()
-	uuid_result7 = uuid.uuid4()
-	uuid_result8 = uuid.uuid4()
-	uuid_result9 = uuid.uuid4()
+        uuid_result1 = 1
+        uuid_result2 = 2
+        uuid_result3 = 3
+        uuid_result4 = 4
+	uuid_result5 = 5
+	uuid_result6 = 6
+	uuid_result7 = 7
+	uuid_result8 = 8
+	uuid_result9 = 9
+
+	uuid_result1_2 = 10
+        uuid_result2_2 = 11
+        uuid_result3_2 = 12
+        uuid_result4_2 = 13
+	uuid_result5_2 = 14
+	uuid_result6_2 = 15
+	uuid_result7_2 = 16
+	uuid_result8_2 = 17
+	uuid_result9_2 = 18
            
-        test1 = ValidationTestDefinition(id= uuid_test1)
+        test1 = ValidationTestDefinition()
         test1.name = "name 1"
         test1.species = "Mouse (Mus musculus)"
         test1.brain_region = "Hippocampus"
@@ -462,7 +478,7 @@ class Command(BaseCommand):
         test1.publication = "not published"
         test1.save()
 
-	test2 = ValidationTestDefinition(id= uuid_test2)
+	test2 = ValidationTestDefinition()
         test2.name = "name 2"
         test2.species = "Mouse (Mus musculus)"
         test2.brain_region = "Hippocampus"
@@ -477,7 +493,7 @@ class Command(BaseCommand):
         test2.publication = "not published"
         test2.save()
 
-	test3 = ValidationTestDefinition(id= uuid_test3)
+	test3 = ValidationTestDefinition()
         test3.name = "name 3"
         test3.species = "Mouse (Mus musculus)"
         test3.brain_region = "Hippocampus"
@@ -493,7 +509,7 @@ class Command(BaseCommand):
         test3.save()
         
 
-        testcode1 = ValidationTestCode(id = uuid_testcode1)
+        testcode1 = ValidationTestCode()
         testcode1.repository = ""
         testcode1.version = "1.1"
         testcode1.path = ""
@@ -501,7 +517,7 @@ class Command(BaseCommand):
         testcode1.test_definition = test1
         testcode1.save()
 
-	testcode2 = ValidationTestCode(id = uuid_testcode2)
+	testcode2 = ValidationTestCode()
         testcode2.repository = ""
         testcode2.version = "1.1"
         testcode2.path = ""
@@ -509,16 +525,39 @@ class Command(BaseCommand):
         testcode2.test_definition = test2
         testcode2.save()
 
-	testcode3 = ValidationTestCode(id = uuid_testcode3)
+	testcode3 = ValidationTestCode()
         testcode3.repository = ""
         testcode3.version = "1.1"
         testcode3.path = ""
         testcode3.timestamp = "2017-01-24T14:59:26.031Z"
         testcode3.test_definition = test3
         testcode3.save()
+	
+	testcode1_2 = ValidationTestCode()
+        testcode1_2.repository = ""
+        testcode1_2.version = "2.1"
+        testcode1_2.path = ""
+        testcode1_2.timestamp = "2018-01-24T14:59:26.031Z"
+        testcode1_2.test_definition = test1
+        testcode1_2.save()
 
+	testcode2_2 = ValidationTestCode()
+        testcode2_2.repository = ""
+        testcode2_2.version = "2.1"
+        testcode2_2.path = ""
+        testcode2_2.timestamp = "2018-01-24T14:59:26.031Z"
+        testcode2_2.test_definition = test2
+        testcode2_2.save()
 
-        model1 = ScientificModel(id= uuid_model1)         
+	testcode3_2 = ValidationTestCode()
+        testcode3_2.repository = ""
+        testcode3_2.version = "2.1"
+        testcode3_2.path = ""
+        testcode3_2.timestamp = "2018-01-24T14:59:26.031Z"
+        testcode3_2.test_definition = test3
+        testcode3_2.save()
+
+        model1 = ScientificModel()         
         model1.name = "model for result test"
         model1.description = "description"
         model1.species = "Mouse (Mus musculus)"
@@ -531,30 +570,30 @@ class Command(BaseCommand):
         model1.code_format = "py"
         model1.save()        
 
-        model_instance1 = ScientificModelInstance(id=uuid_model_instance1)
+        model_instance1 = ScientificModelInstance()
         model_instance1.model = model1
         model_instance1.version = "version 1"
         model_instance1.parameters = "param"
         model_instance1.source = "http://dd.com"
         model_instance1.save()
 
-	model_instance2 = ScientificModelInstance(id=uuid_model_instance2)
+	model_instance2 = ScientificModelInstance()
         model_instance2.model = model1
         model_instance2.version = "version 2"
         model_instance2.parameters = "param"
         model_instance2.source = "http://dd.com"
         model_instance2.save()
 	
-	model_instance3 = ScientificModelInstance(id=uuid_model_instance3)
+	model_instance3 = ScientificModelInstance()
         model_instance3.model = model1
         model_instance3.version = "version 3"
         model_instance3.parameters = "param"
         model_instance3.source = "http://dd.com"
         model_instance3.save()
 
-        result = ValidationTestResult(id=uuid_result1)
+        result = ValidationTestResult()
         result.model_instance = model_instance1
-        result.test_definition = testcode1
+        result.test_code = testcode1
         result.results_storage ="azerty"
         result.result = 0.25
         result.passed = None
@@ -563,9 +602,9 @@ class Command(BaseCommand):
         result.project = "azerty"
         result.save()
 
-        result = ValidationTestResult(id=uuid_result2)
+        result = ValidationTestResult()
         result.model_instance = model_instance1
-        result.test_definition = testcode2
+        result.test_code = testcode2
         result.results_storage ="azerty"
         result.result = 0.43
         result.passed = None
@@ -574,9 +613,9 @@ class Command(BaseCommand):
         result.project = "azerty"
         result.save()
 
-	result = ValidationTestResult(id=uuid_result3)
+	result = ValidationTestResult()
         result.model_instance = model_instance1
-        result.test_definition = testcode3
+        result.test_code = testcode3
         result.results_storage ="azerty"
         result.result = 0.795
         result.passed = None
@@ -586,9 +625,9 @@ class Command(BaseCommand):
         result.project = "azerty"
         result.save()
 
-        result = ValidationTestResult(id=uuid_result4)
+        result = ValidationTestResult()
         result.model_instance = model_instance2
-        result.test_definition = testcode1
+        result.test_code = testcode1
         result.results_storage ="azerty"
         result.result = 0.8
         result.passed = None
@@ -598,9 +637,9 @@ class Command(BaseCommand):
         result.save()
 
 
-        result = ValidationTestResult(id=uuid_result5)
+        result = ValidationTestResult()
         result.model_instance = model_instance2
-        result.test_definition = testcode2
+        result.test_code = testcode2
         result.results_storage ="azerty"
         result.result = 0.888
         result.passed = None
@@ -609,9 +648,9 @@ class Command(BaseCommand):
         result.project = "azerty"
         result.save()
 
-	result = ValidationTestResult(id=uuid_result6)
+	result = ValidationTestResult()
         result.model_instance = model_instance2
-        result.test_definition = testcode3
+        result.test_code = testcode3
         result.results_storage ="azerty"
         result.result = 0.795
         result.passed = None
@@ -620,9 +659,9 @@ class Command(BaseCommand):
         result.project = "azerty"
         result.save()
 
-	result = ValidationTestResult(id=uuid_result7)
+	result = ValidationTestResult()
         result.model_instance = model_instance3
-        result.test_definition = testcode1
+        result.test_code = testcode1
         result.results_storage ="azerty"
         result.result = 0.5
         result.passed = None
@@ -631,9 +670,9 @@ class Command(BaseCommand):
         result.project = "azerty"
         result.save()
 
-	result = ValidationTestResult(id=uuid_result8)
+	result = ValidationTestResult()
         result.model_instance = model_instance3
-        result.test_definition = testcode2
+        result.test_code = testcode2
         result.results_storage ="azerty"
         result.result = 0.1
         result.passed = None
@@ -642,9 +681,111 @@ class Command(BaseCommand):
         result.project = "azerty"
         result.save()
 
-	result = ValidationTestResult(id=uuid_result9)
+	result = ValidationTestResult()
         result.model_instance = model_instance3
-        result.test_definition = testcode3
+        result.test_code = testcode3
+        result.results_storage ="azerty"
+        result.result = 0.796
+        result.passed = None
+        result.timestamp = datetime.datetime.fromtimestamp(time3).strftime('%Y-%m-%d %H:%M:%S')
+        result.platform = "azerty"
+        result.project = "azerty"
+        result.save()
+
+
+	result = ValidationTestResult()
+        result.model_instance = model_instance1
+        result.test_code = testcode1_2
+        result.results_storage ="azerty"
+        result.result = 0.25
+        result.passed = None
+        result.timestamp = datetime.datetime.fromtimestamp(time1).strftime('%Y-%m-%d %H:%M:%S')
+        result.platform = "azerty"
+        result.project = "azerty"
+        result.save()
+
+        result = ValidationTestResult()
+        result.model_instance = model_instance1
+        result.test_code = testcode2_2
+        result.results_storage ="azerty"
+        result.result = 0.43
+        result.passed = None
+        result.timestamp = datetime.datetime.fromtimestamp(time1).strftime('%Y-%m-%d %H:%M:%S')
+        result.platform = "azerty"
+        result.project = "azerty"
+        result.save()
+
+	result = ValidationTestResult()
+        result.model_instance = model_instance1
+        result.test_code = testcode3_2
+        result.results_storage ="azerty"
+        result.result = 0.795
+        result.passed = None
+        time3 = time2 + 1000000000
+        result.timestamp = datetime.datetime.fromtimestamp(time1).strftime('%Y-%m-%d %H:%M:%S')
+        result.platform = "azerty"
+        result.project = "azerty"
+        result.save()
+
+        result = ValidationTestResult()
+        result.model_instance = model_instance2
+        result.test_code = testcode1_2
+        result.results_storage ="azerty"
+        result.result = 0.8
+        result.passed = None
+        result.timestamp = datetime.datetime.fromtimestamp(time2).strftime('%Y-%m-%d %H:%M:%S')
+        result.platform = "azerty"
+        result.project = "azerty"
+        result.save()
+
+
+        result = ValidationTestResult()
+        result.model_instance = model_instance2
+        result.test_code = testcode2_2
+        result.results_storage ="azerty"
+        result.result = 0.888
+        result.passed = None
+        result.timestamp = datetime.datetime.fromtimestamp(time2).strftime('%Y-%m-%d %H:%M:%S')
+        result.platform = "azerty"
+        result.project = "azerty"
+        result.save()
+
+	result = ValidationTestResult()
+        result.model_instance = model_instance2
+        result.test_code = testcode3_2
+        result.results_storage ="azerty"
+        result.result = 0.795
+        result.passed = None
+        result.timestamp = datetime.datetime.fromtimestamp(time2).strftime('%Y-%m-%d %H:%M:%S')
+        result.platform = "azerty"
+        result.project = "azerty"
+        result.save()
+
+	result = ValidationTestResult()
+        result.model_instance = model_instance3
+        result.test_code = testcode1_2
+        result.results_storage ="azerty"
+        result.result = 0.5
+        result.passed = None
+        result.timestamp = datetime.datetime.fromtimestamp(time3).strftime('%Y-%m-%d %H:%M:%S')
+        result.platform = "azerty"
+        result.project = "azerty"
+        result.save()
+
+	result = ValidationTestResult()
+        result.model_instance = model_instance3
+        result.test_code = testcode2_2
+        result.results_storage ="azerty"
+        result.result = 0.1
+        result.passed = None
+        result.timestamp = datetime.datetime.fromtimestamp(time3).strftime('%Y-%m-%d %H:%M:%S')
+        result.platform = "azerty"
+        result.project = "azerty"
+        result.save()
+
+	result = ValidationTestResult()
+        result.model_instance = model_instance3
+        result.test_code = testcode3_2
         result.results_storage ="azerty"
         result.result = 0.796
         result.passed = None
@@ -654,16 +795,16 @@ class Command(BaseCommand):
         result.save()
 
     def handle(self, *args, **options):
-        # self._create_data_modalities()
-        # self._create_test_types()
-        # self._create_species()
-        # self._create_brain_region()
-        # self._create_cell_type()
-        # self._create_model_type()
+        #self._create_data_modalities()
+        #self._create_test_types()
+        #self._create_species()
+        #self._create_brain_region()
+        #self._create_cell_type()
+        #self._create_model_type()
 
         # self._fake_collab()
 	# self._fake_models_test_results()
-        #self._fake_models_test_results_heli()
+        self._fake_models_test_results_heli()
 
 
 
