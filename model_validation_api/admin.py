@@ -1,6 +1,9 @@
 from django.contrib import admin
 from .models import (ValidationTestDefinition, ValidationTestCode, ValidationTestResult,
-                     ScientificModel, ScientificModelInstance)
+                     ScientificModel, ScientificModelInstance, ScientificModelImage,
+                     CollabParameters,
+                     Param_DataModalities, Param_TestType, Param_Species,
+                     Param_BrainRegion, Param_CellType, Param_ModelType)
 
 admin.site.site_header = "HBP Validation Service administration"
 
@@ -28,3 +31,11 @@ class ValidationTestResultAdmin(admin.ModelAdmin):
 
 admin.site.register(ScientificModel)
 admin.site.register(ScientificModelInstance)
+admin.site.register(ScientificModelImage)
+admin.site.register(CollabParameters)
+admin.site.register(Param_DataModalities)
+admin.site.register(Param_TestType)
+admin.site.register(Param_Species)
+admin.site.register(Param_BrainRegion)
+admin.site.register(Param_CellType)
+admin.site.register(Param_ModelType)
