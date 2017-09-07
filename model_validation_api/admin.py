@@ -8,8 +8,8 @@ admin.site.site_header = "HBP Validation Service administration"
 class ValidationTestDefinitionAdmin(admin.ModelAdmin):
     list_display = ('name', 'brain_region', 'cell_type',
                     'data_type', 'data_modality', 'test_type',
-                    'publication', 'author')
-    list_filter = ('brain_region', 'cell_type', 'test_type')
+                    'publication', 'author', 'score_type')
+    list_filter = ('brain_region', 'cell_type', 'test_type', 'score_type')
     search_fields = ('name', 'protocol')
 
 
@@ -21,8 +21,8 @@ class ValidationTestCodeAdmin(admin.ModelAdmin):
 @admin.register(ValidationTestResult)
 class ValidationTestResultAdmin(admin.ModelAdmin):
     list_display = ('model_version', 'test_code',
-                    'result', 'passed', 'timestamp',
-                    'platform')
+                    'score', 'passed', 'timestamp', 
+                    'normalized_score', 'platform')
     search_fields = ('model_version', 'test_code')
 
 

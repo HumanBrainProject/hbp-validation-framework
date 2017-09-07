@@ -162,9 +162,9 @@ testApp.directive('markdown', function() {
 });
 
 
-testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$location', '$stateParams', '$state', 'ValidationTestDefinitionRest', 'ValidationTestCodeRest', 'CollabParameters', 'TestCommentRest', "IsCollabMemberRest", "Graphics", "Context", 'TestTicketRest',
+testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$location', '$stateParams', '$state', 'ValidationTestDefinitionRest', 'ValidationTestCodeRest', 'CollabParameters', 'TestCommentRest', "IsCollabMemberRest", "Graphics", "Context", 'TestTicketRest', 'AuthaurizedCollabParameterRest',
 
-    function($scope, $rootScope, $http, $location, $stateParams, $state, ValidationTestDefinitionRest, ValidationTestCodeRest, CollabParameters, TestCommentRest, IsCollabMemberRest, Graphics, Context, TestTicketRest) {
+    function($scope, $rootScope, $http, $location, $stateParams, $state, ValidationTestDefinitionRest, ValidationTestCodeRest, CollabParameters, TestCommentRest, IsCollabMemberRest, Graphics, Context, TestTicketRest, AuthaurizedCollabParameterRest) {
         Context.setService().then(function() {
             $scope.Context = Context;
             var ctx = Context.getCtx();
@@ -179,6 +179,7 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
 
                 $scope.detail_test = ValidationTestDefinitionRest.get({ app_id: app_id, id: $stateParams.uuid });
 
+                $scope.auhtorized_params = AuthaurizedCollabParameterRest.get();
                 $scope.species = CollabParameters.getParameters("species");
                 $scope.brain_region = CollabParameters.getParameters("brain_region");
                 $scope.cell_type = CollabParameters.getParameters("cell_type");
@@ -487,8 +488,8 @@ testApp.controller('TestResultCtrl', ['$scope', '$rootScope', '$http', '$locatio
 ]);
 
 
-testApp.controller('ValTestCreateCtrl', ['$scope', '$rootScope', '$http', '$location', 'ValidationTestDefinitionRest', 'ValidationTestCodeRest', 'CollabParameters', 'Context',
-    function($scope, $rootScope, $http, $location, ValidationTestDefinitionRest, ValidationTestCodeRest, CollabParameters, Context) {
+testApp.controller('ValTestCreateCtrl', ['$scope', '$rootScope', '$http', '$location', 'ValidationTestDefinitionRest', 'ValidationTestCodeRest', 'CollabParameters', 'Context', 'AuthaurizedCollabParameterRest',
+    function($scope, $rootScope, $http, $location, ValidationTestDefinitionRest, ValidationTestCodeRest, CollabParameters, Context, AuthaurizedCollabParameterRest) {
         Context.setService().then(function() {
 
             $scope.Context = Context;
@@ -498,6 +499,7 @@ testApp.controller('ValTestCreateCtrl', ['$scope', '$rootScope', '$http', '$loca
 
 
             CollabParameters.setService(ctx).$promise.then(function() {
+                $scope.auhtorized_params = AuthaurizedCollabParameterRest.get();
                 $scope.species = CollabParameters.getParameters("species");
                 $scope.brain_region = CollabParameters.getParameters("brain_region");
                 $scope.cell_type = CollabParameters.getParameters("cell_type");

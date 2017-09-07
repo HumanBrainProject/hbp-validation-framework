@@ -95,6 +95,16 @@ ApiCommunicationServices.factory('AuthaurizedCollabParameterRest', ['$resource',
     }
 ]);
 
+ApiCommunicationServices.factory('AuthorizedScoreTypeRest', ['$resource',
+    function($resource) {
+        return $resource('authorizedscoretyperest/', {}, {
+            get: { method: 'GET', params: { format: 'json', app_id: 'app_id' }, isArray: false },
+            //   put: {method:'PUT', params:{format:'json', app_id: 'app_id' }, headers:{ 'Content-Type':'application/json' }},
+            // post: { method: 'POST', params: { format: 'json', app_id: 'app_id'  }, headers: { 'Content-Type': 'application/json' } }
+        });
+    }
+]);
+
 ApiCommunicationServices.factory('IsCollabMemberRest', ['$resource',
     function($resource) {
         return $resource('iscollabmemberrest/', {}, {

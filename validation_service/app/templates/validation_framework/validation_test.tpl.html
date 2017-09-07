@@ -38,6 +38,7 @@
     <table id="test_table" class="table">
         <thead>
             <th>Name</th>
+            <th>Alias</th>
             <th>Species</th>
             <th>Age</th>
             <th>Brain region</th>
@@ -46,7 +47,7 @@
             <th>Data type</th>
             <th>Data modality</th>
             <th>Test type</th>
-            <th>Code location</th>
+            <!--<th>Code location</th>-->
             <th>Author</th>
             <th>Publication</th>
         </thead>
@@ -56,6 +57,7 @@
                 ng-click="Context.validation_goToTestDetailView(test.id) ">
 
                 <td>{{ test.name }}</td>
+                <td>{{ test.alias }}</td>
                 <td>{{ test.species }}</td>
                 <td>{{ test.age }}</td>
                 <td>{{ test.brain_region }}</td>
@@ -66,7 +68,7 @@
                 <td>{{ test.data_type }}</td>
                 <td>{{ test.data_modality }}</td>
                 <td>{{ test.test_type }}</td>
-                <td>{{ test.get_latest_code.repository}}</td>
+                <!--<td>{{ test.get_latest_code.repository}}</td>-->
                 <td>{{ test.author }}</td>
                 <td>{{ test.publication }}</td>
             </tr>

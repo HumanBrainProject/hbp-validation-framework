@@ -83,7 +83,6 @@ ContextServices.service('Context', ['$rootScope', '$location', 'AppIDRest', 'Col
                     }
                 }
 
-
                 // _getCtx();
                 if (ctx == undefined) {
                     ctx = window.location.search.split("&")[0].substring(5);
