@@ -728,9 +728,9 @@ ModelCatalogApp.controller('ModelCatalogCtrl', [
             var ctx = Context.getCtx();
             var app_id = Context.getAppID();
 
+            if (Context.getState() == "" || Context.getState() == undefined || Context.getState() == "n") {
+                Context.sendState("model", "n");
 
-
-            if (Context.getState() == "" || Context.getState() == undefined) {
                 CollabParameters.setService(ctx).$promise.then(function() {
 
                     $scope.collab_species = CollabParameters.getParameters("species");
@@ -747,10 +747,7 @@ ModelCatalogApp.controller('ModelCatalogCtrl', [
                     $scope.is_collab_member.$promise.then(function() {
                         $scope.is_collab_member = $scope.is_collab_member.is_member;
                     });
-                    console.log($scope.is_collab_member);
-                    console.log($scope.is_collab_member);
-                    console.log($scope.is_collab_member);
-                    console.log($scope.is_collab_member);
+
                 });
             } else {
                 var model_id = Context.getState();
@@ -806,7 +803,7 @@ ModelCatalogApp.controller('ModelCatalogCreateCtrl', ['$scope', '$rootScope', '$
 
                 $scope.saveModel = function() {
                     _add_access_control();
-                    var parameters = JSON.stringify({ model: $scope.model, model_instance: $scope.model_instance, model_image: $scope.model_image });
+                    var parameters = JSON.stringify({ model: $scope.model, model_instance: [$scope.model_instance], model_image: $scope.model_image });
                     var a = ScientificModelRest.save({ app_id: app_id }, parameters).$promise.then(function(data) {
                         Context.modelCatalog_goToModelDetailView(data.uuid);
                         // $location.path('/model-catalog/detail/' + data.uuid);
@@ -939,7 +936,7 @@ ModelCatalogApp.controller('ModelCatalogVersionCtrl', ['$scope', '$rootScope', '
                 $scope.model = ScientificModelRest.get({ id: $stateParams.uuid });
                 $scope.saveVersion = function() {
                     $scope.model_instance.model_id = $stateParams.uuid;
-                    var parameters = JSON.stringify($scope.model_instance);
+                    var parameters = JSON.stringify([$scope.model_instance]);
                     ScientificModelInstanceRest.save({ app_id: app_id }, parameters).$promise.then(function(data) {
                         $location.path('/model-catalog/detail/' + $stateParams.uuid);
                     });
