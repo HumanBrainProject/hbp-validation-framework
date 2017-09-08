@@ -53,13 +53,13 @@
                     <th>
                         test id | model version
                     </th>
-                    <th ng-repeat="version in model.model_instances ">
+                    <th ng-repeat="version in model.models[0].instances">
                         {{version.version}}
                     </th>
                 </thead>
                 <tbody>
                     <tr ng-repeat="test in results_all.values">
-                        <td class=tr-clickable ng-click=Context.validation_goToDetailTest(test.infosup[0].test_definition.test_definition_id)>test #{{test.key}} </td>
+                        <td class=tr-clickable ng-click=Context.validation_goToTestDetailView(test.infosup[0].test_code.test_definition_id)>test #{{test.key}} </td>
                         <td class=tr-clickable ng-click=Context.validation_goToResultDetailView(version.id_test_result) ng-repeat="version in test.values">{{version.y}} </td>
                     </tr>
                 </tbody>
@@ -78,7 +78,7 @@
                     <td style="width: 15%">
                         <div id="checkbox">
                             <div ng-repeat="test_code in init_checkbox" class=checkbox>
-                                <label> <input id="check-{{test_code.id}}" type="checkbox" value={{test_code.id}} > &ensp; T{{test_code.test_definition_id}}C{{test_code.id}}   </label>
+                                <label> <input id="check-{{test_code.id}}" type="checkbox" value={{test_code.id}} > &ensp; {{test_code.test_definition.alias}}&ensp;({{test_code.version}})   </label>
                             </div>
                         </div>
                         <br>
@@ -100,22 +100,22 @@
 
                 <table id="model_table" class="table">
 
-                    <h3 align=center> Models </h3>
+                    <h3 align=center> Selection </h3>
 
                     <thead>
-                        <th>Results storage</th>
-                        <th>Result</th>
-                        <th>Passed</th>
-                        <th>Time</th>
-                        <th>Platform</th>
-                        <th>Project</th>
+                        <th align=center>Results storage</th>
+                        <th align=center>Score</th>
+                        <th align=center>Passed</th>
+                        <th align=center>Time</th>
+                        <th align=center>Platform</th>
+                        <th align=center>Project</th>
                     </thead>
 
                     <tbody>
 
                         <tr class=tr-clickable id="" ng-repeat="result in line_result_focussed" ng-click="Context.validation_goToResultDetailView(result.id)">
                             <td>{{ result.results_storage }}</td>
-                            <td>{{ result.result }}</td>
+                            <td>{{ result.score }}</td>
                             <td>{{ result.passed }}</td>
                             <td>{{ result.timestamp }}</td>
                             <td>{{ result.platform }}</td>

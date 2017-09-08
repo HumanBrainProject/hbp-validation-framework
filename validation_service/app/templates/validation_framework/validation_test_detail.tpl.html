@@ -502,7 +502,7 @@
                         <td style="width: 15%">
                             <div id="checkbox">
                                 <div ng-repeat="model_instance in init_checkbox" class=checkbox>
-                                    <label> <input id="check-{{model_instance.id}}" type="checkbox" value={{test_code.id}} > &ensp; M{{model_instance.model_id}}V{{model_instance.id}}   </label>
+                                    <label> <input id="check-{{model_instance.id}}" type="checkbox" value={{test_code.id}} > &ensp; {{model_instance.model.alias}}({{model_instance.version}})   </label>
                                 </div>
                             </div>
                             <br>
@@ -527,10 +527,10 @@
                         <h3 align=center> selection </h3>
 
                         <thead>
-                            <th>Date/Time</th>
-                            <th>Results storage</th>
-                            <th>Result</th>
-                            <th>Passed</th>
+                            <th align=center>Date/Time</th>
+                            <th align=center>Results storage</th>
+                            <th align=center>Score</th>
+                            <th align=center>Passed</th>
 
                             <th>Platform</th>
                             <th>Project</th>
@@ -541,7 +541,7 @@
                             <tr class=tr-clickable id="" ng-repeat="result in result_focussed" ng-click="Context.validation_goToResultDetailView(result.id)">
                                 <td>{{ result.timestamp }}</td>
                                 <td>{{ result.results_storage }}</td>
-                                <td>{{ result.result }}</td>
+                                <td>{{ result.score }}</td>
                                 <td>{{ result.passed }}</td>
                                 <td>{{ result.platform }}</td>
                                 <td>{{ result.project }}</td>

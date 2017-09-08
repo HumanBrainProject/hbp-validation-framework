@@ -62,11 +62,13 @@ from .serializer import (ValidationTestDefinitionSerializer,
                             ScientificModelReadOnlySerializer, 
                             ScientificModelFullReadOnlySerializer,
                             ScientificModelInstanceSerializer,
+                            ScientificModelInstanceReadOnlySerializer,
                             ScientificModelImageSerializer,
                             ValidationTestResultSerializer,
                             ValidationTestResultReadOnlySerializer,
                             ValidationModelResultReadOnlySerializer,
                             ValidationTestCodeSerializer,
+                            ValidationTestCodeReadOnlySerializer,
                             ValidationTestDefinitionWithCodesReadSerializer,
                             CommentSerializer,
                             TicketReadOnlySerializer,
@@ -163,7 +165,6 @@ CROSSREF_URL = "http://api.crossref.org/works/"
 
 def get_collab_id_from_app_id (app_id):
     collab_param = CollabParameters.objects.filter(id = app_id)
-    print(collab_param.values('collab_id'))
     collab_id = collab_param.values('collab_id')[0]['collab_id']
     return collab_id
 
@@ -324,8 +325,6 @@ class ParametersConfigurationRest( APIView): #LoginRequiredMixin,
 class ScientificModelInstanceRest (APIView):
     def post(self, request, format=None):       
         serializer_context = {'request': request,}
-
-        print request.data
 
         #check if valid + security
         for instance in request.data :
@@ -926,11 +925,11 @@ class ValidationModelResultRest (APIView):
             result_serialized.append(r_serializer.data)  
             #change the label to generalize datablock_id
             version_object = ValidationTestCode.objects.get(id=version)
-            new_id.append({"id":"T"+str(version_object.test_definition_id) +"C"+str(version_object.id)})   
+            new_id.append({"id":str(version_object.test_definition.alias) +" ("+str(version_object.version)+")"})   
         #get list of all test_code to show in checkbox
         versions_id = results_all.values_list("test_code_id", flat=True).distinct() 
         versions_all = ValidationTestCode.objects.filter(id__in=versions_id).order_by('test_definition_id')
-        versions_all_ser = ValidationTestCodeSerializer(versions_all, many=True).data
+        versions_all_ser = ValidationTestCodeReadOnlySerializer(versions_all, many=True).data
         return Response({
             'data': result_serialized,
             'data_block_id':new_id,
@@ -972,11 +971,11 @@ class ValidationTestResultRest (APIView):
             result_serialized.append(r_serializer.data)  
             #change the label to generalize datablock_id
             version_object = ScientificModelInstance.objects.get(id=version)
-            new_id.append({"id":"M"+str(version_object.model_id)+"V"+str(version_object.id)})
+            new_id.append({"id":str(version_object.model.alias)+" ("+str(version_object.version)+")"})
         #get list of all model_versions to show in checkbox
         versions_id = results_all.values_list("model_version_id", flat=True).distinct() 
         versions_all = ScientificModelInstance.objects.filter(id__in=versions_id).order_by('model_id')
-        versions_all_ser =ScientificModelInstanceSerializer(versions_all, many=True).data
+        versions_all_ser =ScientificModelInstanceReadOnlySerializer(versions_all, many=True).data
         return Response({
             'data': result_serialized,
             'data_block_id': new_id,

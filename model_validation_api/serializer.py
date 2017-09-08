@@ -46,10 +46,11 @@ class ScientificModelSerializer(serializers.HyperlinkedModelSerializer):
         model = ScientificModel
         fields = ('id', 'name', 'description', 'species', 'brain_region', 'cell_type', 'author', 'model_type','private','app_id','alias')
 
-class ScientificModelNameSerializer(serializers.HyperlinkedModelSerializer):
+class ScientificModelReadOnlySerializer(serializers.HyperlinkedModelSerializer):
+    app = CollabParametersSerializer (read_only = True)
     class Meta:
         model = ScientificModel
-        fields = ('id', 'name')
+        fields = ('id', 'name', 'description', 'species', 'brain_region', 'cell_type', 'author', 'model_type','private','app','alias')
 
 
 class ScientificModelInstanceSerializer(serializers.HyperlinkedModelSerializer):
@@ -59,7 +60,7 @@ class ScientificModelInstanceSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class ScientificModelInstanceReadOnlySerializer(serializers.HyperlinkedModelSerializer):
-    model = ScientificModelNameSerializer(read_only=True)
+    model = ScientificModelReadOnlySerializer(read_only=True)
     
     
     class Meta:
@@ -100,9 +101,23 @@ class ValidationTestCodeSerializer(serializers.HyperlinkedModelSerializer):
         model = ValidationTestCode
         fields = ('id', 'repository', 'version', 'path', 'timestamp', 'test_definition_id')
 
+class ValidationTestDefinitionSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = ValidationTestDefinition
+        fields = ('id', 'name', 'alias', 'species', 'brain_region', 
+                    'cell_type', 'age', 'data_location', 
+                    'data_type', 'data_modality', 'test_type', 
+                    'protocol', 'author', 'publication', 'score_type')
+
+class ValidationTestCodeReadOnlySerializer(serializers.HyperlinkedModelSerializer):
+    test_definition = ValidationTestDefinitionSerializer (read_only = True)
+    class Meta:
+        model = ValidationTestCode
+        fields = ('id', 'repository', 'version', 'path', 'timestamp', 'test_definition')
+
 class ValidationTestResultReadOnlySerializer (serializers.HyperlinkedModelSerializer):
     model_version = ScientificModelInstanceReadOnlySerializer(read_only=True)
-    test_code = ValidationTestCodeSerializer(read_only=True)
+    test_code = ValidationTestCodeReadOnlySerializer(read_only=True)
     class Meta:
         model = ValidationTestResult
         fields = ('id',  'results_storage', 'score', 'passed', 'timestamp', 'platform',   'project', 'model_version', 'test_code', 'normalized_score')
@@ -116,15 +131,6 @@ class ValidationModelResultReadOnlySerializer (serializers.HyperlinkedModelSeria
         model = ValidationTestResult
         fields = ('id',  'results_storage', 'score', 'passed', 'timestamp', 'platform',   'project', 'model_version', 'test_code', 'normalized_score')
 
-
-
-class ValidationTestDefinitionSerializer(serializers.HyperlinkedModelSerializer):
-    class Meta:
-        model = ValidationTestDefinition
-        fields = ('id', 'name', 'alias', 'species', 'brain_region', 
-                    'cell_type', 'age', 'data_location', 
-                    'data_type', 'data_modality', 'test_type', 
-                    'protocol', 'author', 'publication', 'score_type')
 
  
 class ValidationTestDefinitionWithCodesReadSerializer(serializers.HyperlinkedModelSerializer):
