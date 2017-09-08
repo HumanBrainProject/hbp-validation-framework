@@ -189,7 +189,9 @@
 
 #checkbox {
     width: 80%;
+    min-height: 15%;
     height: 15%;
+    max-height: 15%;
     border: 1px solid #ddd;
     overflow: auto;
 }
