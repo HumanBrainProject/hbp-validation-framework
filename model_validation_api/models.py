@@ -42,7 +42,7 @@ class ValidationTestDefinition(models.Model):
     author = models.CharField(max_length=100, help_text="Author of this test")  # H
     publication = models.CharField(max_length=200, null=True, help_text="Publication in which the validation data set was reported")  # E
     score_type = models.CharField(help_text="Type of score: p-value, r square ..", max_length=20)
-    alias = models.CharField(max_length=200, unique=True, help_text="alias of the test")
+    alias = models.CharField(max_length=200, unique=True,  help_text="alias of the test") 
     # missing fields wrt Lungsi's spreadsheet
     # L - file format  - infer from file suffix?
     # N - registered with NIP?
@@ -99,7 +99,7 @@ class ScientificModel(models.Model):
     private = models.BooleanField ( default= False ,help_text="privacy of the model: can be private (if true) or public (if false)")
     app = models.ForeignKey(CollabParameters, related_name="collab_params")
     code_format = models.CharField(max_length=100 ,blank=True, help_text=".py, .c, etc...")
-    alias = models.CharField(max_length=200, help_text="alias of the model")
+    alias = models.CharField(max_length=200, unique=True,  help_text="alias of the model")
     # todo: 
     # spiking vs rate?
 
