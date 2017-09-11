@@ -9,6 +9,13 @@ ApiCommunicationServices.factory('ScientificModelRest', ['$resource',
         });
     }
 ]);
+ApiCommunicationServices.factory('ScientificModelAliasRest', ['$resource',
+    function($resource) {
+        return $resource('scientificmodelalias/:uuid', { id: '@eUuid' }, {
+            get: { method: 'GET', params: { format: 'json', app_id: 'app_id', web_app: 'True' }, isArray: false },
+        });
+    }
+]);
 
 ApiCommunicationServices.factory('ScientificModelInstanceRest', ['$resource',
     function($resource) {

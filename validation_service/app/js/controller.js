@@ -762,11 +762,10 @@ ModelCatalogApp.controller('ModelCatalogCtrl', [
 
 ]);
 
-ModelCatalogApp.controller('ModelCatalogCreateCtrl', ['$scope', '$rootScope', '$http', '$location', 'ScientificModelRest', 'CollabParameters', 'CollabIDRest', "Context",
+ModelCatalogApp.controller('ModelCatalogCreateCtrl', ['$scope', '$rootScope', '$http', '$location', 'ScientificModelRest', 'CollabParameters', 'CollabIDRest', "Context", "ScientificModelAliasRest",
 
-    function($scope, $rootScope, $http, $location, ScientificModelRest, CollabParameters, CollabIDRest, Context) {
+    function($scope, $rootScope, $http, $location, ScientificModelRest, CollabParameters, CollabIDRest, Context, ScientificModelAliasRest) {
         Context.setService().then(function() {
-
             $scope.Context = Context;
 
             var ctx = Context.getCtx();
@@ -775,6 +774,7 @@ ModelCatalogApp.controller('ModelCatalogCreateCtrl', ['$scope', '$rootScope', '$
 
             CollabParameters.setService(ctx).$promise.then(function() {
                 $scope.addImage = false;
+                // $scope.alias_not_valid = "";
                 $scope.species = CollabParameters.getParameters("species");
                 $scope.brain_region = CollabParameters.getParameters("brain_region");
                 $scope.cell_type = CollabParameters.getParameters("cell_type");
@@ -813,6 +813,12 @@ ModelCatalogApp.controller('ModelCatalogCreateCtrl', ['$scope', '$rootScope', '$
                 $scope.deleteImage = function(index) {
                     $scope.model_image.splice(index, 1);
                 };
+
+                $scope.checkAliasValidity = function() {
+                    var parameters = JSON.stringify({ alias: $scope.model.alias });
+                    $scope.alias_is_valid = ScientificModelAliasRest.get({ app_id: app_id, alias: $scope.model.alias });
+                };
+
             });
         });
     }

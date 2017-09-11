@@ -8,7 +8,8 @@
 
             <button class="button-MC" ng-click="Context.validation_goToHomeView();">Home</button>&ensp;
 
-            <h1 align=center> Model: {{ model.models[0].name}} (Alias:{{ model.models[0].alias }})</h1>
+            <h1 align=center> Model: {{ model.models[0].name}} (ID:{{ model.models[0].id }})</h1>
+            <h3 align=center ng-if="model.models[0].alias!=''">Alias: {{ model.models[0].alias}}</h3>
             <h3 align=center> Authors: {{ model.models[0].author }}</h3>
         </nav>
     </header>
@@ -78,7 +79,8 @@
                     <td style="width: 15%">
                         <div id="checkbox">
                             <div ng-repeat="test_code in init_checkbox" class=checkbox>
-                                <label> <input id="check-{{test_code.id}}" type="checkbox" value={{test_code.id}} > &ensp; {{test_code.test_definition.alias}}&ensp;({{test_code.version}})   </label>
+                                <label> <input id="check-{{test_code.id}}" type="checkbox" value={{test_code.id}} > &ensp; <alias ng-if="test_code.test_definition.alias!=''">{{test_code.test_definition.alias}}&ensp;({{test_code.version}})</alias>
+                                <alias ng-if="test_code.test_definition.alias==''">{{test_code.id}}</alias> </label>
                             </div>
                         </div>
                         <br>

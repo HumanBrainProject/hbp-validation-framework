@@ -456,27 +456,26 @@ class ScientificModelRest(APIView):
                 collab_id = get_collab_id_from_app_id(app_id)
 
                 collab_params = CollabParameters.objects.get(id = app_id )
-
                 all_ctx_from_collab = CollabParameters.objects.filter(collab_id = collab_id).distinct()
 
                 if is_authorised(request, collab_id) :
                     rq1 = ScientificModel.objects.filter(
                         private=1,
                         app__in=all_ctx_from_collab.values("id"), 
-                        species__in=collab_params.species.split(","), 
-                        brain_region__in=collab_params.brain_region.split(","), 
-                        cell_type__in=collab_params.cell_type.split(","), 
-                        model_type__in=collab_params.model_type.split(",")).prefetch_related()
+                        species__in=collab_params.species.split(",")+[u''], 
+                        brain_region__in=collab_params.brain_region.split(",")+[u''], 
+                        cell_type__in=collab_params.cell_type.split(",")+[u''], 
+                        model_type__in=collab_params.model_type.split(",")+[u'']).prefetch_related()
                 else :
                     rq1 = []
                     
     
                 rq2 = ScientificModel.objects.filter (
                     private=0, 
-                    species__in=collab_params.species.split(","), 
-                    brain_region__in=collab_params.brain_region.split(","), 
-                    cell_type__in=collab_params.cell_type.split(","), 
-                    model_type__in=collab_params.model_type.split(",")).prefetch_related()
+                    species__in=collab_params.species.split(",")+[u''], 
+                    brain_region__in=collab_params.brain_region.split(",")+[u''], 
+                    cell_type__in=collab_params.cell_type.split(",")+[u''], 
+                    model_type__in=collab_params.model_type.split(",")+[u'']).prefetch_related()
 
                 if len(rq1) >0:
                     models  = (rq1 | rq2).distinct()
@@ -618,7 +617,18 @@ class ScientificModelRest(APIView):
             return Response(model_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         return Response( status=status.HTTP_201_CREATED) 
 
-
+class ScientificModelAliasRest(APIView):
+    def get(self, request, format=None, **kwargs):
+        serializer_context = {
+            'request': request,
+        }
+        alias = request.GET.getlist('alias')
+        all_alias_in_model = ScientificModel.objects.filter().values_list('alias', flat=True)
+        if alias[0] in all_alias_in_model:
+            is_valid= False
+        else: 
+            is_valid = True
+        return Response({ 'is_valid':is_valid})
 
 class ValidationTestCodeRest(APIView):
 
@@ -680,11 +690,11 @@ class ValidationTestDefinitionRest(APIView):
 
             all_ctx_from_collab = CollabParameters.objects.filter(collab_id = collab_id).distinct()  
             tests= ValidationTestDefinition.objects.filter (
-                species__in=collab_params.species.split(","), 
-                brain_region__in=collab_params.brain_region.split(","), 
-                cell_type__in=collab_params.cell_type.split(","),
-                data_modality__in=collab_params.data_modalities.split(","),
-                test_type__in=collab_params.test_type.split(",")).prefetch_related().distinct()
+                species__in=collab_params.species.split(",")+[u''], 
+                brain_region__in=collab_params.brain_region.split(",")+[u''], 
+                cell_type__in=collab_params.cell_type.split(",")+[u''],
+                data_modality__in=collab_params.data_modalities.split(",")+[u''],
+                test_type__in=collab_params.test_type.split(",")+[u'']).prefetch_related().distinct()
         else:
             
             for key, value in self.request.GET.items():
@@ -925,7 +935,10 @@ class ValidationModelResultRest (APIView):
             result_serialized.append(r_serializer.data)  
             #change the label to generalize datablock_id
             version_object = ValidationTestCode.objects.get(id=version)
-            new_id.append({"id":str(version_object.test_definition.alias) +" ("+str(version_object.version)+")"})   
+            if(str(version_object.test_definition.alias) !=""):
+                new_id.append({"id":str(version_object.test_definition.alias) +" ("+str(version_object.version)+")"})
+            else:
+                new_id.append({"id":str(version_object.id)})   
         #get list of all test_code to show in checkbox
         versions_id = results_all.values_list("test_code_id", flat=True).distinct() 
         versions_all = ValidationTestCode.objects.filter(id__in=versions_id).order_by('test_definition_id')
@@ -971,7 +984,11 @@ class ValidationTestResultRest (APIView):
             result_serialized.append(r_serializer.data)  
             #change the label to generalize datablock_id
             version_object = ScientificModelInstance.objects.get(id=version)
-            new_id.append({"id":str(version_object.model.alias)+" ("+str(version_object.version)+")"})
+            if(str(version_object.model.alias) !=""):
+               new_id.append({"id":str(version_object.model.alias)+" ("+str(version_object.version)+")"})
+            else:
+                new_id.append({"id":str(version_object.id)})   
+            
         #get list of all model_versions to show in checkbox
         versions_id = results_all.values_list("model_version_id", flat=True).distinct() 
         versions_all = ScientificModelInstance.objects.filter(id__in=versions_id).order_by('model_id')
