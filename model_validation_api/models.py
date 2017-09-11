@@ -99,7 +99,7 @@ class ScientificModel(models.Model):
     private = models.BooleanField ( default= False ,help_text="privacy of the model: can be private (if true) or public (if false)")
     app = models.ForeignKey(CollabParameters, related_name="collab_params")
     code_format = models.CharField(max_length=100 ,blank=True, help_text=".py, .c, etc...")
-    alias = models.CharField(max_length=200, help_text="alias of the model")
+    alias = models.CharField(max_length=200, default="", help_text="alias of the model")
     # todo: 
     # spiking vs rate?
 

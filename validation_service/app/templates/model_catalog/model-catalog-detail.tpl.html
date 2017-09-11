@@ -2,7 +2,9 @@
 
 <head>
     <nav class="navbar ">
-        <h1 align=center> Model: {{ model.models[0].name}} (Alias: {{ model.models[0].alias}})</h1>
+        <h1 align=center> Model: {{ model.models[0].name}}(ID: {{model.models[0].id}})
+        </h1>
+        <h3 align=center ng-if="model.models[0].alias!=''">Alias: {{ model.models[0].alias}}</h3>
         <h3 align=center> Authors: {{ model.models[0].author }} </h3>
     </nav>
 </head>

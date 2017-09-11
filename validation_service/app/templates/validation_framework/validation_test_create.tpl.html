@@ -36,47 +36,50 @@
                                             <input type="text" ng-model="test.alias" required/>
                                             <a class="glyphicon glyphicon-question-sign" aria-hidden="true" data-toggle="tooltip" data-placement="right" title="Example: Test#1"></a>
                                         </td>
-                                    </tr>
-                                    <tr>
                                         <td>
-                                            <b>Author:</b>
-                                        </td>
-                                        <td>
-                                            <input type="text" ng-model="test.author" required/>
-                                            <a class="glyphicon glyphicon-question-sign" aria-hidden="true" data-toggle="tooltip" data-placement="right" title="Example: John Smith"></a>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <b>Version Name:</b>
-                                        </td>
-                                        <td>
-                                            <input type="text" ng-model="code.version" required/>
-                                            <a class="glyphicon glyphicon-question-sign" aria-hidden="true" data-toggle="tooltip" data-placement="right" title="Example: version 1.0"></a>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <b>Publication:</b>
-                                        </td>
-                                        <td>
-                                            <input type="text" ng-model="test.publication" required/>
-                                            <a class="glyphicon glyphicon-question-sign" aria-hidden="true" data-toggle="tooltip" data-placement="right" title="Example: paper example ..."></a>
-                                        </td>
-                                    </tr>
-                                    <tr>
+                                            <button id="btn-AliasIsValid" type="submit" class="btn btn-primary" ng-click='CheckAliasIsValid(comment.id)'>Save</button></td>
+                        </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <b>Author:</b>
+                            </td>
+                            <td>
+                                <input type="text" ng-model="test.author" required/>
+                                <a class="glyphicon glyphicon-question-sign" aria-hidden="true" data-toggle="tooltip" data-placement="right" title="Example: John Smith"></a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <b>Version Name:</b>
+                            </td>
+                            <td>
+                                <input type="text" ng-model="code.version" required/>
+                                <a class="glyphicon glyphicon-question-sign" aria-hidden="true" data-toggle="tooltip" data-placement="right" title="Example: version 1.0"></a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <b>Publication:</b>
+                            </td>
+                            <td>
+                                <input type="text" ng-model="test.publication" required/>
+                                <a class="glyphicon glyphicon-question-sign" aria-hidden="true" data-toggle="tooltip" data-placement="right" title="Example: paper example ..."></a>
+                            </td>
+                        </tr>
+                        <tr>
 
-                                        <td>
-                                            <b>Protocol description:</b>
-                                        </td>
-                                        <td>
-                                            <textarea class="scrollabletextbox" rows="10" cols="60" ng-model="test.protocol" required></textarea>
-                                            <a class="glyphicon glyphicon-question-sign" aria-hidden="true" data-toggle="tooltip" data-placement="right" title="Example: protocole description example ..."></a><br /> <br>
-                                        </td>
+                            <td>
+                                <b>Protocol description:</b>
+                            </td>
+                            <td>
+                                <textarea class="scrollabletextbox" rows="10" cols="60" ng-model="test.protocol" required></textarea>
+                                <a class="glyphicon glyphicon-question-sign" aria-hidden="true" data-toggle="tooltip" data-placement="right" title="Example: protocole description example ..."></a><br /> <br>
+                            </td>
 
-                                    </tr>
-                                </tbody>
-                            </table>
+                        </tr>
+                        </tbody>
+                        </table>
                         </td>
                         <td>
                             <table id="table-create">

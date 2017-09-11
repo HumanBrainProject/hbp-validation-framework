@@ -6,6 +6,7 @@ from .views import (
                     ParametersConfigurationRest,
                     AuthorizedCollabParameterRest,
                     ScientificModelRest,
+                    ScientificModelAliasRest,
                     ValidationTestDefinitionRest,
                     ScientificModelInstanceRest,
                     ScientificModelImageRest,
@@ -92,7 +93,9 @@ urlpatterns = (
     url(r'^scientificmodelimage/$',
         ScientificModelImageRest.as_view(),
         name="scientific-model-image"),
-    
+    url(r'^scientificmodelalias/$',
+        ScientificModelAliasRest.as_view(),
+        name="scientific-model-alias"),  
 
 ######## ParameterConfiguration ##########
    

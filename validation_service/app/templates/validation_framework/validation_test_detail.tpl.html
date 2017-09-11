@@ -12,7 +12,8 @@
     <header>
 
         <nav class="navbar ">
-            <h2 align=center> <b>Test: </b> {{ detail_test.tests[0].name}} (Alias:{{ detail_test.tests[0].alias }})</h2>
+            <h2 align=center> <b>Test: </b> {{ detail_test.tests[0].name}} (ID:{{ detail_test.tests[0].id }})</h2>
+            <h3 align=center ng-if="detail_test.tests[0].alias!=''">Alias: {{ detail_test.tests[0].alias}}</h3>
             <br>
 
             <ul class="nav nav-perso">
@@ -502,7 +503,8 @@
                         <td style="width: 15%">
                             <div id="checkbox">
                                 <div ng-repeat="model_instance in init_checkbox" class=checkbox>
-                                    <label> <input id="check-{{model_instance.id}}" type="checkbox" value={{test_code.id}} > &ensp; {{model_instance.model.alias}}({{model_instance.version}})   </label>
+                                    <label> <input id="check-{{model_instance.id}}" type="checkbox" value={{model_instance.id}} > &ensp;  <alias ng-if="model_instance.model.alias!=''">{{model_instance.model.alias}}&ensp;({{model_instance.model.version}})</alias>
+                                <alias ng-if="model_instance.model.alias==''">{{model_instance.id}}</alias> </label> </label>
                                 </div>
                             </div>
                             <br>
