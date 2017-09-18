@@ -548,7 +548,7 @@ class ScientificModelRest(APIView):
                     return HttpResponse('Unauthorized', status=401)
                     return HttpResponseForbidden()
             
-            model_serializer = ScientificModelFullReadOnlySerializer(models, context=serializer_context, many=True )
+            model_serializer = ScientificModelReadOnlySerializer(models, context=serializer_context, many=True )
 
             return Response({
                 'models': model_serializer.data,
