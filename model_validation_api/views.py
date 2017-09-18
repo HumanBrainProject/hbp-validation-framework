@@ -549,8 +549,7 @@ class ScientificModelRest(APIView):
                 'models': model_serializer.data,
             })
 
-    def post(self, request, format=None):
-
+    def post(self, request, format=None):   
         app_id = request.GET.getlist('app_id')[0]
         collab_id = get_collab_id_from_app_id(app_id)
 
