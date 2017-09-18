@@ -489,9 +489,12 @@ class ScientificModelRest(APIView):
                 model_type =request.GET.getlist('model_type')
                 private =request.GET.getlist('private')
                 code_format =request.GET.getlist('code_format')
+                alias =request.GET.getlist('alias')
 
                 q = ScientificModel.objects.all()
 
+                if len(alias) > 0 :
+                    q = q.filter(alias__in = alias)
                 if len(name) > 0 :
                     q = q.filter(name__in = name)
                 if len(description) > 0 :
@@ -510,6 +513,7 @@ class ScientificModelRest(APIView):
                     q = q.filter(code_format__in = code_format)    
                 if len(app_id) > 0 :
                     q = q.filter(app__in = app_id)
+                
                        
                 #For each models, check if collab member, if not then just return the publics....
                 list_app_id = q.values("app").distinct()
