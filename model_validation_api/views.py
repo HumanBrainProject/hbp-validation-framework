@@ -437,11 +437,11 @@ class ScientificModelRest(APIView):
         if(len(request.GET.getlist('id')) == 0):
 
             web_app = request.GET.getlist('web_app')    
-            app_id =request.GET.getlist('app_id')
+            
 
             #if the request comes from the webapp : uses collab_parameters
-            if len(web_app) > 0 and web_app[0] == 'True' :        
-                
+            if len(web_app) > 0 and web_app[0] == 'True' :  
+
                 app_id = request.GET.getlist('app_id')[0]
                 collab_id = get_collab_id_from_app_id(app_id)
 
@@ -479,7 +479,8 @@ class ScientificModelRest(APIView):
                 })
             
 
-            else :     
+            else :  
+                app_id =request.GET.getlist('app_id')   
                 name =request.GET.getlist('name')
                 description =request.GET.getlist('description')
                 species =request.GET.getlist('species')
