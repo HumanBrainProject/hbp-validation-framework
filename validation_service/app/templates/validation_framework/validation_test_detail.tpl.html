@@ -182,6 +182,10 @@
                                         <td>
                                             <input type="text" ng-model=" detail_test.tests[0].alias" required/>
                                             <a class="glyphicon glyphicon-question-sign" aria-hidden="true" data-toggle="tooltip" data-placement="right" title="Example: Test#1"></a>
+                                            <button type="button" ng-click=checkAliasValidity()> Check validity</button>
+                                            <br>
+                                            <span ng-show="alias_is_valid.is_valid==false" class="red-font">This alias already exists. Please choose another one. </span>
+                                            <span ng-show="alias_is_valid.is_valid==true" class="green-font">This alias is valid!</span>
                                         </td>
                                     </tr>
                                     <tr>
@@ -531,6 +535,7 @@
                         <thead>
                             <th align=center>Date/Time</th>
                             <th align=center>Results storage</th>
+                            <th align=center>Normalized score</th>
                             <th align=center>Score</th>
                             <th align=center>Passed</th>
 
@@ -543,6 +548,7 @@
                             <tr class=tr-clickable id="" ng-repeat="result in result_focussed" ng-click="Context.validation_goToResultDetailView(result.id)">
                                 <td>{{ result.timestamp }}</td>
                                 <td>{{ result.results_storage }}</td>
+                                <td>{{ result.normalized_score }}</td>
                                 <td>{{ result.score }}</td>
                                 <td>{{ result.passed }}</td>
                                 <td>{{ result.platform }}</td>

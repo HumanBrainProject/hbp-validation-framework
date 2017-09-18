@@ -106,6 +106,7 @@
 
                     <thead>
                         <th align=center>Results storage</th>
+                        <th align=center>Normalized Score</th>
                         <th align=center>Score</th>
                         <th align=center>Passed</th>
                         <th align=center>Time</th>
@@ -117,6 +118,7 @@
 
                         <tr class=tr-clickable id="" ng-repeat="result in line_result_focussed" ng-click="Context.validation_goToResultDetailView(result.id)">
                             <td>{{ result.results_storage }}</td>
+                            <td>{{ result.normalized_score }}</td>
                             <td>{{ result.score }}</td>
                             <td>{{ result.passed }}</td>
                             <td>{{ result.timestamp }}</td>
