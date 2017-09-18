@@ -774,6 +774,7 @@ ModelCatalogApp.controller('ModelCatalogCreateCtrl', ['$scope', '$rootScope', '$
 
             CollabParameters.setService(ctx).$promise.then(function() {
                 $scope.addImage = false;
+                $scope.alias_is_valid = "";
                 // $scope.alias_not_valid = "";
                 $scope.species = CollabParameters.getParameters("species");
                 $scope.brain_region = CollabParameters.getParameters("brain_region");
@@ -806,17 +807,14 @@ ModelCatalogApp.controller('ModelCatalogCreateCtrl', ['$scope', '$rootScope', '$
                     var parameters = JSON.stringify({ model: $scope.model, model_instance: [$scope.model_instance], model_image: $scope.model_image });
                     var a = ScientificModelRest.save({ app_id: app_id }, parameters).$promise.then(function(data) {
                         Context.modelCatalog_goToModelDetailView(data.uuid);
-                        // $location.path('/model-catalog/detail/' + data.uuid);
                     });
-
                 };
                 $scope.deleteImage = function(index) {
                     $scope.model_image.splice(index, 1);
                 };
 
                 $scope.checkAliasValidity = function() {
-                    var parameters = JSON.stringify({ alias: $scope.model.alias });
-                    $scope.alias_is_valid = ScientificModelAliasRest.get({ app_id: app_id, alias: $scope.model.alias });
+                    $scope.alias_is_valid = ScientificModelAliasRest.get({ app_id: app_id, model: $scope.model, alias: $scope.model.alias });
                 };
 
             });
@@ -864,8 +862,9 @@ ModelCatalogApp.controller('ModelCatalogDetailCtrl', ['$scope', '$rootScope', '$
     }
 ]);
 
-ModelCatalogApp.controller('ModelCatalogEditCtrl', ['$scope', '$rootScope', '$http', '$location', '$state', '$stateParams', 'ScientificModelRest', 'ScientificModelInstanceRest', 'ScientificModelImageRest', 'CollabParameters', 'Context',
-    function($scope, $rootScope, $http, $location, $state, $stateParams, ScientificModelRest, ScientificModelInstanceRest, ScientificModelImageRest, CollabParameters, Context) {
+ModelCatalogApp.controller('ModelCatalogEditCtrl', ['$scope', '$rootScope', '$http', '$location', '$state', '$stateParams', 'ScientificModelRest', 'ScientificModelInstanceRest', 'ScientificModelImageRest', 'CollabParameters', 'Context', 'ScientificModelAliasRest',
+
+    function($scope, $rootScope, $http, $location, $state, $stateParams, ScientificModelRest, ScientificModelInstanceRest, ScientificModelImageRest, CollabParameters, Context, ScientificModelAliasRest) {
         Context.setService().then(function() {
 
             $scope.Context = Context;
@@ -914,15 +913,32 @@ ModelCatalogApp.controller('ModelCatalogEditCtrl', ['$scope', '$rootScope', '$ht
                     });
                 };
                 $scope.saveModel = function() {
-                    var parameters = $scope.model;
-                    var a = ScientificModelRest.put({ app_id: app_id }, parameters).$promise.then(function(data) {
-                        alert('model correctly edited');
-                    });
+                    console.log("alias", $scope.model.models[0].alias)
+                    console.log("is valid", $scope.alias_is_valid)
+                    if ($scope.model.models[0].alias != '') {
+                        if ($scope.alias_is_valid.is_valid) {
+                            var parameters = $scope.model;
+                            var a = ScientificModelRest.put({ app_id: app_id }, parameters).$promise.then(function(data) {
+                                alert('model correctly edited');
+                            });
+                        } else {
+                            alert('Cannot update the model. Please check all information before submit.');
+                        }
+                    } else {
+                        var parameters = $scope.model;
+                        var a = ScientificModelRest.put({ app_id: app_id }, parameters).$promise.then(function(data) {
+                            alert('model correctly edited');
+                        });
+                    }
                 };
                 $scope.saveModelInstance = function() {
                     var parameters = $scope.model.models[0].instances;
                     var a = ScientificModelInstanceRest.put({ app_id: app_id }, parameters).$promise.then(function(data) { alert('model instances correctly edited') });
                 };
+                $scope.checkAliasValidity = function() {
+                    $scope.alias_is_valid = ScientificModelAliasRest.get({ app_id: app_id, model_id: $scope.model.models[0].id, alias: $scope.model.models[0].alias });
+                };
+
             });
         });
 
