@@ -333,7 +333,7 @@ class ScientificModelInstanceRest (APIView):
             if serializer.is_valid():   
 
                 #security
-                app_id = ScientificModel.objects.get(id=instance['model_id']).access_control_id
+                app_id = ScientificModel.objects.get(id=instance['model_id']).app_id
                 collab_id = get_collab_id_from_app_id(app_id)
                 if not is_authorised(request, collab_id):
                     return HttpResponseForbidden()
@@ -358,7 +358,7 @@ class ScientificModelInstanceRest (APIView):
             model_instance = ScientificModelInstance.objects.get(id=instance['id'])
 
             #security
-            app_id =ScientificModel.objects.get(id=model_instance.model_id).access_control_id
+            app_id =ScientificModel.objects.get(id=model_instance.model_id).app_id
             collab_id = get_collab_id_from_app_id(app_id)
             if not is_authorised(request, collab_id):
                 return HttpResponseForbidden()
@@ -601,7 +601,7 @@ class ScientificModelRest(APIView):
         model = ScientificModel.objects.get(id=value['id'])
 
         #security
-        app_id = model.access_control_id
+        app_id = model.app_id
         collab_id = get_collab_id_from_app_id(app_id)
         if not is_authorised(request, collab_id):
             return HttpResponseForbidden()
@@ -623,11 +623,20 @@ class ScientificModelAliasRest(APIView):
             'request': request,
         }
         alias = request.GET.getlist('alias')
+
         all_alias_in_model = ScientificModel.objects.filter().values_list('alias', flat=True)
         if alias[0] in all_alias_in_model:
             is_valid= False
         else: 
             is_valid = True
+
+        try:
+            model_id = request.GET.getlist('model_id')
+            old_alias = ScientificModel.objects.filter(id = model_id[0]).values_list('alias', flat=True)
+            if alias[0] == old_alias[0]:
+                is_valid = True
+        except: 
+            print('')
         return Response({ 'is_valid':is_valid})
 
 class ValidationTestCodeRest(APIView):
