@@ -436,20 +436,10 @@ class ScientificModelRest(APIView):
         #if model id not specified
         if(len(request.GET.getlist('id')) == 0):
 
-            web_app = request.GET.getlist('web_app')
-            name =request.GET.getlist('name')
-            description =request.GET.getlist('description')
-            species =request.GET.getlist('species')
-            brain_region =request.GET.getlist('brain_region')
-            cell_type =request.GET.getlist('cell_type')
-            author =request.GET.getlist('author')
-            model_type =request.GET.getlist('model_type')
-            private =request.GET.getlist('private')
-            code_format =request.GET.getlist('code_format')
-            app =request.GET.getlist('app')
+            web_app = request.GET.getlist('web_app')    
+            app_id =request.GET.getlist('app_id')
 
-
-            #if the request comes from the webapp using collab_parameters
+            #if the request comes from the webapp : uses collab_parameters
             if len(web_app) > 0 and web_app[0] == 'True' :        
                 
                 app_id = request.GET.getlist('app_id')[0]
@@ -489,7 +479,17 @@ class ScientificModelRest(APIView):
                 })
             
 
-            else :                 
+            else :     
+                name =request.GET.getlist('name')
+                description =request.GET.getlist('description')
+                species =request.GET.getlist('species')
+                brain_region =request.GET.getlist('brain_region')
+                cell_type =request.GET.getlist('cell_type')
+                author =request.GET.getlist('author')
+                model_type =request.GET.getlist('model_type')
+                private =request.GET.getlist('private')
+                code_format =request.GET.getlist('code_format')
+
                 q = ScientificModel.objects.all()
 
                 if len(name) > 0 :
@@ -508,8 +508,8 @@ class ScientificModelRest(APIView):
                     q = q.filter(model_type__in = model_type)
                 if len(code_format) > 0 :
                     q = q.filter(code_format__in = code_format)    
-                if len(app) > 0 :
-                    q = q.filter(app__in = app)
+                if len(app_id) > 0 :
+                    q = q.filter(app__in = app_id)
                        
                 #For each models, check if collab member, if not then just return the publics....
                 list_app_id = q.values("app").distinct()
