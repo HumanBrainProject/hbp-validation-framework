@@ -639,6 +639,28 @@ class ScientificModelAliasRest(APIView):
             print('')
         return Response({ 'is_valid':is_valid})
 
+class ValidationTestAliasRest(APIView):
+    def get(self, request, format=None, **kwargs):
+        serializer_context = {
+            'request': request,
+        }
+        alias = request.GET.getlist('alias')
+
+        all_alias_in_test = ValidationTestDefinition.objects.filter().values_list('alias', flat=True)
+        if alias[0] in all_alias_in_test:
+            is_valid= False
+        else: 
+            is_valid = True
+
+        try:
+            test_id = request.GET.getlist('test_id')
+            old_alias = ValidationTestDefinition.objects.filter(id = test_id[0]).values_list('alias', flat=True)
+            if alias[0] == old_alias[0]:
+                is_valid = True
+        except: 
+            print('')
+        return Response({ 'is_valid':is_valid})
+
 class ValidationTestCodeRest(APIView):
 
      def get(self, request, format=None, **kwargs):
