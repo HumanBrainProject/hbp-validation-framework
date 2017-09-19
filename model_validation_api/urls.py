@@ -6,7 +6,9 @@ from .views import (
                     ParametersConfigurationRest,
                     AuthorizedCollabParameterRest,
                     ScientificModelRest,
+                    ScientificModelAliasRest,
                     ValidationTestDefinitionRest,
+                    ValidationTestAliasRest,
                     ScientificModelInstanceRest,
                     ScientificModelImageRest,
                     ValidationTestCodeRest,
@@ -77,7 +79,9 @@ urlpatterns = (
     url(r'^testticket/$',
         TestTicketRest.as_view(),
         name="test-ticket"),
-
+    url(r'^validationtestalias/$',
+        ValidationTestAliasRest.as_view(),
+        name="scientific-test-alias"),
 
 ######## model catalog url ##########
     url(r'^model-catalog/$',
@@ -92,8 +96,10 @@ urlpatterns = (
     url(r'^scientificmodelimage/$',
         ScientificModelImageRest.as_view(),
         name="scientific-model-image"),
+    url(r'^scientificmodelalias/$',
+        ScientificModelAliasRest.as_view(),
+        name="scientific-model-alias"),  
     
-
 ######## ParameterConfiguration ##########
    
     url(r'^parametersconfigurationrest/$',

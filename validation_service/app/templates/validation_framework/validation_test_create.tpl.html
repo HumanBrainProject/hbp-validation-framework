@@ -33,8 +33,15 @@
                                             <b>Alias:</b>
                                         </td>
                                         <td>
-                                            <input type="text" ng-model="test.alias" required/>
+                                            <input type="text" ng-model="test.alias" />
                                             <a class="glyphicon glyphicon-question-sign" aria-hidden="true" data-toggle="tooltip" data-placement="right" title="Example: Test#1"></a>
+                                            <button type="button" ng-click=checkAliasValidity()> Check validity</button>
+                                            <br>
+                                            <span ng-show="alias_is_valid.is_valid==false" class="red-font">This alias already exists. Please choose another one. </span>
+                                            <span ng-show="alias_is_valid.is_valid==true" class="green-font">This alias is valid!</span>
+
+                                        </td>
+                                        <td>
                                         </td>
                                     </tr>
                                     <tr>

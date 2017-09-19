@@ -204,3 +204,11 @@
 .x-ng-cloak {
     display: none !important;
 }
+
+.green-font {
+    color: seagreen;
+}
+
+.red-font {
+    color: red;
+}
