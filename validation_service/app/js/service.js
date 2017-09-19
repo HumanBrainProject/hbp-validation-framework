@@ -623,3 +623,72 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'ValidationResultRest', 'Col
 
     }
 ]);
+
+
+var HelpServices = angular.module('HelpServices', ['ngResource', 'btorfs.multiselect', 'ApiCommunicationServices', 'ParametersConfigurationServices', 'ContextServices']);
+
+HelpServices.factory('Help', ['$rootScope', 'Context', 'AuthorizedCollabParameterRest',
+
+    function($rootScope, Context, AuthorizedCollabParameterRest) {
+        // var results_data = undefined;
+        var getAuthorizedValues = function(parameter) {
+            return new Promise(function(resolve, reject) {
+                var authorized_params = AuthorizedCollabParameterRest.get({ app_id: Context.getAppID() });
+                authorized_params.$promise.then(function() {
+                    console.log(authorized_params)
+                    if (parameter == 'species') {
+                        res = _get_values_only(authorized_params.species);
+                        resolve(res);
+                    } else if (parameter == 'brain_region') {
+                        res = _get_values_only(authorized_params.brain_region);
+                        resolve(res);
+                    } else if (parameter == 'cell_type') {
+                        res = _get_values_only(authorized_params.cell_type);
+                        resolve(res);
+                    } else if (parameter == 'test_type') {
+                        res = _get_values_only(authorized_params.test_type);
+                        resolve(res);
+                    } else if (parameter == 'model_type') {
+                        res = _get_values_only(authorized_params.model_type);
+                        resolve(res);
+                    } else if (parameter == 'score_type') {
+                        res = _get_values_only(authorized_params.score_type);
+                        resolve(res);
+                    } else if (parameter == 'data_modalities') {
+                        res = _get_values_only(authorized_params.data_modalities);
+                        resolve(res);
+                    } else if (parameter == 'all') {
+                        var j = 0;
+                        var res = {
+                            'species': _get_values_only(authorized_params.species),
+                            'brain_region': _get_values_only(authorized_params.brain_region),
+                            'cell_type': _get_values_only(authorized_params.cell_type),
+                            'test_type': _get_values_only(authorized_params.test_type),
+                            'model_type': _get_values_only(authorized_params.model_type),
+                            'score_type': _get_values_only(authorized_params.score_type),
+                            'data_modalities': _get_values_only(authorized_params.data_modalities),
+                        };
+                        resolve(res);
+                    } else {
+                        resolve(onerror(parameter + ' is not a valid parameter!'));
+                    }
+
+                });
+            });
+        }
+        var _get_values_only = function(list_values) {
+            values_only = []
+            var i = 0;
+            for (i; i < list_values.length; i++) {
+                values_only.push(list_values[i].authorized_value);
+            }
+
+            return values_only;
+        }
+
+        return {
+            getAuthorizedValues: getAuthorizedValues,
+        };
+
+    }
+]);

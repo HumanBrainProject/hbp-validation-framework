@@ -36,6 +36,7 @@
         <thead>
             <tr>
                 <th>Name</th>
+                <th>Alias</th>
                 <th>Species</th>
                 <th>Brain region</th>
                 <th>Cell type</th>
@@ -45,8 +46,9 @@
             </tr>
         </thead>
         <tbody>
-            <tr class="tr-clickable" ng-repeat="model in models.models | filter: search | filterMultiple:{species:selected_species, brain_region:selected_brain_region, cell_type:selected_cell_type, model_type:selected_model_type}  " ng-click="Context.modelCatalog_goToModelDetailView(model.id)">
+            <tr class="tr-clickable" ng-repeat="model in models.models |  filter:search | filterMultiple:{ species:selected_species, brain_region:selected_brain_region , cell_type:selected_cell_type, model_type:selected_model_type}" ng-click="Context.modelCatalog_goToModelDetailView(model.id)">
                 <td>{{ model.name }}</td>
+                <td>{{ model.alias }}</td>
                 <td>{{ model.species }}</td>
                 <td>{{ model.brain_region }}</td>
                 <td>{{ model.cell_type }}</td>
