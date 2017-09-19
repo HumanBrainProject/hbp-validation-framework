@@ -157,38 +157,38 @@ class ValidationTestDefinitionWithCodesReadSerializer(serializers.HyperlinkedMod
 class Param_DataModalitiesSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Param_DataModalities
-        fields = ('authorized_value') 
+        fields = ('id', 'authorized_value') 
 
 class Param_TestTypeSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Param_TestType
-        fields = ('authorized_value')
+        fields = ('id', 'authorized_value')
     
 
 class Param_SpeciesSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Param_Species
-        fields = ('authorized_value')
+        fields = ('id', 'authorized_value')
 
 class Param_BrainRegionSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Param_BrainRegion
-        fields = ('authorized_value')
+        fields = ('id', 'authorized_value')
 
 class Param_CellTypeSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Param_CellType
-        fields = ('authorized_value')
+        fields = ('id', 'authorized_value')
 
 class Param_ModelTypeSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Param_ModelType
-        fields = ('authorized_value')
+        fields = ('id', 'authorized_value')
 
 class Param_ScoreTypeSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Param_ScoreType
-        fields = ('authorized_value')
+        fields = ('id', 'authorized_value')
     
 
 
