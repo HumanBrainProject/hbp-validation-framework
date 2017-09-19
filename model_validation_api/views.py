@@ -63,6 +63,7 @@ from .serializer import (ValidationTestDefinitionSerializer,
                             ScientificModelFullReadOnlySerializer,
                             ScientificModelInstanceSerializer,
                             ScientificModelInstanceReadOnlySerializer,
+                            ScientificModelReadOnlyForHomeSerializer,
                             ScientificModelImageSerializer,
                             ValidationTestResultSerializer,
                             ValidationTestResultReadOnlySerializer,
@@ -83,6 +84,7 @@ from .serializer import (ValidationTestDefinitionSerializer,
                             Param_CellTypeSerializer,
                             Param_ModelTypeSerializer,
                             Param_ScoreTypeSerializer,
+
   
                             )
 
@@ -482,7 +484,7 @@ class ScientificModelRest(APIView):
                 else:
                     models = rq2
                 
-                model_serializer = ScientificModelFullReadOnlySerializer(models, context=serializer_context, many=True )
+                model_serializer = ScientificModelReadOnlyForHomeSerializer(models, context=serializer_context, many=True )
                 return Response({
                 'models': model_serializer.data,
                 })

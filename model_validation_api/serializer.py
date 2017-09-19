@@ -33,6 +33,10 @@ class CollabParametersSerializer(serializers.HyperlinkedModelSerializer):
         fields = ('id', 'data_modalities', 'test_type', 'species', 'brain_region', 
                     'cell_type', 'model_type', 'app_type','collab_id')
 
+class CollabParametersReadOnlyForHomeSerializer(serializers.HyperlinkedModelSerializer):
+     class Meta:
+        model = CollabParameters
+        fields = ('id','collab_id')
 
 class ValidationTestResultSerializer (serializers.HyperlinkedModelSerializer):
     class Meta:
@@ -51,6 +55,12 @@ class ScientificModelReadOnlySerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = ScientificModel
         fields = ('id', 'name', 'description', 'species', 'brain_region', 'cell_type', 'author', 'model_type','private','app','alias')
+
+class ScientificModelReadOnlyForHomeSerializer(serializers.HyperlinkedModelSerializer):
+    app = CollabParametersReadOnlyForHomeSerializer (read_only = True)
+    class Meta:
+        model = ScientificModel
+        fields = ('id', 'name', 'species', 'brain_region', 'cell_type', 'author', 'model_type','private','app','alias')
 
 
 class ScientificModelInstanceSerializer(serializers.HyperlinkedModelSerializer):
