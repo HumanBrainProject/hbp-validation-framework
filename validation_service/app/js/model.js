@@ -100,7 +100,7 @@ ApiCommunicationServices.factory('CollabParameterRest', ['$resource',
 ]);
 
 
-ApiCommunicationServices.factory('AuthaurizedCollabParameterRest', ['$resource',
+ApiCommunicationServices.factory('AuthorizedCollabParameterRest', ['$resource',
     function($resource) {
         return $resource('authorizedcollabparameterrest/', {}, {
             get: { method: 'GET', params: { format: 'json', app_id: 'app_id' }, isArray: false },

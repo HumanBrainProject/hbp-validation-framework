@@ -162,9 +162,9 @@ testApp.directive('markdown', function() {
 });
 
 
-testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$location', '$stateParams', '$state', 'ValidationTestDefinitionRest', 'ValidationTestCodeRest', 'CollabParameters', 'TestCommentRest', "IsCollabMemberRest", "Graphics", "Context", 'TestTicketRest', 'AuthaurizedCollabParameterRest', 'ValidationTestAliasRest',
+testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$location', '$stateParams', '$state', 'ValidationTestDefinitionRest', 'ValidationTestCodeRest', 'CollabParameters', 'TestCommentRest', "IsCollabMemberRest", "Graphics", "Context", 'TestTicketRest', 'AuthorizedCollabParameterRest', 'ValidationTestAliasRest',
 
-    function($scope, $rootScope, $http, $location, $stateParams, $state, ValidationTestDefinitionRest, ValidationTestCodeRest, CollabParameters, TestCommentRest, IsCollabMemberRest, Graphics, Context, TestTicketRest, AuthaurizedCollabParameterRest, ValidationTestAliasRest) {
+    function($scope, $rootScope, $http, $location, $stateParams, $state, ValidationTestDefinitionRest, ValidationTestCodeRest, CollabParameters, TestCommentRest, IsCollabMemberRest, Graphics, Context, TestTicketRest, AuthorizedCollabParameterRest, ValidationTestAliasRest) {
         Context.setService().then(function() {
             $scope.Context = Context;
             var ctx = Context.getCtx();
@@ -179,7 +179,7 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
 
                 $scope.detail_test = ValidationTestDefinitionRest.get({ app_id: app_id, id: $stateParams.uuid });
 
-                $scope.auhtorized_params = AuthaurizedCollabParameterRest.get();
+                $scope.auhtorized_params = AuthorizedCollabParameterRest.get();
                 $scope.species = CollabParameters.getParameters("species");
                 $scope.brain_region = CollabParameters.getParameters("brain_region");
                 $scope.cell_type = CollabParameters.getParameters("cell_type");
@@ -506,8 +506,8 @@ testApp.controller('TestResultCtrl', ['$scope', '$rootScope', '$http', '$locatio
 ]);
 
 
-testApp.controller('ValTestCreateCtrl', ['$scope', '$rootScope', '$http', '$location', 'ValidationTestDefinitionRest', 'ValidationTestCodeRest', 'CollabParameters', 'Context', 'AuthaurizedCollabParameterRest', 'ValidationTestAliasRest',
-    function($scope, $rootScope, $http, $location, ValidationTestDefinitionRest, ValidationTestCodeRest, CollabParameters, Context, AuthaurizedCollabParameterRest, ValidationTestAliasRest) {
+testApp.controller('ValTestCreateCtrl', ['$scope', '$rootScope', '$http', '$location', 'ValidationTestDefinitionRest', 'ValidationTestCodeRest', 'CollabParameters', 'Context', 'AuthorizedCollabParameterRest', 'ValidationTestAliasRest',
+    function($scope, $rootScope, $http, $location, ValidationTestDefinitionRest, ValidationTestCodeRest, CollabParameters, Context, AuthorizedCollabParameterRest, ValidationTestAliasRest) {
         Context.setService().then(function() {
 
             $scope.Context = Context;
@@ -518,7 +518,7 @@ testApp.controller('ValTestCreateCtrl', ['$scope', '$rootScope', '$http', '$loca
 
             CollabParameters.setService(ctx).$promise.then(function() {
                 $scope.alias_is_valid = "";
-                $scope.auhtorized_params = AuthaurizedCollabParameterRest.get();
+                $scope.auhtorized_params = AuthorizedCollabParameterRest.get();
                 $scope.species = CollabParameters.getParameters("species");
                 $scope.brain_region = CollabParameters.getParameters("brain_region");
                 $scope.cell_type = CollabParameters.getParameters("cell_type");
@@ -550,8 +550,8 @@ testApp.controller('ValTestCreateCtrl', ['$scope', '$rootScope', '$http', '$loca
 
 
 
-testApp.controller('ConfigCtrl', ['$scope', '$rootScope', '$http', '$location', 'CollabParameters', 'AuthaurizedCollabParameterRest', "Context",
-    function($scope, $rootScope, $http, $location, CollabParameters, AuthaurizedCollabParameterRest, Context) {
+testApp.controller('ConfigCtrl', ['$scope', '$rootScope', '$http', '$location', 'CollabParameters', 'AuthorizedCollabParameterRest', "Context",
+    function($scope, $rootScope, $http, $location, CollabParameters, AuthorizedCollabParameterRest, Context) {
         Context.setService().then(function() {
 
             $scope.Context = Context;
@@ -561,7 +561,7 @@ testApp.controller('ConfigCtrl', ['$scope', '$rootScope', '$http', '$location', 
 
             CollabParameters.setService(ctx).$promise.then(function() {
 
-                $scope.list_param = AuthaurizedCollabParameterRest.get({ app_id: app_id });
+                $scope.list_param = AuthorizedCollabParameterRest.get({ app_id: app_id });
 
                 $scope.make_post = function() {
 
@@ -737,57 +737,6 @@ ModelCatalogApp.filter('filterMultiple', ['$parse', '$filter', function($parse, 
     }
 }]);
 
-//Filter multiple
-ModelCatalogApp.filter('searchFilterMultiple', ['$parse', '$filter', function($parse, $filter) {
-    return function(items, keyObj) {
-        var x = false;
-        if (!angular.isArray(items)) {
-            return items;
-        }
-        var filterObj = {
-            data: items,
-            filteredData: [],
-            applyFilter: function(obj, key) {
-                var fData = [];
-                if (this.filteredData.length == 0 && x == false)
-                    this.filteredData = this.data;
-                if (obj) {
-                    var fObj = {};
-                    if (!angular.isArray(obj)) {
-                        fObj[key] = obj;
-                        fData = fData.concat($filter('filter')(this.filteredData, fObj));
-                    } else if (angular.isArray(obj)) {
-                        if (obj.length > 0) {
-                            for (var i = 0; i < obj.length; i++) {
-                                if (angular.isDefined(obj[i])) {
-                                    fObj[key] = obj[i];
-                                    fData = fData.concat($filter('filter')(this.filteredData, fObj));
-                                }
-                            }
-                        }
-                    }
-                    if (fData.length > 0) {
-                        this.filteredData = fData;
-                    }
-                    if (fData.length == 0) {
-                        if (obj != "" && obj != undefined) {
-                            this.filteredData = fData;
-                            x = true;
-                        }
-                    }
-
-                }
-            }
-        };
-        if (keyObj) {
-            angular.forEach(keyObj, function(obj, key) {
-                filterObj.applyFilter(obj, key);
-            });
-        }
-
-        return filterObj.filteredData;
-    }
-}]);
 //controllers
 ModelCatalogApp.controller('ModelCatalogCtrl', [
     '$scope',
@@ -798,8 +747,9 @@ ModelCatalogApp.controller('ModelCatalogCtrl', [
     'CollabParameters',
     'IsCollabMemberRest',
     'Context',
+    'Help',
 
-    function($scope, $rootScope, $http, $location, ScientificModelRest, CollabParameters, IsCollabMemberRest, Context) {
+    function($scope, $rootScope, $http, $location, ScientificModelRest, CollabParameters, IsCollabMemberRest, Context, Help) {
         Context.setService().then(function() {
 
             $scope.Context = Context;
@@ -827,6 +777,12 @@ ModelCatalogApp.controller('ModelCatalogCtrl', [
                         $scope.is_collab_member = $scope.is_collab_member.is_member;
                     });
 
+                    //just to test Help funtions
+
+                    // var help = Help.getAuthorizedValues('all');
+                    // help.then(function() {
+                    //     console.log(help)
+                    // })
                 });
             } else {
                 var model_id = Context.getState();
@@ -1059,8 +1015,8 @@ ModelCatalogApp.controller('ModelCatalogVersionCtrl', ['$scope', '$rootScope', '
 
 var ParametersConfigurationApp = angular.module('ParametersConfigurationApp');
 
-ParametersConfigurationApp.controller('ParametersConfigurationCtrl', ['$scope', '$rootScope', '$http', '$location', 'CollabParameters', 'AuthaurizedCollabParameterRest', 'CollabIDRest', 'Context',
-    function($scope, $rootScope, $http, $location, CollabParameters, AuthaurizedCollabParameterRest, CollabIDRest, Context) {
+ParametersConfigurationApp.controller('ParametersConfigurationCtrl', ['$scope', '$rootScope', '$http', '$location', 'CollabParameters', 'AuthorizedCollabParameterRest', 'CollabIDRest', 'Context',
+    function($scope, $rootScope, $http, $location, CollabParameters, AuthorizedCollabParameterRest, CollabIDRest, Context) {
         Context.setService().then(function() {
 
             $scope.Context = Context;
@@ -1070,7 +1026,7 @@ ParametersConfigurationApp.controller('ParametersConfigurationCtrl', ['$scope', 
             var app_type = document.getElementById("app").getAttribute("value");
             var collab = CollabIDRest.get({ ctx: ctx });
 
-            $scope.list_param = AuthaurizedCollabParameterRest.get({ ctx: ctx });
+            $scope.list_param = AuthorizedCollabParameterRest.get({ ctx: ctx });
 
             $scope.list_param.$promise.then(function() {
                 $scope.data_modalities = $scope.list_param.data_modalities;
@@ -1087,7 +1043,7 @@ ParametersConfigurationApp.controller('ParametersConfigurationCtrl', ['$scope', 
 
                 var app_type = document.getElementById("app").getAttribute("value");
                 var collab = CollabIDRest.get({ ctx: ctx });
-                $scope.list_param = AuthaurizedCollabParameterRest.get({ app_id: app_id });
+                $scope.list_param = AuthorizedCollabParameterRest.get({ app_id: app_id });
 
                 $scope.list_param.$promise.then(function() {
                     $scope.data_modalities = $scope.list_param.data_modalities;
@@ -1152,8 +1108,8 @@ ParametersConfigurationApp.controller('ParametersConfigurationCtrl', ['$scope', 
 ]);
 
 
-ParametersConfigurationApp.controller('ParametersConfigurationRedirectCtrl', ['$scope', '$rootScope', '$http', '$location', 'CollabParameters', 'AuthaurizedCollabParameterRest', 'Context',
-    function($scope, $rootScope, $http, $location, CollabParameters, AuthaurizedCollabParameterRest, Context) {
+ParametersConfigurationApp.controller('ParametersConfigurationRedirectCtrl', ['$scope', '$rootScope', '$http', '$location', 'CollabParameters', 'AuthorizedCollabParameterRest', 'Context',
+    function($scope, $rootScope, $http, $location, CollabParameters, AuthorizedCollabParameterRest, Context) {
         $scope.init = function() {
             var app_type = document.getElementById("app").getAttribute("value");
             if (app_type == "model_catalog") {

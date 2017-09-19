@@ -16,6 +16,7 @@ var testApp = angular.module('testApp', [
     'ngCookies',
     'nvd3',
     'ngTextTruncate',
+    'HelpServices',
 ]);
 
 testApp.config(
@@ -74,6 +75,7 @@ var ModelCatalogApp = angular.module('ModelCatalogApp', [
     'ApiCommunicationServices',
     'ParametersConfigurationServices',
     'ContextServices',
+    'HelpServices',
 ]);
 
 ModelCatalogApp.config(
