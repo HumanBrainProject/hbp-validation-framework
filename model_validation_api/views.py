@@ -187,8 +187,11 @@ class HomeValidationView(View):
 class AuthorizedCollabParameterRest(APIView):
 
     def get(self, request,  format=None, **kwargs):
- 
-
+        try:
+            python_client = request.GET.getlist('python_client')[0]
+        except: 
+            python_client = 'false'
+            
         serializer_context = {'request': request,}
 
         data_modalities = Param_DataModalities.objects.all()
@@ -211,6 +214,41 @@ class AuthorizedCollabParameterRest(APIView):
 
         score_type = Param_ScoreType.objects.all()
         score_type_serializer = Param_ScoreTypeSerializer(score_type, context=serializer_context, many=True)     
+        
+        ##for python client #'python_client=True' 'params= list()'
+        print(python_client)
+        if python_client == 'true':
+            params_asked = request.GET.getlist('parameters')
+            if(params_asked[0]=='all'):
+                res = {
+                    'data_modalities': data_modalities.values_list('authorized_value', flat=True),
+                    'test_type' : test_type.values_list('authorized_value', flat=True),
+                    'species' : species.values_list('authorized_value', flat=True),
+                    'brain_region' : brain_region.values_list('authorized_value', flat=True),
+                    'cell_type' : cell_type.values_list('authorized_value', flat=True),
+                    'model_type' : model_type.values_list('authorized_value', flat=True),
+                    'score_type': score_type.values_list('authorized_value', flat=True),
+                } 
+                return Response(res)
+            else: 
+                res = {}
+                for param in params_asked:
+                    if (param == 'species'):
+                        res['species']= species.values_list('authorized_value', flat=True)
+                    if (param == 'data_modalities'):
+                        res['data_modalities'] = data_modalities.values_list('authorized_value', flat=True)
+                    if (param == 'test_type'):
+                        res['test_type'] = test_type.values_list('authorized_value', flat=True)
+                    if (param == 'brain_region'):
+                        res['brain_region'] = brain_region.values_list('authorized_value', flat=True) 
+                    if (param == 'cell_type'):
+                        res['cell_type'] = cell_type.values_list('authorized_value', flat=True)
+                    if (param == 'model_type'):
+                        res['model_type'] = model_type.values_list('authorized_value', flat=True)
+                    if (param == 'score_type'):
+                        res['score_type'] = score_type.values_list('authorized_value', flat=True)   
+                return Response(res)   
+
 
         return Response({
             'data_modalities': data_modalities_serializer.data,
