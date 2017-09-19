@@ -76,6 +76,7 @@ var ModelCatalogApp = angular.module('ModelCatalogApp', [
     'ParametersConfigurationServices',
     'ContextServices',
     'HelpServices',
+    'ngTextTruncate',
 ]);
 
 ModelCatalogApp.config(
