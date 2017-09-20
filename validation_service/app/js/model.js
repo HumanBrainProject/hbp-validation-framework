@@ -176,3 +176,11 @@ ApiCommunicationServices.factory('AppIDRest', ['$resource',
         });
     }
 ]);
+
+ApiCommunicationServices.factory('NotificationRest', ['$resource',
+    function($resource) {
+        return $resource('notificationrest/', {}, {
+            post: { method: 'POST', params: { format: 'json', ctx: 'ctx' }, isArray: false },
+        });
+    }
+]);

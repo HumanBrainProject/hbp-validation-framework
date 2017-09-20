@@ -215,8 +215,7 @@ class AuthorizedCollabParameterRest(APIView):
         score_type = Param_ScoreType.objects.all()
         score_type_serializer = Param_ScoreTypeSerializer(score_type, context=serializer_context, many=True)     
         
-        ##for python client #'python_client=True' 'params= list()'
-        print(python_client)
+        ##for python client #'python_client=True' 'parameters= list()'
         if python_client == 'true':
             params_asked = request.GET.getlist('parameters')
             if(params_asked[0]=='all'):
@@ -616,7 +615,6 @@ class ScientificModelRest(APIView):
     def post(self, request, format=None):   
         app_id = request.GET.getlist('app_id')[0]
         collab_id = get_collab_id_from_app_id(app_id)
-
         if not is_authorised(request, collab_id):
             return HttpResponseForbidden()
 
@@ -893,7 +891,25 @@ class TestTicketRest(APIView):
             return Response(param_serializer.data)
         return Response(param_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
+class NotificationRest(APIView): 
+    def post(self, request, format=None, **kwargs):
+        # social_auth = request.user.social_auth.get()
+        # headers = {
+        #     'Authorization': get_auth_header(request.user.social_auth.get())
+        # }
+        # ctx = request.GET.getlist('ctx')[0]
+      
+        # # url = 'https://stream.humanbrainproject.eu/api/v0/notifications'
+        # url = 'https://stream.humanbrainproject.eu/api/v0/'
+        # Indata = {'summary': 'test notif 1',
+        #     'targets': [{"type": "HBPUser","id": "303271"}],
+        #     'object': {"type": "HBPCollaboratoryContext","id": ctx}
+        #     }
+        # print('requesting...')
+        # res = requests.post(url, headers=headers, data=json.dumps(Indata))
+        # #res = requests.post(url, headers=headers)
+        # print(res.content)
+        return res
 
 class TestCommentRest(APIView):
     def get(self, request, format=None, **kwargs):
