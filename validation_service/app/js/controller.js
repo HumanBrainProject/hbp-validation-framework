@@ -844,13 +844,6 @@ ModelCatalogApp.controller('ModelCatalogCreateCtrl', ['$scope', '$rootScope', '$
                 };
 
                 $scope.saveModel = function() {
-                    console.log('model alias', $scope.model.alias)
-
-                    console.log('model alias', $scope.model.alias)
-
-                    console.log('model alias', $scope.model.alias)
-
-                    console.log('model alias', $scope.model.alias)
                     if ($scope.model.alias != '' && $scope.model.alias != undefined) {
                         if ($scope.alias_is_valid.is_valid) {
                             _add_access_control();
@@ -859,7 +852,7 @@ ModelCatalogApp.controller('ModelCatalogCreateCtrl', ['$scope', '$rootScope', '$
                                 Context.modelCatalog_goToModelDetailView(data.uuid);
                             });
                         } else {
-                            alert('Cannot update the test. Please check all information before submit.');
+                            alert('Cannot update the test. Please check your Alias.');
                         };
                     } else {
                         $scope.model.alias = null;
@@ -983,7 +976,7 @@ ModelCatalogApp.controller('ModelCatalogEditCtrl', ['$scope', '$rootScope', '$ht
                                 alert('model correctly edited');
                             });
                         } else {
-                            alert('Cannot update the model. Please check all information before submit.');
+                            alert('Cannot update the model. Please check all your Alias.');
                         }
                     } else {
                         var parameters = $scope.model;
