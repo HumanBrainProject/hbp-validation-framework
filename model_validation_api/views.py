@@ -425,19 +425,28 @@ class ScientificModelImageRest (APIView):
     def post(self, request, format=None):
         serializer_context = {'request': request,}
 
-        #security
-        app_id = ScientificModel.objects.get(id=request.data['model_id']).app_id
-        collab_id = get_collab_id_from_app_id(app_id)
-        if not is_authorised(request, collab_id):
-            return HttpResponseForbidden()
+        #check if valid + security
+        for image in request.data :
+            serializer = ScientificModelImageSerializer(data=image, context=serializer_context)
+            if serializer.is_valid():   
+                #security
+                app_id = ScientificModel.objects.get(id=image['model_id']).app_id
+                collab_id = get_collab_id_from_app_id(app_id)
+                if not is_authorised(request, collab_id):
+                    return HttpResponseForbidden()
+            else :
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        serializer = ScientificModelImageSerializer(data=request.data['model_image'], context=serializer_context)
-        if serializer.is_valid():        
-            serializer.save(model_id=request.data['model_id'])
-            return Response(status=status.HTTP_201_CREATED) 
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        for image in request.data :
+            serializer = ScientificModelImageSerializer(data=image, context=serializer_context)
 
-    
+            if serializer.is_valid(): 
+                serializer.save(model_id=image['model_id'])
+
+        return Response(status=status.HTTP_201_CREATED)
+
+
+
     def put(self, request, format=None):
 
 
@@ -459,6 +468,7 @@ class ScientificModelImageRest (APIView):
             else: 
                 return Response(model_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         return Response( status=status.HTTP_202_ACCEPTED) 
+        
 
     def delete(self, request, format=None):
         
