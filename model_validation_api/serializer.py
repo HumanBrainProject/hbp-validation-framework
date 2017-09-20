@@ -48,7 +48,7 @@ class ValidationTestResultSerializer (serializers.HyperlinkedModelSerializer):
 class ScientificModelSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = ScientificModel
-        fields = ('id', 'name', 'description', 'species', 'brain_region', 'cell_type', 'author', 'model_type','private','app_id','alias')
+        fields = ('id', 'name','alias', 'author','app_id','private', 'cell_type', 'model_type', 'brain_region', 'species', 'description')
 
 class ScientificModelReadOnlySerializer(serializers.HyperlinkedModelSerializer):
     app = CollabParametersSerializer (read_only = True)
@@ -71,8 +71,6 @@ class ScientificModelInstanceSerializer(serializers.HyperlinkedModelSerializer):
 
 class ScientificModelInstanceReadOnlySerializer(serializers.HyperlinkedModelSerializer):
     model = ScientificModelReadOnlySerializer(read_only=True)
-    
-    
     class Meta:
         model = ScientificModelInstance
         fields = ('id', 'version', 'parameters', 'source', 'model')
@@ -86,15 +84,23 @@ class ScientificModelImageSerializer(serializers.HyperlinkedModelSerializer):
         fields = ('id', 'url', 'caption','model_id')
 
 
+class ScientificModelInstanceForModelReadOnlySerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = ScientificModelInstance
+        fields = ('id', 'version', 'parameters', 'source')
 
+class ScientificModelImageForModelReadOnlySerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = ScientificModelImage
+        fields = ('id', 'url', 'caption')
 
 class ScientificModelReadOnlySerializer(serializers.HyperlinkedModelSerializer):
-    instances = ScientificModelInstanceSerializer (read_only=True, many=True )
-    images = ScientificModelImageSerializer (read_only=True , many=True )
+    instances = ScientificModelInstanceForModelReadOnlySerializer (read_only=True, many=True )
+    images = ScientificModelImageForModelReadOnlySerializer (read_only=True , many=True )
 
     class Meta:
         model = ScientificModel
-        fields = ('id', 'name', 'description', 'species', 'brain_region', 'cell_type', 'author', 'model_type','private', 'app_id', 'instances', 'images', 'alias')
+        fields = ('id', 'name', 'alias', 'author', 'app_id','private', 'cell_type', 'model_type', 'brain_region', 'species','description', 'instances', 'images')
 
 
 class ScientificModelFullReadOnlySerializer(serializers.HyperlinkedModelSerializer):
@@ -103,7 +109,7 @@ class ScientificModelFullReadOnlySerializer(serializers.HyperlinkedModelSerializ
     images = ScientificModelImageSerializer (read_only=True , many=True )
     class Meta:
         model = ScientificModel
-        fields = ('id', 'name', 'description', 'species', 'brain_region', 'cell_type', 'author', 'model_type','private','app','instances', 'images', 'alias')
+        fields = ('id', 'name', 'alias', 'author', 'app','private', 'cell_type', 'model_type', 'brain_region', 'species','description', 'instances', 'images')
 
 
 class ValidationTestCodeSerializer(serializers.HyperlinkedModelSerializer):
