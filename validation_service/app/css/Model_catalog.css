@@ -119,17 +119,23 @@
     
     #images {
         white-space: nowrap;
+        min-width: 0px;
         width: 500px;
-        min-width: 500px;
         max-width: 500px;
         overflow: hidden;
         text-overflow: ellipsis;
     }
     
+    .image {
+        min-width: 0px;
+        width: 100%;
+        max-width: 304px;
+    }
+    
     #figcaption {
         word-break: break-all;
         width: 500px;
-        min-width: 500px;
+        min-width: 0px;
         max-width: 500px;
     }
     
