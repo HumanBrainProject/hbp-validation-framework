@@ -955,7 +955,9 @@ ModelCatalogApp.controller('ModelCatalogEditCtrl', ['$scope', '$rootScope', '$ht
                 };
                 $scope.saveImage = function() {
                     if (JSON.stringify($scope.image) != undefined) {
-                        var parameters = JSON.stringify({ model_id: $stateParams.uuid, model_image: $scope.image });
+                        $scope.image.model_id = $stateParams.uuid;
+
+                        var parameters = JSON.stringify([$scope.image]);
                         ScientificModelImageRest.post({ app_id: app_id }, parameters).$promise.then(function(data) {
                             $scope.addImage = false;
                             alert('Image has been saved !');
