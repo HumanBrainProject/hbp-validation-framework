@@ -527,9 +527,9 @@ class ScientificModelRest(APIView):
                     model_type__in=collab_params.model_type.split(",")+[u'']).prefetch_related()
 
                 if len(rq1) >0:
-                    models  = (rq1 | rq2).distinct()
+                    models  = (rq1 | rq2).distinct().order_by('-creation_date')
                 else:
-                    models = rq2
+                    models = rq2.distinct().order_by('-creation_date')
                 
                 model_serializer = ScientificModelReadOnlyForHomeSerializer(models, context=serializer_context, many=True )
                 return Response({
@@ -895,19 +895,19 @@ class NotificationRest(APIView):
     def post(self, request, format=None, **kwargs):
         # social_auth = request.user.social_auth.get()
         # headers = {
-        #     'Authorization': get_auth_header(request.user.social_auth.get())
+        #     'Authorization': get_auth_header(request.user.social_auth.get()),
+        #     'Accept':'application/json',
+        #     'Content-Type':"application/json",
         # }
         # ctx = request.GET.getlist('ctx')[0]
-      
-        # # url = 'https://stream.humanbrainproject.eu/api/v0/notifications'
-        # url = 'https://stream.humanbrainproject.eu/api/v0/'
-        # Indata = {'summary': 'test notif 1',
-        #     'targets': [{"type": "HBPUser","id": "303271"}],
-        #     'object': {"type": "HBPCollaboratoryContext","id": ctx}
-        #     }
+        # url = 'https://services.humanbrainproject.eu/stream/v0/api/notification/'
+        # # Indata = {'summary': 'test notif 1',
+        # #     'targets': [{"type": "HBPUser","id": "303271"}],
+        # #     'object': {"type": "HBPCollaboratoryContext","id": ctx}
+        # #     }
+        # ##to send to a group
         # print('requesting...')
         # res = requests.post(url, headers=headers, data=json.dumps(Indata))
-        # #res = requests.post(url, headers=headers)
         # print(res.content)
         return res
 
