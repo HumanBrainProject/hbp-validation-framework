@@ -993,7 +993,7 @@ ModelCatalogApp.controller('ModelCatalogEditCtrl', ['$scope', '$rootScope', '$ht
                                     alert('Model correctly edited');
                                 });
                             } else {
-                                alert('Cannot update the model. Please check all your Alias.');
+                                alert('Cannot update the model. Please check your Alias.');
                             }
                         });
                     } else {
