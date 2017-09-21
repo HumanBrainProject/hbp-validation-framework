@@ -305,20 +305,23 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
                 };
 
                 $scope.editTest = function() {
-                    if ($scope.detail_test.tests[0].alias != '') {
-                        if ($scope.alias_is_valid.is_valid) {
-                            var parameters = JSON.stringify($scope.detail_test.tests[0]);
-                            ValidationTestDefinitionRest.put({ app_id: app_id, id: $scope.detail_test.tests[0].id }, parameters).$promise.then(function() {
-                                document.getElementById("tab_description").style.display = "none";
-                                document.getElementById("tab_version").style.display = "block";
-                                document.getElementById("tab_new_version").style.display = "none";
-                                document.getElementById("tab_results").style.display = "none";
-                                document.getElementById("tab_comments").style.display = "none";
-                                $state.reload();
-                            });
-                        } else {
-                            alert('Cannot update the test. Please check all information before submit.');
-                        }
+                    if ($scope.detail_test.tests[0].alias != '' && $scope.detail_test.tests[0].alias != null) {
+                        $scope.alias_is_valid = ValidationTestAliasRest.get({ app_id: app_id, test_id: $scope.detail_test.tests[0].id, alias: $scope.detail_test.tests[0].alias });
+                        $scope.alias_is_valid.$promise.then(function() {
+                            if ($scope.alias_is_valid.is_valid) {
+                                var parameters = JSON.stringify($scope.detail_test.tests[0]);
+                                ValidationTestDefinitionRest.put({ app_id: app_id, id: $scope.detail_test.tests[0].id }, parameters).$promise.then(function() {
+                                    document.getElementById("tab_description").style.display = "none";
+                                    document.getElementById("tab_version").style.display = "block";
+                                    document.getElementById("tab_new_version").style.display = "none";
+                                    document.getElementById("tab_results").style.display = "none";
+                                    document.getElementById("tab_comments").style.display = "none";
+                                    $state.reload();
+                                });
+                            } else {
+                                alert('Cannot update the test. Please check your Alias.');
+                            };
+                        });
                     } else {
                         var parameters = JSON.stringify($scope.detail_test.tests[0]);
                         ValidationTestDefinitionRest.put({ app_id: app_id, id: $scope.detail_test.tests[0].id }, parameters).$promise.then(function() {
@@ -863,7 +866,7 @@ ModelCatalogApp.controller('ModelCatalogCreateCtrl', ['$scope', '$rootScope', '$
                                     Context.modelCatalog_goToModelDetailView(data.uuid);
                                 });
                             } else {
-                                alert('Cannot update the test. Please check all information before submit.');
+                                alert('Cannot create the model. Please check your Alias.');
                             };
                         });
                     } else {
@@ -981,19 +984,22 @@ ModelCatalogApp.controller('ModelCatalogEditCtrl', ['$scope', '$rootScope', '$ht
                     });
                 };
                 $scope.saveModel = function() {
-                    if ($scope.model.models[0].alias != '') {
-                        if ($scope.alias_is_valid.is_valid) {
-                            var parameters = $scope.model;
-                            var a = ScientificModelRest.put({ app_id: app_id }, parameters).$promise.then(function(data) {
-                                alert('model correctly edited');
-                            });
-                        } else {
-                            alert('Cannot update the model. Please check all information before submit.');
-                        }
+                    if ($scope.model.models[0].alias != '' && $scope.model.models[0].alias != null) {
+                        $scope.alias_is_valid = ScientificModelAliasRest.get({ app_id: app_id, model_id: $scope.model.models[0].id, alias: $scope.model.models[0].alias });
+                        $scope.alias_is_valid.$promise.then(function() {
+                            if ($scope.alias_is_valid.is_valid) {
+                                var parameters = $scope.model;
+                                var a = ScientificModelRest.put({ app_id: app_id }, parameters).$promise.then(function(data) {
+                                    alert('Model correctly edited');
+                                });
+                            } else {
+                                alert('Cannot update the model. Please check all your Alias.');
+                            }
+                        });
                     } else {
                         var parameters = $scope.model;
                         var a = ScientificModelRest.put({ app_id: app_id }, parameters).$promise.then(function(data) {
-                            alert('model correctly edited');
+                            alert('Model correctly edited');
                         });
                     }
                 };
