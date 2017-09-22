@@ -546,7 +546,7 @@ testApp.controller('ValTestCreateCtrl', ['$scope', '$rootScope', '$http', '$loca
                                     Context.validation_goToTestDetailView(data.id);
                                 });
                             } else {
-                                alert('Cannot update the test. Please check all information before submit.');
+                                alert('Cannot update the test. Please check your alias.');
                             };
                         });
                     } else {
