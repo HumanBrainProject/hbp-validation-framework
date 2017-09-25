@@ -1,5 +1,5 @@
 image: cnrsunic/hbp_validation_service
-# dockerfile: validation_service/Dockerfile
+
 dockerfile: Dockerfile
 
 ports:

@@ -7,8 +7,20 @@
 # To run the application:
 #   docker run -d -p 443 hbp_validation_service
 
+#473
+FROM debian:jessie-slim 
+#605
+# FROM bitnami/minideb:stretch 
+#533
+# FROM monsantoco/min-jessie:latest
+#459
+#FROM philcryer/min-wheezy:latest
+#531
+#FROM cgswong/min-jessie:latest
+#530
+#FROM philcryer/min-jessie:latest
 
-FROM debian:jessie-slim
+
 MAINTAINER Andrew Davison <andrew.davison@unic.cnrs-gif.fr>
 
 ENV DEBIAN_FRONTEND noninteractive
