@@ -10,14 +10,15 @@ from .models import (ValidationTestDefinition,
                     Comments,
                     Tickets,
                     CollabParameters,
-
+                    # FollowModel,
                     Param_DataModalities,
                     Param_TestType,
                     Param_Species,
                     Param_BrainRegion,
                     Param_CellType,
                     Param_ModelType,
-                    Param_ScoreType
+                    Param_ScoreType,
+                    Param_organizations
                     )
 
 from rest_framework import serializers
@@ -48,19 +49,19 @@ class ValidationTestResultSerializer (serializers.HyperlinkedModelSerializer):
 class ScientificModelSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = ScientificModel
-        fields = ('id', 'name','alias', 'author','app_id','private', 'cell_type', 'model_type', 'brain_region', 'species', 'description')
+        fields = ('id', 'name','alias', 'author','app_id','organization','private', 'cell_type', 'model_type', 'brain_region', 'species', 'description')
 
 class ScientificModelReadOnlySerializer(serializers.HyperlinkedModelSerializer):
     app = CollabParametersSerializer (read_only = True)
     class Meta:
         model = ScientificModel
-        fields = ('id', 'name', 'description', 'species', 'brain_region', 'cell_type', 'author', 'model_type','private','app','alias')
+        fields = ('id', 'name', 'description', 'species', 'brain_region', 'cell_type', 'author', 'model_type','private','organization','app','alias')
 
 class ScientificModelReadOnlyForHomeSerializer(serializers.HyperlinkedModelSerializer):
     app = CollabParametersReadOnlyForHomeSerializer (read_only = True)
     class Meta:
         model = ScientificModel
-        fields = ('id', 'name', 'species', 'brain_region', 'cell_type', 'author', 'model_type','private','app','alias')
+        fields = ('id', 'name', 'species', 'brain_region', 'cell_type', 'author', 'model_type','private','organization','app','alias')
 
 
 class ScientificModelInstanceSerializer(serializers.HyperlinkedModelSerializer):
@@ -100,7 +101,7 @@ class ScientificModelReadOnlySerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = ScientificModel
-        fields = ('id', 'name', 'alias', 'author', 'app_id','private', 'cell_type', 'model_type', 'brain_region', 'species','description', 'instances', 'images')
+        fields = ('id', 'name', 'alias', 'author', 'app_id','organization','private', 'cell_type', 'model_type', 'brain_region', 'species','description', 'instances', 'images')
 
 
 class ScientificModelFullReadOnlySerializer(serializers.HyperlinkedModelSerializer):
@@ -109,7 +110,7 @@ class ScientificModelFullReadOnlySerializer(serializers.HyperlinkedModelSerializ
     images = ScientificModelImageSerializer (read_only=True , many=True )
     class Meta:
         model = ScientificModel
-        fields = ('id', 'name', 'alias', 'author', 'app','private', 'cell_type', 'model_type', 'brain_region', 'species','description', 'instances', 'images')
+        fields = ('id', 'name', 'alias', 'author', 'app','organization','private', 'cell_type', 'model_type', 'brain_region', 'species','description', 'instances', 'images')
 
 
 class ValidationTestCodeSerializer(serializers.HyperlinkedModelSerializer):
@@ -196,8 +197,11 @@ class Param_ScoreTypeSerializer(serializers.HyperlinkedModelSerializer):
         model = Param_ScoreType
         fields = ('id', 'authorized_value')
     
-
-
+class Param_OrganizationsSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = Param_organizations
+        fields = ('id', 'authorized_value')
+    
 
 
 # class CollabParametersSerializer(serializers.HyperlinkedModelSerializer):
@@ -247,20 +251,23 @@ class Param_ScoreTypeSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class CommentSerializer(serializers.HyperlinkedModelSerializer):
-    # test = ValidationTestCodeSerializer(many=True , read_only=True)
     class Meta:
         model = Comments
         fields = ( 'id', 'author', 'text', 'creation_date', 'Ticket_id')
 
 class TicketReadOnlySerializer(serializers.HyperlinkedModelSerializer):
-    # test = ValidationTestCodeSerializer(many=True , read_only=True)
     comments = CommentSerializer (many=True, read_only=True)
     class Meta:
         model = Tickets
         fields = ( 'id', 'author', 'title', 'text', 'creation_date', 'test_id', 'comments')
 
 class TicketSerializer(serializers.HyperlinkedModelSerializer):
-    # test = ValidationTestCodeSerializer(many=True , read_only=True)
     class Meta:
         model = Tickets
         fields = ( 'id', 'author', 'title', 'text', 'creation_date', 'test_id')
+
+
+# class FollowModelSerializer(serializers.HyperlinkedModelSerializer):
+#     class Meta:
+#         model = FollowModel
+#         fields = ( 'id', 'model_id', 'user_id')

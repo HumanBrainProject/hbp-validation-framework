@@ -5,7 +5,8 @@ from ...models import (
                     Param_TestType, 
                     Param_BrainRegion, 
                     Param_CellType, 
-                    Param_ModelType, 
+                    Param_ModelType,
+                    Param_organizations, 
                     CollabParameters,
 		    Param_ScoreType,
 
@@ -15,6 +16,7 @@ from ...models import (
                     ValidationTestDefinition,
                     ValidationTestCode,
                     ValidationTestResult,
+
                     )
 import uuid
 
@@ -28,7 +30,13 @@ class Command(BaseCommand):
         Param_DataModalities(id=uuid.uuid4(),authorized_value='2-photon imaging').save()
         Param_DataModalities(id=uuid.uuid4(),authorized_value='electron microscopy').save()
         Param_DataModalities(id=uuid.uuid4(),authorized_value='histology').save()   
-        
+    
+    def _create_organizations(self):
+        Param_organizations(id=uuid.uuid4(),authorized_value='HBP-SP4').save()
+        Param_organizations(id=uuid.uuid4(),authorized_value='HBP-SP6').save()
+        Param_organizations(id=uuid.uuid4(),authorized_value='Blue Brain Project').save() 
+	Param_organizations(id=uuid.uuid4(),authorized_value='Other').save()  
+        	
     def _create_test_types(self): 
         Param_TestType(id=uuid.uuid4(),authorized_value='single cell activity').save()
         Param_TestType(id=uuid.uuid4(),authorized_value='network structure').save()
@@ -864,7 +872,8 @@ class Command(BaseCommand):
         #self._create_brain_region()
         #self._create_cell_type()
         #self._create_model_type()
-	self._create_score_type()
+	#self._create_score_type()
+	self._create_organizations()
         # self._fake_collab()
 	# self._fake_models_test_results()
         #self._fake_models_test_results_heli()

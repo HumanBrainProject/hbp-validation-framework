@@ -15,7 +15,7 @@ from .views import (
                     TestCommentRest,
                     CollabIDRest,
                     AppIDRest,
-                    NotificationRest,
+                    # NotificationRest,
                     ParametersConfigurationModelView,
                     ParametersConfigurationValidationView,
                     TestTicketRest,
@@ -45,9 +45,9 @@ urlpatterns = (
     url(r'^appidrest/$',
          AppIDRest.as_view(),
         ),
-    url(r'^notificationrest/$',
-        NotificationRest.as_view(),
-        ), 
+    # url(r'^notificationrest/$',
+    #     NotificationRest.as_view(),
+    #     ), 
     url(r'^authorizedcollabparameterrest/$',
         AuthorizedCollabParameterRest.as_view(), 
         ),
@@ -103,7 +103,9 @@ urlpatterns = (
     url(r'^scientificmodelalias/$',
         ScientificModelAliasRest.as_view(),
         name="scientific-model-alias"),  
-    
+    # url(r'^modelfollowrest/$',
+    #     ModelFollowRest.as_view(),
+    #     name="model-follow"),
 ######## ParameterConfiguration ##########
    
     url(r'^parametersconfigurationrest/$',
