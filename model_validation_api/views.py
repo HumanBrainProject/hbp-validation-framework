@@ -818,19 +818,13 @@ class ValidationTestDefinitionRest(APIView):
         param_web_app = request.GET.getlist('web_app')
         param_app_id = request.GET.getlist('app_id')
 
-        print ("INSIDE")
-        print (request.GET.getlist('id'))
-        print (param_id)
-
 
         # app_id = request.query_params['app_id']
         # collab_id = get_collab_id_from_app_id(app_id)
 
         if len(param_web_app) > 0 and param_web_app[0] == 'True' : 
-            print ("web")
 
             if(len(request.GET.getlist('id')) == 0):
-                print ("id no given")
 
                 param_app_id = request.query_params['app_id']
                 collab_params = CollabParameters.objects.get(id = param_app_id )
@@ -846,7 +840,6 @@ class ValidationTestDefinitionRest(APIView):
 
 
             else:   
-                print ("id given")
                 tests = ValidationTestDefinition.objects.filter(id__in = param_id)
                 # TODO serializer : ValidationTestDefinitionFull
                 test_serializer = ValidationTestDefinitionSerializer(tests, context=serializer_context, many=True)
@@ -854,7 +847,6 @@ class ValidationTestDefinitionRest(APIView):
                 
                                              
         else : 
-            print ("not web")
             
             if (len(request.GET.getlist('id')) == 0):
                 q = ValidationTestDefinition.objects.all()
@@ -896,9 +888,7 @@ class ValidationTestDefinitionRest(APIView):
 
                 
 
-            else :
-                print ("id given")
-                
+            else :               
                 tests = ValidationTestDefinition.objects.filter(id__in = param_id)
                 # TODO serializer : ValidationTestDefinitionFull
                 # test_serializer = ValidationTestDefinitionSerializer(tests, context=serializer_context, many=True)
