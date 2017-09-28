@@ -510,7 +510,7 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'ValidationResultRest', 'Col
             for (ij; ij < data.length; ij++) {
                 var temp = {
                     x: new Date(data[ij].timestamp),
-                    y: data[ij].normalized_score,
+                    y: data[ij].score,
                     id: line_id,
                     id_test_result: data[ij].id,
                 };

@@ -36,6 +36,7 @@ from .models import (ValidationTestDefinition,
                         ScientificModelImage,   
                         Comments,
                         Tickets,
+                        # FollowModel,
                         Param_DataModalities,
                         Param_TestType,
                         Param_Species,
@@ -43,7 +44,9 @@ from .models import (ValidationTestDefinition,
                         Param_CellType,
                         Param_ModelType,
                         CollabParameters,
-                        Param_ScoreType,)
+                        Param_ScoreType,
+                        Param_organizations,
+                        )
 
 
 # from .forms import (ValidationTestDefinitionForm, 
@@ -74,6 +77,7 @@ from .serializer.serializer import (ValidationTestDefinitionSerializer,
                             CommentSerializer,
                             TicketReadOnlySerializer,
                             TicketSerializer,
+                            # FollowModelSerializer,
 
                             CollabParametersSerializer,
 
@@ -84,7 +88,7 @@ from .serializer.serializer import (ValidationTestDefinitionSerializer,
                             Param_CellTypeSerializer,
                             Param_ModelTypeSerializer,
                             Param_ScoreTypeSerializer,
-
+                            Param_OrganizationsSerializer,
   
                             )
 
@@ -106,7 +110,8 @@ from rest_framework.response import Response
 from django.views.decorators.csrf import csrf_exempt, csrf_protect, ensure_csrf_cookie
 
 
-from .user_auth_functions import _is_collaborator, is_authorised, is_hbp_member
+from .user_auth_functions import _is_collaborator, is_authorised, get_user_info, is_hbp_member
+
 
 
 #dirty logg ... need a module 
@@ -215,6 +220,9 @@ class AuthorizedCollabParameterRest(APIView):
         score_type = Param_ScoreType.objects.all()
         score_type_serializer = Param_ScoreTypeSerializer(score_type, context=serializer_context, many=True)     
         
+        organization = Param_organizations.objects.all()
+        organization_serializer = Param_OrganizationsSerializer(organization, context=serializer_context, many=True)   
+
         ##for python client #'python_client=True' 'parameters= list()'
         if python_client == 'true':
             params_asked = request.GET.getlist('parameters')
@@ -227,6 +235,7 @@ class AuthorizedCollabParameterRest(APIView):
                     'cell_type' : cell_type.values_list('authorized_value', flat=True),
                     'model_type' : model_type.values_list('authorized_value', flat=True),
                     'score_type': score_type.values_list('authorized_value', flat=True),
+                    'organization': organization.values_list('authorized_value', flat=True),
                 } 
                 return Response(res)
             else: 
@@ -245,7 +254,9 @@ class AuthorizedCollabParameterRest(APIView):
                     if (param == 'model_type'):
                         res['model_type'] = model_type.values_list('authorized_value', flat=True)
                     if (param == 'score_type'):
-                        res['score_type'] = score_type.values_list('authorized_value', flat=True)   
+                        res['score_type'] = score_type.values_list('authorized_value', flat=True)
+                    if (param == 'organization'):
+                        res['organization'] = organization.values_list('authorized_value', flat=True)       
                 return Response(res)   
 
 
@@ -257,6 +268,7 @@ class AuthorizedCollabParameterRest(APIView):
             'cell_type' : cell_type_serializer.data,
             'model_type' : model_type_serializer.data,
             'score_type': score_type_serializer.data,
+            'organization': organization_serializer.data,
         })
 
 class CollabIDRest(APIView): 
@@ -679,6 +691,20 @@ class ScientificModelRest(APIView):
             return Response(model_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         return Response( status=status.HTTP_201_CREATED) 
 
+    def delete(self, request, format=None):
+        
+        model_id = request.GET.getlist('id')[0]
+        collab_id = request.GET.getlist('collab_id')
+
+        if collab_id[0]:
+            models_to_delete = ScientificModel.objects.filter(collab_id=collab_id)
+            for model in models_to_delete:
+                model.delete()
+        else:
+            model_to_delete = ScientificModel.objects.get(id=model_id)
+            model_to_delete.delete()
+        return Response( status=status.HTTP_200_OK) 
+        
 class ScientificModelAliasRest(APIView):
     def get(self, request, format=None, **kwargs):
         serializer_context = {
@@ -996,25 +1022,6 @@ class TestTicketRest(APIView):
             return Response(param_serializer.data)
         return Response(param_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-class NotificationRest(APIView): 
-    def post(self, request, format=None, **kwargs):
-        # social_auth = request.user.social_auth.get()
-        # headers = {
-        #     'Authorization': get_auth_header(request.user.social_auth.get()),
-        #     'Accept':'application/json',
-        #     'Content-Type':"application/json",
-        # }
-        # ctx = request.GET.getlist('ctx')[0]
-        # url = 'https://services.humanbrainproject.eu/stream/v0/api/notification/'
-        # # Indata = {'summary': 'test notif 1',
-        # #     'targets': [{"type": "HBPUser","id": "303271"}],
-        # #     'object': {"type": "HBPCollaboratoryContext","id": ctx}
-        # #     }
-        # ##to send to a group
-        # print('requesting...')
-        # res = requests.post(url, headers=headers, data=json.dumps(Indata))
-        # print(res.content)
-        return res
 
 class TestCommentRest(APIView):
     def get(self, request, format=None, **kwargs):
@@ -1249,8 +1256,51 @@ class ParametersConfigurationView(View):
     def get(self, request, *args, **kwargs):
         return render(request, self.template_name)
 
+###############################
+###### To keep for later ######
+###############################
 
+# class NotificationRest(APIView): 
+#     def post(self, request, format=None, **kwargs):
+#         # social_auth = request.user.social_auth.get()
+#         # headers = {
+#         #     'Authorization': get_auth_header(request.user.social_auth.get()),
+#         #     'Accept':'application/json',
+#         #     'Content-Type':"application/json",
+#         # }
+#         # ctx = request.GET.getlist('ctx')[0]
+#         # url = 'https://services.humanbrainproject.eu/stream/v0/api/notification/'
+#         # # Indata = {'summary': 'test notif 1',
+#         # #     'targets': [{"type": "HBPUser","id": "303271"}],
+#         # #     'object': {"type": "HBPCollaboratoryContext","id": ctx}
+#         # #     }
+#         # ##to send to a group
+#         # print('requesting...')
+#         # res = requests.post(url, headers=headers, data=json.dumps(Indata))
+#         # print(res.content)
+#         res = True
+#         return res
 
+# class ModelFollowRest(APIView):
+#     def post (self, request, format=None, **kwargs):
+#         request.GET.getlist('app_id')[0]
+#         # collab_id = get_collab_id_from_app_id(app_id)
+#         # if not is_authorised(request, collab_id):
+#         #     return HttpResponseForbidden()
+#         model_id = request.data['model_id']
+#         print(get_user_info(request))
+#         request.data['user_id'] = get_user_info(request)['sub']
+#         print(request.data)
+#         serializer_context = {'request': request,}
+        
+#         follow_serializer = FollowModelSerializer(data=request.data, context=serializer_context)
+#         # ModelFollowing.save()
+#         if follow_serializer.is_valid() :
+#             follow = follow_serializer.save(model_id=model_id)
+#         else: 
+#             return Response(follow_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+#         return Response( status=status.HTTP_201_CREATED) 
+ 
 #############################
 #### can still be useful ####
 #############################

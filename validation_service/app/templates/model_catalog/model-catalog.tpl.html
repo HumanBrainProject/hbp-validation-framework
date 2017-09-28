@@ -42,6 +42,7 @@
                 <th>Cell type</th>
                 <th>Model type</th>
                 <th>Author(s)</th>
+                <th>Organization</th>
                 <th>Collab ID</th>
             </tr>
         </thead>
@@ -54,6 +55,7 @@
                 <td ng-text-truncate=model.cell_type ng-tt-chars-threshold="50" ng-tt-no-toggling>{{ model.cell_type }}</td>
                 <td ng-text-truncate=model.model_type ng-tt-chars-threshold="50" ng-tt-no-toggling>{{ model.model_type }}</td>
                 <td ng-text-truncate=model.author ng-tt-chars-threshold="50" ng-tt-no-toggling>{{ model.author }}</td>
+                <td ng-text-truncate=model.organization ng-tt-chars-threshold="50" ng-tt-no-toggling>{{ model.organization }}</td>
                 <td ng-text-truncate=model.app.collab_id ng-tt-chars-threshold="50" ng-tt-no-toggling>{{ model.app.collab_id }}</td>
             </tr>
         </tbody>

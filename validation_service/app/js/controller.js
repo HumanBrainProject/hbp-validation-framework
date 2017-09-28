@@ -815,9 +815,9 @@ ModelCatalogApp.controller('ModelCatalogCtrl', [
 
 ]);
 
-ModelCatalogApp.controller('ModelCatalogCreateCtrl', ['$scope', '$rootScope', '$http', '$location', 'ScientificModelRest', 'CollabParameters', 'CollabIDRest', "Context", "ScientificModelAliasRest",
+ModelCatalogApp.controller('ModelCatalogCreateCtrl', ['$scope', '$rootScope', '$http', '$location', 'ScientificModelRest', 'CollabParameters', 'CollabIDRest', "Context", "ScientificModelAliasRest", "AuthorizedCollabParameterRest",
 
-    function($scope, $rootScope, $http, $location, ScientificModelRest, CollabParameters, CollabIDRest, Context, ScientificModelAliasRest) {
+    function($scope, $rootScope, $http, $location, ScientificModelRest, CollabParameters, CollabIDRest, Context, ScientificModelAliasRest, AuthorizedCollabParameterRest) {
         Context.setService().then(function() {
             $scope.Context = Context;
 
@@ -828,7 +828,8 @@ ModelCatalogApp.controller('ModelCatalogCreateCtrl', ['$scope', '$rootScope', '$
             CollabParameters.setService(ctx).$promise.then(function() {
                 $scope.addImage = false;
                 $scope.alias_is_valid = "";
-                // $scope.alias_not_valid = "";
+
+                $scope.authorized_params = AuthorizedCollabParameterRest.get();
                 $scope.species = CollabParameters.getParameters("species");
                 $scope.brain_region = CollabParameters.getParameters("brain_region");
                 $scope.cell_type = CollabParameters.getParameters("cell_type");
@@ -891,8 +892,9 @@ ModelCatalogApp.controller('ModelCatalogCreateCtrl', ['$scope', '$rootScope', '$
     }
 ]);
 
-ModelCatalogApp.controller('ModelCatalogDetailCtrl', ['$scope', '$rootScope', '$http', '$location', '$stateParams', 'ScientificModelRest', 'CollabParameters', 'IsCollabMemberRest', 'Context',
-    function($scope, $rootScope, $http, $location, $stateParams, ScientificModelRest, CollabParameters, IsCollabMemberRest, Context) {
+ModelCatalogApp.controller('ModelCatalogDetailCtrl', ['$scope', '$rootScope', '$http', '$location', '$state', '$stateParams', 'ScientificModelRest', 'CollabParameters', 'IsCollabMemberRest', 'Context',
+
+    function($scope, $rootScope, $http, $location, $state, $stateParams, ScientificModelRest, CollabParameters, IsCollabMemberRest, Context) {
         Context.setService().then(function() {
 
             $scope.Context = Context;
@@ -924,8 +926,16 @@ ModelCatalogApp.controller('ModelCatalogDetailCtrl', ['$scope', '$rootScope', '$
                         $scope.is_collab_member = $scope.is_collab_member.is_member;
                     });
                 });
+
+                //to test follow fuctionality and notifications
+                // $scope.followModel = function() {
+                //     var parameters = JSON.stringify({ model_id: $stateParams.uuid, user_id: 0 })
+                //     ModelFollowRest.post({ app_id: $scope.app_id }, parameters);
+                // };
             }
         });
+
+
 
 
     }

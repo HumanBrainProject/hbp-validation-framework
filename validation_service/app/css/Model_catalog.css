@@ -130,6 +130,7 @@
         min-width: 0px;
         width: 100%;
         max-width: 304px;
+        max-height: 350px;
     }
     
     #figcaption {

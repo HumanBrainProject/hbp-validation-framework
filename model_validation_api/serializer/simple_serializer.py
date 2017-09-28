@@ -16,7 +16,8 @@ from ..models import (ValidationTestDefinition,
                     Param_BrainRegion,
                     Param_CellType,
                     Param_ModelType,
-                    Param_ScoreType
+                    Param_ScoreType,
+                    Param_organizations,
                     )
 
 from rest_framework import serializers
@@ -72,7 +73,7 @@ class ScientificModelImageSerializer(serializers.HyperlinkedModelSerializer):
 class ScientificModelSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = ScientificModel
-        fields = ('id', 'name','alias', 'author','app_id','private', 'cell_type', 'model_type', 'brain_region', 'species', 'description')
+        fields = ('id', 'name','alias', 'author','app_id','organization','private', 'cell_type', 'model_type', 'brain_region', 'species', 'description')
 
 
 ###########################
@@ -132,6 +133,10 @@ class TicketSerializer(serializers.HyperlinkedModelSerializer):
 
 
 
+# class FollowModelSerializer(serializers.HyperlinkedModelSerializer):
+#     class Meta:
+#         model = FollowModel
+#         fields = ( 'id', 'model_id', 'user_id')
 
 ############
 ##  Param ##
@@ -171,4 +176,8 @@ class Param_ScoreTypeSerializer(serializers.HyperlinkedModelSerializer):
         model = Param_ScoreType
         fields = ('id', 'authorized_value')
     
-
+class Param_OrganizationsSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = Param_organizations
+        fields = ('id', 'authorized_value')
+    
