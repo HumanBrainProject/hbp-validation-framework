@@ -526,7 +526,8 @@ class ScientificModelRest(APIView):
                         species__in=collab_params.species.split(",")+[u''], 
                         brain_region__in=collab_params.brain_region.split(",")+[u''], 
                         cell_type__in=collab_params.cell_type.split(",")+[u''], 
-                        model_type__in=collab_params.model_type.split(",")+[u'']).prefetch_related()
+                        model_type__in=collab_params.model_type.split(",")+[u''],
+                        organization__in=collab_params.organization.split(",")+[u'']).prefetch_related()
                 else :
                     rq1 = []
                     
@@ -536,7 +537,8 @@ class ScientificModelRest(APIView):
                     species__in=collab_params.species.split(",")+[u''], 
                     brain_region__in=collab_params.brain_region.split(",")+[u''], 
                     cell_type__in=collab_params.cell_type.split(",")+[u''], 
-                    model_type__in=collab_params.model_type.split(",")+[u'']).prefetch_related()
+                    model_type__in=collab_params.model_type.split(",")+[u''],
+                    organization__in=collab_params.organization.split(",")+[u'']).prefetch_related()
 
                 if len(rq1) >0:
                     models  = (rq1 | rq2).distinct().order_by('-creation_date')
@@ -561,6 +563,7 @@ class ScientificModelRest(APIView):
                 private =request.GET.getlist('private')
                 code_format =request.GET.getlist('code_format')
                 alias =request.GET.getlist('alias')
+                organization = request.GETlist('organization')
 
                 q = ScientificModel.objects.all()
 
@@ -584,7 +587,8 @@ class ScientificModelRest(APIView):
                     q = q.filter(code_format__in = code_format)    
                 if len(app_id) > 0 :
                     q = q.filter(app__in = app_id)
-                
+                if len(organization) > 0 :
+                    q = q.filter(organization__in = organization)
                        
                 #For each models, check if collab member, if not then just return the publics....
                 list_app_id = q.values("app").distinct()

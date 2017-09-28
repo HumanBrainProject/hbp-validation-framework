@@ -785,7 +785,7 @@ ModelCatalogApp.controller('ModelCatalogCtrl', [
                     $scope.collab_brain_region = CollabParameters.getParameters("brain_region");
                     $scope.collab_cell_type = CollabParameters.getParameters("cell_type");
                     $scope.collab_model_type = CollabParameters.getParameters("model_type");
-
+                    $scope.collab_organization = CollabParameters.getParameters("organization");
                     // will have data here to make redirection directly
                     $scope.models = ScientificModelRest.get({ app_id: app_id });
 
@@ -834,6 +834,7 @@ ModelCatalogApp.controller('ModelCatalogCreateCtrl', ['$scope', '$rootScope', '$
                 $scope.brain_region = CollabParameters.getParameters("brain_region");
                 $scope.cell_type = CollabParameters.getParameters("cell_type");
                 $scope.model_type = CollabParameters.getParameters("model_type");
+                $scope.organization = CollabParameters.getParameters("organization");
 
                 $scope.model_image = [];
 
@@ -958,6 +959,8 @@ ModelCatalogApp.controller('ModelCatalogEditCtrl', ['$scope', '$rootScope', '$ht
                 $scope.brain_region = CollabParameters.getParameters("brain_region");
                 $scope.cell_type = CollabParameters.getParameters("cell_type");
                 $scope.model_type = CollabParameters.getParameters("model_type");
+                $scope.organization = CollabParameters.getParameters("organization");
+
                 $scope.model = ScientificModelRest.get({ app_id: app_id, id: $stateParams.uuid });
 
                 $scope.deleteImage = function(img) {
@@ -1077,6 +1080,7 @@ ParametersConfigurationApp.controller('ParametersConfigurationCtrl', ['$scope', 
                 $scope.species = $scope.list_param.species;
                 $scope.brain_region = $scope.list_param.brain_region;
                 $scope.cell_type = $scope.list_param.cell_type;
+                $scope.organization = $scope.list_param.organization;
             });
 
 
@@ -1094,6 +1098,7 @@ ParametersConfigurationApp.controller('ParametersConfigurationCtrl', ['$scope', 
                     $scope.species = $scope.list_param.species;
                     $scope.brain_region = $scope.list_param.brain_region;
                     $scope.cell_type = $scope.list_param.cell_type;
+                    $scope.organization = $scope.list_param.organization;
                 });
 
                 $scope.selected_data_modalities = CollabParameters.getParameters_authorized_value_formated("data_modalities");
@@ -1102,6 +1107,7 @@ ParametersConfigurationApp.controller('ParametersConfigurationCtrl', ['$scope', 
                 $scope.selected_species = CollabParameters.getParameters_authorized_value_formated("species");
                 $scope.selected_brain_region = CollabParameters.getParameters_authorized_value_formated("brain_region");
                 $scope.selected_cell_type = CollabParameters.getParameters_authorized_value_formated("cell_type");
+                $scope.selected_organization = CollabParameters.getParameters_authorized_value_formated("organization");
 
                 $scope.make_post = function() {
 
@@ -1129,6 +1135,10 @@ ParametersConfigurationApp.controller('ParametersConfigurationCtrl', ['$scope', 
 
                     $scope.selected_cell_type.forEach(function(value, i) {
                         CollabParameters.addParameter("cell_type", value.authorized_value);
+                    });
+
+                    $scope.selected_organization.forEach(function(value, i) {
+                        CollabParameters.addParameter("organization", value.authorized_value);
                     });
 
                     CollabParameters.addParameter("app_type", app_type);

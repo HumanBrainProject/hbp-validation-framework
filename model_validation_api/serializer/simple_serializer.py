@@ -29,7 +29,7 @@ class CollabParametersSerializer(serializers.HyperlinkedModelSerializer):
      class Meta:
         model = CollabParameters
         fields = ('id', 'data_modalities', 'test_type', 'species', 'brain_region', 
-                    'cell_type', 'model_type', 'app_type','collab_id')
+                    'cell_type', 'model_type', 'organization', 'app_type','collab_id')
 
 class CollabParametersReadOnlyForHomeSerializer(serializers.HyperlinkedModelSerializer):
      class Meta:
