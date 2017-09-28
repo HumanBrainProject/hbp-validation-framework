@@ -110,4 +110,27 @@ def is_authorised(request, collab_id):
         else: 
             return True 
 
+def is_hbp_member (request):
+    svc_url = settings.HBP_COLLAB_SERVICE_URL
+
+    if str(request.user) == "AnonymousUser" : 
+        try:
+            user_id = get_user_from_token(request)["id"]
+            return True
+        except Exception as err:
+            logger.warning(err.message)
+            return False
+
+    else :
+        return True
+
+
+
+
+
+        
+
+
+
+
     
