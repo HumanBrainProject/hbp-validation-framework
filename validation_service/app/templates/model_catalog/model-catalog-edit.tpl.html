@@ -72,6 +72,14 @@
                                          <option ng-repeat="br in brain_region" value="{{br}}">{{br}}</option>
                                     </select>
                                                 </td>
+                                                <td>
+                                                    <b>Organization: </b>
+                                                </td>
+                                                <td>
+                                                    <select id="select-organization" data-style="btn-primary" ng-model="model.models[0].organization" required>
+                                         <option ng-repeat="o in organization" value="{{o}}">{{o}}</option>
+                                    </select>
+                                                </td>
                                             </tr>
                                             <tr>
                                                 <td>
