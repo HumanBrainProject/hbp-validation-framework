@@ -70,7 +70,9 @@
             <tr ng-repeat="model_instance in model.models[0].instances">
                 <td>{{ model_instance.version }}</td>
                 <td><pre>{{ model_instance.parameters }}</pre></td>
-                <td>{{ model_instance.source }}</td>
+                <td>
+                    <a target="_blank" href="{{model_instance.source}}">{{ model_instance.source }}</a>
+                </td>
         </tbody>
     </table>
 
