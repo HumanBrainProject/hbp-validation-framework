@@ -120,3 +120,19 @@ def get_user_info(request):
     res = requests.post(url, headers=headers)
     print(res.json())
     return res.json() 
+
+def is_hbp_member (request):
+    svc_url = settings.HBP_COLLAB_SERVICE_URL
+
+    if str(request.user) == "AnonymousUser" : 
+        try:
+            user_id = get_user_from_token(request)["id"]
+            return True
+        except Exception as err:
+            logger.warning(err.message)
+            return False
+
+    else :
+        return True
+
+

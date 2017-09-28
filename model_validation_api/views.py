@@ -60,7 +60,7 @@ from .models import (ValidationTestDefinition,
 # #                        configviewForm,  
 #                         )
 
-from .serializer import (ValidationTestDefinitionSerializer, 
+from .serializer.serializer import (ValidationTestDefinitionSerializer, 
                             ScientificModelSerializer,
                             ScientificModelReadOnlySerializer, 
                             ScientificModelFullReadOnlySerializer,
@@ -73,7 +73,7 @@ from .serializer import (ValidationTestDefinitionSerializer,
                             ValidationModelResultReadOnlySerializer,
                             ValidationTestCodeSerializer,
                             ValidationTestCodeReadOnlySerializer,
-                            ValidationTestDefinitionWithCodesReadSerializer,
+                            ValidationTestDefinitionFullSerializer,
                             CommentSerializer,
                             TicketReadOnlySerializer,
                             TicketSerializer,
@@ -110,7 +110,8 @@ from rest_framework.response import Response
 from django.views.decorators.csrf import csrf_exempt, csrf_protect, ensure_csrf_cookie
 
 
-from .user_auth_functions import _is_collaborator, is_authorised, get_user_info
+from .user_auth_functions import _is_collaborator, is_authorised, get_user_info, is_hbp_member
+
 
 
 #dirty logg ... need a module 
@@ -507,7 +508,7 @@ class ScientificModelRest(APIView):
         if(len(request.GET.getlist('id')) == 0):
 
             web_app = request.GET.getlist('web_app')    
-            
+
 
             #if the request comes from the webapp : uses collab_parameters
             if len(web_app) > 0 and web_app[0] == 'True' :  
@@ -752,21 +753,47 @@ class ValidationTestCodeRest(APIView):
 
      def get(self, request, format=None, **kwargs):
         serializer_context = {'request': request,}
-        nb_id = str(len(request.GET.getlist('id')))
-        nb_td_id = str(len(request.GET.getlist('test_definition_id')))
 
-        if nb_id == '0' and nb_td_id == '0':
-            tests = ValidationTestCode.objects.all()
-        else:
-            for key, value in self.request.GET.items():
-                if key == 'id':
-                    tests = ValidationTestCode.objects.filter(id = value)
-                if key == 'test_definition_id':
-                    tests = ValidationTestCode.objects.filter(test_definition_id = value)
+        param_id = request.GET.getlist('id')
+        param_repository = request.GET.getlist('repository')
+        param_version = request.GET.getlist('version')
+        param_path = request.GET.getlist('path')
+        param_timestamp = request.GET.getlist('timestamp')
+        param_test_definition_id = request.GET.getlist('test_definition_id')
+        
+
+        q = ValidationTestCode.objects.all()
+
+        if len(param_id) > 0 :
+            q = q.filter(app_id__in = param_id)  
+        if len(param_test_definition_id) > 0 :
+            q = q.filter(app_id__in = param_test_definition_id)     
+        if len(param_repository) > 0 :
+            q = q.filter(app_id__in = param_repository)           
+        if len(param_version) > 0 :
+            q = q.filter(app_id__in = param_version) 
+        if len(param_path) > 0 :
+            q = q.filter(app_id__in = param_path) 
+        if len(param_timestamp) > 0 :
+            q = q.filter(app_id__in = param_timestamp) 
+
+
+        # nb_id = str(len(request.GET.getlist('id')))
+        # nb_td_id = str(len(request.GET.getlist('test_definition_id')))
+
+        # if nb_id == '0' and nb_td_id == '0':
+        #     tests = ValidationTestCode.objects.all()
+        # else:
+        #     for key, value in self.request.GET.items():
+        #         if key == 'id':
+        #             tests = ValidationTestCode.objects.filter(id = value)
+        #         if key == 'test_definition_id':
+        #             tests = ValidationTestCode.objects.filter(test_definition_id = value)
 
         test_serializer = ValidationTestCodeSerializer(tests, context=serializer_context, many=True)
+        # TODO rename tests to testcodes
         return Response({
-            'tests': test_serializer.data,
+            'tests': test_serializer.data, 
         })
 
 
@@ -789,7 +816,7 @@ class ValidationTestCodeRest(APIView):
 
      def get_serializer_class(self):
         #  if self.request.method in ('GET', )
-        #      return ValidationTestDefinitionWithCodesReadSerializer
+        #      return ValidationTestDefinitionFullSerializer
          return ValidationTestCodeSerializer
 
 
@@ -798,28 +825,101 @@ class ValidationTestDefinitionRest(APIView):
     
     def get(self, request, format=None, **kwargs):
         serializer_context = {'request': request,}
-        nb_id = str(len(request.GET.getlist('id')))
-        
-        app_id = request.query_params['app_id']
-        collab_id = get_collab_id_from_app_id(app_id)
 
-        if(nb_id == '0'):
-            collab_params = CollabParameters.objects.get(id = app_id )
+        param_id = request.GET.getlist('id')
+        param_name = request.GET.getlist('name')
+        param_species = request.GET.getlist('species')
+        param_brain_region = request.GET.getlist('brain_region')
+        param_cell_type = request.GET.getlist('cell_type')
+        param_age = request.GET.getlist('age')
+        param_data_location = request.GET.getlist('data_location')
+        param_data_type = request.GET.getlist('data_type')
+        param_data_modality = request.GET.getlist('data_modality')
+        param_test_type = request.GET.getlist('test_type')
+        param_protocol = request.GET.getlist('protocol')
+        param_author = request.GET.getlist('author')
+        param_publication = request.GET.getlist('publication')
+        param_score_type = request.GET.getlist('score_type')
+        param_alias = request.GET.getlist('alias')
+        param_web_app = request.GET.getlist('web_app')
+        param_app_id = request.GET.getlist('app_id')
 
-            all_ctx_from_collab = CollabParameters.objects.filter(collab_id = collab_id).distinct()  
-            tests= ValidationTestDefinition.objects.filter (
-                species__in=collab_params.species.split(",")+[u''], 
-                brain_region__in=collab_params.brain_region.split(",")+[u''], 
-                cell_type__in=collab_params.cell_type.split(",")+[u''],
-                data_modality__in=collab_params.data_modalities.split(",")+[u''],
-                test_type__in=collab_params.test_type.split(",")+[u'']).prefetch_related().distinct()
-        else:
+
+        # app_id = request.query_params['app_id']
+        # collab_id = get_collab_id_from_app_id(app_id)
+
+        if len(param_web_app) > 0 and param_web_app[0] == 'True' : 
+
+            if(len(request.GET.getlist('id')) == 0):
+
+                param_app_id = request.query_params['app_id']
+                collab_params = CollabParameters.objects.get(id = param_app_id )
+
+                tests= ValidationTestDefinition.objects.filter (
+                    species__in=collab_params.species.split(",")+[u''], 
+                    brain_region__in=collab_params.brain_region.split(",")+[u''], 
+                    cell_type__in=collab_params.cell_type.split(",")+[u''],
+                    data_modality__in=collab_params.data_modalities.split(",")+[u''],
+                    test_type__in=collab_params.test_type.split(",")+[u'']).prefetch_related().distinct()
+
+                test_serializer = ValidationTestDefinitionSerializer(tests, context=serializer_context, many=True)
+
+
+            else:   
+                tests = ValidationTestDefinition.objects.filter(id__in = param_id)
+                # TODO serializer : ValidationTestDefinitionFull
+                test_serializer = ValidationTestDefinitionSerializer(tests, context=serializer_context, many=True)
+                     
+                
+                                             
+        else : 
             
-            for key, value in self.request.GET.items():
-                if key == 'id':
-                    tests = ValidationTestDefinition.objects.filter(id = value)
+            if (len(request.GET.getlist('id')) == 0):
+                q = ValidationTestDefinition.objects.all()
 
-        test_serializer = ValidationTestDefinitionSerializer(tests, context=serializer_context, many=True)
+                if len(param_alias) > 0 :
+                    q = q.filter(alias__in = param_alias)
+                if len(param_app_id) > 0 :
+                    q = q.filter(app_id__in = param_app_id)
+                if len(param_name) > 0 :
+                    q = q.filter(name__in = param_name)
+                if len(param_species) > 0 :
+                    q = q.filter(species__in = param_species)
+                if len(param_brain_region) > 0 :
+                    q = q.filter(brain_region__in = param_brain_region)
+                if len(param_cell_type) > 0 :
+                    q = q.filter(cell_type__in = param_cell_type)
+                if len(param_age) > 0 :
+                    q = q.filter(age__in = param_age)
+                if len(param_data_location) > 0 :
+                    q = q.filter(data_location__in = param_data_location)
+                if len(param_data_type) > 0 :
+                    q = q.filter(data_type__in = param_data_type)
+                if len(param_data_modality) > 0 :
+                    q = q.filter(data_modality__in = param_data_modality)
+                if len(param_test_type) > 0 :
+                    q = q.filter(test_type__in = param_test_type)
+                if len(param_protocol) > 0 :
+                    q = q.filter(protocol__in = param_protocol)
+                if len(param_author) > 0 :
+                    q = q.filter(author__in = param_author)
+                if len(param_publication) > 0 :
+                    q = q.filter(publication__in = param_publication)
+                if len(param_) > 0 :
+                    q = q.filter(score_type__in = param_score_type)
+                        
+                tests = q
+                #serializer : ValidationTestDefinition
+                test_serializer = ValidationTestDefinitionSerializer(tests, context=serializer_context, many=True)
+
+                
+
+            else :               
+                tests = ValidationTestDefinition.objects.filter(id__in = param_id)
+                # TODO serializer : ValidationTestDefinitionFull
+                # test_serializer = ValidationTestDefinitionSerializer(tests, context=serializer_context, many=True)
+                test_serializer = ValidationTestDefinitionFullSerializer(tests, context=serializer_context, many=True)
+
 
         return Response({
             'tests': test_serializer.data,
@@ -827,11 +927,14 @@ class ValidationTestDefinitionRest(APIView):
 
 
     def post(self, request, format=None):
-        # ctx = request.GET.getlist('ctx')[0]
-        app_id = request.GET.getlist('app_id')[0]
-        collab_id = get_collab_id_from_app_id(app_id)
-        if not is_authorised(request, collab_id):
+        # ctx = request.GET.getlist('ctx')[0]    
+        if not is_hbp_member(request):
             return HttpResponseForbidden()
+
+        # app_id = request.GET.getlist('app_id')[0]
+        # collab_id = get_collab_id_from_app_id(app_id)
+        # if not is_authorised(request, collab_id):
+        #     return HttpResponseForbidden()
 
         serializer_context = {'request': request,}
 
@@ -850,10 +953,14 @@ class ValidationTestDefinitionRest(APIView):
         return Response({'id':test.id})
 
     def put(self, request, format=None):
-        app_id = request.GET.getlist('app_id')[0]
-        collab_id = get_collab_id_from_app_id(app_id)
-        if not is_authorised(request, collab_id):
+        if not is_hbp_member(request):
             return HttpResponseForbidden()
+
+        # app_id = request.GET.getlist('app_id')[0]
+        # collab_id = get_collab_id_from_app_id(app_id)
+        # if not is_authorised(request, collab_id):
+        #     return HttpResponseForbidden()
+
         value = request.data
         test = ValidationTestDefinition.objects.get(id=value['id'])
         serializer_context = {'request': request,}
@@ -868,7 +975,6 @@ class ValidationTestDefinitionRest(APIView):
 
 class TestTicketRest(APIView):
     def get(self, request, format=None, **kwargs):
-        logger.debug("*** TestCommentRest get ***")
         serializer_context = {'request': request,}
         nb_test_id = request.query_params['test_id']
         tickets = Tickets.objects.filter(test_id = nb_test_id)
@@ -1010,6 +1116,10 @@ class IsCollabMemberRest (APIView):
 
 class ValidationResultRest (APIView):
     def get(self, request, format=None, **kwargs):
+        
+        # param_id = request.GET.getlist('id')
+
+
         serializer_context = {'request': request,}
 
         test_result_id = request.query_params['id']
@@ -1023,6 +1133,10 @@ class ValidationResultRest (APIView):
 
 class ValidationModelResultRest (APIView):
     def get(self, request, format=None, **kwargs):
+        
+        param_id = request.GET.getlist('id')
+
+
         serializer_context = {'request': request,}
         model_id  = request.query_params['model_id']
         list_test_id  = request.GET.getlist('list_id')
@@ -1115,6 +1229,24 @@ class ValidationTestResultRest (APIView):
             'data_block_id': new_id,
             'versions_id_all': versions_all_ser,
         })
+
+# class ValidationResultRest (APIView):
+#     def get(self, request, format=None, **kwargs):
+#         param_id = request.GET.getlist('id')
+#         param_ = request.GET.getlist('')
+#         param_ = request.GET.getlist('')
+#         param_ = request.GET.getlist('')
+#         param_ = request.GET.getlist('')
+#         param_ = request.GET.getlist('')
+#         param_ = request.GET.getlist('')
+#         param_ = request.GET.getlist('')
+#         param_ = request.GET.getlist('')
+#         param_ = request.GET.getlist('')
+
+
+#         serializer_context = {'request': request,}
+
+
 
 class ParametersConfigurationView(View):
     

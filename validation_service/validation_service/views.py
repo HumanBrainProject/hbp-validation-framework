@@ -9,7 +9,7 @@ from django.core.urlresolvers import reverse
 import requests
 from hbp_app_python_auth.auth import get_access_token, get_token_type, get_auth_header
 from model_validation_api.models import CollabParameters
-from model_validation_api.serializer import CollabParametersSerializer
+from model_validation_api.serializer.serializer import CollabParametersSerializer
 from model_validation_api.views import _get_app_id
 
 
