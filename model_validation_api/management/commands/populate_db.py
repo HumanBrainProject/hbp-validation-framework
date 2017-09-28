@@ -16,8 +16,8 @@ from ...models import (
                     ValidationTestDefinition,
                     ValidationTestCode,
                     ValidationTestResult,
-
                     )
+
 import uuid
 
 class Command(BaseCommand):
@@ -865,6 +865,13 @@ class Command(BaseCommand):
         result.project = "azerty"
         result.save()
 
+    def delete_models_in_collab(self,collab_id, *args, **options):
+        app_id = CollabParameters.objects.filter(collab_id = collab_id, app_type='model_catalog')
+        models_to_delete = ScientificModel.objects.filter(app_id=app_id)
+        for model in models_to_delete:
+                model.delete()
+
+
     def handle(self, *args, **options):
         #self._create_data_modalities()
         #self._create_test_types()
@@ -873,10 +880,11 @@ class Command(BaseCommand):
         #self._create_cell_type()
         #self._create_model_type()
 	#self._create_score_type()
-	self._create_organizations()
+	#self._create_organizations()
         # self._fake_collab()
 	# self._fake_models_test_results()
         #self._fake_models_test_results_heli()
+        self.delete_models_in_collab(collab_id = 2180)
 
 
 

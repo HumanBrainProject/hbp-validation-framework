@@ -690,6 +690,20 @@ class ScientificModelRest(APIView):
             return Response(model_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         return Response( status=status.HTTP_201_CREATED) 
 
+    def delete(self, request, format=None):
+        
+        model_id = request.GET.getlist('id')[0]
+        collab_id = request.GET.getlist('collab_id')
+
+        if collab_id[0]:
+            models_to_delete = ScientificModel.objects.filter(collab_id=collab_id)
+            for model in models_to_delete:
+                model.delete()
+        else:
+            model_to_delete = ScientificModel.objects.get(id=model_id)
+            model_to_delete.delete()
+        return Response( status=status.HTTP_200_OK) 
+        
 class ScientificModelAliasRest(APIView):
     def get(self, request, format=None, **kwargs):
         serializer_context = {

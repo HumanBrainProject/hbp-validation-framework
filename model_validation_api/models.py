@@ -77,7 +77,6 @@ class ValidationTestCode(models.Model):
                                                    self.repository,
                                                    self.version,
                                                    self.path)
-
 # separate classes for Dataset, Code, ValidationTestDefinition?
 
 
@@ -115,7 +114,7 @@ class ScientificModelInstance(models.Model):
     A specific instance of a model with a well defined version and parameterization.
     """
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, )
-    model = models.ForeignKey(ScientificModel, related_name="instances")
+    model = models.ForeignKey(ScientificModel, related_name="instances", on_delete=models.CASCADE)
     version = models.CharField(max_length=64)
     parameters = models.TextField(null=True, blank=True)
     source = models.URLField(help_text="Version control repository containing the source code of the model")
@@ -129,7 +128,7 @@ class ScientificModelImage(models.Model):
     A specific instance of a model with a well defined version and parameterization.
     """
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, )
-    model = models.ForeignKey(ScientificModel, related_name="images")
+    model = models.ForeignKey(ScientificModel, related_name="images", on_delete=models.CASCADE)
     url =  models.URLField(max_length=500, blank=False, help_text="Version control repository containing the source code of the model")
     caption = models.TextField(null=True, blank=True)
 
@@ -173,7 +172,7 @@ class Tickets(models.Model):
 
 class Comments(models.Model): 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, )
-    Ticket = models.ForeignKey(Tickets)
+    Ticket = models.ForeignKey(Tickets, on_delete=models.CASCADE)
     author = models.CharField(max_length=200, default="")
     text = models.TextField()
     creation_date = models.DateTimeField(auto_now_add=True)
