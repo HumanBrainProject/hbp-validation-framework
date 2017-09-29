@@ -481,19 +481,19 @@ class ScientificModelImageRest (APIView):
         return Response( status=status.HTTP_202_ACCEPTED) 
         
 
-    # def delete(self, request, format=None):
+    def delete(self, request, format=None):
         
-    #     image_id = request.GET.getlist('id')[0]
+        image_id = request.GET.getlist('id')[0]
         
-    #     #security
-    #     image = ScientificModelImage.objects.get(id=image_id)
-    #     app_id = ScientificModel.objects.get(id= image.model_id).app_id
-    #     collab_id = get_collab_id_from_app_id(app_id)
-    #     if not is_authorised(request, collab_id):
-    #         return HttpResponseForbidden()
+        #security
+        image = ScientificModelImage.objects.get(id=image_id)
+        app_id = ScientificModel.objects.get(id= image.model_id).app_id
+        collab_id = get_collab_id_from_app_id(app_id)
+        if not is_authorised(request, collab_id):
+            return HttpResponseForbidden()
 
-    #     image = image.delete()
-    #     return Response( status=status.HTTP_200_OK) 
+        image = image.delete()
+        return Response( status=status.HTTP_200_OK) 
 
 
 
@@ -695,19 +695,19 @@ class ScientificModelRest(APIView):
             return Response(model_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         return Response( status=status.HTTP_201_CREATED) 
 
-    def delete(self, request, format=None):
+    # def delete(self, request, format=None):
         
-        model_id = request.GET.getlist('id')[0]
-        collab_id = request.GET.getlist('collab_id')
+    #     model_id = request.GET.getlist('id')[0]
+    #     collab_id = request.GET.getlist('collab_id')
 
-        if collab_id[0]:
-            models_to_delete = ScientificModel.objects.filter(collab_id=collab_id)
-            for model in models_to_delete:
-                model.delete()
-        else:
-            model_to_delete = ScientificModel.objects.get(id=model_id)
-            model_to_delete.delete()
-        return Response( status=status.HTTP_200_OK) 
+    #     if collab_id[0]:
+    #         models_to_delete = ScientificModel.objects.filter(collab_id=collab_id)
+    #         for model in models_to_delete:
+    #             model.delete()
+    #     else:
+    #         model_to_delete = ScientificModel.objects.get(id=model_id)
+    #         model_to_delete.delete()
+    #     return Response( status=status.HTTP_200_OK) 
         
 class ScientificModelAliasRest(APIView):
     def get(self, request, format=None, **kwargs):
@@ -1438,6 +1438,9 @@ class ValidationResultRest2 (APIView):
 
                 
         return Response(data_to_return)
+
+
+  
             
 
 
