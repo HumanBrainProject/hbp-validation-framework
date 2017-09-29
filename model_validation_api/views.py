@@ -481,19 +481,19 @@ class ScientificModelImageRest (APIView):
         return Response( status=status.HTTP_202_ACCEPTED) 
         
 
-    def delete(self, request, format=None):
+    # def delete(self, request, format=None):
         
-        image_id = request.GET.getlist('id')[0]
+    #     image_id = request.GET.getlist('id')[0]
         
-        #security
-        image = ScientificModelImage.objects.get(id=image_id)
-        app_id = ScientificModel.objects.get(id= image.model_id).app_id
-        collab_id = get_collab_id_from_app_id(app_id)
-        if not is_authorised(request, collab_id):
-            return HttpResponseForbidden()
+    #     #security
+    #     image = ScientificModelImage.objects.get(id=image_id)
+    #     app_id = ScientificModel.objects.get(id= image.model_id).app_id
+    #     collab_id = get_collab_id_from_app_id(app_id)
+    #     if not is_authorised(request, collab_id):
+    #         return HttpResponseForbidden()
 
-        image = image.delete()
-        return Response( status=status.HTTP_200_OK) 
+    #     image = image.delete()
+    #     return Response( status=status.HTTP_200_OK) 
 
 
 
