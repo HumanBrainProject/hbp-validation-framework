@@ -23,6 +23,7 @@ from .views import (
                     ValidationResultRest,
                     ValidationTestResultRest,
                     ValidationModelResultRest,
+                    ValidationResultRest2,
 
                     )
 
@@ -76,6 +77,9 @@ urlpatterns = (
     url(r'^validationmodelresultrest/$',
         ValidationModelResultRest.as_view(),
         ), 
+    url(r'^validationmodelresultrest2/$',
+        ValidationResultRest2.as_view(),
+        ),
 
     url(r'^testcomment/$',
         TestCommentRest.as_view(),

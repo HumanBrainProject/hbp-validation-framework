@@ -481,19 +481,19 @@ class ScientificModelImageRest (APIView):
         return Response( status=status.HTTP_202_ACCEPTED) 
         
 
-    def delete(self, request, format=None):
+    # def delete(self, request, format=None):
         
-        image_id = request.GET.getlist('id')[0]
+    #     image_id = request.GET.getlist('id')[0]
         
-        #security
-        image = ScientificModelImage.objects.get(id=image_id)
-        app_id = ScientificModel.objects.get(id= image.model_id).app_id
-        collab_id = get_collab_id_from_app_id(app_id)
-        if not is_authorised(request, collab_id):
-            return HttpResponseForbidden()
+    #     #security
+    #     image = ScientificModelImage.objects.get(id=image_id)
+    #     app_id = ScientificModel.objects.get(id= image.model_id).app_id
+    #     collab_id = get_collab_id_from_app_id(app_id)
+    #     if not is_authorised(request, collab_id):
+    #         return HttpResponseForbidden()
 
-        image = image.delete()
-        return Response( status=status.HTTP_200_OK) 
+    #     image = image.delete()
+    #     return Response( status=status.HTTP_200_OK) 
 
 
 
@@ -876,8 +876,7 @@ class ValidationTestDefinitionRest(APIView):
                      
                 
                                              
-        else : 
-            
+        else :         
             if (len(request.GET.getlist('id')) == 0):
                 q = ValidationTestDefinition.objects.all()
 
@@ -1234,21 +1233,212 @@ class ValidationTestResultRest (APIView):
             'versions_id_all': versions_all_ser,
         })
 
-# class ValidationResultRest (APIView):
-#     def get(self, request, format=None, **kwargs):
-#         param_id = request.GET.getlist('id')
-#         param_ = request.GET.getlist('')
-#         param_ = request.GET.getlist('')
-#         param_ = request.GET.getlist('')
-#         param_ = request.GET.getlist('')
-#         param_ = request.GET.getlist('')
-#         param_ = request.GET.getlist('')
-#         param_ = request.GET.getlist('')
-#         param_ = request.GET.getlist('')
-#         param_ = request.GET.getlist('')
 
 
-#         serializer_context = {'request': request,}
+
+
+def user_has_acces_to_model (request, model):
+    if model.private == 0 :
+        return True
+
+    app_id = model.app_id
+    collab_id = get_collab_id_from_app_id(app_id)
+    if is_authorised(request, collab_id) :
+        return True
+    else :
+        return False
+
+
+def user_has_acces_to_result (request, result):
+    
+    model_version_id = result.model_version_id
+    model_instance = ScientificModelInstance.objects.get (id= model_version_id)
+    model = ScientificModel.objects.get(id=model_instance.model_id)
+
+    acces = user_has_acces_to_model(request, model)
+    return acces
+
+
+def get_result_informations (result):
+    result_info = {}
+
+    #test info
+    test_code = ValidationTestCode.objects.get (id=result.test_code_id )
+    test = ValidationTestDefinition.objects.get(id=test_code.test_definition_id)
+    
+    result_info['test_id'] = str(test_code.test_definition_id)
+    result_info['test_alias'] = str(test.alias)
+    result_info['test_code_id'] = str(test_code.id)
+    result_info['test_code_version'] = str(test_code.version)
+    
+    
+    #model info 
+    model_instance = ScientificModelInstance.objects.get (id= result.model_version_id)
+    model = ScientificModel.objects.get(id=model_instance.model_id)
+   
+    result_info['model_id'] = str(model.id)
+    result_info['model_alias'] = str(model.alias)
+    result_info['model_instance_id'] = str(model_instance.id)
+    result_info['model_instance_version'] = str(model_instance.version)
+
+
+    return (result_info)
+
+
+def organise_results_dict (point_of_view, results, serializer_context):
+    data_to_return = {}
+
+    #data_to_return structuraction for test point of view
+    if point_of_view == "test" :
+        print "test first"
+        data_to_return['tests'] = {}
+        for result in results :
+            result_info = get_result_informations(result)
+
+            current = data_to_return['tests']
+            if result_info['test_id'] not in current  :
+                 current[result_info['test_id']] = { 'alias': result_info['test_alias'], 'test_codes' : {} }
+
+            current = current[result_info['test_id']]['test_codes']
+            if result_info['test_code_id'] not in current :
+                current[result_info['test_code_id']] = {'version' : result_info['test_code_version']  , 'models' : {}}
+            
+            current = current[result_info['test_code_id']]['models']
+            if result_info['model_id'] not in current :
+                current[result_info['model_id']] = {'alias' : result_info['model_alias'], 'model_instances' : {} }
+
+            current = current[result_info['model_id']]['model_instances']
+            if result_info['model_instance_id'] not in current :
+                result_data = ValidationTestResultSerializer(result, context=serializer_context).data
+                current[result_info['model_instance_id']] = {'version' : result_info['model_instance_version'], 'result' : result_data }
+
+        
+    #data_to_return structuraction for model point of view 
+    elif  point_of_view == "model" :
+        print "model first"
+        
+        data_to_return['models'] = {}
+        for result in results :
+            result_info = get_result_informations(result)
+
+            current = data_to_return['models']
+            if result_info['model_id'] not in current  :
+                 current[result_info['model_id']] = { 'alias': result_info['model_alias'],  'model_instances' : {} }
+
+            current = current[result_info['model_id']]['model_instances']
+            if result_info['model_instance_id'] not in current :
+                current[result_info['model_instance_id']] = {'version' : result_info['model_instance_version']  , 'tests' : {}}
+            
+            current = current[result_info['model_instance_id']]['tests']
+            if result_info['test_id'] not in current :
+                current[result_info['test_id']] = {'alias' : result_info['test_alias'], 'test_codes' : {} }
+
+            current = current[result_info['test_id']]['test_codes']
+            if result_info['test_code_id'] not in current :
+                result_data = ValidationTestResultSerializer(result, context=serializer_context).data
+                current[result_info['test_code_id']] = {'version' : result_info['test_code_version'], 'result' : result_data }
+ 
+
+    #data_to_return no structuraction 
+    else : 
+        # data_to_return = ValidationTestResultReadOnlySerializer(results, context=serializer_context).data  
+
+        result_serializer = ValidationTestResultReadOnlySerializer(results, context=serializer_context, many=True).data
+
+        # result_serializer = ValidationTestResultSerializer(results, context=serializer_context).data
+
+        
+        data_to_return = {'results' : result_serializer} 
+
+    return data_to_return
+
+
+
+class ValidationResultRest2 (APIView):
+    def get(self, request, format=None, **kwargs):
+        param_id = request.GET.getlist('id')
+        param_results_storage = request.GET.getlist('results_storage')
+        param_score = request.GET.getlist('score')
+        param_passed = request.GET.getlist('passed')
+        param_timestamp = request.GET.getlist('timestamp')
+        param_platforme = request.GET.getlist('platforme')
+        param_project = request.GET.getlist('project')
+        param_model_version_id = request.GET.getlist('model_version_id')
+        param_test_code_id = request.GET.getlist('test_code_id')
+        param_normalized_score = request.GET.getlist('normalized_score')
+
+        param_model_id = request.GET.getlist('model_id')
+        param_test_id = request.GET.getlist('test_id')
+        param_point_of_view = request.GET.getlist('point_of_view')[0]
+        
+        serializer_context = {'request': request,}
+
+        #if ID result
+        if (len(param_id) == 0):
+            
+            #make the first sorting using the params
+            q = ValidationTestResult.objects.all()
+            if len(param_results_storage) > 0 :
+                q = q.filter(results_storage__in = param_results_storage )
+            if len(param_score) > 0 :
+                q = q.filter(score__in = param_score)
+            if len(param_passed) > 0 :
+                q = q.filter(passed__in = param_passed)
+            if len(param_timestamp) > 0 :
+                q = q.filter(timestamp__in = param_timestamp)
+            if len(param_platforme) > 0 :
+                q = q.filter(platforme__in = param_platforme)
+            if len(param_project) > 0 :
+                q = q.filter(project__in = param_project)
+            if len(param_model_version_id) > 0 :
+                q = q.filter(model_version_id__in = param_model_version_id)
+            if len(param_test_code_id) > 0 :
+                q = q.filter(test_code_id__in = param_test_code_id)
+            if len(param_normalized_score) > 0 :
+                q = q.filter(normalized_score__in = param_normalized_score)
+            results = q
+      
+            #add filter using param_test_id >> filter by tests
+            if len(param_test_code_id) == 0 and len(param_test_id) > 0 :
+                testcodes = ValidationTestCode.objects.filter(test_definition_id__in = param_test_id )
+                #from all test codes get the results
+                results = results.filter(test_code_id__in = testcodes.values("id"))
+
+            #check if user has acces to the model associated to this result
+            # temp_results = results
+            # for result in results :
+            #     if user_has_acces_to_result(request, result) is False :
+            #         temp_results.exclude(id = result.id )
+            # results = temp_results
+           
+            #add filter using param_model_id >> filter by models
+            if len(param_model_version_id) == 0 and len(param_model_id) > 0 :       
+                model_instance = ScientificModelInstance.objects.filter(model_id__in = param_model_id )
+                #from all model_instance get the results
+                results = results.filter(model_version_id__in = model_instance.values("id"))
+
+            #check if user has acces to the model associated to the results
+            temp_results = results
+            for result in results :
+                if user_has_acces_to_result(request, result) is False :
+                    temp_results.exclude(id = result.id )
+            results = temp_results
+
+            data_to_return = organise_results_dict(param_point_of_view, results, serializer_context)
+
+                            
+        else :
+            results =  ValidationTestResult.objects.filter(id__in = param_id)
+
+            #TODO structure acording to "point_of_view" ?
+
+
+            result_serializer = ValidationTestResultReadOnlySerializer(results, context=serializer_context).data
+            data_to_return = {'results' : result_serializer.data}
+
+                
+        return Response(data_to_return)
+            
 
 
 
