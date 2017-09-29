@@ -5,7 +5,8 @@ from ...models import (
                     Param_TestType, 
                     Param_BrainRegion, 
                     Param_CellType, 
-                    Param_ModelType, 
+                    Param_ModelType,
+                    Param_organizations, 
                     CollabParameters,
 		    Param_ScoreType,
 
@@ -16,6 +17,7 @@ from ...models import (
                     ValidationTestCode,
                     ValidationTestResult,
                     )
+
 import uuid
 
 class Command(BaseCommand):
@@ -28,7 +30,13 @@ class Command(BaseCommand):
         Param_DataModalities(id=uuid.uuid4(),authorized_value='2-photon imaging').save()
         Param_DataModalities(id=uuid.uuid4(),authorized_value='electron microscopy').save()
         Param_DataModalities(id=uuid.uuid4(),authorized_value='histology').save()   
-        
+    
+    def _create_organizations(self):
+        Param_organizations(id=uuid.uuid4(),authorized_value='HBP-SP4').save()
+        Param_organizations(id=uuid.uuid4(),authorized_value='HBP-SP6').save()
+        Param_organizations(id=uuid.uuid4(),authorized_value='Blue Brain Project').save() 
+	Param_organizations(id=uuid.uuid4(),authorized_value='Other').save()  
+        	
     def _create_test_types(self): 
         Param_TestType(id=uuid.uuid4(),authorized_value='single cell activity').save()
         Param_TestType(id=uuid.uuid4(),authorized_value='network structure').save()
@@ -857,6 +865,13 @@ class Command(BaseCommand):
         result.project = "azerty"
         result.save()
 
+    def delete_models_in_collab(self,collab_id, *args, **options):
+        app_id = CollabParameters.objects.filter(collab_id = collab_id, app_type='model_catalog')
+        models_to_delete = ScientificModel.objects.filter(app_id=app_id)
+        for model in models_to_delete:
+                model.delete()
+
+
     def handle(self, *args, **options):
         #self._create_data_modalities()
         #self._create_test_types()
@@ -864,10 +879,12 @@ class Command(BaseCommand):
         #self._create_brain_region()
         #self._create_cell_type()
         #self._create_model_type()
-	self._create_score_type()
+	#self._create_score_type()
+	#self._create_organizations()
         # self._fake_collab()
 	# self._fake_models_test_results()
         #self._fake_models_test_results_heli()
+        self.delete_models_in_collab(collab_id = 2180)
 
 
 

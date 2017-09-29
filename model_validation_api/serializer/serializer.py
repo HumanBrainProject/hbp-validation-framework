@@ -10,14 +10,15 @@ from ..models import (ValidationTestDefinition,
                     Comments,
                     Tickets,
                     CollabParameters,
-
+                    # FollowModel,
                     Param_DataModalities,
                     Param_TestType,
                     Param_Species,
                     Param_BrainRegion,
                     Param_CellType,
                     Param_ModelType,
-                    Param_ScoreType
+                    Param_ScoreType,
+                    Param_organizations
                     )
 
 from rest_framework import serializers
@@ -42,28 +43,18 @@ from .simple_serializer import (
     Param_CellTypeSerializer,
     Param_ModelTypeSerializer,
     Param_ScoreTypeSerializer,
-
-
-
+    Param_OrganizationsSerializer,
 )
 
 
 #### rest framework serializers ####
 
 
-
-
-
-
-
-
-
 class ScientificModelReadOnlySerializer2(serializers.HyperlinkedModelSerializer):
     app = CollabParametersSerializer (read_only = True)
     class Meta:
         model = ScientificModel
-        fields = ('id', 'name', 'description', 'species', 'brain_region', 'cell_type', 'author', 'model_type','private','app','alias')
-
+        fields = ('id', 'name', 'description', 'species', 'brain_region', 'cell_type', 'author', 'model_type','private','organization','app','alias')
 
 
 #############################
@@ -90,7 +81,7 @@ class ScientificModelReadOnlySerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = ScientificModel
-        fields = ('id', 'name', 'alias', 'author', 'app_id','private', 'cell_type', 'model_type', 'brain_region', 'species','description', 'instances', 'images')
+        fields = ('id', 'name', 'alias', 'author', 'app_id','organization','private', 'cell_type', 'model_type', 'brain_region', 'species','description', 'instances', 'images')
 
 class ScientificModelFullReadOnlySerializer(serializers.HyperlinkedModelSerializer):
     app = CollabParametersSerializer( read_only=True)
@@ -98,13 +89,13 @@ class ScientificModelFullReadOnlySerializer(serializers.HyperlinkedModelSerializ
     images = ScientificModelImageSerializer (read_only=True , many=True )
     class Meta:
         model = ScientificModel
-        fields = ('id', 'name', 'alias', 'author', 'app','private', 'cell_type', 'model_type', 'brain_region', 'species','description', 'instances', 'images')
+        fields = ('id', 'name', 'alias', 'author', 'app','organization','private', 'cell_type', 'model_type', 'brain_region', 'species','description', 'instances', 'images')
 
 class ScientificModelReadOnlyForHomeSerializer(serializers.HyperlinkedModelSerializer):
     app = CollabParametersReadOnlyForHomeSerializer (read_only = True)
     class Meta:
         model = ScientificModel
-        fields = ('id', 'name', 'species', 'brain_region', 'cell_type', 'author', 'model_type','private','app','alias')
+        fields = ('id', 'name', 'species', 'brain_region', 'cell_type', 'author', 'model_type','private','app','organization','alias')
 
 
 ###########################
@@ -170,11 +161,6 @@ class TicketReadOnlySerializer(serializers.HyperlinkedModelSerializer):
         fields = ( 'id', 'author', 'title', 'text', 'creation_date', 'test_id', 'comments')
 
 
-
-
-
-
-
 # class CollabParametersSerializer(serializers.HyperlinkedModelSerializer):
 #     param = serializers.PrimaryKeyRelatedField(many = True, read_only=True)
 #     # data_modalities = Param_DataModalitiesSerializer(many=True , read_only=True)
@@ -218,7 +204,3 @@ class TicketReadOnlySerializer(serializers.HyperlinkedModelSerializer):
 #    class Meta:
 #        model = configview
 #        fields = ('species', 'brain_region', 'cell_type', 'model_type')
-
-
-
-

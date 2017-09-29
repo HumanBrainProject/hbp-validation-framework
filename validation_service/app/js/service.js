@@ -296,6 +296,7 @@ ParametersConfigurationServices.service('CollabParameters', ['$rootScope', 'Coll
                 parameters.param[0]['cell_type'],
                 parameters.param[0]['model_type'],
                 parameters.param[0]['test_type'],
+                parameters.param[0]['organization'],
             ];
 
             return param_tab;
@@ -308,6 +309,7 @@ ParametersConfigurationServices.service('CollabParameters', ['$rootScope', 'Coll
             parameters.param[0]['cell_type'] = string_tab[3];
             parameters.param[0]['model_type'] = string_tab[4];
             parameters.param[0]['test_type'] = string_tab[5];
+            parameters.param[0]['organization'] = string_tab[6];
         };
 
 
@@ -335,7 +337,6 @@ ParametersConfigurationServices.service('CollabParameters', ['$rootScope', 'Coll
                         param_tab = _getParamTabValues();
                         string_tab = _StringTabToArray(param_tab);
                         _setParametersNewValues(string_tab);
-
                     }
                 });
             }
@@ -360,6 +361,7 @@ ParametersConfigurationServices.service('CollabParameters', ['$rootScope', 'Coll
                 'brain_region': String(parameters.param[0]['brain_region']),
                 'cell_type': String(parameters.param[0]['cell_type']),
                 'model_type': String(parameters.param[0]['model_type']),
+                'organization': String(parameters.param[0]['organization']),
                 'app_type': String(parameters.param[0]['app_type']),
                 'collab_id': Context.getCollabID(),
             });
@@ -377,6 +379,7 @@ ParametersConfigurationServices.service('CollabParameters', ['$rootScope', 'Coll
                 'brain_region': String(parameters.param[0]['brain_region']),
                 'cell_type': String(parameters.param[0]['cell_type']),
                 'model_type': String(parameters.param[0]['model_type']),
+                'organization': String(parameters.param[0]['organization']),
                 'app_type': String(parameters.param[0]['app_type']),
                 'collab_id': Context.getCollabID(),
             });
@@ -394,6 +397,7 @@ ParametersConfigurationServices.service('CollabParameters', ['$rootScope', 'Coll
                     'brain_region': [],
                     'cell_type': [],
                     'model_type': [],
+                    'organization': [],
                     'app_type': [],
                     'collab_id': 0,
                 }, ],
@@ -510,7 +514,7 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'ValidationResultRest', 'Col
             for (ij; ij < data.length; ij++) {
                 var temp = {
                     x: new Date(data[ij].timestamp),
-                    y: data[ij].normalized_score,
+                    y: data[ij].score,
                     id: line_id,
                     id_test_result: data[ij].id,
                 };

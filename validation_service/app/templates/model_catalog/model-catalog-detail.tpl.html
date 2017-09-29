@@ -29,6 +29,9 @@
                 <td style="width: 15%"> <b> Brain region: </b> {{ model.models[0].brain_region }} </td>
                 <td style="width: 15%"> <b> Cell type: </b> {{ model.models[0].cell_type }} </td>
             </tr>
+            <tr>
+                <td style="width: 15%"> <b> Organization: </b> {{ model.models[0].organization }} </td>
+            </tr>
         </tbody>
     </table>
     <br>
@@ -67,7 +70,9 @@
             <tr ng-repeat="model_instance in model.models[0].instances">
                 <td>{{ model_instance.version }}</td>
                 <td><pre>{{ model_instance.parameters }}</pre></td>
-                <td>{{ model_instance.source }}</td>
+                <td>
+                    <a target=_blank href={{model_instance.source}}>{{ model_instance.source }}</a>
+                </td>
         </tbody>
     </table>
 

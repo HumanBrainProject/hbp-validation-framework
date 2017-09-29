@@ -87,7 +87,15 @@ ApiCommunicationServices.factory('TestTicketRest', ['$resource',
     }
 ]);
 
-
+// ApiCommunicationServices.factory('ModelFollowRest', ['$resource',
+//     function($resource) {
+//         return $resource('modelfollowrest/:uuid', { id: '@eUuid' }, {
+//             // get: { method: 'GET', params: { format: 'json', app_id: 'app_id' }, isArray: false },
+//             // put: { method: 'PUT', params: { format: 'json', app_id: 'app_id' }, headers: { 'Content-Type': 'application/json' } },
+//             post: { method: 'POST', params: { format: 'json', app_id: 'app_id' }, headers: { 'Content-Type': 'application/json' } }
+//         });
+//     }
+// ]);
 /////////////////////////
 ApiCommunicationServices.factory('CollabParameterRest', ['$resource',
     function($resource) {
@@ -103,6 +111,16 @@ ApiCommunicationServices.factory('CollabParameterRest', ['$resource',
 ApiCommunicationServices.factory('AuthorizedCollabParameterRest', ['$resource',
     function($resource) {
         return $resource('authorizedcollabparameterrest/', {}, {
+            get: { method: 'GET', params: { format: 'json', app_id: 'app_id' }, isArray: false },
+            //   put: {method:'PUT', params:{format:'json', app_id: 'app_id' }, headers:{ 'Content-Type':'application/json' }},
+            // post: { method: 'POST', params: { format: 'json', app_id: 'app_id'  }, headers: { 'Content-Type': 'application/json' } }
+        });
+    }
+]);
+
+ApiCommunicationServices.factory('AuthorizedOrganizationsRest', ['$resource',
+    function($resource) {
+        return $resource('authorizedorganizationsrest/', {}, {
             get: { method: 'GET', params: { format: 'json', app_id: 'app_id' }, isArray: false },
             //   put: {method:'PUT', params:{format:'json', app_id: 'app_id' }, headers:{ 'Content-Type':'application/json' }},
             // post: { method: 'POST', params: { format: 'json', app_id: 'app_id'  }, headers: { 'Content-Type': 'application/json' } }

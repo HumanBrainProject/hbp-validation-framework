@@ -110,6 +110,17 @@ def is_authorised(request, collab_id):
         else: 
             return True 
 
+
+def get_user_info(request):
+    social_auth = request.user.social_auth.get()
+    url = "https://services.humanbrainproject.eu/oidc/userinfo"
+    headers = {
+        'Authorization': get_auth_header(request.user.social_auth.get()),   
+    }
+    res = requests.post(url, headers=headers)
+    print(res.json())
+    return res.json() 
+
 def is_hbp_member (request):
     svc_url = settings.HBP_COLLAB_SERVICE_URL
 
@@ -125,12 +136,3 @@ def is_hbp_member (request):
         return True
 
 
-
-
-
-        
-
-
-
-
-    
