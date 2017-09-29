@@ -178,15 +178,15 @@ class Comments(models.Model):
     text = models.TextField()
     creation_date = models.DateTimeField(auto_now_add=True)
 
-class FollowModel(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, )
-    model = models.ForeignKey(ScientificModel, on_delete=models.CASCADE)
-    user_id = models.IntegerField(help_text="user id of the follower")
+# class FollowModel(models.Model):
+#     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, )
+#     model = models.ForeignKey(ScientificModel)
+#     user_id = models.IntegerField(help_text="user id of the follower")
 
-class FollowTest(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, )
-    test = models.ForeignKey(ValidationTestDefinition, on_delete=models.CASCADE)
-    user_id = models.IntegerField(help_text="user id of the follower")
+# class FollowTest(models.Model):
+#     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, )
+#     test = models.ForeignKey(ValidationTestDefinition)
+#     user_id = models.IntegerField(help_text="user id of the follower")
 
 class  Param_organizations (models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, )
