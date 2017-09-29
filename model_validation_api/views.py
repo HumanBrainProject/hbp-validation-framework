@@ -1241,7 +1241,7 @@ def user_has_acces_to_model (request, model):
 def user_has_acces_to_result (request, result):
     
     model_version_id = result.model_version_id
-    model_instance = ScientificModelInstance.object.get (id= model_version_id)
+    model_instance = ScientificModelInstance.objects.get (id= model_version_id)
     model = ScientificModel.objects.get(id=model_instance.model_id)
 
     acces = user_has_acces_to_model(request, model)
@@ -1249,23 +1249,101 @@ def user_has_acces_to_result (request, result):
 
 
 def get_result_informations (result):
+    result_info = {}
+
+    #test info
+    test_code = ValidationTestCode.objects.get (id=result.test_code_id )
+    test = ValidationTestDefinition.objects.get(id=test_code.test_definition_id)
     
-    test_code_id = result.test_code_id
-    model_version_id = result.model_version_id
-
-    test_code = ValidationTestCode.object.get (id=test_code_id )
-    model_instance = ScientificModelInstance.object.get (id= model_version_id)
-
-
-    test_id = test_code.test_definition_id
-    model_id = model_instance.model_id
-
+    result_info['test_id'] = str(test_code.test_definition_id)
+    result_info['test_alias'] = str(test.alias)
+    result_info['test_code_id'] = str(test_code.id)
+    result_info['test_code_version'] = str(test_code.version)
     
-    return (test_code_id, test_id, model_instance_id, model_id )
+    
+    #model info 
+    model_instance = ScientificModelInstance.objects.get (id= result.model_version_id)
+    model = ScientificModel.objects.get(id=model_instance.model_id)
+   
+    result_info['model_id'] = str(model.id)
+    result_info['model_alias'] = str(model.alias)
+    result_info['model_instance_id'] = str(model_instance.id)
+    result_info['model_instance_version'] = str(model_instance.version)
+
+
+    return (result_info)
+
+
+def organise_results_dict (point_of_view, results, serializer_context):
+    data_to_return = {}
+
+    #data_to_return structuraction for test point of view
+    if point_of_view == "test" :
+        print "test first"
+        data_to_return['tests'] = {}
+        for result in results :
+            result_info = get_result_informations(result)
+
+            current = data_to_return['tests']
+            if result_info['test_id'] not in current  :
+                 current[result_info['test_id']] = { 'alias': result_info['test_alias'], 'test_codes' : {} }
+
+            current = current[result_info['test_id']]['test_codes']
+            if result_info['test_code_id'] not in current :
+                current[result_info['test_code_id']] = {'version' : result_info['test_code_version']  , 'models' : {}}
+            
+            current = current[result_info['test_code_id']]['models']
+            if result_info['model_id'] not in current :
+                current[result_info['model_id']] = {'alias' : result_info['model_alias'], 'model_instances' : {} }
+
+            current = current[result_info['model_id']]['model_instances']
+            if result_info['model_instance_id'] not in current :
+                result_data = ValidationTestResultSerializer(result, context=serializer_context).data
+                current[result_info['model_instance_id']] = {'version' : result_info['model_instance_version'], 'result' : result_data }
+
+        
+    #data_to_return structuraction for model point of view 
+    elif  point_of_view == "model" :
+        print "model first"
+        
+        data_to_return['models'] = {}
+        for result in results :
+            result_info = get_result_informations(result)
+
+            current = data_to_return['models']
+            if result_info['model_id'] not in current  :
+                 current[result_info['model_id']] = { 'alias': result_info['model_alias'],  'model_instances' : {} }
+
+            current = current[result_info['model_id']]['model_instances']
+            if result_info['model_instance_id'] not in current :
+                current[result_info['model_instance_id']] = {'version' : result_info['model_instance_version']  , 'tests' : {}}
+            
+            current = current[result_info['model_instance_id']]['tests']
+            if result_info['test_id'] not in current :
+                current[result_info['test_id']] = {'alias' : result_info['test_alias'], 'test_codes' : {} }
+
+            current = current[result_info['test_id']]['test_codes']
+            if result_info['test_code_id'] not in current :
+                result_data = ValidationTestResultSerializer(result, context=serializer_context).data
+                current[result_info['test_code_id']] = {'version' : result_info['test_code_version'], 'result' : result_data }
+ 
+
+    #data_to_return no structuraction 
+    else : 
+        # data_to_return = ValidationTestResultReadOnlySerializer(results, context=serializer_context).data  
+
+        result_serializer = ValidationTestResultReadOnlySerializer(results, context=serializer_context, many=True).data
+
+        # result_serializer = ValidationTestResultSerializer(results, context=serializer_context).data
+
+        
+        data_to_return = {'results' : result_serializer} 
+
+    return data_to_return
 
 
 
-class ValidationResultRest (APIView):
+class ValidationResultRest2 (APIView):
     def get(self, request, format=None, **kwargs):
         param_id = request.GET.getlist('id')
         param_results_storage = request.GET.getlist('results_storage')
@@ -1280,7 +1358,7 @@ class ValidationResultRest (APIView):
 
         param_model_id = request.GET.getlist('model_id')
         param_test_id = request.GET.getlist('test_id')
-        param_point_of_view = request.GET.getlist('point_of_view')
+        param_point_of_view = request.GET.getlist('point_of_view')[0]
         
         serializer_context = {'request': request,}
 
@@ -1311,73 +1389,44 @@ class ValidationResultRest (APIView):
       
             #add filter using param_test_id >> filter by tests
             if len(param_test_code_id) == 0 and len(param_test_id) > 0 :
-                testcodes = ValidationTestCode.object.filter(test_definition_id__in = param_test_id )
+                testcodes = ValidationTestCode.objects.filter(test_definition_id__in = param_test_id )
                 #from all test codes get the results
                 results = results.filter(test_code_id__in = testcodes.values("id"))
 
             #check if user has acces to the model associated to this result
-            temp_results = results
-            for result in results :
-                if user_has_acces_to_result(request, result) is False :
-                    temp_results.exclude(id = result.id )
-            results = temp_results
-
-            
+            # temp_results = results
+            # for result in results :
+            #     if user_has_acces_to_result(request, result) is False :
+            #         temp_results.exclude(id = result.id )
+            # results = temp_results
+           
             #add filter using param_model_id >> filter by models
-            if len(param_model_version_id) == 0 and len(param_model_id) > 0 :
-                model_instance = ScientificModelInstance.object.filter(model_id__in = param_model_id )
+            if len(param_model_version_id) == 0 and len(param_model_id) > 0 :       
+                model_instance = ScientificModelInstance.objects.filter(model_id__in = param_model_id )
                 #from all model_instance get the results
                 results = results.filter(model_version_id__in = model_instance.values("id"))
 
-            #check if user has acces to the model associated to this result
+            #check if user has acces to the model associated to the results
             temp_results = results
             for result in results :
                 if user_has_acces_to_result(request, result) is False :
                     temp_results.exclude(id = result.id )
             results = temp_results
 
+            data_to_return = organise_results_dict(param_point_of_view, results, serializer_context)
 
-            data_to_return = {}            
-
-            #data_to_return structuraction for test point of view
-            if param_point_of_view == "test" :
-                for result in results :
-                    test_code_id, test_id, model_instance_id, model_id = get_result_informations(result)
-                    data_to_return[test_id][test_code_id][model_id][model_instance_id]['result'] = ValidationTestResultSerializer(result, context=serializer_context).data
-                
-                #put additional data for test_code and model_instance model alias test alias
-
-
-            #data_to_return structuraction for model point of view 
-            elif  param_point_of_view == "model" :
-                for result in results :
-                    test_code_id, test_id, model_instance_id, model_id = get_result_informations(result)
-                    data_to_return[model_id][model_instance_id][test_id][test_code_id]['result'] = ValidationTestResultSerializer(result, context=serializer_context).data
-                    
-
-                #put additional data for test_code and model_instance model alias test alias
-
-
-            #data_to_return no structuraction 
-            else : 
-                # data_to_return = ValidationTestResultReadOnlySerializer(results, context=serializer_context).data  
-                result_serializer = ValidationTestResultReadOnlySerializer(results, context=serializer_context).data
-                data_to_return = {'results' : result_serializer.data}                    
-
+                            
         else :
-            results =  ValidationTestResult.object.filter(id__in = param_id)
+            results =  ValidationTestResult.objects.filter(id__in = param_id)
 
-            #TODO structure acording to "point_of_view"
-
-
+            #TODO structure acording to "point_of_view" ?
 
 
             result_serializer = ValidationTestResultReadOnlySerializer(results, context=serializer_context).data
-
             data_to_return = {'results' : result_serializer.data}
 
                 
-        return Response(deta_to_return)
+        return Response(data_to_return)
             
 
 

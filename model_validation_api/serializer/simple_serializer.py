@@ -110,9 +110,9 @@ class ValidationTestCodeSerializer(serializers.HyperlinkedModelSerializer):
 class ValidationTestResultSerializer (serializers.HyperlinkedModelSerializer):
     class Meta:
         model = ValidationTestResult
-        fields = ('id',  'results_storage', 'score', 'passed', 'timestamp', 'platform',   'project', 'model_instance_id', 'test_code_id', 'normalized_score')
+        fields = ('id', 'model_version_id', 'test_code_id', 'results_storage', 'score', 'passed', 'timestamp', 'platform',   'project',  'normalized_score')
 
-
+ 
 
 #############
 ## Tickets ##
