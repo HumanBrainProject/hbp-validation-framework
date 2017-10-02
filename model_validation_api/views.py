@@ -1369,7 +1369,10 @@ class ValidationResultRest2 (APIView):
 
         param_model_id = request.GET.getlist('model_id')
         param_test_id = request.GET.getlist('test_id')
-        param_point_of_view = request.GET.getlist('point_of_view')[0]
+        param_point_of_view = request.GET.getlist('point_of_view')
+
+        if len(param_point_of_view) > 0 :
+            param_point_of_view = param_point_of_view[0]
         
         serializer_context = {'request': request,}
 
@@ -1403,13 +1406,6 @@ class ValidationResultRest2 (APIView):
                 testcodes = ValidationTestCode.objects.filter(test_definition_id__in = param_test_id )
                 #from all test codes get the results
                 results = results.filter(test_code_id__in = testcodes.values("id"))
-
-            #check if user has acces to the model associated to this result
-            # temp_results = results
-            # for result in results :
-            #     if user_has_acces_to_result(request, result) is False :
-            #         temp_results.exclude(id = result.id )
-            # results = temp_results
            
             #add filter using param_model_id >> filter by models
             if len(param_model_version_id) == 0 and len(param_model_id) > 0 :       
@@ -1439,9 +1435,26 @@ class ValidationResultRest2 (APIView):
                 
         return Response(data_to_return)
 
+    def post(self, request, format=None):
+        serializer_context = {'request': request,}
 
-  
-            
+        #check if the user can acces the models, and if data are valids
+        for result in request.data : 
+            serializer = ValidationTestResultSerializer (data=result, context=serializer_context)
+            if serializer.is_valid():  
+                instance_id = result.model_version_id
+                model = ScientificModel.objects.get(id=instance_id)
+                if not user_has_acces_to_model(model) :
+                    return HttpResponseForbidden()
+            else :
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        serializer = ValidationTestResultSerializer(data=request.data, context=serializer_context)
+        if serializer.is_valid(): 
+            serializer.save()
+
+
+     
 
 
 
