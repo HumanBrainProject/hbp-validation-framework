@@ -1486,8 +1486,8 @@ class ValidationResultRest2 (APIView):
 
             serializer = ValidationTestResultSerializer(data=request.data, context=serializer_context)
 
-        if serializer.is_valid():         
-            serializer.save()
+            if serializer.is_valid():         
+                serializer.save()
 
         return Response( status=status.HTTP_202_ACCEPTED) 
 
