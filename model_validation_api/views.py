@@ -1370,10 +1370,13 @@ class ValidationResultRest2 (APIView):
 
         param_model_id = request.GET.getlist('model_id')
         param_test_id = request.GET.getlist('test_id')
-        param_point_of_view = request.GET.getlist('point_of_view')
+        param_order = request.GET.getlist('order')
 
-        if len(param_point_of_view) > 0 :
-            param_point_of_view = param_point_of_view[0]
+        if len(param_order) > 0 :
+            param_order = param_order[0]
+        else :
+            return Response("You need to give 'order' argument. Here are the options : 'test', 'model', '' ", status=status.HTTP_400_BAD_REQUEST)
+            
         
         serializer_context = {'request': request,}
 
@@ -1414,26 +1417,26 @@ class ValidationResultRest2 (APIView):
                 #from all model_instance get the results
                 results = results.filter(model_version_id__in = model_instance.values("id"))
 
-            #check if user has acces to the model associated to the results
+            #Exclude the results whitch the clien can't acces to.
             temp_results = results
             for result in results :
                 if user_has_acces_to_result(request, result) is False :
                     temp_results.exclude(id = result.id )
             results = temp_results
 
-            data_to_return = organise_results_dict(param_point_of_view, results, serializer_context)
-
-                            
+                             
         else :
             results =  ValidationTestResult.objects.filter(id__in = param_id)
 
-            #TODO structure acording to "point_of_view" ?
+            #check if user has acces to the model associated to the results
+            temp_results = results
+            for result in results :
+                if user_has_acces_to_result(request, result) is False :
+                    return Response("You do not access to result : {}".format(result.id), status=status.HTTP_403_FORBIDDEN)
+            results = temp_results
 
-
-            result_serializer = ValidationTestResultReadOnlySerializer(results, context=serializer_context).data
-            data_to_return = {'results' : result_serializer.data}
-
-                
+        data_to_return = organise_results_dict(param_order, results, serializer_context)
+            
         return Response(data_to_return)
 
 
