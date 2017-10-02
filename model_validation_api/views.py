@@ -1073,6 +1073,7 @@ class TestCommentRest(APIView):
             param_serializer.save()
             return Response(param_serializer.data)
         return Response(param_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
 
 # @method_decorator(login_required(login_url='/login/hbp'), name='dispatch' )
 class ModelCatalogView(View):
@@ -1435,6 +1436,7 @@ class ValidationResultRest2 (APIView):
                 
         return Response(data_to_return)
 
+
     def post(self, request, format=None):
         serializer_context = {'request': request,}
 
@@ -1452,6 +1454,50 @@ class ValidationResultRest2 (APIView):
         serializer = ValidationTestResultSerializer(data=request.data, context=serializer_context)
         if serializer.is_valid(): 
             serializer.save()
+        
+        return Response( status=status.HTTP_201_CREATED) 
+
+    def put(self, request, format=None):
+        serializer_context = {'request': request,}
+
+        #check if data are valids and if the user can modify the model-instance given
+        for result in request.data : 
+            serializer = ValidationTestResultSerializer (data=result, context=serializer_context)
+            if serializer.is_valid():  
+                instance_id = result.model_version_id
+                model = ScientificModel.objects.get(id=instance_id)
+                if not user_has_acces_to_model(model) :
+                    return HttpResponseForbidden()
+
+                #check if the client has allowed to modify the original result
+                original_result = ValidationTestResult.filter(id= result.id)
+                original_instance_id = original_result.model_version_id
+                original_model = ScientificModel.objects.get(id=original_instance_id)
+                if not user_has_acces_to_model(original_model) :
+                    return HttpResponseForbidden()
+
+            else :
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+        for result in request.data :
+            
+            original_result = ValidationTestResult.get(id= result.id)
+
+            serializer = ValidationTestResultSerializer(data=request.data, context=serializer_context)
+
+        if serializer.is_valid():         
+            serializer.save()
+
+        return Response( status=status.HTTP_202_ACCEPTED) 
+
+
+
+
+
+        
+        
+            
 
 
      
