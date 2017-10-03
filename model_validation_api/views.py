@@ -368,7 +368,7 @@ class ParametersConfigurationRest( APIView): #LoginRequiredMixin,
 
         if param_serializer.is_valid():         
             param_serializer.save()
-            return Response(param_serializer.data)
+            return Response(status=status.HTTP_202_ACCEPTED)
         return Response(param_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -668,7 +668,7 @@ class ScientificModelRest(APIView):
                 if model_image_serializer.is_valid()   :     
                     model_image_serializer.save(model_id=model.id)
 
-        return Response({'uuid':model.id}, status=status.HTTP_201_CREATED)
+        return Response(status=status.HTTP_201_CREATED)
 
     def put(self, request, format=None):
         
@@ -908,7 +908,7 @@ class ValidationTestDefinitionRest(APIView):
                     q = q.filter(author__in = param_author)
                 if len(param_publication) > 0 :
                     q = q.filter(publication__in = param_publication)
-                if len(param_) > 0 :
+                if len(param_param_score_type) > 0 :
                     q = q.filter(score_type__in = param_score_type)
                         
                 tests = q
@@ -953,7 +953,7 @@ class ValidationTestDefinitionRest(APIView):
         else:
             return Response(code_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
-        return Response({'id':test.id})
+        return Response(status=status.HTTP_201_CREATED)
 
     def put(self, request, format=None):
         if not is_hbp_member(request):
@@ -974,7 +974,7 @@ class ValidationTestDefinitionRest(APIView):
             test = test_serializer.save()
         else: 
             return Response(test_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        return Response( status=status.HTTP_201_CREATED) 
+        return Response(status=status.HTTP_202_ACCEPTED)
 
 class TestTicketRest(APIView):
     def get(self, request, format=None, **kwargs):
@@ -1006,7 +1006,7 @@ class TestTicketRest(APIView):
             return Response(param_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         new_ticket = Tickets.objects.filter(id=param.id)
         new_ticket_serializer = TicketReadOnlySerializer(new_ticket, context=serializer_context, many=True)
-        return Response({'new_ticket' : new_ticket_serializer.data})
+        return Response(status=status.HTTP_201_CREATED)
 
     def put(self, request, format=None):
         app_id = request.GET.getlist('app_id')[0]
@@ -1022,7 +1022,7 @@ class TestTicketRest(APIView):
 
         if param_serializer.is_valid():         
             param_serializer.save()
-            return Response(param_serializer.data)
+            return Response(status=status.HTTP_202_ACCEPTED)
         return Response(param_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -1056,7 +1056,7 @@ class TestCommentRest(APIView):
             return Response(param_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         new_comment = Comments.objects.filter(id=param.id)
         new_comment_serializer = CommentSerializer (new_comment, context=serializer_context, many=True)
-        return Response({'new_comment' : new_comment_serializer.data})
+        return Response(status=status.HTTP_201_CREATED)
 
     def put(self, request, format=None):
         app_id = request.query_params['app_id']
@@ -1071,7 +1071,7 @@ class TestCommentRest(APIView):
 
         if param_serializer.is_valid():         
             param_serializer.save()
-            return Response(param_serializer.data)
+            return Response(status=status.HTTP_202_ACCEPTED)
         return Response(param_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
 
@@ -1458,17 +1458,15 @@ class ValidationResultRest2 (APIView):
             else :
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        posted_data = []
         for result in request.data : 
             serializer = ValidationTestResultSerializer(data=result, context=serializer_context)
             if serializer.is_valid(): 
                 serializer.save(model_version_id = result['model_version_id'], test_code_id = result['test_code_id'] )     
-                posted_data.append(serializer.data)
     
             else :
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        return Response(posted_data, status=status.HTTP_201_CREATED) 
+        return Response(status=status.HTTP_201_CREATED) 
         
 
     # def put(self, request, format=None):
