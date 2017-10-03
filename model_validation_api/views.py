@@ -1344,7 +1344,7 @@ def organise_results_dict (point_of_view, results, serializer_context):
     else : 
         # data_to_return = ValidationTestResultReadOnlySerializer(results, context=serializer_context).data  
 
-        result_serializer = ValidationTestResultReadOnlySerializer(results, context=serializer_context, many=True).data
+        result_serializer = ValidationTestResultSerializer(results, context=serializer_context, many=True).data
 
         # result_serializer = ValidationTestResultSerializer(results, context=serializer_context).data
 
@@ -1372,8 +1372,9 @@ class ValidationResultRest2 (APIView):
         param_test_id = request.GET.getlist('test_id')
         param_order = request.GET.getlist('order')
 
-        if len(param_order) > 0 :
+        if len(param_order) > 0 and (param_order[0] == 'test' or param_order[0] == 'model' or param_order[0] == '') :
             param_order = param_order[0]
+
         else :
             return Response("You need to give 'order' argument. Here are the options : 'test', 'model', '' ", status=status.HTTP_400_BAD_REQUEST)
             
