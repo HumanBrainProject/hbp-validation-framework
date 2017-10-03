@@ -1370,6 +1370,10 @@ class ValidationResultRest2 (APIView):
 
         param_model_id = request.GET.getlist('model_id')
         param_test_id = request.GET.getlist('test_id')
+
+        param_model_alias = request.GET.getlist('model_alias')
+        param_test_alias = request.GET.getlist('test_alias')
+
         param_order = request.GET.getlist('order')
 
         if len(param_order) > 0 and (param_order[0] == 'test' or param_order[0] == 'model' or param_order[0] == '') :
@@ -1430,11 +1434,9 @@ class ValidationResultRest2 (APIView):
             results =  ValidationTestResult.objects.filter(id__in = param_id)
 
             #check if user has acces to the model associated to the results
-            temp_results = results
             for result in results :
                 if user_has_acces_to_result(request, result) is False :
                     return Response("You do not access to result : {}".format(result.id), status=status.HTTP_403_FORBIDDEN)
-            results = temp_results
 
         data_to_return = organise_results_dict(param_order, results, serializer_context)
             
@@ -1448,52 +1450,60 @@ class ValidationResultRest2 (APIView):
         for result in request.data : 
             serializer = ValidationTestResultSerializer (data=result, context=serializer_context)
             if serializer.is_valid():  
-                instance_id = result.model_version_id
-                model = ScientificModel.objects.get(id=instance_id)
-                if not user_has_acces_to_model(model) :
+                instance_id = result['model_version_id']
+                instance = ScientificModelInstance.objects.get(id=instance_id)
+                model = ScientificModel.objects.get(id=instance.model_id)
+                if not user_has_acces_to_model(request, model) :
                     return HttpResponseForbidden()
             else :
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        serializer = ValidationTestResultSerializer(data=request.data, context=serializer_context)
-        if serializer.is_valid(): 
-            serializer.save()
-        
-        return Response( status=status.HTTP_201_CREATED) 
-
-    def put(self, request, format=None):
-        serializer_context = {'request': request,}
-
-        #check if data are valids and if the user can modify the model-instance given
+        posted_data = []
         for result in request.data : 
-            serializer = ValidationTestResultSerializer (data=result, context=serializer_context)
-            if serializer.is_valid():  
-                instance_id = result.model_version_id
-                model = ScientificModel.objects.get(id=instance_id)
-                if not user_has_acces_to_model(model) :
-                    return HttpResponseForbidden()
-
-                #check if the client has allowed to modify the original result
-                original_result = ValidationTestResult.filter(id= result.id)
-                original_instance_id = original_result.model_version_id
-                original_model = ScientificModel.objects.get(id=original_instance_id)
-                if not user_has_acces_to_model(original_model) :
-                    return HttpResponseForbidden()
-
+            serializer = ValidationTestResultSerializer(data=result, context=serializer_context)
+            if serializer.is_valid(): 
+                serializer.save(model_version_id = result['model_version_id'], test_code_id = result['test_code_id'] )     
+                posted_data.append(serializer.data)
+    
             else :
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+        return Response(posted_data, status=status.HTTP_201_CREATED) 
+        
 
-        for result in request.data :
+    # def put(self, request, format=None):
+    #     serializer_context = {'request': request,}
+
+    #     #check if data are valids and if the user can modify the model-instance given
+    #     for result in request.data : 
+    #         serializer = ValidationTestResultSerializer (data=result, context=serializer_context)
+    #         if serializer.is_valid():  
+    #             instance_id = result.model_version_id
+    #             model = ScientificModel.objects.get(id=instance_id)
+    #             if not user_has_acces_to_model(request, model) :
+    #                 return HttpResponseForbidden()
+
+    #             #check if the client has allowed to modify the original result
+    #             original_result = ValidationTestResult.filter(id= result.id)
+    #             original_instance_id = original_result.model_version_id
+    #             original_model = ScientificModel.objects.get(id=original_instance_id)
+    #             if not user_has_acces_to_model(request, original_model) :
+    #                 return HttpResponseForbidden()
+
+    #         else :
+    #             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+    #     for result in request.data :
             
-            original_result = ValidationTestResult.get(id= result.id)
+    #         original_result = ValidationTestResult.get(id= result.id)
 
-            serializer = ValidationTestResultSerializer(data=request.data, context=serializer_context)
+    #         serializer = ValidationTestResultSerializer(data=request.data, context=serializer_context)
 
-            if serializer.is_valid():         
-                serializer.save()
+    #         if serializer.is_valid():         
+    #             serializer.save()
 
-        return Response( status=status.HTTP_202_ACCEPTED) 
+    #     return Response( status=status.HTTP_202_ACCEPTED) 
 
 
 
