@@ -319,7 +319,7 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
                                     $state.reload();
                                 });
                             } else {
-                                alert('Cannot update the test. Please check your Alias.');
+                                alert('Cannot update the test. Please check the alias.');
                             };
                         });
                     } else {
@@ -543,17 +543,17 @@ testApp.controller('ValTestCreateCtrl', ['$scope', '$rootScope', '$http', '$loca
                             if ($scope.alias_is_valid.is_valid) {
                                 var parameters = JSON.stringify({ test_data: $scope.test, code_data: $scope.code });
                                 ValidationTestDefinitionRest.save({ app_id: app_id }, parameters).$promise.then(function(data) {
-                                    Context.validation_goToTestDetailView(data.id);
+                                    Context.validation_goToTestDetailView(data.uuid);
                                 });
                             } else {
-                                alert('Cannot update the test. Please check your alias.');
+                                alert('Cannot update the test. Please check the alias.');
                             };
                         });
                     } else {
                         $scope.test.alias = null;
                         var parameters = JSON.stringify({ test_data: $scope.test, code_data: $scope.code });
                         ValidationTestDefinitionRest.save({ app_id: app_id }, parameters).$promise.then(function(data) {
-                            Context.validation_goToTestDetailView(data.id);
+                            Context.validation_goToTestDetailView(data.uuid);
                         });
                     };
                 };
@@ -984,7 +984,7 @@ ModelCatalogApp.controller('ModelCatalogEditCtrl', ['$scope', '$rootScope', '$ht
                             alert('Image has been saved !');
                             $state.reload();
                         });
-                    } else { alert("you need to add an url!") }
+                    } else { alert("You need to add an url !") }
                 };
                 $scope.closeImagePanel = function() {
                     $scope.image = {};
@@ -993,7 +993,7 @@ ModelCatalogApp.controller('ModelCatalogEditCtrl', ['$scope', '$rootScope', '$ht
                 $scope.editImages = function() {
                     var parameters = $scope.model.models[0].images;
                     var a = ScientificModelImageRest.put({ app_id: app_id }, parameters).$promise.then(function(data) {
-                        alert('model images have been correctly edited');
+                        alert('Model images have been correctly edited');
                     });
                 };
                 $scope.saveModel = function() {
@@ -1006,7 +1006,7 @@ ModelCatalogApp.controller('ModelCatalogEditCtrl', ['$scope', '$rootScope', '$ht
                                     alert('Model correctly edited');
                                 });
                             } else {
-                                alert('Cannot update the model. Please check your Alias.');
+                                alert('Cannot update the model. Please check the alias.');
                             }
                         });
                     } else {
@@ -1147,7 +1147,7 @@ ParametersConfigurationApp.controller('ParametersConfigurationCtrl', ['$scope', 
 
                     CollabParameters.put_parameters().$promise.then(function() {
                         CollabParameters.getRequestParameters().$promise.then(function() {});
-                        alert("Your app have been correctly configured")
+                        alert("Your app has been configured")
                     });
 
                 };
