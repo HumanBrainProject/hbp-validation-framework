@@ -769,17 +769,17 @@ class ValidationTestCodeRest(APIView):
         q = ValidationTestCode.objects.all()
 
         if len(param_id) > 0 :
-            q = q.filter(app_id__in = param_id)  
+            q = q.filter(id__in = param_id)  
         if len(param_test_definition_id) > 0 :
-            q = q.filter(app_id__in = param_test_definition_id)     
+            q = q.filter(test_definition_id__in = param_test_definition_id)     
         if len(param_repository) > 0 :
-            q = q.filter(app_id__in = param_repository)           
+            q = q.filter(repository__in = param_repository)           
         if len(param_version) > 0 :
-            q = q.filter(app_id__in = param_version) 
+            q = q.filter(version__in = param_version) 
         if len(param_path) > 0 :
-            q = q.filter(app_id__in = param_path) 
+            q = q.filter(path__in = param_path) 
         if len(param_timestamp) > 0 :
-            q = q.filter(app_id__in = param_timestamp) 
+            q = q.filter(timestamp__in = param_timestamp) 
 
 
         # nb_id = str(len(request.GET.getlist('id')))
@@ -793,6 +793,8 @@ class ValidationTestCodeRest(APIView):
         #             tests = ValidationTestCode.objects.filter(id = value)
         #         if key == 'test_definition_id':
         #             tests = ValidationTestCode.objects.filter(test_definition_id = value)
+
+        tests = q
 
         test_serializer = ValidationTestCodeSerializer(tests, context=serializer_context, many=True)
         # TODO rename tests to testcodes
@@ -856,7 +858,8 @@ class ValidationTestDefinitionRest(APIView):
 
             if(len(request.GET.getlist('id')) == 0):
 
-                param_app_id = request.query_params['app_id']
+                # param_app_id = request.query_params['app_id']
+                param_app_id = param_app_id[0]
                 collab_params = CollabParameters.objects.get(id = param_app_id )
 
                 tests= ValidationTestDefinition.objects.filter (
