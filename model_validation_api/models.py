@@ -173,7 +173,7 @@ class Tickets(models.Model):
 
 class Comments(models.Model): 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, )
-    Ticket = models.ForeignKey(Tickets, on_delete=models.CASCADE)
+    Ticket = models.ForeignKey(Tickets, on_delete=models.CASCADE, default=None)
     author = models.CharField(max_length=200, default="")
     text = models.TextField()
     creation_date = models.DateTimeField(auto_now_add=True)

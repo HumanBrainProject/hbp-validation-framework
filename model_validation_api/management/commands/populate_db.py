@@ -881,10 +881,11 @@ class Command(BaseCommand):
         #self._create_model_type()
 	#self._create_score_type()
 	#self._create_organizations()
+
         # self._fake_collab()
 	# self._fake_models_test_results()
         #self._fake_models_test_results_heli()
-        self.delete_models_in_collab(collab_id = 2180)
+        # self.delete_models_in_collab(collab_id = 2180)
 
 
 
