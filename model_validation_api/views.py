@@ -1432,7 +1432,7 @@ class ValidationResultRest2 (APIView):
                 results = results.filter(test_code_id__in = testcodes.values("id"))
            
             #add filter using param_model_id >> filter by models
-            if len(param_model_version_id) == 0 and (len(param_model_id) > 0 or len(param_model_alias) > 0 : 
+            if len(param_model_version_id) == 0 and (len(param_model_id) > 0 or len(param_model_alias) > 0) : 
                 if len(param_model_id) == 0 :
                     param_model_id = []
                     for alias in param_model_alias :
