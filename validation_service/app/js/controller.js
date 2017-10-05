@@ -292,7 +292,10 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
                 };
                 $scope.saveVersion = function() {
                     _add_params();
-                    var parameters = JSON.stringify($scope.test_code);
+                    console.log($scope.test_code);
+                    console.log($scope.test_code);
+                    console.log($scope.test_code);
+                    var parameters = JSON.stringify([$scope.test_code]);
                     ValidationTestCodeRest.save({ app_id: app_id, id: $scope.detail_test.tests[0].id }, parameters).$promise.then(function() {
                         document.getElementById("tab_description").style.display = "none";
                         document.getElementById("tab_version").style.display = "block";
