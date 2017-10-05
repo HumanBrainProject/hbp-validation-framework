@@ -129,7 +129,7 @@ stream_handler = logging.StreamHandler()
 stream_handler.setLevel(logging.DEBUG)
 logger.addHandler(stream_handler)
 
-
+from uuid import UUID
 
 
 
@@ -168,6 +168,19 @@ CROSSREF_URL = "http://api.crossref.org/works/"
 #     admins = [user['id'] for user in data['_embedded']['users']]
 #     return admins
 
+def check_list_uuid_validity (uuid_list) :
+    for i in uuid_list :
+        if check_uuid_validity(i) is False :
+            return False
+    return True
+        
+    
+def check_uuid_validity (uuid_string):
+    try :
+        UUID(uuid_string)
+        return True
+    except :
+        return False
 
 
 def get_collab_id_from_app_id (app_id):
@@ -516,8 +529,13 @@ class ScientificModelRest(APIView):
             'request': request,
         }
 
+        id = request.GET.getlist('id')
+        if check_list_uuid_validity(id) is False :
+            return Response("Badly formed uuid in : id", status=status.HTTP_400_BAD_REQUEST)
+            
+
         #if model id not specified
-        if(len(request.GET.getlist('id')) == 0):
+        if(len(id) == 0):
 
             web_app = request.GET.getlist('web_app')    
 
@@ -622,7 +640,7 @@ class ScientificModelRest(APIView):
         # a model ID has been specified 
         else:
         
-            id =request.GET.getlist('id')[0]
+            id =id[0]
             models = ScientificModel.objects.filter(id=id)
 
             if len(models) > 0 :
@@ -782,6 +800,11 @@ class ValidationTestCodeRest(APIView):
         param_path = request.GET.getlist('path')
         param_timestamp = request.GET.getlist('timestamp')
         param_test_definition_id = request.GET.getlist('test_definition_id')
+
+        if check_list_uuid_validity(param_id) is False :
+            return Response("Badly formed uuid in : id", status=status.HTTP_400_BAD_REQUEST)
+        if check_list_uuid_validity(param_test_definition_id) is False :
+            return Response("Badly formed uuid in : test_definition_id", status=status.HTTP_400_BAD_REQUEST)
         
         #TODO : Add the test ALIAS
 
@@ -860,7 +883,7 @@ class ValidationTestCodeRest(APIView):
                 if not serializer.is_valid():
                     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
             else : 
-                return Response("Your test_definition_id diferes from the original one", status=status.HTTP_400_BAD_REQUEST)
+                return Response("Your test_definition_id differes from the original one", status=status.HTTP_400_BAD_REQUEST)
                 
         list_id = []
         for test_code in request.data :
@@ -904,13 +927,15 @@ class ValidationTestDefinitionRest(APIView):
         param_web_app = request.GET.getlist('web_app')
         param_app_id = request.GET.getlist('app_id')
 
+        if check_list_uuid_validity(param_id) is False :
+            return Response("Badly formed uuid in : id", status=status.HTTP_400_BAD_REQUEST)
 
         # app_id = request.query_params['app_id']
         # collab_id = get_collab_id_from_app_id(app_id)
 
         if len(param_web_app) > 0 and param_web_app[0] == 'True' : 
 
-            if(len(request.GET.getlist('id')) == 0):
+            if(len(param_id) == 0):
 
                 # param_app_id = request.query_params['app_id']
                 param_app_id = param_app_id[0]
@@ -1435,12 +1460,25 @@ class ValidationResultRest2 (APIView):
 
         param_order = request.GET.getlist('order')
 
+
         if len(param_order) > 0 and (param_order[0] == 'test' or param_order[0] == 'model' or param_order[0] == '') :
             param_order = param_order[0]
 
         else :
             return Response("You need to give 'order' argument. Here are the options : 'test', 'model', '' ", status=status.HTTP_400_BAD_REQUEST)
-            
+
+        if check_list_uuid_validity(param_id) is False :
+            return Response("Badly formed uuid in : id", status=status.HTTP_400_BAD_REQUEST)
+        if check_list_uuid_validity(param_model_version_id) is False :
+            return Response("Badly formed uuid in : model_version_id", status=status.HTTP_400_BAD_REQUEST)
+        if check_list_uuid_validity(param_test_code_id) is False :
+            return Response("Badly formed uuid in : test_code_id", status=status.HTTP_400_BAD_REQUEST)  
+        if check_list_uuid_validity(param_model_id) is False :
+            return Response("Badly formed uuid in : model_id", status=status.HTTP_400_BAD_REQUEST)   
+        if check_list_uuid_validity(param_test_id) is False :
+            return Response("Badly formed uuid in : test_id", status=status.HTTP_400_BAD_REQUEST)                   
+
+
         
         serializer_context = {'request': request,}
 
