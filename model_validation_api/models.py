@@ -146,7 +146,7 @@ class ValidationTestResult(models.Model):
     score = models.FloatField(help_text="A numerical measure of the difference between model and experiment")  # name this 'score'? like sciunit
     # should result be a Quantity?
     passed = models.NullBooleanField(help_text="Whether the test passed or failed")
-    timestamp = models.DateTimeField(auto_now_add=False, help_text="Timestamp of when the simulation was run")
+    timestamp = models.DateTimeField(auto_now_add=True, help_text="Timestamp of when the simulation was run")
     platform = models.TextField(help_text="Computer system on which the simulation was run")
     project = models.CharField(help_text="Project with which this test run is associated(optional)",
                                max_length=200,
