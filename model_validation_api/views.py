@@ -387,6 +387,52 @@ class ParametersConfigurationRest( APIView): #LoginRequiredMixin,
 
 
 class ScientificModelInstanceRest (APIView):
+
+    def get(self, request, format=None, **kwargs):
+        serializer_context = {'request': request,}
+
+        param_id = request.GET.getlist('id')
+        param_model_id = request.GET.getlist('model_id')
+        param_version = request.GET.getlist('version')
+        param_parameters = request.GET.getlist('parameters')
+        param_source = request.GET.getlist('source')
+        param_timestamp = request.GET.getlist('timestamp')
+        param_model_alias = request.GET.getlist('model_alias')
+
+        if check_list_uuid_validity(param_id) is False :
+            return Response("Badly formed uuid in : id", status=status.HTTP_400_BAD_REQUEST)
+        if check_list_uuid_validity(param_model_id) is False :
+            return Response("Badly formed uuid in : model_id", status=status.HTTP_400_BAD_REQUEST)
+
+        q = ScientificModelInstance.objects.all()  
+        #using model alias      
+        if not (len(param_model_id) == 0 and len(param_model_alias)) > 0 :
+            param_model_id = []
+            for alias in param_model_alias :
+                model_id = ScientificModel.objects.filter(alias=alias)
+                param_model_id.append(model_id)    
+
+        if len(param_id) > 0 :
+            q = q.filter(id__in = param_id )        
+        if len(param_model_id) > 0 :
+            q = q.filter(model_id__in = param_model_id )
+        if len(param_version) > 0 :
+            q = q.filter(version__in = param_version )
+        if len(param_parameters) > 0 :
+            q = q.filter(parameters__in = param_parameters )
+        if len(param_source) > 0 :
+            q = q.filter(source__in = param_source )
+        if len(param_timestamp) > 0 :
+            q = q.filter(timestamp__in = param_timestamp )
+            
+        instances = q
+
+        serializer = ScientificModelInstanceSerializer(data=instances, context=serializer_context)
+
+        return Response({
+                'instances': serializer.data,
+                })
+
     def post(self, request, format=None):       
         serializer_context = {'request': request,}
 
@@ -449,6 +495,44 @@ class ScientificModelInstanceRest (APIView):
 
 
 class ScientificModelImageRest (APIView):
+    def get(self, request, format=None, **kwargs):
+        serializer_context = {'request': request,}
+
+        param_id = request.GET.getlist('id')
+        param_model_id = request.GET.getlist('model_id')
+        param_model_alias = request.GET.getlist('model_alias')
+        param_url = request.GET.getlist('url')
+        param_caption = request.GET.getlist('caption')
+
+        if check_list_uuid_validity(param_id) is False :
+            return Response("Badly formed uuid in : id", status=status.HTTP_400_BAD_REQUEST)
+        if check_list_uuid_validity(param_model_id) is False :
+            return Response("Badly formed uuid in : model_id", status=status.HTTP_400_BAD_REQUEST)
+
+        q = ScientificModelImage.objects.all()  
+        #using model alias      
+        if not (len(param_model_id) == 0 and len(param_model_alias)) > 0 :
+            param_model_id = []
+            for alias in param_model_alias :
+                model_id = ScientificModel.objects.filter(alias=alias)
+                param_model_id.append(model_id)    
+
+        if len(param_id) > 0 :
+            q = q.filter(id__in = param_id )        
+        if len(param_model_id) > 0 :
+            q = q.filter(model_id__in = param_model_id )
+        if len(param_url) > 0 :
+            q = q.filter(url__in = param_url )
+        if len(param_caption) > 0 :
+            q = q.filter(caption__in = param_caption )
+            
+        images = q
+
+        serializer = ScientificModelImageSerializer(data=images, context=serializer_context)
+
+        return Response({
+                'images': serializer.data,
+                })
 
     def post(self, request, format=None):
         serializer_context = {'request': request,}
