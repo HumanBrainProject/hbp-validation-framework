@@ -421,6 +421,7 @@ class ScientificModelInstanceRest (APIView):
             if  model_serializer.is_valid() is False :
                 return Response(model_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+        list_id = []
         #is valid + authaurised : save it
         for instance in request.data: 
             model_instance = ScientificModelInstance.objects.get(id=instance['id'])
@@ -428,8 +429,9 @@ class ScientificModelInstanceRest (APIView):
 
             if  model_serializer.is_valid() :
                 model_instance = model_serializer.save()
+                list_id.append(model_instance.id)
 
-        return Response( status=status.HTTP_201_CREATED) 
+        return Response({uuid: list_id} status=status.HTTP_201_CREATED) 
 
 
 
@@ -463,8 +465,6 @@ class ScientificModelImageRest (APIView):
 
 
     def put(self, request, format=None):
-
-
         serializer_context = {'request': request,}
 
         for image in request.data:
@@ -475,14 +475,22 @@ class ScientificModelImageRest (APIView):
             collab_id = get_collab_id_from_app_id(app_id)
             if not is_authorised(request, collab_id):
                 return HttpResponseForbidden()
-
+            
             # check if data is ok else return error
+            model_serializer = ScientificModelImageSerializer(model_image, data=image, context=serializer_context)
+            if not model_serializer.is_valid() :
+                Response(model_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+        list_id = []
+        for image in request.data:
+            model_image = ScientificModelImage.objects.get(id=image['id'])
+
             model_serializer = ScientificModelImageSerializer(model_image, data=image, context=serializer_context)
             if model_serializer.is_valid() :
                 model_image = model_serializer.save()
-            else: 
-                return Response(model_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        return Response( status=status.HTTP_202_ACCEPTED) 
+                list_id.append(model_image.id)
+
+        return Response({'uuid':list_id}, status=status.HTTP_202_ACCEPTED) 
         
 
     def delete(self, request, format=None):
@@ -697,7 +705,7 @@ class ScientificModelRest(APIView):
             model = model_serializer.save()
         else: 
             return Response(model_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        return Response( status=status.HTTP_201_CREATED) 
+        return Response({'uuid':model.id}, status=status.HTTP_202_ACCEPTED) 
 
     # def delete(self, request, format=None):
         
@@ -769,6 +777,7 @@ class ValidationTestCodeRest(APIView):
         param_timestamp = request.GET.getlist('timestamp')
         param_test_definition_id = request.GET.getlist('test_definition_id')
         
+        #TODO : Add the test ALIAS
 
         q = ValidationTestCode.objects.all()
 
@@ -808,21 +817,56 @@ class ValidationTestCodeRest(APIView):
 
 
      def post(self, request, format=None):
-        app_id = request.GET.getlist('app_id')[0]
-        collab_id = get_collab_id_from_app_id(app_id)
-
-        if not is_authorised(request, collab_id):
+        serializer_context = {'request': request,}
+         
+        if not is_hbp_member(request):
             return HttpResponseForbidden()
 
-        serializer_context = {'request': request,}
-        test_id = request.query_params['id']#str(len(request.POST.getlist('id')))
-        serializer = ValidationTestCodeSerializer(data=request.data, context=serializer_context)
-        
-        if serializer.is_valid():        
-            test_code = serializer.save(test_definition_id=test_id)  #need to see how to get this value throught kwargs or other ?
-            return Response({'uuid':test_code.id}, status=status.HTTP_201_CREATED) #put inside .is_valid
+        for test_code in request.data :
+            test_id = test_code.test_definition_id
+            serializer = ValidationTestCodeSerializer(data=test_code, context=serializer_context)
 
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            if not serializer.is_valid():
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        list_id = []
+        for test_code in request.data :
+            test_id = test_code.test_definition_id
+            serializer = ValidationTestCodeSerializer(data=test_code, context=serializer_context)
+
+            if serializer.is_valid():
+                saved_test_code = serializer.save(test_definition_id=test_id)  
+                list_id.append(saved_test_code.id)
+                        
+        return Response({'uuid':list_id}, status=status.HTTP_201_CREATED) #put inside .is_valid
+
+
+    def put(self, request, format=None):
+        serializer_context = {'request': request,}        
+         
+        if not is_hbp_member(request):
+            return HttpResponseForbidden()
+
+        for test_code in request.data :
+            original_test_code = ValidationTestCode.objects.get(id= test_code.id)
+            if original_test_code.test_definition_id == test_code.test_definition_id and original_test_code.id == test_code.id :
+                serializer = ValidationTestCodeSerializer(data=test_code, context=serializer_context)
+                if not serializer.is_valid():
+                    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            else : 
+                return Response("Your test_definition_id diferes from the original one", status=status.HTTP_400_BAD_REQUEST)
+                
+        list_id = []
+        for test_code in request.data :
+            original_test_code = ValidationTestCode.objects.get(id= test_code.id)
+            serializer = ValidationTestCodeSerializer(data=test_code, context=serializer_context)
+
+            if serializer.is_valid() :
+                test_code = serializer.save()
+                list_id.append(test_code.id)
+
+        return Response({'uuid':list_id}, status=status.HTTP_202_ACCEPTED)
+        
 
      def get_serializer_class(self):
         #  if self.request.method in ('GET', )
@@ -982,7 +1026,7 @@ class ValidationTestDefinitionRest(APIView):
             test = test_serializer.save()
         else: 
             return Response(test_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        return Response(status=status.HTTP_202_ACCEPTED)
+        return Response({'uuid':test.id}, status=status.HTTP_202_ACCEPTED)
 
 class TestTicketRest(APIView):
     def get(self, request, format=None, **kwargs):
