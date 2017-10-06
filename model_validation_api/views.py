@@ -129,7 +129,7 @@ stream_handler = logging.StreamHandler()
 stream_handler.setLevel(logging.DEBUG)
 logger.addHandler(stream_handler)
 
-
+from uuid import UUID
 
 
 
@@ -168,6 +168,19 @@ CROSSREF_URL = "http://api.crossref.org/works/"
 #     admins = [user['id'] for user in data['_embedded']['users']]
 #     return admins
 
+def check_list_uuid_validity (uuid_list) :
+    for i in uuid_list :
+        if check_uuid_validity(i) is False :
+            return False
+    return True
+        
+    
+def check_uuid_validity (uuid_string):
+    try :
+        UUID(uuid_string)
+        return True
+    except :
+        return False
 
 
 def get_collab_id_from_app_id (app_id):
@@ -368,12 +381,58 @@ class ParametersConfigurationRest( APIView): #LoginRequiredMixin,
 
         if param_serializer.is_valid():         
             param_serializer.save()
-            return Response(param_serializer.data)
+            return Response(status=status.HTTP_202_ACCEPTED)
         return Response(param_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 
 class ScientificModelInstanceRest (APIView):
+
+    def get(self, request, format=None, **kwargs):
+        serializer_context = {'request': request,}
+
+        param_id = request.GET.getlist('id')
+        param_model_id = request.GET.getlist('model_id')
+        param_version = request.GET.getlist('version')
+        param_parameters = request.GET.getlist('parameters')
+        param_source = request.GET.getlist('source')
+        param_timestamp = request.GET.getlist('timestamp')
+        param_model_alias = request.GET.getlist('model_alias')
+
+        if check_list_uuid_validity(param_id) is False :
+            return Response("Badly formed uuid in : id", status=status.HTTP_400_BAD_REQUEST)
+        if check_list_uuid_validity(param_model_id) is False :
+            return Response("Badly formed uuid in : model_id", status=status.HTTP_400_BAD_REQUEST)
+
+        q = ScientificModelInstance.objects.all()  
+        #using model alias      
+        if not (len(param_model_id) == 0 and len(param_model_alias)) > 0 :
+            param_model_id = []
+            for alias in param_model_alias :
+                model_id = ScientificModel.objects.filter(alias=alias)
+                param_model_id.append(model_id)    
+
+        if len(param_id) > 0 :
+            q = q.filter(id__in = param_id )        
+        if len(param_model_id) > 0 :
+            q = q.filter(model_id__in = param_model_id )
+        if len(param_version) > 0 :
+            q = q.filter(version__in = param_version )
+        if len(param_parameters) > 0 :
+            q = q.filter(parameters__in = param_parameters )
+        if len(param_source) > 0 :
+            q = q.filter(source__in = param_source )
+        if len(param_timestamp) > 0 :
+            q = q.filter(timestamp__in = param_timestamp )
+            
+        instances = q
+
+        serializer = ScientificModelInstanceSerializer(data=instances, context=serializer_context)
+
+        return Response({
+                'instances': serializer.data,
+                })
+
     def post(self, request, format=None):       
         serializer_context = {'request': request,}
 
@@ -391,13 +450,15 @@ class ScientificModelInstanceRest (APIView):
             else :
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+        list_id = []
         for instance in request.data :
             serializer = ScientificModelInstanceSerializer(data=instance, context=serializer_context)
 
             if serializer.is_valid(): 
-                serializer.save(model_id=instance['model_id'])
+                obj = serializer.save(model_id=instance['model_id'])
+                list_id.append(obj.id)
 
-        return Response(status=status.HTTP_201_CREATED)
+        return Response({'uuid':list_id}, status=status.HTTP_201_CREATED)
 
             
     
@@ -419,6 +480,7 @@ class ScientificModelInstanceRest (APIView):
             if  model_serializer.is_valid() is False :
                 return Response(model_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+        list_id = []
         #is valid + authaurised : save it
         for instance in request.data: 
             model_instance = ScientificModelInstance.objects.get(id=instance['id'])
@@ -426,12 +488,51 @@ class ScientificModelInstanceRest (APIView):
 
             if  model_serializer.is_valid() :
                 model_instance = model_serializer.save()
+                list_id.append(model_instance.id)
 
-        return Response( status=status.HTTP_201_CREATED) 
+        return Response({uuid: list_id}, status=status.HTTP_201_CREATED) 
 
 
 
 class ScientificModelImageRest (APIView):
+    def get(self, request, format=None, **kwargs):
+        serializer_context = {'request': request,}
+
+        param_id = request.GET.getlist('id')
+        param_model_id = request.GET.getlist('model_id')
+        param_model_alias = request.GET.getlist('model_alias')
+        param_url = request.GET.getlist('url')
+        param_caption = request.GET.getlist('caption')
+
+        if check_list_uuid_validity(param_id) is False :
+            return Response("Badly formed uuid in : id", status=status.HTTP_400_BAD_REQUEST)
+        if check_list_uuid_validity(param_model_id) is False :
+            return Response("Badly formed uuid in : model_id", status=status.HTTP_400_BAD_REQUEST)
+
+        q = ScientificModelImage.objects.all()  
+        #using model alias      
+        if not (len(param_model_id) == 0 and len(param_model_alias)) > 0 :
+            param_model_id = []
+            for alias in param_model_alias :
+                model_id = ScientificModel.objects.filter(alias=alias)
+                param_model_id.append(model_id)    
+
+        if len(param_id) > 0 :
+            q = q.filter(id__in = param_id )        
+        if len(param_model_id) > 0 :
+            q = q.filter(model_id__in = param_model_id )
+        if len(param_url) > 0 :
+            q = q.filter(url__in = param_url )
+        if len(param_caption) > 0 :
+            q = q.filter(caption__in = param_caption )
+            
+        images = q
+
+        serializer = ScientificModelImageSerializer(data=images, context=serializer_context)
+
+        return Response({
+                'images': serializer.data,
+                })
 
     def post(self, request, format=None):
         serializer_context = {'request': request,}
@@ -448,19 +549,19 @@ class ScientificModelImageRest (APIView):
             else :
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+        list_id = []
         for image in request.data :
             serializer = ScientificModelImageSerializer(data=image, context=serializer_context)
 
             if serializer.is_valid(): 
-                serializer.save(model_id=image['model_id'])
+                im = serializer.save(model_id=image['model_id'])
+                list_id.append(im.id)
 
-        return Response(status=status.HTTP_201_CREATED)
+        return Response({'uuid':list_id}, status=status.HTTP_201_CREATED)
 
 
 
     def put(self, request, format=None):
-
-
         serializer_context = {'request': request,}
 
         for image in request.data:
@@ -471,14 +572,22 @@ class ScientificModelImageRest (APIView):
             collab_id = get_collab_id_from_app_id(app_id)
             if not is_authorised(request, collab_id):
                 return HttpResponseForbidden()
-
+            
             # check if data is ok else return error
+            model_serializer = ScientificModelImageSerializer(model_image, data=image, context=serializer_context)
+            if not model_serializer.is_valid() :
+                Response(model_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+        list_id = []
+        for image in request.data:
+            model_image = ScientificModelImage.objects.get(id=image['id'])
+
             model_serializer = ScientificModelImageSerializer(model_image, data=image, context=serializer_context)
             if model_serializer.is_valid() :
                 model_image = model_serializer.save()
-            else: 
-                return Response(model_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        return Response( status=status.HTTP_202_ACCEPTED) 
+                list_id.append(model_image.id)
+
+        return Response({'uuid':list_id}, status=status.HTTP_202_ACCEPTED) 
         
 
     def delete(self, request, format=None):
@@ -504,8 +613,13 @@ class ScientificModelRest(APIView):
             'request': request,
         }
 
+        id = request.GET.getlist('id')
+        if check_list_uuid_validity(id) is False :
+            return Response("Badly formed uuid in : id", status=status.HTTP_400_BAD_REQUEST)
+            
+
         #if model id not specified
-        if(len(request.GET.getlist('id')) == 0):
+        if(len(id) == 0):
 
             web_app = request.GET.getlist('web_app')    
 
@@ -563,7 +677,7 @@ class ScientificModelRest(APIView):
                 private =request.GET.getlist('private')
                 code_format =request.GET.getlist('code_format')
                 alias =request.GET.getlist('alias')
-                organization = request.GETlist('organization')
+                organization = request.GET.getlist('organization')
 
                 q = ScientificModel.objects.all()
 
@@ -610,23 +724,29 @@ class ScientificModelRest(APIView):
         # a model ID has been specified 
         else:
         
-            id =request.GET.getlist('id')[0]
+            id =id[0]
             models = ScientificModel.objects.filter(id=id)
 
-            #check if private 
-            if models.values("private")[0]["private"] == 1 :
-                #if private check if collab member
-                app_id = models.values("app")[0]['app']
-                collab_id = get_collab_id_from_app_id(app_id)
-                if not is_authorised(request, collab_id) :
-                    return HttpResponse('Unauthorized', status=401)
-                    return HttpResponseForbidden()
-            
-            model_serializer = ScientificModelReadOnlySerializer(models, context=serializer_context, many=True )
+            if len(models) > 0 :
 
-            return Response({
-                'models': model_serializer.data,
-            })
+                #check if private 
+                if models.values("private")[0]["private"] == 1 :
+                    #if private check if collab member
+                    app_id = models.values("app")[0]['app']
+                    collab_id = get_collab_id_from_app_id(app_id)
+                    if not is_authorised(request, collab_id) :
+                        return HttpResponse('Unauthorized', status=401)
+                        return HttpResponseForbidden()
+                
+                model_serializer = ScientificModelReadOnlySerializer(models, context=serializer_context, many=True )
+
+                return Response({
+                    'models': model_serializer.data,
+                })
+            else :
+                return Response({
+                    'models':[],
+                })
 
     def post(self, request, format=None):   
         app_id = request.GET.getlist('app_id')[0]
@@ -693,7 +813,7 @@ class ScientificModelRest(APIView):
             model = model_serializer.save()
         else: 
             return Response(model_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        return Response( status=status.HTTP_201_CREATED) 
+        return Response({'uuid':model.id}, status=status.HTTP_202_ACCEPTED) 
 
     # def delete(self, request, format=None):
         
@@ -764,22 +884,28 @@ class ValidationTestCodeRest(APIView):
         param_path = request.GET.getlist('path')
         param_timestamp = request.GET.getlist('timestamp')
         param_test_definition_id = request.GET.getlist('test_definition_id')
+
+        if check_list_uuid_validity(param_id) is False :
+            return Response("Badly formed uuid in : id", status=status.HTTP_400_BAD_REQUEST)
+        if check_list_uuid_validity(param_test_definition_id) is False :
+            return Response("Badly formed uuid in : test_definition_id", status=status.HTTP_400_BAD_REQUEST)
         
+        #TODO : Add the test ALIAS
 
         q = ValidationTestCode.objects.all()
 
         if len(param_id) > 0 :
-            q = q.filter(app_id__in = param_id)  
+            q = q.filter(id__in = param_id)  
         if len(param_test_definition_id) > 0 :
-            q = q.filter(app_id__in = param_test_definition_id)     
+            q = q.filter(test_definition_id__in = param_test_definition_id)     
         if len(param_repository) > 0 :
-            q = q.filter(app_id__in = param_repository)           
+            q = q.filter(repository__in = param_repository)           
         if len(param_version) > 0 :
-            q = q.filter(app_id__in = param_version) 
+            q = q.filter(version__in = param_version) 
         if len(param_path) > 0 :
-            q = q.filter(app_id__in = param_path) 
+            q = q.filter(path__in = param_path) 
         if len(param_timestamp) > 0 :
-            q = q.filter(app_id__in = param_timestamp) 
+            q = q.filter(timestamp__in = param_timestamp) 
 
 
         # nb_id = str(len(request.GET.getlist('id')))
@@ -794,29 +920,66 @@ class ValidationTestCodeRest(APIView):
         #         if key == 'test_definition_id':
         #             tests = ValidationTestCode.objects.filter(test_definition_id = value)
 
+        tests = q
+
         test_serializer = ValidationTestCodeSerializer(tests, context=serializer_context, many=True)
         # TODO rename tests to testcodes
         return Response({
             'tests': test_serializer.data, 
         })
-
+        
 
      def post(self, request, format=None):
-        app_id = request.GET.getlist('app_id')[0]
-        collab_id = get_collab_id_from_app_id(app_id)
-
-        if not is_authorised(request, collab_id):
+        serializer_context = {'request': request,}
+         
+        if not is_hbp_member(request):
             return HttpResponseForbidden()
 
-        serializer_context = {'request': request,}
-        test_id = request.query_params['id']#str(len(request.POST.getlist('id')))
-        serializer = ValidationTestCodeSerializer(data=request.data, context=serializer_context)
-        
-        if serializer.is_valid():        
-            serializer.save(test_definition_id=test_id)  #need to see how to get this value throught kwargs or other ?
-            return Response(status=status.HTTP_201_CREATED) #put inside .is_valid
+        for test_code in request.data :
+            test_id = test_code["test_definition_id"]
+            serializer = ValidationTestCodeSerializer(data=test_code, context=serializer_context)
 
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            if not serializer.is_valid():
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        list_id = []
+        for test_code in request.data :
+            test_id = test_code["test_definition_id"]
+            serializer = ValidationTestCodeSerializer(data=test_code, context=serializer_context)
+
+            if serializer.is_valid():
+                saved_test_code = serializer.save(test_definition_id=test_id)  
+                list_id.append(saved_test_code.id)
+                        
+        return Response({'uuid':list_id}, status=status.HTTP_201_CREATED) #put inside .is_valid
+
+
+     def put(self, request, format=None):
+        serializer_context = {'request': request,}        
+         
+        if not is_hbp_member(request):
+            return HttpResponseForbidden()
+
+        for test_code in request.data :
+            original_test_code = ValidationTestCode.objects.get(id= test_code["id"])
+            if original_test_code.test_definition_id == test_code["test_definition_id"] and original_test_code.id == test_code["id"] :
+                serializer = ValidationTestCodeSerializer(data=test_code, context=serializer_context)
+                if not serializer.is_valid():
+                    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            else : 
+                return Response("Your test_definition_id differes from the original one", status=status.HTTP_400_BAD_REQUEST)
+                
+        list_id = []
+        for test_code in request.data :
+            original_test_code = ValidationTestCode.objects.get(id= test_code["id"])
+            serializer = ValidationTestCodeSerializer(data=test_code, context=serializer_context)
+
+            if serializer.is_valid() :
+                test_code = serializer.save()
+                list_id.append(test_code["id"])
+
+        return Response({'uuid':list_id}, status=status.HTTP_202_ACCEPTED)
+        
 
      def get_serializer_class(self):
         #  if self.request.method in ('GET', )
@@ -848,15 +1011,18 @@ class ValidationTestDefinitionRest(APIView):
         param_web_app = request.GET.getlist('web_app')
         param_app_id = request.GET.getlist('app_id')
 
+        if check_list_uuid_validity(param_id) is False :
+            return Response("Badly formed uuid in : id", status=status.HTTP_400_BAD_REQUEST)
 
         # app_id = request.query_params['app_id']
         # collab_id = get_collab_id_from_app_id(app_id)
 
         if len(param_web_app) > 0 and param_web_app[0] == 'True' : 
 
-            if(len(request.GET.getlist('id')) == 0):
+            if(len(param_id) == 0):
 
-                param_app_id = request.query_params['app_id']
+                # param_app_id = request.query_params['app_id']
+                param_app_id = param_app_id[0]
                 collab_params = CollabParameters.objects.get(id = param_app_id )
 
                 tests= ValidationTestDefinition.objects.filter (
@@ -908,7 +1074,7 @@ class ValidationTestDefinitionRest(APIView):
                     q = q.filter(author__in = param_author)
                 if len(param_publication) > 0 :
                     q = q.filter(publication__in = param_publication)
-                if len(param_) > 0 :
+                if len(param_score_type) > 0 :
                     q = q.filter(score_type__in = param_score_type)
                         
                 tests = q
@@ -942,18 +1108,19 @@ class ValidationTestDefinitionRest(APIView):
         serializer_context = {'request': request,}
 
         test_serializer = ValidationTestDefinitionSerializer(data=request.data['test_data'], context=serializer_context)
-        if test_serializer.is_valid():
-            test = test_serializer.save() 
-        else:
-            return Response(test_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
         code_serializer = ValidationTestCodeSerializer(data=request.data['code_data'], context=serializer_context)
-        if code_serializer.is_valid():
-            code_serializer.save(test_definition_id=test.id)
-        else:
-            return Response(code_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        if test_serializer.is_valid():
+            if code_serializer.is_valid():
+                test = test_serializer.save() 
+                code_serializer.save(test_definition_id=test.id)
+                      
+            else :       
+                return Response(code_serializer.errors, status=status.HTTP_400_BAD_REQUEST)   
+        else :
+            return Response(test_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
-        return Response({'id':test.id})
+        return Response({'uuid':test.id}, status=status.HTTP_201_CREATED)
 
     def put(self, request, format=None):
         if not is_hbp_member(request):
@@ -974,7 +1141,7 @@ class ValidationTestDefinitionRest(APIView):
             test = test_serializer.save()
         else: 
             return Response(test_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        return Response( status=status.HTTP_201_CREATED) 
+        return Response({'uuid':test.id}, status=status.HTTP_202_ACCEPTED)
 
 class TestTicketRest(APIView):
     def get(self, request, format=None, **kwargs):
@@ -1004,9 +1171,10 @@ class TestTicketRest(APIView):
             param = param_serializer.save(test_id=request.data['test_id'])
         else:
             return Response(param_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        new_ticket = Tickets.objects.filter(id=param.id)
-        new_ticket_serializer = TicketReadOnlySerializer(new_ticket, context=serializer_context, many=True)
-        return Response({'new_ticket' : new_ticket_serializer.data})
+        # new_ticket = Tickets.objects.filter(id=param.id)
+        # new_ticket_serializer = TicketReadOnlySerializer(new_ticket, context=serializer_context, many=True)
+
+        return Response({'uuid':param.id}, status=status.HTTP_201_CREATED)
 
     def put(self, request, format=None):
         app_id = request.GET.getlist('app_id')[0]
@@ -1022,7 +1190,7 @@ class TestTicketRest(APIView):
 
         if param_serializer.is_valid():         
             param_serializer.save()
-            return Response(param_serializer.data)
+            return Response(status=status.HTTP_202_ACCEPTED)
         return Response(param_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -1054,9 +1222,9 @@ class TestCommentRest(APIView):
             param = param_serializer.save(Ticket_id=request.data['Ticket_id'])
         else:
             return Response(param_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        new_comment = Comments.objects.filter(id=param.id)
-        new_comment_serializer = CommentSerializer (new_comment, context=serializer_context, many=True)
-        return Response({'new_comment' : new_comment_serializer.data})
+        # new_comment = Comments.objects.filter(id=param.id)
+        # new_comment_serializer = CommentSerializer (new_comment, context=serializer_context, many=True)
+        return Response({'uuid':param.id},status=status.HTTP_201_CREATED)
 
     def put(self, request, format=None):
         app_id = request.query_params['app_id']
@@ -1071,7 +1239,7 @@ class TestCommentRest(APIView):
 
         if param_serializer.is_valid():         
             param_serializer.save()
-            return Response(param_serializer.data)
+            return Response(status=status.HTTP_202_ACCEPTED)
         return Response(param_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
 
@@ -1344,7 +1512,7 @@ def organise_results_dict (point_of_view, results, serializer_context):
     else : 
         # data_to_return = ValidationTestResultReadOnlySerializer(results, context=serializer_context).data  
 
-        result_serializer = ValidationTestResultReadOnlySerializer(results, context=serializer_context, many=True).data
+        result_serializer = ValidationTestResultSerializer(results, context=serializer_context, many=True).data
 
         # result_serializer = ValidationTestResultSerializer(results, context=serializer_context).data
 
@@ -1370,13 +1538,31 @@ class ValidationResultRest2 (APIView):
 
         param_model_id = request.GET.getlist('model_id')
         param_test_id = request.GET.getlist('test_id')
+
+        param_model_alias = request.GET.getlist('model_alias')
+        param_test_alias = request.GET.getlist('test_alias')
+
         param_order = request.GET.getlist('order')
 
-        if len(param_order) > 0 :
+
+        if len(param_order) > 0 and (param_order[0] == 'test' or param_order[0] == 'model' or param_order[0] == '') :
             param_order = param_order[0]
+
         else :
             return Response("You need to give 'order' argument. Here are the options : 'test', 'model', '' ", status=status.HTTP_400_BAD_REQUEST)
-            
+
+        if check_list_uuid_validity(param_id) is False :
+            return Response("Badly formed uuid in : id", status=status.HTTP_400_BAD_REQUEST)
+        if check_list_uuid_validity(param_model_version_id) is False :
+            return Response("Badly formed uuid in : model_version_id", status=status.HTTP_400_BAD_REQUEST)
+        if check_list_uuid_validity(param_test_code_id) is False :
+            return Response("Badly formed uuid in : test_code_id", status=status.HTTP_400_BAD_REQUEST)  
+        if check_list_uuid_validity(param_model_id) is False :
+            return Response("Badly formed uuid in : model_id", status=status.HTTP_400_BAD_REQUEST)   
+        if check_list_uuid_validity(param_test_id) is False :
+            return Response("Badly formed uuid in : test_id", status=status.HTTP_400_BAD_REQUEST)                   
+
+
         
         serializer_context = {'request': request,}
 
@@ -1406,13 +1592,25 @@ class ValidationResultRest2 (APIView):
             results = q
       
             #add filter using param_test_id >> filter by tests
-            if len(param_test_code_id) == 0 and len(param_test_id) > 0 :
+            if len(param_test_code_id) == 0 and (len(param_test_id) > 0 or len(param_test_alias) > 0 ) :
+                if len(param_test_id) == 0 :
+                    param_test_id = []
+                    for alias in param_test_alias :
+                        test_id = ValidationTestDefinition.objects.filter(alias=alias)
+                        param_test_id.append(test_id)
+
                 testcodes = ValidationTestCode.objects.filter(test_definition_id__in = param_test_id )
                 #from all test codes get the results
                 results = results.filter(test_code_id__in = testcodes.values("id"))
            
             #add filter using param_model_id >> filter by models
-            if len(param_model_version_id) == 0 and len(param_model_id) > 0 :       
+            if len(param_model_version_id) == 0 and (len(param_model_id) > 0 or len(param_model_alias) > 0) : 
+                if len(param_model_id) == 0 :
+                    param_model_id = []
+                    for alias in param_model_alias :
+                        model_id = ScientificModel.objects.filter(alias=alias)
+                        param_model_id.append(model_id)                
+
                 model_instance = ScientificModelInstance.objects.filter(model_id__in = param_model_id )
                 #from all model_instance get the results
                 results = results.filter(model_version_id__in = model_instance.values("id"))
@@ -1429,11 +1627,9 @@ class ValidationResultRest2 (APIView):
             results =  ValidationTestResult.objects.filter(id__in = param_id)
 
             #check if user has acces to the model associated to the results
-            temp_results = results
             for result in results :
                 if user_has_acces_to_result(request, result) is False :
                     return Response("You do not access to result : {}".format(result.id), status=status.HTTP_403_FORBIDDEN)
-            results = temp_results
 
         data_to_return = organise_results_dict(param_order, results, serializer_context)
             
@@ -1447,52 +1643,60 @@ class ValidationResultRest2 (APIView):
         for result in request.data : 
             serializer = ValidationTestResultSerializer (data=result, context=serializer_context)
             if serializer.is_valid():  
-                instance_id = result.model_version_id
-                model = ScientificModel.objects.get(id=instance_id)
-                if not user_has_acces_to_model(model) :
+                instance_id = result['model_version_id']
+                instance = ScientificModelInstance.objects.get(id=instance_id)
+                model = ScientificModel.objects.get(id=instance.model_id)
+                if not user_has_acces_to_model(request, model) :
                     return HttpResponseForbidden()
             else :
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        serializer = ValidationTestResultSerializer(data=request.data, context=serializer_context)
-        if serializer.is_valid(): 
-            serializer.save()
-        
-        return Response( status=status.HTTP_201_CREATED) 
-
-    def put(self, request, format=None):
-        serializer_context = {'request': request,}
-
-        #check if data are valids and if the user can modify the model-instance given
+        list_id = []
         for result in request.data : 
-            serializer = ValidationTestResultSerializer (data=result, context=serializer_context)
-            if serializer.is_valid():  
-                instance_id = result.model_version_id
-                model = ScientificModel.objects.get(id=instance_id)
-                if not user_has_acces_to_model(model) :
-                    return HttpResponseForbidden()
-
-                #check if the client has allowed to modify the original result
-                original_result = ValidationTestResult.filter(id= result.id)
-                original_instance_id = original_result.model_version_id
-                original_model = ScientificModel.objects.get(id=original_instance_id)
-                if not user_has_acces_to_model(original_model) :
-                    return HttpResponseForbidden()
-
+            serializer = ValidationTestResultSerializer(data=result, context=serializer_context)
+            if serializer.is_valid(): 
+                res = serializer.save(model_version_id = result['model_version_id'], test_code_id = result['test_code_id'] )    
+                list_id.append(res.id) 
+    
             else :
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+        return Response({'uuid':list_id}, status=status.HTTP_201_CREATED) 
+        
 
-        for result in request.data :
+    # def put(self, request, format=None):
+    #     serializer_context = {'request': request,}
+
+    #     #check if data are valids and if the user can modify the model-instance given
+    #     for result in request.data : 
+    #         serializer = ValidationTestResultSerializer (data=result, context=serializer_context)
+    #         if serializer.is_valid():  
+    #             instance_id = result.model_version_id
+    #             model = ScientificModel.objects.get(id=instance_id)
+    #             if not user_has_acces_to_model(request, model) :
+    #                 return HttpResponseForbidden()
+
+    #             #check if the client has allowed to modify the original result
+    #             original_result = ValidationTestResult.filter(id= result.id)
+    #             original_instance_id = original_result.model_version_id
+    #             original_model = ScientificModel.objects.get(id=original_instance_id)
+    #             if not user_has_acces_to_model(request, original_model) :
+    #                 return HttpResponseForbidden()
+
+    #         else :
+    #             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+    #     for result in request.data :
             
-            original_result = ValidationTestResult.get(id= result.id)
+    #         original_result = ValidationTestResult.get(id= result.id)
 
-            serializer = ValidationTestResultSerializer(data=request.data, context=serializer_context)
+    #         serializer = ValidationTestResultSerializer(data=request.data, context=serializer_context)
 
-            if serializer.is_valid():         
-                serializer.save()
+    #         if serializer.is_valid():         
+    #             serializer.save()
 
-        return Response( status=status.HTTP_202_ACCEPTED) 
+    #     return Response( status=status.HTTP_202_ACCEPTED) 
 
 
 

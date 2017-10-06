@@ -119,7 +119,7 @@ class ValidationTestDefinitionFullSerializer(serializers.HyperlinkedModelSeriali
     codes = ValidationTestCodeSerializer(many=True , read_only=True)
     class Meta:
         model = ValidationTestDefinition
-        fields = ('id', 'name', 'alias' 'species', 'brain_region', 
+        fields = ('id', 'name', 'alias', 'species', 'brain_region', 
                     'cell_type', 'age', 'data_location', 
                     'data_type', 'data_modality', 'test_type', 
                     'protocol', 'author', 'publication', 'codes')
