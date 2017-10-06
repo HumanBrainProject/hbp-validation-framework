@@ -1313,7 +1313,7 @@ def organise_results_dict (point_of_view, results, serializer_context):
                 result_data = ValidationTestResultSerializer(result, context=serializer_context).data
                 current[result_info['model_instance_id']] = {'version' : result_info['model_instance_version'], 'result' : result_data }
 
-        
+    
     #data_to_return structuraction for model point of view 
     elif  point_of_view == "model" :
         print "model first"

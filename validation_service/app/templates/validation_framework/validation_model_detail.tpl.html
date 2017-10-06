@@ -44,10 +44,10 @@
         </table>
     </div>
 
-    <div id='panel-no-results' ng-if="data.length == 0">
+    <div id='panel-no-results' ng-if="init_graph.values.length == 0">
         <h3 align=center> No result available for this model </h3>
     </div>
-    <div id=panel-results ng-if="data.length != 0">
+    <div id=panel-results ng-if="init_graph.values.length != 0">
         <div id=VF-model-table-all-data>
             <table class="table">
                 <thead>
@@ -59,8 +59,8 @@
                     </th>
                 </thead>
                 <tbody>
-                    <tr ng-repeat="test in results_all.values">
-                        <td class=tr-clickable ng-click=Context.validation_goToTestDetailView(test.infosup[0].test_code.test_definition_id)>test #{{test.key}} </td>
+                    <tr ng-repeat="test in init_graph.values">
+                        <td class=tr-clickable ng-click=Context.validation_goToTestDetailView(test.test_id)>test #{{test.key}} </td>
                         <td class=tr-clickable ng-click=Context.validation_goToResultDetailView(version.id_test_result) ng-repeat="version in test.values">{{version.y}} </td>
                     </tr>
                 </tbody>
@@ -78,9 +78,9 @@
                     </td>
                     <td style="width: 15%">
                         <div id="checkbox">
-                            <div ng-repeat="test_code in init_checkbox" class=checkbox>
-                                <label> <input id="check-{{test_code.id}}" type="checkbox" value={{test_code.id}} > &ensp; <alias ng-if="test_code.test_definition.alias!=''">{{test_code.test_definition.alias}}&ensp;({{test_code.version}})</alias>
-                                <alias ng-if="test_code.test_definition.alias==''">{{test_code.id}}</alias> </label>
+                            <div ng-repeat=" (key,test_code) in init_checkbox" class=checkbox>
+                                <label> <input id="check-{{key}}" type="checkbox" value={{test_code}} >{{test_code}}
+                             </label>
                             </div>
                         </div>
                         <br>

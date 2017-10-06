@@ -89,7 +89,7 @@ testApp.controller('ValTestCtrl', ['$scope', '$rootScope', '$http', '$location',
 
 testApp.controller('ValModelDetailCtrl', ['$scope', '$rootScope', '$http', '$location', '$stateParams', 'ScientificModelRest', 'ScientificModelInstanceRest', 'CollabParameters', 'IsCollabMemberRest', 'AppIDRest', 'Graphics', 'Context',
 
-    function($scope, $rootScope, $http, $location, $stateParams, ScientificModelRest, ScientificModelInstanceRest, CollabParameters, IsCollabMemberRest, AppIDRest, Graphics, Context, ValidationModelResultRest) {
+    function($scope, $rootScope, $http, $location, $stateParams, ScientificModelRest, ScientificModelInstanceRest, CollabParameters, IsCollabMemberRest, AppIDRest, Graphics, Context) {
         $scope.Context = Context;
         Context.setService().then(function() {
             $scope.Context = Context;
@@ -106,39 +106,40 @@ testApp.controller('ValModelDetailCtrl', ['$scope', '$rootScope', '$http', '$loc
                 $scope.model = ScientificModelRest.get({ app_id: app_id, id: $stateParams.uuid });
                 $scope.model.$promise.then(function() {
                     //graph and table results
-                    $scope.init_graph = Graphics.getResultsfromModelID($scope.model, []);
+                    // $scope.init_graph = Graphics.getResultsfromModelID($scope.model, []);
+                    $scope.init_graph = Graphics.getResultsfromModelResultID2($scope.model); //contain all info. loaded one time but never changed
                     //$scope.init_graph= Graphics.getResultsfromModelID($scope.model); 
+
                     $scope.data = $scope.init_graph.values;
-                    $scope.init_checkbox = $scope.init_graph.ids_all;
+
+                    $scope.init_checkbox = $scope.init_graph.list_ids;
+
                     $scope.line_result_focussed;
                     $scope.$on('data_focussed:updated', function(event, data) {
-                            $scope.line_result_focussed = data;
-                            $scope.$apply();
-                        })
-                        //main table result
-                    $scope.results_all = _getAllResultTable();
-                    $scope.options5 = Graphics.get_lines_options('Model/p-value', '', "p-value", "this is a caption", $scope.results_all.results);
-
+                        $scope.line_result_focussed = data;
+                        $scope.$apply();
+                    })
+                    console.log("init_graph", $scope.init_graph)
+                    console.log("data", $scope.data)
+                    console.log("checkbox list", $scope.init_checkbox)
+                    $scope.options5 = Graphics.get_lines_options('Model/p-value', '', "p-value", "this is a caption", $scope.init_graph.results, "model");
                 });
 
             });
         });
-        var _getAllResultTable = function() {
-            return Graphics.getResultsfromModelID($scope.model, ['all']);
-        };
+
         $scope.updateGraph = function() {
             var list_ids = _IsCheck();
-            $scope.init_graph = Graphics.getResultsfromModelID($scope.model, list_ids);
-            $scope.data = $scope.init_graph.values;
-
+            console.log(list_ids)
+            $scope.data = Graphics.getUpdatedGraph($scope.init_graph.values, list_ids);
         };
 
         var _IsCheck = function() {
             var list_ids = [];
             var i = 0;
             for (i; i < $scope.init_checkbox.length; i++) {
-                if (document.getElementById('check-' + $scope.init_checkbox[i].id).checked) {
-                    list_ids.push($scope.init_checkbox[i].id);
+                if (document.getElementById('check-' + i).checked) {
+                    list_ids.push($scope.init_checkbox[i]);
                 };
             };
             return list_ids
@@ -190,29 +191,28 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
 
 
                 $scope.detail_test.$promise.then(function() {
-                    Graphics.getResultsfromTestID($scope.detail_test, []).then(function(init_graph) {
+                    Graphics.getResultsfromTestID2($scope.detail_test).then(function(init_graph) {
 
                         $scope.result_focussed;
                         $scope.$on('data_focussed:updated', function(event, data) {
                             $scope.result_focussed = data;
                             $scope.$apply();
                         });
+                        $scope.init_graph = init_graph;
                         $scope.graphic_data = init_graph.values;
-                        $scope.init_checkbox = init_graph.ids_all;
+                        $scope.init_checkbox = init_graph.list_ids;
                         //main table result
-                        Graphics.getResultsfromTestID($scope.detail_test, ['all']).then(function(results_all) {
-                            $scope.results_all = results_all;
-                            $scope.graphic_options = Graphics.get_lines_options('Test/result', '', "", "this is a caption", results_all.results);
 
-                        });
+                        $scope.graphic_options = Graphics.get_lines_options('Test/result', '', "", "this is a caption", init_graph.results, "test");
+
 
                     }).catch(function(err) {
                         console.error('Erreur !');
                         console.dir(err);
                         console.log(err);
                     });
-
-                    //for tab_comments
+                    console.log("init graph", $scope.init_graph)
+                        //for tab_comments
                     $scope.test_tickets = TestTicketRest.get({ app_id: app_id, test_id: $stateParams.uuid });
                     $scope.comments_to_show = [];
                     $scope.create_comment_to_show = [];
@@ -271,21 +271,19 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
 
                     };
                 };
-
                 $scope.updateGraph = function() {
                     var list_ids = _IsCheck();
-                    Graphics.getResultsfromTestID($scope.detail_test, list_ids).then(function(init_graph) {
-                        $scope.graphic_data = init_graph.values;
-                        $scope.$apply();
-                        $scope.api.refresh();
-                    });
+                    console.log(list_ids)
+                    $scope.graphic_data = Graphics.getUpdatedGraph($scope.init_graph.values, list_ids);
+                    // $scope.$apply();
+                    // $scope.api.refresh();
                 };
                 var _IsCheck = function() {
                     var list_ids = [];
                     var i = 0;
                     for (i; i < $scope.init_checkbox.length; i++) {
-                        if (document.getElementById('check-' + $scope.init_checkbox[i].id).checked) {
-                            list_ids.push($scope.init_checkbox[i].id);
+                        if (document.getElementById('check-' + i).checked) {
+                            list_ids.push($scope.init_checkbox[i]);
                         };
                     };
                     return list_ids
