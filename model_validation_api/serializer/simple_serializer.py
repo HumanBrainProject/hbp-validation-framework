@@ -64,7 +64,7 @@ class ScientificModelImageForModelReadOnlySerializer(serializers.HyperlinkedMode
 class ScientificModelImageSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = ScientificModelImage
-        fields = ('id', 'url', 'caption','model_id')
+        fields = ('id', 'url', 'caption' ,'model_id')
 
 
 #####################

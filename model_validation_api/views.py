@@ -188,6 +188,78 @@ def get_collab_id_from_app_id (app_id):
     collab_id = collab_param.values('collab_id')[0]['collab_id']
     return collab_id
 
+# def _is_version_unique (type, version_name, model_or_test_id):
+#     if type == "model_instance":
+#         try :
+#             model = ScientificModel.objects.get(id=model_or_test_id)
+#         except :
+#             raise ValueError('_is_version_unique impossible to retrive the model. Are you sure you give a model_id and "model_instance" as type ? ')
+        
+#     q.filter(model_id__in = param_model_id )
+# ScientificModelInstance.objects.all() 
+
+
+#     elif type == "test_code":
+#         try :
+#             test = ValidationTestDefinition.objects.get(id=model_or_test_id)
+#         except :
+#             raise ValueError('_is_version_unique impossible to retrive the test. Are you sure you give a test_id and "test_code" as type ? ')
+            
+
+#     else :
+#         raise ValueError('_is_version_unique only works for type "model_instance" or "test_code"')
+
+# def are_all_versions_unique (list_given, list_already_there):
+#     #inner check on list_givent
+#     if not len(list_given) == len(set(list_given)) :
+#         return (False)
+    
+#     if not len(list_already_there) == len(set(list_already_there)) :
+#         return (False)
+
+#     #cross check list_given and list_already_there
+#     if not (len(list_given)+ len(list_already_there)) ==  len(set(list_given).union(set(list_already_there))) :
+#         return (False)
+    
+#     return (True)
+
+
+# def extract_all_version_from_test_object (test):
+#     test_code_list = ValidationTestCode.objects.filter(test_definition_id = test.id)
+#     test_code_list_id = test_code_list.values("id")
+#     return test_code_list_id
+    
+# def extract_all_version_from_model_object (model):
+#     model_instance_list = ScientificModelInstance.objects.filter(model_instance_id = model.id)
+#     model_instance_list_id = model_instance_list.values("id")
+#     return model_instance_list_id
+
+# def extract_versions_and_model_id_from_list_instance_dict (list_instance_dict):
+#     data_to_return = {}
+#     for i in list_instance_dict:
+#         if not i["model_id"] in data_to_return :
+#             data_to_return[i["model_id"]] = {}
+        
+#         if 
+#             i["version"]
+        
+        
+
+
+#     return dictionary
+    
+# def extract_versions_and_test_id_from_list_testcode_dict (list_testcode_dict):
+#     return dictionary
+
+# def extract_versions_from_list_instance_json ():
+    
+#     return list_version
+    
+# def extract_versions_from_list_testcode_json ():
+#     return list_version
+
+
+
 @method_decorator(login_required(login_url='/login/hbp'), name='dispatch' )
 class HomeValidationView(View):
     template_name = "validation_framework/validation_home.html"
@@ -427,10 +499,11 @@ class ScientificModelInstanceRest (APIView):
             
         instances = q
 
-        serializer = ScientificModelInstanceSerializer(data=instances, context=serializer_context)
+        instance_serializer = ScientificModelInstanceSerializer(data=instances, context=serializer_context, many=True)
+        instance_serializer.is_valid()
 
         return Response({
-                'instances': serializer.data,
+                'instances': instance_serializer.data,
                 })
 
     def post(self, request, format=None):       
@@ -528,10 +601,12 @@ class ScientificModelImageRest (APIView):
             
         images = q
 
-        serializer = ScientificModelImageSerializer(data=images, context=serializer_context)
+        image_serializer = ScientificModelImageSerializer(data=images, context=serializer_context, many=True)
+        image_serializer.is_valid() # needed....
+
 
         return Response({
-                'images': serializer.data,
+                'images': image_serializer.data,
                 })
 
     def post(self, request, format=None):
@@ -1794,190 +1869,3 @@ class ParametersConfigurationView(View):
 
 
 
-# @method_decorator(login_required(login_url='/login/hbp'), name='dispatch' )
-# class ValidationTestDefinitionSearchResource(View):
-#     serializer = ValidationTestDefinitionSerializer
-#     login_url='/login/hbp/'
-
-#     def get(self, request, *args, **kwargs):
-#         filters = {}
-#         for key, value in request.GET.items():
-#             if key not in VALID_FILTER_NAMES:
-#                 return HttpResponseBadRequest("{} is not a valid filter".format(key))
-#             else:
-#                 filters[key + "__contains"] = value  # should handle multiple values
-#         tests = ValidationTestDefinition.objects.filter(**filters)
-# #        raise Exception(str(filters))
-#         content = self.serializer.serialize(tests)
-#         return HttpResponse(content, content_type="application/json; charset=utf-8", status=200)
-
-
-    # def get_collab_id(self):
-    #     social_auth = self.request.user.social_auth.get()
-    #     print("social auth", social_auth.extra_data )
-    #     # import hbp_service_client.document_service.client as doc_service_client
-    #     # access_token = get_access_token(self.request.user.social_auth.get())
-    #     # dsc = doc_service_client.Client.new(access_token)
-
-    #     headers = {
-    #         'Authorization': get_auth_header(self.request.user.social_auth.get())
-    #     }
-
-    #     #to get collab_id
-    #     svc_url = settings.HBP_COLLAB_SERVICE_URL
-    #     context = self.request.session["next"][6:]
-    #     url = '%scollab/context/%s/' % (svc_url, context)
-    #     res = requests.get(url, headers=headers)
-    #     collab_id = res.json()['collab']['id']
-    #     return collab_id
-
-
-
-# @method_decorator(login_required(login_url='/login/hbp'), name='dispatch' )
-# class SimpleResultDetailView(LoginRequiredMixin, DetailView):
-    
-#     model = ValidationTestResult
-#     template_name = "simple_result_detail.html"
-
-#     def get_context_data(self, **kwargs):
-#         context = super(SimpleResultDetailView, self).get_context_data(**kwargs)
-#         context["section"] = "results"
-#         context["build_info"] = settings.BUILD_INFO
-#         context["related_data"] = self.get_related_data(self.request.user)
-
-#         if self.object.project:
-#             context["collab_name"] = self.get_collab_name()
-#         return context
-
-#     def get_collab_name(self):
-#         # import bbp_services.client as bsc
-#         # services = bsc.get_services()
-
-#         import hbp_service_client.document_service.client as doc_service_client
-#         access_token = get_access_token(self.request.user.social_auth.get())
-#         dsc = doc_service_client.Client.new(access_token)
-
-#         headers = {
-#             'Authorization': get_auth_header(self.request.user.social_auth.get())
-#         }
-
-#         #to get collab_id
-#         svc_url = settings.HBP_COLLAB_SERVICE_URL
-#         context = self.request.session["next"][6:]
-#         url = '%scollab/context/%s/' % (svc_url, context)
-#         res = requests.get(url, headers=headers)
-#         collab_id = res.json()['collab']['id']
-
-#         project = dsc.list_projects(collab_id=collab_id)["results"]
-
-#         # url = services['collab_service']['prod']['url'] + "collab/{}/".format(self.object.project)
-#         # url = services['collab_service']['prod']['url'] + "collab/{}/".format(dsc.list_projects(collab_id=2169)["results"][0]["name"])
-#         url = "https://services.humanbrainproject.eu/collab/v0/collab/{}/".format(dsc.list_projects(collab_id=collab_id)["results"][0]["name"])
-        
-#         response = requests.get(url, headers=headers)
-#         collab_name = response.json()["title"]
-
-#         return collab_name
-
-#     def get_collab_storage_url(self):
-#         # import bbp_services.client as bsc
-#         # services = bsc.get_services()
-
-#         import hbp_service_client.document_service.client as doc_service_client
-#         access_token = get_access_token(self.request.user.social_auth.get())
-#         dsc = doc_service_client.Client.new(access_token)
-
-
-#         headers = {
-#             'Authorization': get_auth_header(self.request.user.social_auth.get())
-#         }
-
-#         #to get collab_id
-#         svc_url = settings.HBP_COLLAB_SERVICE_URL
-#         context = self.request.session["next"][6:]
-#         url = '%scollab/context/%s/' % (svc_url, context)
-#         res = requests.get(url, headers=headers)
-#         collab_id = res.json()['collab']['id']
-
-#         project = dsc.list_projects(collab_id=collab_id)["results"]
-
-#         # url = services['collab_service']['prod']['url'] + "collab/{}/nav/all/".format(self.object.project)
-#         url = "https://services.humanbrainproject.eu/collab/v0/collab/{}/nav/all/".format(dsc.list_projects(collab_id=collab_id)["results"][0]["name"])
-        
-
-#         response = requests.get(url, headers=headers)
-#         if response.ok:
-#             nav_items = response.json()
-#             for item in nav_items:   
-#                 if item["app_id"] == "31":  # Storage app
-
-#                     # return "https://collab.humanbrainproject.eu/#/collab/{}/nav/{}".format(self.object.project, item["id"])
-#                     return "https://collab.humanbrainproject.eu/#/collab/{}/nav/{}".format(dsc.list_projects(collab_id=collab_id)["results"][0]["name"], item["id"])
-                    
-#         else:
-#             return ""
-
-#     def get_related_data(self, user):
-#         # assume for now that data is in collab
-
-#         # from bbp_client.oidc.client import BBPOIDCClient
-#         # from bbp_client.document_service.client import Client as DocClient
-#         # import bbp_services.client as bsc
-#         # services = bsc.get_services()
-
-#         # oidc_client = BBPOIDCClient.bearer_auth(services['oidc_service']['prod']['url'], access_token)
-#         # doc_client = DocClient(services['document_service']['prod']['url'], oidc_client) # a remplacer : creer instance de nouvelle classe : hbp_service client
-
-#         import hbp_service_client.document_service.client as doc_service_client
-
-#         access_token = get_access_token(user.social_auth.get())
-#         dsc = doc_service_client.Client.new(access_token)
-
-#         headers = {
-#             'Authorization': get_auth_header(user.social_auth.get())
-#         }
-
-#         #to get collab_id
-#         svc_url = settings.HBP_COLLAB_SERVICE_URL
-#         context = self.request.session["next"][6:]
-#         url = '%scollab/context/%s/' % (svc_url, context)
-#         res = requests.get(url, headers=headers)
-#         collab_id = res.json()['collab']['id']
-
-#         project_dict = dsc.list_projects(collab_id=collab_id)
-        
-#         try :
-#             dsc.create_folder("folder_test", project_dict["results"][0]["uuid"])
-
-#         except:
-#             print ("folder already exist")     
-
-#         parse_result = urlparse(self.object.results_storage)
-
-#         # print ("parse result : ")
-#         # print (parse_result)
-#         # print ("")
-
-#         ###reste a voir ici... je ne comprend pas ce qui doit etre dans parse_result
-#         if parse_result.scheme == "collab":
-#         # if 1 :
-#             list_folder = dsc.list_project_content(project_dict["results"][0]["uuid"])
-#             # collab_folder = parse_result.path
-#             collab_folder = list_folder["results"][0]
-            
-#             #return doc_client.listdir(collab_folder)
-#             # folder_uuid = doc_client.get_standard_attr(collab_folder)['_uuid'] #a remplacer
-#             folder_uuid = collab_folder["uuid"]
-        
-#             data = {
-#                 "folder": {
-#                     "path": collab_folder,
-#                 }
-#             }
-#             if self.object.project:
-#                 data["folder"]["url"] = self.get_collab_storage_url() + "?state=uuid={}".format(folder_uuid)
-#             return data
-#         else:
-#             print("Storage not yet supported")
-
-#         return {}
