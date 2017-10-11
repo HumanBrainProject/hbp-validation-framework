@@ -41,7 +41,7 @@ class ValidationTestDefinition(models.Model):
                                  help_text="single cell activity, network structure, network activity, subcellular")  # B, C
     protocol = models.TextField(blank=True, help_text="Description of the experimental protocol")  # R (sort of)
     author = models.CharField(max_length=100, help_text="Author of this test")  # H
-    publication = models.CharField(max_length=200, null=True, help_text="Publication in which the validation data set was reported")  # E
+    publication = models.CharField(max_length=1000, null=True, help_text="Publication in which the validation data set was reported")  # E
     score_type = models.CharField(help_text="Type of score: p-value, r square ..", max_length=20)
     alias = models.CharField(max_length=200, unique=True, null=True, default=None, help_text="alias of the test") 
     # missing fields wrt Lungsi's spreadsheet
@@ -116,7 +116,7 @@ class ScientificModelInstance(models.Model):
     """
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, )
     model = models.ForeignKey(ScientificModel, related_name="instances", on_delete=models.CASCADE)
-    version = models.CharField(max_length=64)
+    version = models.CharField(max_length=200)
     parameters = models.TextField(null=True, blank=True)
     source = models.URLField(help_text="Version control repository containing the source code of the model")
     timestamp = models.DateTimeField(auto_now_add=True, help_text="Timestamp of when the version was created")
