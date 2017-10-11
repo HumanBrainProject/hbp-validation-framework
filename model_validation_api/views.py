@@ -1561,7 +1561,7 @@ def organise_results_dict (point_of_view, results, serializer_context):
 
     #data_to_return structuraction for test point of view
     if point_of_view == "test" :
-        print "test first"
+        # print "test first"
         data_to_return['tests'] = {}
         for result in results :
             result_info = get_result_informations(result)
@@ -1586,7 +1586,7 @@ def organise_results_dict (point_of_view, results, serializer_context):
     
     #data_to_return structuraction for model point of view 
     elif  point_of_view == "model" :
-        print "model first"
+        # print "model first"
         
         data_to_return['models'] = {}
         for result in results :
@@ -1644,7 +1644,6 @@ class ValidationResultRest2 (APIView):
         param_model_alias = request.GET.getlist('model_alias')
         param_test_alias = request.GET.getlist('test_alias')
         param_test_score_type = request.GET.getlist('score_type')
-        print("filter by score type", param_test_score_type)
         param_order = request.GET.getlist('order')
 
 
