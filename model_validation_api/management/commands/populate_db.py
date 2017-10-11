@@ -48,6 +48,8 @@ class Command(BaseCommand):
         Param_ScoreType(id=uuid.uuid4(),authorized_value='p-value').save()
 	Param_ScoreType(id=uuid.uuid4(),authorized_value='Rsquare').save()
         Param_ScoreType(id=uuid.uuid4(),authorized_value='number').save()
+	Param_ScoreType(id=uuid.uuid4(),authorized_value='Zscore').save()
+	Param_ScoreType(id=uuid.uuid4(),authorized_value='purcentage').save()
 	Param_ScoreType(id=uuid.uuid4(),authorized_value='Other').save()
 
 
