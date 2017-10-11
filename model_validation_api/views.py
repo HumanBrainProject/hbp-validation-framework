@@ -188,75 +188,79 @@ def get_collab_id_from_app_id (app_id):
     collab_id = collab_param.values('collab_id')[0]['collab_id']
     return collab_id
 
-# def _is_version_unique (type, version_name, model_or_test_id):
-#     if type == "model_instance":
-#         try :
-#             model = ScientificModel.objects.get(id=model_or_test_id)
-#         except :
-#             raise ValueError('_is_version_unique impossible to retrive the model. Are you sure you give a model_id and "model_instance" as type ? ')
+
+def _are_model_instance_version_unique (instance_json):
+
+    try :
+        put_instance_id = instance_json["id"]
+    except:
+        put_instance_id = None
         
-#     q.filter(model_id__in = param_model_id )
-# ScientificModelInstance.objects.all() 
+    #extract version and model_id from json
+    dict_info = extract_versions_and_model_id_from_instance_json(instance_json)
 
+    # retrive all versions from model_id
+    version_in_base = extract_all_instance_version_from_model_id (put_id= put_instance_id, model_id= dict_info["model_id"])
 
-#     elif type == "test_code":
-#         try :
-#             test = ValidationTestDefinition.objects.get(id=model_or_test_id)
-#         except :
-#             raise ValueError('_is_version_unique impossible to retrive the test. Are you sure you give a test_id and "test_code" as type ? ')
-            
+    #check if versions uniques
+    return check_versions_unique([dict_info["version_name"]], version_in_base )
 
-#     else :
-#         raise ValueError('_is_version_unique only works for type "model_instance" or "test_code"')
+def _are_test_code_version_unique (testcode_json):
+    try :
+        put_testcode_id = testcode_json["id"]
+    except:
+        put_testcode_id = None
+    #extract version and model_id from json
+    dict_info = extract_versions_and_test_id_from_list_testcode_json(testcode_json)
 
-# def are_all_versions_unique (list_given, list_already_there):
-#     #inner check on list_givent
-#     if not len(list_given) == len(set(list_given)) :
-#         return (False)
+    # retrive all versions from model_id
+    version_in_base = extract_all_code_version_from_test_object_id (put_id=put_testcode_id, test_id=dict_info["test_id"])
+
+    #check if versions uniques
+    return check_versions_unique([dict_info["version_name"]], version_in_base )
     
-#     if not len(list_already_there) == len(set(list_already_there)) :
-#         return (False)
 
-#     #cross check list_given and list_already_there
-#     if not (len(list_given)+ len(list_already_there)) ==  len(set(list_given).union(set(list_already_there))) :
-#         return (False)
+
+def check_versions_unique (list_given, list_already_there):
+    #inner check on list_givent
+    if not len(list_given) == len(set(list_given)) :
+        return (False)
     
-#     return (True)
-
-
-# def extract_all_version_from_test_object (test):
-#     test_code_list = ValidationTestCode.objects.filter(test_definition_id = test.id)
-#     test_code_list_id = test_code_list.values("id")
-#     return test_code_list_id
+    print list_already_there
+    print type(list_already_there)
     
-# def extract_all_version_from_model_object (model):
-#     model_instance_list = ScientificModelInstance.objects.filter(model_instance_id = model.id)
-#     model_instance_list_id = model_instance_list.values("id")
-#     return model_instance_list_id
+    if not len(list_already_there) == len(set(list_already_there)) :
+        return (False)
 
-# def extract_versions_and_model_id_from_list_instance_dict (list_instance_dict):
-#     data_to_return = {}
-#     for i in list_instance_dict:
-#         if not i["model_id"] in data_to_return :
-#             data_to_return[i["model_id"]] = {}
+    #cross check list_given and list_already_there
+    if not (len(list_given)+ len(list_already_there)) ==  len(set(list_given).union(set(list_already_there))) :
+        return (False)
+    
+    return (True)
+
+def extract_all_code_version_from_test_object_id (put_id, test_id):
+    if put_id :
+        test_code_list_id = ValidationTestCode.objects.filter(test_definition_id = test_id).exclude(id=put_id).values_list("version", flat=True)
+    else : 
+        test_code_list_id = ValidationTestCode.objects.filter(test_definition_id = test_id).values_list("version", flat=True)
         
-#         if 
-#             i["version"]
-        
-        
-
-
-#     return dictionary
+    return test_code_list_id
     
-# def extract_versions_and_test_id_from_list_testcode_dict (list_testcode_dict):
-#     return dictionary
+def extract_all_instance_version_from_model_id (put_id,  model_id):
+    if put_id :
+        model_instance_list_id = ScientificModelInstance.objects.filter(model_id = model_id).exclude(id=put_id).values_list("version",flat=True)
+    else :
+        model_instance_list_id = ScientificModelInstance.objects.filter(model_id = model_id).values_list("version",flat=True)
 
-# def extract_versions_from_list_instance_json ():
+    return model_instance_list_id
+
+def extract_versions_and_model_id_from_instance_json (instance_json):
+    return {'model_id': instance_json["model_id"] ,  'version_name': instance_json["version"] }
     
-#     return list_version
-    
-# def extract_versions_from_list_testcode_json ():
-#     return list_version
+def extract_versions_and_test_id_from_list_testcode_json (testcode_json):
+    print testcode_json
+    return {'test_id' :testcode_json["test_definition_id"] ,  'version_name': testcode_json["version"] }
+
 
 
 
@@ -520,6 +524,11 @@ class ScientificModelInstanceRest (APIView):
                 collab_id = get_collab_id_from_app_id(app_id)
                 if not is_authorised(request, collab_id):
                     return HttpResponseForbidden()
+                
+                #check if versions are unique
+                if not _are_model_instance_version_unique(instance) :
+                    return Response("You are sending a version name already existing for this model", status=status.HTTP_400_BAD_REQUEST)
+
             else :
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -552,6 +561,10 @@ class ScientificModelInstanceRest (APIView):
 
             if  model_serializer.is_valid() is False :
                 return Response(model_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            
+            #check if versions are unique
+            if not _are_model_instance_version_unique(instance) :
+                return Response("You are sending a version name already existing for this model", status=status.HTTP_400_BAD_REQUEST)
 
         list_id = []
         #is valid + authaurised : save it
@@ -837,10 +850,16 @@ class ScientificModelRest(APIView):
             return Response(model_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
                
         if len(request.data['model_instance']) >  0 :
+            list_version_names = []
             for i in request.data['model_instance']:
+                list_version_names.append(i["version"])
                 model_instance_serializer = ScientificModelInstanceSerializer(data=i, context=serializer_context)
                 if model_instance_serializer.is_valid() is not True:    
                     return Response(model_instance_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            
+            if not len(list_version_names) == len(set(list_version_names)) :    
+                return Response("You are sending a version name which are not unique", status=status.HTTP_400_BAD_REQUEST)    
+
         if len(request.data['model_image']) >  0 :
             for i in request.data['model_image']:
                 model_image_serializer = ScientificModelImageSerializer(data=i, context=serializer_context)  
@@ -1016,6 +1035,10 @@ class ValidationTestCodeRest(APIView):
 
             if not serializer.is_valid():
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            
+            #check if versions are unique
+            if not _are_test_code_version_unique(test_code) :
+                return Response("You are sending a version name already existing", status=status.HTTP_400_BAD_REQUEST)
 
         list_id = []
         for test_code in request.data :
@@ -1043,6 +1066,9 @@ class ValidationTestCodeRest(APIView):
                     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
             else : 
                 return Response("Your test_definition_id differes from the original one", status=status.HTTP_400_BAD_REQUEST)
+            #check if versions are unique
+            if not _are_test_code_version_unique(test_code) :
+                return Response("You are sending a version name already existing", status=status.HTTP_400_BAD_REQUEST)
                 
         list_id = []
         for test_code in request.data :
