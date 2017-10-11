@@ -47,7 +47,11 @@ class Command(BaseCommand):
     def _create_score_type(self): 
         Param_ScoreType(id=uuid.uuid4(),authorized_value='p-value').save()
 	Param_ScoreType(id=uuid.uuid4(),authorized_value='Rsquare').save()
+        Param_ScoreType(id=uuid.uuid4(),authorized_value='number').save()
+	Param_ScoreType(id=uuid.uuid4(),authorized_value='Zscore').save()
+	Param_ScoreType(id=uuid.uuid4(),authorized_value='purcentage').save()
 	Param_ScoreType(id=uuid.uuid4(),authorized_value='Other').save()
+
 
     def _create_species(self):
         Param_Species(id=uuid.uuid4(),authorized_value='Mouse (Mus musculus)').save()
@@ -878,7 +882,7 @@ class Command(BaseCommand):
         #self._create_brain_region()
         #self._create_cell_type()
         #self._create_model_type()
-	#self._create_score_type()
+	self._create_score_type()
 	#self._create_organizations()
 
         # self._fake_collab()
