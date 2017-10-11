@@ -87,9 +87,9 @@ testApp.controller('ValTestCtrl', ['$scope', '$rootScope', '$http', '$location',
 ]);
 
 
-testApp.controller('ValModelDetailCtrl', ['$scope', '$rootScope', '$http', '$location', '$stateParams', 'ScientificModelRest', 'ScientificModelInstanceRest', 'CollabParameters', 'IsCollabMemberRest', 'AppIDRest', 'Graphics', 'Context',
+testApp.controller('ValModelDetailCtrl', ['$scope', '$rootScope', '$http', '$location', '$stateParams', 'ScientificModelRest', 'ScientificModelInstanceRest', 'CollabParameters', 'IsCollabMemberRest', 'AppIDRest', 'Graphics', 'Context', 'AuthorizedCollabParameterRest',
 
-    function($scope, $rootScope, $http, $location, $stateParams, ScientificModelRest, ScientificModelInstanceRest, CollabParameters, IsCollabMemberRest, AppIDRest, Graphics, Context, ValidationModelResultRest) {
+    function($scope, $rootScope, $http, $location, $stateParams, ScientificModelRest, ScientificModelInstanceRest, CollabParameters, IsCollabMemberRest, AppIDRest, Graphics, Context, AuthorizedCollabParameterRest) {
         $scope.Context = Context;
         Context.setService().then(function() {
             $scope.Context = Context;
@@ -102,43 +102,94 @@ testApp.controller('ValModelDetailCtrl', ['$scope', '$rootScope', '$http', '$loc
                 $scope.is_collab_member.$promise.then(function() {
                     $scope.is_collab_member = $scope.is_collab_member.is_member;
                 });
-
+                $scope.authorized_parameters = AuthorizedCollabParameterRest.get();
                 $scope.model = ScientificModelRest.get({ app_id: app_id, id: $stateParams.uuid });
                 $scope.model.$promise.then(function() {
                     //graph and table results
-                    $scope.init_graph = Graphics.getResultsfromModelID($scope.model, []);
-                    //$scope.init_graph= Graphics.getResultsfromModelID($scope.model); 
-                    $scope.data = $scope.init_graph.values;
-                    $scope.init_checkbox = $scope.init_graph.ids_all;
-                    $scope.line_result_focussed;
-                    $scope.$on('data_focussed:updated', function(event, data) {
-                            $scope.line_result_focussed = data;
-                            $scope.$apply();
+                    Graphics.getResultsfromModelResultID2($scope.model).then(function(init_graph) {
+                            $scope.data = init_graph.values;
+                            $scope.init_graph_all = new Array();
+                            $scope.line_result_focussed = new Array();
+                            $scope.options5 = new Array();
+                            $scope.init_checkbox = new Array();
+                            for (var i in $scope.authorized_parameters.score_type) {
+                                var score_type = $scope.authorized_parameters.score_type[i].authorized_value;
+                                Graphics.getResultsfromModelResultID2($scope.model, score_type).then(function(value) {
+                                    var key = $scope.init_graph_all.push(value);
+                                    $scope.options5.push(Graphics.get_lines_options('title', '', $scope.authorized_parameters.score_type[key - 1].authorized_value, "", value.results, "model", key - 1));
+                                    //  $scope.init_checkbox.push(value.list_ids);
+                                    $scope.line_result_focussed.push();
+                                    $scope.$on('data_focussed:updated', function(event, data, key) {
+                                        $scope.line_result_focussed[key] = data;
+                                        $scope.$apply();
+                                    });
+                                });
+                            };
+                            // $scope.init_graph_all = $scope.init_graph_all_original;
+                            $scope.init_checkbox = init_graph.list_ids;
+                            $scope.init_graph = init_graph;
+                            // $scope.line_result_focussed;
+                            // $scope.$on('data_focussed:updated', function(event, data) {
+                            //     $scope.line_result_focussed = data;
+                            //     $scope.$apply();
+                            // });
                         })
-                        //main table result
-                    $scope.results_all = _getAllResultTable();
-                    $scope.options5 = Graphics.get_lines_options('Model/p-value', '', "p-value", "this is a caption", $scope.results_all.results);
+                        // shitty solution to go faster. will need to be replaced with a clean solution. This one get data for each score_type. the best would be to subset data from the previous get directly
+                        //for p-value
 
+
+
+
+                    // let multi_graphs = await Graphics.getGraphsByScoreType(init_graph.values);
+                    // $scope.multi_graphs = multi_graphs;
+
+                    // console.log("multi graphs", $scope.multi_graphs);
+
+                    // Graphics.getResultsfromModelResultID2($scope.model).then(function(init_graph) {
+                    //     //$scope.init_graph= Graphics.getResultsfromModelID($scope.model); 
+                    //     $scope.data = init_graph.values;
+                    //     $scope.init_checkbox = init_graph.list_ids;
+                    //     $scope.init_graph = init_graph;
+                    //     $scope.line_result_focussed;
+                    //     $scope.$on('data_focussed:updated', function(event, data) {
+                    //         $scope.line_result_focussed = data;
+                    //         $scope.$apply();
+                    //     })
+                    //     console.log("init graph promise", init_graph)
+
+                    //     Graphics.getGraphsByScoreType(init_graph.values).then(function(multi_graphs) {
+                    //         $scope.multi_graphs = multi_graphs;
+                    //         $scope.options5 = Graphics.get_lines_options('Model/p-value', '', "p-value", "this is a caption", init_graph.results, "model");
+                    //         console.log("multi graphs", $scope.multi_graphs);
+                    //     });
+
+
+                    //     console.log("score_type", $scope.authorized_parameters.score_type)
+                    //     console.log("init_graph", init_graph)
+                    //     console.log("init_graph scope", $scope.init_graph)
+                    //     console.log("init_graph values", init_graph.values[2])
+                    //     console.log("data", $scope.data)
+                    //     console.log("checkbox list", $scope.init_checkbox)
+
+
+                    // })
                 });
 
             });
         });
-        var _getAllResultTable = function() {
-            return Graphics.getResultsfromModelID($scope.model, ['all']);
-        };
-        $scope.updateGraph = function() {
-            var list_ids = _IsCheck();
-            $scope.init_graph = Graphics.getResultsfromModelID($scope.model, list_ids);
-            $scope.data = $scope.init_graph.values;
 
+        $scope.updateGraph = function(key) {
+            var list_ids = _IsCheck(key);
+            $scope.init_graph_all[key].values = Graphics.getUpdatedGraph($scope.init_graph.values, list_ids);
+            $scope.line_result_focussed[key] = null;
         };
 
-        var _IsCheck = function() {
+        var _IsCheck = function(key) {
             var list_ids = [];
             var i = 0;
-            for (i; i < $scope.init_checkbox.length; i++) {
-                if (document.getElementById('check-' + $scope.init_checkbox[i].id).checked) {
-                    list_ids.push($scope.init_checkbox[i].id);
+            for (i; i < $scope.init_graph_all[key].list_ids.length; i++) {
+                if (document.getElementById('check-' + key + '-' + i).checked) {
+                    list_ids.push($scope.init_graph_all[key].list_ids[i]);
                 };
             };
             return list_ids
@@ -190,28 +241,25 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
 
 
                 $scope.detail_test.$promise.then(function() {
-                    Graphics.getResultsfromTestID($scope.detail_test, []).then(function(init_graph) {
+                    Graphics.getResultsfromTestID2($scope.detail_test).then(function(init_graph) {
 
                         $scope.result_focussed;
                         $scope.$on('data_focussed:updated', function(event, data) {
                             $scope.result_focussed = data;
                             $scope.$apply();
                         });
+                        $scope.init_graph = init_graph;
                         $scope.graphic_data = init_graph.values;
-                        $scope.init_checkbox = init_graph.ids_all;
+                        $scope.init_checkbox = init_graph.list_ids;
                         //main table result
-                        Graphics.getResultsfromTestID($scope.detail_test, ['all']).then(function(results_all) {
-                            $scope.results_all = results_all;
-                            $scope.graphic_options = Graphics.get_lines_options('Test/result', '', "", "this is a caption", results_all.results);
 
-                        });
+                        $scope.graphic_options = Graphics.get_lines_options('Test/result', '', $scope.detail_test.score_type, "this is a caption", init_graph.results, "test");
 
                     }).catch(function(err) {
                         console.error('Erreur !');
                         console.dir(err);
                         console.log(err);
                     });
-
                     //for tab_comments
                     $scope.test_tickets = TestTicketRest.get({ app_id: app_id, test_id: $stateParams.uuid });
                     $scope.comments_to_show = [];
@@ -271,30 +319,26 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
 
                     };
                 };
-
                 $scope.updateGraph = function() {
                     var list_ids = _IsCheck();
-                    Graphics.getResultsfromTestID($scope.detail_test, list_ids).then(function(init_graph) {
-                        $scope.graphic_data = init_graph.values;
-                        $scope.$apply();
-                        $scope.api.refresh();
-                    });
+                    console.log(list_ids)
+                    $scope.graphic_data = Graphics.getUpdatedGraph($scope.init_graph.values, list_ids);
+                    // $scope.$apply();
+                    // $scope.api.refresh();
                 };
                 var _IsCheck = function() {
                     var list_ids = [];
                     var i = 0;
                     for (i; i < $scope.init_checkbox.length; i++) {
-                        if (document.getElementById('check-' + $scope.init_checkbox[i].id).checked) {
-                            list_ids.push($scope.init_checkbox[i].id);
+                        if (document.getElementById('check-' + i).checked) {
+                            list_ids.push($scope.init_checkbox[i]);
                         };
                     };
                     return list_ids
                 };
                 $scope.saveVersion = function() {
                     _add_params();
-                    console.log($scope.test_code);
-                    console.log($scope.test_code);
-                    console.log($scope.test_code);
+
                     var parameters = JSON.stringify([$scope.test_code]);
                     ValidationTestCodeRest.save({ app_id: app_id, id: $scope.detail_test.tests[0].id }, parameters).$promise.then(function() {
                         document.getElementById("tab_description").style.display = "none";
@@ -346,7 +390,7 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
 
                 var _send_notification = function() {
                     NotificationRest.post({ app_id: app_id, ctx: ctx }).$promise.then(function(data) {
-                        console.log(data)
+                        // console.log(data)
                     });
                 }
 
