@@ -188,6 +188,82 @@ def get_collab_id_from_app_id (app_id):
     collab_id = collab_param.values('collab_id')[0]['collab_id']
     return collab_id
 
+
+def _are_model_instance_version_unique (instance_json):
+
+    try :
+        put_instance_id = instance_json["id"]
+    except:
+        put_instance_id = None
+        
+    #extract version and model_id from json
+    dict_info = extract_versions_and_model_id_from_instance_json(instance_json)
+
+    # retrive all versions from model_id
+    version_in_base = extract_all_instance_version_from_model_id (put_id= put_instance_id, model_id= dict_info["model_id"])
+
+    #check if versions uniques
+    return check_versions_unique([dict_info["version_name"]], version_in_base )
+
+def _are_test_code_version_unique (testcode_json):
+    try :
+        put_testcode_id = testcode_json["id"]
+    except:
+        put_testcode_id = None
+    #extract version and model_id from json
+    dict_info = extract_versions_and_test_id_from_list_testcode_json(testcode_json)
+
+    # retrive all versions from model_id
+    version_in_base = extract_all_code_version_from_test_object_id (put_id=put_testcode_id, test_id=dict_info["test_id"])
+
+    #check if versions uniques
+    return check_versions_unique([dict_info["version_name"]], version_in_base )
+    
+
+
+def check_versions_unique (list_given, list_already_there):
+    #inner check on list_givent
+    if not len(list_given) == len(set(list_given)) :
+        return (False)
+    
+    print list_already_there
+    print type(list_already_there)
+    
+    if not len(list_already_there) == len(set(list_already_there)) :
+        return (False)
+
+    #cross check list_given and list_already_there
+    if not (len(list_given)+ len(list_already_there)) ==  len(set(list_given).union(set(list_already_there))) :
+        return (False)
+    
+    return (True)
+
+def extract_all_code_version_from_test_object_id (put_id, test_id):
+    if put_id :
+        test_code_list_id = ValidationTestCode.objects.filter(test_definition_id = test_id).exclude(id=put_id).values_list("version", flat=True)
+    else : 
+        test_code_list_id = ValidationTestCode.objects.filter(test_definition_id = test_id).values_list("version", flat=True)
+        
+    return test_code_list_id
+    
+def extract_all_instance_version_from_model_id (put_id,  model_id):
+    if put_id :
+        model_instance_list_id = ScientificModelInstance.objects.filter(model_id = model_id).exclude(id=put_id).values_list("version",flat=True)
+    else :
+        model_instance_list_id = ScientificModelInstance.objects.filter(model_id = model_id).values_list("version",flat=True)
+
+    return model_instance_list_id
+
+def extract_versions_and_model_id_from_instance_json (instance_json):
+    return {'model_id': instance_json["model_id"] ,  'version_name': instance_json["version"] }
+    
+def extract_versions_and_test_id_from_list_testcode_json (testcode_json):
+    print testcode_json
+    return {'test_id' :testcode_json["test_definition_id"] ,  'version_name': testcode_json["version"] }
+
+
+
+
 @method_decorator(login_required(login_url='/login/hbp'), name='dispatch' )
 class HomeValidationView(View):
     template_name = "validation_framework/validation_home.html"
@@ -427,10 +503,11 @@ class ScientificModelInstanceRest (APIView):
             
         instances = q
 
-        serializer = ScientificModelInstanceSerializer(data=instances, context=serializer_context)
+        instance_serializer = ScientificModelInstanceSerializer(data=instances, context=serializer_context, many=True)
+        instance_serializer.is_valid()
 
         return Response({
-                'instances': serializer.data,
+                'instances': instance_serializer.data,
                 })
 
     def post(self, request, format=None):       
@@ -447,6 +524,11 @@ class ScientificModelInstanceRest (APIView):
                 collab_id = get_collab_id_from_app_id(app_id)
                 if not is_authorised(request, collab_id):
                     return HttpResponseForbidden()
+                
+                #check if versions are unique
+                if not _are_model_instance_version_unique(instance) :
+                    return Response("You are sending a version name already existing for this model", status=status.HTTP_400_BAD_REQUEST)
+
             else :
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -479,6 +561,10 @@ class ScientificModelInstanceRest (APIView):
 
             if  model_serializer.is_valid() is False :
                 return Response(model_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            
+            #check if versions are unique
+            if not _are_model_instance_version_unique(instance) :
+                return Response("You are sending a version name already existing for this model", status=status.HTTP_400_BAD_REQUEST)
 
         list_id = []
         #is valid + authaurised : save it
@@ -528,10 +614,12 @@ class ScientificModelImageRest (APIView):
             
         images = q
 
-        serializer = ScientificModelImageSerializer(data=images, context=serializer_context)
+        image_serializer = ScientificModelImageSerializer(data=images, context=serializer_context, many=True)
+        image_serializer.is_valid() # needed....
+
 
         return Response({
-                'images': serializer.data,
+                'images': image_serializer.data,
                 })
 
     def post(self, request, format=None):
@@ -762,10 +850,16 @@ class ScientificModelRest(APIView):
             return Response(model_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
                
         if len(request.data['model_instance']) >  0 :
+            list_version_names = []
             for i in request.data['model_instance']:
+                list_version_names.append(i["version"])
                 model_instance_serializer = ScientificModelInstanceSerializer(data=i, context=serializer_context)
                 if model_instance_serializer.is_valid() is not True:    
                     return Response(model_instance_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            
+            if not len(list_version_names) == len(set(list_version_names)) :    
+                return Response("You are sending a version name which are not unique", status=status.HTTP_400_BAD_REQUEST)    
+
         if len(request.data['model_image']) >  0 :
             for i in request.data['model_image']:
                 model_image_serializer = ScientificModelImageSerializer(data=i, context=serializer_context)  
@@ -941,6 +1035,10 @@ class ValidationTestCodeRest(APIView):
 
             if not serializer.is_valid():
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            
+            #check if versions are unique
+            if not _are_test_code_version_unique(test_code) :
+                return Response("You are sending a version name already existing", status=status.HTTP_400_BAD_REQUEST)
 
         list_id = []
         for test_code in request.data :
@@ -968,6 +1066,9 @@ class ValidationTestCodeRest(APIView):
                     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
             else : 
                 return Response("Your test_definition_id differes from the original one", status=status.HTTP_400_BAD_REQUEST)
+            #check if versions are unique
+            if not _are_test_code_version_unique(test_code) :
+                return Response("You are sending a version name already existing", status=status.HTTP_400_BAD_REQUEST)
                 
         list_id = []
         for test_code in request.data :
@@ -1802,190 +1903,3 @@ class ParametersConfigurationView(View):
 
 
 
-# @method_decorator(login_required(login_url='/login/hbp'), name='dispatch' )
-# class ValidationTestDefinitionSearchResource(View):
-#     serializer = ValidationTestDefinitionSerializer
-#     login_url='/login/hbp/'
-
-#     def get(self, request, *args, **kwargs):
-#         filters = {}
-#         for key, value in request.GET.items():
-#             if key not in VALID_FILTER_NAMES:
-#                 return HttpResponseBadRequest("{} is not a valid filter".format(key))
-#             else:
-#                 filters[key + "__contains"] = value  # should handle multiple values
-#         tests = ValidationTestDefinition.objects.filter(**filters)
-# #        raise Exception(str(filters))
-#         content = self.serializer.serialize(tests)
-#         return HttpResponse(content, content_type="application/json; charset=utf-8", status=200)
-
-
-    # def get_collab_id(self):
-    #     social_auth = self.request.user.social_auth.get()
-    #     print("social auth", social_auth.extra_data )
-    #     # import hbp_service_client.document_service.client as doc_service_client
-    #     # access_token = get_access_token(self.request.user.social_auth.get())
-    #     # dsc = doc_service_client.Client.new(access_token)
-
-    #     headers = {
-    #         'Authorization': get_auth_header(self.request.user.social_auth.get())
-    #     }
-
-    #     #to get collab_id
-    #     svc_url = settings.HBP_COLLAB_SERVICE_URL
-    #     context = self.request.session["next"][6:]
-    #     url = '%scollab/context/%s/' % (svc_url, context)
-    #     res = requests.get(url, headers=headers)
-    #     collab_id = res.json()['collab']['id']
-    #     return collab_id
-
-
-
-# @method_decorator(login_required(login_url='/login/hbp'), name='dispatch' )
-# class SimpleResultDetailView(LoginRequiredMixin, DetailView):
-    
-#     model = ValidationTestResult
-#     template_name = "simple_result_detail.html"
-
-#     def get_context_data(self, **kwargs):
-#         context = super(SimpleResultDetailView, self).get_context_data(**kwargs)
-#         context["section"] = "results"
-#         context["build_info"] = settings.BUILD_INFO
-#         context["related_data"] = self.get_related_data(self.request.user)
-
-#         if self.object.project:
-#             context["collab_name"] = self.get_collab_name()
-#         return context
-
-#     def get_collab_name(self):
-#         # import bbp_services.client as bsc
-#         # services = bsc.get_services()
-
-#         import hbp_service_client.document_service.client as doc_service_client
-#         access_token = get_access_token(self.request.user.social_auth.get())
-#         dsc = doc_service_client.Client.new(access_token)
-
-#         headers = {
-#             'Authorization': get_auth_header(self.request.user.social_auth.get())
-#         }
-
-#         #to get collab_id
-#         svc_url = settings.HBP_COLLAB_SERVICE_URL
-#         context = self.request.session["next"][6:]
-#         url = '%scollab/context/%s/' % (svc_url, context)
-#         res = requests.get(url, headers=headers)
-#         collab_id = res.json()['collab']['id']
-
-#         project = dsc.list_projects(collab_id=collab_id)["results"]
-
-#         # url = services['collab_service']['prod']['url'] + "collab/{}/".format(self.object.project)
-#         # url = services['collab_service']['prod']['url'] + "collab/{}/".format(dsc.list_projects(collab_id=2169)["results"][0]["name"])
-#         url = "https://services.humanbrainproject.eu/collab/v0/collab/{}/".format(dsc.list_projects(collab_id=collab_id)["results"][0]["name"])
-        
-#         response = requests.get(url, headers=headers)
-#         collab_name = response.json()["title"]
-
-#         return collab_name
-
-#     def get_collab_storage_url(self):
-#         # import bbp_services.client as bsc
-#         # services = bsc.get_services()
-
-#         import hbp_service_client.document_service.client as doc_service_client
-#         access_token = get_access_token(self.request.user.social_auth.get())
-#         dsc = doc_service_client.Client.new(access_token)
-
-
-#         headers = {
-#             'Authorization': get_auth_header(self.request.user.social_auth.get())
-#         }
-
-#         #to get collab_id
-#         svc_url = settings.HBP_COLLAB_SERVICE_URL
-#         context = self.request.session["next"][6:]
-#         url = '%scollab/context/%s/' % (svc_url, context)
-#         res = requests.get(url, headers=headers)
-#         collab_id = res.json()['collab']['id']
-
-#         project = dsc.list_projects(collab_id=collab_id)["results"]
-
-#         # url = services['collab_service']['prod']['url'] + "collab/{}/nav/all/".format(self.object.project)
-#         url = "https://services.humanbrainproject.eu/collab/v0/collab/{}/nav/all/".format(dsc.list_projects(collab_id=collab_id)["results"][0]["name"])
-        
-
-#         response = requests.get(url, headers=headers)
-#         if response.ok:
-#             nav_items = response.json()
-#             for item in nav_items:   
-#                 if item["app_id"] == "31":  # Storage app
-
-#                     # return "https://collab.humanbrainproject.eu/#/collab/{}/nav/{}".format(self.object.project, item["id"])
-#                     return "https://collab.humanbrainproject.eu/#/collab/{}/nav/{}".format(dsc.list_projects(collab_id=collab_id)["results"][0]["name"], item["id"])
-                    
-#         else:
-#             return ""
-
-#     def get_related_data(self, user):
-#         # assume for now that data is in collab
-
-#         # from bbp_client.oidc.client import BBPOIDCClient
-#         # from bbp_client.document_service.client import Client as DocClient
-#         # import bbp_services.client as bsc
-#         # services = bsc.get_services()
-
-#         # oidc_client = BBPOIDCClient.bearer_auth(services['oidc_service']['prod']['url'], access_token)
-#         # doc_client = DocClient(services['document_service']['prod']['url'], oidc_client) # a remplacer : creer instance de nouvelle classe : hbp_service client
-
-#         import hbp_service_client.document_service.client as doc_service_client
-
-#         access_token = get_access_token(user.social_auth.get())
-#         dsc = doc_service_client.Client.new(access_token)
-
-#         headers = {
-#             'Authorization': get_auth_header(user.social_auth.get())
-#         }
-
-#         #to get collab_id
-#         svc_url = settings.HBP_COLLAB_SERVICE_URL
-#         context = self.request.session["next"][6:]
-#         url = '%scollab/context/%s/' % (svc_url, context)
-#         res = requests.get(url, headers=headers)
-#         collab_id = res.json()['collab']['id']
-
-#         project_dict = dsc.list_projects(collab_id=collab_id)
-        
-#         try :
-#             dsc.create_folder("folder_test", project_dict["results"][0]["uuid"])
-
-#         except:
-#             print ("folder already exist")     
-
-#         parse_result = urlparse(self.object.results_storage)
-
-#         # print ("parse result : ")
-#         # print (parse_result)
-#         # print ("")
-
-#         ###reste a voir ici... je ne comprend pas ce qui doit etre dans parse_result
-#         if parse_result.scheme == "collab":
-#         # if 1 :
-#             list_folder = dsc.list_project_content(project_dict["results"][0]["uuid"])
-#             # collab_folder = parse_result.path
-#             collab_folder = list_folder["results"][0]
-            
-#             #return doc_client.listdir(collab_folder)
-#             # folder_uuid = doc_client.get_standard_attr(collab_folder)['_uuid'] #a remplacer
-#             folder_uuid = collab_folder["uuid"]
-        
-#             data = {
-#                 "folder": {
-#                     "path": collab_folder,
-#                 }
-#             }
-#             if self.object.project:
-#                 data["folder"]["url"] = self.get_collab_storage_url() + "?state=uuid={}".format(folder_uuid)
-#             return data
-#         else:
-#             print("Storage not yet supported")
-
-#         return {}
