@@ -1437,6 +1437,7 @@ def get_result_informations (result):
     
     result_info['test_id'] = str(test_code.test_definition_id)
     result_info['test_alias'] = str(test.alias)
+    result_info['test_score_type'] = str(test.score_type)
     result_info['test_code_id'] = str(test_code.id)
     result_info['test_code_version'] = str(test_code.version)
     
@@ -1466,7 +1467,7 @@ def organise_results_dict (point_of_view, results, serializer_context):
 
             current = data_to_return['tests']
             if result_info['test_id'] not in current  :
-                 current[result_info['test_id']] = { 'alias': result_info['test_alias'], 'test_codes' : {} }
+                 current[result_info['test_id']] = { 'alias': result_info['test_alias'],'score_type':result_info['test_score_type'], 'test_codes' : {} }
 
             current = current[result_info['test_id']]['test_codes']
             if result_info['test_code_id'] not in current :
@@ -1541,7 +1542,8 @@ class ValidationResultRest2 (APIView):
 
         param_model_alias = request.GET.getlist('model_alias')
         param_test_alias = request.GET.getlist('test_alias')
-
+        param_test_score_type = request.GET.getlist('score_type')
+        print("filter by score type", param_test_score_type)
         param_order = request.GET.getlist('order')
 
 
@@ -1589,7 +1591,7 @@ class ValidationResultRest2 (APIView):
                 q = q.filter(test_code_id__in = param_test_code_id)
             if len(param_normalized_score) > 0 :
                 q = q.filter(normalized_score__in = param_normalized_score)
-            results = q
+            results = q.order_by("timestamp")
       
             #add filter using param_test_id >> filter by tests
             if len(param_test_code_id) == 0 and (len(param_test_id) > 0 or len(param_test_alias) > 0 ) :
@@ -1615,7 +1617,13 @@ class ValidationResultRest2 (APIView):
                 #from all model_instance get the results
                 results = results.filter(model_version_id__in = model_instance.values("id"))
 
-            #Exclude the results whitch the clien can't acces to.
+            #add filter using param_test_score_type
+            if len(param_test_score_type) != 0:
+                test_code_ids = results.values('test_code_id')
+                test_codes_to_keep = ValidationTestCode.objects.filter(id__in = test_code_ids).prefetch_related().filter(test_definition__score_type__in = param_test_score_type)
+                results = results.filter(test_code_id__in = test_codes_to_keep)
+
+            #Exclude the results whitch the client can't access to.
             temp_results = results
             for result in results :
                 if user_has_acces_to_result(request, result) is False :

@@ -48,6 +48,7 @@
         <h3 align=center> No result available for this model </h3>
     </div>
     <div id=panel-results ng-if="init_graph.values.length != 0">
+
         <div id=VF-model-table-all-data>
             <table class="table">
                 <thead>
@@ -67,71 +68,77 @@
             </table>
         </div>
 
-        <br>
-        <br>
-
-        <table>
-            <tbody>
-                <tr>
-                    <td style="width: 85%">
-                        <nvd3 options='options5' data='data' id='chart svg'></nvd3>
-                    </td>
-                    <td style="width: 15%">
-                        <div id="checkbox">
-                            <div ng-repeat=" (key,test_code) in init_checkbox" class=checkbox>
-                                <label> <input id="check-{{key}}" type="checkbox" value={{test_code}} >{{test_code}}
-                             </label>
-                            </div>
-                        </div>
-                        <br>
-                        <a class="button-MC" class="btn btn-primary" ng-click=updateGraph()>Update graph</a>
-                    </td>
-                </tr>
-            </tbody>
-
-        </table>
-
 
 
         <br>
         <br>
-
-        <table class="table" style="border-top: none;">
-
-            <td id="td-clicked-results">
-
-                <table id="model_table" class="table">
-
-                    <h3 align=center> Selection </h3>
-
-                    <thead>
-                        <th align=center>Results storage</th>
-                        <th align=center>Normalized Score</th>
-                        <th align=center>Score</th>
-                        <th align=center>Passed</th>
-                        <th align=center>Time</th>
-                        <th align=center>Platform</th>
-                        <th align=center>Project</th>
-                    </thead>
-
+        <div ng-repeat="(key,score_type) in init_graph_all">
+            <div ng-show="score_type.list_ids.length != 0">
+                <br>
+                <br>
+                <table>
                     <tbody>
-
-                        <tr class=tr-clickable id="" ng-repeat="result in line_result_focussed" ng-click="Context.validation_goToResultDetailView(result.id)">
-                            <td>{{ result.results_storage }}</td>
-                            <td>{{ result.normalized_score }}</td>
-                            <td>{{ result.score }}</td>
-                            <td>{{ result.passed }}</td>
-                            <td>{{ result.timestamp }}</td>
-                            <td>{{ result.platform }}</td>
-                            <td>{{ result.project }}</td>
-
-
+                        <tr>
+                            <td style="width: 85%">
+                                <nvd3 options="options5[key]" data=score_type.values id='chart_svg_{{key}}'></nvd3>
+                            </td>
+                            <td style="width: 15%">
+                                <div id="checkbox-{{key}}">
+                                    <div ng-repeat=" (key2,test_code) in score_type.list_ids" class=checkbox>
+                                        <label> <input id="check-{{key}}-{{key2}}" type="checkbox" value={{test_code}} >{{test_code}}
+                             </label>
+                                    </div>
+                                </div>
+                                <br>
+                                <a class="button-MC" class="btn btn-primary" ng-click=updateGraph(key)>Update graph</a>
+                            </td>
                         </tr>
                     </tbody>
-                </table>
-            </td>
 
-        </table>
+                </table>
+
+
+
+                <br>
+                <br>
+                <table ng-show="line_result_focussed[key] && line_result_focussed[key]!=0" class="table" style="border-top: none;">
+
+                    <td id="td-clicked-results">
+
+                        <table id="model_table" class="table">
+
+                            <h3 align=center> Selection </h3>
+
+                            <thead>
+                                <th align=center>Results storage</th>
+                                <th align=center>Normalized Score</th>
+                                <th align=center>Score</th>
+                                <th align=center>Passed</th>
+                                <th align=center>Time</th>
+                                <th align=center>Platform</th>
+                                <th align=center>Project</th>
+                            </thead>
+
+                            <tbody>
+
+                                <tr class=tr-clickable id="" ng-repeat="result in line_result_focussed[key]" ng-click="Context.validation_goToResultDetailView(result.id)">
+                                    <td>{{ result.results_storage }}</td>
+                                    <td>{{ result.normalized_score }}</td>
+                                    <td>{{ result.score }}</td>
+                                    <td>{{ result.passed }}</td>
+                                    <td>{{ result.timestamp }}</td>
+                                    <td>{{ result.platform }}</td>
+                                    <td>{{ result.project }}</td>
+
+
+                                </tr>
+                            </tbody>
+                        </table>
+                    </td>
+
+                </table>
+            </div>
+        </div>
     </div>
 
 </body>
