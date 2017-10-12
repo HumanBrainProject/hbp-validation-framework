@@ -58,6 +58,11 @@
         right: 10%;
     }
     
+    .button-left {
+        position: absolute;
+        left: 5%;
+    }
+    
     #close-button {
         position: absolute;
         top: 2px;
