@@ -178,7 +178,13 @@ ApiCommunicationServices.factory('ValidationModelResultRest', ['$resource',
         });
     }
 ]);
-
+ApiCommunicationServices.factory('ValidationResultRest2', ['$resource',
+    function($resource) {
+        return $resource('validationmodelresultrest2/', {}, {
+            get: { method: 'GET', params: { format: 'json', app_id: 'app_id' }, isArray: false },
+        });
+    }
+]);
 ApiCommunicationServices.factory('CollabIDRest', ['$resource',
     function($resource) {
         return $resource('collabidrest/', {}, {

@@ -468,35 +468,35 @@
     <div class="control-group" id="tab_results" style="visibility:hidden;" aria-expanded="true">
         <br>
         <br>
+        <div id=panel-results ng-if="init_graph.values.length != 0">
+            <table class="table" id=table-test-result>
 
-        <table class="table" id=table-test-result>
+                <h3 align=center> Result list </h3>
 
-            <h3 align=center> Result list </h3>
+                <thead>
+                    <th id="table-test-result-bottom-up-th">Date/Time</th>
+                    <th id="table-test-result-bottom-down-th">Model Name</th>
+                    <th id="table-test-result-bottom-down-th">Model Version</th>
+                    <th id="table-test-result-bottom-up-th">Test version</th>
+                    <th id="table-test-result-bottom-up-th">Score</th>
+                </thead>
 
-            <thead>
-                <th id="table-test-result-bottom-up-th">Date/Time</th>
-                <th id="table-test-result-bottom-down-th">Model Name</th>
-                <th id="table-test-result-bottom-down-th">Model Version</th>
-                <th id="table-test-result-bottom-up-th">Test version</th>
-                <th id="table-test-result-bottom-up-th">Score</th>
-            </thead>
+                <tbody id="tbody-all-results">
+                    <tr class=tr-clickable ng-repeat="result in init_graph.results" ng-click=Context.validation_goToResultDetailView(result.result.id)>
+                        <td>{{result.result.timestamp}}</td>
+                        <td>{{result.additional_data.model}}</td>
+                        <td>{{result.additional_data.model_instance}}</td>
+                        <td>{{result.additional_data.test_code}}</td>
+                        <td>{{result.result.score}}</td>
+                    </tr>
 
-            <tbody id="tbody-all-results" ng-repeat="data_block in results_all.results.data">
-                <tr class=tr-clickable ng-repeat="values in data_block" ng-click=Context.validation_goToResultDetailView(values.id)>
-                    <td>{{values.timestamp}}</td>
-                    <td>{{values.model_version.model.name}}</td>
-                    <td>{{values.model_version.version}}</td>
-                    <td>{{values.test_code.version}}</td>
-                    <td>{{values.result}}</td>
-                </tr>
+                </tbody>
+            </table>
 
-            </tbody>
-        </table>
+            <br><br>
+            <br><br>
 
-        <br><br>
-        <br><br>
 
-        <div id=panel-results ng-if="graphic_data.length != 0">
 
             <table>
                 <tbody>
@@ -506,9 +506,8 @@
                         </td>
                         <td style="width: 15%">
                             <div id="checkbox">
-                                <div ng-repeat="model_instance in init_checkbox" class=checkbox>
-                                    <label> <input id="check-{{model_instance.id}}" type="checkbox" value={{model_instance.id}} > &ensp;  <alias ng-if="model_instance.model.alias!=''">{{model_instance.model.alias}}&ensp;({{model_instance.model.version}})</alias>
-                                <alias ng-if="model_instance.model.alias==''">{{model_instance.id}}</alias> </label> </label>
+                                <div ng-repeat="(key, model_instance) in init_checkbox" class=checkbox>
+                                    <label> <input id="check-{{key}}" type="checkbox" value={{model_instance}} >{{model_instance}} </label>
                                 </div>
                             </div>
                             <br>
@@ -524,7 +523,7 @@
 
 
 
-            <table class="table" style="border-top: none;">
+            <table ng-show="result_focussed&& result_focussed!=0" class="table" style="border-top: none;">
 
                 <td id="td-clicked-results">
 
@@ -533,26 +532,27 @@
                         <h3 align=center> selection </h3>
 
                         <thead>
+                            <th align=center>Model</th>
+                            <th align=center>Test Version</th>
                             <th align=center>Date/Time</th>
                             <th align=center>Results storage</th>
-                            <th align=center>Normalized score</th>
                             <th align=center>Score</th>
                             <th align=center>Passed</th>
-
-                            <th>Platform</th>
-                            <th>Project</th>
+                            <th align=center>Platform</th>
+                            <th align=center>Project</th>
                         </thead>
 
                         <tbody>
 
                             <tr class=tr-clickable id="" ng-repeat="result in result_focussed" ng-click="Context.validation_goToResultDetailView(result.id)">
-                                <td>{{ result.timestamp }}</td>
-                                <td>{{ result.results_storage }}</td>
-                                <td>{{ result.normalized_score }}</td>
-                                <td>{{ result.score }}</td>
-                                <td>{{ result.passed }}</td>
-                                <td>{{ result.platform }}</td>
-                                <td>{{ result.project }}</td>
+                                <td>{{ result.additional_data.model }} ({{result.additional_data.model_instance}})</td>
+                                <td>{{ result.additional_data.test_code }}</td>
+                                <td>{{ result.result.timestamp }}</td>
+                                <td>{{ result.result.results_storage }}</td>
+                                <td>{{ result.result.score }}</td>
+                                <td>{{ result.result.passed }}</td>
+                                <td>{{ result.result.platform }}</td>
+                                <td>{{ result.result.project }}</td>
                             </tr>
 
                         </tbody>
@@ -563,7 +563,7 @@
             <br> <br>
 
         </div>
-        <div ng-show="graphic_data.length == 0">
+        <div ng-show="init_graph.values.length == 0">
             <h3 align=center> No result available for this Test </h3>
         </div>
 

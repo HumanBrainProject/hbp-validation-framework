@@ -47,7 +47,11 @@ class Command(BaseCommand):
     def _create_score_type(self): 
         Param_ScoreType(id=uuid.uuid4(),authorized_value='p-value').save()
 	Param_ScoreType(id=uuid.uuid4(),authorized_value='Rsquare').save()
+        Param_ScoreType(id=uuid.uuid4(),authorized_value='number').save()
+	Param_ScoreType(id=uuid.uuid4(),authorized_value='Zscore').save()
+	Param_ScoreType(id=uuid.uuid4(),authorized_value='purcentage').save()
 	Param_ScoreType(id=uuid.uuid4(),authorized_value='Other').save()
+
 
     def _create_species(self):
         Param_Species(id=uuid.uuid4(),authorized_value='Mouse (Mus musculus)').save()
@@ -429,7 +433,7 @@ class Command(BaseCommand):
         import datetime
 
 	##params
-	ctx = '417f67f1-5dec-4236-b0e4-aa8ccc50d06d'
+	ctx = 38111
 
 	##times
  	time1 = time
@@ -865,12 +869,11 @@ class Command(BaseCommand):
         result.project = "azerty"
         result.save()
 
-    def delete_models_in_collab(self,collab_id, *args, **options):
-        app_id = CollabParameters.objects.filter(collab_id = collab_id, app_type='model_catalog')
+    def delete_models_in_collab(self,app_id, *args, **options):
+        # app_id = CollabParameters.objects.filter(collab_id = collab_id, app_type='model_catalog')
         models_to_delete = ScientificModel.objects.filter(app_id=app_id)
         for model in models_to_delete:
                 model.delete()
-
 
     def handle(self, *args, **options):
         #self._create_data_modalities()
@@ -879,13 +882,15 @@ class Command(BaseCommand):
         #self._create_brain_region()
         #self._create_cell_type()
         #self._create_model_type()
-	#self._create_score_type()
+	self._create_score_type()
 	#self._create_organizations()
 
         # self._fake_collab()
 	# self._fake_models_test_results()
+
         #self._fake_models_test_results_heli()
         # self.delete_models_in_collab(collab_id = 2180)
+
 
 
 

@@ -1268,10 +1268,10 @@ class TestTicketRest(APIView):
             param = param_serializer.save(test_id=request.data['test_id'])
         else:
             return Response(param_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        # new_ticket = Tickets.objects.filter(id=param.id)
-        # new_ticket_serializer = TicketReadOnlySerializer(new_ticket, context=serializer_context, many=True)
+        new_ticket = Tickets.objects.filter(id=param.id)
+        new_ticket_serializer = TicketReadOnlySerializer(new_ticket, context=serializer_context, many=True)
 
-        return Response({'uuid':param.id}, status=status.HTTP_201_CREATED)
+        return Response({'uuid':param.id, 'new_ticket':new_ticket_serializer.data}, status=status.HTTP_201_CREATED)
 
     def put(self, request, format=None):
         app_id = request.GET.getlist('app_id')[0]
@@ -1319,9 +1319,10 @@ class TestCommentRest(APIView):
             param = param_serializer.save(Ticket_id=request.data['Ticket_id'])
         else:
             return Response(param_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        # new_comment = Comments.objects.filter(id=param.id)
-        # new_comment_serializer = CommentSerializer (new_comment, context=serializer_context, many=True)
-        return Response({'uuid':param.id},status=status.HTTP_201_CREATED)
+        new_comment = Comments.objects.filter(id=param.id)
+        new_comment_serializer = CommentSerializer (new_comment, context=serializer_context, many=True)
+        
+        return Response({'uuid':param.id, 'new_comment': new_comment_serializer.data },status=status.HTTP_201_CREATED)
 
     def put(self, request, format=None):
         app_id = request.query_params['app_id']
@@ -1534,6 +1535,7 @@ def get_result_informations (result):
     
     result_info['test_id'] = str(test_code.test_definition_id)
     result_info['test_alias'] = str(test.alias)
+    result_info['test_score_type'] = str(test.score_type)
     result_info['test_code_id'] = str(test_code.id)
     result_info['test_code_version'] = str(test_code.version)
     
@@ -1556,14 +1558,14 @@ def organise_results_dict (point_of_view, results, serializer_context):
 
     #data_to_return structuraction for test point of view
     if point_of_view == "test" :
-        print "test first"
+        # print "test first"
         data_to_return['tests'] = {}
         for result in results :
             result_info = get_result_informations(result)
 
             current = data_to_return['tests']
             if result_info['test_id'] not in current  :
-                 current[result_info['test_id']] = { 'alias': result_info['test_alias'], 'test_codes' : {} }
+                 current[result_info['test_id']] = { 'alias': result_info['test_alias'],'score_type':result_info['test_score_type'], 'test_codes' : {} }
 
             current = current[result_info['test_id']]['test_codes']
             if result_info['test_code_id'] not in current :
@@ -1578,10 +1580,10 @@ def organise_results_dict (point_of_view, results, serializer_context):
                 result_data = ValidationTestResultSerializer(result, context=serializer_context).data
                 current[result_info['model_instance_id']] = {'version' : result_info['model_instance_version'], 'result' : result_data }
 
-        
+    
     #data_to_return structuraction for model point of view 
     elif  point_of_view == "model" :
-        print "model first"
+        # print "model first"
         
         data_to_return['models'] = {}
         for result in results :
@@ -1638,7 +1640,7 @@ class ValidationResultRest2 (APIView):
 
         param_model_alias = request.GET.getlist('model_alias')
         param_test_alias = request.GET.getlist('test_alias')
-
+        param_test_score_type = request.GET.getlist('score_type')
         param_order = request.GET.getlist('order')
 
 
@@ -1686,7 +1688,7 @@ class ValidationResultRest2 (APIView):
                 q = q.filter(test_code_id__in = param_test_code_id)
             if len(param_normalized_score) > 0 :
                 q = q.filter(normalized_score__in = param_normalized_score)
-            results = q
+            results = q.order_by("timestamp")
       
             #add filter using param_test_id >> filter by tests
             if len(param_test_code_id) == 0 and (len(param_test_id) > 0 or len(param_test_alias) > 0 ) :
@@ -1712,7 +1714,13 @@ class ValidationResultRest2 (APIView):
                 #from all model_instance get the results
                 results = results.filter(model_version_id__in = model_instance.values("id"))
 
-            #Exclude the results whitch the clien can't acces to.
+            #add filter using param_test_score_type
+            if len(param_test_score_type) != 0:
+                test_code_ids = results.values('test_code_id')
+                test_codes_to_keep = ValidationTestCode.objects.filter(id__in = test_code_ids).prefetch_related().filter(test_definition__score_type__in = param_test_score_type)
+                results = results.filter(test_code_id__in = test_codes_to_keep)
+
+            #Exclude the results whitch the client can't access to.
             temp_results = results
             for result in results :
                 if user_has_acces_to_result(request, result) is False :

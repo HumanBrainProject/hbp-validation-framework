@@ -429,45 +429,62 @@ ParametersConfigurationServices.service('CollabParameters', ['$rootScope', 'Coll
 
 var GraphicsServices = angular.module('GraphicsServices', ['ngResource', 'btorfs.multiselect', 'ApiCommunicationServices', 'ParametersConfigurationServices', 'ContextServices']);
 
-GraphicsServices.factory('Graphics', ['$rootScope', 'ValidationResultRest', 'CollabParameters', 'ValidationTestResultRest', 'ValidationModelResultRest', 'Context',
-    function($rootScope, ValidationResultRest, CollabParameters, ValidationTestResultRest, ValidationModelResultRest, Context) {
+GraphicsServices.factory('Graphics', ['$rootScope', 'ValidationResultRest', 'CollabParameters', 'ValidationTestResultRest', 'ValidationModelResultRest', 'Context', 'ValidationResultRest2',
+    function($rootScope, ValidationResultRest, CollabParameters, ValidationTestResultRest, ValidationModelResultRest, Context, ValidationResultRest2) {
         // var results_data = undefined;
 
-        var focus = function(list_id_couple, results_data) {
+        var focus = function(list_id_couple, results_data, type, graph_key) {
             var list_data = [];
             var i = 0;
             for (i; i < list_id_couple.length; i++) {
-                data = find_result_in_data(list_id_couple[i], results_data);
+                data = find_result_in_data(list_id_couple[i], results_data, type);
                 list_data.push(data);
             }
-            $rootScope.$broadcast('data_focussed:updated', list_data);
+            $rootScope.$broadcast('data_focussed:updated', list_data, graph_key);
         };
-
-
-        var find_result_in_data = function(id_couple, results_data) {
+        var find_result_in_data = function(id_couple, results_data, type) {
             var result_to_return = undefined;
 
             var id_line = id_couple.id_line;
             var id_result = id_couple.id_result;
-
             //find the correct datablock
-            var datablock = undefined;
-            var i = 0;
-            for (i; i < results_data.data_block_id.length; i++) {
-                if (results_data.data_block_id[i].id == id_line) {
-                    datablock = results_data.data[i];
-                    i = results_data.data_block_id.length;
+            if (type == 'old') {
+                var datablock = undefined;
+                var i = 0;
+                for (i; i < results_data.data_block_id.length; i++) {
+                    if (results_data.data_block_id[i].id == id_line) {
+                        datablock = results_data.data[i];
+                        i = results_data.data_block_id.length;
+                    }
                 }
-            }
+                //find the correct result in datablock
+                var j = 0;
+                for (j; j < datablock.length; j++) {
+                    if (datablock[j].id == id_result) {
+                        result_to_return = datablock[j];
+                    }
+                }
+                return result_to_return;
 
-            //find the correct result in datablock
-            var j = 0;
-            for (j; j < datablock.length; j++) {
-                if (datablock[j].id == id_result) {
-                    result_to_return = datablock[j];
-                }
             }
-            return result_to_return;
+            if (type == 'model') {
+                //find the correct result in datablock
+                for (var i in results_data) {
+                    if (id_result == results_data[i].id) {
+                        result_to_return = results_data[i]
+                    }
+                }
+                return result_to_return;
+            }
+            if (type == 'test') {
+                //find the correct result in datablock
+                for (var i in results_data) {
+                    if (id_result == results_data[i].result.id) {
+                        result_to_return = results_data[i]
+                    }
+                }
+                return result_to_return;
+            }
         };
 
         var getResultsfromTestID = function(test, ids) {
@@ -490,6 +507,171 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'ValidationResultRest', 'Col
                 });
             });
         };
+        var getResultsfromTestID2 = function(test) {
+            return new Promise(function(resolve, reject) {
+                var values = [];
+                var list_ids = [];
+                var results = [];
+                var results_data = ValidationResultRest2.get({ app_id: Context.getAppID(), test_id: test.tests[0].id, order: 'model' });
+                results_data.$promise.then(function() {
+                    for (var model in results_data.models) {
+                        for (var instance in results_data.models[model].model_instances) {
+                            //get line id; test_id is replaced by alias if it exists
+                            var line_id = model + '( ' + results_data.models[model].model_instances[instance].version + ' )';
+                            if (results_data.models[model].alias) {
+                                line_id = results_data.models[model].alias + '( ' + results_data.models[model].model_instances[instance].version + ' )';
+                            }
+                            values.push(_manageDataForTestGraph2(results_data.models[model].model_instances[instance].tests, line_id, model));
+                            list_ids.push(line_id)
+                        };
+                    };
+                    //manage data for focus
+                    for (var model in results_data.models) {
+                        for (var instance in results_data.models[model].model_instances) {
+                            if (results_data.models[model].alias) {
+                                m = results_data.models[model].alias
+                            } else { m = model }
+                            for (var t in results_data.models[model].model_instances[instance].tests) {
+                                for (var c in results_data.models[model].model_instances[instance].tests[t].test_codes) {
+                                    var additional_data = {
+                                        "model": m,
+                                        "model_instance": results_data.models[model].model_instances[instance].version,
+                                        "test_code": results_data.models[model].model_instances[instance].tests[t].test_codes[c].version
+                                    }
+                                    results.push({ "result": results_data.models[model].model_instances[instance].tests[t].test_codes[c].result, "additional_data": additional_data })
+                                }
+                            }
+                        }
+                    }
+                });
+                resolve({ 'values': values, 'results': results, 'list_ids': list_ids });
+            });
+        }
+        var _manageDataForTestGraph2 = function(data, line_id, model_id) {
+            var values_temp = [];
+            for (var t in data) {
+                for (var c in data[t].test_codes) {
+                    var temp = {
+                        x: new Date(data[t].test_codes[c].result.timestamp),
+                        y: data[t].test_codes[c].result.score,
+                        id: line_id,
+                        id_test_result: data[t].test_codes[c].result.id,
+                    };
+                    values_temp.push(temp);
+                };
+            };
+            var data_to_return = {
+                values: values_temp, //values - represents the array of {x,y} data points
+                key: line_id, //key  - the name of the series.
+                color: _pickRandomColor(), //color - optional: choose your own line color.
+                test_id: model_id,
+            };
+            return data_to_return;
+        }
+
+        function getResultsfromModelResultID2(model, score_type) {
+            return new Promise(function(resolve, reject) {
+                var values = [];
+                var list_ids = [];
+                var results = [];
+                var results_data = ValidationResultRest2.get({ app_id: Context.getAppID(), model_id: model.models[0].id, order: 'test', score_type: score_type }); //will need to add score_type
+                results_data.$promise.then(function() {
+                    // var tests_id = Object.keys(results_data.tests);
+                    // var i = 0;
+                    // for (i; i < tests_id.length; i++) {
+                    //     var codes_id = Object.keys(results_data.tests[tests_id[i]].test_codes);
+                    //     console.log(codes_id)
+                    //     var j = 0;
+                    //     for (j; j < codes_id.length; j++) {
+                    //         //get line id; test_id is replaced by alias if it exists
+                    //         var line_id = tests_id[i] + '( ' + results_data.tests[tests_id[i]].test_codes[codes_id[j]].version + ' )';
+                    //         if (results_data.tests[tests_id[i]].alias) {
+                    //             line_id = results_data.tests[tests_id[i]].alias + '( ' + results_data.tests[tests_id[i]].test_codes[codes_id[j]].version + ' )';
+                    //         }
+                    //         values[i * j] = _manageDataForGraph2(results_data.tests[tests_id[i]].test_codes[codes_id[j]].models, line_id, tests_id[i], results_data.tests[tests_id[i]].score_type);
+                    //         console.log("length of values", a)
+                    //         list_ids.push(line_id);
+                    //     };
+                    // };
+                    for (var test in results_data.tests) {
+                        for (var code in results_data.tests[test].test_codes) {
+
+                            //get line id; test_id is replaced by alias if it exists
+                            var line_id = test + '( ' + results_data.tests[test].test_codes[code].version + ' )';
+                            if (results_data.tests[test].alias) {
+                                line_id = results_data.tests[test].alias + '( ' + results_data.tests[test].test_codes[code].version + ' )';
+                            }
+                            var a = values.push(_manageDataForGraph2(results_data.tests[test].test_codes[code].models, line_id, test, results_data.tests[test].score_type));
+                            list_ids.push(line_id);
+                        };
+                    };
+                    // manage data for focus
+                    for (var test in results_data.tests) {
+                        for (var code in results_data.tests[test].test_codes) {
+                            for (var m in results_data.tests[test].test_codes[code].models) {
+                                for (var v in results_data.tests[test].test_codes[code].models[m].model_instances) {
+                                    results.push(results_data.tests[test].test_codes[code].models[m].model_instances[v].result);
+                                }
+                            }
+                        }
+                    }
+
+                    resolve({ 'values': values, 'results': results, 'list_ids': list_ids });
+                });
+            });
+        };
+
+        var _manageDataForGraph2 = function(data, line_id, test_id, score_type) {
+            var values_temp = [];
+            for (var m in data) {
+                for (var v in data[m].model_instances) {
+                    var temp = {
+                        x: new Date(data[m].model_instances[v].result.timestamp),
+                        y: data[m].model_instances[v].result.score,
+                        id: line_id,
+                        id_test_result: data[m].model_instances[v].result.id,
+                    };
+                    values_temp.push(temp);
+                };
+            };
+            var data_to_return = {
+                values: values_temp, //values - represents the array of {x,y} data points
+                key: line_id, //key  - the name of the series.
+                color: _pickRandomColor(), //color - optional: choose your own line color.
+                test_id: test_id,
+                test_score_type: score_type,
+            };
+            return data_to_return;
+        };
+        var getUpdatedGraph = function(data, list_ids) {
+            var newdata = [];
+            for (var i in data) {
+                for (var j in list_ids) {
+                    if (data[i].key == list_ids[j]) {
+                        newdata.push(data[i]);
+                    }
+                }
+            }
+            return newdata;
+        }
+
+        // async function getGraphsByScoreType(data) {
+        //     var new_data;
+        //     var score_types = [];
+        //     console.log("fegzethgrtz", data, data.length, data[0])
+        //     for (var i in data) {
+        //         console.log(i, 'iiiiiiiiiiiiii')
+        //         var sc_t = data[i].test_score_type;
+        //         if (score_types.includes(sc_t)) {
+        //             new_data[sc_t].push(data[i]);
+        //         } else {
+        //             score_types.push(sc_t);
+        //             new_data[sc_t] = [];
+        //             new_data[sc_t].push(data[i]);
+        //         }
+        //     }
+        //     return await new_data
+        // }
 
         var getResultsfromModelID = function(model, ids) {
             var values = [];
@@ -542,7 +724,7 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'ValidationResultRest', 'Col
             return color;
         };
 
-        var get_lines_options = function(title, subtitle, Yaxislabel, caption, results_data) {
+        var get_lines_options = function(title, subtitle, Yaxislabel, caption, results_data, type, graph_key) {
             options = {
                 chart: {
                     type: 'lineChart',
@@ -563,9 +745,7 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'ValidationResultRest', 'Col
                         tooltipHide: function(e) { console.log("tooltipHide"); },
                     },
                     xAxis: {
-                        axisLabel: 'Time (ms)',
-
-
+                        axisLabel: 'Date',
                         tickFormat: function(d) {
                             return d3.time.format('%d-%m-%y')(new Date(d))
                         },
@@ -585,7 +765,7 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'ValidationResultRest', 'Col
                             for (i; i < e.length; i++) {
                                 list_of_results_id.push({ id_line: e[i].point.id, id_result: e[i].point.id_test_result });
                             }
-                            focus(list_of_results_id, results_data);
+                            focus(list_of_results_id, results_data, type, graph_key);
                         });
                     }
                 },
@@ -626,6 +806,10 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'ValidationResultRest', 'Col
             focus: focus,
             getResultsfromModelID: getResultsfromModelID,
             getResultsfromTestID: getResultsfromTestID,
+            getResultsfromModelResultID2: getResultsfromModelResultID2,
+            getResultsfromTestID2: getResultsfromTestID2,
+            getUpdatedGraph: getUpdatedGraph,
+            // getGraphsByScoreType: getGraphsByScoreType,
         };
 
     }
