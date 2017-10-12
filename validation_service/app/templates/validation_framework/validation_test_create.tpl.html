@@ -55,15 +55,6 @@
                                     </tr>
                                     <tr>
                                         <td>
-                                            <b>Version Name:</b>
-                                        </td>
-                                        <td>
-                                            <input type="text" ng-model="code.version" required/>
-                                            <a class="glyphicon glyphicon-question-sign" aria-hidden="true" data-toggle="tooltip" data-placement="right" title="Example: version 1.0"></a>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
                                             <b>Publication:</b>
                                         </td>
                                         <td>
@@ -93,7 +84,7 @@
                                             <b>Species:</b>
                                         </td>
                                         <td>
-                                            <select id="select-species" data-style="btn-primary" ng-model="test.species" required>
+                                            <select id="select-species" data-style="btn-primary" ng-model="test.species">
                                          <option ng-repeat="s in species" value="{{s}}">{{s}}</option>
                                     </select>
                                         </td>
@@ -103,7 +94,7 @@
                                             <b>Brain region: </b>
                                         </td>
                                         <td>
-                                            <select id="select-brain-region" data-style="btn-primary" ng-model="test.brain_region" required>
+                                            <select id="select-brain-region" data-style="btn-primary" ng-model="test.brain_region">
                                          <option ng-repeat="br in brain_region" value="{{br}}">{{br}}</option>
                                     </select>
                                         </td>
@@ -113,7 +104,7 @@
                                             <b>Cell type:</b>
                                         </td>
                                         <td>
-                                            <select id="select-cell-type" data-style="btn-primary" ng-model="test.cell_type" required>
+                                            <select id="select-cell-type" data-style="btn-primary" ng-model="test.cell_type">
                                          <option ng-repeat="ct in cell_type" value="{{ct}}">{{ct}}</option>
                                     </select>
                                         </td>
@@ -123,7 +114,7 @@
                                             <b>Age:</b>
                                         </td>
                                         <td>
-                                            <input type="text" id="select-age" data-style="btn-primary" ng-model="test.age" required>
+                                            <input type="text" id="select-age" data-style="btn-primary" ng-model="test.age">
                                         </td>
                                     </tr>
 
@@ -133,7 +124,7 @@
                                         </td>
                                         <td>
 
-                                            <select id="select-data-modalities" data-style="btn-primary" ng-model="test.data_modality" required>
+                                            <select id="select-data-modalities" data-style="btn-primary" ng-model="test.data_modality">
                                          <option ng-repeat="dm in data_modalities" value="{{dm}}">{{dm}}</option>
                                     </select>
                                         </td>
@@ -163,7 +154,7 @@
                                             <b>Data type:</b>
                                         </td>
                                         <td>
-                                            <input type="text" id="select-data_type" data-style="btn-primary" ng-model="test.data_type" required>
+                                            <input type="text" id="select-data_type" data-style="btn-primary" ng-model="test.data_type">
                                         </td>
                                     </tr>
                                     <tr>
@@ -187,6 +178,15 @@
 
             <table>
                 <tbody>
+                    <tr>
+                        <td>
+                            <b>Version Name:</b>
+                        </td>
+                        <td>
+                            <input type="text" ng-model="code.version" required/>
+                            <a class="glyphicon glyphicon-question-sign" aria-hidden="true" data-toggle="tooltip" data-placement="right" title="Example: version 1.0"></a>
+                        </td>
+                    </tr>
                     <tr>
 
                         <td>
