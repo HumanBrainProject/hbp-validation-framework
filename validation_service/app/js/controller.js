@@ -244,7 +244,7 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
                     Graphics.getResultsfromTestID2($scope.detail_test).then(function(init_graph) {
 
                         $scope.result_focussed;
-                        $scope.$on('data_focussed:updated', function(event, data) {
+                        $scope.$on('data_focussed:updated', function(event, data, key) {
                             $scope.result_focussed = data;
                             $scope.$apply();
                         });
@@ -253,7 +253,7 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
                         $scope.init_checkbox = init_graph.list_ids;
                         //main table result
 
-                        $scope.graphic_options = Graphics.get_lines_options('Test/result', '', $scope.detail_test.score_type, "this is a caption", init_graph.results, "test");
+                        $scope.graphic_options = Graphics.get_lines_options('Test/result', '', $scope.detail_test.score_type, "this is a caption", init_graph.results, "test", "");
 
                     }).catch(function(err) {
                         console.error('Erreur !');
@@ -321,8 +321,8 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
                 };
                 $scope.updateGraph = function() {
                     var list_ids = _IsCheck();
-                    console.log(list_ids)
                     $scope.graphic_data = Graphics.getUpdatedGraph($scope.init_graph.values, list_ids);
+                    $scope.result_focussed = null;
                     // $scope.$apply();
                     // $scope.api.refresh();
                 };
