@@ -478,7 +478,7 @@ class ScientificModelInstanceRest (APIView):
 
         q = ScientificModelInstance.objects.all()  
         #using model alias      
-        if not (len(param_model_id) == 0 and len(param_model_alias)) > 0 :
+        if (len(param_model_id) == 0 and len(param_model_alias) > 0 )  :
             param_model_id = []
             for alias in param_model_alias :
                 model_id = ScientificModel.objects.filter(alias=alias)
@@ -593,7 +593,7 @@ class ScientificModelImageRest (APIView):
 
         q = ScientificModelImage.objects.all()  
         #using model alias      
-        if not (len(param_model_id) == 0 and len(param_model_alias)) > 0 :
+        if (len(param_model_id) == 0 and len(param_model_alias) > 0) :
             param_model_id = []
             for alias in param_model_alias :
                 model_id = ScientificModel.objects.filter(alias=alias)
