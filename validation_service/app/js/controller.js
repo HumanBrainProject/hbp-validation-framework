@@ -123,6 +123,7 @@ testApp.controller('ValModelDetailCtrl', ['$scope', '$rootScope', '$http', '$loc
                                         $scope.line_result_focussed[key] = data;
                                         $scope.$apply();
                                     });
+                                    $scope.$apply();
                                 });
                             };
                             // $scope.init_graph_all = $scope.init_graph_all_original;

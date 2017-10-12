@@ -51,13 +51,14 @@
                 <table class="table-create table" id=test-table>
                     <thead>
                         <h3 align=center> Models</h3>
-                        <th>name</th>
-                        <th>id</th>
-                        <th>author</th>
+                        <th>Name/Alias</th>
+                        <th>ID</th>
+                        <th>Author</th>
                     </thead>
                     <br>
                     <tr class=tr-clickable id="test1" ng-repeat="model in models.models | filter: search | filterMultiple:{species:selected_species, brain_region:selected_brain_region, cell_type:selected_cell_type, model_type:selected_model_type}" ng-click="Context.validation_goToModelDetailView(model.id)">
-                        <td> {{model.name}} </td>
+                        <td ng-if=!(model.alias)> {{model.name}} </td>
+                        <td ng-if=model.alias> {{model.alias}} </td>
                         <td>{{model.id}}</td>
                         <td>{{model.author}}</td>
                         <br>
@@ -69,15 +70,16 @@
                 <table class="table-create table" id=test-table>
                     <thead>
                         <h3 align=center> Tests</h3>
-                        <th>name</th>
-                        <th>id</th>
-                        <th>author</th>
+                        <th>Name/Alias</th>
+                        <th>ID</th>
+                        <th>Author</th>
                     </thead>
                     <br>
 
                     <tr class="tr-clickable" ng-repeat="test in tests.tests | filter:search | filterMultiple:{species:selected_species, brain_region:selected_brain_region, cell_type:selected_cell_type, model_type:selected_model_type}" ng-click="Context.validation_goToTestDetailView(test.id)">
 
-                        <td> {{test.name}} </td>
+                        <td ng-if=!(test.alias)> {{test.name}} </td>
+                        <td ng-if=test.alias> {{test.alias}} </td>
                         <td> {{test.id}}</td>
                         <td>{{test.author}}</td>
                         <br>

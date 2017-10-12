@@ -72,25 +72,25 @@
 
         <br>
         <br>
-        <div ng-repeat="(key,score_type) in init_graph_all">
-            <div ng-show="score_type.list_ids.length != 0">
+        <div ng-repeat="(key,score_type) in init_graph_all | limitTo:init_graph_all.length">
+            <div ng-show=" score_type.list_ids.length !=0 ">
                 <br>
                 <br>
                 <table>
                     <tbody>
                         <tr>
-                            <td style="width: 85%">
-                                <nvd3 options="options5[key]" data=score_type.values id='chart_svg_{{key}}'></nvd3>
+                            <td style="width: 85% ">
+                                <nvd3 options="options5[key] " data=score_type.values id='chart_svg_{{key}}'></nvd3>
                             </td>
-                            <td style="width: 15%">
-                                <div id="checkbox-{{key}}">
-                                    <div ng-repeat=" (key2,test_code) in score_type.list_ids" class=checkbox>
-                                        <label> <input id="check-{{key}}-{{key2}}" type="checkbox" value={{test_code}} >{{test_code}}
+                            <td style="width: 15% ">
+                                <div id="checkbox-{{key}} ">
+                                    <div ng-repeat=" (key2,test_code) in score_type.list_ids " class=checkbox>
+                                        <label> <input id="check-{{key}}-{{key2}} " type="checkbox" >{{test_code}}
                              </label>
                                     </div>
                                 </div>
                                 <br>
-                                <a class="button-MC" class="btn btn-primary" ng-click=updateGraph(key)>Update graph</a>
+                                <a class="button-MC " class="btn btn-primary " ng-click=updateGraph(key)>Update graph</a>
                             </td>
                         </tr>
                     </tbody>
@@ -101,11 +101,11 @@
 
                 <br>
                 <br>
-                <table ng-show="line_result_focussed[key] && line_result_focussed[key]!=0" class="table" style="border-top: none;">
+                <table ng-show="line_result_focussed[key] && line_result_focussed[key]!=0 " class="table " style="border-top: none; ">
 
-                    <td id="td-clicked-results">
+                    <td id="td-clicked-results ">
 
-                        <table id="model_table" class="table">
+                        <table id="model_table " class="table ">
 
                             <h3 align=center> Selection </h3>
 
@@ -121,7 +121,7 @@
 
                             <tbody>
 
-                                <tr class=tr-clickable id="" ng-repeat="result in line_result_focussed[key]" ng-click="Context.validation_goToResultDetailView(result.id)">
+                                <tr class=tr-clickable id=" " ng-repeat="result in line_result_focussed[key] " ng-click="Context.validation_goToResultDetailView(result.id) ">
                                     <td>{{ result.results_storage }}</td>
                                     <td>{{ result.normalized_score }}</td>
                                     <td>{{ result.score }}</td>
