@@ -29,13 +29,13 @@ class CollabParameters(models.Model):
 class ValidationTestDefinition(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, )
     name = models.CharField(max_length=200, help_text="short descriptive name")
-    species = models.CharField(max_length=100,null=True, blank=True, help_text="species") # G
-    brain_region = models.CharField(max_length=100,null=True,blank=True, help_text="brain region")  # I
-    cell_type = models.CharField(max_length=100, null=True, blank=True,help_text="cell type")  # D
+    species = models.CharField(max_length=100,default='', blank=True, help_text="species") # G
+    brain_region = models.CharField(max_length=100,default='',blank=True, help_text="brain region")  # I
+    cell_type = models.CharField(max_length=100, default='', blank=True,help_text="cell type")  # D
     age = models.CharField(max_length=50, null=True, blank=True, help_text="age of animal, e.g. '6 weeks'")
     data_location = models.CharField(max_length=200, help_text="location of comparison data")  # M
     data_type = models.CharField(max_length=100, help_text="type of comparison data (number, histogram, time series, etc.)")  # S
-    data_modality = models.CharField(max_length=100, null=True, blank=True,
+    data_modality = models.CharField(max_length=100, default='', blank=True,
                                      help_text="recording modality for comparison data (ephys, fMRI, 2-photon, etc)")  # J, K
     test_type = models.CharField(max_length=100, 
                                  help_text="single cell activity, network structure, network activity, subcellular")  # B, C
