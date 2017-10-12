@@ -3,8 +3,10 @@
 /* Controllers */
 var testApp = angular.module('testApp');
 
-testApp.controller('HomeCtrl', ['$scope', '$rootScope', '$http', '$location', "ScientificModelRest", "ValidationTestDefinitionRest", 'CollabParameters', 'IsCollabMemberRest', 'Context',
-    function($scope, $rootScope, $http, $location, ScientificModelRest, ValidationTestDefinitionRest, CollabParameters, IsCollabMemberRest, Context) {
+testApp.controller('HomeCtrl', ['$scope', '$rootScope', '$http', '$location', "ScientificModelRest", "ValidationTestDefinitionRest", 'CollabParameters', 'IsCollabMemberRest', 'Context', 'ScientificModelInstanceRest',
+    function($scope, $rootScope, $http, $location, ScientificModelRest, ValidationTestDefinitionRest, CollabParameters, IsCollabMemberRest, Context, ScientificModelInstanceRest) {
+
+        // console.log(ScientificModelInstanceRest.get({ model_alias: "tsdfzfgsdg" }));
 
         Context.setService().then(function() {
 
@@ -341,15 +343,16 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
                     _add_params();
 
                     var parameters = JSON.stringify([$scope.test_code]);
-                    ValidationTestCodeRest.save({ app_id: app_id, id: $scope.detail_test.tests[0].id }, parameters).$promise.then(function() {
+                    var test_version_response = ValidationTestCodeRest.save({ app_id: app_id, id: $scope.detail_test.tests[0].id }, parameters).$promise.then(function() {
                         document.getElementById("tab_description").style.display = "none";
                         document.getElementById("tab_version").style.display = "block";
                         document.getElementById("tab_new_version").style.display = "none";
                         document.getElementById("tab_results").style.visibility = "hidden";
                         document.getElementById("tab_comments").style.display = "none";
                         $state.reload();
+                    }).catch(function(e) {
+                        alert(e.data);
                     });
-
                 };
 
                 $scope.editTest = function() {
@@ -1095,6 +1098,8 @@ ModelCatalogApp.controller('ModelCatalogVersionCtrl', ['$scope', '$rootScope', '
                     var parameters = JSON.stringify([$scope.model_instance]);
                     ScientificModelInstanceRest.save({ app_id: app_id }, parameters).$promise.then(function(data) {
                         $location.path('/model-catalog/detail/' + $stateParams.uuid);
+                    }).catch(function(e) {
+                        alert(e.data);
                     });
                 };
             });
