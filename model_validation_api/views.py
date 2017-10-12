@@ -1272,10 +1272,10 @@ class TestTicketRest(APIView):
             param = param_serializer.save(test_id=request.data['test_id'])
         else:
             return Response(param_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        # new_ticket = Tickets.objects.filter(id=param.id)
-        # new_ticket_serializer = TicketReadOnlySerializer(new_ticket, context=serializer_context, many=True)
+        new_ticket = Tickets.objects.filter(id=param.id)
+        new_ticket_serializer = TicketReadOnlySerializer(new_ticket, context=serializer_context, many=True)
 
-        return Response({'uuid':param.id}, status=status.HTTP_201_CREATED)
+        return Response({'uuid':param.id, 'new_ticket':new_ticket_serializer.data}, status=status.HTTP_201_CREATED)
 
     def put(self, request, format=None):
         app_id = request.GET.getlist('app_id')[0]
@@ -1323,9 +1323,10 @@ class TestCommentRest(APIView):
             param = param_serializer.save(Ticket_id=request.data['Ticket_id'])
         else:
             return Response(param_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        # new_comment = Comments.objects.filter(id=param.id)
-        # new_comment_serializer = CommentSerializer (new_comment, context=serializer_context, many=True)
-        return Response({'uuid':param.id},status=status.HTTP_201_CREATED)
+        new_comment = Comments.objects.filter(id=param.id)
+        new_comment_serializer = CommentSerializer (new_comment, context=serializer_context, many=True)
+        
+        return Response({'uuid':param.id, 'new_comment': new_comment_serializer.data },status=status.HTTP_201_CREATED)
 
     def put(self, request, format=None):
         app_id = request.query_params['app_id']

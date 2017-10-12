@@ -399,6 +399,7 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
                     var data = JSON.stringify($scope.ticket);
                     $scope.new_ticket = TestTicketRest.post({ app_id: app_id }, data, function(value) {})
                     $scope.new_ticket.$promise.then(function() {
+                        console.log($scope.new_ticket)
                         $scope.test_tickets.tickets.push($scope.new_ticket.new_ticket[0]);
                         document.getElementById("formT").reset();
                         _send_notification();
