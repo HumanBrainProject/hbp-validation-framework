@@ -242,3 +242,21 @@
         border: 1px solid transparent;
         border-radius: 0 0 0 0;
     }
+    
+    .caracteristics-panel {
+        height: 350px;
+        width: 320px;
+        padding: 5px;
+        border: 2px solid #dfe7ef;
+        float: right;
+        margin-right: 1%;
+        margin-left: 2%;
+        margin-bottom: 1%;
+        margin-top: 1%;
+        overflow: auto;
+    }
+    
+    .text-justify {
+        text-align: justify;
+        text-justify: inter-word;
+    }
