@@ -38,7 +38,10 @@ ContextServices.service('Context', ['$rootScope', '$location', 'AppIDRest', 'Col
 
         var validation_goToHomeView = function() {
             clearState();
-            $location.path('/home/');
+            setTimeout(function() {
+                $location.path('/home/');
+            }, 300);
+
         };
         var validation_goToModelDetailView = function(model_id) {
             sendState("model", model_id);

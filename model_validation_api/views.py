@@ -226,9 +226,6 @@ def check_versions_unique (list_given, list_already_there):
     if not len(list_given) == len(set(list_given)) :
         return (False)
     
-    print list_already_there
-    print type(list_already_there)
-    
     if not len(list_already_there) == len(set(list_already_there)) :
         return (False)
 
@@ -258,7 +255,6 @@ def extract_versions_and_model_id_from_instance_json (instance_json):
     return {'model_id': instance_json["model_id"] ,  'version_name': instance_json["version"] }
     
 def extract_versions_and_test_id_from_list_testcode_json (testcode_json):
-    print testcode_json
     return {'test_id' :testcode_json["test_definition_id"] ,  'version_name': testcode_json["version"] }
 
 
