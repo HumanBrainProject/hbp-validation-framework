@@ -477,17 +477,15 @@ class ScientificModelInstanceRest (APIView):
             return Response("Badly formed uuid in : model_id", status=status.HTTP_400_BAD_REQUEST)
 
         q = ScientificModelInstance.objects.all()  
-        #using model alias      
-        if (len(param_model_id) == 0 and len(param_model_alias) > 0 )  :
-            param_model_id = []
-            for alias in param_model_alias :
-                model_id = ScientificModel.objects.filter(alias=alias)
-                param_model_id.append(model_id)    
 
         if len(param_id) > 0 :
-            q = q.filter(id__in = param_id )        
+            q = q.filter(id__in = param_id )  
         if len(param_model_id) > 0 :
             q = q.filter(model_id__in = param_model_id )
+        
+        else :
+            if  len(param_model_alias) > 0 :
+                q = q.prefetch_related().filter(model__alias__in = param_model_alias)         
         if len(param_version) > 0 :
             q = q.filter(version__in = param_version )
         if len(param_parameters) > 0 :
@@ -592,15 +590,16 @@ class ScientificModelImageRest (APIView):
             return Response("Badly formed uuid in : model_id", status=status.HTTP_400_BAD_REQUEST)
 
         q = ScientificModelImage.objects.all()  
-        #using model alias      
-        if (len(param_model_id) == 0 and len(param_model_alias) > 0) :
-            param_model_id = []
-            for alias in param_model_alias :
-                model_id = ScientificModel.objects.filter(alias=alias)
-                param_model_id.append(model_id)    
 
         if len(param_id) > 0 :
             q = q.filter(id__in = param_id )        
+
+        if len(param_model_id) > 0 :
+            q = q.filter(model_id__in = param_model_id )
+        
+        else :
+            if  len(param_model_alias) > 0 :
+                q = q.prefetch_related().filter(model__alias__in = param_model_alias)  
         if len(param_model_id) > 0 :
             q = q.filter(model_id__in = param_model_id )
         if len(param_url) > 0 :
