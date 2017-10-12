@@ -521,7 +521,7 @@ class ScientificModelInstanceRest (APIView):
                 
                 #check if versions are unique
                 if not _are_model_instance_version_unique(instance) :
-                    return Response("You are sending a version name already existing for this model", status=status.HTTP_400_BAD_REQUEST)
+                    return Response("Oh no... The specified version name already exists for this model. Please, give me a new name", status=status.HTTP_400_BAD_REQUEST)
 
             else :
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -558,7 +558,7 @@ class ScientificModelInstanceRest (APIView):
             
             #check if versions are unique
             if not _are_model_instance_version_unique(instance) :
-                return Response("You are sending a version name already existing for this model", status=status.HTTP_400_BAD_REQUEST)
+                return Response("Oh no... The specified version name already exists for this model. Please, give me a new name", status=status.HTTP_400_BAD_REQUEST)
 
         list_id = []
         #is valid + authaurised : save it
@@ -688,6 +688,22 @@ class ScientificModelImageRest (APIView):
         return Response( status=status.HTTP_200_OK) 
 
 
+# def check_commun_params_json (json):
+#      'cell_type'
+#      'species'
+#      'brain_region'
+
+# def check_param_of_model_json (json):
+#     'model_type', 
+    
+    
+# def check_param_of_test_json (json):                  
+#     'data_modality'
+#     'test_type'                 
+#     'score_type'
+
+#     #return bool (True) if all ok
+#     #return string to detail the error of not ok : will be reused in the response
 
 
 class ScientificModelRest(APIView):
@@ -1033,7 +1049,7 @@ class ValidationTestCodeRest(APIView):
             
             #check if versions are unique
             if not _are_test_code_version_unique(test_code) :
-                return Response("You are sending a version name already existing", status=status.HTTP_400_BAD_REQUEST)
+                return Response("Oh no... The specified version name already exists for this test. Please, give me a new name", status=status.HTTP_400_BAD_REQUEST)
 
         list_id = []
         for test_code in request.data :
@@ -1063,7 +1079,7 @@ class ValidationTestCodeRest(APIView):
                 return Response("Your test_definition_id differes from the original one", status=status.HTTP_400_BAD_REQUEST)
             #check if versions are unique
             if not _are_test_code_version_unique(test_code) :
-                return Response("You are sending a version name already existing", status=status.HTTP_400_BAD_REQUEST)
+                return Response("Oh no... The specified version name already exists for this test. Please, give me a new name", status=status.HTTP_400_BAD_REQUEST)
                 
         list_id = []
         for test_code in request.data :
