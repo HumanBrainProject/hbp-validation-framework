@@ -59,7 +59,6 @@
                     <tr class=tr-clickable id="test1" ng-repeat="model in models.models | filter: search | filterMultiple:{species:selected_species, brain_region:selected_brain_region, cell_type:selected_cell_type, model_type:selected_model_type}" ng-click="Context.validation_goToModelDetailView(model.id)">
                         <td ng-if=!(model.alias)> {{model.name}} </td>
                         <td ng-if=model.alias> {{model.alias}} </td>
-                        <td> {{model.name}} </td>
                         <td>{{model.id}}</td>
                         <td>{{model.author}}</td>
                         <br>
