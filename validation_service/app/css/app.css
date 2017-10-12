@@ -212,3 +212,29 @@
 .red-font {
     color: red;
 }
+
+.caracteristics-panel-validation {
+    height: 300px;
+    width: 320px;
+    padding: 5px;
+    border: 2px solid #dfe7ef;
+    float: right;
+    margin-right: 1%;
+    margin-left: 2%;
+    margin-bottom: 1%;
+    margin-top: 1%;
+    overflow: auto;
+}
+
+.description-panel-validation {
+    height: 300px;
+    width: 60%;
+    padding: 5px;
+    /*border: 2px solid #dfe7ef;*/
+    /*align: left;*/
+    margin-right: 2%;
+    margin-left: 1%;
+    margin-bottom: 1%;
+    margin-top: 1%;
+    overflow: auto;
+}
