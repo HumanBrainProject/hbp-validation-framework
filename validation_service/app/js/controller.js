@@ -24,6 +24,7 @@ testApp.controller('HomeCtrl', ['$scope', '$rootScope', '$http', '$location', "S
                     $scope.collab_model_type = CollabParameters.getParameters("model_type");
                     $scope.collab_test_type = CollabParameters.getParameters("test_type");
                     $scope.collab_data_modalities = CollabParameters.getParameters("data_modalities");
+                    $scope.collab_organization = CollabParameters.getParameters("organization");
 
                     $scope.models = ScientificModelRest.get({ app_id: app_id }, function(data) {});
                     $scope.tests = ValidationTestDefinitionRest.get({ app_id: app_id }, function(data) {});
@@ -74,6 +75,7 @@ testApp.controller('ValTestCtrl', ['$scope', '$rootScope', '$http', '$location',
                 $scope.collab_model_type = CollabParameters.getParameters("model_type");
                 $scope.collab_test_type = CollabParameters.getParameters("test_type");
                 $scope.collab_data_modalities = CollabParameters.getParameters("data_modalities");
+                // $scope.collab_organization = CollabParameters.getParameters("organization");
 
                 $scope.is_collab_member = false;
                 $scope.is_collab_member = IsCollabMemberRest.get({ app_id: app_id, });

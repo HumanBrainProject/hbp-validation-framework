@@ -34,6 +34,9 @@
                     <td>
                         <multiselect ng-model="selected_test_type" placeholder="Select test type" options="collab_test_type" show-search="true" show-select-all="true" show-unselect-all="true"></multiselect>
                     </td>
+                    <td>
+                        <multiselect ng-model="selected_organization" placeholder="Select organization" options="collab_organization"></multiselect>
+                    </td>
                 </tr>
             </table>
             <br>
@@ -56,7 +59,8 @@
                         <th>Author</th>
                     </thead>
                     <br>
-                    <tr class=tr-clickable id="test1" ng-repeat="model in models.models | filter: search | filterMultiple:{species:selected_species, brain_region:selected_brain_region, cell_type:selected_cell_type, model_type:selected_model_type}" ng-click="Context.validation_goToModelDetailView(model.id)">
+                    <tr class=tr-clickable id="test1" ng-repeat="model in models.models | filter: search | filterMultiple:{organization:selected_organization, species:selected_species, brain_region:selected_brain_region, cell_type:selected_cell_type, model_type:selected_model_type}"
+                        ng-click="Context.validation_goToModelDetailView(model.id)">
                         <td ng-if=!(model.alias)> {{model.name}} </td>
                         <td ng-if=model.alias> {{model.alias}} </td>
                         <td>{{model.id}}</td>
