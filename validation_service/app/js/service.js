@@ -518,7 +518,7 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'ValidationResultRest', 'Col
                         for (var instance in results_data.models[model].model_instances) {
                             //get line id; test_id is replaced by alias if it exists
                             var line_id = model + '( ' + results_data.models[model].model_instances[instance].version + ' )';
-                            if (results_data.models[model].alias) {
+                            if (results_data.models[model].alias && results_data.models[model].alias != null && results_data.models[model].alias != '' && results_data.models[model].alias != 'None') {
                                 line_id = results_data.models[model].alias + '( ' + results_data.models[model].model_instances[instance].version + ' )';
                             }
                             values.push(_manageDataForTestGraph2(results_data.models[model].model_instances[instance].tests, line_id, model));
@@ -598,7 +598,8 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'ValidationResultRest', 'Col
 
                             //get line id; test_id is replaced by alias if it exists
                             var line_id = test + '( ' + results_data.tests[test].test_codes[code].version + ' )';
-                            if (results_data.tests[test].alias) {
+                            if (results_data.tests[test].alias && results_data.tests[test].alias != null && results_data.tests[test].alias != '' && results_data.tests[test].alias != 'None') {
+                                console.log(results_data.tests[test].alias);
                                 line_id = results_data.tests[test].alias + '( ' + results_data.tests[test].test_codes[code].version + ' )';
                             }
                             var a = values.push(_manageDataForGraph2(results_data.tests[test].test_codes[code].models, line_id, test, results_data.tests[test].score_type));
@@ -770,11 +771,11 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'ValidationResultRest', 'Col
                     }
                 },
                 title: {
-                    enable: true,
+                    enable: false,
                     text: title
                 },
                 subtitle: {
-                    enable: true,
+                    enable: false,
                     text: subtitle,
                     css: {
                         'text-align': 'center',
