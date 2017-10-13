@@ -495,10 +495,12 @@
     <div class="control-group" id="tab_results" style="visibility:hidden;" aria-expanded="true">
         <br>
         <br>
+        <h3 align=center> Results </h3>
+        <br>
         <div id=panel-results ng-if="init_graph.values.length != 0">
             <table class="table" id=table-test-result>
 
-                <h3 align=center> Result list </h3>
+
 
                 <thead>
                     <th id="table-test-result-bottom-up-th">Date/Time</th>
@@ -523,7 +525,9 @@
             <br><br>
             <br><br>
 
-
+            <h4 align=center> <b> Graphs </b></h4>
+            <br>
+            <br>
 
             <table>
                 <tbody>
@@ -550,7 +554,7 @@
 
 
 
-            <table ng-show="result_focussed&& result_focussed!=0" class="table" style="border-top: none;">
+            <table ng-show="result_focussed && result_focussed!=0" class="table" style="border-top: none;">
 
                 <td id="td-clicked-results">
 
