@@ -521,7 +521,7 @@ class ScientificModelInstanceRest (APIView):
                 
                 #check if versions are unique
                 if not _are_model_instance_version_unique(instance) :
-                    return Response("You are sending a version name already existing for this model", status=status.HTTP_400_BAD_REQUEST)
+                    return Response("Oh no... The specified version name already exists for this model. Please, give me a new name", status=status.HTTP_400_BAD_REQUEST)
 
             else :
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -558,7 +558,7 @@ class ScientificModelInstanceRest (APIView):
             
             #check if versions are unique
             if not _are_model_instance_version_unique(instance) :
-                return Response("You are sending a version name already existing for this model", status=status.HTTP_400_BAD_REQUEST)
+                return Response("Oh no... The specified version name already exists for this model. Please, give me a new name", status=status.HTTP_400_BAD_REQUEST)
 
         list_id = []
         #is valid + authaurised : save it
@@ -686,6 +686,79 @@ class ScientificModelImageRest (APIView):
 
         image = image.delete()
         return Response( status=status.HTTP_200_OK) 
+
+
+
+def check_commun_params_json (json):
+    
+    if 'cell_type' in json :
+        if json['cell_type'] != "" :
+            if len(Param_CellType.objects.filter(authorized_value= json['cell_type'])) != 1 :
+                return ("You gave an invalid cell_type parameter")
+        else :
+            json.pop('cell_type', None)
+            
+    if 'species' in json :
+        if json['species'] != "" :
+            if len(Param_Species.objects.filter(authorized_value=json['species'])) != 1 :
+                return ("You gave an invalid species parameter")
+        else :
+            json.pop('species', None)
+        
+    if 'brain_region' in json :
+        if json['brain_region'] != "" :  
+            if len(Param_BrainRegion.objects.filter(authorized_value=json['brain_region'])) != 1 :
+                return ("You gave an invalid brain_region parameter")
+        else :
+            json.pop('brain_region', None)
+            
+    return (True)
+
+def check_param_of_model_json (json):
+    commun = check_commun_params_json(json)
+    if commun is True :
+        if 'model_type' in json :
+            if json['model_type'] != "" :
+                if len(Param_ModelType.objects.filter(authorized_value=json['model_type'])) != 1 :
+                    return ("You gave an invalid model_type parameter")
+            else :
+                json.pop('model_type', None)
+                
+        return (True)
+    else :
+        return (commun)
+    
+def check_param_of_test_json (json):  
+    commun = check_commun_params_json(json)
+    if commun is True :   
+        if 'data_modality' in json :  
+            if json['data_modality'] != "" :      
+                if len(Param_DataModalities.objects.filter(authorized_value=json['data_modality'])) != 1 :
+                    return ("You gave an invalid data_modality parameter")
+            else :
+                json.pop('data_modality', None)
+                
+        if 'test_type' in json : 
+            if json['test_type'] != "" :
+                if len(Param_TestType .objects.filter(authorized_value=json['test_type'])) != 1 :
+                    return ("You gave an invalid test_type parameter")
+            else :
+                json.pop('test_type', None)
+                        
+        if 'score_type' in json : 
+            if json['score_type'] != "" :     
+                if len(Param_ScoreType.objects.filter(authorized_value=json['score_type'])) != 1 :
+                    return ("You gave an invalid score_type parameter")
+            else :
+                json.pop('score_type', None)
+                
+        return (True)
+    else :
+        return (commun)
+
+# class  Param_organizations (models.Model):
+#         id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, )
+#     authorized_value = models.CharField(max_length=200, default="")
 
 
 
@@ -843,6 +916,11 @@ class ScientificModelRest(APIView):
         model_serializer = ScientificModelSerializer(data=request.data['model'], context=serializer_context)
         if model_serializer.is_valid() is not True:
             return Response(model_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        else :
+            check_param = check_param_of_model_json(request.data['model'])
+            if check_param is not True :
+                return Response(check_param, status=status.HTTP_400_BAD_REQUEST)
+                
                
         if len(request.data['model_instance']) >  0 :
             list_version_names = []
@@ -898,8 +976,13 @@ class ScientificModelRest(APIView):
 
         # check if data is ok else return error
         model_serializer = ScientificModelSerializer(model, data=value, context=serializer_context)
-        if model_serializer.is_valid() :
-            model = model_serializer.save()
+        if model_serializer.is_valid() :        
+            check_param = check_param_of_model_json(value)
+            if check_param is True :
+                model = model_serializer.save()
+            else :
+                return Response(check_param, status=status.HTTP_400_BAD_REQUEST)
+                
         else: 
             return Response(model_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         return Response({'uuid':model.id}, status=status.HTTP_202_ACCEPTED) 
@@ -1033,7 +1116,7 @@ class ValidationTestCodeRest(APIView):
             
             #check if versions are unique
             if not _are_test_code_version_unique(test_code) :
-                return Response("You are sending a version name already existing", status=status.HTTP_400_BAD_REQUEST)
+                return Response("Oh no... The specified version name already exists for this test. Please, give me a new name", status=status.HTTP_400_BAD_REQUEST)
 
         list_id = []
         for test_code in request.data :
@@ -1063,7 +1146,7 @@ class ValidationTestCodeRest(APIView):
                 return Response("Your test_definition_id differes from the original one", status=status.HTTP_400_BAD_REQUEST)
             #check if versions are unique
             if not _are_test_code_version_unique(test_code) :
-                return Response("You are sending a version name already existing", status=status.HTTP_400_BAD_REQUEST)
+                return Response("Oh no... The specified version name already exists for this test. Please, give me a new name", status=status.HTTP_400_BAD_REQUEST)
                 
         list_id = []
         for test_code in request.data :
@@ -1208,6 +1291,11 @@ class ValidationTestDefinitionRest(APIView):
 
         if test_serializer.is_valid():
             if code_serializer.is_valid():
+                       
+                check_param = check_param_of_test_json(request.data['test_data'])
+                if check_param is not True :
+                    return Response(check_param, status=status.HTTP_400_BAD_REQUEST)
+
                 test = test_serializer.save() 
                 code_serializer.save(test_definition_id=test.id)
                       
@@ -1234,6 +1322,9 @@ class ValidationTestDefinitionRest(APIView):
         # check if data is ok else return error
         test_serializer = ValidationTestDefinitionSerializer(test, data=value, context=serializer_context)
         if test_serializer.is_valid() :
+            check_param = check_param_of_test_json(value)
+            if check_param is not True :
+                return Response(check_param, status=status.HTTP_400_BAD_REQUEST)
             test = test_serializer.save()
         else: 
             return Response(test_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
