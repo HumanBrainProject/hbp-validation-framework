@@ -483,7 +483,8 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
                 };
 
                 $scope.saveEditedComment = function(com_id) {
-                    var text = $("#editable-text-" + com_id).text();
+                    var text = $("#editable-ctext-" + com_id).text();
+
                     var parameters = JSON.stringify({ 'id': com_id, 'text': text });
                     var a = TestCommentRest.put({ app_id: app_id }, parameters).$promise.then(function(data) {
                         angular.element(document.querySelector("#editable-ctext-" + com_id)).attr('contenteditable', "false");
