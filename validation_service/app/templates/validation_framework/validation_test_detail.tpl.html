@@ -38,7 +38,7 @@
                         <tr style="width: 15%">
                             <td> <b> ID: </b> {{ detail_test.tests[0].id }} </td>
                         </tr>
-                        <tr style="width: 15%" ng-if="detail_test.tests[0].alias!=''">
+                        <tr style="width: 15%" ng-if="detail_test.tests[0].alias && detail_test.tests[0].alias!=''">
                             <td> <b>Alias: </b> {{ detail_test.tests[0].alias}}</td>
                         </tr>
                     </tbody>

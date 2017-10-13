@@ -21,6 +21,7 @@
                                 <tbody>
                                     <tr>
                                         <td>
+                                            <font color=red>*</font>
                                             <b>Name:</b>
                                         </td>
                                         <td>
@@ -30,7 +31,7 @@
                                     </tr>
                                     <tr>
                                         <td>
-                                            <b>Alias (optional):</b>
+                                            <b>Alias:</b>
                                         </td>
                                         <td>
                                             <input type="text" ng-model="test.alias" />
@@ -46,6 +47,7 @@
                                     </tr>
                                     <tr>
                                         <td>
+                                            <font color=red>*</font>
                                             <b>Author:</b>
                                         </td>
                                         <td>
@@ -58,7 +60,7 @@
                                             <b>Publication:</b>
                                         </td>
                                         <td>
-                                            <input type="text" ng-model="test.publication" required/>
+                                            <input type="text" ng-model="test.publication" />
                                             <a class="glyphicon glyphicon-question-sign" aria-hidden="true" data-toggle="tooltip" data-placement="right" title="Example: paper example ..."></a>
                                         </td>
                                     </tr>
@@ -131,6 +133,7 @@
                                     </tr>
                                     <tr>
                                         <td>
+                                            <font color=red>*</font>
                                             <b>Test type:</b>
                                         </td>
                                         <td>
@@ -141,6 +144,7 @@
                                     </tr>
                                     <tr>
                                         <td>
+                                            <font color=red>*</font>
                                             <b>Score type:</b>
                                         </td>
                                         <td>
@@ -159,6 +163,7 @@
                                     </tr>
                                     <tr>
                                         <td>
+                                            <font color=red>*</font>
                                             <b>data location:</b>
                                         </td>
                                         <td>
@@ -180,9 +185,11 @@
                 <tbody>
                     <tr>
                         <td>
+                            <font color=red>*</font>
                             <b>Version Name:</b>
                         </td>
                         <td>
+
                             <input type="text" ng-model="code.version" required/>
                             <a class="glyphicon glyphicon-question-sign" aria-hidden="true" data-toggle="tooltip" data-placement="right" title="Example: version 1.0"></a>
                         </td>
@@ -190,6 +197,7 @@
                     <tr>
 
                         <td>
+                            <font color=red>*</font>
                             <b>Repository:</b>
                         </td>
                         <td>
@@ -199,6 +207,7 @@
                     </tr>
                     <tr>
                         <td>
+                            <font color=red>*</font>
                             <b>Path:</b>
                         </td>
                         <td>
@@ -215,6 +224,8 @@
                 <button ng-click="saveTest()" class="btn btn-primary ">Save</button>
 
             </div>
-
+            <div align=right>
+                <font color=red>* this field is required</font>
+            </div>
         </form>
     </div>

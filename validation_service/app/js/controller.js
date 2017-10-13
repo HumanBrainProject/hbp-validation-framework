@@ -374,6 +374,7 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
                             };
                         });
                     } else {
+                        $scope.detail_test.tests[0].alias = null;
                         var parameters = JSON.stringify($scope.detail_test.tests[0]);
                         ValidationTestDefinitionRest.put({ app_id: app_id, id: $scope.detail_test.tests[0].id }, parameters).$promise.then(function() {
                             document.getElementById("tab_description").style.display = "none";
@@ -1062,6 +1063,7 @@ ModelCatalogApp.controller('ModelCatalogEditCtrl', ['$scope', '$rootScope', '$ht
                             }
                         });
                     } else {
+                        $scope.model.models[0].alias = null;
                         var parameters = $scope.model;
                         var a = ScientificModelRest.put({ app_id: app_id }, parameters).$promise.then(function(data) {
                             alert('Model correctly edited');
