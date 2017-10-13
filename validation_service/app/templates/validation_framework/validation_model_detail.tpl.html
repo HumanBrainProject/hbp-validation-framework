@@ -8,47 +8,70 @@
 
             <button class="button-MC" ng-click="Context.validation_goToHomeView();">Home</button>&ensp;
 
-            <h1 align=center> Model: {{ model.models[0].name}} (ID:{{ model.models[0].id }})</h1>
-            <h3 align=center ng-if="model.models[0].alias!=''">Alias: {{ model.models[0].alias}}</h3>
-            <h3 align=center> Authors: {{ model.models[0].author }}</h3>
+            <h1 align=center>{{ model.models[0].name}}</h1>
+            <h3 align=center> Author(s): {{ model.models[0].author }}</h3>
         </nav>
     </header>
 
     <br>
-
-
     <div id=VF-model-detail>
-        <table class="table-create">
-            <tbody>
-                <tr>
-                    <td style="width: 15%"> <b> Model type: </b> {{ model.models[0].model_type }} &nbsp;</td>
+        <panel class=caracteristics-panel-validation>
+            <h4 align=center> <b>  Model information </b></h4>
+            <br>
+            <table class="table-create">
+                <tbody>
+                    <tr style="width: 15%">
+                        <td> <b> ID: </b> {{model.models[0].id}} </td>
+                    </tr>
+                    <tr style="width: 15%" ng-if="model.models[0].alias!=''">
+                        <td> <b>Alias: </b> {{ model.models[0].alias}}</td>
+                    </tr>
+                    <tr style="width: 15%" ng-if="model.models[0].organization!=''">
+                        <td> <b> Organization: </b> {{ model.models[0].organization }} </td>
+                    </tr>
+                </tbody>
+            </table>
+            <br>
+            <table class="table-create">
+                <tbody>
+                    <tr style="width: 15%" ng-if="model.models[0].species!=''">
+                        <td><b> Species: </b> {{ model.models[0].species }} </tr>
+                    <tr style="width: 15%" ng-if="model.models[0].brain_region!=''">
+                        <td> <b> Brain region: </b> {{ model.models[0].brain_region }}</td>
+                    </tr>
+                    <tr style="width: 15%" ng-if="model.models[0].model_type!=''">
+                        <td><b> Model type: </b> {{ model.models[0].model_type }} </td>
+                    </tr>
+                    <tr style="width: 15%" ng-if="model.models[0].cell_type!=''">
+                        <td> <b> Cell type: </b> {{ model.models[0].cell_type }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </panel>
 
-                    <td style="width: 15%"> <b> Species: </b> {{ model.models[0].species }} &nbsp;</td>
-
-                    <td style="width: 15%"> <b> Brain region: </b> {{ model.models[0].brain_region }} &nbsp;</td>
-
-                    <td style="width: 15%"> <b> Cell type: </b> {{ model.models[0].cell_type }} </td>
-                </tr>
-            </tbody>
-        </table>
-        <br>
-        <table class="table-create">
-            <tbody>
-                <tr>
-                    <b> Description: </b> <br><br>
-                    <div markdown="model.models[0].description" ng-text-truncate="model.models[0].description" ng-tt-words-threshold="50" ng-tt-no-toggling></div>
-                    <button class=linkbutton align=right text-align=right type="button" ng-click="Context.validation_goToModelCatalog(model.models[0])"> (more details on model catalog)</button>
-                    <br><br>
-                </tr>
-            </tbody>
-        </table>
+        <panel class=description-panel-validation>
+            <h4 align=center> <b>Model Description</b> </h4>
+            <br>
+            <table class="table-create">
+                <tbody>
+                    <tr>
+                        <div markdown="model.models[0].description" ng-text-truncate="model.models[0].description" ng-tt-words-threshold="100" ng-tt-no-toggling></div>
+                        <button class=linkbutton align=right text-align=right type="button" ng-click="Context.validation_goToModelCatalog(model.models[0])"> (more details on model catalog)</button>
+                        <br><br>
+                    </tr>
+                </tbody>
+            </table>
+        </panel>
     </div>
 
+    <br>
+    <br>
     <div id='panel-no-results' ng-if="init_graph.values.length == 0">
         <h3 align=center> No result available for this model </h3>
     </div>
     <div id=panel-results ng-if="init_graph.values.length != 0">
-
+        <h4 align=center> <b>  Results </b></h4>
+        <br>
         <div id=VF-model-table-all-data>
             <table class="table">
                 <thead>
@@ -67,15 +90,16 @@
                 </tbody>
             </table>
         </div>
-
-
-
         <br>
+        <br>
+        <br>
+        <h4 align=center> <b> Graphs </b></h4>
         <br>
         <div ng-repeat="(key,score_type) in init_graph_all | limitTo:init_graph_all.length">
             <div ng-show=" score_type.list_ids.length !=0 ">
                 <br>
                 <br>
+                <h4 align=center> Add title {{score_type.values[0].test_score_type}}</h4>
                 <table>
                     <tbody>
                         <tr>

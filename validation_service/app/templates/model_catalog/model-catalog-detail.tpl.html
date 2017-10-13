@@ -1,11 +1,11 @@
 <html id="model-detail" ng-controller="ModelCatalogDetailCtrl">
 
 <head>
+    <br>
     <nav class="navbar ">
-        <h1 align=center> Model: {{ model.models[0].name}}(ID: {{model.models[0].id}})
+        <h1 align=center> {{ model.models[0].name}}
         </h1>
-        <h3 align=center ng-if="model.models[0].alias!=''">Alias: {{ model.models[0].alias}}</h3>
-        <h3 align=center> Authors: {{ model.models[0].author }} </h3>
+        <h3 align=center> Author(s): {{ model.models[0].author }} </h3>
     </nav>
 </head>
 
@@ -21,40 +21,66 @@
     <br>
     <br>
 
-    <table class="table-create">
-        <tbody>
-            <tr>
-                <td style="width: 15%"> <b> Model type: </b> {{ model.models[0].model_type }} </td>
-                <td style="width: 15%"> <b> Species: </b> {{ model.models[0].species }} </td>
-                <td style="width: 15%"> <b> Brain region: </b> {{ model.models[0].brain_region }} </td>
-                <td style="width: 15%"> <b> Cell type: </b> {{ model.models[0].cell_type }} </td>
-            </tr>
-            <tr>
-                <td style="width: 15%"> <b> Organization: </b> {{ model.models[0].organization }} </td>
-            </tr>
-        </tbody>
-    </table>
     <br>
-    <table class="table-create">
-        <thead>
-        </thead>
-        <tbody>
-            <tr>
-                <b> Description: </b> <br><br>
-                <div markdown="model.models[0].description"></div>
-                <br><br>
-            </tr>
-            <tr>
-                <div class="group" ng-repeat="img in model.models[0].images track by $index">
-                    <figure>
-                        <button ng-click='toggleSize($index, img)'><img class=image id="image-$index"  ng-src="{{img.url}}"> </button>
-                        <figcaption id=figcaptionDetail>{{img.caption}}</figcaption> <br>
-                    </figure>
-                </div> &ensp;
+    <h4 style="margin-left:33%"> <b>Model Description</b> </h4>
+    <br>
+    <panel class=caracteristics-panel>
+        <h4 align=center> <b>  Model information </b></h4>
+        <br>
+        <table class="table-create">
+            <tbody>
+                <tr style="width: 15%">
+                    <td> <b> ID: </b> {{model.models[0].id}} </td>
+                </tr>
+                <tr style="width: 15%" ng-if="model.models[0].alias!=''">
+                    <td> <b>Alias: </b> {{ model.models[0].alias}}</td>
+                </tr>
+                <tr style="width: 15%" ng-if="model.models[0].organization!=''">
+                    <td> <b> Organization: </b> {{ model.models[0].organization }} </td>
+                </tr>
+            </tbody>
+        </table>
+        <br>
+        <table class="table-create">
+            <tbody>
+                <tr style="width: 15%" ng-if="model.models[0].species!=''">
+                    <td><b> Species: </b> {{ model.models[0].species }} </tr>
+                <tr style="width: 15%" ng-if="model.models[0].brain_region!=''">
+                    <td> <b> Brain region: </b> {{ model.models[0].brain_region }}</td>
+                </tr>
+                <tr style="width: 15%" ng-if="model.models[0].model_type!=''">
+                    <td><b> Model type: </b> {{ model.models[0].model_type }} </td>
+                </tr>
+                <tr style="width: 15%" ng-if="model.models[0].cell_type!=''">
+                    <td> <b> Cell type: </b> {{ model.models[0].cell_type }}</td>
+                </tr>
+            </tbody>
+        </table>
+    </panel>
+    <br>
+    <panel class=description-panel>
 
-            </tr>
-        </tbody>
-    </table>
+        <table class="table-create">
+            <thead>
+            </thead>
+            <tbody>
+                <tr>
+                    <!--<b> Description: </b> <br><br>-->
+                    <div markdown="model.models[0].description" class="text-justify"></div>
+                    <br><br>
+                </tr>
+                <tr>
+                    <div class="group" ng-repeat="img in model.models[0].images track by $index">
+                        <figure>
+                            <button ng-click='toggleSize($index, img)'><img class=image id="image-$index"  ng-src="{{img.url}}"> </button>
+                            <figcaption id=figcaptionDetail>{{img.caption}}</figcaption> <br>
+                        </figure>
+                    </div> &ensp;
+
+                </tr>
+            </tbody>
+        </table>
+    </panel>
     <br>
     <br>
     <h2>Model versions</h2>

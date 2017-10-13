@@ -782,7 +782,7 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'ValidationResultRest', 'Col
                     }
                 },
                 caption: {
-                    enable: true,
+                    enable: false,
                     html: caption,
                     css: {
                         'text-align': 'justify',

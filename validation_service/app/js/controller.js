@@ -118,7 +118,7 @@ testApp.controller('ValModelDetailCtrl', ['$scope', '$rootScope', '$http', '$loc
                                 var score_type = $scope.authorized_parameters.score_type[i].authorized_value;
                                 Graphics.getResultsfromModelResultID2($scope.model, score_type).then(function(value) {
                                     var key = $scope.init_graph_all.push(value);
-                                    $scope.options5.push(Graphics.get_lines_options('title', '', $scope.authorized_parameters.score_type[key - 1].authorized_value, "", value.results, "model", key - 1));
+                                    $scope.options5.push(Graphics.get_lines_options('', '', $scope.authorized_parameters.score_type[key - 1].authorized_value, "", value.results, "model", key - 1));
                                     //  $scope.init_checkbox.push(value.list_ids);
                                     $scope.line_result_focussed.push();
                                     $scope.$on('data_focussed:updated', function(event, data, key) {
@@ -128,6 +128,7 @@ testApp.controller('ValModelDetailCtrl', ['$scope', '$rootScope', '$http', '$loc
                                     $scope.$apply();
                                 });
                             };
+                            console.log($scope.init_graph_all);
                             // $scope.init_graph_all = $scope.init_graph_all_original;
                             $scope.init_checkbox = init_graph.list_ids;
                             $scope.init_graph = init_graph;
@@ -139,7 +140,6 @@ testApp.controller('ValModelDetailCtrl', ['$scope', '$rootScope', '$http', '$loc
                         })
                         // shitty solution to go faster. will need to be replaced with a clean solution. This one get data for each score_type. the best would be to subset data from the previous get directly
                         //for p-value
-
 
 
 
@@ -254,9 +254,7 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
                         $scope.init_graph = init_graph;
                         $scope.graphic_data = init_graph.values;
                         $scope.init_checkbox = init_graph.list_ids;
-                        //main table result
-
-                        $scope.graphic_options = Graphics.get_lines_options('Test/result', '', $scope.detail_test.score_type, "this is a caption", init_graph.results, "test", "");
+                        $scope.graphic_options = Graphics.get_lines_options('', '', $scope.detail_test.tests[0].score_type, "", init_graph.results, "test", "");
 
                     }).catch(function(err) {
                         console.error('Erreur !');
@@ -524,10 +522,9 @@ testApp.controller('ValTestResultDetailCtrl', ['$window', '$scope', '$rootScope'
                 $scope.test_result = ValidationResultRest.get({ app_id: app_id, id: $stateParams.uuid });
 
                 $scope.test_result.$promise.then(function() {
-                    $scope.model = ScientificModelRest.get({ app_id: app_id, id: $scope.test_result.data.model_version.model_id });
-                    $scope.test = ValidationTestDefinitionRest.get({ app_id: app_id, id: $scope.test_result.data.test_code.test_definition_id });
+                    // $scope.model = ScientificModelRest.get({ app_id: app_id, id: $scope.test_result.data.model_version.model_id });
+                    // $scope.test = ValidationTestDefinitionRest.get({ app_id: app_id, id: $scope.test_result.data.test_code.test_definition_id });
                 });
-
             });
 
         });

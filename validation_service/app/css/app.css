@@ -15,6 +15,7 @@
 
 #conteneur {
     display: flex;
+    margin-bottom: 3%;
 }
 
 .element-left {
@@ -211,4 +212,62 @@
 
 .red-font {
     color: red;
+}
+
+.caracteristics-panel-validation {
+    height: 300px;
+    width: 320px;
+    padding: 5px;
+    border: 2px solid #dfe7ef;
+    float: right;
+    margin-right: 1%;
+    margin-left: 2%;
+    margin-bottom: 1%;
+    margin-top: 1%;
+    overflow: auto;
+}
+
+.caracteristics-panel-test-validation {
+    height: 300px;
+    width: 320px;
+    padding: 5px;
+    border: 2px solid #dfe7ef;
+    float: right;
+    margin-right: 1%;
+    margin-left: 2%;
+    margin-bottom: 1%;
+    margin-top: 5%;
+    overflow: auto;
+}
+
+.caracteristics-panel-testdetail-validation {
+    height: 200px;
+    width: 50%;
+    padding-left: 10px;
+}
+
+.description-panel-validation {
+    height: 300px;
+    width: 60%;
+    padding: 5px;
+    /*border: 2px solid #dfe7ef;*/
+    /*align: left;*/
+    margin-right: 2%;
+    margin-left: 1%;
+    margin-bottom: 1%;
+    margin-top: 1%;
+    overflow: auto;
+}
+
+.description-panel-validation-test-detail {
+    height: 200px;
+    width: 50%;
+    padding: 5px;
+    /*border: 2px solid #dfe7ef;*/
+    /*align: left;*/
+    margin-right: 2%;
+    margin-left: 1%;
+    margin-bottom: 1%;
+    margin-top: 1%;
+    overflow: auto;
 }
