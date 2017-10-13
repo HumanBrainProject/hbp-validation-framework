@@ -254,9 +254,7 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
                         $scope.init_graph = init_graph;
                         $scope.graphic_data = init_graph.values;
                         $scope.init_checkbox = init_graph.list_ids;
-                        //main table result
-
-                        $scope.graphic_options = Graphics.get_lines_options('Test/result', '', $scope.detail_test.score_type, "this is a caption", init_graph.results, "test", "");
+                        $scope.graphic_options = Graphics.get_lines_options('', '', $scope.detail_test.tests[0].score_type, "", init_graph.results, "test", "");
 
                     }).catch(function(err) {
                         console.error('Erreur !');
@@ -524,10 +522,9 @@ testApp.controller('ValTestResultDetailCtrl', ['$window', '$scope', '$rootScope'
                 $scope.test_result = ValidationResultRest.get({ app_id: app_id, id: $stateParams.uuid });
 
                 $scope.test_result.$promise.then(function() {
-                    $scope.model = ScientificModelRest.get({ app_id: app_id, id: $scope.test_result.data.model_version.model_id });
-                    $scope.test = ValidationTestDefinitionRest.get({ app_id: app_id, id: $scope.test_result.data.test_code.test_definition_id });
+                    // $scope.model = ScientificModelRest.get({ app_id: app_id, id: $scope.test_result.data.model_version.model_id });
+                    // $scope.test = ValidationTestDefinitionRest.get({ app_id: app_id, id: $scope.test_result.data.test_code.test_definition_id });
                 });
-
             });
 
         });
