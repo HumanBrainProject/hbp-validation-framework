@@ -772,7 +772,7 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'ValidationResultRest', 'Col
                 },
                 title: {
                     enable: false,
-                    text: title
+                    text: ""
                 },
                 subtitle: {
                     enable: false,
