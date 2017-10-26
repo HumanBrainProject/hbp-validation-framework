@@ -29,11 +29,13 @@
                 <td>
                     <multiselect ng-model="selected_organization" placeholder="Select organization" options="collab_organization"></multiselect>
                 </td>
+                <td>
+                    <multiselect ng-model="selected_privacy" placeholder="Select privacy" options="model_privacy" id-prop="value" display-prop="name"></multiselect>
+                </td>
                 <td><a class="button-MC" ng-href="#/model-catalog/create" ng-if="is_collab_member == true" class="btn btn-primary">New model </a></td>
             </tr>
         </table>
         <br>
-
     </nav>
     <table class="table">
         <thead>
@@ -51,7 +53,7 @@
         </thead>
         <tbody>
             <tr class="tr-clickable" ng-repeat="model in models.models |  filter:search | filterMultiple:{ organization:selected_organization, species:selected_species, brain_region:selected_brain_region , cell_type:selected_cell_type, model_type:selected_model_type}"
-                ng-click="Context.modelCatalog_goToModelDetailView(model.id)">
+                ng-click="Context.modelCatalog_goToModelDetailView(model.id)" ng-if="model.private == selected_privacy[0].value || model.private == selected_privacy[1].value">
                 <td>{{ model.name}}</td>
                 <td ng-text-truncate=model.alias ng-tt-chars-threshold="50" ng-tt-no-toggling>{{ model.alias }}</td>
                 <td ng-text-truncate=model.species ng-tt-chars-threshold="50" ng-tt-no-toggling>{{ model.species }}</td>

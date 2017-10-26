@@ -789,6 +789,8 @@ ModelCatalogApp.controller('ModelCatalogCtrl', [
 
                 CollabParameters.setService(ctx).$promise.then(function() {
 
+                    $scope.model_privacy = [{ "name": "private", "value": true }, { "name": "public", "value": false }];
+                    $scope.selected_privacy = $scope.model_privacy;
                     $scope.collab_species = CollabParameters.getParameters("species");
                     $scope.collab_brain_region = CollabParameters.getParameters("brain_region");
                     $scope.collab_cell_type = CollabParameters.getParameters("cell_type");
