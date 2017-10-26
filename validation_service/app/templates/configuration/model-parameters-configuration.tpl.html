@@ -12,50 +12,26 @@
 
         <table id="tableTest" class="table table-bordered">
             <colgroup>
-                <col style="width: 33%" />
-                <col style="width: 33%" />
-                <col style="width: 33%" />
+                <col style="width: 45%" />
+                <col style="width: 45%" />
             </colgroup>
 
             <thead>
                 <tr>
                     <th id="tab_title">
                         <center>
-                            <h4> Data modalities </h4>
-                        </center>
-                    </th>
-
-
-                    <th id="tab_title">
-                        <center>
                             <h4>Model type</h4>
                         </center>
-
                     </th>
                     <th id="tab_title">
                         <center>
                             <h4>Organization</h4>
                         </center>
-
                     </th>
                 </tr>
 
             </thead>
             <tbody>
-                <td>
-                    <multiselect id="buttonTest" ng-size="10" placeholder="select" ng-model="selected_data_modalities" options="data_modalities " display-prop="authorized_value" id-prop="id" show-search="true" show-select-all="true" show-unselect-all="true">
-                    </multiselect>
-                    <table class="table">
-                        <thead></thead>
-                        <tbody>
-                            <tr ng-repeat="(key, value) in selected_data_modalities">
-                                <td>{{value.authorized_value}}</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </td>
-
-
                 <td>
                     <multiselect placeholder="select" ng-model="selected_model_type" options="model_type" display-prop="authorized_value" id-prop="id" show-search="true" show-select-all="true" show-unselect-all="true">
                     </multiselect>
