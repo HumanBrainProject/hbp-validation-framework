@@ -879,7 +879,7 @@ class ScientificModelRest(APIView):
 
         # a model ID has been specified 
         else:
-        
+            web_app = request.GET.getlist('web_app')    
             id =id[0]
             models = ScientificModel.objects.filter(id=id)
 
@@ -893,8 +893,10 @@ class ScientificModelRest(APIView):
                     if not is_authorised(request, collab_id) :
                         return HttpResponse('Unauthorized', status=401)
                         return HttpResponseForbidden()
-                
-                model_serializer = ScientificModelReadOnlySerializer(models, context=serializer_context, many=True )
+                if len(web_app) > 0 and web_app[0] == 'True' :
+                    model_serializer = ScientificModelFullReadOnlySerializer(models, context=serializer_context, many=True)
+                else:
+                    model_serializer = ScientificModelReadOnlySerializer(models, context=serializer_context, many=True )
 
                 return Response({
                     'models': model_serializer.data,
@@ -1466,9 +1468,10 @@ class IsCollabMemberRest (APIView):
         app_id = request.GET.getlist('app_id')[0]
         collab_id = get_collab_id_from_app_id(app_id)
         
-        is_member = is_authorised(request, collab_id) 
-        
-
+        is_member = is_authorised(request, collab_id)
+        print("ap_id ", app_id) 
+        print("collab_id ", collab_id)
+        print(request.user,"is_member",is_member)
         return Response({
             'is_member':  is_member,
         })

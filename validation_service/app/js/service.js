@@ -41,7 +41,6 @@ ContextServices.service('Context', ['$rootScope', '$location', 'AppIDRest', 'Col
             setTimeout(function() {
                 $location.path('/home/');
             }, 300);
-
         };
         var validation_goToModelDetailView = function(model_id) {
             sendState("model", model_id);
@@ -58,8 +57,8 @@ ContextServices.service('Context', ['$rootScope', '$location', 'AppIDRest', 'Col
             setState(result_id);
             $location.path('/home/validation_test_result/' + result_id);
         };
-
         var validation_goToModelCatalog = function(model) {
+            console.log("model", model)
             var collab_id = model.app.collab_id;
             var app_id = model.app.id;
 
@@ -772,7 +771,7 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'ValidationResultRest', 'Col
                 },
                 title: {
                     enable: false,
-                    text: title
+                    text: ""
                 },
                 subtitle: {
                     enable: false,
