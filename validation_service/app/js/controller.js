@@ -923,8 +923,9 @@ ModelCatalogApp.controller('ModelCatalogDetailCtrl', ['$scope', '$rootScope', '$
 
                     $scope.is_collab_member = false;
                     $scope.model.$promise.then(function() {
+                        console.log("app_id", $scope.model.models[0].app.id)
                         $scope.is_collab_member = IsCollabMemberRest.get({
-                            app_id: $scope.model.models[0].app_id,
+                            app_id: $scope.model.models[0].app.id,
                         })
                         $scope.is_collab_member.$promise.then(function() {
                             $scope.is_collab_member = $scope.is_collab_member.is_member;
@@ -982,6 +983,8 @@ ModelCatalogApp.controller('ModelCatalogEditCtrl', ['$scope', '$rootScope', '$ht
                             $scope.addImage = false;
                             alert('Image has been saved !');
                             $state.reload();
+                        }).catch(function(e) {
+                            alert(e.data);
                         });
                     } else { alert("You need to add an url !") }
                 };
@@ -993,6 +996,8 @@ ModelCatalogApp.controller('ModelCatalogEditCtrl', ['$scope', '$rootScope', '$ht
                     var parameters = $scope.model.models[0].images;
                     var a = ScientificModelImageRest.put({ app_id: app_id }, parameters).$promise.then(function(data) {
                         alert('Model images have been correctly edited');
+                    }).catch(function(e) {
+                        alert(e.data);
                     });
                 };
                 $scope.saveModel = function() {
@@ -1003,6 +1008,8 @@ ModelCatalogApp.controller('ModelCatalogEditCtrl', ['$scope', '$rootScope', '$ht
                                 var parameters = $scope.model;
                                 var a = ScientificModelRest.put({ app_id: app_id }, parameters).$promise.then(function(data) {
                                     alert('Model correctly edited');
+                                }).catch(function(e) {
+                                    alert(e.data);
                                 });
                             } else {
                                 alert('Cannot update the model. Please check the alias.');
@@ -1013,12 +1020,16 @@ ModelCatalogApp.controller('ModelCatalogEditCtrl', ['$scope', '$rootScope', '$ht
                         var parameters = $scope.model;
                         var a = ScientificModelRest.put({ app_id: app_id }, parameters).$promise.then(function(data) {
                             alert('Model correctly edited');
+                        }).catch(function(e) {
+                            alert(e.data);
                         });
                     }
                 };
                 $scope.saveModelInstance = function() {
                     var parameters = $scope.model.models[0].instances;
-                    var a = ScientificModelInstanceRest.put({ app_id: app_id }, parameters).$promise.then(function(data) { alert('model instances correctly edited') });
+                    var a = ScientificModelInstanceRest.put({ app_id: app_id }, parameters).$promise.then(function(data) { alert('model instances correctly edited') }).catch(function(e) {
+                        alert(e.data);
+                    });
                 };
                 $scope.checkAliasValidity = function() {
                     $scope.alias_is_valid = ScientificModelAliasRest.get({ app_id: app_id, model_id: $scope.model.models[0].id, alias: $scope.model.models[0].alias });

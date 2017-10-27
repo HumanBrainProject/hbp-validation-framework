@@ -188,36 +188,56 @@ def get_collab_id_from_app_id (app_id):
     collab_id = collab_param.values('collab_id')[0]['collab_id']
     return collab_id
 
-
 def _are_model_instance_version_unique (instance_json):
-
+    new_version_name = instance_json['version']
     try :
-        put_instance_id = instance_json["id"]
+        new_instance_id = instance_json["id"]
     except:
-        put_instance_id = None
+        new_instance_id = None
+    all_instances_versions_name = ScientificModelInstance.objects.filter(model_id = instance_json['model_id']).exclude(id=new_instance_id).values_list("version",flat=True)
+    if new_version_name in all_instances_versions_name:
+        return False
+    return True
+# def _are_model_instance_version_unique (instance_json):
+
+#     try :
+#         put_instance_id = instance_json["id"]
+#     except:
+#         put_instance_id = None
         
-    #extract version and model_id from json
-    dict_info = extract_versions_and_model_id_from_instance_json(instance_json)
+#     #extract version and model_id from json
+#     dict_info = extract_versions_and_model_id_from_instance_json(instance_json)
 
-    # retrive all versions from model_id
-    version_in_base = extract_all_instance_version_from_model_id (put_id= put_instance_id, model_id= dict_info["model_id"])
+#     # retrive all versions from model_id
+#     version_in_base = extract_all_instance_version_from_model_id (put_id= put_instance_id, model_id= dict_info["model_id"])
 
-    #check if versions uniques
-    return check_versions_unique([dict_info["version_name"]], version_in_base )
+#     #check if versions uniques
+#     return check_versions_unique([dict_info["version_name"]], version_in_base )
 
 def _are_test_code_version_unique (testcode_json):
+    new_version_name = testcode_json['version']
     try :
-        put_testcode_id = testcode_json["id"]
+        new_testcode_id = testcode_json["id"]
     except:
-        put_testcode_id = None
-    #extract version and model_id from json
-    dict_info = extract_versions_and_test_id_from_list_testcode_json(testcode_json)
+        new_testcode_id = None
+    all_test_code_versions_name = ValidationTestCode.objects.filter(test_definition_id = testcode_json['test_definition_id']).exclude(id=new_testcode_id).values_list("version",flat=True)
+    if new_version_name in all_test_code_versions_name:
+        return False
+    return True
 
-    # retrive all versions from model_id
-    version_in_base = extract_all_code_version_from_test_object_id (put_id=put_testcode_id, test_id=dict_info["test_id"])
+# def _are_test_code_version_unique (testcode_json):
+#     try :
+#         put_testcode_id = testcode_json["id"]
+#     except:
+#         put_testcode_id = None
+#     #extract version and model_id from json
+#     dict_info = extract_versions_and_test_id_from_list_testcode_json(testcode_json)
 
-    #check if versions uniques
-    return check_versions_unique([dict_info["version_name"]], version_in_base )
+#     # retrieve all versions from test_id
+#     version_in_base = extract_all_code_version_from_test_object_id (put_id=put_testcode_id, test_id=dict_info["test_id"])
+
+#     #check if versions uniques
+#     return check_versions_unique([dict_info["version_name"]], version_in_base )
     
 
 
@@ -561,7 +581,7 @@ class ScientificModelInstanceRest (APIView):
                 return Response("Oh no... The specified version name already exists for this model. Please, give me a new name", status=status.HTTP_400_BAD_REQUEST)
 
         list_id = []
-        #is valid + authaurised : save it
+        #is valid + authorized : save it
         for instance in request.data: 
             model_instance = ScientificModelInstance.objects.get(id=instance['id'])
             model_serializer = ScientificModelInstanceSerializer(model_instance, data=instance, context=serializer_context)
@@ -570,7 +590,7 @@ class ScientificModelInstanceRest (APIView):
                 model_instance = model_serializer.save()
                 list_id.append(model_instance.id)
 
-        return Response({uuid: list_id}, status=status.HTTP_201_CREATED) 
+        return Response({'uuid': list_id}, status=status.HTTP_201_CREATED) 
 
 
 
@@ -1531,9 +1551,6 @@ class IsCollabMemberRest (APIView):
         collab_id = get_collab_id_from_app_id(app_id)
         
         is_member = is_authorised(request, collab_id)
-        print("ap_id ", app_id) 
-        print("collab_id ", collab_id)
-        print(request.user,"is_member",is_member)
         return Response({
             'is_member':  is_member,
         })
