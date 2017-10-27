@@ -789,26 +789,59 @@ class ScientificModelRest(APIView):
                 collab_params = CollabParameters.objects.get(id = app_id )
                 all_ctx_from_collab = CollabParameters.objects.filter(collab_id = collab_id).distinct()
 
+                #if one of the collab_param is empty, don't filter on it. 
+                species_filter = collab_params.species.split(",")
+                if species_filter==[u'']:
+                    print("in if")
+                    species_filter = list(Param_Species.objects.all().values_list('authorized_value', flat=True))+[u'']
+                else: 
+                    print("in else")
+                    species_filter += [u'']
+
+                brain_region_filter = collab_params.brain_region.split(",")
+                if brain_region_filter==[u'']:
+                    brain_region_filter = list(Param_BrainRegion.objects.all().values_list('authorized_value', flat=True))+[u'']
+                else: 
+                    brain_region_filter += [u'']
+
+                cell_type_filter = collab_params.cell_type.split(",")
+                if cell_type_filter==[u'']:
+                    cell_type_filter = list(Param_CellType.objects.all().values_list('authorized_value', flat=True))+[u'']
+                else: 
+                    cell_type_filter += [u'']
+
+                model_type_filter = collab_params.model_type.split(",")
+                if model_type_filter==[u'']:
+                    model_type_filter = list(Param_ModelType.objects.all().values_list('authorized_value', flat=True))+[u'']    
+                else: 
+                    model_type_filter += [u'']
+
+                organization_filter = collab_params.organization.split(",")
+                if organization_filter==[u'']:
+                    organization_filter = list(Param_organizations.objects.all().values_list('authorized_value', flat=True))+[u'']
+                else: 
+                    organization_filter += [u'']
+
                 if is_authorised(request, collab_id) :
                     rq1 = ScientificModel.objects.filter(
                         private=1,
                         app__in=all_ctx_from_collab.values("id"), 
-                        species__in=collab_params.species.split(",")+[u''], 
-                        brain_region__in=collab_params.brain_region.split(",")+[u''], 
-                        cell_type__in=collab_params.cell_type.split(",")+[u''], 
-                        model_type__in=collab_params.model_type.split(",")+[u''],
-                        organization__in=collab_params.organization.split(",")+[u'']).prefetch_related()
+                        species__in=species_filter, 
+                        brain_region__in=brain_region_filter, 
+                        cell_type__in=cell_type_filter, 
+                        model_type__in=model_type_filter,
+                        organization__in=organization_filter).prefetch_related()
                 else :
                     rq1 = []
                     
     
                 rq2 = ScientificModel.objects.filter (
                     private=0, 
-                    species__in=collab_params.species.split(",")+[u''], 
-                    brain_region__in=collab_params.brain_region.split(",")+[u''], 
-                    cell_type__in=collab_params.cell_type.split(",")+[u''], 
-                    model_type__in=collab_params.model_type.split(",")+[u''],
-                    organization__in=collab_params.organization.split(",")+[u'']).prefetch_related()
+                    species__in=species_filter, 
+                    brain_region__in=brain_region_filter, 
+                    cell_type__in=cell_type_filter, 
+                    model_type__in=model_type_filter,
+                    organization__in=organization_filter).prefetch_related()
 
                 if len(rq1) >0:
                     models  = (rq1 | rq2).distinct().order_by('-creation_date')
@@ -1206,12 +1239,43 @@ class ValidationTestDefinitionRest(APIView):
                 param_app_id = param_app_id[0]
                 collab_params = CollabParameters.objects.get(id = param_app_id )
 
+                 #if one of the collab_param is empty, don't filter on it. 
+                species_filter = collab_params.species.split(",")
+                if species_filter==[u'']:
+                    species_filter = list(Param_Species.objects.all().values_list('authorized_value', flat=True))+[u'']
+                else: 
+                    species_filter += [u'']
+
+                brain_region_filter = collab_params.brain_region.split(",")
+                if brain_region_filter==[u'']:
+                    brain_region_filter = list(Param_BrainRegion.objects.all().values_list('authorized_value', flat=True))+[u'']
+                else: 
+                    brain_region_filter += [u'']
+
+                cell_type_filter = collab_params.cell_type.split(",")
+                if cell_type_filter==[u'']:
+                    cell_type_filter = list(Param_CellType.objects.all().values_list('authorized_value', flat=True))+[u'']
+                else: 
+                    cell_type_filter += [u'']
+
+                test_type_filter = collab_params.test_type.split(",")
+                if test_type_filter==[u'']:
+                    test_type_filter = list(Param_TestType.objects.all().values_list('authorized_value', flat=True))+[u'']    
+                else: 
+                    test_type_filter += [u'']
+
+                data_modality_filter = collab_params.data_modalities.split(",")
+                if data_modality_filter==[u'']:
+                    data_modality_filter = list(Param_DataModalities.objects.all().values_list('authorized_value', flat=True))+[u'']
+                else: 
+                    data_modality_filter += [u'']
+
                 tests= ValidationTestDefinition.objects.filter (
-                    species__in=collab_params.species.split(",")+[u''], 
-                    brain_region__in=collab_params.brain_region.split(",")+[u''], 
-                    cell_type__in=collab_params.cell_type.split(",")+[u''],
-                    data_modality__in=collab_params.data_modalities.split(",")+[u''],
-                    test_type__in=collab_params.test_type.split(",")+[u'']).prefetch_related().distinct()
+                    species__in=species_filter, 
+                    brain_region__in=brain_region_filter, 
+                    cell_type__in=cell_type_filter,
+                    data_modality__in=data_modality_filter,
+                    test_type__in=test_type_filter).prefetch_related().distinct()
 
                 test_serializer = ValidationTestDefinitionSerializer(tests, context=serializer_context, many=True)
 
