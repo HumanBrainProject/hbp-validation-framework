@@ -792,10 +792,8 @@ class ScientificModelRest(APIView):
                 #if one of the collab_param is empty, don't filter on it. 
                 species_filter = collab_params.species.split(",")
                 if species_filter==[u'']:
-                    print("in if")
                     species_filter = list(Param_Species.objects.all().values_list('authorized_value', flat=True))+[u'']
                 else: 
-                    print("in else")
                     species_filter += [u'']
 
                 brain_region_filter = collab_params.brain_region.split(",")

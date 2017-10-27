@@ -6,8 +6,6 @@ var testApp = angular.module('testApp');
 testApp.controller('HomeCtrl', ['$scope', '$rootScope', '$http', '$location', "ScientificModelRest", "ValidationTestDefinitionRest", 'CollabParameters', 'IsCollabMemberRest', 'Context', 'ScientificModelInstanceRest',
     function($scope, $rootScope, $http, $location, ScientificModelRest, ValidationTestDefinitionRest, CollabParameters, IsCollabMemberRest, Context, ScientificModelInstanceRest) {
 
-        // console.log(ScientificModelInstanceRest.get({ model_alias: "tsdfzfgsdg" }));
-
         Context.setService().then(function() {
 
             $scope.Context = Context;
@@ -130,7 +128,7 @@ testApp.controller('ValModelDetailCtrl', ['$scope', '$rootScope', '$http', '$loc
                                 $scope.$apply();
                             });
                         };
-                        console.log($scope.init_graph_all);
+                        // console.log($scope.init_graph_all);
                         $scope.init_checkbox = init_graph.list_ids;
                         $scope.init_graph = init_graph;
                     })
@@ -796,7 +794,6 @@ ModelCatalogApp.controller('ModelCatalogCtrl', [
                     $scope.collab_cell_type = CollabParameters.getParameters("cell_type");
                     $scope.collab_model_type = CollabParameters.getParameters("model_type");
                     $scope.collab_organization = CollabParameters.getParameters("organization");
-                    // will have data here to make redirection directly
                     $scope.models = ScientificModelRest.get({ app_id: app_id });
 
                     $scope.is_collab_member = false;
@@ -804,13 +801,6 @@ ModelCatalogApp.controller('ModelCatalogCtrl', [
                     $scope.is_collab_member.$promise.then(function() {
                         $scope.is_collab_member = $scope.is_collab_member.is_member;
                     });
-
-                    //just to test Help funtions
-
-                    // var help = Help.getAuthorizedValues('all');
-                    // help.then(function() {
-                    //     console.log(help)
-                    // })
                 });
             } else {
                 var model_id = Context.getState();
@@ -942,12 +932,6 @@ ModelCatalogApp.controller('ModelCatalogDetailCtrl', ['$scope', '$rootScope', '$
                         });
                     })
                 });
-
-                //to test follow fuctionality and notifications
-                // $scope.followModel = function() {
-                //     var parameters = JSON.stringify({ model_id: $stateParams.uuid, user_id: 0 })
-                //     ModelFollowRest.post({ app_id: $scope.app_id }, parameters);
-                // };
             }
         });
 
