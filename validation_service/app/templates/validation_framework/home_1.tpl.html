@@ -61,10 +61,10 @@
                     <br>
                     <tr class=tr-clickable id="test1" ng-repeat="model in models.models | filter: search | filterMultiple:{organization:selected_organization, species:selected_species, brain_region:selected_brain_region, cell_type:selected_cell_type, model_type:selected_model_type}"
                         ng-click="Context.validation_goToModelDetailView(model.id)">
-                        <td ng-if=!(model.alias)> {{model.name}} </td>
-                        <td ng-if=model.alias> {{model.alias}} </td>
-                        <td>{{model.id}}</td>
-                        <td>{{model.author}}</td>
+                        <td ng-if=!(model.alias) ng-text-truncate=model.name ng-tt-chars-threshold="20" ng-tt-no-toggling> {{model.name}} </td>
+                        <td ng-if=model.alias ng-text-truncate=model.alias ng-tt-chars-threshold="20" ng-tt-no-toggling> {{model.alias}} </td>
+                        <td ng-text-truncate=model.id ng-tt-chars-threshold="40" ng-tt-no-toggling>{{model.id}}</td>
+                        <td ng-text-truncate=model.author ng-tt-chars-threshold="20" ng-tt-no-toggling>{{model.author}}</td>
                         <br>
                     </tr>
                 </table>
@@ -82,10 +82,10 @@
 
                     <tr class="tr-clickable" ng-repeat="test in tests.tests | filter:search | filterMultiple:{species:selected_species, brain_region:selected_brain_region, cell_type:selected_cell_type, model_type:selected_model_type}" ng-click="Context.validation_goToTestDetailView(test.id)">
 
-                        <td ng-if=!(test.alias)> {{test.name}} </td>
-                        <td ng-if=test.alias> {{test.alias}} </td>
-                        <td> {{test.id}}</td>
-                        <td>{{test.author}}</td>
+                        <td ng-if=!(test.alias) ng-text-truncate=test.name ng-tt-chars-threshold="20" ng-tt-no-toggling> {{test.name}} </td>
+                        <td ng-if=test.alias ng-text-truncate=test.alias ng-tt-chars-threshold="20" ng-tt-no-toggling> {{test.alias}} </td>
+                        <td ng-text-truncate=test.id ng-tt-chars-threshold="40" ng-tt-no-toggling> {{test.id}}</td>
+                        <td ng-text-truncate=test.author ng-tt-chars-threshold="20" ng-tt-no-toggling>{{test.author}}</td>
                         <br>
                     </tr>
                 </table>

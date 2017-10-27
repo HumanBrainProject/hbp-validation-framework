@@ -6,8 +6,6 @@ var testApp = angular.module('testApp');
 testApp.controller('HomeCtrl', ['$scope', '$rootScope', '$http', '$location', "ScientificModelRest", "ValidationTestDefinitionRest", 'CollabParameters', 'IsCollabMemberRest', 'Context', 'ScientificModelInstanceRest',
     function($scope, $rootScope, $http, $location, ScientificModelRest, ValidationTestDefinitionRest, CollabParameters, IsCollabMemberRest, Context, ScientificModelInstanceRest) {
 
-        // console.log(ScientificModelInstanceRest.get({ model_alias: "tsdfzfgsdg" }));
-
         Context.setService().then(function() {
 
             $scope.Context = Context;
@@ -130,7 +128,7 @@ testApp.controller('ValModelDetailCtrl', ['$scope', '$rootScope', '$http', '$loc
                                 $scope.$apply();
                             });
                         };
-                        console.log($scope.init_graph_all);
+                        // console.log($scope.init_graph_all);
                         $scope.init_checkbox = init_graph.list_ids;
                         $scope.init_graph = init_graph;
                     })
@@ -796,7 +794,6 @@ ModelCatalogApp.controller('ModelCatalogCtrl', [
                     $scope.collab_cell_type = CollabParameters.getParameters("cell_type");
                     $scope.collab_model_type = CollabParameters.getParameters("model_type");
                     $scope.collab_organization = CollabParameters.getParameters("organization");
-                    // will have data here to make redirection directly
                     $scope.models = ScientificModelRest.get({ app_id: app_id });
 
                     $scope.is_collab_member = false;
@@ -804,13 +801,6 @@ ModelCatalogApp.controller('ModelCatalogCtrl', [
                     $scope.is_collab_member.$promise.then(function() {
                         $scope.is_collab_member = $scope.is_collab_member.is_member;
                     });
-
-                    //just to test Help funtions
-
-                    // var help = Help.getAuthorizedValues('all');
-                    // help.then(function() {
-                    //     console.log(help)
-                    // })
                 });
             } else {
                 var model_id = Context.getState();
@@ -933,8 +923,9 @@ ModelCatalogApp.controller('ModelCatalogDetailCtrl', ['$scope', '$rootScope', '$
 
                     $scope.is_collab_member = false;
                     $scope.model.$promise.then(function() {
+                        console.log("app_id", $scope.model.models[0].app.id)
                         $scope.is_collab_member = IsCollabMemberRest.get({
-                            app_id: $scope.model.models[0].app_id,
+                            app_id: $scope.model.models[0].app.id,
                         })
                         $scope.is_collab_member.$promise.then(function() {
                             $scope.is_collab_member = $scope.is_collab_member.is_member;
@@ -942,12 +933,6 @@ ModelCatalogApp.controller('ModelCatalogDetailCtrl', ['$scope', '$rootScope', '$
                         });
                     })
                 });
-
-                //to test follow fuctionality and notifications
-                // $scope.followModel = function() {
-                //     var parameters = JSON.stringify({ model_id: $stateParams.uuid, user_id: 0 })
-                //     ModelFollowRest.post({ app_id: $scope.app_id }, parameters);
-                // };
             }
         });
 
@@ -998,6 +983,8 @@ ModelCatalogApp.controller('ModelCatalogEditCtrl', ['$scope', '$rootScope', '$ht
                             $scope.addImage = false;
                             alert('Image has been saved !');
                             $state.reload();
+                        }).catch(function(e) {
+                            alert(e.data);
                         });
                     } else { alert("You need to add an url !") }
                 };
@@ -1009,6 +996,8 @@ ModelCatalogApp.controller('ModelCatalogEditCtrl', ['$scope', '$rootScope', '$ht
                     var parameters = $scope.model.models[0].images;
                     var a = ScientificModelImageRest.put({ app_id: app_id }, parameters).$promise.then(function(data) {
                         alert('Model images have been correctly edited');
+                    }).catch(function(e) {
+                        alert(e.data);
                     });
                 };
                 $scope.saveModel = function() {
@@ -1019,6 +1008,8 @@ ModelCatalogApp.controller('ModelCatalogEditCtrl', ['$scope', '$rootScope', '$ht
                                 var parameters = $scope.model;
                                 var a = ScientificModelRest.put({ app_id: app_id }, parameters).$promise.then(function(data) {
                                     alert('Model correctly edited');
+                                }).catch(function(e) {
+                                    alert(e.data);
                                 });
                             } else {
                                 alert('Cannot update the model. Please check the alias.');
@@ -1029,12 +1020,16 @@ ModelCatalogApp.controller('ModelCatalogEditCtrl', ['$scope', '$rootScope', '$ht
                         var parameters = $scope.model;
                         var a = ScientificModelRest.put({ app_id: app_id }, parameters).$promise.then(function(data) {
                             alert('Model correctly edited');
+                        }).catch(function(e) {
+                            alert(e.data);
                         });
                     }
                 };
                 $scope.saveModelInstance = function() {
                     var parameters = $scope.model.models[0].instances;
-                    var a = ScientificModelInstanceRest.put({ app_id: app_id }, parameters).$promise.then(function(data) { alert('model instances correctly edited') });
+                    var a = ScientificModelInstanceRest.put({ app_id: app_id }, parameters).$promise.then(function(data) { alert('model instances correctly edited') }).catch(function(e) {
+                        alert(e.data);
+                    });
                 };
                 $scope.checkAliasValidity = function() {
                     $scope.alias_is_valid = ScientificModelAliasRest.get({ app_id: app_id, model_id: $scope.model.models[0].id, alias: $scope.model.models[0].alias });

@@ -188,36 +188,56 @@ def get_collab_id_from_app_id (app_id):
     collab_id = collab_param.values('collab_id')[0]['collab_id']
     return collab_id
 
-
 def _are_model_instance_version_unique (instance_json):
-
+    new_version_name = instance_json['version']
     try :
-        put_instance_id = instance_json["id"]
+        new_instance_id = instance_json["id"]
     except:
-        put_instance_id = None
+        new_instance_id = None
+    all_instances_versions_name = ScientificModelInstance.objects.filter(model_id = instance_json['model_id']).exclude(id=new_instance_id).values_list("version",flat=True)
+    if new_version_name in all_instances_versions_name:
+        return False
+    return True
+# def _are_model_instance_version_unique (instance_json):
+
+#     try :
+#         put_instance_id = instance_json["id"]
+#     except:
+#         put_instance_id = None
         
-    #extract version and model_id from json
-    dict_info = extract_versions_and_model_id_from_instance_json(instance_json)
+#     #extract version and model_id from json
+#     dict_info = extract_versions_and_model_id_from_instance_json(instance_json)
 
-    # retrive all versions from model_id
-    version_in_base = extract_all_instance_version_from_model_id (put_id= put_instance_id, model_id= dict_info["model_id"])
+#     # retrive all versions from model_id
+#     version_in_base = extract_all_instance_version_from_model_id (put_id= put_instance_id, model_id= dict_info["model_id"])
 
-    #check if versions uniques
-    return check_versions_unique([dict_info["version_name"]], version_in_base )
+#     #check if versions uniques
+#     return check_versions_unique([dict_info["version_name"]], version_in_base )
 
 def _are_test_code_version_unique (testcode_json):
+    new_version_name = testcode_json['version']
     try :
-        put_testcode_id = testcode_json["id"]
+        new_testcode_id = testcode_json["id"]
     except:
-        put_testcode_id = None
-    #extract version and model_id from json
-    dict_info = extract_versions_and_test_id_from_list_testcode_json(testcode_json)
+        new_testcode_id = None
+    all_test_code_versions_name = ValidationTestCode.objects.filter(test_definition_id = testcode_json['test_definition_id']).exclude(id=new_testcode_id).values_list("version",flat=True)
+    if new_version_name in all_test_code_versions_name:
+        return False
+    return True
 
-    # retrive all versions from model_id
-    version_in_base = extract_all_code_version_from_test_object_id (put_id=put_testcode_id, test_id=dict_info["test_id"])
+# def _are_test_code_version_unique (testcode_json):
+#     try :
+#         put_testcode_id = testcode_json["id"]
+#     except:
+#         put_testcode_id = None
+#     #extract version and model_id from json
+#     dict_info = extract_versions_and_test_id_from_list_testcode_json(testcode_json)
 
-    #check if versions uniques
-    return check_versions_unique([dict_info["version_name"]], version_in_base )
+#     # retrieve all versions from test_id
+#     version_in_base = extract_all_code_version_from_test_object_id (put_id=put_testcode_id, test_id=dict_info["test_id"])
+
+#     #check if versions uniques
+#     return check_versions_unique([dict_info["version_name"]], version_in_base )
     
 
 
@@ -561,7 +581,7 @@ class ScientificModelInstanceRest (APIView):
                 return Response("Oh no... The specified version name already exists for this model. Please, give me a new name", status=status.HTTP_400_BAD_REQUEST)
 
         list_id = []
-        #is valid + authaurised : save it
+        #is valid + authorized : save it
         for instance in request.data: 
             model_instance = ScientificModelInstance.objects.get(id=instance['id'])
             model_serializer = ScientificModelInstanceSerializer(model_instance, data=instance, context=serializer_context)
@@ -570,7 +590,7 @@ class ScientificModelInstanceRest (APIView):
                 model_instance = model_serializer.save()
                 list_id.append(model_instance.id)
 
-        return Response({uuid: list_id}, status=status.HTTP_201_CREATED) 
+        return Response({'uuid': list_id}, status=status.HTTP_201_CREATED) 
 
 
 
@@ -789,26 +809,57 @@ class ScientificModelRest(APIView):
                 collab_params = CollabParameters.objects.get(id = app_id )
                 all_ctx_from_collab = CollabParameters.objects.filter(collab_id = collab_id).distinct()
 
+                #if one of the collab_param is empty, don't filter on it. 
+                species_filter = collab_params.species.split(",")
+                if species_filter==[u'']:
+                    species_filter = list(Param_Species.objects.all().values_list('authorized_value', flat=True))+[u'']
+                else: 
+                    species_filter += [u'']
+
+                brain_region_filter = collab_params.brain_region.split(",")
+                if brain_region_filter==[u'']:
+                    brain_region_filter = list(Param_BrainRegion.objects.all().values_list('authorized_value', flat=True))+[u'']
+                else: 
+                    brain_region_filter += [u'']
+
+                cell_type_filter = collab_params.cell_type.split(",")
+                if cell_type_filter==[u'']:
+                    cell_type_filter = list(Param_CellType.objects.all().values_list('authorized_value', flat=True))+[u'']
+                else: 
+                    cell_type_filter += [u'']
+
+                model_type_filter = collab_params.model_type.split(",")
+                if model_type_filter==[u'']:
+                    model_type_filter = list(Param_ModelType.objects.all().values_list('authorized_value', flat=True))+[u'']    
+                else: 
+                    model_type_filter += [u'']
+
+                organization_filter = collab_params.organization.split(",")
+                if organization_filter==[u'']:
+                    organization_filter = list(Param_organizations.objects.all().values_list('authorized_value', flat=True))+[u'']
+                else: 
+                    organization_filter += [u'']
+
                 if is_authorised(request, collab_id) :
                     rq1 = ScientificModel.objects.filter(
                         private=1,
                         app__in=all_ctx_from_collab.values("id"), 
-                        species__in=collab_params.species.split(",")+[u''], 
-                        brain_region__in=collab_params.brain_region.split(",")+[u''], 
-                        cell_type__in=collab_params.cell_type.split(",")+[u''], 
-                        model_type__in=collab_params.model_type.split(",")+[u''],
-                        organization__in=collab_params.organization.split(",")+[u'']).prefetch_related()
+                        species__in=species_filter, 
+                        brain_region__in=brain_region_filter, 
+                        cell_type__in=cell_type_filter, 
+                        model_type__in=model_type_filter,
+                        organization__in=organization_filter).prefetch_related()
                 else :
                     rq1 = []
                     
     
                 rq2 = ScientificModel.objects.filter (
                     private=0, 
-                    species__in=collab_params.species.split(",")+[u''], 
-                    brain_region__in=collab_params.brain_region.split(",")+[u''], 
-                    cell_type__in=collab_params.cell_type.split(",")+[u''], 
-                    model_type__in=collab_params.model_type.split(",")+[u''],
-                    organization__in=collab_params.organization.split(",")+[u'']).prefetch_related()
+                    species__in=species_filter, 
+                    brain_region__in=brain_region_filter, 
+                    cell_type__in=cell_type_filter, 
+                    model_type__in=model_type_filter,
+                    organization__in=organization_filter).prefetch_related()
 
                 if len(rq1) >0:
                     models  = (rq1 | rq2).distinct().order_by('-creation_date')
@@ -1206,12 +1257,43 @@ class ValidationTestDefinitionRest(APIView):
                 param_app_id = param_app_id[0]
                 collab_params = CollabParameters.objects.get(id = param_app_id )
 
+                 #if one of the collab_param is empty, don't filter on it. 
+                species_filter = collab_params.species.split(",")
+                if species_filter==[u'']:
+                    species_filter = list(Param_Species.objects.all().values_list('authorized_value', flat=True))+[u'']
+                else: 
+                    species_filter += [u'']
+
+                brain_region_filter = collab_params.brain_region.split(",")
+                if brain_region_filter==[u'']:
+                    brain_region_filter = list(Param_BrainRegion.objects.all().values_list('authorized_value', flat=True))+[u'']
+                else: 
+                    brain_region_filter += [u'']
+
+                cell_type_filter = collab_params.cell_type.split(",")
+                if cell_type_filter==[u'']:
+                    cell_type_filter = list(Param_CellType.objects.all().values_list('authorized_value', flat=True))+[u'']
+                else: 
+                    cell_type_filter += [u'']
+
+                test_type_filter = collab_params.test_type.split(",")
+                if test_type_filter==[u'']:
+                    test_type_filter = list(Param_TestType.objects.all().values_list('authorized_value', flat=True))+[u'']    
+                else: 
+                    test_type_filter += [u'']
+
+                data_modality_filter = collab_params.data_modalities.split(",")
+                if data_modality_filter==[u'']:
+                    data_modality_filter = list(Param_DataModalities.objects.all().values_list('authorized_value', flat=True))+[u'']
+                else: 
+                    data_modality_filter += [u'']
+
                 tests= ValidationTestDefinition.objects.filter (
-                    species__in=collab_params.species.split(",")+[u''], 
-                    brain_region__in=collab_params.brain_region.split(",")+[u''], 
-                    cell_type__in=collab_params.cell_type.split(",")+[u''],
-                    data_modality__in=collab_params.data_modalities.split(",")+[u''],
-                    test_type__in=collab_params.test_type.split(",")+[u'']).prefetch_related().distinct()
+                    species__in=species_filter, 
+                    brain_region__in=brain_region_filter, 
+                    cell_type__in=cell_type_filter,
+                    data_modality__in=data_modality_filter,
+                    test_type__in=test_type_filter).prefetch_related().distinct()
 
                 test_serializer = ValidationTestDefinitionSerializer(tests, context=serializer_context, many=True)
 
@@ -1469,9 +1551,6 @@ class IsCollabMemberRest (APIView):
         collab_id = get_collab_id_from_app_id(app_id)
         
         is_member = is_authorised(request, collab_id)
-        print("ap_id ", app_id) 
-        print("collab_id ", collab_id)
-        print(request.user,"is_member",is_member)
         return Response({
             'is_member':  is_member,
         })
