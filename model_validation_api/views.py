@@ -930,7 +930,10 @@ class ScientificModelRest(APIView):
 
         # a model ID has been specified 
         else:
-            web_app = request.GET.getlist('web_app')    
+            try:
+                web_app = request.GET.getlist('web_app')
+            except:
+                web_app = False    
             id =id[0]
             models = ScientificModel.objects.filter(id=id)
 
