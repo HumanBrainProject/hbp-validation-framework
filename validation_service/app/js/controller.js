@@ -191,7 +191,7 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
                 $scope.test_type = CollabParameters.getParameters("test_type");
                 $scope.data_modalities = CollabParameters.getParameters("data_modalities");
                 $scope.detail_version_test = ValidationTestCodeRest.get({ app_id: app_id, test_definition_id: $stateParams.uuid });
-
+                //TODO: take detail_test and detail_version_test in one get
 
                 $scope.detail_test.$promise.then(function() {
                     // $scope.is_collab_member = false;
@@ -199,31 +199,32 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
                     // $scope.is_collab_member.$promise.then(function() {
                     //     $scope.is_collab_member = $scope.is_collab_member.is_member;
                     // });
-                    Graphics.getResultsfromTestID2($scope.detail_test).then(function(init_graph) {
+                    $scope.detail_version_test.$promise.then(function(detail_test) {
+                        Graphics.getResultsfromTestID2($scope.detail_test, detail_test).then(function(init_graph) {
 
-                        $scope.result_focussed;
-                        $scope.$on('data_focussed:updated', function(event, data, key) {
-                            $scope.result_focussed = data;
-                            $scope.$apply();
+                            $scope.result_focussed;
+                            $scope.$on('data_focussed:updated', function(event, data, key) {
+                                $scope.result_focussed = data;
+                                $scope.$apply();
+                            });
+                            $scope.init_graph = init_graph;
+                            $scope.graphic_data = init_graph.values;
+                            $scope.init_checkbox = init_graph.list_ids;
+                            $scope.graphic_options = Graphics.get_lines_options('', '', $scope.detail_test.tests[0].score_type, "", init_graph.results, "test", "", init_graph.abs_info);
+
+                        }).catch(function(err) {
+                            console.error('Erreur !');
+                            console.dir(err);
+                            console.log(err);
                         });
-                        $scope.init_graph = init_graph;
-                        $scope.graphic_data = init_graph.values;
-                        $scope.init_checkbox = init_graph.list_ids;
-                        $scope.graphic_options = Graphics.get_lines_options('', '', $scope.detail_test.tests[0].score_type, "", init_graph.results, "test", "");
-
-                    }).catch(function(err) {
-                        console.error('Erreur !');
-                        console.dir(err);
-                        console.log(err);
+                        //for tab_comments
+                        $scope.test_tickets = TestTicketRest.get({ app_id: app_id, test_id: $stateParams.uuid });
+                        $scope.comments_to_show = [];
+                        $scope.create_comment_to_show = [];
+                        $scope.button_save_ticket = [];
+                        $scope.button_save_comment = [];
                     });
-                    //for tab_comments
-                    $scope.test_tickets = TestTicketRest.get({ app_id: app_id, test_id: $stateParams.uuid });
-                    $scope.comments_to_show = [];
-                    $scope.create_comment_to_show = [];
-                    $scope.button_save_ticket = [];
-                    $scope.button_save_comment = [];
                 });
-
                 var _add_params = function() {
                     $scope.test_code.test_definition_id = $scope.detail_test.tests[0].id;
                 };
