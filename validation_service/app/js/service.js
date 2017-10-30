@@ -506,24 +506,22 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'ValidationResultRest', 'Col
                 });
             });
         };
-        var getResultsfromTestID2 = function(test) {
+        var getResultsfromTestID2 = function(test, test_versions) {
             return new Promise(function(resolve, reject) {
+
                 var values = [];
                 var list_ids = [];
                 var results = [];
+                abscissa_value = [];
+
+                for (var tv in test_versions.tests) {
+                    var version_name = test_versions.tests[tv].version;
+
+                    abscissa_value[version_name] = tv;
+                }
+
                 var results_data = ValidationResultRest2.get({ app_id: Context.getAppID(), test_id: test.tests[0].id, order: 'model' });
                 results_data.$promise.then(function() {
-                    for (var model in results_data.models) {
-                        for (var instance in results_data.models[model].model_instances) {
-                            //get line id; test_id is replaced by alias if it exists
-                            var line_id = model + '( ' + results_data.models[model].model_instances[instance].version + ' )';
-                            if (results_data.models[model].alias && results_data.models[model].alias != null && results_data.models[model].alias != '' && results_data.models[model].alias != 'None') {
-                                line_id = results_data.models[model].alias + '( ' + results_data.models[model].model_instances[instance].version + ' )';
-                            }
-                            values.push(_manageDataForTestGraph2(results_data.models[model].model_instances[instance].tests, line_id, model));
-                            list_ids.push(line_id)
-                        };
-                    };
                     //manage data for focus
                     for (var model in results_data.models) {
                         for (var instance in results_data.models[model].model_instances) {
@@ -541,18 +539,34 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'ValidationResultRest', 'Col
                                 }
                             }
                         }
+                        //manage data for graph
+
+                        for (var model in results_data.models) {
+                            for (var instance in results_data.models[model].model_instances) {
+                                //get line id; test_id is replaced by alias if it exists
+                                var line_id = model + '( ' + results_data.models[model].model_instances[instance].version + ' )';
+                                if (results_data.models[model].alias && results_data.models[model].alias != null && results_data.models[model].alias != '' && results_data.models[model].alias != 'None') {
+                                    line_id = results_data.models[model].alias + '( ' + results_data.models[model].model_instances[instance].version + ' )';
+                                }
+                                values.push(_manageDataForTestGraph2(results_data.models[model].model_instances[instance].tests, line_id, model, abscissa_value));
+                                list_ids.push(line_id)
+                            };
+                        };
                     }
                 });
-                resolve({ 'values': values, 'results': results, 'list_ids': list_ids });
+                resolve({ 'values': values, 'results': results, 'list_ids': list_ids, 'abs_info': abscissa_value });
             });
         }
-        var _manageDataForTestGraph2 = function(data, line_id, model_id) {
+        var _manageDataForTestGraph2 = function(data, line_id, model_id, abscissa_value) {
             var values_temp = [];
+
             for (var t in data) {
                 for (var c in data[t].test_codes) {
+
                     var temp = {
-                        x: new Date(data[t].test_codes[c].result.timestamp),
+                        x: abscissa_value[data[t].test_codes[c].version], //new Date(data[t].test_codes[c].result.timestamp),
                         y: data[t].test_codes[c].result.score,
+                        label: data[t].test_codes[c].version,
                         id: line_id,
                         id_test_result: data[t].test_codes[c].result.id,
                     };
@@ -623,6 +637,7 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'ValidationResultRest', 'Col
 
         var _manageDataForGraph2 = function(data, line_id, test_id, score_type) {
             var values_temp = [];
+
             for (var m in data) {
                 for (var v in data[m].model_instances) {
                     var temp = {
@@ -724,7 +739,7 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'ValidationResultRest', 'Col
             return color;
         };
 
-        var get_lines_options = function(title, subtitle, Yaxislabel, caption, results_data, type, graph_key) {
+        var get_lines_options = function(title, subtitle, Yaxislabel, caption, results_data, type, graph_key, abscissa_value) {
             options = {
                 chart: {
                     type: 'lineChart',
@@ -745,9 +760,17 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'ValidationResultRest', 'Col
                         tooltipHide: function(e) { console.log("tooltipHide"); },
                     },
                     xAxis: {
-                        axisLabel: 'Date',
+                        axisLabel: 'Version',
+                        tickValues: function(d) {
+                            return d3.format('.02f')(d);
+                        },
                         tickFormat: function(d) {
-                            return d3.time.format('%d-%m-%y')(new Date(d))
+                            for (var a in abscissa_value) {
+                                if (abscissa_value[a] == d) {
+                                    return a;
+                                }
+                            }
+                            //return d3.time.format('%d-%m-%y')(new Date(d))
                         },
                     },
 
