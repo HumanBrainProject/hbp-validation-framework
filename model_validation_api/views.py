@@ -1198,10 +1198,8 @@ class ValidationTestCodeRest(APIView):
          
         if not is_hbp_member(request):
             return HttpResponseForbidden()
-        print(request.data, len(request.data))
         ##check if request is valid 
-        for test_code in request.data:
-            print(test_code)    
+        for test_code in request.data:   
             ##get the test code
             if 'id' in test_code:
                 try: 
@@ -1232,14 +1230,12 @@ class ValidationTestCodeRest(APIView):
                     return Response("To edit a test instance, you need to give an id, or a test_definition_id with a version, or a test_definition_alias with a version ", status=status.HTTP_400_BAD_REQUEST)    
 
             #check if versions are unique
-            print("check passed")
             if not _are_test_code_version_unique(test_code) :
                 return Response("Oh no... The specified version name already exists for this test. Please, give me a new name", status=status.HTTP_400_BAD_REQUEST)
 
         ## check is ok so create the serializer and save
         list_updated = []
         for test_code in request.data:
-            print("saving")
             if 'id' in test_code:
                 original_test_code = ValidationTestCode.objects.get(id= test_code['id'])
             else:
@@ -1247,10 +1243,8 @@ class ValidationTestCodeRest(APIView):
             serializer = ValidationTestCodeSerializer(original_test_code, data=test_code, context=serializer_context)
         
             if serializer.is_valid() :
-               serializer.save()
-               print("saved") 
+               serializer.save() 
                list_updated.append(serializer.data)
-               print("added to list")
 
         return Response({'uuid':list_updated}, status=status.HTTP_202_ACCEPTED)
         
