@@ -3,8 +3,8 @@
 /* Controllers */
 var testApp = angular.module('testApp');
 
-testApp.controller('HomeCtrl', ['$scope', '$rootScope', '$http', '$location', "ScientificModelRest", "ValidationTestDefinitionRest", 'CollabParameters', 'IsCollabMemberRest', 'Context', 'ScientificModelInstanceRest',
-    function($scope, $rootScope, $http, $location, ScientificModelRest, ValidationTestDefinitionRest, CollabParameters, IsCollabMemberRest, Context, ScientificModelInstanceRest) {
+testApp.controller('HomeCtrl', ['$scope', '$rootScope', '$http', '$location', "ScientificModelRest", "ValidationTestDefinitionRest", 'CollabParameters', 'IsCollabMemberRest', 'Context', 'ScientificModelInstanceRest', 'ValidationTestCodeRest',
+    function($scope, $rootScope, $http, $location, ScientificModelRest, ValidationTestDefinitionRest, CollabParameters, IsCollabMemberRest, Context, ScientificModelInstanceRest, ValidationTestCodeRest) {
 
         Context.setService().then(function() {
 
@@ -26,7 +26,8 @@ testApp.controller('HomeCtrl', ['$scope', '$rootScope', '$http', '$location', "S
 
                     $scope.models = ScientificModelRest.get({ app_id: app_id }, function(data) {});
                     $scope.tests = ValidationTestDefinitionRest.get({ app_id: app_id }, function(data) {});
-
+                    //for test
+                    $scope.put_test1 = ValidationTestCodeRest.put({ app_id: app_id, test_definition_id: "53a7a2db-b18f-49ef-b1de-88bd48960c81", version: "1.1" });
                 });
             } else {
 
@@ -217,6 +218,8 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
                             console.dir(err);
                             console.log(err);
                         });
+                        //for tab version (edit)
+                        $scope.version_in_edition = [];
                         //for tab_comments
                         $scope.test_tickets = TestTicketRest.get({ app_id: app_id, test_id: $stateParams.uuid });
                         $scope.comments_to_show = [];
@@ -339,10 +342,35 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
                             $state.reload();
                         });
                     }
-
+                };
+                $scope.editVersion = function(index) {
+                    console.log(index)
+                    angular.element(document.querySelector("#editable-repository-" + index)).attr('contenteditable', "true");
+                    angular.element(document.querySelector("#editable-repository-" + index)).attr('bgcolor', 'ghostwhite');
+                    angular.element(document.querySelector("#editable-version-" + index)).attr('contenteditable', "true");
+                    angular.element(document.querySelector("#editable-version-" + index)).attr('bgcolor', 'ghostwhite');
+                    angular.element(document.querySelector("#editable-path-" + index)).attr('contenteditable', "true");
+                    angular.element(document.querySelector("#editable-path-" + index)).attr('bgcolor', 'ghostwhite');
+                    $scope.version_in_edition.push(index);
 
                 };
+                $scope.save_edited_version = function(index) {
+                    var repository = $("#editable-repository-" + index).text();
+                    var version = $("#editable-version-" + index).text();
+                    var pathway = $("#editable-path-" + index).text();
+                    var new_version = JSON.stringify({ 'id': index, 'repository': repository, 'version': version, 'path': pathway });
+                    ValidationTestCodeRest.put({ app_id: app_id }, new_version).$promise.then(function() {
+                        angular.element(document.querySelector("#editable-repository-" + index)).attr('contenteditable', "false");
+                        angular.element(document.querySelector("#editable-repository-" + index)).attr('bgcolor', 'white');
+                        angular.element(document.querySelector("#editable-version-" + index)).attr('contenteditable', "false");
+                        angular.element(document.querySelector("#editable-version-" + index)).attr('bgcolor', 'white');
+                        angular.element(document.querySelector("#editable-path-" + index)).attr('contenteditable', "false");
+                        angular.element(document.querySelector("#editable-path-" + index)).attr('bgcolor', 'white');
+                        $scope.version_in_edition.splice(index);
+                    });
 
+
+                }
                 $scope.checkAliasValidity = function() {
                     $scope.alias_is_valid = ValidationTestAliasRest.get({ app_id: app_id, test_id: $scope.detail_test.tests[0].id, alias: $scope.detail_test.tests[0].alias });
                 };
