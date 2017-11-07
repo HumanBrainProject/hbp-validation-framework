@@ -744,6 +744,13 @@ def check_param_of_model_json (json):
             else :
                 json.pop('model_type', None)
                 
+        if 'organization' in json :
+            if json['organization'] != "" :
+                if len(Param_organizations.objects.filter(authorized_value=json['organization'])) != 1 :
+                    return ("You gave an invalid model_type parameter")
+            else :
+                json.pop('organization', None)
+                
         return (True)
     else :
         return (commun)
