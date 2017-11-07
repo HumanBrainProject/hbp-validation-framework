@@ -358,7 +358,9 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
                     var repository = $("#editable-repository-" + index).text();
                     var version = $("#editable-version-" + index).text();
                     var pathway = $("#editable-path-" + index).text();
-                    var new_version = JSON.stringify({ 'id': index, 'repository': repository, 'version': version, 'path': pathway });
+                    var new_version = JSON.stringify([
+                        { 'id': index, 'repository': repository, 'version': version, 'path': pathway }
+                    ]);
                     ValidationTestCodeRest.put({ app_id: app_id }, new_version).$promise.then(function() {
                         angular.element(document.querySelector("#editable-repository-" + index)).attr('contenteditable', "false");
                         angular.element(document.querySelector("#editable-repository-" + index)).attr('bgcolor', 'white');
