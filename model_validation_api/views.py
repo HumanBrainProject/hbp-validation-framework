@@ -1119,20 +1119,19 @@ class ValidationTestCodeRest(APIView):
         param_path = request.GET.getlist('path')
         param_timestamp = request.GET.getlist('timestamp')
         param_test_definition_id = request.GET.getlist('test_definition_id')
-
+        param_test_alias = request.GET.getlist('test_alias')
         if check_list_uuid_validity(param_id) is False :
             return Response("Badly formed uuid in : id", status=status.HTTP_400_BAD_REQUEST)
         if check_list_uuid_validity(param_test_definition_id) is False :
             return Response("Badly formed uuid in : test_definition_id", status=status.HTTP_400_BAD_REQUEST)
-        
-        #TODO : Add the test ALIAS
 
-        q = ValidationTestCode.objects.all()
-
+        q = ValidationTestCode.objects.all().prefetch_related()
         if len(param_id) > 0 :
-            q = q.filter(id__in = param_id)  
+            q = q.filter(id__in = param_id) 
         if len(param_test_definition_id) > 0 :
-            q = q.filter(test_definition_id__in = param_test_definition_id)     
+            q = q.filter(test_definition_id__in = param_test_definition_id)
+        if len(param_test_alias) > 0 :
+            q = q.filter(test_definition__alias__in = param_test_alias)     
         if len(param_repository) > 0 :
             q = q.filter(repository__in = param_repository)           
         if len(param_version) > 0 :
@@ -1171,7 +1170,14 @@ class ValidationTestCodeRest(APIView):
             return HttpResponseForbidden()
 
         for test_code in request.data :
-            test_id = test_code["test_definition_id"]
+            if 'test_alias' in test_code:
+                test = ValidationTestDefinition.objects.get(alias = test_code["test_alias"])
+                test_code[test_definition_id] = test.id
+            if 'test_definition_id' in test_code:
+                try:
+                    test = ValidationTestDefinition.objects.get(id = test_code["test_definition_id"])
+                except: 
+                    return('There is no test matching this test_definition_id.')
             serializer = ValidationTestCodeSerializer(data=test_code, context=serializer_context)
 
             if not serializer.is_valid():
@@ -1183,15 +1189,13 @@ class ValidationTestCodeRest(APIView):
 
         list_id = []
         for test_code in request.data :
-            test_id = test_code["test_definition_id"]
+           
             serializer = ValidationTestCodeSerializer(data=test_code, context=serializer_context)
 
             if serializer.is_valid():
-                saved_test_code = serializer.save(test_definition_id=test_id)  
-                list_id.append(saved_test_code.id)
-                        
-        return Response({'uuid':list_id}, status=status.HTTP_201_CREATED) #put inside .is_valid
-
+                saved_test_code = serializer.save(test_definition_id=test_code["test_definition_id"])  
+                list_id.append(saved_test_code.data)          
+        return Response({'uuid':list_id}, status=status.HTTP_201_CREATED)
 
      def put(self, request, format=None):
         serializer_context = {'request': request,}        
@@ -1212,9 +1216,9 @@ class ValidationTestCodeRest(APIView):
                     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
             else:
                 if 'version' in test_code:
-                    if 'alias' in test_code:
+                    if 'test_alias' in test_code:
                         try: 
-                            test_definition = ValidationTestDefinition.objects.get(alias = test_code['alias'])
+                            test_definition = ValidationTestDefinition.objects.get(alias = test_code['test_alias'])
                         except:
                             Response('There is no test with this alias. Please give a new alias or try with the test_definition_id directly.', status=status.HTTP_400_BAD_REQUEST)
                         test_code['test_definition_id'] = test_definition.id
