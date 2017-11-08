@@ -590,7 +590,7 @@ class ScientificModelInstanceRest (APIView):
                 model_instance = model_serializer.save()
                 list_id.append(model_instance.id)
 
-        return Response({'uuid': list_id}, status=status.HTTP_201_CREATED) 
+        return Response({'uuid': list_id}, status=status.HTTP_202_CREATED) 
 
 
 
@@ -743,6 +743,13 @@ def check_param_of_model_json (json):
                     return ("You gave an invalid model_type parameter")
             else :
                 json.pop('model_type', None)
+                
+        if 'organization' in json :
+            if json['organization'] != "" :
+                if len(Param_organizations.objects.filter(authorized_value=json['organization'])) != 1 :
+                    return ("You gave an invalid model_type parameter")
+            else :
+                json.pop('organization', None)
                 
         return (True)
     else :
@@ -1112,20 +1119,19 @@ class ValidationTestCodeRest(APIView):
         param_path = request.GET.getlist('path')
         param_timestamp = request.GET.getlist('timestamp')
         param_test_definition_id = request.GET.getlist('test_definition_id')
-
+        param_test_alias = request.GET.getlist('test_alias')
         if check_list_uuid_validity(param_id) is False :
             return Response("Badly formed uuid in : id", status=status.HTTP_400_BAD_REQUEST)
         if check_list_uuid_validity(param_test_definition_id) is False :
             return Response("Badly formed uuid in : test_definition_id", status=status.HTTP_400_BAD_REQUEST)
-        
-        #TODO : Add the test ALIAS
 
-        q = ValidationTestCode.objects.all()
-
+        q = ValidationTestCode.objects.all().prefetch_related()
         if len(param_id) > 0 :
-            q = q.filter(id__in = param_id)  
+            q = q.filter(id__in = param_id) 
         if len(param_test_definition_id) > 0 :
-            q = q.filter(test_definition_id__in = param_test_definition_id)     
+            q = q.filter(test_definition_id__in = param_test_definition_id)
+        if len(param_test_alias) > 0 :
+            q = q.filter(test_definition__alias__in = param_test_alias)     
         if len(param_repository) > 0 :
             q = q.filter(repository__in = param_repository)           
         if len(param_version) > 0 :
@@ -1164,7 +1170,14 @@ class ValidationTestCodeRest(APIView):
             return HttpResponseForbidden()
 
         for test_code in request.data :
-            test_id = test_code["test_definition_id"]
+            if 'test_alias' in test_code:
+                test = ValidationTestDefinition.objects.get(alias = test_code["test_alias"])
+                test_code[test_definition_id] = test.id
+            if 'test_definition_id' in test_code:
+                try:
+                    test = ValidationTestDefinition.objects.get(id = test_code["test_definition_id"])
+                except: 
+                    return('There is no test matching this test_definition_id.')
             serializer = ValidationTestCodeSerializer(data=test_code, context=serializer_context)
 
             if not serializer.is_valid():
@@ -1176,87 +1189,68 @@ class ValidationTestCodeRest(APIView):
 
         list_id = []
         for test_code in request.data :
-            test_id = test_code["test_definition_id"]
+           
             serializer = ValidationTestCodeSerializer(data=test_code, context=serializer_context)
 
             if serializer.is_valid():
-                saved_test_code = serializer.save(test_definition_id=test_id)  
-                list_id.append(saved_test_code.id)
-                        
-        return Response({'uuid':list_id}, status=status.HTTP_201_CREATED) #put inside .is_valid
-
+                saved_test_code = serializer.save(test_definition_id=test_code["test_definition_id"])  
+                list_id.append(saved_test_code.data)          
+        return Response({'uuid':list_id}, status=status.HTTP_201_CREATED)
 
      def put(self, request, format=None):
         serializer_context = {'request': request,}        
          
         if not is_hbp_member(request):
             return HttpResponseForbidden()
-
-        test_code = request.data
-
-        try:
-            param_id = request.data['id']
-        except:
-            param_id = request.GET.getlist('id')
-
-        try:
-            param_version = request.data['version']
-        except:
-            param_version = request.GET.getlist('version')
-        
-        try:
-            param_test_definition_id = request.data['test_definition_id']
-        except:
-            param_test_definition_id = request.GET.getlist('test_definition_id')
-
-        try:
-            param_alias = request.data['alias']
-        except:
-            param_alias = request.GET.getlist('alias')
-        
-        ##check if request is valid
-        # for test_code in request.data :#not needed for now as we force update to be one at a time
-         
+        ##check if request is valid 
+        for test_code in request.data:   
             ##get the test code
-        if len(param_id) > 0:
-            try: 
-                    original_test_code = ValidationTestCode.objects.get(id= param_id)
-            except:
-                return Response("The given id "+param_id+" does not exists. Please give a new id, or a test_definition_id with a version, or a test_definition_alias with a version. ", status=status.HTTP_400_BAD_REQUEST)
-            test_code['test_definition_id'] = original_test_code.test_definition_id    
-            serializer = ValidationTestCodeSerializer(original_test_code, data=test_code, context=serializer_context)
-            if not serializer.is_valid():
-                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        else:
-            if  len(param_version) > 0:
-                if  len(param_alias) > 0:
-                    try: 
-                        test_definition = ValidationTestDefinition.objects.get(alias = param_alias)
-                    except:
-                        Response('There is no test with this alias. Please give a new alias or try with the test_definition_id directly.', status=status.HTTP_400_BAD_REQUEST)
-                    param_test_definition_id = test_code['test_definition_id'] = test_definition.id
-                if  len(param_test_definition_id) > 0:
-                    try: 
-                        original_test_code = ValidationTestCode.objects.filter(test_definition_id= param_test_definition_id, version=param_version)
-                    except:
-                        return Response("There is no test instance with this version name for this test_definition_id. Please give a new test_definition_id or a new version name. ", status=status.HTTP_400_BAD_REQUEST)
-                    serializer = ValidationTestCodeSerializer(original_test_code, data=test_code, context=serializer_context)
+            if 'id' in test_code:
+                try: 
+                    original_test_code = ValidationTestCode.objects.get(id= test_code['id'])
+                except:
+                    return Response("The given id "+test_code['id']+" does not exists. Please give a new id, or a test_definition_id with a version, or a test_definition_alias with a version. ", status=status.HTTP_400_BAD_REQUEST)
+                test_code['test_definition_id'] = original_test_code.test_definition_id    
+                serializer = ValidationTestCodeSerializer(original_test_code, data=test_code, context=serializer_context)
                 if not serializer.is_valid():
                     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
             else:
-                return Response("To edit a test instance, you need to give an id, or a test_definition_id with a version, or a test_definition_alias with a version ", status=status.HTTP_400_BAD_REQUEST)    
+                if 'version' in test_code:
+                    if 'test_alias' in test_code:
+                        try: 
+                            test_definition = ValidationTestDefinition.objects.get(alias = test_code['test_alias'])
+                        except:
+                            Response('There is no test with this alias. Please give a new alias or try with the test_definition_id directly.', status=status.HTTP_400_BAD_REQUEST)
+                        test_code['test_definition_id'] = test_definition.id
+                    if 'test_definition_id' in test_code:
+                        try: 
+                            original_test_code = ValidationTestCode.objects.filter(test_definition_id= test_code['test_definition_id'], version=test_code['version'])
+                        except:
+                            return Response("There is no test instance with this version name for this test_definition_id. Please give a new test_definition_id or a new version name. ", status=status.HTTP_400_BAD_REQUEST)
+                        serializer = ValidationTestCodeSerializer(original_test_code, data=test_code, context=serializer_context)
+                    if not serializer.is_valid():
+                        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+                else:
+                    return Response("To edit a test instance, you need to give an id, or a test_definition_id with a version, or a test_definition_alias with a version ", status=status.HTTP_400_BAD_REQUEST)    
 
             #check if versions are unique
-        print(test_code)
-        if not _are_test_code_version_unique(test_code) :
-            return Response("Oh no... The specified version name already exists for this test. Please, give me a new name", status=status.HTTP_400_BAD_REQUEST)
+            if not _are_test_code_version_unique(test_code) :
+                return Response("Oh no... The specified version name already exists for this test. Please, give me a new name", status=status.HTTP_400_BAD_REQUEST)
 
-        serializer = ValidationTestCodeSerializer(original_test_code, data=test_code, context=serializer_context)
+        ## check is ok so create the serializer and save
+        list_updated = []
+        for test_code in request.data:
+            if 'id' in test_code:
+                original_test_code = ValidationTestCode.objects.get(id= test_code['id'])
+            else:
+                original_test_code = ValidationTestCode.objects.filter(test_definition_id= test_code['test_definition_id'], version=test_code['version']) 
+            serializer = ValidationTestCodeSerializer(original_test_code, data=test_code, context=serializer_context)
+        
+            if serializer.is_valid() :
+               serializer.save() 
+               list_updated.append(serializer.data)
 
-        if serializer.is_valid() :
-               updated_test_code = serializer.save()
-
-        return Response({'uuid':updated_test_code.id}, status=status.HTTP_202_ACCEPTED)
+        return Response({'uuid':list_updated}, status=status.HTTP_202_ACCEPTED)
         
 
      def get_serializer_class(self):

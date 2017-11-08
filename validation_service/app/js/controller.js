@@ -26,8 +26,8 @@ testApp.controller('HomeCtrl', ['$scope', '$rootScope', '$http', '$location', "S
 
                     $scope.models = ScientificModelRest.get({ app_id: app_id }, function(data) {});
                     $scope.tests = ValidationTestDefinitionRest.get({ app_id: app_id }, function(data) {});
-                    //for test
-                    $scope.put_test1 = ValidationTestCodeRest.put({ app_id: app_id, test_definition_id: "53a7a2db-b18f-49ef-b1de-88bd48960c81", version: "1.1" });
+                    // //for test
+                    // $scope.put_test1 = ValidationTestCodeRest.put({ app_id: app_id, test_definition_id: "53a7a2db-b18f-49ef-b1de-88bd48960c81", version: "1.1" });
                 });
             } else {
 
@@ -358,7 +358,9 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
                     var repository = $("#editable-repository-" + index).text();
                     var version = $("#editable-version-" + index).text();
                     var pathway = $("#editable-path-" + index).text();
-                    var new_version = JSON.stringify({ 'id': index, 'repository': repository, 'version': version, 'path': pathway });
+                    var new_version = JSON.stringify([
+                        { 'id': index, 'repository': repository, 'version': version, 'path': pathway }
+                    ]);
                     ValidationTestCodeRest.put({ app_id: app_id }, new_version).$promise.then(function() {
                         angular.element(document.querySelector("#editable-repository-" + index)).attr('contenteditable', "false");
                         angular.element(document.querySelector("#editable-repository-" + index)).attr('bgcolor', 'white');
