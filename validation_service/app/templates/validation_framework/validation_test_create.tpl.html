@@ -70,7 +70,7 @@
                                             <b>Protocol description:</b>
                                         </td>
                                         <td>
-                                            <textarea class="scrollabletextbox" rows="10" cols="60" ng-model="test.protocol" required></textarea>
+                                            <textarea class="scrollabletextbox" rows="10" cols="60" ng-model="test.protocol"></textarea>
                                             <a class="glyphicon glyphicon-question-sign" aria-hidden="true" data-toggle="tooltip" data-placement="right" title="Example: protocole description example ..."></a><br /> <br>
                                         </td>
 
@@ -155,10 +155,11 @@
                                     </tr>
                                     <tr>
                                         <td>
+                                            <font color=red>*</font>
                                             <b>Data type:</b>
                                         </td>
                                         <td>
-                                            <input type="text" id="select-data_type" data-style="btn-primary" ng-model="test.data_type">
+                                            <input type="text" id="select-data_type" data-style="btn-primary" ng-model="test.data_type" required>
                                         </td>
                                     </tr>
                                     <tr>
