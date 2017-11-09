@@ -172,9 +172,9 @@ testApp.directive('markdown', function() {
 });
 
 
-testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$location', '$stateParams', '$state', 'ValidationTestDefinitionRest', 'ValidationTestCodeRest', 'CollabParameters', 'TestCommentRest', "IsCollabMemberRest", "Graphics", "Context", 'TestTicketRest', 'AuthorizedCollabParameterRest', 'ValidationTestAliasRest', 'NotificationRest',
+testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$location', '$stateParams', '$state', 'ValidationTestDefinitionRest', 'ValidationTestCodeRest', 'CollabParameters', 'TestCommentRest', "IsCollabMemberRest", "Graphics", "Context", 'TestTicketRest', 'AuthorizedCollabParameterRest', 'ValidationTestAliasRest', 'NotificationRest', 'AreVersionsEditableRest',
 
-    function($scope, $rootScope, $http, $location, $stateParams, $state, ValidationTestDefinitionRest, ValidationTestCodeRest, CollabParameters, TestCommentRest, IsCollabMemberRest, Graphics, Context, TestTicketRest, AuthorizedCollabParameterRest, ValidationTestAliasRest, NotificationRest) {
+    function($scope, $rootScope, $http, $location, $stateParams, $state, ValidationTestDefinitionRest, ValidationTestCodeRest, CollabParameters, TestCommentRest, IsCollabMemberRest, Graphics, Context, TestTicketRest, AuthorizedCollabParameterRest, ValidationTestAliasRest, NotificationRest, AreVersionsEditableRest) {
         Context.setService().then(function() {
             $scope.Context = Context;
             var ctx = Context.getCtx();
@@ -220,12 +220,19 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
                         });
                         //for tab version (edit)
                         $scope.version_in_edition = [];
+                        $scope.version_is_editable = [];
                         //for tab_comments
                         $scope.test_tickets = TestTicketRest.get({ app_id: app_id, test_id: $stateParams.uuid });
                         $scope.comments_to_show = [];
                         $scope.create_comment_to_show = [];
                         $scope.button_save_ticket = [];
                         $scope.button_save_comment = [];
+
+                        var version_editable = AreVersionsEditableRest.get({ app_id: app_id, test_id: $stateParams.uuid });
+                        version_editable.$promise.then(function(versions) {
+                            $scope.version_is_editable = versions.are_editable;
+                        });
+
                     });
                 });
                 var _add_params = function() {
@@ -300,7 +307,7 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
                     _add_params();
 
                     var parameters = JSON.stringify([$scope.test_code]);
-                    var test_version_response = ValidationTestCodeRest.save({ app_id: app_id, id: $scope.detail_test.tests[0].id }, parameters).$promise.then(function() {
+                    var test_version_response = ValidationTestCodeRest.save({ app_id: app_id, test_definition_id: $scope.detail_test.tests[0].id }, parameters).$promise.then(function() {
                         document.getElementById("tab_description").style.display = "none";
                         document.getElementById("tab_version").style.display = "block";
                         document.getElementById("tab_new_version").style.display = "none";

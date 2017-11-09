@@ -225,6 +225,24 @@ def _are_test_code_version_unique (testcode_json):
         return False
     return True
 
+def _are_test_code_editable(testcode_json):
+    try:
+        results = ValidationTestResult.objects.filter(test_code_id=testcode_json['id'])
+    except:
+        results = ValidationTestResult.objects.filter(test_code_id=testcode_json.id)
+    if len(results)>1:
+        return False
+    return True
+
+def _are_model_instance_editable(model_instance_json):
+    try:
+        results = ValidationTestResult.objects.filter(model_instance_id=model_instance_json['id'])
+    except: 
+        results = ValidationTestResult.objects.filter(model_instance_id=model_instance_json.id)
+    if len(results)>1:
+        return False
+    return True
+
 # def _are_test_code_version_unique (testcode_json):
 #     try :
 #         put_testcode_id = testcode_json["id"]
@@ -239,8 +257,6 @@ def _are_test_code_version_unique (testcode_json):
 #     #check if versions uniques
 #     return check_versions_unique([dict_info["version_name"]], version_in_base )
     
-
-
 def check_versions_unique (list_given, list_already_there):
     #inner check on list_givent
     if not len(list_given) == len(set(list_given)) :
@@ -1172,14 +1188,13 @@ class ValidationTestCodeRest(APIView):
         for test_code in request.data :
             if 'test_alias' in test_code:
                 test = ValidationTestDefinition.objects.get(alias = test_code["test_alias"])
-                test_code[test_definition_id] = test.id
+                test_code['test_definition_id'] = test.id
             if 'test_definition_id' in test_code:
                 try:
                     test = ValidationTestDefinition.objects.get(id = test_code["test_definition_id"])
                 except: 
                     return('There is no test matching this test_definition_id.')
             serializer = ValidationTestCodeSerializer(data=test_code, context=serializer_context)
-
             if not serializer.is_valid():
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
             
@@ -1191,10 +1206,9 @@ class ValidationTestCodeRest(APIView):
         for test_code in request.data :
            
             serializer = ValidationTestCodeSerializer(data=test_code, context=serializer_context)
-
             if serializer.is_valid():
-                saved_test_code = serializer.save(test_definition_id=test_code["test_definition_id"])  
-                list_id.append(saved_test_code.data)          
+                saved_test_code = serializer.save(test_definition_id=test_code['test_definition_id']) 
+                list_id.append(saved_test_code.id)          
         return Response({'uuid':list_id}, status=status.HTTP_201_CREATED)
 
      def put(self, request, format=None):
@@ -1202,6 +1216,7 @@ class ValidationTestCodeRest(APIView):
          
         if not is_hbp_member(request):
             return HttpResponseForbidden()
+
         ##check if request is valid 
         for test_code in request.data:   
             ##get the test code
@@ -1210,7 +1225,7 @@ class ValidationTestCodeRest(APIView):
                     original_test_code = ValidationTestCode.objects.get(id= test_code['id'])
                 except:
                     return Response("The given id "+test_code['id']+" does not exists. Please give a new id, or a test_definition_id with a version, or a test_definition_alias with a version. ", status=status.HTTP_400_BAD_REQUEST)
-                test_code['test_definition_id'] = original_test_code.test_definition_id    
+                test_code['test_definition_id'] = original_test_code.test_definition_id   
                 serializer = ValidationTestCodeSerializer(original_test_code, data=test_code, context=serializer_context)
                 if not serializer.is_valid():
                     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -1225,6 +1240,7 @@ class ValidationTestCodeRest(APIView):
                     if 'test_definition_id' in test_code:
                         try: 
                             original_test_code = ValidationTestCode.objects.filter(test_definition_id= test_code['test_definition_id'], version=test_code['version'])
+                            test_code['id']=original_test_code.id
                         except:
                             return Response("There is no test instance with this version name for this test_definition_id. Please give a new test_definition_id or a new version name. ", status=status.HTTP_400_BAD_REQUEST)
                         serializer = ValidationTestCodeSerializer(original_test_code, data=test_code, context=serializer_context)
@@ -1232,6 +1248,10 @@ class ValidationTestCodeRest(APIView):
                         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
                 else:
                     return Response("To edit a test instance, you need to give an id, or a test_definition_id with a version, or a test_definition_alias with a version ", status=status.HTTP_400_BAD_REQUEST)    
+
+            #check if version is editable
+            if not _are_test_code_editable(test_code):
+                return Response("This version is no longer editable.", status=status.HTTP_400_BAD_REQUEST)
 
             #check if versions are unique
             if not _are_test_code_version_unique(test_code) :
@@ -1927,13 +1947,34 @@ class ValidationResultRest2 (APIView):
 
 
 
-class ParametersConfigurationView(View):
+class ParametersConfigurationView(View):   
     
     template_name = "configuration/parameters-configuration.html"
     login_url='/login/hbp/'
 
     def get(self, request, *args, **kwargs):
         return render(request, self.template_name)
+
+class  AreVersionsEditableRest(APIView):
+    def get(self, request, *args, **kwargs):
+        test_id = request.GET.getlist('test_id')
+        model_id = request.GET.getlist('model_id')
+
+        list_ids_editable = []
+
+        if len(test_id)>0:
+            test_codes =  ValidationTestCode.objects.filter(test_definition_id__in=test_id)
+            for test_code in list(test_codes): 
+                if _are_test_code_editable(test_code):
+                    list_ids_editable.append(test_code.id)
+        if len(model_id)>0:
+            model_instances = ScientificModelInstance.objects.filter(model_id__in=model_id)
+            for model_instance in model_instances: 
+                if _are_model_instance_editable(model_instance):
+                    list_ids_editable.append(model_instance.id)    
+        
+        return Response({"are_editable":list_ids_editable})
+
 
 ###############################
 ###### To keep for later ######

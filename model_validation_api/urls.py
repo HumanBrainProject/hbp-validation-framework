@@ -15,6 +15,7 @@ from .views import (
                     TestCommentRest,
                     CollabIDRest,
                     AppIDRest,
+                    AreVersionsEditableRest,
                     # NotificationRest,
                     ParametersConfigurationModelView,
                     ParametersConfigurationValidationView,
@@ -88,7 +89,9 @@ urlpatterns = (
     url(r'^validationtestalias/$',
         ValidationTestAliasRest.as_view(),
         name="scientific-test-alias"),
-
+    url(r'areversionseditable/$',
+        AreVersionsEditableRest.as_view(),
+        name='are-versions-editable'),
 ######## model catalog url ##########
     url(r'^model-catalog/$',
         ModelCatalogView.as_view(),
