@@ -135,7 +135,7 @@
                         <td style="width: 23%">{{ code_version.timestamp | date:'d MMMM yyyy, hh:mm' : 'UTC' }}
                         </td>
                         <td style="width:5%">
-                            <button ng-click="editVersion(code_version.id)" class="button-MC glyphicon glyphicon-pencil">
+                            <button ng-if="isInArray(code_version.id, version_is_editable)" ng-click="editVersion(code_version.id)" class="button-MC glyphicon glyphicon-pencil">
                                 </button>
                         </td>
                         <td>
@@ -209,7 +209,7 @@
                                         </td>
                                         <td>
                                             <input type="text" ng-model=" detail_test.tests[0].name" required/>
-                                            <a class="glyphicon glyphicon-question-sign" aria-hidden="true" data-toggle="tooltip" data-placement="right" title="Example: THis is the name of my test"></a>
+                                            <a class="glyphicon glyphicon-question-sign" aria-hidden="true" data-toggle="tooltip" data-placement="right" title="Example: This is the name of my test"></a>
                                         </td>
                                     </tr>
                                     <tr>
