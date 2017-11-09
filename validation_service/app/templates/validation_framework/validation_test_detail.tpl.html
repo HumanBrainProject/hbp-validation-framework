@@ -72,7 +72,7 @@
                             <td><b> Data modality: </b> {{ detail_test.tests[0].data_modality }} </td>
                         </tr>
                         <tr style="width: 15%">
-                            <td> <b> Data location: </b> <a href="url">{{ detail_test.tests[0].data_location }}</a></td>
+                            <td> <b> Data location: </b> <a href="{{detail_test.tests[0].data_location}}">{{ detail_test.tests[0].data_location }}</a></td>
                         </tr>
                     </tbody>
                 </table>
@@ -240,7 +240,7 @@
                                             <b>Publication:</b>
                                         </td>
                                         <td>
-                                            <input type="text" ng-model="detail_test.tests[0].publication" required/>
+                                            <input type="text" ng-model="detail_test.tests[0].publication" />
                                             <a class="glyphicon glyphicon-question-sign" aria-hidden="true" data-toggle="tooltip" data-placement="right" title="Example: paper example ..."></a>
                                         </td>
                                     </tr>
@@ -250,7 +250,7 @@
                                             <b>Protocol description:</b>
                                         </td>
                                         <td>
-                                            <textarea class="scrollabletextbox" rows="10" cols="60" ng-model="detail_test.tests[0].protocol" required></textarea>
+                                            <textarea class="scrollabletextbox" rows="10" cols="60" ng-model="detail_test.tests[0].protocol"></textarea>
                                             <a class="glyphicon glyphicon-question-sign" aria-hidden="true" data-toggle="tooltip" data-placement="right" title="Example: protocole description example ..."></a><br /> <br>
                                         </td>
 
@@ -266,7 +266,7 @@
                                             <b>Species:</b>
                                         </td>
                                         <td>
-                                            <select id="select-species" data-style="btn-primary" ng-model="detail_test.tests[0].species" required>
+                                            <select id="select-species" data-style="btn-primary" ng-model="detail_test.tests[0].species">
                                          <option ng-repeat="s in species" value="{{s}}">{{s}}</option>
                                     </select>
                                         </td>
@@ -276,7 +276,7 @@
                                             <b>Brain region: </b>
                                         </td>
                                         <td>
-                                            <select id="select-brain-region" data-style="btn-primary" ng-model="detail_test.tests[0].brain_region" required>
+                                            <select id="select-brain-region" data-style="btn-primary" ng-model="detail_test.tests[0].brain_region">
                                          <option ng-repeat="br in brain_region" value="{{br}}">{{br}}</option>
                                     </select>
                                         </td>
@@ -286,7 +286,7 @@
                                             <b>Cell type:</b>
                                         </td>
                                         <td>
-                                            <select id="select-cell-type" data-style="btn-primary" ng-model="detail_test.tests[0].cell_type" required>
+                                            <select id="select-cell-type" data-style="btn-primary" ng-model="detail_test.tests[0].cell_type">
                                          <option ng-repeat="ct in cell_type" value="{{ct}}">{{ct}}</option>
                                     </select>
                                         </td>
@@ -296,7 +296,7 @@
                                             <b>Age:</b>
                                         </td>
                                         <td>
-                                            <input type="text" id="select-age" data-style="btn-primary" ng-model="detail_test.tests[0].age" required>
+                                            <input type="text" id="select-age" data-style="btn-primary" ng-model="detail_test.tests[0].age">
                                         </td>
                                     </tr>
 
@@ -306,7 +306,7 @@
                                         </td>
                                         <td>
 
-                                            <select id="select-data-modalities" data-style="btn-primary" ng-model="detail_test.tests[0].data_modality" required>
+                                            <select id="select-data-modalities" data-style="btn-primary" ng-model="detail_test.tests[0].data_modality">
                                          <option ng-repeat="dm in data_modalities" value="{{dm}}">{{dm}}</option>
                                     </select>
                                         </td>
@@ -337,6 +337,14 @@
                                         </td>
                                         <td>
                                             <input type="text" id="select-data_type" data-style="btn-primary" ng-model="detail_test.tests[0].data_type" required>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <b>Data location:</b>
+                                        </td>
+                                        <td>
+                                            <input type="text" id="select-data_location" data-style="btn-primary" ng-model="detail_test.tests[0].data_location" required>
                                         </td>
                                     </tr>
 
