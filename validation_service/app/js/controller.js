@@ -980,9 +980,9 @@ ModelCatalogApp.controller('ModelCatalogDetailCtrl', ['$scope', '$rootScope', '$
     }
 ]);
 
-ModelCatalogApp.controller('ModelCatalogEditCtrl', ['$scope', '$rootScope', '$http', '$location', '$state', '$stateParams', 'ScientificModelRest', 'ScientificModelInstanceRest', 'ScientificModelImageRest', 'CollabParameters', 'Context', 'ScientificModelAliasRest',
+ModelCatalogApp.controller('ModelCatalogEditCtrl', ['$scope', '$rootScope', '$http', '$location', '$state', '$stateParams', 'ScientificModelRest', 'ScientificModelInstanceRest', 'ScientificModelImageRest', 'CollabParameters', 'Context', 'ScientificModelAliasRest', 'AreVersionsEditableRest',
 
-    function($scope, $rootScope, $http, $location, $state, $stateParams, ScientificModelRest, ScientificModelInstanceRest, ScientificModelImageRest, CollabParameters, Context, ScientificModelAliasRest) {
+    function($scope, $rootScope, $http, $location, $state, $stateParams, ScientificModelRest, ScientificModelInstanceRest, ScientificModelImageRest, CollabParameters, Context, ScientificModelAliasRest, AreVersionsEditableRest) {
         Context.setService().then(function() {
 
             $scope.Context = Context;
@@ -998,9 +998,13 @@ ModelCatalogApp.controller('ModelCatalogEditCtrl', ['$scope', '$rootScope', '$ht
                 $scope.cell_type = CollabParameters.getParameters("cell_type");
                 $scope.model_type = CollabParameters.getParameters("model_type");
                 $scope.organization = CollabParameters.getParameters("organization");
-
+                $scope.version_is_editable = [];
                 $scope.model = ScientificModelRest.get({ app_id: app_id, id: $stateParams.uuid });
 
+                var version_editable = AreVersionsEditableRest.get({ app_id: app_id, model_id: $stateParams.uuid });
+                version_editable.$promise.then(function(versions) {
+                    $scope.version_is_editable = versions.are_editable;
+                });
                 $scope.deleteImage = function(img) {
                     var image = img
                     ScientificModelImageRest.delete({ app_id: app_id, id: image.id }).$promise.then(
@@ -1063,8 +1067,8 @@ ModelCatalogApp.controller('ModelCatalogEditCtrl', ['$scope', '$rootScope', '$ht
                         });
                     }
                 };
-                $scope.saveModelInstance = function() {
-                    var parameters = $scope.model.models[0].instances;
+                $scope.saveModelInstance = function(model_instance) {
+                    var parameters = JSON.stringify([model_instance]);
                     var a = ScientificModelInstanceRest.put({ app_id: app_id }, parameters).$promise.then(function(data) { alert('model instances correctly edited') }).catch(function(e) {
                         alert(e.data);
                     });
@@ -1072,7 +1076,9 @@ ModelCatalogApp.controller('ModelCatalogEditCtrl', ['$scope', '$rootScope', '$ht
                 $scope.checkAliasValidity = function() {
                     $scope.alias_is_valid = ScientificModelAliasRest.get({ app_id: app_id, model_id: $scope.model.models[0].id, alias: $scope.model.models[0].alias });
                 };
-
+                $scope.isInArray = function(value, array) {
+                    return array.indexOf(value) > -1;
+                }
             });
         });
 
