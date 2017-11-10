@@ -236,9 +236,12 @@ def _are_test_code_editable(testcode_json):
 
 def _are_model_instance_editable(model_instance_json):
     try:
-        results = ValidationTestResult.objects.filter(model_instance_id=model_instance_json['id'])
+        results = ValidationTestResult.objects.filter(model_version_id=model_instance_json['id'])
     except: 
-        results = ValidationTestResult.objects.filter(model_instance_id=model_instance_json.id)
+        try:
+            results = ValidationTestResult.objects.filter(model_version_id=model_instance_json.get('id'))
+        except:
+            results = ValidationTestResult.objects.filter(model_version_id=model_instance_json.id)
     if len(results)>1:
         return False
     return True
@@ -545,7 +548,12 @@ class ScientificModelInstanceRest (APIView):
 
         #check if valid + security
         for instance in request.data :
-
+            if not instance['model_id']:
+                try: 
+                    model = ScientificModel.objects.filter(alias=instance['model_alias'])
+                    instance['model_id']=model.id
+                except:
+                    Response(status=status.HTTP_400_BAD_REQUEST)
             serializer = ScientificModelInstanceSerializer(data=instance, context=serializer_context)
             if serializer.is_valid():   
 
@@ -558,7 +566,6 @@ class ScientificModelInstanceRest (APIView):
                 #check if versions are unique
                 if not _are_model_instance_version_unique(instance) :
                     return Response("Oh no... The specified version name already exists for this model. Please, give me a new name", status=status.HTTP_400_BAD_REQUEST)
-
             else :
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -576,26 +583,67 @@ class ScientificModelInstanceRest (APIView):
     
     def put(self, request, format=None):
         serializer_context = {'request': request,}
-
         #check if valid
         for instance in request.data:
-            model_instance = ScientificModelInstance.objects.get(id=instance['id'])
+            if request.GET.getlist('web_app')[0]:
+                original_instance = ScientificModelInstance.objects.get(id=instance.get('id'))
+                #check if version is editable
+                if not _are_model_instance_editable(instance):
+                    return Response("This version is no longer editable.", status=status.HTTP_400_BAD_REQUEST)
+    
+                #check if versions are unique
+                if not _are_model_instance_version_unique(instance) :
+                    return Response("Oh no... The specified version name already exists for this model. Please, give me a new name", status=status.HTTP_400_BAD_REQUEST)
+            
+                model_serializer = ScientificModelInstanceSerializer(original_instance, data=instance, context=serializer_context)
+                if  model_serializer.is_valid() :
+                    model_instance = model_serializer.save()
+                    return  Response(status=status.HTTP_202_ACCEPTED) 
+                else:
+                    return Response(status=status.HTTP_400_BAD_REQUEST)
+            if 'id' in instance:
+                try: 
+                    original_instance = ScientificModelInstance.objects.get(id= instance['id'])
+                except:
+                    return Response("The given id "+instance['id']+" does not exists. Please give a new id, or a model_id with a version_name, or a model_alias with a version_name. ", status=status.HTTP_400_BAD_REQUEST)
+                instance['model_id'] = original_instance.model_id   
+                serializer = ScientificModelInstanceSerializer(original_instance, data=instance, context=serializer_context)
+                if not serializer.is_valid():
+                    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            else:
+                if 'version_name' in instance:
+                    if 'model_alias' in instance:
+                        try: 
+                            model = ScientificModel.objects.get(alias = instance['model_alias'])
+                        except:
+                            Response('There is no model with this alias. Please give a new alias or try with the model_id directly.', status=status.HTTP_400_BAD_REQUEST)
+                        instance['model_id'] = model.id
+                    if 'model_id' in instance:
+                        try: 
+                            original_instance = ScientificModelInstance.objects.filter(model_id= instance['model_id'], version=instance['version_name'])
+                            instance['id']=instance.id
+                        except:
+                            return Response("There is no model instance with this version name for this model_id. Please give a new model_id or a new version name. ", status=status.HTTP_400_BAD_REQUEST)
+                        serializer = ScientificModelInstanceSerializer(original_instance, data=instance, context=serializer_context)
+                    if not serializer.is_valid():
+                        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+                else:
+                    return Response("To edit a model instance, you need to give an id, or a model_id with a version, or a model_alias with a version ", status=status.HTTP_400_BAD_REQUEST)    
 
             #security
-            app_id =ScientificModel.objects.get(id=model_instance.model_id).app_id
+            app_id =ScientificModel.objects.get(id=original_instance.model_id).app_id
             collab_id = get_collab_id_from_app_id(app_id)
             if not is_authorised(request, collab_id):
                 return HttpResponseForbidden()
-
-            model_serializer = ScientificModelInstanceSerializer(model_instance, data=instance, context=serializer_context)
-
-            if  model_serializer.is_valid() is False :
-                return Response(model_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-            
+    
+            #check if version is editable
+            if not _are_model_instance_editable(instance):
+                return Response("This version is no longer editable.", status=status.HTTP_400_BAD_REQUEST)
+    
             #check if versions are unique
             if not _are_model_instance_version_unique(instance) :
                 return Response("Oh no... The specified version name already exists for this model. Please, give me a new name", status=status.HTTP_400_BAD_REQUEST)
-
+            
         list_id = []
         #is valid + authorized : save it
         for instance in request.data: 
@@ -606,7 +654,7 @@ class ScientificModelInstanceRest (APIView):
                 model_instance = model_serializer.save()
                 list_id.append(model_instance.id)
 
-        return Response({'uuid': list_id}, status=status.HTTP_202_CREATED) 
+        return Response({'uuid': list_id}, status=status.HTTP_202_ACCEPTED) 
 
 
 
@@ -1260,10 +1308,7 @@ class ValidationTestCodeRest(APIView):
         ## check is ok so create the serializer and save
         list_updated = []
         for test_code in request.data:
-            if 'id' in test_code:
-                original_test_code = ValidationTestCode.objects.get(id= test_code['id'])
-            else:
-                original_test_code = ValidationTestCode.objects.filter(test_definition_id= test_code['test_definition_id'], version=test_code['version']) 
+            original_test_code = ValidationTestCode.objects.get(id= test_code['id'])
             serializer = ValidationTestCodeSerializer(original_test_code, data=test_code, context=serializer_context)
         
             if serializer.is_valid() :

@@ -204,15 +204,17 @@
                             <td> <input type="text" ng-model=model_instance.version required/></td>
                             <td><textarea ng-model="model_instance.parameters" rows="3" cols="30"> </textarea></td>
                             <td><input type="text" ng-model=model_instance.source required/></td>
+                            <td><button ng-if="isInArray(model_instance.id, version_is_editable)" type="submit" class="btn btn-primary" ng-click=saveModelInstance(model_instance)>Save changes</button>
+                                <button ng-if="!isInArray(model_instance.id, version_is_editable)" type="" class="btn btn-danger">Not editable</button></td>
                         </tr>
                     </tbody>
                 </table>
             </tbody>
         </table>
         <br>
-        <nav class=navbar>
+        <!--<nav class=navbar>
             <button type="submit" class="btn btn-primary" ng-click=saveModelInstance()>Save changes</button>
-        </nav>
+        </nav>-->
 
         <div ng-show=addImage class="w3-card-4  w3-hover-shadow ng-cloak" id="ImagePopup">
             </style>
