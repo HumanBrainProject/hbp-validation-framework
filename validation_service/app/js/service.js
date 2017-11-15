@@ -512,47 +512,54 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'ValidationResultRest', 'Col
                 var values = [];
                 var list_ids = [];
                 var results = [];
-                abscissa_value = [];
+                var abscissa_value = [];
 
-                for (var tv in test_versions.tests) {
-                    var version_name = test_versions.tests[tv].version;
+                for (var tv in test_versions.test_codes) {
+                    var version_name = test_versions.test_codes[tv].version;
 
-                    abscissa_value[version_name] = tv;
+                    abscissa_value[version_name] = parseInt(tv);
                 }
 
-                var results_data = ValidationResultRest2.get({ app_id: Context.getAppID(), test_id: test.tests[0].id, order: 'model' });
+                var results_data = ValidationResultRest2.get({ app_id: Context.getAppID(), test_id: test.tests[0].id, order: 'model_instance' });
                 results_data.$promise.then(function() {
-                    //manage data for focus
-                    for (var model in results_data.models) {
-                        for (var instance in results_data.models[model].model_instances) {
-                            if (results_data.models[model].alias) {
-                                m = results_data.models[model].alias
-                            } else { m = model }
-                            for (var t in results_data.models[model].model_instances[instance].tests) {
-                                for (var c in results_data.models[model].model_instances[instance].tests[t].test_codes) {
-                                    var additional_data = {
-                                        "model": m,
-                                        "model_instance": results_data.models[model].model_instances[instance].version,
-                                        "test_code": results_data.models[model].model_instances[instance].tests[t].test_codes[c].version
+
+                    for (var instance in results_data.model_instances) {
+                        if (results_data.model_instances[instance].model_alias) {
+                            m = results_data.model_instances[instance].model_alias
+                        } else { m = results_data.model_instances[instance].model_id }
+                        for (var c in results_data.model_instances[instance].test_codes) {
+                            var additional_data = {
+                                "model": results_data.model_instances[instance].model_id,
+                                "model_instance": results_data.model_instances[instance].version,
+                                "test_code": results_data.model_instances[instance].test_codes[c].version
+                            }
+
+                            for (var r in results_data.model_instances[instance].test_codes[c].results) {
+
+                                if (res) {
+                                    if (results_data.model_instances[instance].test_codes[c].results[r] > res.timestamp) {
+                                        res = results_data.model_instances[instance].test_codes[c].results[r];
                                     }
-                                    results.push({ "result": results_data.models[model].model_instances[instance].tests[t].test_codes[c].result, "additional_data": additional_data })
+                                } else {
+                                    var res = results_data.model_instances[instance].test_codes[c].results[r]
                                 }
                             }
+                            results.push({ "result": res, "additional_data": additional_data });
                         }
-                        //manage data for graph
-
-                        for (var model in results_data.models) {
-                            for (var instance in results_data.models[model].model_instances) {
-                                //get line id; test_id is replaced by alias if it exists
-                                var line_id = model + '( ' + results_data.models[model].model_instances[instance].version + ' )';
-                                if (results_data.models[model].alias && results_data.models[model].alias != null && results_data.models[model].alias != '' && results_data.models[model].alias != 'None') {
-                                    line_id = results_data.models[model].alias + '( ' + results_data.models[model].model_instances[instance].version + ' )';
-                                }
-                                values.push(_manageDataForTestGraph2(results_data.models[model].model_instances[instance].tests, line_id, model, abscissa_value));
-                                list_ids.push(line_id)
-                            };
-                        };
                     }
+
+                    //manage data for graph
+
+                    for (var instance in results_data.model_instances) {
+                        //get line id; model_id is replaced by alias if it exists
+                        if (results_data.model_instances[instance].model_alias && results_data.model_instances[instance].model_alias !== null && results_data.model_instances[instance].model_alias !== '' && results_data.model_instances[instance].model_alias !== "None") {
+                            var line_id = results_data.model_instances[instance].model_alias + '( ' + results_data.model_instances[instance].version + ' )';
+                        } else {
+                            var line_id = results_data.model_instances[instance].model_id + '( ' + results_data.model_instances[instance].version + ' )';
+                        }
+                        values.push(_manageDataForTestGraph2(results_data.model_instances[instance].test_codes, line_id, results_data.model_instances[instance].model_id, abscissa_value));
+                        list_ids.push(line_id)
+                    };
                 });
                 resolve({ 'values': values, 'results': results, 'list_ids': list_ids, 'abs_info': abscissa_value });
             });
@@ -560,97 +567,90 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'ValidationResultRest', 'Col
         var _manageDataForTestGraph2 = function(data, line_id, model_id, abscissa_value) {
             var values_temp = [];
 
-            for (var t in data) {
-                for (var c in data[t].test_codes) {
-
+            for (var c in data) {
+                for (var r in data[c].results) {
                     var temp = {
-                        x: abscissa_value[data[t].test_codes[c].version], //new Date(data[t].test_codes[c].result.timestamp),
-                        y: data[t].test_codes[c].result.score,
-                        label: data[t].test_codes[c].version,
+                        x: abscissa_value[data[c].version], //new Date(data[t].test_codes[c].result.timestamp),
+                        y: data[c].results[r].score,
+                        label: data[c].version,
                         id: line_id,
-                        id_test_result: data[t].test_codes[c].result.id,
+                        id_test_result: data[c].results[r].id,
                     };
                     values_temp.push(temp);
                 };
             };
+            //sort datas by test code abscissa value
+
             var data_to_return = {
-                values: values_temp, //values - represents the array of {x,y} data points
+                values: values_temp.sort(_sort_results_by_x), //values - represents the array of {x,y} data points
                 key: line_id, //key  - the name of the series.
                 color: _pickRandomColor(), //color - optional: choose your own line color.
                 test_id: model_id,
             };
+
             return data_to_return;
         }
 
-        function getResultsfromModelResultID2(model, score_type) {
+        function _sort_results_by_x(a, b) {
+            return a.x - b.x
+        }
+
+        function getResultsfromModelResultID2(model, model_instances, score_type) {
             return new Promise(function(resolve, reject) {
                 var values = [];
                 var list_ids = [];
                 var results = [];
-                var results_data = ValidationResultRest2.get({ app_id: Context.getAppID(), model_id: model.models[0].id, order: 'test', score_type: score_type }); //will need to add score_type
-                results_data.$promise.then(function() {
-                    // var tests_id = Object.keys(results_data.tests);
-                    // var i = 0;
-                    // for (i; i < tests_id.length; i++) {
-                    //     var codes_id = Object.keys(results_data.tests[tests_id[i]].test_codes);
-                    //     console.log(codes_id)
-                    //     var j = 0;
-                    //     for (j; j < codes_id.length; j++) {
-                    //         //get line id; test_id is replaced by alias if it exists
-                    //         var line_id = tests_id[i] + '( ' + results_data.tests[tests_id[i]].test_codes[codes_id[j]].version + ' )';
-                    //         if (results_data.tests[tests_id[i]].alias) {
-                    //             line_id = results_data.tests[tests_id[i]].alias + '( ' + results_data.tests[tests_id[i]].test_codes[codes_id[j]].version + ' )';
-                    //         }
-                    //         values[i * j] = _manageDataForGraph2(results_data.tests[tests_id[i]].test_codes[codes_id[j]].models, line_id, tests_id[i], results_data.tests[tests_id[i]].score_type);
-                    //         console.log("length of values", a)
-                    //         list_ids.push(line_id);
-                    //     };
-                    // };
-                    for (var test in results_data.tests) {
-                        for (var code in results_data.tests[test].test_codes) {
+                var abscissa_value = [];
 
-                            //get line id; test_id is replaced by alias if it exists
-                            var line_id = test + '( ' + results_data.tests[test].test_codes[code].version + ' )';
-                            if (results_data.tests[test].alias && results_data.tests[test].alias != null && results_data.tests[test].alias != '' && results_data.tests[test].alias != 'None') {
-                                console.log(results_data.tests[test].alias);
-                                line_id = results_data.tests[test].alias + '( ' + results_data.tests[test].test_codes[code].version + ' )';
-                            }
-                            var a = values.push(_manageDataForGraph2(results_data.tests[test].test_codes[code].models, line_id, test, results_data.tests[test].score_type));
-                            list_ids.push(line_id);
-                        };
+                //give an abscissa value to each model instance
+                for (var mi in model_instances.instances) {
+                    var version_name = model_instances.instances[mi].version;
+                    abscissa_value[version_name] = parseInt(mi);
+                }
+
+                var results_data = ValidationResultRest2.get({ app_id: Context.getAppID(), model_id: model.models[0].id, order: 'test_code', score_type: score_type });
+                results_data.$promise.then(function() {
+
+                    for (var code in results_data.test_codes) {
+                        var line_id = results_data.test_codes[code].test_id + '( ' + results_data.test_codes[code].version + ' )';
+                        if (results_data.test_codes[code].test_alias && results_data.test_codes[code].test_alias != null && results_data.test_codes[code].test_alias != '' && results_data.test_codes[code].test_alias != 'None') {
+                            line_id = results_data.test_codes[code].test_alias + '( ' + results_data.test_codes[code].version + ' )';
+                        }
+                        var a = values.push(_manageDataForGraph2(results_data.test_codes[code].model_instances, line_id, results_data.test_codes[code].test_id, score_type, abscissa_value));
+                        list_ids.push(line_id);
                     };
+
+
                     // manage data for focus
-                    for (var test in results_data.tests) {
-                        for (var code in results_data.tests[test].test_codes) {
-                            for (var m in results_data.tests[test].test_codes[code].models) {
-                                for (var v in results_data.tests[test].test_codes[code].models[m].model_instances) {
-                                    results.push(results_data.tests[test].test_codes[code].models[m].model_instances[v].result);
-                                }
-                            }
+
+                    for (var code in results_data.test_codes) {
+                        for (var v in results_data.test_codes[code].model_instances) {
+                            results.push(results_data.test_codes[code].model_instances[v].results);
                         }
                     }
 
-                    resolve({ 'values': values, 'results': results, 'list_ids': list_ids });
+                    resolve({ 'values': values, 'results': results, 'list_ids': list_ids, 'abs_info': abscissa_value });
                 });
             });
         };
 
-        var _manageDataForGraph2 = function(data, line_id, test_id, score_type) {
+        var _manageDataForGraph2 = function(data, line_id, test_id, score_type, abscissa_value) {
             var values_temp = [];
 
-            for (var m in data) {
-                for (var v in data[m].model_instances) {
+            for (var v in data) {
+                for (var r in data[v].results) {
                     var temp = {
-                        x: new Date(data[m].model_instances[v].result.timestamp),
-                        y: data[m].model_instances[v].result.score,
+                        x: abscissa_value[data[v].version], //new Date(data[v].result.timestamp),
+                        y: data[v].results[r].score,
+                        label: data[v].version,
                         id: line_id,
-                        id_test_result: data[m].model_instances[v].result.id,
+                        id_test_result: data[v].results[r].id,
                     };
                     values_temp.push(temp);
                 };
             };
             var data_to_return = {
-                values: values_temp, //values - represents the array of {x,y} data points
+                values: values_temp.sort(_sort_results_by_x), //values - represents the array of {x,y} data points
                 key: line_id, //key  - the name of the series.
                 color: _pickRandomColor(), //color - optional: choose your own line color.
                 test_id: test_id,

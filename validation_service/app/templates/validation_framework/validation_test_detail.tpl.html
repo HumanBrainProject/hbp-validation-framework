@@ -128,7 +128,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr ng-repeat='code_version in detail_version_test.tests'>
+                    <tr ng-repeat='code_version in detail_version_test.test_codes'>
                         <td id="editable-repository-{{code_version.id}}" contenteditable=false style="width: 23%">{{ code_version.repository }}</td>
                         <td id="editable-version-{{code_version.id}}" contenteditable=false style="width: 23%">{{ code_version.version }}</td>
                         <td id="editable-path-{{code_version.id}}" contenteditable=false style="width: 23%"><code>{{ code_version.path }}</code></td>
@@ -593,7 +593,7 @@
 
                         <tbody>
 
-                            <tr class=tr-clickable id="" ng-repeat="result in result_focussed" ng-click="Context.validation_goToResultDetailView(result.id)">
+                            <tr class=tr-clickable id="" ng-repeat="result in result_focussed track by $index" ng-click="Context.validation_goToResultDetailView(result.result.id)">
                                 <td>{{ result.additional_data.model }} ({{result.additional_data.model_instance}})</td>
                                 <td>{{ result.additional_data.test_code }}</td>
                                 <td>{{ result.result.timestamp }}</td>
