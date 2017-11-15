@@ -32,10 +32,12 @@ class Command(BaseCommand):
         Param_DataModalities(id=uuid.uuid4(),authorized_value='histology').save()   
     
     def _create_organizations(self):
-        Param_organizations(id=uuid.uuid4(),authorized_value='HBP-SP4').save()
-        Param_organizations(id=uuid.uuid4(),authorized_value='HBP-SP6').save()
-        Param_organizations(id=uuid.uuid4(),authorized_value='Blue Brain Project').save() 
-	Param_organizations(id=uuid.uuid4(),authorized_value='Other').save()  
+	Param_organizations(id=uuid.uuid4(),authorized_value='KOKI-UNIC').save()
+        #Param_organizations(id=uuid.uuid4(),authorized_value='HBP-SP4').save()
+        #Param_organizations(id=uuid.uuid4(),authorized_value='HBP-SP6').save()
+        #Param_organizations(id=uuid.uuid4(),authorized_value='Blue Brain Project').save() 
+	#Param_organizations(id=uuid.uuid4(),authorized_value='Other').save()
+ 
         	
     def _create_test_types(self): 
         Param_TestType(id=uuid.uuid4(),authorized_value='single cell activity').save()
@@ -874,6 +876,35 @@ class Command(BaseCommand):
         models_to_delete = ScientificModel.objects.filter(app_id=app_id)
         for model in models_to_delete:
                 model.delete()
+    def add_results_to_test_code_heli(self, test_code_id, model_version_id):
+        import time
+        import datetime
+        time = time.time()
+        result = ValidationTestResult(id=uuid.uuid4())
+        result.model_version_id = model_version_id
+        result.test_code_id = test_code_id
+        result.results_storage ="azerty"
+        result.score= 0.3
+        result.normalized_score= 0.3
+        result.passed = None
+        time += 100
+        result.timestamp = datetime.datetime.fromtimestamp(time).strftime('%Y-%m-%d %H:%M:%S')
+        result.platform = "azerty"
+        result.project = "azerty"
+        result.save()
+
+        result = ValidationTestResult(id=uuid.uuid4())
+        result.model_version_id = model_version_id
+        result.test_code_id = test_code_id
+        result.results_storage ="azerty"
+        result.score= 0.8
+        result.normalized_score= 0.8
+        result.passed = None
+        time += 1000
+        result.timestamp = datetime.datetime.fromtimestamp(time).strftime('%Y-%m-%d %H:%M:%S')
+        result.platform = "azerty"
+        result.project = "azerty"
+        result.save()
 
     def handle(self, *args, **options):
         #self._create_data_modalities()
@@ -882,11 +913,12 @@ class Command(BaseCommand):
         #self._create_brain_region()
         #self._create_cell_type()
         #self._create_model_type()
-	self._create_score_type()
+	#self._create_score_type()
 	#self._create_organizations()
-
+        self.add_results_to_test_code_heli("6d59d750bd7c47159f9a6439379169fd","c60f266ec069407f90166e09ffd703e2")
         # self._fake_collab()
 	# self._fake_models_test_results()
+       
 
         #self._fake_models_test_results_heli()
         # self.delete_models_in_collab(collab_id = 2180)

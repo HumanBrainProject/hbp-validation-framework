@@ -229,8 +229,11 @@ def _are_test_code_editable(testcode_json):
     try:
         results = ValidationTestResult.objects.filter(test_code_id=testcode_json['id'])
     except:
-        results = ValidationTestResult.objects.filter(test_code_id=testcode_json.id)
-    if len(results)>1:
+        try:
+            results = ValidationTestResult.objects.filter(test_code_id=testcode_json.get('id'))
+        except:
+            results = ValidationTestResult.objects.filter(test_code_id=testcode_json.id)
+    if len(results)>0:
         return False
     return True
 
@@ -241,8 +244,8 @@ def _are_model_instance_editable(model_instance_json):
         try:
             results = ValidationTestResult.objects.filter(model_version_id=model_instance_json.get('id'))
         except:
-            results = ValidationTestResult.objects.filter(model_version_id=model_instance_json.id)
-    if len(results)>1:
+                results = ValidationTestResult.objects.filter(model_version_id=model_instance_json.id)
+    if len(results)>0:
         return False
     return True
 
@@ -583,24 +586,32 @@ class ScientificModelInstanceRest (APIView):
     
     def put(self, request, format=None):
         serializer_context = {'request': request,}
+        
         #check if valid
+        try:
+            param_web_app = request.GET.getlist('web_app')[0]
+        except: 
+            param_web_app = False
+
         for instance in request.data:
-            if request.GET.getlist('web_app')[0]:
+             
+            if param_web_app==True:
                 original_instance = ScientificModelInstance.objects.get(id=instance.get('id'))
                 #check if version is editable
                 if not _are_model_instance_editable(instance):
-                    return Response("This version is no longer editable.", status=status.HTTP_400_BAD_REQUEST)
+                    return Response("This version is no longer editable as there is at least one result associated with it.", status=status.HTTP_400_BAD_REQUEST)
     
                 #check if versions are unique
                 if not _are_model_instance_version_unique(instance) :
                     return Response("Oh no... The specified version name already exists for this model. Please, give me a new name", status=status.HTTP_400_BAD_REQUEST)
             
                 model_serializer = ScientificModelInstanceSerializer(original_instance, data=instance, context=serializer_context)
-                if  model_serializer.is_valid() :
+                if  model_serializer.is_valid():
                     model_instance = model_serializer.save()
                     return  Response(status=status.HTTP_202_ACCEPTED) 
                 else:
                     return Response(status=status.HTTP_400_BAD_REQUEST)
+
             if 'id' in instance:
                 try: 
                     original_instance = ScientificModelInstance.objects.get(id= instance['id'])
@@ -611,22 +622,22 @@ class ScientificModelInstanceRest (APIView):
                 if not serializer.is_valid():
                     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
             else:
-                if 'version_name' in instance:
+                if 'version' in instance:
                     if 'model_alias' in instance:
                         try: 
                             model = ScientificModel.objects.get(alias = instance['model_alias'])
                         except:
-                            Response('There is no model with this alias. Please give a new alias or try with the model_id directly.', status=status.HTTP_400_BAD_REQUEST)
+                            return Response('There is no model with this alias. Please give a new alias or try with the model_id directly.', status=status.HTTP_400_BAD_REQUEST)
                         instance['model_id'] = model.id
                     if 'model_id' in instance:
                         try: 
-                            original_instance = ScientificModelInstance.objects.filter(model_id= instance['model_id'], version=instance['version_name'])
-                            instance['id']=instance.id
+                            original_instance = ScientificModelInstance.objects.get(model_id= instance['model_id'], version=instance['version'])
                         except:
                             return Response("There is no model instance with this version name for this model_id. Please give a new model_id or a new version name. ", status=status.HTTP_400_BAD_REQUEST)
+                        instance['id']=original_instance.id
                         serializer = ScientificModelInstanceSerializer(original_instance, data=instance, context=serializer_context)
-                    if not serializer.is_valid():
-                        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+                        if not serializer.is_valid():
+                            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
                 else:
                     return Response("To edit a model instance, you need to give an id, or a model_id with a version, or a model_alias with a version ", status=status.HTTP_400_BAD_REQUEST)    
 
@@ -638,12 +649,12 @@ class ScientificModelInstanceRest (APIView):
     
             #check if version is editable
             if not _are_model_instance_editable(instance):
-                return Response("This version is no longer editable.", status=status.HTTP_400_BAD_REQUEST)
-    
+                return Response("This version is no longer editable as there is at least one result associated with it.", status=status.HTTP_400_BAD_REQUEST)
+                
             #check if versions are unique
             if not _are_model_instance_version_unique(instance) :
                 return Response("Oh no... The specified version name already exists for this model. Please, give me a new name", status=status.HTTP_400_BAD_REQUEST)
-            
+
         list_id = []
         #is valid + authorized : save it
         for instance in request.data: 
@@ -865,7 +876,7 @@ class ScientificModelRest(APIView):
             return Response("Badly formed uuid in : id", status=status.HTTP_400_BAD_REQUEST)
             
 
-        #if model id not specified
+        #if model id not specifiedorresponding to this alias. 
         if(len(id) == 0):
 
             web_app = request.GET.getlist('web_app')    
@@ -1090,8 +1101,16 @@ class ScientificModelRest(APIView):
         ## save only modifications on model. if you want to modify images or instances, do separate put.  
         ##get objects 
         value = request.data['models'][0]
-        model = ScientificModel.objects.get(id=value['id'])
-
+        if value['id']:
+            model = ScientificModel.objects.get(id=value['id'])
+        else:
+            if values['alias']:
+                try: 
+                    model = ScientificModel.objects.get(id=value['alias'])
+                except:
+                    return Response('There is not model corresponding to this alias. Please give a new alias or use the id of the model', status=status.HTTP_400_BAD_REQUEST )  
+            else: 
+                return Response('We cannot update the model. Please give the id or the alias of the model.', status=status.HTTP_400_BAD_REQUEST )
         #security
         app_id = model.app_id
         collab_id = get_collab_id_from_app_id(app_id)
@@ -1218,12 +1237,10 @@ class ValidationTestCodeRest(APIView):
         #         if key == 'test_definition_id':
         #             tests = ValidationTestCode.objects.filter(test_definition_id = value)
 
-        tests = q
-
-        test_serializer = ValidationTestCodeSerializer(tests, context=serializer_context, many=True)
-        # TODO rename tests to testcodes
+        test_codes = q.order_by('timestamp')
+        test_code_serializer = ValidationTestCodeSerializer(test_codes, context=serializer_context, many=True)
         return Response({
-            'tests': test_serializer.data, 
+            'test_codes': test_code_serializer.data, 
         })
         
 
@@ -1283,23 +1300,23 @@ class ValidationTestCodeRest(APIView):
                         try: 
                             test_definition = ValidationTestDefinition.objects.get(alias = test_code['test_alias'])
                         except:
-                            Response('There is no test with this alias. Please give a new alias or try with the test_definition_id directly.', status=status.HTTP_400_BAD_REQUEST)
+                            return Response('There is no test with this alias. Please give a new alias or try with the test_definition_id directly.', status=status.HTTP_400_BAD_REQUEST)
                         test_code['test_definition_id'] = test_definition.id
                     if 'test_definition_id' in test_code:
                         try: 
-                            original_test_code = ValidationTestCode.objects.filter(test_definition_id= test_code['test_definition_id'], version=test_code['version'])
-                            test_code['id']=original_test_code.id
+                            original_test_code = ValidationTestCode.objects.get(test_definition_id= test_code['test_definition_id'], version=test_code['version'])
                         except:
                             return Response("There is no test instance with this version name for this test_definition_id. Please give a new test_definition_id or a new version name. ", status=status.HTTP_400_BAD_REQUEST)
+                        test_code['id']=original_test_code.id
                         serializer = ValidationTestCodeSerializer(original_test_code, data=test_code, context=serializer_context)
-                    if not serializer.is_valid():
-                        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+                        if not serializer.is_valid():
+                            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
                 else:
                     return Response("To edit a test instance, you need to give an id, or a test_definition_id with a version, or a test_definition_alias with a version ", status=status.HTTP_400_BAD_REQUEST)    
 
             #check if version is editable
             if not _are_test_code_editable(test_code):
-                return Response("This version is no longer editable.", status=status.HTTP_400_BAD_REQUEST)
+                return Response("This version is no longer editable as there is at least one result associated with it", status=status.HTTP_400_BAD_REQUEST)
 
             #check if versions are unique
             if not _are_test_code_version_unique(test_code) :
@@ -1782,6 +1799,41 @@ def organise_results_dict (point_of_view, results, serializer_context):
                 result_data = ValidationTestResultSerializer(result, context=serializer_context).data
                 current[result_info['test_code_id']] = {'version' : result_info['test_code_version'], 'result' : result_data }
  
+    elif  point_of_view == "test_code" :
+        
+        data_to_return['test_codes'] = {}
+        for result in results :
+            result_info = get_result_informations(result)
+
+            current = data_to_return['test_codes']
+            if result_info['test_code_id'] not in current  :
+                 current[result_info['test_code_id']] = { 'version' : result_info['test_code_version'],'test_alias': result_info['test_alias'],'test_id': result_info['test_id'], 'model_instances':{} }
+
+            current = current[result_info['test_code_id']]['model_instances']
+            if result_info['model_instance_id'] not in current :
+                current[result_info['model_instance_id']] = {'version' : result_info['model_instance_version'], 'model_alias' : result_info['model_alias'],'model_id' : result_info['model_id'], 'results' : {} }
+
+            current = current[result_info['model_instance_id']]['results']
+            result_data = ValidationTestResultSerializer(result, context=serializer_context).data
+            current[result_data['id']] = result_data
+    
+    elif  point_of_view == "model_instance" :
+        
+        data_to_return['model_instances'] = {}
+        for result in results :
+            result_info = get_result_informations(result)
+            current = data_to_return['model_instances']
+            if result_info['model_instance_id'] not in current  :
+                 current[result_info['model_instance_id']] = { 'version' : result_info['model_instance_version'],'model_alias': result_info['model_alias'],'model_id': result_info['model_id'], 'test_codes':{} }
+
+            current = current[result_info['model_instance_id']]['test_codes']
+            if result_info['test_code_id'] not in current :
+                current[result_info['test_code_id']] = {'version' : result_info['test_code_version'], 'model_alias' : result_info['test_alias'],'test_id' : result_info['test_id'], 'results' : {} }
+
+            current = current[result_info['test_code_id']]['results']
+         
+            result_data = ValidationTestResultSerializer(result, context=serializer_context).data
+            current[result_data['id']] = result_data
 
     #data_to_return no structuraction 
     else : 
@@ -1818,13 +1870,13 @@ class ValidationResultRest2 (APIView):
         param_test_alias = request.GET.getlist('test_alias')
         param_test_score_type = request.GET.getlist('score_type')
         param_order = request.GET.getlist('order')
+    
 
-
-        if len(param_order) > 0 and (param_order[0] == 'test' or param_order[0] == 'model' or param_order[0] == '') :
+        if len(param_order) > 0 and (param_order[0] == 'test' or param_order[0] == 'model' or param_order[0] == '' or param_order[0] == 'model_instance' or param_order[0] == 'test_code') :
             param_order = param_order[0]
 
         else :
-            return Response("You need to give 'order' argument. Here are the options : 'test', 'model', '' ", status=status.HTTP_400_BAD_REQUEST)
+            return Response("You need to give 'order' argument. Here are the options : 'test', 'model', 'model_instance', 'test_code', '' ", status=status.HTTP_400_BAD_REQUEST)
 
         if check_list_uuid_validity(param_id) is False :
             return Response("Badly formed uuid in : id", status=status.HTTP_400_BAD_REQUEST)
@@ -1864,8 +1916,14 @@ class ValidationResultRest2 (APIView):
                 q = q.filter(test_code_id__in = param_test_code_id)
             if len(param_normalized_score) > 0 :
                 q = q.filter(normalized_score__in = param_normalized_score)
-            results = q.order_by("timestamp")
-      
+
+            #add filter to order correctly the data in time depending on the param_order
+            if  len(param_order)>0:
+                if param_order == "test_code":
+                    q = q.prefetch_related().order_by('model_version__timestamp','timestamp')
+                if param_order == "model_instance":
+                    q= q.prefetch_related().order_by('test_code__timestamp', 'timestamp')
+            results = q
             #add filter using param_test_id >> filter by tests
             if len(param_test_code_id) == 0 and (len(param_test_id) > 0 or len(param_test_alias) > 0 ) :
                 if len(param_test_id) == 0 :
@@ -1911,7 +1969,7 @@ class ValidationResultRest2 (APIView):
             for result in results :
                 if user_has_acces_to_result(request, result) is False :
                     return Response("You do not access to result : {}".format(result.id), status=status.HTTP_403_FORBIDDEN)
-
+                    
         data_to_return = organise_results_dict(param_order, results, serializer_context)
             
         return Response(data_to_return)
