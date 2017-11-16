@@ -428,8 +428,8 @@ ParametersConfigurationServices.service('CollabParameters', ['$rootScope', 'Coll
 
 var GraphicsServices = angular.module('GraphicsServices', ['ngResource', 'btorfs.multiselect', 'ApiCommunicationServices', 'ParametersConfigurationServices', 'ContextServices']);
 
-GraphicsServices.factory('Graphics', ['$rootScope', 'ValidationResultRest', 'CollabParameters', 'ValidationTestResultRest', 'ValidationModelResultRest', 'Context', 'ValidationResultRest2',
-    function($rootScope, ValidationResultRest, CollabParameters, ValidationTestResultRest, ValidationModelResultRest, Context, ValidationResultRest2) {
+GraphicsServices.factory('Graphics', ['$rootScope', 'CollabParameters', 'ValidationTestResultRest', 'ValidationModelResultRest', 'Context', 'ValidationResultRest',
+    function($rootScope, CollabParameters, ValidationTestResultRest, ValidationModelResultRest, Context, ValidationResultRest) {
         // var results_data = undefined;
 
         var focus = function(list_id_couple, results_data, type, graph_key) {
@@ -520,7 +520,7 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'ValidationResultRest', 'Col
                     abscissa_value[version_name] = parseInt(tv);
                 }
 
-                var results_data = ValidationResultRest2.get({ app_id: Context.getAppID(), test_id: test.tests[0].id, order: 'model_instance' });
+                var results_data = ValidationResultRest.get({ app_id: Context.getAppID(), test_id: test.tests[0].id, order: 'model_instance' });
                 results_data.$promise.then(function() {
 
                     for (var instance in results_data.model_instances) {
@@ -608,7 +608,7 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'ValidationResultRest', 'Col
                     abscissa_value[version_name] = parseInt(mi);
                 }
 
-                var results_data = ValidationResultRest2.get({ app_id: Context.getAppID(), model_id: model.models[0].id, order: 'test_code', score_type: score_type });
+                var results_data = ValidationResultRest.get({ app_id: Context.getAppID(), model_id: model.models[0].id, order: 'test_code', score_type: score_type });
                 results_data.$promise.then(function() {
 
                     for (var code in results_data.test_codes) {

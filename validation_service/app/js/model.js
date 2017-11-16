@@ -155,13 +155,6 @@ ApiCommunicationServices.factory('IsCollabMemberRest', ['$resource',
 ]);
 
 
-ApiCommunicationServices.factory('ValidationResultRest_fortest', ['$resource',
-    function($resource) {
-        return $resource('validationresultrest_fortest/', {}, {
-            get: { method: 'GET', params: { format: 'json', app_id: 'app_id' }, isArray: false },
-        });
-    }
-]);
 
 ApiCommunicationServices.factory('ValidationTestResultRest', ['$resource',
     function($resource) {
@@ -171,13 +164,6 @@ ApiCommunicationServices.factory('ValidationTestResultRest', ['$resource',
     }
 ]);
 
-ApiCommunicationServices.factory('ValidationResultRest', ['$resource',
-    function($resource) {
-        return $resource('validationresultrest/', {}, {
-            get: { method: 'GET', params: { format: 'json', app_id: 'app_id' }, isArray: false },
-        });
-    }
-]);
 
 ApiCommunicationServices.factory('ValidationModelResultRest', ['$resource',
     function($resource) {
@@ -186,9 +172,9 @@ ApiCommunicationServices.factory('ValidationModelResultRest', ['$resource',
         });
     }
 ]);
-ApiCommunicationServices.factory('ValidationResultRest2', ['$resource',
+ApiCommunicationServices.factory('ValidationResultRest', ['$resource',
     function($resource) {
-        return $resource('validationmodelresultrest2/', {}, {
+        return $resource('validationmodelresultrest/', {}, {
             get: { method: 'GET', params: { format: 'json', app_id: 'app_id' }, isArray: false },
         });
     }

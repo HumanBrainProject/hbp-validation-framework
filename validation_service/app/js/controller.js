@@ -516,9 +516,12 @@ testApp.controller('ValTestResultDetailCtrl', ['$window', '$scope', '$rootScope'
                 // $scope.is_collab_member.$promise.then(function() {
                 //     $scope.is_collab_member = $scope.is_collab_member.is_member;
                 // });
-                $scope.test_result = ValidationResultRest.get({ app_id: app_id, id: $stateParams.uuid });
+                var test_result = ValidationResultRest.get({ id: $stateParams.uuid, order: "", detailed_view: true });
 
-                $scope.test_result.$promise.then(function() {
+
+                test_result.$promise.then(function() {
+                    $scope.test_result = test_result.results[0];
+
                     // $scope.model = ScientificModelRest.get({ app_id: app_id, id: $scope.test_result.data.model_version.model_id });
                     // $scope.test = ValidationTestDefinitionRest.get({ app_id: app_id, id: $scope.test_result.data.test_code.test_definition_id });
                 });
@@ -531,9 +534,9 @@ testApp.controller('ValTestResultDetailCtrl', ['$window', '$scope', '$rootScope'
 ]);
 
 
-testApp.controller('TestResultCtrl', ['$scope', '$rootScope', '$http', '$location', '$timeout', 'CollabParameters', 'ValidationResultRest_fortest', 'ValidationResultRest', 'Graphics', "Context",
+testApp.controller('TestResultCtrl', ['$scope', '$rootScope', '$http', '$location', '$timeout', 'CollabParameters', 'Graphics', "Context",
 
-    function($scope, $rootScope, $http, $location, $timeout, CollabParameters, ValidationResultRest_fortest, ValidationResultRest, Graphics, Context) {
+    function($scope, $rootScope, $http, $location, $timeout, CollabParameters, Graphics, Context) {
         Context.setService().then(function() {
             $scope.Context = Context;
 

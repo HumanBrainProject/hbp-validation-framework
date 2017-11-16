@@ -22,7 +22,6 @@ from .views import (
                     TestTicketRest,
                     IsCollabMemberRest,
                     ValidationResultRest,
-                    ValidationResultRest2,
 
                     )
 
@@ -67,17 +66,14 @@ urlpatterns = (
         ValidationTestCodeRest.as_view(),
         name="validation-test-code"),
     
-    url(r'^validationresultrest/$',
-        ValidationResultRest.as_view(),
-        ),
     #   url(r'^validationtestresultrest/$',
     #     ValidationTestResultRest.as_view(),
     #     ), 
     # url(r'^validationmodelresultrest/$',
     #     ValidationModelResultRest.as_view(),
     #     ), 
-    url(r'^validationmodelresultrest2/$',
-        ValidationResultRest2.as_view(),
+    url(r'^validationmodelresultrest/$',
+        ValidationResultRest.as_view(),
         ),
 
     url(r'^testcomment/$',

@@ -1678,25 +1678,6 @@ class IsCollabMemberRest (APIView):
         })
 
 
-class ValidationResultRest (APIView):
-    def get(self, request, format=None, **kwargs):
-        
-        # param_id = request.GET.getlist('id')
-
-
-        serializer_context = {'request': request,}
-
-        test_result_id = request.query_params['id']
-
-        validation_result =  ValidationTestResult.objects.get(id = test_result_id )
-        result_serializer = ValidationTestResultReadOnlySerializer(validation_result, context=serializer_context) 
-        
-        return Response({
-            'data': result_serializer.data,
-        })
-
-
-
 def user_has_acces_to_model (request, model):
     if model.private == 0 :
         return True
@@ -1746,7 +1727,7 @@ def get_result_informations (result):
     return (result_info)
 
 
-def organise_results_dict (point_of_view, results, serializer_context):
+def organise_results_dict ( detailed_view, point_of_view, results, serializer_context):
     data_to_return = {}
 
     #data_to_return structuraction for test point of view
@@ -1837,20 +1818,18 @@ def organise_results_dict (point_of_view, results, serializer_context):
 
     #data_to_return no structuraction 
     else : 
-        # data_to_return = ValidationTestResultReadOnlySerializer(results, context=serializer_context).data  
-
-        result_serializer = ValidationTestResultSerializer(results, context=serializer_context, many=True).data
-
-        # result_serializer = ValidationTestResultSerializer(results, context=serializer_context).data
-
-        
+        if detailed_view : 
+            result_serializer = ValidationTestResultReadOnlySerializer(results, context=serializer_context, many=True).data  
+        else :
+            result_serializer = ValidationTestResultSerializer(results, context=serializer_context, many=True).data
+ 
         data_to_return = {'results' : result_serializer} 
 
     return data_to_return
 
 
 
-class ValidationResultRest2 (APIView):
+class ValidationResultRest (APIView):
     def get(self, request, format=None, **kwargs):
         param_id = request.GET.getlist('id')
         param_results_storage = request.GET.getlist('results_storage')
@@ -1870,7 +1849,14 @@ class ValidationResultRest2 (APIView):
         param_test_alias = request.GET.getlist('test_alias')
         param_test_score_type = request.GET.getlist('score_type')
         param_order = request.GET.getlist('order')
-    
+
+        param_detailed_view = request.GET.getlist('detailed_view')
+
+        if len(param_detailed_view) > 0 :  
+            detailed_view =  param_detailed_view[0] 
+        else :
+            detailed_view = False
+            
 
         if len(param_order) > 0 and (param_order[0] == 'test' or param_order[0] == 'model' or param_order[0] == '' or param_order[0] == 'model_instance' or param_order[0] == 'test_code') :
             param_order = param_order[0]
@@ -1970,7 +1956,7 @@ class ValidationResultRest2 (APIView):
                 if user_has_acces_to_result(request, result) is False :
                     return Response("You do not access to result : {}".format(result.id), status=status.HTTP_403_FORBIDDEN)
                     
-        data_to_return = organise_results_dict(param_order, results, serializer_context)
+        data_to_return = organise_results_dict(detailed_view, param_order, results, serializer_context)
             
         return Response(data_to_return)
 

@@ -7,7 +7,7 @@
         <button class="button-MC" ng-click="Context.validation_goToHomeView();">Home</button>&ensp;
 
 
-        <h1 align=center> Test result ID: {{test_result.data.id}}</h1>
+        <h1 align=center> Test result ID: {{test_result.id}}</h1>
     </nav>
 </head>
 
@@ -23,15 +23,15 @@
                         <td>
                             <b> Date: </b>
                         </td>
-                        <td> {{test_result.data.timestamp | date:'d MMMM yyyy, hh:mm' : 'UTC' }} </td>
+                        <td> {{test_result.timestamp | date:'d MMMM yyyy, hh:mm' : 'UTC' }} </td>
                     </tr>
                     <tr>
                         <td>
-                            <b> Score ({{test_result.data.test_code.test_definition.score_type}}): </b>
+                            <b> Score ({{test_result.test_code.test_definition.score_type}}): </b>
                         </td>
                         <td>
-                            {{test_result.data.score}}
-                            <font class="glyphicon glyphicon-ok" ng-if="test_result.data.passed" color="green"> </font>
+                            {{test_result.score}}
+                            <font class="glyphicon glyphicon-ok" ng-if="test_result.passed" color="green"> </font>
                             <!--<font class="glyphicon glyphicon-remove" ng-if="!test_result.data.passed" color="red"> </font>-->
                         </td>
 
@@ -46,19 +46,19 @@
                         <td>
                             <b> Project: </b>
                         </td>
-                        <td> {{test_result.data.project}} </td>
+                        <td> {{test_result.project}} </td>
                     </tr>
                     <tr>
                         <td>
                             <b> Platform: </b>
                         </td>
-                        <td> {{test_result.data.platform}} </td>
+                        <td> {{test_result.platform}} </td>
                     </tr>
                     <tr>
                         <td>
                             <b> Result storage: </b>
                         </td>
-                        <td> {{test_result.data.results_storage}} </td>
+                        <td> {{test_result.results_storage}} </td>
                     </tr>
                 </tbody>
             </table>
@@ -71,17 +71,17 @@
                     <td style="width: 10%">
                         <table class="table-create">
                             <tbody>
-                                <tr style="width: 15%" ng-if="test_result.data.model_version.model.model_type!=''">
-                                    <td><b> Model type: </b> {{test_result.data.model_version.model.model_type }} </td>
+                                <tr style="width: 15%" ng-if="test_result.model_version.model.model_type!=''">
+                                    <td><b> Model type: </b> {{test_result.model_version.model.model_type }} </td>
                                 </tr>
-                                <tr style="width: 15%" ng-if="test_result.data.model_version.model.cell_type!=''">
-                                    <td> <b> Cell type: </b> {{test_result.data.model_version.model.cell_type }}</td>
+                                <tr style="width: 15%" ng-if="test_result.model_version.model.cell_type!=''">
+                                    <td> <b> Cell type: </b> {{test_result.model_version.model.cell_type }}</td>
                                 </tr>
-                                <tr style="width: 15%" ng-if="test_result.data.model_version.model.brain_region!=''">
-                                    <td> <b> Brain region: </b> {{ test_result.data.model_version.model.brain_region }}</td>
+                                <tr style="width: 15%" ng-if="test_result.model_version.model.brain_region!=''">
+                                    <td> <b> Brain region: </b> {{ test_result.model_version.model.brain_region }}</td>
                                 </tr>
-                                <tr style="width: 15%" ng-if="test_result.data.model_version.model.species!=''">
-                                    <td><b> Species: </b> {{ test_result.data.model_version.model.species }} </td>
+                                <tr style="width: 15%" ng-if="test_result.model_version.model.species!=''">
+                                    <td><b> Species: </b> {{ test_result.model_version.model.species }} </td>
                                 </tr>
                             </tbody>
                         </table>
@@ -90,16 +90,16 @@
                         <table class="table-create">
                             <tbody>
                                 <tr style="width: 15%">
-                                    <td><b>Test type: </b> {{ test_result.data.test_code.test_definition.test_type }} </td>
+                                    <td><b>Test type: </b> {{ test_result.test_code.test_definition.test_type }} </td>
                                 </tr>
-                                <tr style="width: 15%" ng-if="test_result.data.test_code.test_definition.data_type!=''">
-                                    <td> <b> Data type: </b> {{test_result.data.test_code.test_definition.data_type}}</td>
+                                <tr style="width: 15%" ng-if="test_result.test_code.test_definition.data_type!=''">
+                                    <td> <b> Data type: </b> {{test_result.test_code.test_definition.data_type}}</td>
                                 </tr>
-                                <tr style="width: 15%" ng-if="test_result.data.test_code.test_definition.data_modality!=''">
-                                    <td><b> Data modality: </b> {{test_result.data.test_code.test_definition.data_modality }} </td>
+                                <tr style="width: 15%" ng-if="test_result.test_code.test_definition.data_modality!=''">
+                                    <td><b> Data modality: </b> {{test_result.test_code.test_definition.data_modality }} </td>
                                 </tr>
-                                <tr style="width: 15%" ng-if="test_result.data.test_code.test_definition.age!=''">
-                                    <td><b> Age: </b> {{test_result.data.test_code.test_definition.age }} </td>
+                                <tr style="width: 15%" ng-if="test_result.test_code.test_definition.age!=''">
+                                    <td><b> Age: </b> {{test_result.test_code.test_definition.age }} </td>
                                 </tr>
                             </tbody>
                         </table>
@@ -127,8 +127,8 @@
             <table class="table-create">
                 <tbody>
                     <tr>
-                        <td style="width: 15%"> <b> Model name:  </b> {{ test_result.data.model_version.model.name }} &nbsp;</td>
-                        <td style="width: 15%"> <b> version name: </b> {{ test_result.data.model_version.version}} &nbsp;</td>
+                        <td style="width: 15%"> <b> Model name:  </b> {{ test_result.model_version.model.name }} &nbsp;</td>
+                        <td style="width: 15%"> <b> version name: </b> {{ test_result.model_version.version}} &nbsp;</td>
 
                     </tr>
                 </tbody>
@@ -138,10 +138,10 @@
                 <tbody>
                     <tr>
                         <b> Description: </b> <br><br>
-                        <div markdown="test_result.data.model_version.model.description" ng-text-truncate="test_result.data.model_version.model.description" ng-tt-words-threshold="100" ng-tt-no-toggling></div>
-                        <button class=linkbutton align=right text-align=right type="button" ng-click="Context.validation_goToModelDetailView(test_result.data.model_version.model.id)"> (more details on model results page)</button>
+                        <div markdown="test_result.model_version.model.description" ng-text-truncate="test_result.model_version.model.description" ng-tt-words-threshold="100" ng-tt-no-toggling></div>
+                        <button class=linkbutton align=right text-align=right type="button" ng-click="Context.validation_goToModelDetailView(test_result.model_version.model.id)"> (more details on model results page)</button>
                         <br>
-                        <button class=linkbutton align=right text-align=right type="button" ng-click="Context.validation_goToModelCatalog(test_result.data.model_version.model)"> (more details on model catalog)</button>
+                        <button class=linkbutton align=right text-align=right type="button" ng-click="Context.validation_goToModelCatalog(test_result.model_version.model)"> (more details on model catalog)</button>
 
                         <br><br>
                     </tr>
@@ -164,8 +164,8 @@
             <table class="table-create">
                 <tbody>
                     <tr>
-                        <td style="width: 15%"> <b> Test name: </b> {{ test_result.data.test_code.test_definition.name }} &nbsp;</td>
-                        <td style="width: 15%"> <b> version name: </b> {{ test_result.data.test_code.version}} &nbsp;</td>
+                        <td style="width: 15%"> <b> Test name: </b> {{ test_result.test_code.test_definition.name }} &nbsp;</td>
+                        <td style="width: 15%"> <b> version name: </b> {{ test_result.test_code.version}} &nbsp;</td>
                     </tr>
                 </tbody>
             </table>
@@ -175,8 +175,8 @@
                 <tbody>
                     <tr>
                         <b>Protocol: </b> <br><br>
-                        <div markdown="test_result.data.test_code.test_definition.protocol" ng-text-truncate="test_result.data.test_code.test_definition.protocol" ng-tt-words-threshold="100" ng-tt-no-toggling></div>
-                        <button class=linkbutton align=right text-align=right type="button" ng-click="Context.validation_goToTestDetailView(test_result.data.test_code.test_definition.id)">(more details on test results page)</button>
+                        <div markdown="test_result.test_code.test_definition.protocol" ng-text-truncate="test_result.test_code.test_definition.protocol" ng-tt-words-threshold="100" ng-tt-no-toggling></div>
+                        <button class=linkbutton align=right text-align=right type="button" ng-click="Context.validation_goToTestDetailView(test_result.test_code.test_definition.id)">(more details on test results page)</button>
                         <br><br>
                     </tr>
                 </tbody>
