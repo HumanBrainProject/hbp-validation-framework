@@ -62,12 +62,20 @@ ApiCommunicationServices.factory('ValidationTestCodeRest', ['$resource',
     function($resource) {
         return $resource('validationtestscode/:uuid', { id: '@eUuid' }, {
             get: { method: 'GET', params: { format: 'json', app_id: 'app_id', web_app: 'True' }, isArray: false },
-            //   put: {method:'PUT', params:{format:'json', app_id: 'app_id', web_app: 'True'}, headers:{ 'Content-Type':'application/json' }},
+            put: { method: 'PUT', params: { format: 'json', app_id: 'app_id', web_app: 'True' }, headers: { 'Content-Type': 'application/json' } },
             post: { method: 'POST', params: { format: 'json', app_id: 'app_id', web_app: 'True' }, headers: { 'Content-Type': 'application/json' } }
         });
     }
 ]);
-
+ApiCommunicationServices.factory('AreVersionsEditableRest', ['$resource',
+    function($resource) {
+        return $resource('areversionseditable/:uuid', { id: '@eUuid' }, {
+            get: { method: 'GET', params: { format: 'json', app_id: 'app_id', web_app: 'True' }, isArray: false },
+            // put: { method: 'PUT', params: { format: 'json', app_id: 'app_id', web_app: 'True' }, headers: { 'Content-Type': 'application/json' } },
+            // post: { method: 'POST', params: { format: 'json', app_id: 'app_id', web_app: 'True' }, headers: { 'Content-Type': 'application/json' } }
+        });
+    }
+]);
 ApiCommunicationServices.factory('TestCommentRest', ['$resource',
     function($resource) {
         return $resource('testcomment/:uuid', { id: '@eUuid' }, {

@@ -78,10 +78,10 @@ class ScientificModelInstanceReadOnlySerializer(serializers.HyperlinkedModelSeri
 class ScientificModelReadOnlySerializer(serializers.HyperlinkedModelSerializer):
     instances = ScientificModelInstanceForModelReadOnlySerializer (read_only=True, many=True )
     images = ScientificModelImageForModelReadOnlySerializer (read_only=True , many=True )
-
-    class Meta:
+    app = CollabParametersReadOnlyForHomeSerializer(read_only=True)
+    class Meta:        
         model = ScientificModel
-        fields = ('id', 'name', 'alias', 'author', 'app_id','organization','private', 'cell_type', 'model_type', 'brain_region', 'species','description', 'instances', 'images')
+        fields = ('id', 'name', 'alias', 'author', 'app','organization','private', 'cell_type', 'model_type', 'brain_region', 'species','description', 'instances', 'images')
 
 class ScientificModelFullReadOnlySerializer(serializers.HyperlinkedModelSerializer):
     app = CollabParametersSerializer( read_only=True)
