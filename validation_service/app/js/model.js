@@ -2,7 +2,7 @@ var ApiCommunicationServices = angular.module('ApiCommunicationServices', ['ngRe
 
 ApiCommunicationServices.factory('ScientificModelRest', ['$resource',
     function($resource) {
-        return $resource('scientificmodel/:uuid', { id: '@eUuid' }, {
+        return $resource('models/:uuid', { id: '@eUuid' }, {
             get: { method: 'GET', params: { format: 'json', app_id: 'app_id', web_app: 'True' }, isArray: false },
             post: { method: 'POST', params: { format: 'json', app_id: 'app_id', web_app: 'True' }, headers: { 'Content-Type': 'application/json' } },
             put: { method: 'PUT', params: { format: 'json', app_id: 'app_id', web_app: 'True' }, headers: { 'Content-Type': 'application/json' } }
@@ -11,7 +11,7 @@ ApiCommunicationServices.factory('ScientificModelRest', ['$resource',
 ]);
 ApiCommunicationServices.factory('ScientificModelAliasRest', ['$resource',
     function($resource) {
-        return $resource('scientificmodelalias/:uuid', { id: '@eUuid' }, {
+        return $resource('model-aliases/:uuid', { id: '@eUuid' }, {
             get: { method: 'GET', params: { format: 'json', app_id: 'app_id', web_app: 'True' }, isArray: false },
         });
     }
@@ -19,7 +19,7 @@ ApiCommunicationServices.factory('ScientificModelAliasRest', ['$resource',
 
 ApiCommunicationServices.factory('ValidationTestAliasRest', ['$resource',
     function($resource) {
-        return $resource('validationtestalias/:uuid', { id: '@eUuid' }, {
+        return $resource('test-aliases/:uuid', { id: '@eUuid' }, {
             get: { method: 'GET', params: { format: 'json', app_id: 'app_id', web_app: 'True' }, isArray: false },
         });
     }
@@ -27,7 +27,7 @@ ApiCommunicationServices.factory('ValidationTestAliasRest', ['$resource',
 
 ApiCommunicationServices.factory('ScientificModelInstanceRest', ['$resource',
     function($resource) {
-        return $resource('scientificmodelinstance/:uuid', { id: '@eUuid' }, {
+        return $resource('model-instances/:uuid', { id: '@eUuid' }, {
             get: { method: 'GET', params: { format: 'json', app_id: 'app_id', web_app: 'True' }, isArray: false },
             post: { method: 'POST', params: { format: 'json', app_id: 'app_id', web_app: 'True' }, headers: { 'Content-Type': 'application/json' } },
             put: { method: 'PUT', params: { format: 'json', app_id: 'app_id', web_app: 'True' }, headers: { 'Content-Type': 'application/json' } }
@@ -38,7 +38,7 @@ ApiCommunicationServices.factory('ScientificModelInstanceRest', ['$resource',
 
 ApiCommunicationServices.factory('ScientificModelImageRest', ['$resource',
     function($resource) {
-        return $resource('scientificmodelimage/:uuid', { id: '@eUuid' }, {
+        return $resource('images/:uuid', { id: '@eUuid' }, {
             // get: { method: 'GET', params: { format: 'json' }, isArray: false },
             post: { method: 'POST', params: { format: 'json', app_id: 'app_id', web_app: 'True' }, headers: { 'Content-Type': 'application/json' } },
             put: { method: 'PUT', params: { format: 'json', app_id: 'app_id', web_app: 'True' }, headers: { 'Content-Type': 'application/json' } },
@@ -50,7 +50,7 @@ ApiCommunicationServices.factory('ScientificModelImageRest', ['$resource',
 
 ApiCommunicationServices.factory('ValidationTestDefinitionRest', ['$resource',
     function($resource) {
-        return $resource('validationtestdef/:uuid', { id: '@eUuid' }, {
+        return $resource('tests/:uuid', { id: '@eUuid' }, {
             get: { method: 'GET', params: { format: 'json', app_id: 'app_id', web_app: 'True' }, isArray: false },
             put: { method: 'PUT', params: { format: 'json', web_app: 'True' }, headers: { 'Content-Type': 'application/json' } },
             post: { method: 'POST', params: { format: 'json', web_app: 'True' }, headers: { 'Content-Type': 'application/json' } }
@@ -60,7 +60,7 @@ ApiCommunicationServices.factory('ValidationTestDefinitionRest', ['$resource',
 
 ApiCommunicationServices.factory('ValidationTestCodeRest', ['$resource',
     function($resource) {
-        return $resource('validationtestscode/:uuid', { id: '@eUuid' }, {
+        return $resource('test-instances/:uuid', { id: '@eUuid' }, {
             get: { method: 'GET', params: { format: 'json', app_id: 'app_id', web_app: 'True' }, isArray: false },
             put: { method: 'PUT', params: { format: 'json', app_id: 'app_id', web_app: 'True' }, headers: { 'Content-Type': 'application/json' } },
             post: { method: 'POST', params: { format: 'json', app_id: 'app_id', web_app: 'True' }, headers: { 'Content-Type': 'application/json' } }
@@ -156,25 +156,10 @@ ApiCommunicationServices.factory('IsCollabMemberRest', ['$resource',
 
 
 
-ApiCommunicationServices.factory('ValidationTestResultRest', ['$resource',
-    function($resource) {
-        return $resource('validationtestresultrest/', {}, {
-            get: { method: 'GET', params: { format: 'json', app_id: 'app_id' }, isArray: false },
-        });
-    }
-]);
 
-
-ApiCommunicationServices.factory('ValidationModelResultRest', ['$resource',
-    function($resource) {
-        return $resource('validationmodelresultrest/', {}, {
-            get: { method: 'GET', params: { format: 'json', app_id: 'app_id' }, isArray: false },
-        });
-    }
-]);
 ApiCommunicationServices.factory('ValidationResultRest', ['$resource',
     function($resource) {
-        return $resource('validationmodelresultrest/', {}, {
+        return $resource('results/', {}, {
             get: { method: 'GET', params: { format: 'json', app_id: 'app_id' }, isArray: false },
         });
     }

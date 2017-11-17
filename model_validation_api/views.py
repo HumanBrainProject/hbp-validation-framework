@@ -500,7 +500,7 @@ class ParametersConfigurationRest( APIView): #LoginRequiredMixin,
 
 
 
-class ScientificModelInstanceRest (APIView):
+class ModelInstances (APIView):
 
     def get(self, request, format=None, **kwargs):
         serializer_context = {'request': request,}
@@ -669,7 +669,7 @@ class ScientificModelInstanceRest (APIView):
 
 
 
-class ScientificModelImageRest (APIView):
+class Images (APIView):
     def get(self, request, format=None, **kwargs):
         serializer_context = {'request': request,}
 
@@ -865,7 +865,7 @@ def check_param_of_test_json (json):
 
 
 
-class ScientificModelRest(APIView):
+class Models(APIView):
     def get(self, request, format=None, **kwargs):
         serializer_context = {
             'request': request,
@@ -1147,7 +1147,7 @@ class ScientificModelRest(APIView):
     #         model_to_delete.delete()
     #     return Response( status=status.HTTP_200_OK) 
         
-class ScientificModelAliasRest(APIView):
+class ModelAliases(APIView):
     def get(self, request, format=None, **kwargs):
         serializer_context = {
             'request': request,
@@ -1169,7 +1169,7 @@ class ScientificModelAliasRest(APIView):
             print('')
         return Response({ 'is_valid':is_valid})
 
-class ValidationTestAliasRest(APIView):
+class TestAliases(APIView):
     def get(self, request, format=None, **kwargs):
         serializer_context = {
             'request': request,
@@ -1191,7 +1191,7 @@ class ValidationTestAliasRest(APIView):
             print('')
         return Response({ 'is_valid':is_valid})
 
-class ValidationTestCodeRest(APIView):
+class TestInstances(APIView):
 
      def get(self, request, format=None, **kwargs):
         serializer_context = {'request': request,}
@@ -1342,7 +1342,7 @@ class ValidationTestCodeRest(APIView):
 
 
 
-class ValidationTestDefinitionRest(APIView):
+class Tests(APIView):
     
     def get(self, request, format=None, **kwargs):
         serializer_context = {'request': request,}
@@ -1829,7 +1829,7 @@ def organise_results_dict ( detailed_view, point_of_view, results, serializer_co
 
 
 
-class ValidationResultRest (APIView):
+class Results (APIView):
     def get(self, request, format=None, **kwargs):
         param_id = request.GET.getlist('id')
         param_results_storage = request.GET.getlist('results_storage')

@@ -428,8 +428,8 @@ ParametersConfigurationServices.service('CollabParameters', ['$rootScope', 'Coll
 
 var GraphicsServices = angular.module('GraphicsServices', ['ngResource', 'btorfs.multiselect', 'ApiCommunicationServices', 'ParametersConfigurationServices', 'ContextServices']);
 
-GraphicsServices.factory('Graphics', ['$rootScope', 'CollabParameters', 'ValidationTestResultRest', 'ValidationModelResultRest', 'Context', 'ValidationResultRest',
-    function($rootScope, CollabParameters, ValidationTestResultRest, ValidationModelResultRest, Context, ValidationResultRest) {
+GraphicsServices.factory('Graphics', ['$rootScope', 'CollabParameters', 'Context', 'ValidationResultRest',
+    function($rootScope, CollabParameters, Context, ValidationResultRest) {
         // var results_data = undefined;
 
         var focus = function(list_id_couple, results_data, type, graph_key) {
