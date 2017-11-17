@@ -107,7 +107,7 @@ class Command(BaseCommand):
 
         collab1.save()
 
-    def _fake_models_test_results(self):
+    def old_fake_models_test_results(self):
         
         import uuid
         import time
@@ -435,7 +435,7 @@ class Command(BaseCommand):
             for element in model:
                 element.delete()
 
-    def _fake_models_test_results_heli(self):
+    def _fake_models_test_results(self, param_app_id):
         
         import uuid
         import time
@@ -445,7 +445,8 @@ class Command(BaseCommand):
         import datetime
 
 	##params
-	ctx = 38111
+	# app_id = 38111
+        app_id = param_app_id
 
 	##times
  	time1 = time
@@ -614,7 +615,7 @@ class Command(BaseCommand):
         model1.author = "me"
         model1.model_type = "Single Cell"
         model1.private = "0"
-        model1.app_id = ctx
+        model1.app_id = app_id
         model1.code_format = "py"
         model1.save()        
 
@@ -917,22 +918,22 @@ class Command(BaseCommand):
         result.save()
 
     def handle(self, *args, **options):
-        #self._create_data_modalities()
-        #self._create_test_types()
-        #self._create_species()
-        #self._create_brain_region()
-        #self._create_cell_type()
-        #self._create_model_type()
+        # self._create_data_modalities()
+        # self._create_test_types()
+        # self._create_species()
+        # self._create_brain_region()
+        # self._create_cell_type()
+        # self._create_model_type()
 	# self._create_score_type()
 	# self._create_organizations()
 
         # self.add_results_to_test_code_heli("6d59d750bd7c47159f9a6439379169fd","c60f266ec069407f90166e09ffd703e2")
 
         # self._fake_collab()
-	# self._fake_models_test_results()
+	# self.old_fake_models_test_results()
        
 
-        #self._fake_models_test_results_heli()
+        self._fake_models_test_results(param_app_id=36714)
         # self.delete_models_in_collab(collab_id = 2180)
 
 
