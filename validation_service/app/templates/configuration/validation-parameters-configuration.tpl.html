@@ -39,12 +39,12 @@
             </thead>
             <tbody>
                 <td>
-                    <multiselect id="buttonTest" ng-size="10" placeholder="select" ng-model="selected_data_modalities" options="data_modalities " display-prop="authorized_value" id-prop="id" show-search="true" show-select-all="true" show-unselect-all="true">
+                    <multiselect id="buttonTest" ng-size="10" placeholder="select" ng-model="selected_data.selected_data_modalities" options="data_modalities " display-prop="authorized_value" id-prop="id" show-search="true" show-select-all="true" show-unselect-all="true">
                     </multiselect>
                     <table class="table">
                         <thead></thead>
                         <tbody>
-                            <tr ng-repeat="(key, value) in selected_data_modalities">
+                            <tr ng-repeat="(key, value) in selected_data.selected_data_modalities">
                                 <td>{{value.authorized_value}}</td>
                             </tr>
                         </tbody>
@@ -52,13 +52,13 @@
                 </td>
 
                 <td>
-                    <multiselect id="buttonTest" placeholder="select" ng-model="selected_test_type" options="test_type " display-prop="authorized_value" id-prop="id" show-search="true" show-select-all="true" show-unselect-all="true">
+                    <multiselect id="buttonTest" placeholder="select" ng-model="selected_data.selected_test_type" options="test_type " display-prop="authorized_value" id-prop="id" show-search="true" show-select-all="true" show-unselect-all="true">
                     </multiselect>
                     <table class="table">
                         <thead></thead>
 
                         <tbody>
-                            <tr ng-repeat="(key, value) in selected_test_type">
+                            <tr ng-repeat="(key, value) in selected_data.selected_test_type">
                                 <td>{{value.authorized_value}}</td>
                             </tr>
                         </tbody>
@@ -66,13 +66,13 @@
                 </td>
 
                 <td>
-                    <multiselect placeholder="select" ng-model="selected_model_type" options="model_type" display-prop="authorized_value" id-prop="id" show-search="true" show-select-all="true" show-unselect-all="true">
+                    <multiselect placeholder="select" ng-model="selected_data.selected_model_type" options="model_type" display-prop="authorized_value" id-prop="id" show-search="true" show-select-all="true" show-unselect-all="true">
                     </multiselect>
                     <table class="table">
                         <thead></thead>
 
                         <tbody>
-                            <tr ng-repeat="(key, value) in selected_model_type">
+                            <tr ng-repeat="(key, value) in selected_data.selected_model_type">
                                 <td>{{value.authorized_value}}</td>
                             </tr>
                         </tbody>
@@ -127,12 +127,12 @@
 
             <tbody>
                 <td>
-                    <multiselect placeholder="select" ng-model="selected_species" options="species" display-prop="authorized_value" id-prop="id" show-search="true" show-select-all="true" show-unselect-all="true"></multiselect>
+                    <multiselect placeholder="select" ng-model="selected_data.selected_species" options="species" display-prop="authorized_value" id-prop="id" show-search="true" show-select-all="true" show-unselect-all="true"></multiselect>
                     <table class="table">
                         <thead></thead>
 
                         <tbody>
-                            <tr ng-repeat="(key, value) in selected_species">
+                            <tr ng-repeat="(key, value) in selected_data.selected_species">
                                 <td>{{value.authorized_value}}</td>
                             </tr>
                         </tbody>
@@ -140,12 +140,12 @@
                 </td>
 
                 <td>
-                    <multiselect placeholder="select" ng-model="selected_brain_region" options="brain_region" display-prop="authorized_value" id-prop="id" show-search="true" show-select-all="true" show-unselect-all="true"></multiselect>
+                    <multiselect placeholder="select" ng-model="selected_data.selected_brain_region" options="brain_region" display-prop="authorized_value" id-prop="id" show-search="true" show-select-all="true" show-unselect-all="true"></multiselect>
                     <table class="table">
                         <thead></thead>
 
                         <tbody>
-                            <tr ng-repeat="(key, value) in selected_brain_region">
+                            <tr ng-repeat="(key, value) in selected_data.selected_brain_region">
                                 <td>{{value.authorized_value}}</td>
                             </tr>
                         </tbody>
@@ -153,25 +153,25 @@
                 </td>
 
                 <td>
-                    <multiselect placeholder="select" ng-model="selected_cell_type" options="cell_type" display-prop="authorized_value" id-prop="id" show-search="true" show-select-all="true" show-unselect-all="true"></multiselect>
+                    <multiselect placeholder="select" ng-model="selected_data.selected_cell_type" options="cell_type" display-prop="authorized_value" id-prop="id" show-search="true" show-select-all="true" show-unselect-all="true"></multiselect>
                     <table class="table">
                         <thead></thead>
 
                         <tbody>
-                            <tr ng-repeat="(key, value) in selected_cell_type">
+                            <tr ng-repeat="(key, value) in selected_data.selected_cell_type">
                                 <td>{{value.authorized_value}}</td>
                             </tr>
                         </tbody>
                     </table>
                 </td>
                 <td>
-                    <multiselect placeholder="select" ng-model="selected_organization" options="organization" display-prop="authorized_value" id-prop="id" show-search="true" show-select-all="true" show-unselect-all="true">
+                    <multiselect placeholder="select" ng-model="selected_data.selected_organization" options="organization" display-prop="authorized_value" id-prop="id" show-search="true" show-select-all="true" show-unselect-all="true">
                     </multiselect>
                     <table class="table">
                         <thead></thead>
 
                         <tbody>
-                            <tr ng-repeat="(key, value) in selected_organization">
+                            <tr ng-repeat="(key, value) in selected_data.selected_organization">
                                 <td>{{value.authorized_value}}</td>
                             </tr>
                         </tbody>

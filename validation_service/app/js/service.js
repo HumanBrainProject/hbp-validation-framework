@@ -230,9 +230,10 @@ ContextServices.service('Context', ['$rootScope', '$location', 'AppIDRest', 'Col
 
 
 var ParametersConfigurationServices = angular.module('ParametersConfigurationServices', ['ngResource', 'btorfs.multiselect', 'ApiCommunicationServices', 'ContextServices']);
-ParametersConfigurationServices.service('CollabParameters', ['$rootScope', 'CollabParameterRest', 'Context',
-    function($rootScope, CollabParameterRest, Context) {
+ParametersConfigurationServices.service('CollabParameters', ['$rootScope', 'CollabParameterRest', 'Context', 'AuthorizedCollabParameterRest',
+    function($rootScope, CollabParameterRest, Context, AuthorizedCollabParameterRest) {
         var parameters;
+        var default_parameters = undefined; // = build_formated_default_parameters();
         var ctx;
 
         var setCollabId = function(type, newObj) {
@@ -251,6 +252,61 @@ ParametersConfigurationServices.service('CollabParameters', ['$rootScope', 'Coll
         var getParameters = function(type) {
             return parameters.param[0][type];
         };
+
+        var getParametersOrDefault = function(type) {
+            var param = getParameters(type);
+
+            if (param.length > 0) {
+                return param;
+            } else {
+                return default_parameters[type];
+            }
+        };
+
+        var format_parameter_data = function(data) {
+            formated_data = [];
+
+            size = data.length;
+            for (var i = 0; i < size; i++) {
+                formated_data.push(data[i].authorized_value);
+            }
+            return formated_data;
+        };
+        var build_formated_default_parameters = function() {
+            return new Promise(function(resolve, reject) {
+                if (default_parameters == undefined) {
+                    var data = AuthorizedCollabParameterRest.get();
+
+                    data.$promise.then(function() {
+
+                        var data_to_return = {}
+
+                        data_to_return.brain_region = format_parameter_data(data.brain_region);
+                        data_to_return.cell_type = format_parameter_data(data.cell_type);
+                        data_to_return.data_modalities = format_parameter_data(data.data_modalities);
+                        data_to_return.model_type = format_parameter_data(data.model_type);
+                        data_to_return.organization = format_parameter_data(data.organization);
+                        data_to_return.score_type = format_parameter_data(data.score_type);
+                        data_to_return.species = format_parameter_data(data.species);
+                        data_to_return.test_type = format_parameter_data(data.test_type);
+
+                        default_parameters = data_to_return;
+                        // return data_to_return;
+
+
+                        resolve("loaded");
+                    });
+
+
+                } else {
+                    resolve("was already ready");
+
+
+                }
+
+            });
+        };
+
 
         var getParameters_authorized_value_formated = function(type) {
             data = getParameters(type);
@@ -314,35 +370,44 @@ ParametersConfigurationServices.service('CollabParameters', ['$rootScope', 'Coll
             parameters.param[0]['organization'] = string_tab[6];
         };
 
-
         var setService = function(ctx_param) {
-            // ctx = ctx_param;
+            return new Promise(function(resolve, reject) {
+                // ctx = ctx_param;
+                // default_parameters = AuthorizedCollabParameterRest.get();
+                // default_parameters = build_formated_default_parameters();
 
-            if (typeof(parameters) == "undefined") {
+                build_formated_default_parameters().then(function() {
 
-                // console.log("setService");
-                // console.log(Context.getCollabID());
-                // console.log(Context.getAppID());
+                    if (typeof(parameters) == "undefined") {
+                        parameters = CollabParameterRest.get({ app_id: Context.getAppID() }); //need to get collab number
+                        parameters.$promise.then(function() {
 
-                parameters = CollabParameterRest.get({ app_id: Context.getAppID() }); //need to get collab number
-                parameters.$promise.then(function() {
+                            if (parameters.param.length == 0) {
+                                post = _postInitCollab();
+                                post.$promise.then(function() {
+                                    parameters = CollabParameterRest.get({ app_id: Context.getAppID() });
 
-                    if (parameters.param.length == 0) {
+                                    parameters.$promise.then(function() {
+                                        resolve(parameters);
+                                    });
 
-                        post = _postInitCollab();
-                        post.$promise.then(function() {
-                            parameters = CollabParameterRest.get({ app_id: Context.getAppID() });
+                                });
+                            } else {
+                                param_tab = _getParamTabValues();
+                                string_tab = _StringTabToArray(param_tab);
+                                _setParametersNewValues(string_tab);
+                                resolve(parameters);
 
+                            }
                         });
                     } else {
-
-                        param_tab = _getParamTabValues();
-                        string_tab = _StringTabToArray(param_tab);
-                        _setParametersNewValues(string_tab);
+                        parameters.$promise.then(function() {
+                            resolve(parameters);
+                        });
                     }
+                    // return parameters;
                 });
-            }
-            return parameters;
+            });
         };
 
         var _postInitCollab = function() {
@@ -405,7 +470,10 @@ ParametersConfigurationServices.service('CollabParameters', ['$rootScope', 'Coll
                 }, ],
                 '$promise': true,
             };
+        };
 
+        var getDefaultParameters = function() {
+            return default_parameters;
         };
 
         return {
@@ -420,6 +488,8 @@ ParametersConfigurationServices.service('CollabParameters', ['$rootScope', 'Coll
             initConfiguration: initConfiguration,
             getRequestParameters: getRequestParameters,
             setCollabId: setCollabId,
+            getDefaultParameters: getDefaultParameters,
+            getParametersOrDefault: getParametersOrDefault,
         };
 
     }
