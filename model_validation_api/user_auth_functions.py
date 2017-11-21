@@ -20,7 +20,7 @@ logger.addHandler(stream_handler)
 
 
 
-
+    
 def get_authorization_header(request):
     auth = request.META.get("HTTP_AUTHORIZATION", None)
     if auth is None:
@@ -33,6 +33,33 @@ def get_authorization_header(request):
     else:
         logger.debug("Got authorization from HTTP header")
     return {'Authorization': auth}
+
+
+
+# def build_storage_url (request, collab_id):
+    
+#     storage_string = "collab:///2169/folder_test"
+
+#     storage_navigation_data = get_storage_navigation_data(request, collab_id)
+
+    
+
+
+#     goal_url = "https://collab.humanbrainproject.eu/#/collab/2169/nav/18935?state=uuid=9445b96d-6d55-41ef-9d93-727d5d8fabce"
+
+def get_storage_navigation_data (request, collab_id):  
+    svc_url = settings.HBP_COLLAB_SERVICE_URL
+    headers = {'Authorization': get_auth_header(request.user.social_auth.get())}
+    url = '%scollab/%s/nav/all/' % (svc_url, collab_id)
+    res = requests.get(url, headers=headers)
+    if res.status_code != 200:
+        return False
+    
+    for i in res.json() :
+            if i["name"] == "Storage" : 
+                return (i) 
+
+    return (None)
 
 
 def get_user_from_token(request):
