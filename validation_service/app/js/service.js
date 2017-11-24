@@ -692,13 +692,12 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'CollabParameters', 'Context
 
 
                     // manage data for focus
-
                     for (var code in results_data.test_codes) {
                         for (var v in results_data.test_codes[code].model_instances) {
-                            results.push(results_data.test_codes[code].model_instances[v].results);
+                            var keys = Object.keys(results_data.test_codes[code].model_instances[v].results);
+                            results.push(results_data.test_codes[code].model_instances[v].results[keys[0]]);
                         }
                     }
-
                     resolve({ 'values': values, 'results': results, 'list_ids': list_ids, 'abs_info': abscissa_value });
                 });
             });
