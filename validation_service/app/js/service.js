@@ -682,14 +682,19 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'CollabParameters', 'Context
                 results_data.$promise.then(function() {
 
                     for (var code in results_data.test_codes) {
-                        var line_id = results_data.test_codes[code].test_id + '( ' + results_data.test_codes[code].version + ' )';
                         if (results_data.test_codes[code].test_alias && results_data.test_codes[code].test_alias != null && results_data.test_codes[code].test_alias != '' && results_data.test_codes[code].test_alias != 'None') {
-                            line_id = results_data.test_codes[code].test_alias + '( ' + results_data.test_codes[code].version + ' )';
+                            var line_id = results_data.test_codes[code].test_alias + '( ' + results_data.test_codes[code].version + ' )';
+                        } else {
+                            var line_id = results_data.test_codes[code].test_id + '( ' + results_data.test_codes[code].version + ' )';
                         }
-                        var a = values.push(_manageDataForGraph2(results_data.test_codes[code].model_instances, line_id, results_data.test_codes[code].test_id, score_type, abscissa_value));
+
+                        results_data.test_codes[code].line_id = line_id;
+
+                        var a = values.push(_manageDataForGraph2(results_data.test_codes[code].timestamp, results_data.test_codes[code].model_instances, line_id, results_data.test_codes[code].test_id, score_type, abscissa_value));
                         list_ids.push(line_id);
                     };
 
+                    var latest_test_versions_line_id = get_latest_version_test(values, list_ids);
 
                     // manage data for focus
                     for (var code in results_data.test_codes) {
@@ -698,12 +703,38 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'CollabParameters', 'Context
                             results.push(results_data.test_codes[code].model_instances[v].results[keys[0]]);
                         }
                     }
-                    resolve({ 'values': values, 'results': results, 'list_ids': list_ids, 'abs_info': abscissa_value });
+                    resolve({ 'values': values, 'results': results, 'list_ids': list_ids, 'abs_info': abscissa_value, 'latest_test_versions_line_id': latest_test_versions_line_id });
                 });
             });
         };
 
-        var _manageDataForGraph2 = function(data, line_id, test_id, score_type, abscissa_value) {
+        var get_latest_version_test = function(values, list_ids) {
+
+            var latest_version_of_tests = {}
+
+            for (i in values) {
+
+                if (list_ids.indexOf(values[i].key) === -1) {
+
+                } else {
+
+                    if (latest_version_of_tests[values[i].test_id] == undefined) {
+                        latest_version_of_tests[values[i].test_id] = { 'latest_line_id': values[i].key, 'latest_timestamp': values[i].timestamp }
+                    } else {
+
+                        if (latest_version_of_tests[values[i].test_id].latest_timestamp < values[i].timestamp) {
+                            latest_version_of_tests[values[i].test_id].latest_line_id = values[i].key;
+                            latest_version_of_tests[values[i].test_id].latest_timestamp = values[i].timestamp;
+                        }
+                    }
+                }
+            }
+
+            return (latest_version_of_tests);
+
+        }
+
+        var _manageDataForGraph2 = function(timestamp, data, line_id, test_id, score_type, abscissa_value) {
             var values_temp = [];
 
             for (var v in data) {
@@ -724,6 +755,7 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'CollabParameters', 'Context
                 color: _pickRandomColor(), //color - optional: choose your own line color.
                 test_id: test_id,
                 test_score_type: score_type,
+                timestamp: timestamp,
             };
             return data_to_return;
         };
@@ -918,7 +950,6 @@ HelpServices.factory('Help', ['$rootScope', 'Context', 'AuthorizedCollabParamete
             return new Promise(function(resolve, reject) {
                 var authorized_params = AuthorizedCollabParameterRest.get({ app_id: Context.getAppID() });
                 authorized_params.$promise.then(function() {
-                    console.log(authorized_params)
                     if (parameter == 'species') {
                         res = _get_values_only(authorized_params.species);
                         resolve(res);

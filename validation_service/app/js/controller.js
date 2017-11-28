@@ -93,6 +93,7 @@ testApp.controller('ValModelDetailCtrl', ['$scope', '$rootScope', '$http', '$loc
 
     function($scope, $rootScope, $http, $location, $stateParams, ScientificModelRest, ScientificModelInstanceRest, CollabParameters, IsCollabMemberRest, AppIDRest, Graphics, Context, AuthorizedCollabParameterRest) {
         $scope.Context = Context;
+        // var latest_test_versions_line_id = {};
         Context.setService().then(function() {
             $scope.Context = Context;
             var ctx = Context.getCtx();
@@ -104,40 +105,83 @@ testApp.controller('ValModelDetailCtrl', ['$scope', '$rootScope', '$http', '$loc
                 // $scope.is_collab_member.$promise.then(function() {
                 //     $scope.is_collab_member = $scope.is_collab_member.is_member;
                 // });
+
                 $scope.authorized_parameters = AuthorizedCollabParameterRest.get();
+
+                console.log($scope.authorized_parameters);
+
                 $scope.model = ScientificModelRest.get({ app_id: app_id, id: $stateParams.uuid });
                 $scope.model_instances = ScientificModelInstanceRest.get({ app_id: app_id, model_id: $stateParams.uuid })
                 $scope.model.$promise.then(function() {
                     $scope.model_instances.$promise.then(function() {
                         //graph and table results
-                        Graphics.getResultsfromModelResultID2($scope.model, $scope.model_instances).then(function(init_graph) {
+                        Graphics.getResultsfromModelResultID2($scope.model, $scope.model_instances, undefined).then(function(init_graph) {
                             $scope.data = init_graph.values;
                             $scope.init_graph_all = new Array();
                             $scope.line_result_focussed = new Array();
                             $scope.options5 = new Array();
                             $scope.init_checkbox = new Array();
+
+
                             for (var i in $scope.authorized_parameters.score_type) {
+
                                 var score_type = $scope.authorized_parameters.score_type[i].authorized_value;
+
                                 Graphics.getResultsfromModelResultID2($scope.model, $scope.model_instances, score_type).then(function(value) {
                                     var key = $scope.init_graph_all.push(value);
+
                                     $scope.options5.push(Graphics.get_lines_options('', '', $scope.authorized_parameters.score_type[key - 1].authorized_value, "", value.results, "model", key - 1));
                                     //  $scope.init_checkbox.push(value.list_ids);
+
                                     $scope.line_result_focussed.push();
-                                    $scope.$on('data_focussed:updated', function(event, data, key) {
-                                        $scope.line_result_focussed[key] = data;
-                                        $scope.$apply();
-                                    });
                                     $scope.$apply();
+
+
+                                    if ($scope.authorized_parameters.score_type[i] == $scope.authorized_parameters.score_type[$scope.authorized_parameters.score_type.length - 1]) {
+                                        init_checkbox_latest_versions();
+                                    }
+
                                 });
+
                             };
+                            $scope.$on('data_focussed:updated', function(event, data, key) {
+                                $scope.line_result_focussed[key] = data;
+                                $scope.$apply();
+                            });
+
+
                             // console.log($scope.init_graph_all);
                             $scope.init_checkbox = init_graph.list_ids;
                             $scope.init_graph = init_graph;
                         })
                     });
                 });
+            }).then(function() {
+
             });
+
         });
+
+        var init_checkbox_latest_versions = function() {
+            var list_ids = [];
+
+            for (var i = 0; i < $scope.init_graph_all.length; i++) {
+                if ($scope.init_graph_all[i].values.length > 0) {
+                    var graph = $scope.init_graph_all[i];
+                    var score_type = graph.values[0].test_score_type
+
+                    for (var line_id in graph.latest_test_versions_line_id) {
+                        list_ids.push(graph.latest_test_versions_line_id[line_id].latest_line_id);
+                        console.log(graph.latest_test_versions_line_id[line_id].latest_line_id);
+                        document.getElementById('check-' + i + '-' + graph.latest_test_versions_line_id[line_id].latest_line_id).checked = true;
+                    }
+
+                    $scope.init_graph_all[i].values = Graphics.getUpdatedGraph($scope.init_graph_all[i].values, list_ids); // might have problem here
+                    $scope.line_result_focussed[i] = null;
+
+                }
+            }
+        };
 
         $scope.updateGraph = function(key) {
             var list_ids = _IsCheck(key);
@@ -148,8 +192,9 @@ testApp.controller('ValModelDetailCtrl', ['$scope', '$rootScope', '$http', '$loc
         var _IsCheck = function(key) {
             var list_ids = [];
             var i = 0;
+
             for (i; i < $scope.init_graph_all[key].list_ids.length; i++) {
-                if (document.getElementById('check-' + key + '-' + i).checked) {
+                if (document.getElementById('check-' + key + '-' + $scope.init_graph_all[key].list_ids[i]).checked) {
                     list_ids.push($scope.init_graph_all[key].list_ids[i]);
                 };
             };
@@ -502,7 +547,7 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
     }
 ]);
 
-testApp.controller('ValTestResultDetailCtrl', ['$window', '$scope', '$rootScope', '$http', '$sce', '$location', '$stateParams', 'IsCollabMemberRest', 'AppIDRest', 'ValidationResultRest', 'CollabParameters', 'ScientificModelRest', 'ValidationTestDefinitionRest', "Context",
+testApp.controller('ValTestResultDetailCtrl', ['$window', '$scope', '$rootScope', '$http', '$sce', '$location', '$stateParams', 'IsCollabMemberRest', 'AppIDRest', 'ValidationResultRest', 'CollabParameters', 'ScientificModelRest', 'ValidationTestDefinitionRest', "Context", //"clbStorage",
     function($window, $scope, $rootScope, $http, $sce, $location, $stateParams, IsCollabMemberRest, AppIDRest, ValidationResultRest, CollabParameters, ScientificModelRest, ValidationTestDefinitionRest, Context) {
         Context.setService().then(function() {
             $scope.Context = Context;
@@ -531,6 +576,17 @@ testApp.controller('ValTestResultDetailCtrl', ['$window', '$scope', '$rootScope'
         });
 
 
+        //     $scope.$watch('vm.selectedCollabId', function(id) {
+        //       vm.loading = true;
+        //       clbStorage.getEntity({collab: id}).then(function(collabStorage) {
+        //         vm.collabStorage = collabStorage;
+        //       }, function() {
+        //         vm.collabStorage = null;
+        //       })
+        //       .finally(function() {
+        //         vm.loading = false;
+        // });
+
 
         // $http.post("https://lemotetlereste.com/pdf/feuille_2991.pdf", {}, { responseType: 'arraybuffer' })
         //     .success(function(response) {
@@ -549,6 +605,27 @@ testApp.controller('ValTestResultDetailCtrl', ['$window', '$scope', '$rootScope'
 
         //         // <embed ng-src="{{content}}" style="width:200px;height:200px;"></embed>
         //     });
+
+        // $http.get("https://services.humanbrainproject.eu/storage/v1/api/file/7047b77d-10a7-45ee-903a-29fe7a8cc9e5/content/", {}, { responseType: 'arraybuffer' })
+        //     .success(function(response) {
+        //         console.log("succes");
+        //         console.log("succes");
+        //         console.log("succes");
+        //         console.log(response);
+        //         console.log(response);
+
+        //         var file = new Blob([response], { type: 'application/pdf' });
+        //         var fileURL = URL.createObjectURL(file);
+
+        //         console.log("file url generated : ");
+        //         console.log(fileURL);
+        //         $scope.content = $sce.trustAsResourceUrl(fileURL);
+
+        //         // <embed ng-src="{{content}}" style="width:200px;height:200px;"></embed>
+        //     });
+
+
+
 
     }
 ]);

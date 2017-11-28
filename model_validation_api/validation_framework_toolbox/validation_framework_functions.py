@@ -271,6 +271,7 @@ def get_result_informations (result):
     result_info['test_score_type'] = str(test.score_type)
     result_info['test_code_id'] = str(test_code.id)
     result_info['test_code_version'] = str(test_code.version)
+    result_info['test_code_timestamp'] = str(test_code.timestamp)
     
     
     #model info 
@@ -281,6 +282,7 @@ def get_result_informations (result):
     result_info['model_alias'] = str(model.alias)
     result_info['model_instance_id'] = str(model_instance.id)
     result_info['model_instance_version'] = str(model_instance.version)
+    result_info['model_instance_timestamp'] = str(model_instance.timestamp)
 
 
     return (result_info)
@@ -347,7 +349,7 @@ def organise_results_dict ( detailed_view, point_of_view, results, serializer_co
 
             current = data_to_return['test_codes']
             if result_info['test_code_id'] not in current  :
-                 current[result_info['test_code_id']] = { 'version' : result_info['test_code_version'],'test_alias': result_info['test_alias'],'test_id': result_info['test_id'], 'model_instances':{} }
+                 current[result_info['test_code_id']] = { 'version' : result_info['test_code_version'],'test_alias': result_info['test_alias'],'test_id': result_info['test_id'], 'model_instances':{}, 'timestamp': result_info['test_code_timestamp'] }
 
             current = current[result_info['test_code_id']]['model_instances']
             if result_info['model_instance_id'] not in current :
@@ -364,7 +366,7 @@ def organise_results_dict ( detailed_view, point_of_view, results, serializer_co
             result_info = get_result_informations(result)
             current = data_to_return['model_instances']
             if result_info['model_instance_id'] not in current  :
-                 current[result_info['model_instance_id']] = { 'version' : result_info['model_instance_version'],'model_alias': result_info['model_alias'],'model_id': result_info['model_id'], 'test_codes':{} }
+                 current[result_info['model_instance_id']] = { 'version' : result_info['model_instance_version'],'model_alias': result_info['model_alias'],'model_id': result_info['model_id'], 'test_codes':{},  'timestamp': result_info['model_instance_timestamp'] }
 
             current = current[result_info['model_instance_id']]['test_codes']
             if result_info['test_code_id'] not in current :
@@ -373,7 +375,7 @@ def organise_results_dict ( detailed_view, point_of_view, results, serializer_co
             current = current[result_info['test_code_id']]['results']
          
             result_data = ValidationTestResultSerializer(result, context=serializer_context).data
-            current[result_data['id']] = result_data
+            current[result_data['id']] = result_data  
 
     #data_to_return no structuraction 
     else : 
