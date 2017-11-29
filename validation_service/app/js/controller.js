@@ -108,7 +108,7 @@ testApp.controller('ValModelDetailCtrl', ['$scope', '$rootScope', '$http', '$loc
 
                 $scope.authorized_parameters = AuthorizedCollabParameterRest.get();
 
-                console.log($scope.authorized_parameters);
+                // console.log($scope.authorized_parameters);
 
                 $scope.model = ScientificModelRest.get({ app_id: app_id, id: $stateParams.uuid });
                 $scope.model_instances = ScientificModelInstanceRest.get({ app_id: app_id, model_id: $stateParams.uuid })
@@ -172,7 +172,7 @@ testApp.controller('ValModelDetailCtrl', ['$scope', '$rootScope', '$http', '$loc
 
                     for (var line_id in graph.latest_test_versions_line_id) {
                         list_ids.push(graph.latest_test_versions_line_id[line_id].latest_line_id);
-                        console.log(graph.latest_test_versions_line_id[line_id].latest_line_id);
+                        // console.log(graph.latest_test_versions_line_id[line_id].latest_line_id);
                         document.getElementById('check-' + i + '-' + graph.latest_test_versions_line_id[line_id].latest_line_id).checked = true;
                     }
 
@@ -547,8 +547,10 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
     }
 ]);
 
-testApp.controller('ValTestResultDetailCtrl', ['$window', '$scope', '$rootScope', '$http', '$sce', '$location', '$stateParams', 'IsCollabMemberRest', 'AppIDRest', 'ValidationResultRest', 'CollabParameters', 'ScientificModelRest', 'ValidationTestDefinitionRest', "Context", //"clbStorage",
-    function($window, $scope, $rootScope, $http, $sce, $location, $stateParams, IsCollabMemberRest, AppIDRest, ValidationResultRest, CollabParameters, ScientificModelRest, ValidationTestDefinitionRest, Context) {
+testApp.controller('ValTestResultDetailCtrl', ['$window', '$scope', '$rootScope', '$http', '$sce', '$location', '$stateParams', 'IsCollabMemberRest', 'AppIDRest', 'ValidationResultRest', 'CollabParameters', 'ScientificModelRest', 'ValidationTestDefinitionRest', "Context", "clbStorage", "clbAuth",
+    function($window, $scope, $rootScope, $http, $sce, $location, $stateParams, IsCollabMemberRest, AppIDRest, ValidationResultRest, CollabParameters, ScientificModelRest, ValidationTestDefinitionRest, Context, clbStorage, clbAuth) {
+        var vm = this;
+
         Context.setService().then(function() {
             $scope.Context = Context;
 
@@ -557,23 +559,85 @@ testApp.controller('ValTestResultDetailCtrl', ['$window', '$scope', '$rootScope'
 
 
             CollabParameters.setService(ctx).then(function() {
-                // $scope.is_collab_member = false;
-                // $scope.is_collab_member = IsCollabMemberRest.get({ app_id: app_id, });
-                // $scope.is_collab_member.$promise.then(function() {
-                //     $scope.is_collab_member = $scope.is_collab_member.is_member;
-                // });
-                var test_result = ValidationResultRest.get({ id: $stateParams.uuid, order: "", detailed_view: true });
 
+                var test_result = ValidationResultRest.get({ id: $stateParams.uuid, order: "", detailed_view: true });
 
                 test_result.$promise.then(function() {
                     $scope.test_result = test_result.results[0];
 
-                    // $scope.model = ScientificModelRest.get({ app_id: app_id, id: $scope.test_result.data.model_version.model_id });
-                    // $scope.test = ValidationTestDefinitionRest.get({ app_id: app_id, id: $scope.test_result.data.test_code.test_definition_id });
+                    var result_storage = $scope.test_result.results_storage;
+                    result_storage = split_result_storage_sting(result_storage);
+                    var collab_storage = result_storage[0];
+                    var folder_name = result_storage[1];
+
+                    clbStorage.getEntity({ collab: collab_storage }).then(function(collabStorage) {
+                            vm.collabStorage = collabStorage;
+
+                        }, function() {
+
+                        })
+                        .finally(function() {
+                            clbStorage.getChildren({ uuid: vm.collabStorage.uuid, entity_type: 'project' }).then(function(collabStorage_children) {
+                                    vm.collabStorage_children = collabStorage_children;
+
+                                }, function() {
+
+                                })
+                                .finally(function() {
+                                    vm.storage_folder = get_correct_folder_using_name(folder_name, vm.collabStorage_children.results)
+
+                                    clbStorage.getChildren({ uuid: vm.storage_folder.uuid, entity_type: 'folder' }).then(function(storage_folder_children) {
+                                            vm.storage_folder_children = storage_folder_children;
+                                            console.log("files : ", vm.storage_folder_children);
+
+                                        }, function() {
+
+                                        })
+                                        .finally(function() {
+                                            $scope.storage_files = vm.storage_folder_children.results
+
+                                        });
+
+                                });
+                        });
                 });
             });
 
+
+            var split_result_storage_sting = function(storage_string) {
+                storage_string = storage_string.slice(10, storage_string.length)
+                return (storage_string.split('/'));
+            };
+
+            var get_correct_folder_using_name = function(name, folders) {
+                for (var i in folders) {
+                    if (folders[i].name == name) {
+                        return (folders[i]);
+                    }
+                }
+                return null;
+            };
+
+
+
+            // clbStorage.getContent({ uuid: "7047b77d-10a7-45ee-903a-29fe7a8cc9e5" }).then(function(collabStorage) {
+            //         var collabStorage = collabStorage;
+            //         console.log("get content of pdf file, ok it works");
+            //         // console.log(collabStorage);
+
+            //     }, function() {
+            //         console.log(window.bbpConfig)
+            //     })
+            //     .finally(function() {
+
+            //     });
+
+
+
+
+
         });
+
 
 
         //     $scope.$watch('vm.selectedCollabId', function(id) {
