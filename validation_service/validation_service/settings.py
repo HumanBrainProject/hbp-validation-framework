@@ -62,7 +62,7 @@ MIDDLEWARE_CLASSES = (
     'app.middleware.personal_middleware.DisableCsrfCheck',
 
     
-    'django.middleware.common.CommonMiddleware',
+    # 'django.middleware.common.CommonMiddleware',
 
     'django.middleware.csrf.CsrfViewMiddleware',
 
@@ -70,6 +70,7 @@ MIDDLEWARE_CLASSES = (
 
     'django.contrib.sessions.middleware.SessionMiddleware',
 
+    'corsheaders.middleware.CorsMiddleware',
     
     'django.middleware.common.CommonMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -79,10 +80,9 @@ MIDDLEWARE_CLASSES = (
     
     'social.apps.django_app.middleware.SocialAuthExceptionMiddleware',
     # 'social_django.middleware.SocialAuthExceptionMiddleware', ####
-    'corsheaders.middleware.CorsMiddleware',
 
-    
-    
+ 
+  
 )
 
 AUTHENTICATION_BACKENDS = (
@@ -168,6 +168,8 @@ STATICFILES_DIRS = [
 HBP_COLLAB_SERVICE_URL = 'https://services.humanbrainproject.eu/collab/v0/'
 HBP_ENV_URL = 'https://collab.humanbrainproject.eu/config.json'
 HBP_IDENTITY_SERVICE_URL = 'https://services.humanbrainproject.eu/idm/v1/api'
+HBP_STORAGE_SERVICE_URL = 'https://services.humanbrainproject.eu/storage/v1/api/entity/'
+
 
 
 # SECURITY WARNING: keep the secret key used in production secret!
@@ -224,16 +226,19 @@ CSRF_TRUSTED_ORIGINS = [
     'localhost:8000',
     '127.0.0.1:9000',
     # 'https://localhost:8000/app/'
-
+    
     ]
 
 CORS_ORIGIN_WHITELIST = (
     'localhost:8000',
     '127.0.0.1:9000',
-    'https://localhost:8000/app/'
+    'https://localhost:8000/app/',
     
 )
 CORS_ALLOW_CREDENTIALS = True
+
+# CORS_ORIGIN_ALLOW_ALL = True  
+# ACCESS_CONTROL_ALLOW_ORIGIN = 'Access-Control-Allow-Origin'
 
 CSRF_COOKIE_DOMAIN = (
     # ".mydomain.com",
@@ -248,7 +253,8 @@ CORS_ALLOW_HEADERS = (
 'accept',
 'origin',
 'authorization',
-'X-CSRFToken'
+'X-CSRFToken',
+'access-control-allow-origin'
 )
 
 REST_FRAMEWORK = {
