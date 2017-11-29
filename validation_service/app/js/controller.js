@@ -618,6 +618,25 @@ testApp.controller('ValTestResultDetailCtrl', ['$window', '$scope', '$rootScope'
                 return null;
             };
 
+            $scope.download_file = function(uuid) {
+                clbStorage.downloadUrl({ uuid: uuid }).then(function(DownloadURL) {
+                        var DownloadURL = DownloadURL;
+                        var win = window.open(DownloadURL, '_blank');
+                        win.focus();
+
+                    }, function() {
+
+                    })
+                    .finally(function() {
+
+                    });
+
+            };
+
+            $scope.open_overview_file = function() {
+                console.log("overvew");
+            };
+
 
 
             // clbStorage.getContent({ uuid: "7047b77d-10a7-45ee-903a-29fe7a8cc9e5" }).then(function(collabStorage) {

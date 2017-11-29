@@ -188,8 +188,44 @@
 
     </div>
 
+    <div>
+        <h2 align=center>Storage</h2>
 
-    <!--additionnal data-->
+        <!--<table class="table-storage">-->
+        <table class="table table-bordered table-hover specialCollapse">
+
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Content_type</th>
+                    <th>Creation date</th>
+
+                    <th>Overview</th>
+                    <th>Download</th>
+
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="file in storage_files ">
+                    <td>{{ file.name}}</td>
+                    <td>{{ file.content_type }}</td>
+                    <td>{{ file.created_on }}</td>
+                    <td>
+                        <button class="button-MC" ng-click="open_overview_file();"> Overview </button>&ensp;
+                    </td>
+                    <td>
+                        <button class="button-MC" ng-click="download_file(file.uuid);"> Download </button>&ensp;
+                    </td>
+
+
+                </tr>
+            </tbody>
+        </table>
+
+
+        <br>
+        <br>
+
 
 
 </body>
