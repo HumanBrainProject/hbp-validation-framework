@@ -62,6 +62,28 @@ def get_storage_navigation_data (request, collab_id):
     return (None)
 
 
+# def get_storage_file_by_path (request, collab_id):
+#     svc_url = HBP_STORAGE_SERVICE_URL
+#     headers = {'Authorization': get_auth_header(request.user.social_auth.get())}    
+#     # url =  "/storage/v1/api/entity/?path=/12345/file_1"
+#     # 18935
+#     url =  "%s?path=/%s/folder_test/Invoice_200.pdf" % (svc_url, collab_id)
+
+def get_storage_file_by_id (request):
+    url = "https://services.humanbrainproject.eu/storage/v1/api/file/7047b77d-10a7-45ee-903a-29fe7a8cc9e5/content/"
+
+    headers = {'Authorization': get_auth_header(request.user.social_auth.get())}  
+    res = requests.get(url, headers=headers)
+    if res.status_code != 200:
+        return False
+    
+    # print res.__dict__
+    # print res._content
+
+    return res._content 
+    
+
+
 def get_user_from_token(request):
     url = "{}/user/me".format(settings.HBP_IDENTITY_SERVICE_URL)
     headers = get_authorization_header(request)

@@ -114,7 +114,8 @@ from .validation_framework_toolbox.user_auth_functions import (
     _is_collaborator, 
     is_authorised, 
     get_user_info, 
-    is_hbp_member
+    is_hbp_member,
+    get_storage_file_by_id,
 )
 
 from .validation_framework_toolbox.validation_framework_functions import (
@@ -1568,7 +1569,10 @@ class Results (APIView):
                     return Response("You do not access to result : {}".format(result.id), status=status.HTTP_403_FORBIDDEN)
                     
         data_to_return = organise_results_dict(detailed_view, param_order, results, serializer_context)
-            
+
+        # file = get_storage_file_by_id(request)
+        # data_to_return['PDF'] = file
+
         return Response(data_to_return)
 
 
