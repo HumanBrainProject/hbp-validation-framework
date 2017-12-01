@@ -135,6 +135,7 @@
                             <h3 align=center> Selection </h3>
 
                             <thead>
+                                <th align=center>Test</th>
                                 <th align=center>Results storage</th>
                                 <th align=center>Normalized Score</th>
                                 <th align=center>Score</th>
@@ -147,6 +148,7 @@
                             <tbody>
 
                                 <tr class=tr-clickable id=" " ng-repeat="result in line_result_focussed[key] track by $index " ng-click="Context.validation_goToResultDetailView(result.id) ">
+                                    <td>{{ result.line_id }}</td>
                                     <td>{{ result.results_storage }}</td>
                                     <td>{{ result.normalized_score }}</td>
                                     <td>{{ result.score }}</td>

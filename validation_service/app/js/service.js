@@ -507,6 +507,7 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'CollabParameters', 'Context
             var i = 0;
             for (i; i < list_id_couple.length; i++) {
                 data = find_result_in_data(list_id_couple[i], results_data, type);
+                data.line_id = list_id_couple[i].id_line;
                 list_data.push(data);
             }
             $rootScope.$broadcast('data_focussed:updated', list_data, graph_key);
