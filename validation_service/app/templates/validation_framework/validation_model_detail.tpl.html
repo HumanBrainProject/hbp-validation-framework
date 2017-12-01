@@ -153,7 +153,9 @@
                                     <td>{{ result.normalized_score }}</td>
                                     <td>{{ result.score }}</td>
                                     <td>{{ result.passed }}</td>
-                                    <td>{{ result.timestamp }}</td>
+                                    <td>{{ result.timestamp | date:'d MMMM yyyy, hh:mm' : 'UTC'}}
+                                        <!--<time datetime="{{ result.timestamp | date:'d MMMM yyyy, hh:mm' : 'UTC'}}"></time>-->
+                                    </td>
                                     <td>{{ result.platform }}</td>
                                     <td>{{ result.project }}</td>
 
@@ -161,6 +163,7 @@
                                 </tr>
                             </tbody>
                         </table>
+
                     </td>
 
                 </table>

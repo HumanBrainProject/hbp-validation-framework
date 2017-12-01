@@ -530,7 +530,8 @@
 
                 <tbody id="tbody-all-results">
                     <tr class=tr-clickable ng-repeat="result in init_graph.results" ng-click=Context.validation_goToResultDetailView(result.result.id)>
-                        <td>{{result.result.timestamp}}</td>
+                        <td> {{result.result.timestamp | date:'d MMMM yyyy, hh:mm' : 'UTC'}}
+                        </td>
                         <td>{{result.additional_data.model}}</td>
                         <td>{{result.additional_data.model_instance}}</td>
                         <td>{{result.additional_data.test_code}}</td>
@@ -596,7 +597,8 @@
                             <tr class=tr-clickable id="" ng-repeat="result in result_focussed track by $index" ng-click="Context.validation_goToResultDetailView(result.result.id)">
                                 <td>{{ result.additional_data.model }} ({{result.additional_data.model_instance}})</td>
                                 <td>{{ result.additional_data.test_code }}</td>
-                                <td>{{ result.result.timestamp }}</td>
+                                <td>{{ result.result.timestamp | date:'d MMMM yyyy, hh:mm' : 'UTC' }}
+                                </td>
                                 <td>{{ result.result.results_storage }}</td>
                                 <td>{{ result.result.score }}</td>
                                 <td>{{ result.result.passed }}</td>

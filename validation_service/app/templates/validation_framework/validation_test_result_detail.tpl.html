@@ -189,6 +189,9 @@
     </div>
 
     <div>
+
+
+
         <h2 align=center>Storage</h2>
 
         <!--<table class="table-storage">-->
@@ -200,7 +203,7 @@
                     <th>Content_type</th>
                     <th>Creation date</th>
 
-                    <th>Overview</th>
+                    <th>Preview</th>
                     <th>Download</th>
 
                 </tr>
@@ -209,9 +212,9 @@
                 <tr ng-repeat="file in storage_files ">
                     <td>{{ file.name}}</td>
                     <td>{{ file.content_type }}</td>
-                    <td>{{ file.created_on }}</td>
+                    <td>{{ file.created_on | date:'d MMMM yyyy, hh:mm' : 'UTC'}}</td>
                     <td>
-                        <button class="button-MC" ng-click="open_overview_file();"> Overview </button>&ensp;
+                        <button class="button-MC" ng-click="open_overview_file(file.uuid);"> Preview </button>&ensp;
                     </td>
                     <td>
                         <button class="button-MC" ng-click="download_file(file.uuid);"> Download </button>&ensp;
@@ -222,7 +225,38 @@
             </tbody>
         </table>
 
+        <!--<h1 align=center>{{file}}</h1>-->
 
+        <!--<embed ng-src="{{content}}" type='application/pdf;base64' style="width:200px;height:200px; "></embed>-->
+        <!--<embed ng-src="{{file}} "></embed>-->
+        <!--<embed ng-src="{{content}} "></embed>-->
+
+        <iframe ng-src="{{content}}" type='application/pdf;base64' style="width: 100%;height: 100%;border: none;"></iframe>
+        <iframe ng-src="{{content}}" type='application/pdf' style="width: 100%;height: 100%;border: none;"></iframe>
+        <iframe ng-src="{{content}}" style="width: 100%;height: 100%;border: none;"></iframe>
+        <iframe ng-src="{{content}}" type='document' style="width: 100%;height: 100%;border: none;"></iframe>
+        <iframe ng-src="{{content}}" type='document;base64' style="width: 100%;height: 100%;border: none;"></iframe>
+
+        <!--<iframe ng-src="{{a}}" type='application/pdf;base64' style="width: 100%;height: 100%;border: none;"></iframe>
+        <iframe ng-src="{{a}}" type='application/pdf' style="width: 100%;height: 100%;border: none;"></iframe>
+        <iframe ng-src="{{a}}" style="width: 100%;height: 100%;border: none;"></iframe>
+        <iframe ng-src="{{a}}" type='document' style="width: 100%;height: 100%;border: none;"></iframe>
+        <iframe ng-src="{{a}}" type='document;base64' style="width: 100%;height: 100%;border: none;"></iframe>-->
+
+
+        <!--<object data="{{content}}" type="application/pdf"> </object>
+        <object data="{{content}}" type="application/pdf;base64"> </object>-->
+
+
+
+
+
+        <!--<object ng-src=" {{content}} "></object>-->
+
+        <!--test_overview-->
+
+        <br>
+        <br>
         <br>
         <br>
 
