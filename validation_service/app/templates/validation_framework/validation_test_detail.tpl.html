@@ -521,21 +521,21 @@
 
 
                 <thead>
-                    <th id="table-test-result-bottom-up-th">Date/Time</th>
-                    <th id="table-test-result-bottom-down-th">Model Name</th>
-                    <th id="table-test-result-bottom-down-th">Model Version</th>
-                    <th id="table-test-result-bottom-up-th">Test version</th>
-                    <th id="table-test-result-bottom-up-th">Score</th>
+                    <th id="table-test-result-bottom-down-th" style="width: 25%">Model Name</th>
+                    <th id="table-test-result-bottom-down-th" style="width: 15%">Model Version</th>
+                    <th id="table-test-result-bottom-down-th" style="width: 25%">Date/Time</th>
+                    <th id="table-test-result-bottom-down-th" style="width: 15%">Test version</th>
+                    <th id="table-test-result-bottom-down-th" style="width: 20%">Score</th>
                 </thead>
 
                 <tbody id="tbody-all-results">
                     <tr class=tr-clickable ng-repeat="result in init_graph.results" ng-click=Context.validation_goToResultDetailView(result.result.id)>
-                        <td> {{result.result.timestamp | date:'d MMMM yyyy, hh:mm' : 'UTC'}}
-                        </td>
-                        <td>{{result.additional_data.model}}</td>
-                        <td>{{result.additional_data.model_instance}}</td>
-                        <td>{{result.additional_data.test_code}}</td>
-                        <td>{{result.result.score}}</td>
+                        <td style="width: 25%">{{result.additional_data.model_name}}</td>
+                        <td style="width: 15%">{{result.additional_data.model_instance}}</td>
+                        <td style="width: 25%"> {{result.result.timestamp | date:'d MMMM yyyy, hh:mm' : 'UTC'}}</td>
+                        <!--<td style="width: 25%"> dhdhdh</td>-->
+                        <td style="width: 15%">{{result.additional_data.test_code}}</td>
+                        <td style="width: 20%">{{result.result.score}}</td>
                     </tr>
 
                 </tbody>
