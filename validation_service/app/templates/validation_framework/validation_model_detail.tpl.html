@@ -69,6 +69,8 @@
     <div id='panel-no-results' ng-if="init_graph.values.length == 0">
         <h3 align=center> No result available for this model </h3>
     </div>
+
+
     <div id=panel-results ng-if="init_graph.values.length != 0">
         <h4 align=center> <b>  Results </b></h4>
         <br>
@@ -83,9 +85,20 @@
                     </th>
                 </thead>
                 <tbody>
-                    <tr ng-repeat="test in init_graph.values">
-                        <td class=tr-clickable ng-click=Context.validation_goToTestDetailView(test.test_id)>test #{{test.key}} </td>
-                        <td class=tr-clickable ng-click=Context.validation_goToResultDetailView(version.id_test_result) ng-repeat="version in test.values">{{version.y}} </td>
+                    <tr ng-repeat="test_code in data_for_table.test_codes">
+                        <td class=tr-clickable ng-click=Context.validation_goToTestDetailView(test_code.test_id)>test #{{test_code.test_alias}} {{test_code.version}} </td>
+                        <!--<td class=tr-clickable ng-click=Context.validation_goToResultDetailView(version.id_test_result) ng-repeat="model_instance in test_code.model_instances">-->
+                        <td class=tr-clickable ng-repeat="model_instance in test_code.model_instances">
+
+                            <!--<select id="" data-style="btn-primary" ng-model="results_selected">
+                                         <option ng-repeat="result in model_instance.results" value="{{result.score}}">{{result.score}}</option>
+                                         </select>-->
+
+                            <div ng-repeat="result in model_instance.results">
+                                {{result.score}}
+
+                            </div>
+                        </td>
                     </tr>
                 </tbody>
             </table>

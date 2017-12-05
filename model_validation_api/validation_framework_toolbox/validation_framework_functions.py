@@ -353,7 +353,7 @@ def organise_results_dict ( detailed_view, point_of_view, results, serializer_co
 
             current = current[result_info['test_code_id']]['model_instances']
             if result_info['model_instance_id'] not in current :
-                current[result_info['model_instance_id']] = {'version' : result_info['model_instance_version'], 'model_alias' : result_info['model_alias'],'model_id' : result_info['model_id'], 'results' : {} }
+                current[result_info['model_instance_id']] = {'version' : result_info['model_instance_version'], 'model_alias' : result_info['model_alias'],'model_id' : result_info['model_id'], 'timestamp' : result_info['model_instance_timestamp'] , 'results' : {} }
 
             current = current[result_info['model_instance_id']]['results']
             result_data = ValidationTestResultSerializer(result, context=serializer_context).data

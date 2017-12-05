@@ -152,8 +152,16 @@ testApp.controller('ValModelDetailCtrl', ['$scope', '$rootScope', '$http', '$loc
 
                             // console.log($scope.init_graph_all);
                             $scope.init_checkbox = init_graph.list_ids;
-                            $scope.init_graph = init_graph;
+                            // $scope.init_graph = format_data_for_table(init_graph);
+
+
+                            var raw_results_data = init_graph.results_data
+                            $scope.data_for_table = raw_result_data_formated_for_table_data(raw_results_data);
+                            console.log("$scope.data_for_table", $scope.data_for_table)
+
                         })
+
+
                     });
                 });
             }).then(function() {
@@ -161,6 +169,169 @@ testApp.controller('ValModelDetailCtrl', ['$scope', '$rootScope', '$http', '$loc
             });
 
         });
+
+        var raw_result_data_formated_for_table_data = function(raw) {
+
+            for (var i in raw.test_codes) {
+                // console.log("previous model_instances", raw.test_codes[i].model_instances);
+                raw.test_codes[i].model_instances = reformat_model_instances_into_sorted_array(raw.test_codes[i].model_instances);
+                raw.test_codes[i].model_instances = reformat_model_instances_results_into_sorted_array(raw.test_codes[i].model_instances);
+                // console.log("new model_instances", raw.test_codes[i].model_instances);
+            }
+            return raw;
+
+        };
+        var reformat_model_instances_results_into_sorted_array = function(model_instances) {
+            for (var i in model_instances) {
+                model_instances[i].results = dict_to_array(model_instances[i].results);
+                model_instances[i].results = reformat_results_into_sorted_array(model_instances[i].results);
+            }
+
+            return model_instances;
+        };
+
+        var dict_to_array = function(dict) {
+            var array = []
+            for (var i in dict) {
+                array.push(dict[i]);
+            }
+            return (array);
+        };
+
+        var reformat_results_into_sorted_array = function(results) {
+            var temp_results = Object.assign([], results);
+            var new_results = [];
+
+            for (var i in results) {
+                new_results.push(get_and_clean_newest_result(temp_results));
+            }
+
+            return new_results;
+        }
+
+        var get_and_clean_newest_result = function(list) {
+            var newest_element = null;
+            for (var i in list) {
+
+                if (newest_element == null) {
+                    newest_element = list[i];
+                    var count = i;
+                } else {
+                    if (list[i].timestamp < newest_element.timestamp) {
+                        newest_element = list[i];
+                        var count = i;
+                    }
+                }
+            }
+            delete(list[count]);
+            return (newest_element);
+
+        };
+
+        var reformat_model_instances_into_sorted_array = function(model_instances) {
+
+            var temp_model_instances = Object.assign({}, model_instances);
+            var new_instances = [];
+
+            for (var new_instances_count in model_instances) {
+                new_instances.push(get_and_clean_newest_instance(temp_model_instances));
+            }
+
+            return new_instances;
+
+        };
+
+
+        var get_and_clean_newest_instance = function(dict) {
+
+            var newest_element = null;
+            for (var i in dict) {
+
+                if (newest_element == null) {
+                    newest_element = dict[i];
+                    var count = i;
+                } else {
+                    if (dict[i].timestamp < newest_element.timestamp) {
+                        newest_element = dict[i];
+                        var count = i;
+                    }
+                }
+            }
+            delete(dict[count]);
+            return (newest_element);
+
+        }
+
+        var get_newest = function(dict) {
+
+
+            var newest_element = null;
+            for (var i in dict) {
+                if (dict[i].timestamp < newest_element.timestamp || newest_element.timestamp == undefined) {
+                    newest_element = dict[i];
+                }
+            }
+            return (newest_element);
+
+        }
+
+
+        // var format_data_for_table = function(init_graph) {
+        //     console.log(init_graph)
+
+        //     for (i in init_graph.values) {
+        //         init_graph.values[i]
+        //         init_graph.values[i].last_result = "";
+        //         init_graph.values[i].versions_for_table = organise_version_for_table(init_graph.values[i].values);
+        //     }
+
+
+        //     return (init_graph);
+        // };
+
+        // var organise_version_for_table = function(values) {
+
+        //     var formated_data = [];
+
+        //     console.log("IN for :");
+        //     for (var i in values) {
+
+        //         console.log(values);
+
+        //         var formated_data_index = get_index_label_in_list_dict(values[i].label, formated_data)
+
+        //         console.log("formated_data ", formated_data)
+        //         console.log("formated_data_index", formated_data_index)
+
+        //         //if formated_data has values[i].label
+        //         if (Number.isInteger(formated_data_index)) {
+
+        //             console.log(formated_data[formated_data_index]);
+
+        //             // then add the dict value
+        //             formated_data[formated_data_index].values.push({ id_test_result: values[i].id_test_result, score: values[i].y });
+
+
+        //         } else {
+        //             // create this new label 
+        //             formated_data.push({ label: values[i].label, values: [] })
+
+        //             //add the value inside
+        //             formated_data[formated_data.length - 1].values.push({ id_test_result: values[i].id_test_result, score: values[i].y });
+
+        //         }
+        //     }
+
+        // };
+        // var get_index_label_in_list_dict = function(label, list_dict) {
+        //     for (var i in list_dict) {
+        //         if (list_dict[i].label == label) {
+        //             return (i);
+        //         }
+        //     }
+        //     return (false);
+
+        // }
 
         var init_checkbox_latest_versions = function() {
             var list_ids = [];
@@ -621,6 +792,9 @@ testApp.controller('ValTestResultDetailCtrl', ['$window', '$scope', '$rootScope'
             $scope.download_file = function(uuid) {
                 clbStorage.downloadUrl({ uuid: uuid }).then(function(DownloadURL) {
                         var DownloadURL = DownloadURL;
+                        // $scope.content = DownloadURL;
+                        // $scope.content = $sce.trustAsResourceUrl(DownloadURL);
+
                         var win = window.open(DownloadURL, '_blank');
                         win.focus();
 
@@ -633,82 +807,88 @@ testApp.controller('ValTestResultDetailCtrl', ['$window', '$scope', '$rootScope'
 
             };
 
-            $scope.open_overview_file = function() {
-                console.log("overvew");
+            $scope.open_overview_file = function(uuid) {
+
+                clbStorage.getContent({ uuid: uuid, entity_type: 'application/pdf' }).then(function(fileData) {
+                        var fileData = fileData;
+
+                        // var enc = new TextEncoder("utf-8");
+                        var enc = new TextEncoder("ascii");
+                        var fileData2 = enc.encode(fileData)
+
+                        // var string = "";
+                        // for (var i in fileData2) {
+                        //     string = string + String.fromCharCode(fileData2[i])
+                        // }
+
+                        // console.log(String.fromCharCode(fileData2));
+                        // console.log(string);
+
+                        var dec = new TextDecoder("ascii");
+                        var string2 = dec.decode(fileData2)
+                        console.log(string2);
+
+                        // var buf = new ArrayBuffer(str.length * 2); // 2 bytes for each char
+                        // var bufView = new Uint16Array(buf);
+
+
+                        // window.open("data:application/pdf," + escape(fileData));
+                        // window.open("data:application/pdf;base64, " + fileData);
+
+
+
+                        var file = new Blob([fileData2], { type: 'application/pdf' });
+                        // var file = new Blob([fileData2], { type: 'document;base64' });
+                        // var file = new Blob([fileData2], { type: "application/pdf;base64" }); //, { type: 'application/pdf' });
+
+                        // console.log("BLOB : ", file);
+
+                        $scope.file = file;
+
+                        // window.navigator.msSaveOrOpenBlob(file);
+
+                        // window.open("data:application/pdf," + escape(file));
+                        // window.open("data:application/pdf;base64, " + file);
+
+
+
+
+
+                        const fileURL = window.URL.createObjectURL(file);
+                        // var fileURL = window.URL.createObjectURL(fileData2);
+
+
+                        $scope.content = $sce.trustAsResourceUrl(fileURL);
+
+
+                        $scope.a = document.createElement("a");
+                        $scope.a.href = window.URL.createObjectURL(file);
+                        $scope.a.download = "pdf_file"
+                        document.body.appendChild($scope.a);
+                        $scope.a.click();
+
+                        // $scope.a.href = fileURL;
+
+
+                        // window.open("data:application/pdf," + escape(fileURL));
+                        // window.open("data:application/pdf;base64, " + fileURL);
+                        // window.open("data:application/pdf," + escape($scope.content));
+                        // window.open("data:application/pdf;base64, " + $scope.content);
+
+
+
+
+                    }, function() {
+                        console.log("NOPE")
+                    })
+                    .finally(function() {
+
+                    });
+
             };
 
 
-
-            // clbStorage.getContent({ uuid: "7047b77d-10a7-45ee-903a-29fe7a8cc9e5" }).then(function(collabStorage) {
-            //         var collabStorage = collabStorage;
-            //         console.log("get content of pdf file, ok it works");
-            //         // console.log(collabStorage);
-
-            //     }, function() {
-            //         console.log(window.bbpConfig)
-            //     })
-            //     .finally(function() {
-
-            //     });
-
-
-
-
-
         });
-
-
-
-        //     $scope.$watch('vm.selectedCollabId', function(id) {
-        //       vm.loading = true;
-        //       clbStorage.getEntity({collab: id}).then(function(collabStorage) {
-        //         vm.collabStorage = collabStorage;
-        //       }, function() {
-        //         vm.collabStorage = null;
-        //       })
-        //       .finally(function() {
-        //         vm.loading = false;
-        // });
-
-
-        // $http.post("https://lemotetlereste.com/pdf/feuille_2991.pdf", {}, { responseType: 'arraybuffer' })
-        //     .success(function(response) {
-        //         console.log("succes");
-        //         console.log("succes");
-        //         console.log("succes");
-        //         console.log(response);
-        //         console.log(response);
-
-        //         var file = new Blob([response], { type: 'application/pdf' });
-        //         var fileURL = URL.createObjectURL(file);
-
-        //         console.log("file url generated : ");
-        //         console.log(fileURL);
-        //         $scope.content = $sce.trustAsResourceUrl(fileURL);
-
-        //         // <embed ng-src="{{content}}" style="width:200px;height:200px;"></embed>
-        //     });
-
-        // $http.get("https://services.humanbrainproject.eu/storage/v1/api/file/7047b77d-10a7-45ee-903a-29fe7a8cc9e5/content/", {}, { responseType: 'arraybuffer' })
-        //     .success(function(response) {
-        //         console.log("succes");
-        //         console.log("succes");
-        //         console.log("succes");
-        //         console.log(response);
-        //         console.log(response);
-
-        //         var file = new Blob([response], { type: 'application/pdf' });
-        //         var fileURL = URL.createObjectURL(file);
-
-        //         console.log("file url generated : ");
-        //         console.log(fileURL);
-        //         $scope.content = $sce.trustAsResourceUrl(fileURL);
-
-        //         // <embed ng-src="{{content}}" style="width:200px;height:200px;"></embed>
-        //     });
-
-
-
 
     }
 ]);

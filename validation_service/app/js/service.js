@@ -704,7 +704,7 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'CollabParameters', 'Context
                             results.push(results_data.test_codes[code].model_instances[v].results[keys[0]]);
                         }
                     }
-                    resolve({ 'values': values, 'results': results, 'list_ids': list_ids, 'abs_info': abscissa_value, 'latest_test_versions_line_id': latest_test_versions_line_id });
+                    resolve({ results_data: results_data, 'values': values, 'results': results, 'list_ids': list_ids, 'abs_info': abscissa_value, 'latest_test_versions_line_id': latest_test_versions_line_id });
                 });
             });
         };
