@@ -444,6 +444,8 @@ class Command(BaseCommand):
 
         import datetime
 
+        result_storage = "collab:///2169/folder_test"
+
 	##params
 	# app_id = 38111
         app_id = param_app_id
@@ -484,6 +486,10 @@ class Command(BaseCommand):
 	uuid_result7 = uuid.uuid4()
 	uuid_result8 = uuid.uuid4()
 	uuid_result9 = uuid.uuid4()
+	uuid_result10 = uuid.uuid4()
+	uuid_result11 = uuid.uuid4()
+	uuid_result12 = uuid.uuid4()
+	uuid_result13 = uuid.uuid4()
 
 	uuid_result1_2 = uuid.uuid4()
         uuid_result2_2 = uuid.uuid4()
@@ -494,6 +500,8 @@ class Command(BaseCommand):
 	uuid_result7_2 = uuid.uuid4()
 	uuid_result8_2 = uuid.uuid4()
 	uuid_result9_2 = uuid.uuid4()
+
+        uuid_result4_21 = uuid.uuid4()
            
         test1 = ValidationTestDefinition()
 	test1.id = uuid_test1
@@ -643,12 +651,13 @@ class Command(BaseCommand):
         model_version3.source = "http://dd.com"
         model_version3.save()
 
+        #
         result = ValidationTestResult()
 	result.id = uuid_result1
         result.model_version = model_version1
         result.test_code = testcode1
-        result.results_storage ="azerty"
-        result.score= 0.25
+        result.results_storage = result_storage
+        result.score= 0.1111
 	result.normalized_score= result.score
         result.passed = None
         result.timestamp = datetime.datetime.fromtimestamp(time1).strftime('%Y-%m-%d %H:%M:%S')
@@ -660,8 +669,8 @@ class Command(BaseCommand):
 	result.id = uuid_result2
         result.model_version = model_version1
         result.test_code = testcode2
-        result.results_storage ="azerty"
-        result.score= 0.43
+        result.results_storage = result_storage
+        result.score= 0.1211
 	result.normalized_score= result.score
         result.passed = None
         result.timestamp = datetime.datetime.fromtimestamp(time1).strftime('%Y-%m-%d %H:%M:%S')
@@ -673,8 +682,8 @@ class Command(BaseCommand):
 	result.id = uuid_result3
         result.model_version = model_version1
         result.test_code = testcode3
-        result.results_storage ="azerty"
-        result.score= 0.795
+        result.results_storage = result_storage
+        result.score= 0.1311
 	result.normalized_score= result.score
         result.passed = None
         time3 = time2 + 1000000000
@@ -687,8 +696,8 @@ class Command(BaseCommand):
 	result.id = uuid_result4
         result.model_version = model_version2
         result.test_code = testcode1
-        result.results_storage ="azerty"
-        result.score= 0.8
+        result.results_storage = result_storage
+        result.score= 0.2111
 	result.normalized_score= result.score
         result.passed = None
         result.timestamp = datetime.datetime.fromtimestamp(time2).strftime('%Y-%m-%d %H:%M:%S')
@@ -701,8 +710,34 @@ class Command(BaseCommand):
 	result.id = uuid_result5
         result.model_version = model_version2
         result.test_code = testcode2
-        result.results_storage ="azerty"
-        result.score= 0.888
+        result.results_storage = result_storage
+        result.score= 0.2211
+	result.normalized_score= result.score
+        result.passed = None
+        result.timestamp = datetime.datetime.fromtimestamp(time2).strftime('%Y-%m-%d %H:%M:%S')
+        result.platform = "azerty"
+        result.project = "azerty"
+        result.save()
+
+        result = ValidationTestResult()
+	result.id = uuid_result12
+        result.model_version = model_version2
+        result.test_code = testcode2
+        result.results_storage = result_storage
+        result.score= 0.2212
+	result.normalized_score= result.score
+        result.passed = None
+        result.timestamp = datetime.datetime.fromtimestamp(time2).strftime('%Y-%m-%d %H:%M:%S')
+        result.platform = "azerty"
+        result.project = "azerty"
+        result.save()
+
+        result = ValidationTestResult()
+	result.id = uuid_result13
+        result.model_version = model_version2
+        result.test_code = testcode2
+        result.results_storage = result_storage
+        result.score= 0.2213
 	result.normalized_score= result.score
         result.passed = None
         result.timestamp = datetime.datetime.fromtimestamp(time2).strftime('%Y-%m-%d %H:%M:%S')
@@ -714,8 +749,8 @@ class Command(BaseCommand):
 	result.id = uuid_result6
         result.model_version = model_version2
         result.test_code = testcode3
-        result.results_storage ="azerty"
-        result.score= 0.795
+        result.results_storage = result_storage
+        result.score= 0.2311
 	result.normalized_score= result.score
         result.passed = None
         result.timestamp = datetime.datetime.fromtimestamp(time2).strftime('%Y-%m-%d %H:%M:%S')
@@ -727,8 +762,8 @@ class Command(BaseCommand):
 	result.id = uuid_result7
         result.model_version = model_version3
         result.test_code = testcode1
-        result.results_storage ="azerty"
-        result.score= 0.5
+        result.results_storage = result_storage
+        result.score= 0.3111
 	result.normalized_score= result.score
         result.passed = None
         result.timestamp = datetime.datetime.fromtimestamp(time3).strftime('%Y-%m-%d %H:%M:%S')
@@ -740,8 +775,34 @@ class Command(BaseCommand):
 	result.id = uuid_result8
         result.model_version = model_version3
         result.test_code = testcode2
-        result.results_storage ="azerty"
-        result.score= 0.1
+        result.results_storage = result_storage
+        result.score= 0.3211
+	result.normalized_score= result.score
+        result.passed = None
+        result.timestamp = datetime.datetime.fromtimestamp(time3).strftime('%Y-%m-%d %H:%M:%S')
+        result.platform = "azerty"
+        result.project = "azerty"
+        result.save()
+
+        result = ValidationTestResult()
+	result.id = uuid_result9
+        result.model_version = model_version3
+        result.test_code = testcode2
+        result.results_storage = result_storage
+        result.score= 0.3212
+	result.normalized_score= result.score
+        result.passed = None
+        result.timestamp = datetime.datetime.fromtimestamp(time3).strftime('%Y-%m-%d %H:%M:%S')
+        result.platform = "azerty"
+        result.project = "azerty"
+        result.save()
+
+        result = ValidationTestResult()
+	result.id = uuid_result10
+        result.model_version = model_version3
+        result.test_code = testcode2
+        result.results_storage = result_storage
+        result.score= 0.3213
 	result.normalized_score= result.score
         result.passed = None
         result.timestamp = datetime.datetime.fromtimestamp(time3).strftime('%Y-%m-%d %H:%M:%S')
@@ -750,11 +811,11 @@ class Command(BaseCommand):
         result.save()
 
 	result = ValidationTestResult()
-	result.id = uuid_result9
+	result.id = uuid_result11
         result.model_version = model_version3
         result.test_code = testcode3
-        result.results_storage ="azerty"
-        result.score= 0.796
+        result.results_storage = result_storage
+        result.score= 0.3311
 	result.normalized_score= result.score
         result.passed = None
         result.timestamp = datetime.datetime.fromtimestamp(time3).strftime('%Y-%m-%d %H:%M:%S')
@@ -767,8 +828,8 @@ class Command(BaseCommand):
 	result.id = uuid_result1_2
         result.model_version = model_version1
         result.test_code = testcode1_2
-        result.results_storage ="azerty"
-        result.score= 0.25
+        result.results_storage = result_storage
+        result.score= 0.1121
 	result.normalized_score= result.score
         result.passed = None
         result.timestamp = datetime.datetime.fromtimestamp(time1).strftime('%Y-%m-%d %H:%M:%S')
@@ -780,8 +841,8 @@ class Command(BaseCommand):
 	result.id = uuid_result2_2
         result.model_version = model_version1
         result.test_code = testcode2_2
-        result.results_storage ="azerty"
-        result.score= 0.43
+        result.results_storage = result_storage
+        result.score= 0.1221
 	result.normalized_score= result.score
         result.passed = None
         result.timestamp = datetime.datetime.fromtimestamp(time1).strftime('%Y-%m-%d %H:%M:%S')
@@ -793,8 +854,8 @@ class Command(BaseCommand):
 	result.id = uuid_result3_2
         result.model_version = model_version1
         result.test_code = testcode3_2
-        result.results_storage ="azerty"
-        result.score= 0.795
+        result.results_storage = result_storage
+        result.score= 0.1321
 	result.normalized_score= result.score
         result.passed = None
         time3 = time2 + 1000000000
@@ -803,12 +864,26 @@ class Command(BaseCommand):
         result.project = "azerty"
         result.save()
 
+
         result = ValidationTestResult()
 	result.id = uuid_result4_2
         result.model_version = model_version2
         result.test_code = testcode1_2
-        result.results_storage ="azerty"
-        result.score= 0.8
+        result.results_storage = result_storage
+        result.score= 0.2121
+	result.normalized_score= result.score
+        result.passed = None
+        result.timestamp = datetime.datetime.fromtimestamp(time2).strftime('%Y-%m-%d %H:%M:%S')
+        result.platform = "azerty"
+        result.project = "azerty"
+        result.save()
+
+        result = ValidationTestResult()
+	result.id = uuid_result4_21
+        result.model_version = model_version2
+        result.test_code = testcode1_2
+        result.results_storage = result_storage
+        result.score= 0.2122
 	result.normalized_score= result.score
         result.passed = None
         result.timestamp = datetime.datetime.fromtimestamp(time2).strftime('%Y-%m-%d %H:%M:%S')
@@ -817,12 +892,13 @@ class Command(BaseCommand):
         result.save()
 
 
+
         result = ValidationTestResult()
 	result.id = uuid_result5_2
         result.model_version = model_version2
         result.test_code = testcode2_2
-        result.results_storage ="azerty"
-        result.score= 0.888
+        result.results_storage = result_storage
+        result.score= 0.2221
 	result.normalized_score= result.score
         result.passed = None
         result.timestamp = datetime.datetime.fromtimestamp(time2).strftime('%Y-%m-%d %H:%M:%S')
@@ -834,8 +910,8 @@ class Command(BaseCommand):
 	result.id = uuid_result6_2
         result.model_version = model_version2
         result.test_code = testcode3_2
-        result.results_storage ="azerty"
-        result.score= 0.795
+        result.results_storage = result_storage
+        result.score= 0.2321
 	result.normalized_score= result.score
         result.passed = None
         result.timestamp = datetime.datetime.fromtimestamp(time2).strftime('%Y-%m-%d %H:%M:%S')
@@ -847,8 +923,8 @@ class Command(BaseCommand):
 	result.id = uuid_result7_2
         result.model_version = model_version3
         result.test_code = testcode1_2
-        result.results_storage ="azerty"
-        result.score= 0.5
+        result.results_storage = result_storage
+        result.score= 0.3121
 	result.normalized_score= result.score
         result.passed = None
         result.timestamp = datetime.datetime.fromtimestamp(time3).strftime('%Y-%m-%d %H:%M:%S')
@@ -860,8 +936,8 @@ class Command(BaseCommand):
 	result.id = uuid_result8_2
         result.model_version = model_version3
         result.test_code = testcode2_2
-        result.results_storage ="azerty"
-        result.score= 0.1
+        result.results_storage = result_storage
+        result.score= 0.3221
 	result.normalized_score= result.score
         result.passed = None
         result.timestamp = datetime.datetime.fromtimestamp(time3).strftime('%Y-%m-%d %H:%M:%S')
@@ -873,8 +949,8 @@ class Command(BaseCommand):
 	result.id = uuid_result9_2
         result.model_version = model_version3
         result.test_code = testcode3_2
-        result.results_storage ="azerty"
-        result.score= 0.796
+        result.results_storage = result_storage
+        result.score= 0.3321
 	result.normalized_score= result.score
         result.passed = None
         result.timestamp = datetime.datetime.fromtimestamp(time3).strftime('%Y-%m-%d %H:%M:%S')
@@ -918,14 +994,14 @@ class Command(BaseCommand):
         result.save()
 
     def handle(self, *args, **options):
-        # self._create_data_modalities()
-        # self._create_test_types()
-        # self._create_species()
-        # self._create_brain_region()
-        # self._create_cell_type()
-        # self._create_model_type()
-	# self._create_score_type()
-	# self._create_organizations()
+        self._create_data_modalities()
+        self._create_test_types()
+        self._create_species()
+        self._create_brain_region()
+        self._create_cell_type()
+        self._create_model_type()
+	self._create_score_type()
+	self._create_organizations()
 
         # self.add_results_to_test_code_heli("6d59d750bd7c47159f9a6439379169fd","c60f266ec069407f90166e09ffd703e2")
 
