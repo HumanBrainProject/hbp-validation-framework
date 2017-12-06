@@ -792,8 +792,6 @@ testApp.controller('ValTestResultDetailCtrl', ['$window', '$scope', '$rootScope'
             $scope.download_file = function(uuid) {
                 clbStorage.downloadUrl({ uuid: uuid }).then(function(DownloadURL) {
                         var DownloadURL = DownloadURL;
-                        // $scope.content = DownloadURL;
-                        // $scope.content = $sce.trustAsResourceUrl(DownloadURL);
 
                         var win = window.open(DownloadURL, '_blank');
                         win.focus();
@@ -809,77 +807,14 @@ testApp.controller('ValTestResultDetailCtrl', ['$window', '$scope', '$rootScope'
 
             $scope.open_overview_file = function(uuid) {
 
-                clbStorage.getContent({ uuid: uuid, entity_type: 'application/pdf' }).then(function(fileData) {
-                        var fileData = fileData;
+                clbStorage.downloadUrl({ uuid: uuid }).then(function(FileURL) {
+                        var FileURL = FileURL;
 
-                        // var enc = new TextEncoder("utf-8");
-                        var enc = new TextEncoder("ascii");
-                        var fileData2 = enc.encode(fileData)
-
-                        // var string = "";
-                        // for (var i in fileData2) {
-                        //     string = string + String.fromCharCode(fileData2[i])
-                        // }
-
-                        // console.log(String.fromCharCode(fileData2));
-                        // console.log(string);
-
-                        var dec = new TextDecoder("ascii");
-                        var string2 = dec.decode(fileData2)
-                        console.log(string2);
-
-                        // var buf = new ArrayBuffer(str.length * 2); // 2 bytes for each char
-                        // var bufView = new Uint16Array(buf);
-
-
-                        // window.open("data:application/pdf," + escape(fileData));
-                        // window.open("data:application/pdf;base64, " + fileData);
-
-
-
-                        var file = new Blob([fileData2], { type: 'application/pdf' });
-                        // var file = new Blob([fileData2], { type: 'document;base64' });
-                        // var file = new Blob([fileData2], { type: "application/pdf;base64" }); //, { type: 'application/pdf' });
-
-                        // console.log("BLOB : ", file);
-
-                        $scope.file = file;
-
-                        // window.navigator.msSaveOrOpenBlob(file);
-
-                        // window.open("data:application/pdf," + escape(file));
-                        // window.open("data:application/pdf;base64, " + file);
-
-
-
-
-
-                        const fileURL = window.URL.createObjectURL(file);
-                        // var fileURL = window.URL.createObjectURL(fileData2);
-
-
-                        $scope.content = $sce.trustAsResourceUrl(fileURL);
-
-
-                        $scope.a = document.createElement("a");
-                        $scope.a.href = window.URL.createObjectURL(file);
-                        $scope.a.download = "pdf_file"
-                        document.body.appendChild($scope.a);
-                        $scope.a.click();
-
-                        // $scope.a.href = fileURL;
-
-
-                        // window.open("data:application/pdf," + escape(fileURL));
-                        // window.open("data:application/pdf;base64, " + fileURL);
-                        // window.open("data:application/pdf," + escape($scope.content));
-                        // window.open("data:application/pdf;base64, " + $scope.content);
-
-
-
+                        $scope.image = new Image();
+                        $scope.image.src = FileURL;
 
                     }, function() {
-                        console.log("NOPE")
+
                     })
                     .finally(function() {
 
