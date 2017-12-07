@@ -482,6 +482,7 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
                         }
                         instance.timestamp = data.model_instances[model_instance].timestamp;
                         instance.id = model_instance;
+                        instance.model_id = data.model_instances[model_instance].model_id;
                         instance.test_instances = [];
 
                         for (var test_instance in data.model_instances[model_instance].test_codes) {

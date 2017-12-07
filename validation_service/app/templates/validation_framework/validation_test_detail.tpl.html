@@ -519,28 +519,66 @@
         <h3 align=center> Results </h3>
         <br>
         <div id=panel-results ng-if="init_graph.values.length != 0">
-            <table class="table">
-                <thead>
-                    <th>
-                        model id | test version
-                    </th>
-                    <th ng-repeat="version in detail_version_test.test_codes">
-                        {{version.version}}
-                    </th>
-                </thead>
-                <tbody>
-                    <tr ng-repeat="model_instance in data_for_table.model_instances">
-                        <td class=tr-clickable ng-click=Context.validation_goToTestDetailView(test_code.test_id)>model #{{model_instance.line_id}} </td>
-                        <!--<td class=tr-clickable ng-click=Context.validation_goToResultDetailView(version.id_test_result) ng-repeat="model_instance in test_code.model_instances">-->
-                        <td class=tr-clickable ng-repeat="test_code in model_instance.test_instances">
-                            <div ng-repeat="result in test_code.results">
-                                {{result.score}}
+            <div id=VF-model-table-all-data>
+                <table class="table">
+                    <thead>
+                        <th>
+                            model id | test version
+                        </th>
+                        <th ng-repeat="version in detail_version_test.test_codes">
+                            {{version.version}}
+                        </th>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="model_instance in data_for_table.model_instances">
+                            <td class=tr-clickable ng-click=Context.validation_goToModelDetailView(model_instance.model_id)>model #{{model_instance.line_id}} </td>
 
-                            </div>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+                            <td ng-repeat="test_code in model_instance.test_instances">
+                                <div ng-if="test_code.results.length <= 3">
+                                    <table>
+                                        <thead> </thead>
+
+                                        <tbody>
+                                            <tr ng-repeat="(key,result) in test_code.results">
+                                                <td class=tr-clickable ng-click=Context.validation_goToResultDetailView(result.id)>
+                                                    <div ng-if="key == 0">
+                                                        <b> {{result.score}} </b>
+                                                    </div>
+                                                    <div ng-if="key != 0">
+                                                        {{result.score}}
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                <div ng-if="test_code.results.length > 3" style="height:75px;overflow:auto;">
+                                    <table>
+                                        <thead> </thead>
+
+                                        <tbody>
+                                            <tr ng-repeat="(key,result) in test_code.results">
+                                                <td class=tr-clickable ng-click=Context.validation_goToResultDetailView(result.id)>
+                                                    <div ng-if="key == 0">
+                                                        <b> {{result.score}} </b>
+
+                                                    </div>
+                                                    <div ng-if="key != 0">
+                                                        {{result.score}}
+
+                                                    </div>
+                                                </td>
+
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
             <!--<table class="table" id=table-test-result>
 
 
