@@ -658,15 +658,15 @@
                         <tbody>
 
                             <tr class=tr-clickable id="" ng-repeat="result in result_focussed track by $index" ng-click="Context.validation_goToResultDetailView(result.result.id)">
-                                <td>{{ result.additional_data.model }} ({{result.additional_data.model_instance}})</td>
+                                <td>{{ result.line_id}}</td>
                                 <td>{{ result.additional_data.test_code }}</td>
-                                <td>{{ result.result.timestamp | date:'d MMMM yyyy, hh:mm' : 'UTC' }}
+                                <td>{{ result.timestamp | date:'d MMMM yyyy, hh:mm' : 'UTC' }}
                                 </td>
-                                <td>{{ result.result.results_storage }}</td>
-                                <td>{{ result.result.score }}</td>
-                                <td>{{ result.result.passed }}</td>
-                                <td>{{ result.result.platform }}</td>
-                                <td>{{ result.result.project }}</td>
+                                <td>{{ result.results_storage }}</td>
+                                <td>{{ result.score }}</td>
+                                <td>{{ result.passed }}</td>
+                                <td>{{ result.platform }}</td>
+                                <td>{{ result.project }}</td>
                             </tr>
 
                         </tbody>

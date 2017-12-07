@@ -510,11 +510,13 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'CollabParameters', 'Context
                 data.line_id = list_id_couple[i].id_line;
                 list_data.push(data);
             }
+            console.log(list_data)
+            console.log(graph_key)
             $rootScope.$broadcast('data_focussed:updated', list_data, graph_key);
         };
         var find_result_in_data = function(id_couple, results_data, type) {
             var result_to_return = undefined;
-
+            console.log("id_couple", id_couple)
             var id_line = id_couple.id_line;
             var id_result = id_couple.id_result;
             //find the correct datablock
@@ -532,8 +534,8 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'CollabParameters', 'Context
                 for (j; j < datablock.length; j++) {
                     if (datablock[j].id == id_result) {
                         result_to_return = datablock[j];
-                    }
-                }
+                    };
+                };
                 return result_to_return;
 
             }
@@ -541,20 +543,22 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'CollabParameters', 'Context
                 //find the correct result in datablock
                 for (var i in results_data) {
                     if (id_result == results_data[i].id) {
-                        result_to_return = results_data[i]
-                    }
-                }
+                        result_to_return = results_data[i];
+                    };
+                };
                 return result_to_return;
-            }
+            };
             if (type == 'test') {
-                //find the correct result in datablock
                 for (var i in results_data) {
-                    if (id_result == results_data[i].result.id) {
-                        result_to_return = results_data[i]
-                    }
-                }
+                    for (var j in results_data[i].result) {
+                        if (id_result == results_data[i].result[j].id) {
+                            var result_to_return = results_data[i].result[j];
+                            result_to_return.additional_data = results_data[i].additional_data;
+                        };
+                    };
+                };
                 return result_to_return;
-            }
+            };
         };
 
         var getResultsfromTestID = function(test, ids) {
