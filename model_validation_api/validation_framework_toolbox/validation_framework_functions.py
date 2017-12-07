@@ -372,7 +372,7 @@ def organise_results_dict ( detailed_view, point_of_view, results, serializer_co
 
             current = current[result_info['model_instance_id']]['test_codes']
             if result_info['test_code_id'] not in current :
-                current[result_info['test_code_id']] = {'version' : result_info['test_code_version'], 'model_alias' : result_info['test_alias'],'test_id' : result_info['test_id'], 'results' : {} }
+                current[result_info['test_code_id']] = {'version' : result_info['test_code_version'], 'test_alias' : result_info['test_alias'],'test_id' : result_info['test_id'], 'timestamp' : result_info['test_code_timestamp'], 'results' : {} }
 
             current = current[result_info['test_code_id']]['results']
          

@@ -606,17 +606,13 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'CollabParameters', 'Context
                                 "test_code": results_data.model_instances[instance].test_codes[c].version
                             }
 
+                            var res = [];
                             for (var r in results_data.model_instances[instance].test_codes[c].results) {
-
-                                if (res) {
-                                    if (results_data.model_instances[instance].test_codes[c].results[r] > res.timestamp) {
-                                        res = results_data.model_instances[instance].test_codes[c].results[r];
-                                    }
-                                } else {
-                                    var res = results_data.model_instances[instance].test_codes[c].results[r]
-                                }
+                                res.push(results_data.model_instances[instance].test_codes[c].results[r]);
                             }
-                            results.push({ "result": res, "additional_data": additional_data });
+
+                            results.push({ "result": res.sort(_sort_results_by_timestamp), "additional_data": additional_data });
+                            // results.push({ "result": results_data.model_instances[instance].test_codes[c].results, "additional_data": additional_data });
                         }
                     }
 
@@ -633,9 +629,13 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'CollabParameters', 'Context
                         list_ids.push(line_id)
                     };
                 });
-                resolve({ 'values': values, 'results': results, 'list_ids': list_ids, 'abs_info': abscissa_value });
+                resolve({ 'raw_data': results_data, 'values': values, 'results': results, 'list_ids': list_ids, 'abs_info': abscissa_value });
             });
         }
+        var _sort_results_by_timestamp = function(a, b) {
+            return new Date(b.timestamp) - new Date(a.timestamp);
+        }
+
         var _manageDataForTestGraph2 = function(data, line_id, model_id, abscissa_value) {
             var values_temp = [];
 
@@ -901,7 +901,7 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'CollabParameters', 'Context
                 },
                 subtitle: {
                     enable: false,
-                    text: subtitle,
+                    text: "", //subtitle,
                     css: {
                         'text-align': 'center',
                         'margin': '10px 13px 0px 7px'
