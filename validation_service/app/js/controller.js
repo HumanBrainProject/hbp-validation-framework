@@ -728,7 +728,6 @@ testApp.controller('ValTestResultDetailCtrl', ['$window', '$scope', '$rootScope'
             var ctx = Context.getCtx();
             var app_id = Context.getAppID();
 
-
             CollabParameters.setService(ctx).then(function() {
 
                 var test_result = ValidationResultRest.get({ id: $stateParams.uuid, order: "", detailed_view: true });
@@ -741,36 +740,16 @@ testApp.controller('ValTestResultDetailCtrl', ['$window', '$scope', '$rootScope'
                     var collab_storage = result_storage[0];
                     var folder_name = result_storage[1];
 
-                    clbStorage.getEntity({ collab: collab_storage }).then(function(collabStorage) {
-                            vm.collabStorage = collabStorage;
+                    clbStorage.getEntity({ path: "?path=/" + collab_storage + "/" + folder_name + "/" }).then(function(collabStorageFolder) {
 
-                        }, function() {
+                        clbStorage.getChildren({ uuid: collabStorageFolder.uuid, entity_type: 'folder' }).then(function(storage_folder_children) {
+                                $scope.storage_files = storage_folder_children.results
 
-                        })
-                        .finally(function() {
-                            clbStorage.getChildren({ uuid: vm.collabStorage.uuid, entity_type: 'project' }).then(function(collabStorage_children) {
-                                    vm.collabStorage_children = collabStorage_children;
+                            }, function() {})
+                            .finally(function() {});
 
-                                }, function() {
+                    }, function(not_worked) {}).finally(function() {});
 
-                                })
-                                .finally(function() {
-                                    vm.storage_folder = get_correct_folder_using_name(folder_name, vm.collabStorage_children.results)
-
-                                    clbStorage.getChildren({ uuid: vm.storage_folder.uuid, entity_type: 'folder' }).then(function(storage_folder_children) {
-                                            vm.storage_folder_children = storage_folder_children;
-                                            console.log("files : ", vm.storage_folder_children);
-
-                                        }, function() {
-
-                                        })
-                                        .finally(function() {
-                                            $scope.storage_files = vm.storage_folder_children.results
-
-                                        });
-
-                                });
-                        });
                 });
             });
 
