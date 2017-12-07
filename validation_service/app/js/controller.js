@@ -423,21 +423,29 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
                     $scope.detail_version_test.$promise.then(function() {
                         Graphics.getResultsfromTestID2($scope.detail_test, $scope.detail_version_test).then(function(init_graph) {
 
+
                             $scope.result_focussed;
                             $scope.$on('data_focussed:updated', function(event, data, key) {
                                 $scope.result_focussed = data;
                                 $scope.$apply();
                             });
+
                             $scope.init_graph = init_graph;
                             $scope.graphic_data = init_graph.values;
                             $scope.init_checkbox = init_graph.list_ids;
                             $scope.graphic_options = Graphics.get_lines_options('', '', $scope.detail_test.tests[0].score_type, "", init_graph.results, "test", "", init_graph.abs_info);
+
+                            var raw_data = init_graph.raw_data;
+                            raw_data.$promise.then(function() {
+                                $scope.data_for_table = _reorganize_raw_data_for_table(raw_data);
+                            })
 
                         }).catch(function(err) {
                             console.error('Erreur !');
                             console.dir(err);
                             console.log(err);
                         });
+
                         //for tab version (edit)
                         $scope.version_in_edition = [];
                         $scope.version_is_editable = [];
@@ -448,6 +456,9 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
                         $scope.button_save_ticket = [];
                         $scope.button_save_comment = [];
 
+
+
+
                         var version_editable = AreVersionsEditableRest.get({ app_id: app_id, test_id: $stateParams.uuid });
                         version_editable.$promise.then(function(versions) {
                             $scope.version_is_editable = versions.are_editable;
@@ -455,6 +466,55 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
 
                     });
                 });
+
+                var _reorganize_raw_data_for_table = function(data) {
+                    var organized_data = new Object();
+                    organized_data.model_instances = [];
+
+
+                    for (var model_instance in data.model_instances) {
+                        var instance = new Object();
+                        if (data.model_instances[model_instance].model_alias && data.model_instances[model_instance].model_alias !== null && data.model_instances[model_instance].model_alias !== '' && data.model_instances[model_instance].model_alias !== "None") {
+                            instance.line_id = data.model_instances[model_instance].model_alias + ' (' + data.model_instances[model_instance].version + ')';
+
+                        } else {
+                            instance.line_id = data.model_instances[model_instance].model_id + ' (' + data.model_instances[model_instance].version + ')';
+                        }
+                        instance.timestamp = data.model_instances[model_instance].timestamp;
+                        instance.id = model_instance;
+                        instance.test_instances = [];
+
+                        for (var test_instance in data.model_instances[model_instance].test_codes) {
+                            var code = new Object();
+                            code.version = data.model_instances[model_instance].test_codes[test_instance].version;
+                            code.timestamp = data.model_instances[model_instance].test_codes[test_instance].timestamp;
+
+                            code.results = [];
+                            for (var result in data.model_instances[model_instance].test_codes[test_instance].results) {
+                                code.results.push(data.model_instances[model_instance].test_codes[test_instance].results[result]);
+                            }
+                            //order results by timestamp
+                            code.results = code.results.sort(_sort_by_timestamp_desc);
+
+                            instance.test_instances.push(code);
+                        }
+                        //order test_instances by timestamp
+                        instance.test_instances = instance.test_instances.sort(_sort_by_timestamp_asc);
+                        organized_data.model_instances.push(instance);
+                    }
+                    return organized_data;
+
+                };
+
+
+                var _sort_by_timestamp_desc = function(a, b) {
+                    return new Date(b.timestamp) - new Date(a.timestamp);
+                }
+
+                var _sort_by_timestamp_asc = function(a, b) {
+                    return new Date(a.timestamp) - new Date(b.timestamp);
+                }
+
                 var _add_params = function() {
                     $scope.test_code.test_definition_id = $scope.detail_test.tests[0].id;
                 };

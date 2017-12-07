@@ -700,7 +700,7 @@ class Models(APIView):
                     private=0, 
                     species__in=species_filter, 
                     brain_region__in=brain_region_filter, 
-                    cell_type__in=cell_type_filter, 
+                    cell_type__in=cell_type_filter,
                     model_type__in=model_type_filter,
                     organization__in=organization_filter).prefetch_related()
 

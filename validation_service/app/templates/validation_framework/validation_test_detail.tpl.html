@@ -516,7 +516,29 @@
         <h3 align=center> Results </h3>
         <br>
         <div id=panel-results ng-if="init_graph.values.length != 0">
-            <table class="table" id=table-test-result>
+            <table class="table">
+                <thead>
+                    <th>
+                        model id | test version
+                    </th>
+                    <th ng-repeat="version in detail_version_test.test_codes">
+                        {{version.version}}
+                    </th>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="model_instance in data_for_table.model_instances">
+                        <td class=tr-clickable ng-click=Context.validation_goToTestDetailView(test_code.test_id)>model #{{model_instance.line_id}} </td>
+                        <!--<td class=tr-clickable ng-click=Context.validation_goToResultDetailView(version.id_test_result) ng-repeat="model_instance in test_code.model_instances">-->
+                        <td class=tr-clickable ng-repeat="test_code in model_instance.test_instances">
+                            <div ng-repeat="result in test_code.results">
+                                {{result.score}}
+
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <!--<table class="table" id=table-test-result>
 
 
 
@@ -530,16 +552,25 @@
 
                 <tbody id="tbody-all-results">
                     <tr class=tr-clickable ng-repeat="result in init_graph.results" ng-click=Context.validation_goToResultDetailView(result.result.id)>
-                        <td> {{result.result.timestamp | date:'d MMMM yyyy, hh:mm' : 'UTC'}}
+                        <td>
+                            <div ng-repeat="res in result.result">
+                                {{res.timestamp | date:'d MMMM yyyy, hh:mm' : 'UTC'}}
+                            </div>
                         </td>
                         <td>{{result.additional_data.model}}</td>
                         <td>{{result.additional_data.model_instance}}</td>
                         <td>{{result.additional_data.test_code}}</td>
-                        <td>{{result.result.score}}</td>
+                        <td>
+
+                            <div ng-repeat="res in result.result">
+                                {{res.score}}
+                            </div>
+
+                        </td>
                     </tr>
 
                 </tbody>
-            </table>
+            </table>-->
 
             <br><br>
             <br><br>

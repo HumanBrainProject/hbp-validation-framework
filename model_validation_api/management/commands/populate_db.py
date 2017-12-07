@@ -32,21 +32,23 @@ class Command(BaseCommand):
         Param_DataModalities(id=uuid.uuid4(),authorized_value='histology').save()   
     
     def _create_organizations(self):
-        Param_organizations(id=uuid.uuid4(),authorized_value='HBP-SP1').save()
-        Param_organizations(id=uuid.uuid4(),authorized_value='HBP-SP2').save()
-        Param_organizations(id=uuid.uuid4(),authorized_value='HBP-SP3').save()            
-        Param_organizations(id=uuid.uuid4(),authorized_value='HBP-SP4').save()
-        Param_organizations(id=uuid.uuid4(),authorized_value='HBP-SP5').save()
-        Param_organizations(id=uuid.uuid4(),authorized_value='HBP-SP6').save()
-        Param_organizations(id=uuid.uuid4(),authorized_value='HBP-SP7').save()
-        Param_organizations(id=uuid.uuid4(),authorized_value='HBP-SP8').save()
-        Param_organizations(id=uuid.uuid4(),authorized_value='HBP-SP9').save()
-        Param_organizations(id=uuid.uuid4(),authorized_value='HBP-SP10').save()
-        Param_organizations(id=uuid.uuid4(),authorized_value='HBP-SP11').save()
-        Param_organizations(id=uuid.uuid4(),authorized_value='HBP-SP12').save()
-        Param_organizations(id=uuid.uuid4(),authorized_value='Blue Brain Project').save() 
-	Param_organizations(id=uuid.uuid4(),authorized_value='Other').save()  
+        # Param_organizations(id=uuid.uuid4(),authorized_value='HBP-SP1').save()
+        # Param_organizations(id=uuid.uuid4(),authorized_value='HBP-SP2').save()
+        # Param_organizations(id=uuid.uuid4(),authorized_value='HBP-SP3').save()            
+        # Param_organizations(id=uuid.uuid4(),authorized_value='HBP-SP4').save()
+        # Param_organizations(id=uuid.uuid4(),authorized_value='HBP-SP5').save()
+        # Param_organizations(id=uuid.uuid4(),authorized_value='HBP-SP6').save()
+        # Param_organizations(id=uuid.uuid4(),authorized_value='HBP-SP7').save()
+        # Param_organizations(id=uuid.uuid4(),authorized_value='HBP-SP8').save()
+        # Param_organizations(id=uuid.uuid4(),authorized_value='HBP-SP9').save()
+        # Param_organizations(id=uuid.uuid4(),authorized_value='HBP-SP10').save()
+        # Param_organizations(id=uuid.uuid4(),authorized_value='HBP-SP11').save()
+        # Param_organizations(id=uuid.uuid4(),authorized_value='HBP-SP12').save()
+        # Param_organizations(id=uuid.uuid4(),authorized_value='Blue Brain Project').save() 
+	# Param_organizations(id=uuid.uuid4(),authorized_value='Other').save()  
 	Param_organizations(id=uuid.uuid4(),authorized_value='KOKI-UNIC').save()
+        # Param_organizations(id=uuid.uuid4(),authorized_value='KTH-UNIC').save()
+
  
         	
     def _create_test_types(self): 
@@ -992,24 +994,30 @@ class Command(BaseCommand):
         result.platform = "azerty"
         result.project = "azerty"
         result.save()
-
+    def delete_specific_organization(self, organization):
+        organization_to_delete = Param_organizations.objects.filter(authorized_value = organization)
+        organization_to_delete.delete()
     def handle(self, *args, **options):
-        self._create_data_modalities()
-        self._create_test_types()
-        self._create_species()
-        self._create_brain_region()
-        self._create_cell_type()
-        self._create_model_type()
-	self._create_score_type()
+        # self._create_data_modalities()
+        # self._create_test_types()
+        # self._create_species()
+        # self._create_brain_region()
+        # self._create_cell_type()
+        # self._create_model_type()
+	# self._create_score_type()
 	self._create_organizations()
-
-        # self.add_results_to_test_code_heli("6d59d750bd7c47159f9a6439379169fd","c60f266ec069407f90166e09ffd703e2")
+        # self.delete_specific_organization('KOKI-UNIC')
+        # self.add_results_to_test_code_heli("89bedb648d7e4e4db9f1271a9f4f9523","f36b1010cb1e4568b8af1e6739c14aaa")
+        # self.add_results_to_test_code_heli("89bedb648d7e4e4db9f1271a9f4f9523","886473570a324cc88dc2aff8d4140a90")
+        # self.add_results_to_test_code_heli("302210807cee4f94b6d6e0fc12d90ca5","cce2c00728d4462ba090a2696c1f076d")
+        # self.add_results_to_test_code_heli("302210807cee4f94b6d6e0fc12d90ca5","cce2c00728d4462ba090a2696c1f076d")
+        # self.add_results_to_test_code_heli("302210807cee4f94b6d6e0fc12d90ca5","886473570a324cc88dc2aff8d4140a90")
 
         # self._fake_collab()
 	# self.old_fake_models_test_results()
        
 
-        self._fake_models_test_results(param_app_id=36714)
+        # self._fake_models_test_results(param_app_id=37928)
         # self.delete_models_in_collab(collab_id = 2180)
 
 
