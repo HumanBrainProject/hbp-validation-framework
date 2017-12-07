@@ -267,6 +267,7 @@ def get_result_informations (result):
     test = ValidationTestDefinition.objects.get(id=test_code.test_definition_id)
     
     result_info['test_id'] = str(test_code.test_definition_id)
+    result_info['test_name'] = str(test.name)
     result_info['test_alias'] = str(test.alias)
     result_info['test_score_type'] = str(test.score_type)
     result_info['test_code_id'] = str(test_code.id)
@@ -279,6 +280,7 @@ def get_result_informations (result):
     model = ScientificModel.objects.get(id=model_instance.model_id)
    
     result_info['model_id'] = str(model.id)
+    result_info['model_name'] = str(model.name)
     result_info['model_alias'] = str(model.alias)
     result_info['model_instance_id'] = str(model_instance.id)
     result_info['model_instance_version'] = str(model_instance.version)
@@ -349,7 +351,7 @@ def organise_results_dict ( detailed_view, point_of_view, results, serializer_co
 
             current = data_to_return['test_codes']
             if result_info['test_code_id'] not in current  :
-                 current[result_info['test_code_id']] = { 'version' : result_info['test_code_version'],'test_alias': result_info['test_alias'],'test_id': result_info['test_id'], 'model_instances':{}, 'timestamp': result_info['test_code_timestamp'] }
+                 current[result_info['test_code_id']] = { 'version' : result_info['test_code_version'],'test_alias': result_info['test_alias'],'test_id': result_info['test_id'], 'test_name': result_info['test_name'], 'model_instances':{}, 'timestamp': result_info['test_code_timestamp'] }
 
             current = current[result_info['test_code_id']]['model_instances']
             if result_info['model_instance_id'] not in current :
@@ -366,7 +368,7 @@ def organise_results_dict ( detailed_view, point_of_view, results, serializer_co
             result_info = get_result_informations(result)
             current = data_to_return['model_instances']
             if result_info['model_instance_id'] not in current  :
-                 current[result_info['model_instance_id']] = { 'version' : result_info['model_instance_version'],'model_alias': result_info['model_alias'],'model_id': result_info['model_id'], 'test_codes':{},  'timestamp': result_info['model_instance_timestamp'] }
+                 current[result_info['model_instance_id']] = { 'version' : result_info['model_instance_version'],'model_alias': result_info['model_alias'],'model_id': result_info['model_id'], 'model_name': result_info['model_name'], 'test_codes':{},  'timestamp': result_info['model_instance_timestamp'] }
 
             current = current[result_info['model_instance_id']]['test_codes']
             if result_info['test_code_id'] not in current :

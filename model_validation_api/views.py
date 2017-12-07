@@ -1410,22 +1410,6 @@ class ModelCatalogView(View):
         return render(request, self.template_name, {'models':models})
 
 # @method_decorator(login_required(login_url='/login/hbp'), name='dispatch' )
-class ParametersConfigurationValidationView(View):
-    
-    template_name = "configuration/parameters-configuration.html"
-    login_url='/login/hbp/'
-    def get(self, request, *args, **kwargs):
-       return render(request, self.template_name, {'app_type': "validation_app"})
-
-# @method_decorator(login_required(login_url='/login/hbp'), name='dispatch' )
-class ParametersConfigurationModelView(View):
-    
-    template_name = "configuration/parameters-configuration.html"
-    login_url='/login/hbp/'
-
-
-    def get(self, request, *args, **kwargs):
-        return render(request, self.template_name, {'app_type': "model_catalog"})
 
 
 class IsCollabMemberRest (APIView):
@@ -1643,20 +1627,48 @@ class Results (APIView):
 
 
         
-        
+class ParametersConfigurationValidationView(View):
+    
+    template_name = "configuration/parameters-configuration.html"
+    login_url='/login/hbp/'
+    def get(self, request, *args, **kwargs):
+       return render(request, self.template_name, {'app_type': "validation_app"})
+    
+    @method_decorator(login_required(login_url='/login/hbp/'))
+    def dispatch(self, *args, **kwargs):
+        return super(ParametersConfigurationValidationView, self).dispatch(*args, **kwargs)
+
+      
             
 
+# @method_decorator(login_required(login_url='/login/hbp'), name='dispatch' )
+class ParametersConfigurationModelView(View):
+    
+    template_name = "configuration/parameters-configuration.html"
+    login_url='/login/hbp/'
+
+
+    def get(self, request, *args, **kwargs):
+        print "ParametersConfigurationModelView"
+
+        return render(request, self.template_name, {'app_type': "model_catalog"})
+
+    @method_decorator(login_required(login_url='/login/hbp/'))
+    def dispatch(self, *args, **kwargs):
+        return super(ParametersConfigurationModelView, self).dispatch(*args, **kwargs)
 
      
 
 
+@method_decorator(login_required(login_url='/login/hbp'), name='dispatch' )
+class ParametersConfigurationView(View): 
 
-class ParametersConfigurationView(View):   
     
     template_name = "configuration/parameters-configuration.html"
     login_url='/login/hbp/'
 
     def get(self, request, *args, **kwargs):
+        print "ParametersConfigurationView"  
         return render(request, self.template_name)
 
 class  AreVersionsEditableRest(APIView):

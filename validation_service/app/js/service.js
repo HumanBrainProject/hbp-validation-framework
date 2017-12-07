@@ -600,7 +600,8 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'CollabParameters', 'Context
                         } else { m = results_data.model_instances[instance].model_id }
                         for (var c in results_data.model_instances[instance].test_codes) {
                             var additional_data = {
-                                "model": results_data.model_instances[instance].model_id,
+                                "model_name": results_data.model_instances[instance].model_name,
+                                "model_id": results_data.model_instances[instance].model_id,
                                 "model_instance": results_data.model_instances[instance].version,
                                 "test_code": results_data.model_instances[instance].test_codes[c].version
                             }
