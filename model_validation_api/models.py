@@ -44,6 +44,8 @@ class ValidationTestDefinition(models.Model):
     publication = models.CharField(max_length=1000, null=True, blank=True, help_text="Publication in which the validation data set was reported")  # E
     score_type = models.CharField(help_text="Type of score: p-value, r square ..", max_length=20)
     alias = models.CharField(max_length=200, unique=True, null=True, default=None, help_text="alias of the test") 
+    creation_date = models.DateTimeField(auto_now_add=True, help_text="creation date of the test")
+    
     # missing fields wrt Lungsi's spreadsheet
     # L - file format  - infer from file suffix?
     # N - registered with NIP?
