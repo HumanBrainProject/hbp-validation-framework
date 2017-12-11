@@ -431,14 +431,17 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
                             });
 
                             $scope.init_graph = init_graph;
-                            $scope.graphic_data = init_graph.values;
+
                             $scope.init_checkbox = init_graph.list_ids;
                             $scope.graphic_options = Graphics.get_lines_options('', '', $scope.detail_test.tests[0].score_type, "", init_graph.results, "test", "", init_graph.abs_info);
-
                             var raw_data = init_graph.raw_data;
                             raw_data.$promise.then(function() {
                                 $scope.data_for_table = _reorganize_raw_data_for_table(raw_data);
-                            })
+                                var recent_datas = _get_more_recent_versions(init_graph.values, $scope.data_for_table);
+                                $scope.graphic_data = recent_datas.values;
+                                check_elements_in_checkbox(init_graph.list_ids, recent_datas.list_ids);
+
+                            });
 
                         }).catch(function(err) {
                             console.error('Erreur !');
@@ -467,6 +470,58 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
                     });
                 });
 
+                var check_elements_in_checkbox = function(list_all_ids, recent_ids) {
+                    $(function() {
+                        //not working yet
+                        // console.log(document.querySelectorAll('*[id]:not([id=""])'));
+                        for (var id in recent_ids) {
+                            var i = 0;
+                            for (i; i <= list_all_ids.length; i++) {
+                                if (recent_ids[id] == list_all_ids[i]) {
+                                    $("#check-" + i).prop("checked", true);
+                                    // console.log($("#check-" + i).is(":checked"));
+                                };
+                            };
+                        };
+                    });
+                };
+
+                var _get_more_recent_versions = function(values, data) {
+
+                    var key_list_recent_versions = _get_more_recent_version_keys(data.model_instances)
+                        //take values corresponding to the key list
+                    var new_values = [];
+                    for (var value in values) {
+                        for (var key in key_list_recent_versions) {
+                            if (values[value].key == key_list_recent_versions[key]) {
+                                new_values.push(values[value]);
+                            };
+                        }
+
+                    };
+
+                    return { values: new_values, list_ids: key_list_recent_versions }
+                }
+
+                var _get_more_recent_version_keys = function(model_instances) {
+                    var temp_models = [];
+                    var res = [];
+                    for (var instance in model_instances) {
+                        if (temp_models[model_instances[instance].model_name]) {
+                            temp_models[model_instances[instance].model_name].push(model_instances[instance]);
+                        } else {
+                            temp_models[model_instances[instance].model_name] = [];
+                            temp_models[model_instances[instance].model_name].push(model_instances[instance]);
+                        }
+                    }
+                    //reorder data by time and take the last one
+                    for (var raw in temp_models) {
+                        temp_models[raw].sort(_sort_by_timestamp_desc);
+                        res.push(temp_models[raw][0].line_id);
+                    }
+                    return res
+                }
+
                 var _reorganize_raw_data_for_table = function(data) {
                     var organized_data = new Object();
                     organized_data.model_instances = [];
@@ -475,14 +530,16 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
                     for (var model_instance in data.model_instances) {
                         var instance = new Object();
                         if (data.model_instances[model_instance].model_alias && data.model_instances[model_instance].model_alias !== null && data.model_instances[model_instance].model_alias !== '' && data.model_instances[model_instance].model_alias !== "None") {
-                            instance.line_id = data.model_instances[model_instance].model_alias + ' (' + data.model_instances[model_instance].version + ')';
+                            instance.line_id = data.model_instances[model_instance].model_alias + ' ( ' + data.model_instances[model_instance].version + ' )';
 
                         } else {
-                            instance.line_id = data.model_instances[model_instance].model_id + ' (' + data.model_instances[model_instance].version + ')';
+                            instance.line_id = data.model_instances[model_instance].model_id + ' ( ' + data.model_instances[model_instance].version + ' )';
                         }
                         instance.timestamp = data.model_instances[model_instance].timestamp;
                         instance.id = model_instance;
                         instance.model_id = data.model_instances[model_instance].model_id;
+                        instance.model_name = data.model_instances[model_instance].model_name;
+
                         instance.test_instances = [];
 
                         for (var test_instance in data.model_instances[model_instance].test_codes) {
@@ -675,7 +732,7 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
                     var data = JSON.stringify($scope.ticket);
                     $scope.new_ticket = TestTicketRest.post({ app_id: app_id }, data, function(value) {})
                     $scope.new_ticket.$promise.then(function() {
-                        console.log($scope.new_ticket)
+                        // console.log($scope.new_ticket)
                         $scope.test_tickets.tickets.push($scope.new_ticket.new_ticket[0]);
                         document.getElementById("formT").reset();
                         _send_notification();
