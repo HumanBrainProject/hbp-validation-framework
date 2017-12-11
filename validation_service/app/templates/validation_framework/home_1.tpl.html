@@ -37,6 +37,15 @@
                     <td>
                         <multiselect ng-model="selected_organization" placeholder="Select organization" options="collab_organization"></multiselect>
                     </td>
+
+                    <td>
+                        <select id="sorting_option" placeholder="Sorting options" class="form-control" ng-model="selected_sorting_option">
+                        <option value="">Sorting options</option>
+                        <option value="-creation_date ">Sorting: Newest first</option>
+                        <option value="creation_date ">Sorting: Oldest first</option>
+                    </select>
+                    </td>
+
                 </tr>
             </table>
             <br>
@@ -59,7 +68,7 @@
                         <th>Author</th>
                     </thead>
                     <br>
-                    <tr class=tr-clickable id="test1" ng-repeat="model in models.models | filter: search | filterMultiple:{organization:selected_organization, species:selected_species, brain_region:selected_brain_region, cell_type:selected_cell_type, model_type:selected_model_type}"
+                    <tr class=tr-clickable id="test1" ng-repeat="model in models.models | filter: search | filterMultiple:{organization:selected_organization, species:selected_species, brain_region:selected_brain_region, cell_type:selected_cell_type, model_type:selected_model_type} | orderBy: selected_sorting_option"
                         ng-click="Context.validation_goToModelDetailView(model.id)">
                         <td ng-if=!(model.alias) ng-text-truncate=model.name ng-tt-chars-threshold="20" ng-tt-no-toggling> {{model.name}} </td>
                         <td ng-if=model.alias ng-text-truncate=model.alias ng-tt-chars-threshold="20" ng-tt-no-toggling> {{model.alias}} </td>
@@ -80,7 +89,7 @@
                     </thead>
                     <br>
 
-                    <tr class="tr-clickable" ng-repeat="test in tests.tests | filter:search | filterMultiple:{species:selected_species, brain_region:selected_brain_region, cell_type:selected_cell_type, model_type:selected_model_type}" ng-click="Context.validation_goToTestDetailView(test.id)">
+                    <tr class="tr-clickable" ng-repeat="test in tests.tests | filter:search | filterMultiple:{species:selected_species, brain_region:selected_brain_region, cell_type:selected_cell_type, model_type:selected_model_type} | orderBy: selected_sorting_option" ng-click="Context.validation_goToTestDetailView(test.id)">
 
                         <td ng-if=!(test.alias) ng-text-truncate=test.name ng-tt-chars-threshold="20" ng-tt-no-toggling> {{test.name}} </td>
                         <td ng-if=test.alias ng-text-truncate=test.alias ng-tt-chars-threshold="20" ng-tt-no-toggling> {{test.alias}} </td>

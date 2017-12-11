@@ -32,12 +32,19 @@
                 <td>
                     <multiselect ng-model="selected_privacy" placeholder="Select privacy" options="model_privacy" id-prop="value" display-prop="name"></multiselect>
                 </td>
-                <td><a class="button-MC" ng-href="#/model-catalog/create" ng-if="is_collab_member == true" class="btn btn-primary">New model </a></td>
+                <td>
+                    <select id="sorting_option" placeholder="Sorting options" class="form-control" ng-model="selected_sorting_option">
+                        <option value="">Sorting options</option>
+                        <option value="-creation_date ">Sorting: Newest first</option>
+                        <option value="creation_date ">Sorting: Oldest first</option>
+                    </select>
+                </td>
+                <td><a class="button-MC " ng-href="#/model-catalog/create " ng-if="is_collab_member==true " class="btn btn-primary ">New model </a></td>
             </tr>
         </table>
         <br>
     </nav>
-    <table class="table">
+    <table class="table ">
         <thead>
             <tr>
                 <th>Name</th>
@@ -52,18 +59,18 @@
             </tr>
         </thead>
         <tbody>
-            <tr class="tr-clickable" ng-repeat="model in models.models |  filter:search | filterMultiple:{ organization:selected_organization, species:selected_species, brain_region:selected_brain_region , cell_type:selected_cell_type, model_type:selected_model_type}"
-                ng-click="Context.modelCatalog_goToModelDetailView(model.id)" ng-if="model.private == selected_privacy[0].value || model.private == selected_privacy[1].value">
+            <tr class="tr-clickable " ng-repeat="model in models.models | filter:search | filterMultiple:{ organization:selected_organization, species:selected_species, brain_region:selected_brain_region , cell_type:selected_cell_type, model_type:selected_model_type}
+                        | orderBy: selected_sorting_option" ng-click="Context.modelCatalog_goToModelDetailView(model.id) " ng-if="model.private== selected_privacy[0].value || model.private== selected_privacy[1].value ">
                 <td>{{ model.name}}</td>
-                <td ng-text-truncate=model.alias ng-tt-chars-threshold="50" ng-tt-no-toggling>{{ model.alias }}</td>
-                <td ng-text-truncate=model.species ng-tt-chars-threshold="50" ng-tt-no-toggling>{{ model.species }}</td>
-                <td ng-text-truncate=model.brain_region ng-tt-chars-threshold="50" ng-tt-no-toggling>{{ model.brain_region }}</td>
-                <td ng-text-truncate=model.cell_type ng-tt-chars-threshold="50" ng-tt-no-toggling>{{ model.cell_type }}</td>
-                <td ng-text-truncate=model.model_type ng-tt-chars-threshold="50" ng-tt-no-toggling>{{ model.model_type }}</td>
-                <td ng-text-truncate=model.author ng-tt-chars-threshold="50" ng-tt-no-toggling>{{ model.author }}</td>
-                <td ng-text-truncate=model.organization ng-tt-chars-threshold="50" ng-tt-no-toggling>{{ model.organization }}</td>
+                <td ng-text-truncate=model.alias ng-tt-chars-threshold="50 " ng-tt-no-toggling>{{ model.alias }}</td>
+                <td ng-text-truncate=model.species ng-tt-chars-threshold="50 " ng-tt-no-toggling>{{ model.species }}</td>
+                <td ng-text-truncate=model.brain_region ng-tt-chars-threshold="50 " ng-tt-no-toggling>{{ model.brain_region }}</td>
+                <td ng-text-truncate=model.cell_type ng-tt-chars-threshold="50 " ng-tt-no-toggling>{{ model.cell_type }}</td>
+                <td ng-text-truncate=model.model_type ng-tt-chars-threshold="50 " ng-tt-no-toggling>{{ model.model_type }}</td>
+                <td ng-text-truncate=model.author ng-tt-chars-threshold="50 " ng-tt-no-toggling>{{ model.author }}</td>
+                <td ng-text-truncate=model.organization ng-tt-chars-threshold="50 " ng-tt-no-toggling>{{ model.organization }}</td>
                 <td>{{ model.app.collab_id }}</td>
-                <!--<td ng-text-truncate=model.app.collab_id ng-tt-chars-threshold="50" ng-tt-no-toggling>{{ model.app.collab_id }}</td>-->
+                <!--<td ng-text-truncate=model.app.collab_id ng-tt-chars-threshold="50 " ng-tt-no-toggling>{{ model.app.collab_id }}</td>-->
             </tr>
         </tbody>
     </table>
