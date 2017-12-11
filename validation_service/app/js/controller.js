@@ -153,6 +153,7 @@ testApp.controller('ValModelDetailCtrl', ['$scope', '$rootScope', '$http', '$loc
                             // console.log($scope.init_graph_all);
                             $scope.init_checkbox = init_graph.list_ids;
                             // $scope.init_graph = format_data_for_table(init_graph);
+                            $scope.init_graph = init_graph;
 
 
                             var raw_results_data = init_graph.results_data
@@ -356,6 +357,14 @@ testApp.controller('ValModelDetailCtrl', ['$scope', '$rootScope', '$http', '$loc
 
         $scope.updateGraph = function(key) {
             var list_ids = _IsCheck(key);
+
+            console.log("key : ", key);
+            console.log("list_ids : ", list_ids);
+
+            console.log("$scope.init_graph_all[key]", $scope.init_graph_all[key]);
+            console.log("$scope.init_graph", $scope.init_graph);
+
+
             $scope.init_graph_all[key].values = Graphics.getUpdatedGraph($scope.init_graph.values, list_ids);
             $scope.line_result_focussed[key] = null;
         };
