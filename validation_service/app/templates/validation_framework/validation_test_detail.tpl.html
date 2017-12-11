@@ -522,30 +522,49 @@
             <div id=VF-model-table-all-data>
                 <table class="table">
                     <thead>
-                        <th>
-                            model id | test version
-                        </th>
-                        <th ng-repeat="version in detail_version_test.test_codes">
-                            {{version.version}}
-                        </th>
+                        <tr>
+                            <th colspan=2>
+                                model id | test version
+                            </th>
+                            <th colspan=2 ng-repeat="version in detail_version_test.test_codes">
+                                {{version.version}}
+                            </th>
+                        </tr>
+                        <tr>
+                            <th colspan=2></th>
+                            <th ng-repeat-start="version in detail_version_test.test_codes">
+                                score
+                            </th>
+                            <th ng-repeat-end="version in detail_version_test.test_codes">
+                                <span>date </span>
+                            </th>
+                        </tr>
                     </thead>
                     <tbody>
                         <tr ng-repeat="model_instance in data_for_table.model_instances">
-                            <td class=tr-clickable ng-click=Context.validation_goToModelDetailView(model_instance.model_id)>model #{{model_instance.line_id}} </td>
+                            <td colspan=2 class=tr-clickable ng-click=Context.validation_goToModelDetailView(model_instance.model_id)>model #{{model_instance.line_id}} </td>
 
-                            <td ng-repeat="test_code in model_instance.test_instances">
+                            <td colspan=2 ng-repeat="test_code in model_instance.test_instances">
                                 <div ng-if="test_code.results.length <= 3">
-                                    <table>
+                                    <table class="table">
                                         <thead> </thead>
 
                                         <tbody>
-                                            <tr ng-repeat="(key,result) in test_code.results">
-                                                <td class=tr-clickable ng-click=Context.validation_goToResultDetailView(result.id)>
+                                            <tr class=tr-clickable ng-repeat="(key,result) in test_code.results" ng-click=Context.validation_goToResultDetailView(result.id)>
+                                                <td>
                                                     <div ng-if="key == 0">
                                                         <b> {{result.score}} </b>
                                                     </div>
                                                     <div ng-if="key != 0">
                                                         {{result.score}}
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <div ng-if="key == 0">
+                                                        <b> {{result.timestamp  | date:'d MMMM yyyy, hh:mm' : 'UTC' }} </b>
+                                                    </div>
+                                                    <div ng-if="key != 0">
+                                                        {{result.timestamp | date:'d MMMM yyyy, hh:mm' : 'UTC' }}
                                                     </div>
                                                 </td>
                                             </tr>
@@ -554,12 +573,13 @@
                                 </div>
 
                                 <div ng-if="test_code.results.length > 3" style="height:75px;overflow:auto;">
-                                    <table>
+                                    <table class="table">
                                         <thead> </thead>
 
                                         <tbody>
-                                            <tr ng-repeat="(key,result) in test_code.results">
-                                                <td class=tr-clickable ng-click=Context.validation_goToResultDetailView(result.id)>
+                                            <tr class=tr-clickable ng-repeat="(key,result) in test_code.results" ng-click=Context.validation_goToResultDetailView(result.id)>
+
+                                                <td>
                                                     <div ng-if="key == 0">
                                                         <b> {{result.score}} </b>
 
@@ -569,12 +589,22 @@
 
                                                     </div>
                                                 </td>
+                                                <td>
+                                                    <div ng-if="key == 0">
+                                                        <b> {{result.timestamp  | date:'d MMMM yyyy, hh:mm' : 'UTC' }} </b>
 
+                                                    </div>
+                                                    <div ng-if="key != 0">
+                                                        {{result.timestamp | date:'d MMMM yyyy, hh:mm' : 'UTC' }}
+
+                                                    </div>
+                                                </td>
                                             </tr>
                                         </tbody>
                                     </table>
                                 </div>
                             </td>
+
                         </tr>
                     </tbody>
                 </table>
@@ -611,7 +641,7 @@
             <br>
             <br>
 
-            <table>
+            <table id=checkbox_table>
                 <tbody>
                     <tr>
                         <td style="width: 85%">
@@ -621,7 +651,9 @@
                             <div id="checkbox">
                                 <div ng-repeat="(key, model_instance) in init_checkbox" class=checkbox>
                                     <label> <input id="check-{{key}}" type="checkbox" value={{model_instance}} >{{model_instance}} </label>
+
                                 </div>
+
                             </div>
                             <br>
                             <a class="button-MC" class="btn btn-primary" ng-click=updateGraph()>Update graph</a>
