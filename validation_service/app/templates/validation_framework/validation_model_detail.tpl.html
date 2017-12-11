@@ -78,32 +78,33 @@
             <!--<div style="height:30px;overflow:auto;">-->
             <table class="table">
                 <thead>
-                    <th>
-                        test id | model version
-                    </th>
-                    <th ng-repeat="version in model.models[0].instances">
-                        {{version.version}}
-                    </th>
+                    <tr>
+                        <th colspan=1>
+                            test id | model version
+                        </th>
+                        <th colspan=2 ng-repeat="version in model.models[0].instances">
+                            {{version.version}}
+                        </th>
+                    </tr>
+
+                    <tr>
+                        <th colspan=1></th>
+                        <th ng-repeat-start="version in model.models[0].instances">
+                            score
+                        </th>
+                        <th ng-repeat-end="version in model.models[0].instances">
+                            <span>date </span>
+                        </th>
+
+                    </tr>
+
+
                 </thead>
                 <tbody>
                     <tr ng-repeat="test_code in data_for_table.test_codes">
                         <td class=tr-clickable ng-click=Context.validation_goToTestDetailView(test_code.test_id)>test #{{test_code.test_alias}} {{test_code.version}} </td>
-                        <!--<td class=tr-clickable ng-click=Context.validation_goToResultDetailView(version.id_test_result) ng-repeat="model_instance in test_code.model_instances">-->
-                        <td ng-repeat="model_instance in test_code.model_instances">
+                        <td colspan=2 ng-repeat="model_instance in test_code.model_instances">
 
-                            <!--<select id="" data-style="btn-primary" ng-model="results_selected">
-                                         <option ng-repeat="result in model_instance.results" value="{{result.score}}">{{result.score}}</option>
-                                         </select>-->
-
-                            <!--<div ng-if="model_instance.results.length <= 3" ng-repeat="result in model_instance.results">
-                                {{result.score}}
-                            </div>-->
-
-
-
-
-
-                            <!--<div id="#VF-model-table-all-results-more-than-three" ng-if="model_instance.results.length <= 3">-->
                             <div ng-if="model_instance.results.length <= 3">
 
 
@@ -111,8 +112,8 @@
                                     <thead> </thead>
 
                                     <tbody>
-                                        <tr ng-repeat="(key, result) in model_instance.results">
-                                            <td class=tr-clickable ng-click=Context.validation_goToResultDetailView(result.id)>
+                                        <tr class=tr-clickable ng-repeat="(key, result) in model_instance.results" ng-click=Context.validation_goToResultDetailView(result.id)>
+                                            <td>
 
                                                 <div ng-if="key == 0">
                                                     <b> {{result.score}} </b>
@@ -123,6 +124,16 @@
 
                                                 </div>
                                             </td>
+
+                                            <td>
+                                                <div ng-if="key == 0">
+                                                    <b> {{result.timestamp  | date:'d MMMM yyyy, hh:mm' : 'UTC' }} </b>
+                                                </div>
+                                                <div ng-if="key != 0">
+                                                    {{result.timestamp | date:'d MMMM yyyy, hh:mm' : 'UTC' }}
+                                                </div>
+                                            </td>
+
                                         </tr>
                                     </tbody>
                                 </table>
@@ -133,8 +144,8 @@
                                     <thead> </thead>
 
                                     <tbody>
-                                        <tr ng-repeat="(key, result) in model_instance.results">
-                                            <td class=tr-clickable ng-click=Context.validation_goToResultDetailView(result.id)>
+                                        <tr class=tr-clickable ng-repeat="(key, result) in model_instance.results" ng-click=Context.validation_goToResultDetailView(result.id)>
+                                            <td>
                                                 <div ng-if="key == 0">
                                                     <b> {{result.score}} </b>
 
@@ -142,6 +153,15 @@
                                                 <div ng-if="key != 0">
                                                     {{result.score}}
 
+                                                </div>
+                                            </td>
+
+                                            <td>
+                                                <div ng-if="key == 0">
+                                                    <b> {{result.timestamp  | date:'d MMMM yyyy, hh:mm' : 'UTC' }} </b>
+                                                </div>
+                                                <div ng-if="key != 0">
+                                                    {{result.timestamp | date:'d MMMM yyyy, hh:mm' : 'UTC' }}
                                                 </div>
                                             </td>
                                         </tr>
