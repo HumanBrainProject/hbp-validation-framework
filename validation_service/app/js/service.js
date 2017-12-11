@@ -58,7 +58,7 @@ ContextServices.service('Context', ['$rootScope', '$location', 'AppIDRest', 'Col
             $location.path('/home/validation_test_result/' + result_id);
         };
         var validation_goToModelCatalog = function(model) {
-            console.log("model", model)
+            // console.log("model", model)
             var collab_id = model.app.collab_id;
             var app_id = model.app.id;
 
@@ -510,11 +510,13 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'CollabParameters', 'Context
                 data.line_id = list_id_couple[i].id_line;
                 list_data.push(data);
             }
+            // console.log(list_data)
+            // console.log(graph_key)
             $rootScope.$broadcast('data_focussed:updated', list_data, graph_key);
         };
         var find_result_in_data = function(id_couple, results_data, type) {
             var result_to_return = undefined;
-
+            // console.log("id_couple", id_couple)
             var id_line = id_couple.id_line;
             var id_result = id_couple.id_result;
             //find the correct datablock
@@ -532,8 +534,8 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'CollabParameters', 'Context
                 for (j; j < datablock.length; j++) {
                     if (datablock[j].id == id_result) {
                         result_to_return = datablock[j];
-                    }
-                }
+                    };
+                };
                 return result_to_return;
 
             }
@@ -541,20 +543,22 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'CollabParameters', 'Context
                 //find the correct result in datablock
                 for (var i in results_data) {
                     if (id_result == results_data[i].id) {
-                        result_to_return = results_data[i]
-                    }
-                }
+                        result_to_return = results_data[i];
+                    };
+                };
                 return result_to_return;
-            }
+            };
             if (type == 'test') {
-                //find the correct result in datablock
                 for (var i in results_data) {
-                    if (id_result == results_data[i].result.id) {
-                        result_to_return = results_data[i]
-                    }
-                }
+                    for (var j in results_data[i].result) {
+                        if (id_result == results_data[i].result[j].id) {
+                            var result_to_return = results_data[i].result[j];
+                            result_to_return.additional_data = results_data[i].additional_data;
+                        };
+                    };
+                };
                 return result_to_return;
-            }
+            };
         };
 
         var getResultsfromTestID = function(test, ids) {
@@ -621,9 +625,9 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'CollabParameters', 'Context
                     for (var instance in results_data.model_instances) {
                         //get line id; model_id is replaced by alias if it exists
                         if (results_data.model_instances[instance].model_alias && results_data.model_instances[instance].model_alias !== null && results_data.model_instances[instance].model_alias !== '' && results_data.model_instances[instance].model_alias !== "None") {
-                            var line_id = results_data.model_instances[instance].model_alias + '( ' + results_data.model_instances[instance].version + ' )';
+                            var line_id = results_data.model_instances[instance].model_alias + ' ( ' + results_data.model_instances[instance].version + ' )';
                         } else {
-                            var line_id = results_data.model_instances[instance].model_id + '( ' + results_data.model_instances[instance].version + ' )';
+                            var line_id = results_data.model_instances[instance].model_id + ' ( ' + results_data.model_instances[instance].version + ' )';
                         }
                         values.push(_manageDataForTestGraph2(results_data.model_instances[instance].test_codes, line_id, results_data.model_instances[instance].model_id, abscissa_value));
                         list_ids.push(line_id)
@@ -685,9 +689,9 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'CollabParameters', 'Context
 
                     for (var code in results_data.test_codes) {
                         if (results_data.test_codes[code].test_alias && results_data.test_codes[code].test_alias != null && results_data.test_codes[code].test_alias != '' && results_data.test_codes[code].test_alias != 'None') {
-                            var line_id = results_data.test_codes[code].test_alias + '( ' + results_data.test_codes[code].version + ' )';
+                            var line_id = results_data.test_codes[code].test_alias + ' ( ' + results_data.test_codes[code].version + ' )';
                         } else {
-                            var line_id = results_data.test_codes[code].test_id + '( ' + results_data.test_codes[code].version + ' )';
+                            var line_id = results_data.test_codes[code].test_id + ' ( ' + results_data.test_codes[code].version + ' )';
                         }
 
                         results_data.test_codes[code].line_id = line_id;
@@ -886,6 +890,7 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'CollabParameters', 'Context
                     },
                     callback: function(chart) {
                         chart.lines.dispatch.on('elementClick', function(e) {
+                            // console.log("e", e)
                             var list_of_results_id = [];
                             var i = 0;
                             for (i; i < e.length; i++) {
