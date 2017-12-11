@@ -890,11 +890,15 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'CollabParameters', 'Context
                     },
                     callback: function(chart) {
                         chart.lines.dispatch.on('elementClick', function(e) {
-                            // console.log("e", e)
                             var list_of_results_id = [];
                             var i = 0;
                             for (i; i < e.length; i++) {
-                                list_of_results_id.push({ id_line: e[i].point.id, id_result: e[i].point.id_test_result });
+                                var j = 0;
+                                for (j; j < e[i].series.values.length; j++) {
+                                    if (e[i].series.values[j].x == e[i].point.x) {
+                                        list_of_results_id.push({ id_line: e[i].series.values[j].id, id_result: e[i].series.values[j].id_test_result });
+                                    }
+                                }
                             }
                             focus(list_of_results_id, results_data, type, graph_key);
                         });
