@@ -95,7 +95,7 @@ class ScientificModelReadOnlyForHomeSerializer(serializers.HyperlinkedModelSeria
     app = CollabParametersReadOnlyForHomeSerializer (read_only = True)
     class Meta:
         model = ScientificModel
-        fields = ('id', 'name', 'species', 'brain_region', 'cell_type', 'author', 'model_type','private','app','organization','alias')
+        fields = ('id', 'name', 'species', 'creation_date',  'brain_region', 'cell_type', 'author', 'model_type','private','app','organization','alias')
 
 
 ###########################
@@ -122,7 +122,7 @@ class ValidationTestDefinitionFullSerializer(serializers.HyperlinkedModelSeriali
         fields = ('id', 'name', 'alias', 'species', 'brain_region', 
                     'cell_type', 'age', 'data_location', 
                     'data_type', 'data_modality', 'test_type', 
-                    'protocol', 'author', 'publication', 'codes')
+                    'protocol', 'author', 'creation_date', 'publication', 'codes')
 
 
 

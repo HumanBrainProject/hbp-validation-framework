@@ -91,7 +91,7 @@ class ValidationTestDefinitionSerializer(serializers.HyperlinkedModelSerializer)
         fields = ('id', 'name', 'alias', 'species', 'brain_region', 
                     'cell_type', 'age', 'data_location', 
                     'data_type', 'data_modality', 'test_type', 
-                    'protocol', 'author', 'publication', 'score_type')
+                    'protocol', 'creation_date', 'author', 'publication', 'score_type')
 
 
 

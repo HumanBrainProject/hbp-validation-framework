@@ -27,7 +27,16 @@
             <td>
                 <multiselect ng-model="selected_test_type" placeholder="Select test type" options="collab_test_type"></multiselect>
             </td>
+            <td>
+                <select id="sorting_option" placeholder="Sorting options" class="form-control" ng-model="selected_sorting_option">
+                        <option value="">Sorting options</option>
+                        <option value="-creation_date ">Sorting: Newest first</option>
+                        <option value="creation_date ">Sorting: Oldest first</option>
+                    </select>
+            </td>
             <td> <a class="button-MC" ng-href="#home/validation_test/create" ng-show="is_collab_member" class="btn btn-primary">New test</a></td>
+
+
         </tr>
     </table>
     <br>
@@ -53,7 +62,7 @@
         </thead>
 
         <tbody>
-            <tr class="tr-clickable" ng-repeat="test in test_list.tests | filter:search | filterMultiple:{species:selected_species, brain_region:selected_brain_region, cell_type:selected_cell_type, data_modality:selected_data_modalities, test_type:selected_test_type}"
+            <tr class="tr-clickable" ng-repeat="test in test_list.tests | filter:search | filterMultiple:{species:selected_species, brain_region:selected_brain_region, cell_type:selected_cell_type, data_modality:selected_data_modalities, test_type:selected_test_type} | orderBy: selected_sorting_option"
                 ng-click="Context.validation_goToTestDetailView(test.id) ">
 
                 <td>{{ test.name }}</td>
