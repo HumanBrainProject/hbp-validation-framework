@@ -1178,6 +1178,8 @@ class Tests(APIView):
                     data_modality__in=data_modality_filter,
                     test_type__in=test_type_filter).prefetch_related().distinct()
 
+                tests = tests.order_by('-creation_date')
+
                 test_serializer = ValidationTestDefinitionSerializer(tests, context=serializer_context, many=True)
 
 
@@ -1223,7 +1225,7 @@ class Tests(APIView):
                 if len(param_score_type) > 0 :
                     q = q.filter(score_type__in = param_score_type)
                         
-                tests = q
+                tests = q.order_by('-creation_date')
                 #serializer : ValidationTestDefinition
                 test_serializer = ValidationTestDefinitionSerializer(tests, context=serializer_context, many=True)
 
