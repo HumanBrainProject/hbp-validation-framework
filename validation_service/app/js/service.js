@@ -807,7 +807,9 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'Context', 'ValidationResult
                     for (var code in results_data.test_codes) {
                         for (var v in results_data.test_codes[code].model_instances) {
                             var keys = Object.keys(results_data.test_codes[code].model_instances[v].results);
-                            results.push(results_data.test_codes[code].model_instances[v].results[keys[0]]);
+                            for (var k in keys) {
+                                results.push(results_data.test_codes[code].model_instances[v].results[keys[k]]);
+                            }
                         }
                     }
                     resolve({ results_data: results_data, 'values': values, 'results': results, 'list_ids': list_ids, 'abs_info': abscissa_value, 'latest_test_versions_line_id': latest_test_versions_line_id });
