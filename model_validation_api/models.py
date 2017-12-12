@@ -119,6 +119,7 @@ class ScientificModelInstance(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, )
     model = models.ForeignKey(ScientificModel, related_name="instances", on_delete=models.CASCADE)
     version = models.CharField(max_length=200)
+    description = models.TextField(null=True, blank=True)
     parameters = models.TextField(null=True, blank=True)
     source = models.URLField(help_text="Version control repository containing the source code of the model")
     timestamp = models.DateTimeField(auto_now_add=True, help_text="Timestamp of when the version was created")
