@@ -458,7 +458,7 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
                             });
 
                             $scope.init_graph = init_graph;
-
+                            $scope.graphic_data = init_graph.values; //initialise graph before to updte with latest versions
                             $scope.init_checkbox = init_graph.list_ids;
                             $scope.graphic_options = Graphics.get_lines_options('', '', $scope.detail_test.tests[0].score_type, "", init_graph.results, "test", "", init_graph.abs_info);
                             var raw_data = init_graph.raw_data;
@@ -505,8 +505,12 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
                             var i = 0;
                             for (i; i <= list_all_ids.length; i++) {
                                 if (recent_ids[id] == list_all_ids[i]) {
-                                    $("#check-" + i).prop("checked", true);
+                                    // document.getElementById('check-' + i).checked = true;
+                                    // $("#check-" + i).attr("checked", true);
+                                    // $("#check-" + i).prop('checked', true);
                                     // console.log($("#check-" + i).is(":checked"));
+                                    document.getElementById('check-' + i);
+                                    // console.log(document.getElementById('check-' + i))
                                 };
                             };
                         };
@@ -1280,22 +1284,98 @@ ModelCatalogApp.controller('ModelCatalogCreateCtrl', ['$scope', '$rootScope', '$
                         $scope.alias_is_valid.$promise.then(function() {
                             if ($scope.alias_is_valid.is_valid) {
                                 _add_access_control();
-                                var parameters = JSON.stringify({ model: $scope.model, model_instance: [$scope.model_instance], model_image: $scope.model_image });
-                                var a = ScientificModelRest.save({ app_id: app_id }, parameters).$promise.then(function(data) {
-                                    DataHandler.setStoredModelsAsOutdated();
-                                    Context.modelCatalog_goToModelDetailView(data.uuid);
-                                });
+                                // var parameters = JSON.stringify({ model: $scope.model, model_instance: [$scope.model_instance], model_image: $scope.model_image });
+                                // var a = ScientificModelRest.save({ app_id: app_id }, parameters).$promise.then(function(data) {
+                                //     DataHandler.setStoredModelsAsOutdated();
+                                //     Context.modelCatalog_goToModelDetailView(data.uuid);
+                                // });
+                                if ($scope.model_instance) {
+                                    if ($scope.model_instance.version && $scope.model_instance.source) {
+                                        if ($scope.model_instance.version != "" && $scope.model_instance.source != "") {
+                                            var parameters = JSON.stringify({ model: $scope.model, model_instance: [$scope.model_instance], model_image: $scope.model_image });
+                                            var a = ScientificModelRest.save({ app_id: app_id }, parameters).$promise.then(function(data) {
+                                                DataHandler.setStoredModelsAsOutdated();
+                                                Context.modelCatalog_goToModelDetailView(data.uuid);
+                                            });
+                                        } else {
+                                            if ($scope.model_instance.version == "" && $scope.model_instance.source == "") {
+                                                var parameters = JSON.stringify({ model: $scope.model, model_instance: [], model_image: $scope.model_image });
+                                                var a = ScientificModelRest.save({ app_id: app_id }, parameters).$promise.then(function(data) {
+                                                    DataHandler.setStoredModelsAsOutdated();
+                                                    Context.modelCatalog_goToModelDetailView(data.uuid);
+                                                });
+                                            } else {
+                                                //one of the field is not empty but the other is
+                                                alert("If you want to create a new version, please ensure the version name and the code source are filled.")
+                                            }
+                                        }
+                                    } else {
+                                        if ($scope.model_instance.version == "" || $scope.model_instance.source == "") {
+                                            var parameters = JSON.stringify({ model: $scope.model, model_instance: [], model_image: $scope.model_image });
+                                            var a = ScientificModelRest.save({ app_id: app_id }, parameters).$promise.then(function(data) {
+                                                DataHandler.setStoredModelsAsOutdated();
+                                                Context.modelCatalog_goToModelDetailView(data.uuid);
+                                            });
+                                        } else {
+                                            alert("If you want to create a new version, please  ensure the version name and the code source are filled.")
+                                        }
+                                    }
+                                } else {
+                                    var parameters = JSON.stringify({ model: $scope.model, model_instance: [], model_image: $scope.model_image });
+                                    var a = ScientificModelRest.save({ app_id: app_id }, parameters).$promise.then(function(data) {
+                                        DataHandler.setStoredModelsAsOutdated();
+                                        Context.modelCatalog_goToModelDetailView(data.uuid);
+                                    });
+                                }
                             } else {
                                 alert('Cannot create the model. Please check your Alias.');
                             };
                         });
                     } else {
                         $scope.model.alias = null;
-                        var parameters = JSON.stringify({ model: $scope.model, model_instance: [$scope.model_instance], model_image: $scope.model_image });
-                        var a = ScientificModelRest.save({ app_id: app_id }, parameters).$promise.then(function(data) {
-                            DataHandler.setStoredModelsAsOutdated();
-                            Context.modelCatalog_goToModelDetailView(data.uuid);
-                        });
+                        // var parameters = JSON.stringify({ model: $scope.model, model_instance: [$scope.model_instance], model_image: $scope.model_image });
+                        // var a = ScientificModelRest.save({ app_id: app_id }, parameters).$promise.then(function(data) {
+                        //     DataHandler.setStoredModelsAsOutdated();
+                        //     Context.modelCatalog_goToModelDetailView(data.uuid);
+                        // });
+                        if ($scope.model_instance) {
+                            if ($scope.model_instance.version && $scope.model_instance.source) {
+                                if ($scope.model_instance.version != "" && $scope.model_instance.source != "") {
+                                    var parameters = JSON.stringify({ model: $scope.model, model_instance: [$scope.model_instance], model_image: $scope.model_image });
+                                    var a = ScientificModelRest.save({ app_id: app_id }, parameters).$promise.then(function(data) {
+                                        DataHandler.setStoredModelsAsOutdated();
+                                        Context.modelCatalog_goToModelDetailView(data.uuid);
+                                    });
+                                } else {
+                                    if ($scope.model_instance.version == "" && $scope.model_instance.source == "") {
+                                        var parameters = JSON.stringify({ model: $scope.model, model_instance: [], model_image: $scope.model_image });
+                                        var a = ScientificModelRest.save({ app_id: app_id }, parameters).$promise.then(function(data) {
+                                            DataHandler.setStoredModelsAsOutdated();
+                                            Context.modelCatalog_goToModelDetailView(data.uuid);
+                                        });
+                                    } else {
+                                        //one of the field is not empty but the other is
+                                        alert("If you want to create a new version, please check all the corresponding fields are filled.")
+                                    }
+                                }
+                            } else {
+                                if ($scope.model_instance.version == "" || $scope.model_instance.source == "") {
+                                    var parameters = JSON.stringify({ model: $scope.model, model_instance: [], model_image: $scope.model_image });
+                                    var a = ScientificModelRest.save({ app_id: app_id }, parameters).$promise.then(function(data) {
+                                        DataHandler.setStoredModelsAsOutdated();
+                                        Context.modelCatalog_goToModelDetailView(data.uuid);
+                                    });
+                                } else {
+                                    alert("If you want to create a new version, please check all the corresponding fields are filled.")
+                                }
+                            }
+                        } else {
+                            var parameters = JSON.stringify({ model: $scope.model, model_instance: [], model_image: $scope.model_image });
+                            var a = ScientificModelRest.save({ app_id: app_id }, parameters).$promise.then(function(data) {
+                                DataHandler.setStoredModelsAsOutdated();
+                                Context.modelCatalog_goToModelDetailView(data.uuid);
+                            });
+                        }
                     };
 
                 };

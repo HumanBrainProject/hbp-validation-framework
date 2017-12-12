@@ -15,11 +15,11 @@ class CollabParameters(models.Model):
     app_type = models.CharField(max_length=100 ,blank=True, help_text="type of application: model catalog or validation test")
     data_modalities = models.CharField(max_length=500 ,blank=True, help_text="data modalities")
     test_type = models.CharField(max_length=500, blank=True, help_text="test type")
-    species = models.CharField(max_length=500,blank=True, unique=True, help_text="species")
-    brain_region = models.CharField(max_length=500, blank=True, unique=True, help_text="brain region, if applicable")
-    cell_type = models.CharField(max_length=500, blank=True, unique=True, help_text="cell type, for single-cell models")
-    model_type = models.CharField(max_length=500, blank=True, unique=True, help_text="model type: single cell, network or mean field region")
-    organization = models.CharField(max_length=500, blank=True, unique=True, help_text="organization: HBP-SP1, HBP-SP2... ")
+    species = models.CharField(max_length=500,blank=True, help_text="species")
+    brain_region = models.CharField(max_length=500, blank=True, help_text="brain region, if applicable")
+    cell_type = models.CharField(max_length=500, blank=True, help_text="cell type, for single-cell models")
+    model_type = models.CharField(max_length=500, blank=True, help_text="model type: single cell, network or mean field region")
+    organization = models.CharField(max_length=500, blank=True, help_text="organization: HBP-SP1, HBP-SP2... ")
     collab_id = models.IntegerField( help_text="ID of the collab")
     # app_id = models.IntegerField( help_text="ID of the app")
     def __str__(self):
@@ -119,6 +119,7 @@ class ScientificModelInstance(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, )
     model = models.ForeignKey(ScientificModel, related_name="instances", on_delete=models.CASCADE)
     version = models.CharField(max_length=200)
+    description = models.TextField(null=True, blank=True)
     parameters = models.TextField(null=True, blank=True)
     source = models.URLField(help_text="Version control repository containing the source code of the model")
     timestamp = models.DateTimeField(auto_now_add=True, help_text="Timestamp of when the version was created")
@@ -192,35 +193,35 @@ class Comments(models.Model):
 
 class  Param_organizations (models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, )
-    authorized_value = models.CharField(max_length=200, default="")
+    authorized_value = models.CharField(max_length=200, unique=True, default="")
 
 class Param_DataModalities (models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, )
-    authorized_value = models.CharField(max_length=200, default="")
+    authorized_value = models.CharField(max_length=200, unique=True, default="")
 
 class Param_TestType (models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, )
-    authorized_value = models.CharField(max_length=200, default="")
+    authorized_value = models.CharField(max_length=200, unique=True, default="")
 
 class Param_Species (models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, )
-    authorized_value = models.CharField(max_length=200, default="")
+    authorized_value = models.CharField(max_length=200, unique=True, default="")
 
 class Param_BrainRegion (models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, )
-    authorized_value = models.CharField(max_length=200, default="")
+    authorized_value = models.CharField(max_length=200, unique=True, default="")
 
 class Param_CellType (models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, )
-    authorized_value = models.CharField(max_length=200, default="")
+    authorized_value = models.CharField(max_length=200, unique=True, default="")
 
 class Param_ModelType (models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, )
-    authorized_value = models.CharField(max_length=200, default="")
+    authorized_value = models.CharField(max_length=200, unique=True, default="")
 
 class Param_ScoreType (models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, )
-    authorized_value = models.CharField(max_length=200, default="")
+    authorized_value = models.CharField(max_length=200, unique=True, default="")
 
 
 

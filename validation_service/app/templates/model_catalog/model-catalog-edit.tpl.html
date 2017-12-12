@@ -195,6 +195,7 @@
                     <thead>
                         <tr>
                             <th>Version</th>
+                            <th>Description</th>
                             <th>Parameters</th>
                             <th>Code location</th>
                         </tr>
@@ -202,6 +203,7 @@
                     <tbody>
                         <tr ng-repeat="model_instance in model.models[0].instances">
                             <td> <input type="text" ng-model=model_instance.version required/></td>
+                            <td><textarea ng-model="model_instance.description" rows="3" cols="30"> </textarea></td>
                             <td><textarea ng-model="model_instance.parameters" rows="3" cols="30"> </textarea></td>
                             <td><input type="text" ng-model=model_instance.source required/></td>
                             <td><button ng-if="isInArray(model_instance.id, version_is_editable)" type="submit" class="btn btn-primary" ng-click=saveModelInstance(model_instance)>Save changes</button>

@@ -699,9 +699,22 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'Context', 'ValidationResult
                 results_data.$promise.then(function() {
 
                     for (var instance in results_data.model_instances) {
-                        if (results_data.model_instances[instance].model_alias) {
-                            m = results_data.model_instances[instance].model_alias
-                        } else { m = results_data.model_instances[instance].model_id }
+                        // if (results_data.model_instances[instance].model_alias) {
+                        //     m = results_data.model_instances[instance].model_alias
+                        // } else { m = results_data.model_instances[instance].model_id }
+
+
+                        //get line id; model_id is replaced by alias if it exists
+                        if (results_data.model_instances[instance].model_alias && results_data.model_instances[instance].model_alias !== null && results_data.model_instances[instance].model_alias !== '' && results_data.model_instances[instance].model_alias !== "None") {
+                            var line_id = results_data.model_instances[instance].model_alias + ' ( ' + results_data.model_instances[instance].version + ' )';
+                        } else {
+                            var line_id = results_data.model_instances[instance].model_id + ' ( ' + results_data.model_instances[instance].version + ' )';
+                        }
+                        //manage data for graph
+                        values.push(_manageDataForTestGraph2(results_data.model_instances[instance].test_codes, line_id, results_data.model_instances[instance].model_id, abscissa_value));
+                        list_ids.push(line_id)
+
+                        //manage data for results
                         for (var c in results_data.model_instances[instance].test_codes) {
                             var additional_data = {
                                 "model_name": results_data.model_instances[instance].model_name,
@@ -720,18 +733,6 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'Context', 'ValidationResult
                         }
                     }
 
-                    //manage data for graph
-
-                    for (var instance in results_data.model_instances) {
-                        //get line id; model_id is replaced by alias if it exists
-                        if (results_data.model_instances[instance].model_alias && results_data.model_instances[instance].model_alias !== null && results_data.model_instances[instance].model_alias !== '' && results_data.model_instances[instance].model_alias !== "None") {
-                            var line_id = results_data.model_instances[instance].model_alias + ' ( ' + results_data.model_instances[instance].version + ' )';
-                        } else {
-                            var line_id = results_data.model_instances[instance].model_id + ' ( ' + results_data.model_instances[instance].version + ' )';
-                        }
-                        values.push(_manageDataForTestGraph2(results_data.model_instances[instance].test_codes, line_id, results_data.model_instances[instance].model_id, abscissa_value));
-                        list_ids.push(line_id)
-                    };
                 });
                 resolve({ 'raw_data': results_data, 'values': values, 'results': results, 'list_ids': list_ids, 'abs_info': abscissa_value });
             });
@@ -990,11 +991,16 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'Context', 'ValidationResult
                     },
                     callback: function(chart) {
                         chart.lines.dispatch.on('elementClick', function(e) {
-                            // console.log("e", e)
+                            console.log("e", e);
                             var list_of_results_id = [];
                             var i = 0;
                             for (i; i < e.length; i++) {
-                                list_of_results_id.push({ id_line: e[i].point.id, id_result: e[i].point.id_test_result });
+                                var j = 0;
+                                for (j; j < e[i].series.values.length; j++) {
+                                    if (e[i].series.values[j].x == e[i].point.x) {
+                                        list_of_results_id.push({ id_line: e[i].series.values[j].id, id_result: e[i].series.values[j].id_test_result });
+                                    }
+                                }
                             }
                             focus(list_of_results_id, results_data, type, graph_key);
                         });
