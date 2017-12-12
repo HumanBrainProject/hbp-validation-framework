@@ -186,7 +186,7 @@ ContextServices.service('Context', ['$rootScope', '$location', 'AppIDRest', 'Col
 
             setTimeout(function() {
                 window.location.hash = "ctx=" + getCtx() + "&ctxstate=";
-                window.location.search = "ctx=" + getCtx() + "&ctxstate=";
+                // window.location.search = "ctx=" + getCtx() + "&ctxstate=";
 
 
             }, 0);
@@ -228,6 +228,105 @@ ContextServices.service('Context', ['$rootScope', '$location', 'AppIDRest', 'Col
 ]);
 
 
+
+var DataHandlerServices = angular.module('DataHandlerServices', ['ngResource', 'btorfs.multiselect']);
+DataHandlerServices.service('DataHandler', ['$rootScope', 'ScientificModelRest', 'ValidationTestDefinitionRest',
+    function($rootScope, ScientificModelRest, ValidationTestDefinitionRest) {
+        var models = { date_last_load: undefined, status: undefined, data: undefined };
+        var tests = { date_last_load: undefined, status: undefined, data: undefined };
+        var results = { date_last_load: undefined, status: undefined, data: undefined };
+        //possible states status : 
+        //- up to date
+        //- outdated 
+        //- undefined
+
+
+        //TODO function to complete the list when the user create a new model
+        var loadModels = function(dict_params) {
+            return new Promise(function(resolve, reject) {
+
+                if (dict_params.id != undefined) {
+                    reject("this function does not support id of models yet")
+                        // throw "this function does not support id of models yet"
+                }
+                if (models.status == undefined) {
+                    var temp_models = ScientificModelRest.get(dict_params);
+                    temp_models.$promise.then(function() {
+                        models = { date_last_load: new Date(), status: "up to date", data: temp_models };
+                        resolve(models.data);
+                    });
+
+                } else {
+                    if (models.status == "up to date") {
+                        var data = _loadStoredModels();
+                        resolve(data);
+                    } else {
+                        var temp_models = ScientificModelRest.get(dict_params);
+                        temp_models.$promise.then(function() {
+                            models = { date_last_load: new Date(), status: "up to date", data: temp_models };
+                            resolve(models.data);
+                        });
+                    }
+                }
+
+            });
+        };
+
+        var loadTests = function(dict_params) {
+            return new Promise(function(resolve, reject) {
+                if (dict_params.id != undefined) {
+                    reject("this function does not support id of tests yet")
+                        // throw "this function does not support id of models yet"
+                }
+                if (tests.status == undefined) {
+                    var temp_tests = ValidationTestDefinitionRest.get(dict_params);
+                    temp_tests.$promise.then(function() {
+                        tests = { date_last_load: new Date(), status: "up to date", data: temp_tests };
+                        resolve(tests.data);
+                    });
+
+                } else {
+                    if (tests.status == "up to date") {
+                        var data = _loadStoredTests();
+                        resolve(data);
+                    } else {
+                        var temp_tests = ValidationTestDefinitionRest.get(dict_params);
+                        temp_tests.$promise.then(function() {
+                            tests = { date_last_load: new Date(), status: "up to date", data: temp_tests };
+                            resolve(tests.data);
+                        });
+                    }
+                }
+
+            });
+        };
+
+        var _loadStoredModels = function() {
+            return (models.data);
+        };
+
+        var _loadStoredTests = function() {
+            return (tests.data);
+        };
+
+
+        var setStoredModelsAsOutdated = function() {
+            models.status = "outdated";
+        };
+
+        var setStoredTestsAsOutdated = function() {
+            tests.status = "outdated";
+        };
+
+        return {
+            loadModels: loadModels,
+            loadTests: loadTests,
+            setStoredModelsAsOutdated: setStoredModelsAsOutdated,
+            setStoredTestsAsOutdated: setStoredTestsAsOutdated,
+        };
+
+    }
+]);
 
 var ParametersConfigurationServices = angular.module('ParametersConfigurationServices', ['ngResource', 'btorfs.multiselect', 'ApiCommunicationServices', 'ContextServices']);
 ParametersConfigurationServices.service('CollabParameters', ['$rootScope', 'CollabParameterRest', 'Context', 'AuthorizedCollabParameterRest',
@@ -498,8 +597,8 @@ ParametersConfigurationServices.service('CollabParameters', ['$rootScope', 'Coll
 
 var GraphicsServices = angular.module('GraphicsServices', ['ngResource', 'btorfs.multiselect', 'ApiCommunicationServices', 'ParametersConfigurationServices', 'ContextServices']);
 
-GraphicsServices.factory('Graphics', ['$rootScope', 'CollabParameters', 'Context', 'ValidationResultRest',
-    function($rootScope, CollabParameters, Context, ValidationResultRest) {
+GraphicsServices.factory('Graphics', ['$rootScope', 'Context', 'ValidationResultRest',
+    function($rootScope, Context, ValidationResultRest) {
         // var results_data = undefined;
 
         var focus = function(list_id_couple, results_data, type, graph_key) {
@@ -520,25 +619,26 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'CollabParameters', 'Context
             var id_line = id_couple.id_line;
             var id_result = id_couple.id_result;
             //find the correct datablock
-            if (type == 'old') {
-                var datablock = undefined;
-                var i = 0;
-                for (i; i < results_data.data_block_id.length; i++) {
-                    if (results_data.data_block_id[i].id == id_line) {
-                        datablock = results_data.data[i];
-                        i = results_data.data_block_id.length;
-                    }
-                }
-                //find the correct result in datablock
-                var j = 0;
-                for (j; j < datablock.length; j++) {
-                    if (datablock[j].id == id_result) {
-                        result_to_return = datablock[j];
-                    };
-                };
-                return result_to_return;
+            // if (type == 'old') {
+            //     var datablock = undefined;
+            //     var i = 0;
+            //     for (i; i < results_data.data_block_id.length; i++) {
+            //         if (results_data.data_block_id[i].id == id_line) {
+            //             datablock = results_data.data[i];
+            //             i = results_data.data_block_id.length;
+            //         }
+            //     }
+            //     //find the correct result in datablock
+            //     var j = 0;
+            //     for (j; j < datablock.length; j++) {
+            //         if (datablock[j].id == id_result) {
+            //             result_to_return = datablock[j];
+            //         };
+            //     };
+            //     return result_to_return;
 
-            }
+            // }
+
             if (type == 'model') {
                 //find the correct result in datablock
                 for (var i in results_data) {
