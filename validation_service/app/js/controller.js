@@ -1261,7 +1261,7 @@ ModelCatalogApp.controller('ModelCatalogCreateCtrl', ['$scope', '$rootScope', '$
                                                 });
                                             } else {
                                                 //one of the field is not empty but the other is
-                                                alert("If you want to create a new version, please check all the corresponding fields are filled.")
+                                                alert("If you want to create a new version, please ensure the version name and the code source are filled.")
                                             }
                                         }
                                     } else {
@@ -1271,7 +1271,7 @@ ModelCatalogApp.controller('ModelCatalogCreateCtrl', ['$scope', '$rootScope', '$
                                                 Context.modelCatalog_goToModelDetailView(data.uuid);
                                             });
                                         } else {
-                                            alert("If you want to create a new version, please check all the corresponding fields are filled.")
+                                            alert("If you want to create a new version, please  ensure the version name and the code source are filled.")
                                         }
                                     }
                                 } else {
