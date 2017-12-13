@@ -8,12 +8,13 @@ ContextServices.service('Context', ['$rootScope', '$location', 'AppIDRest', 'Col
         var external = undefined;
         var collabID = undefined;
         var appID = undefined;
+        var serviceSet = false;
 
 
         var modelCatalog_goToHomeView = function() {
             clearState();
             setTimeout(function() {
-                $location.path('/model-catalog/');
+                // $location.path('/model-catalog/');
 
             }, 300);
         };
@@ -39,8 +40,8 @@ ContextServices.service('Context', ['$rootScope', '$location', 'AppIDRest', 'Col
         var validation_goToHomeView = function() {
             clearState();
             setTimeout(function() {
-                $location.path('/home/');
-            }, 300);
+                // $location.path('/home/');
+            }, 500);
         };
         var validation_goToModelDetailView = function(model_id) {
             sendState("model", model_id);
@@ -58,6 +59,26 @@ ContextServices.service('Context', ['$rootScope', '$location', 'AppIDRest', 'Col
             $location.path('/home/validation_test_result/' + result_id);
         };
         var validation_goToModelCatalog = function(model) {
+
+            //here we need to use the current collab_id to get the app_id of local model_cataloge. 
+            //if no such app : rize allert
+            // console.log(collabID);
+            // console.log(collabID);
+
+            // console.log(window.bbpConfig);
+
+            // clbStorage.getEntity({ collab: collabID }).then(function(collab_entity) {
+            //     console.log(collab_entity);
+
+            //     // clbStorage.getChildren({ uuid: collabStorageFolder.uuid, entity_type: 'folder' }).then(function(storage_folder_children) {
+            //     //         $scope.storage_files = storage_folder_children.results
+
+            //     //     }, function() {})
+            //     //     .finally(function() {});
+
+            // }, function(not_worked) {}).finally(function() {});
+
+
             // console.log("model", model)
             var collab_id = model.app.collab_id;
             var app_id = model.app.id;
@@ -70,64 +91,73 @@ ContextServices.service('Context', ['$rootScope', '$location', 'AppIDRest', 'Col
         var setService = function() {
             return new Promise(function(resolve, reject) {
 
-                // _getState();
-                temp_state = window.location.search.split("&")[1];
+                if (serviceSet == false) {
+                    // _getState();
+                    temp_state = window.location.search.split("&")[1];
 
 
-                if (temp_state != undefined && temp_state != "ctxstate=") {
-                    temp_state2 = temp_state.split("%2C")[0];
-                    temp_state2 = temp_state2.substring(9);
-                    state_type = temp_state2.split(".")[0]
-                    state = temp_state2.split(".")[1]
+                    if (temp_state != undefined && temp_state != "ctxstate=") {
+                        temp_state2 = temp_state.split("%2C")[0];
+                        temp_state2 = temp_state2.substring(9);
+                        state_type = temp_state2.split(".")[0]
+                        state = temp_state2.split(".")[1]
 
-                    if (temp_state.split("%2C")[1] != undefined) {
-                        external = temp_state.split("%2C")[1];
+                        if (temp_state.split("%2C")[1] != undefined) {
+                            external = temp_state.split("%2C")[1];
+                        }
                     }
-                }
 
-                // _getCtx();
-                if (ctx == undefined) {
-                    ctx = window.location.search.split("&")[0].substring(5);
-                }
+                    // _getCtx();
+                    if (ctx == undefined) {
+                        ctx = window.location.search.split("&")[0].substring(5);
+                    }
 
-                // getCollabID();
-                if (collabID == undefined || collabID == "") {
-                    var collab_request = CollabIDRest.get({ ctx: ctx }); //.collab_id;
-                    collab_request.$promise.then(function() {
-                        collabID = collab_request.collab_id
-                    });
-                }
-
-                // getAppID();
-                if (appID == undefined || appID == "") {
-                    var app_request = AppIDRest.get({ ctx: ctx }); //.collab_id;
-                    app_request.$promise.then(function() {
-                        appID = app_request.app_id
-                    });
-                }
-
-
-                if (app_request == undefined) {
-                    if (collab_request == undefined) {
-                        resolve();
-                    } else {
+                    // getCollabID();
+                    if (collabID == undefined || collabID == "") {
+                        var collab_request = CollabIDRest.get({ ctx: ctx }); //.collab_id;
                         collab_request.$promise.then(function() {
-                            resolve();
+                            collabID = collab_request.collab_id
                         });
                     }
-                } else {
-                    app_request.$promise.then(function() {
 
+                    // getAppID();
+                    if (appID == undefined || appID == "") {
+                        var app_request = AppIDRest.get({ ctx: ctx }); //.collab_id;
+                        app_request.$promise.then(function() {
+                            appID = app_request.app_id
+                        });
+                    }
+
+                    if (app_request == undefined) {
                         if (collab_request == undefined) {
+                            serviceSet = true;
                             resolve();
-
                         } else {
                             collab_request.$promise.then(function() {
+                                serviceSet = true;
                                 resolve();
                             });
                         }
-                    });
+                    } else {
+                        app_request.$promise.then(function() {
+
+                            if (collab_request == undefined) {
+                                serviceSet = true;
+                                resolve();
+
+                            } else {
+                                collab_request.$promise.then(function() {
+                                    serviceSet = true;
+                                    resolve();
+                                });
+                            }
+                        });
+                    }
+
+                } else {
+                    resolve();
                 }
+
             });
         };
 
@@ -185,11 +215,14 @@ ContextServices.service('Context', ['$rootScope', '$location', 'AppIDRest', 'Col
 
 
             setTimeout(function() {
+                // window.location.href = "ctx=" + getCtx() + "&ctxstate=";
                 window.location.hash = "ctx=" + getCtx() + "&ctxstate=";
+                // console.log(window.location.hash);
+
                 // window.location.search = "ctx=" + getCtx() + "&ctxstate=";
 
 
-            }, 0);
+            }, 300);
 
         };
 
@@ -244,6 +277,7 @@ DataHandlerServices.service('DataHandler', ['$rootScope', 'ScientificModelRest',
         //TODO function to complete the list when the user create a new model
         var loadModels = function(dict_params) {
             return new Promise(function(resolve, reject) {
+                console.log(models);
 
                 if (dict_params.id != undefined) {
                     reject("this function does not support id of models yet")

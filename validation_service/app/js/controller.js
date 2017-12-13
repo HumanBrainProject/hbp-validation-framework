@@ -13,7 +13,6 @@ testApp.controller('HomeCtrl', ['$scope', '$rootScope', '$http', '$location', "S
             var ctx = Context.getCtx();
             var app_id = Context.getAppID();
 
-
             if (Context.getStateType() == "" || Context.getStateType() == undefined) {
 
                 CollabParameters.setService(ctx).then(function() {
@@ -27,20 +26,19 @@ testApp.controller('HomeCtrl', ['$scope', '$rootScope', '$http', '$location', "S
                     $scope.collab_organization = CollabParameters.getParametersOrDefault("organization");
 
                     // $scope.models = ScientificModelRest.get({ app_id: app_id }, function(data) {});
+                    // $scope.tests = ValidationTestDefinitionRest.get({ app_id: app_id }, function(data) {});
 
+                    // //for test
+                    // $scope.put_test1 = ValidationTestCodeRest.put({ app_id: app_id, test_definition_id: "53a7a2db-b18f-49ef-b1de-88bd48960c81", version: "1.1" });
                     DataHandler.loadModels({ app_id: app_id }).then(function(data) {
                         $scope.models = data
                         $scope.$apply()
                     });
 
-
-                    // $scope.tests = ValidationTestDefinitionRest.get({ app_id: app_id }, function(data) {});
                     DataHandler.loadTests({ app_id: app_id }).then(function(data) {
                         $scope.tests = data
                         $scope.$apply()
                     });
-                    // //for test
-                    // $scope.put_test1 = ValidationTestCodeRest.put({ app_id: app_id, test_definition_id: "53a7a2db-b18f-49ef-b1de-88bd48960c81", version: "1.1" });
                 });
             } else {
                 var element;
@@ -77,6 +75,15 @@ testApp.controller('ValTestCtrl', ['$scope', '$rootScope', '$http', '$location',
             var ctx = Context.getCtx();
             var app_id = Context.getAppID();
 
+            DataHandler.loadModels({ app_id: app_id }).then(function(data) {
+                $scope.models = data
+                $scope.$apply()
+            });
+
+            DataHandler.loadTests({ app_id: app_id }).then(function(data) {
+                $scope.tests = data
+                $scope.$apply()
+            });
             CollabParameters.setService(ctx).then(function() {
 
                 $scope.collab_species = CollabParameters.getParametersOrDefault("species");
@@ -96,10 +103,7 @@ testApp.controller('ValTestCtrl', ['$scope', '$rootScope', '$http', '$location',
                 // $scope.test_list = ValidationTestDefinitionRest.get({ app_id: app_id }, function(data) {});
 
                 // $scope.tests = ValidationTestDefinitionRest.get({ app_id: app_id }, function(data) {});
-                DataHandler.loadTests({ app_id: app_id }).then(function(data) {
-                    $scope.test_list = data
-                    $scope.$apply()
-                });
+
             });
         });
 
@@ -107,15 +111,16 @@ testApp.controller('ValTestCtrl', ['$scope', '$rootScope', '$http', '$location',
 ]);
 
 
-testApp.controller('ValModelDetailCtrl', ['$scope', '$rootScope', '$http', '$location', '$stateParams', 'ScientificModelRest', 'ScientificModelInstanceRest', 'CollabParameters', 'IsCollabMemberRest', 'AppIDRest', 'Graphics', 'Context', 'AuthorizedCollabParameterRest',
+testApp.controller('ValModelDetailCtrl', ['$scope', '$rootScope', '$http', '$location', '$stateParams', 'ScientificModelRest', 'ScientificModelInstanceRest', 'CollabParameters', 'IsCollabMemberRest', 'AppIDRest', 'Graphics', 'Context', 'AuthorizedCollabParameterRest', 'DataHandler',
 
-    function($scope, $rootScope, $http, $location, $stateParams, ScientificModelRest, ScientificModelInstanceRest, CollabParameters, IsCollabMemberRest, AppIDRest, Graphics, Context, AuthorizedCollabParameterRest) {
+    function($scope, $rootScope, $http, $location, $stateParams, ScientificModelRest, ScientificModelInstanceRest, CollabParameters, IsCollabMemberRest, AppIDRest, Graphics, Context, AuthorizedCollabParameterRest, DataHandler) {
         $scope.Context = Context;
         // var latest_test_versions_line_id = {};
         Context.setService().then(function() {
             $scope.Context = Context;
             var ctx = Context.getCtx();
             var app_id = Context.getAppID();
+
 
             CollabParameters.setService(ctx).then(function() {
                 // $scope.is_collab_member = false;
@@ -177,6 +182,16 @@ testApp.controller('ValModelDetailCtrl', ['$scope', '$rootScope', '$http', '$loc
                             var raw_results_data = init_graph.results_data
                             $scope.data_for_table = raw_result_data_formated_for_table_data(raw_results_data);
                             console.log("$scope.data_for_table", $scope.data_for_table)
+
+                            DataHandler.loadModels({ app_id: app_id }).then(function(data) {
+                                $scope.models = data
+                                $scope.$apply()
+                            });
+
+                            DataHandler.loadTests({ app_id: app_id }).then(function(data) {
+                                $scope.tests = data
+                                $scope.$apply()
+                            });
 
                         })
 
@@ -425,6 +440,7 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
             var ctx = Context.getCtx();
             var app_id = Context.getAppID();
 
+
             CollabParameters.setService(ctx).then(function() {
 
                 $scope.detail_test = ValidationTestDefinitionRest.get({ app_id: app_id, id: $stateParams.uuid });
@@ -467,6 +483,19 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
                                 var recent_datas = _get_more_recent_versions(init_graph.values, $scope.data_for_table);
                                 $scope.graphic_data = recent_datas.values;
                                 check_elements_in_checkbox(init_graph.list_ids, recent_datas.list_ids);
+
+
+                                //I put that here to test
+                                DataHandler.loadModels({ app_id: app_id }).then(function(data) {
+                                    $scope.models = data
+                                    $scope.$apply()
+                                });
+
+                                DataHandler.loadTests({ app_id: app_id }).then(function(data) {
+                                    $scope.tests = data
+                                    $scope.$apply()
+                                });
+
 
                             });
 
@@ -862,6 +891,7 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
 
             });
 
+
         });
 
 
@@ -869,8 +899,8 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
     }
 ]);
 
-testApp.controller('ValTestResultDetailCtrl', ['$window', '$scope', '$rootScope', '$http', '$sce', '$location', '$stateParams', 'IsCollabMemberRest', 'AppIDRest', 'ValidationResultRest', 'CollabParameters', 'ScientificModelRest', 'ValidationTestDefinitionRest', "Context", "clbStorage", "clbAuth",
-    function($window, $scope, $rootScope, $http, $sce, $location, $stateParams, IsCollabMemberRest, AppIDRest, ValidationResultRest, CollabParameters, ScientificModelRest, ValidationTestDefinitionRest, Context, clbStorage, clbAuth) {
+testApp.controller('ValTestResultDetailCtrl', ['$window', '$scope', '$rootScope', '$http', '$sce', '$location', '$stateParams', 'IsCollabMemberRest', 'AppIDRest', 'ValidationResultRest', 'CollabParameters', 'ScientificModelRest', 'ValidationTestDefinitionRest', "Context", "clbStorage", "clbAuth", 'DataHandler',
+    function($window, $scope, $rootScope, $http, $sce, $location, $stateParams, IsCollabMemberRest, AppIDRest, ValidationResultRest, CollabParameters, ScientificModelRest, ValidationTestDefinitionRest, Context, clbStorage, clbAuth, DataHandler) {
         var vm = this;
 
         Context.setService().then(function() {
@@ -878,6 +908,7 @@ testApp.controller('ValTestResultDetailCtrl', ['$window', '$scope', '$rootScope'
 
             var ctx = Context.getCtx();
             var app_id = Context.getAppID();
+
 
             CollabParameters.setService(ctx).then(function() {
 
@@ -901,6 +932,15 @@ testApp.controller('ValTestResultDetailCtrl', ['$window', '$scope', '$rootScope'
 
                     }, function(not_worked) {}).finally(function() {});
 
+                    DataHandler.loadModels({ app_id: app_id }).then(function(data) {
+                        $scope.models = data
+                        $scope.$apply()
+                    });
+
+                    DataHandler.loadTests({ app_id: app_id }).then(function(data) {
+                        $scope.tests = data
+                        $scope.$apply()
+                    });
                 });
             });
 
@@ -959,14 +999,15 @@ testApp.controller('ValTestResultDetailCtrl', ['$window', '$scope', '$rootScope'
 ]);
 
 
-testApp.controller('TestResultCtrl', ['$scope', '$rootScope', '$http', '$location', '$timeout', 'CollabParameters', 'Graphics', "Context",
+testApp.controller('TestResultCtrl', ['$scope', '$rootScope', '$http', '$location', '$timeout', 'CollabParameters', 'Graphics', "Context", 'DataHandler',
 
-    function($scope, $rootScope, $http, $location, $timeout, CollabParameters, Graphics, Context) {
+    function($scope, $rootScope, $http, $location, $timeout, CollabParameters, Graphics, Context, DataHandler) {
         Context.setService().then(function() {
             $scope.Context = Context;
 
             var ctx = Context.getCtx();
             var app_id = Context.getAppID();
+
 
             CollabParameters.setService(ctx).then(function() {
 
@@ -981,6 +1022,15 @@ testApp.controller('TestResultCtrl', ['$scope', '$rootScope', '$http', '$locatio
                 $scope.$on('data_focussed:updated', function(event, data) {
                     $scope.line_result_focussed = data;
                     $scope.$apply();
+                });
+                DataHandler.loadModels({ app_id: app_id }).then(function(data) {
+                    $scope.models = data
+                    $scope.$apply()
+                });
+
+                DataHandler.loadTests({ app_id: app_id }).then(function(data) {
+                    $scope.tests = data
+                    $scope.$apply()
                 });
 
             });
@@ -998,6 +1048,15 @@ testApp.controller('ValTestCreateCtrl', ['$scope', '$rootScope', '$http', '$loca
 
             var ctx = Context.getCtx();
             var app_id = Context.getAppID();
+            // DataHandler.loadModels({ app_id: app_id }).then(function(data) {
+            //     $scope.models = data
+            //     $scope.$apply()
+            // });
+
+            // DataHandler.loadTests({ app_id: app_id }).then(function(data) {
+            //     $scope.tests = data
+            //     $scope.$apply()
+            // });
 
 
             CollabParameters.setService(ctx).then(function() {
@@ -1190,6 +1249,7 @@ ModelCatalogApp.controller('ModelCatalogCtrl', [
     'DataHandler',
 
     function($scope, $rootScope, $http, $location, ScientificModelRest, CollabParameters, IsCollabMemberRest, Context, Help, DataHandler) {
+
         Context.setService().then(function() {
 
             $scope.Context = Context;
@@ -1198,6 +1258,11 @@ ModelCatalogApp.controller('ModelCatalogCtrl', [
             var app_id = Context.getAppID();
 
             if (Context.getState() == "" || Context.getState() == undefined || Context.getState() == "n") {
+
+                DataHandler.loadModels({ app_id: app_id }).then(function(data) {
+                    $scope.models = data
+                    $scope.$apply()
+                });
                 Context.sendState("model", "n");
 
                 CollabParameters.setService(ctx).then(function() {
@@ -1212,10 +1277,6 @@ ModelCatalogApp.controller('ModelCatalogCtrl', [
                     $scope.collab_organization = CollabParameters.getParametersOrDefault("organization");
 
                     // $scope.models = ScientificModelRest.get({ app_id: app_id });
-                    DataHandler.loadModels({ app_id: app_id }).then(function(data) {
-                        $scope.models = data
-                        $scope.$apply()
-                    });
 
 
 
@@ -1242,6 +1303,10 @@ ModelCatalogApp.controller('ModelCatalogCreateCtrl', ['$scope', '$rootScope', '$
 
             var ctx = Context.getCtx();
             var app_id = Context.getAppID();
+            // DataHandler.loadModels({ app_id: app_id }).then(function(data) {
+            //     $scope.models = data
+            //     $scope.$apply()
+            // });
 
             CollabParameters.setService(ctx).then(function() {
 
@@ -1392,15 +1457,16 @@ ModelCatalogApp.controller('ModelCatalogCreateCtrl', ['$scope', '$rootScope', '$
     }
 ]);
 
-ModelCatalogApp.controller('ModelCatalogDetailCtrl', ['$scope', '$rootScope', '$http', '$location', '$state', '$stateParams', 'ScientificModelRest', 'CollabParameters', 'IsCollabMemberRest', 'Context',
+ModelCatalogApp.controller('ModelCatalogDetailCtrl', ['$scope', '$rootScope', '$http', '$location', '$state', '$stateParams', 'ScientificModelRest', 'CollabParameters', 'IsCollabMemberRest', 'Context', 'DataHandler',
 
-    function($scope, $rootScope, $http, $location, $state, $stateParams, ScientificModelRest, CollabParameters, IsCollabMemberRest, Context) {
+    function($scope, $rootScope, $http, $location, $state, $stateParams, ScientificModelRest, CollabParameters, IsCollabMemberRest, Context, DataHandler) {
         Context.setService().then(function() {
 
             $scope.Context = Context;
             $scope.ctx = Context.getCtx();
             $scope.collab_id = Context.getCollabID();
             $scope.app_id = Context.getAppID();
+
 
             if (Context.getState() == "" || Context.getState() == undefined) {
                 $location.path('/model-catalog/');
@@ -1429,6 +1495,10 @@ ModelCatalogApp.controller('ModelCatalogDetailCtrl', ['$scope', '$rootScope', '$
                             $scope.is_collab_member = $scope.is_collab_member.is_member;
                         });
                     })
+                    DataHandler.loadModels({ app_id: $scope.app_id }).then(function(data) {
+                        $scope.models = data
+                        $scope.$apply()
+                    });
                 });
             }
         });
@@ -1448,6 +1518,10 @@ ModelCatalogApp.controller('ModelCatalogEditCtrl', ['$scope', '$rootScope', '$ht
 
             var ctx = Context.getCtx();
             var app_id = Context.getAppID();
+            // DataHandler.loadModels({ app_id: app_id }).then(function(data) {
+            //     $scope.models = data
+            //     $scope.$apply()
+            // });
 
             CollabParameters.setService(ctx).then(function() {
 
@@ -1551,8 +1625,8 @@ ModelCatalogApp.controller('ModelCatalogEditCtrl', ['$scope', '$rootScope', '$ht
     }
 ]);
 
-ModelCatalogApp.controller('ModelCatalogVersionCtrl', ['$scope', '$rootScope', '$http', '$location', '$stateParams', 'ScientificModelRest', 'ScientificModelInstanceRest', 'CollabParameters', 'Context',
-    function($scope, $rootScope, $http, $location, $stateParams, ScientificModelRest, ScientificModelInstanceRest, CollabParameters, Context) {
+ModelCatalogApp.controller('ModelCatalogVersionCtrl', ['$scope', '$rootScope', '$http', '$location', '$stateParams', 'ScientificModelRest', 'ScientificModelInstanceRest', 'CollabParameters', 'Context', 'DataHandler',
+    function($scope, $rootScope, $http, $location, $stateParams, ScientificModelRest, ScientificModelInstanceRest, CollabParameters, Context, DataHandler) {
         Context.setService().then(function() {
             $scope.Context = Context;
 
@@ -1570,6 +1644,10 @@ ModelCatalogApp.controller('ModelCatalogVersionCtrl', ['$scope', '$rootScope', '
                         alert(e.data);
                     });
                 };
+                // DataHandler.loadModels({ app_id: app_id }).then(function(data) {
+                //     $scope.models = data
+                //     $scope.$apply()
+                // });
             });
 
         });
