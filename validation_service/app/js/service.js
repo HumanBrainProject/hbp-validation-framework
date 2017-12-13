@@ -950,6 +950,10 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'Context', 'ValidationResult
         };
 
         var get_lines_options = function(title, subtitle, Yaxislabel, caption, results_data, type, graph_key, abscissa_value) {
+
+            var yminymax = _get_min_max_yvalues(results_data);
+            var xminxmax = _get_min_max_xvalues(abscissa_value);
+
             options = {
                 chart: {
                     type: 'lineChart',
@@ -971,9 +975,12 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'Context', 'ValidationResult
                     },
                     xAxis: {
                         axisLabel: 'Version',
-                        tickValues: function(d) {
-                            return d3.format('.02f')(d);
-                        },
+                        tickValues: xminxmax.range,
+                        // tickValues: function(d) {
+                        //     return d3.format('.02f')(d);
+                        // },
+                        ticks: xminxmax.range.length,
+
                         tickFormat: function(d) {
                             for (var a in abscissa_value) {
                                 if (abscissa_value[a] == d) {
@@ -986,11 +993,19 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'Context', 'ValidationResult
 
                     yAxis: {
                         axisLabel: Yaxislabel,
+                        showMaxMin: false,
                         tickFormat: function(d) {
                             return d3.format('.02f')(d);
                         },
-                        axisLabelDistance: -10
+                        axisLabelDistance: -10,
+
                     },
+
+                    xDomain: xminxmax.value,
+                    xRange: null,
+                    yDomain: yminymax,
+                    yRange: null,
+                    tooltips: true,
                     callback: function(chart) {
                         chart.lines.dispatch.on('elementClick', function(e) {
                             console.log("e", e);
@@ -1034,6 +1049,41 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'Context', 'ValidationResult
 
 
         }
+        var _get_min_max_yvalues = function(results_data) {
+            var minY = undefined;
+            var maxY = undefined;
+            var all_scores = [];
+            //get all score value
+            var i = 0;
+            for (i; i < results_data.length; i++) {
+                for (var j in results_data[i].result) {
+                    all_scores.push(results_data[i].result[j].score);
+                }
+            }
+            //define min and max value as a purcentage of min and max scores
+            minY = Math.min.apply(Math, all_scores);
+            maxY = Math.max.apply(Math, all_scores);
+            minY = minY - 0.10 * minY;
+            maxY = maxY + 0.10 * maxY;
+            return [minY, maxY];
+        }
+
+        var _get_min_max_xvalues = function(abscissa_value) {
+            var minX = undefined;
+            var maxX = undefined;
+            var all_abscissa_values = [];
+            //get all score value
+
+            for (var i in abscissa_value) {
+                all_abscissa_values.push(abscissa_value[i]);
+            }
+
+            minX = Math.min.apply(Math, all_abscissa_values);
+            maxX = Math.max.apply(Math, all_abscissa_values);
+
+            return { value: [minX, maxX], range: all_abscissa_values.sort() };
+        }
+
         var get_DataMultipleResult = function() {
             return multiple_result_data;
         }
