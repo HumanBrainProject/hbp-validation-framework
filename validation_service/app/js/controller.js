@@ -153,7 +153,7 @@ testApp.controller('ValModelDetailCtrl', ['$scope', '$rootScope', '$http', '$loc
                                 Graphics.getResultsfromModelResultID2($scope.model, $scope.model_instances, score_type).then(function(value) {
                                     var key = $scope.init_graph_all.push(value);
 
-                                    $scope.options5.push(Graphics.get_lines_options('', '', $scope.authorized_parameters.score_type[key - 1].authorized_value, "", value.results, "model", key - 1));
+                                    $scope.options5.push(Graphics.get_lines_options('', '', $scope.authorized_parameters.score_type[key - 1].authorized_value, "", value.results, "model", key - 1, value.abs_info));
                                     //  $scope.init_checkbox.push(value.list_ids);
 
                                     $scope.line_result_focussed.push();
@@ -480,9 +480,10 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
                             $scope.init_graph = init_graph;
                             $scope.graphic_data = init_graph.values; //initialise graph before to updte with latest versions
                             $scope.init_checkbox = init_graph.list_ids;
-                            $scope.graphic_options = Graphics.get_lines_options('', '', $scope.detail_test.tests[0].score_type, "", init_graph.results, "test", "", init_graph.abs_info);
+
                             var raw_data = init_graph.raw_data;
                             raw_data.$promise.then(function() {
+                                $scope.graphic_options = Graphics.get_lines_options('', '', $scope.detail_test.tests[0].score_type, "", init_graph.results, "test", "", init_graph.abs_info);
                                 $scope.data_for_table = _reorganize_raw_data_for_table(raw_data);
                                 var recent_datas = _get_more_recent_versions(init_graph.values, $scope.data_for_table);
                                 $scope.graphic_data = recent_datas.values;

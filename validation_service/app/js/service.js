@@ -636,26 +636,6 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'Context', 'ValidationResult
             // console.log("id_couple", id_couple)
             var id_line = id_couple.id_line;
             var id_result = id_couple.id_result;
-            //find the correct datablock
-            // if (type == 'old') {
-            //     var datablock = undefined;
-            //     var i = 0;
-            //     for (i; i < results_data.data_block_id.length; i++) {
-            //         if (results_data.data_block_id[i].id == id_line) {
-            //             datablock = results_data.data[i];
-            //             i = results_data.data_block_id.length;
-            //         }
-            //     }
-            //     //find the correct result in datablock
-            //     var j = 0;
-            //     for (j; j < datablock.length; j++) {
-            //         if (datablock[j].id == id_result) {
-            //             result_to_return = datablock[j];
-            //         };
-            //     };
-            //     return result_to_return;
-
-            // }
 
             if (type == 'model') {
                 //find the correct result in datablock
@@ -716,6 +696,8 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'Context', 'ValidationResult
                 var results_data = ValidationResultRest.get({ app_id: Context.getAppID(), test_id: test.tests[0].id, order: 'model_instance' });
                 results_data.$promise.then(function() {
 
+                    var colors = _get_color_array(results_data.model_instances);
+
                     for (var instance in results_data.model_instances) {
                         // if (results_data.model_instances[instance].model_alias) {
                         //     m = results_data.model_instances[instance].model_alias
@@ -729,7 +711,7 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'Context', 'ValidationResult
                             var line_id = results_data.model_instances[instance].model_id + ' ( ' + results_data.model_instances[instance].version + ' )';
                         }
                         //manage data for graph
-                        values.push(_manageDataForTestGraph2(results_data.model_instances[instance].test_codes, line_id, results_data.model_instances[instance].model_id, abscissa_value));
+                        values.push(_manageDataForTestGraph2(results_data.model_instances[instance].test_codes, line_id, results_data.model_instances[instance].model_id, abscissa_value, colors[instance]));
                         list_ids.push(line_id)
 
                         //manage data for results
@@ -755,11 +737,29 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'Context', 'ValidationResult
                 resolve({ 'raw_data': results_data, 'values': values, 'results': results, 'list_ids': list_ids, 'abs_info': abscissa_value });
             });
         }
+
+        var _get_color_array = function(data_row) {
+            list_ids = [];
+            for (var i in data_row) {
+                list_ids.push(i);
+            }
+
+            var colorMap = palette('tol-rainbow', list_ids.length);
+
+            var res = [];
+            for (var j in list_ids) {
+                res[list_ids[j]] = colorMap[j];
+            }
+
+            return res;
+        }
+
         var _sort_results_by_timestamp = function(a, b) {
             return new Date(b.timestamp) - new Date(a.timestamp);
         }
 
-        var _manageDataForTestGraph2 = function(data, line_id, model_id, abscissa_value) {
+        var _manageDataForTestGraph2 = function(data, line_id, model_id, abscissa_value, color) {
+
             var values_temp = [];
 
             for (var c in data) {
@@ -779,7 +779,7 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'Context', 'ValidationResult
             var data_to_return = {
                 values: values_temp.sort(_sort_results_by_x), //values - represents the array of {x,y} data points
                 key: line_id, //key  - the name of the series.
-                color: _pickRandomColor(), //color - optional: choose your own line color.
+                color: "#" + color, //_pickRandomColor(), //color - optional: choose your own line color.
                 test_id: model_id,
             };
 
@@ -806,6 +806,8 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'Context', 'ValidationResult
                 var results_data = ValidationResultRest.get({ app_id: Context.getAppID(), model_id: model.models[0].id, order: 'test_code', score_type: score_type });
                 results_data.$promise.then(function() {
 
+                    var colors = _get_color_array(results_data.test_codes);
+
                     for (var code in results_data.test_codes) {
                         if (results_data.test_codes[code].test_alias && results_data.test_codes[code].test_alias != null && results_data.test_codes[code].test_alias != '' && results_data.test_codes[code].test_alias != 'None') {
                             var line_id = results_data.test_codes[code].test_alias + ' ( ' + results_data.test_codes[code].version + ' )';
@@ -815,7 +817,7 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'Context', 'ValidationResult
 
                         results_data.test_codes[code].line_id = line_id;
 
-                        var a = values.push(_manageDataForGraph2(results_data.test_codes[code].timestamp, results_data.test_codes[code].model_instances, line_id, results_data.test_codes[code].test_id, score_type, abscissa_value));
+                        var a = values.push(_manageDataForGraph2(results_data.test_codes[code].timestamp, results_data.test_codes[code].model_instances, line_id, results_data.test_codes[code].test_id, score_type, abscissa_value, colors[code]));
                         list_ids.push(line_id);
                     };
 
@@ -825,7 +827,9 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'Context', 'ValidationResult
                     for (var code in results_data.test_codes) {
                         for (var v in results_data.test_codes[code].model_instances) {
                             var keys = Object.keys(results_data.test_codes[code].model_instances[v].results);
-                            results.push(results_data.test_codes[code].model_instances[v].results[keys[0]]);
+                            for (var k in keys) {
+                                results.push(results_data.test_codes[code].model_instances[v].results[keys[k]]);
+                            }
                         }
                     }
                     resolve({ results_data: results_data, 'values': values, 'results': results, 'list_ids': list_ids, 'abs_info': abscissa_value, 'latest_test_versions_line_id': latest_test_versions_line_id });
@@ -859,7 +863,7 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'Context', 'ValidationResult
 
         }
 
-        var _manageDataForGraph2 = function(timestamp, data, line_id, test_id, score_type, abscissa_value) {
+        var _manageDataForGraph2 = function(timestamp, data, line_id, test_id, score_type, abscissa_value, color) {
             var values_temp = [];
 
             for (var v in data) {
@@ -877,7 +881,7 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'Context', 'ValidationResult
             var data_to_return = {
                 values: values_temp.sort(_sort_results_by_x), //values - represents the array of {x,y} data points
                 key: line_id, //key  - the name of the series.
-                color: _pickRandomColor(), //color - optional: choose your own line color.
+                color: "#" + color, //_pickRandomColor(), //color - optional: choose your own line color.
                 test_id: test_id,
                 test_score_type: score_type,
                 timestamp: timestamp,
@@ -966,6 +970,10 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'Context', 'ValidationResult
         };
 
         var get_lines_options = function(title, subtitle, Yaxislabel, caption, results_data, type, graph_key, abscissa_value) {
+
+            var yminymax = _get_min_max_yvalues(results_data);
+            var xminxmax = _get_min_max_xvalues(abscissa_value);
+
             options = {
                 chart: {
                     type: 'lineChart',
@@ -987,9 +995,12 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'Context', 'ValidationResult
                     },
                     xAxis: {
                         axisLabel: 'Version',
-                        tickValues: function(d) {
-                            return d3.format('.02f')(d);
-                        },
+                        tickValues: xminxmax.range,
+                        // tickValues: function(d) {
+                        //     return d3.format('.02f')(d);
+                        // },
+                        ticks: xminxmax.range.length,
+
                         tickFormat: function(d) {
                             for (var a in abscissa_value) {
                                 if (abscissa_value[a] == d) {
@@ -1002,14 +1013,21 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'Context', 'ValidationResult
 
                     yAxis: {
                         axisLabel: Yaxislabel,
+                        showMaxMin: false,
                         tickFormat: function(d) {
                             return d3.format('.02f')(d);
                         },
-                        axisLabelDistance: -10
+                        axisLabelDistance: -10,
+
                     },
+
+                    xDomain: xminxmax.value,
+                    xRange: null,
+                    yDomain: yminymax,
+                    yRange: null,
+                    tooltips: true,
                     callback: function(chart) {
                         chart.lines.dispatch.on('elementClick', function(e) {
-                            console.log("e", e);
                             var list_of_results_id = [];
                             var i = 0;
                             for (i; i < e.length; i++) {
@@ -1050,6 +1068,56 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'Context', 'ValidationResult
 
 
         }
+        var _get_min_max_yvalues = function(results_data) {
+            if (results_data.length != 0) {
+                var minY = undefined;
+                var maxY = undefined;
+
+                var all_scores = [];
+                //get all score value
+                var i = 0;
+                for (i; i < results_data.length; i++) {
+
+                    if (results_data[i].result != undefined) {
+                        for (var j in results_data[i].result) {
+
+                            all_scores.push(results_data[i].result[j].score);
+                        }
+                    } else {
+
+                        if (results_data[i].score) {
+
+                            all_scores.push(results_data[i].score);
+                        }
+                    }
+
+                }
+                //define min and max value as a purcentage of min and max scores
+                minY = Math.min.apply(Math, all_scores);
+                maxY = Math.max.apply(Math, all_scores);
+                minY = minY - 0.10 * minY;
+                maxY = maxY + 0.10 * maxY;
+                return [minY, maxY];
+            } else {
+                return [null, null];
+            }
+        }
+
+        var _get_min_max_xvalues = function(abscissa_value) {
+            var minX = undefined;
+            var maxX = undefined;
+            var all_abscissa_values = [];
+            //get all score value
+            for (var i in abscissa_value) {
+                all_abscissa_values.push(abscissa_value[i]);
+            }
+
+            minX = Math.min.apply(Math, all_abscissa_values);
+            maxX = Math.max.apply(Math, all_abscissa_values);
+
+            return { value: [minX, maxX], range: all_abscissa_values.sort() };
+        }
+
         var get_DataMultipleResult = function() {
             return multiple_result_data;
         }

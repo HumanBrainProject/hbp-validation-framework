@@ -163,7 +163,6 @@ def extract_versions_and_test_id_from_list_testcode_json (testcode_json):
     return {'test_id' :testcode_json["test_definition_id"] ,  'version_name': testcode_json["version"] }
 
 def check_commun_params_json (json):
-    
     if 'cell_type' in json :
         if json['cell_type'] != "" :
             if len(Param_CellType.objects.filter(authorized_value= json['cell_type'])) != 1 :
@@ -200,7 +199,7 @@ def check_param_of_model_json (json):
         if 'organization' in json :
             if json['organization'] != "" :
                 if len(Param_organizations.objects.filter(authorized_value=json['organization'])) != 1 :
-                    return ("You gave an invalid model_type parameter")
+                    return ("You gave an invalid organization parameter")
             else :
                 json.pop('organization', None)
                 
