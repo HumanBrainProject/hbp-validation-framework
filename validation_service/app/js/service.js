@@ -1,7 +1,7 @@
 var ContextServices = angular.module('ContextServices', ['ngResource', 'btorfs.multiselect', 'ApiCommunicationServices', ]);
 
-ContextServices.service('Context', ['$rootScope', '$location', 'AppIDRest', 'CollabIDRest',
-    function($rootScope, $location, AppIDRest, CollabIDRest) {
+ContextServices.service('Context', ['$rootScope', '$location', 'AppIDRest', 'CollabIDRest', 'collabAppID',
+    function($rootScope, $location, AppIDRest, CollabIDRest, collabAppID) {
         var ctx;
         var state_type = undefined;
         var state = undefined;
@@ -58,34 +58,18 @@ ContextServices.service('Context', ['$rootScope', '$location', 'AppIDRest', 'Col
             setState(result_id);
             $location.path('/home/validation_test_result/' + result_id);
         };
-        var validation_goToModelCatalog = function(model) {
+        var validation_goToModelCatalog = function(model, collab_id) {
 
-            //here we need to use the current collab_id to get the app_id of local model_cataloge. 
-            //if no such app : rize allert
-            // console.log(collabID);
-            // console.log(collabID);
+            collab_id = typeof collab_id !== 'undefined' ? collab_id : this.collabID;
 
-            // console.log(window.bbpConfig);
+            var collab_id = collabID;
+            var app_id = collabAppID.get({ collab_id: collab_id });
 
-            // clbStorage.getEntity({ collab: collabID }).then(function(collab_entity) {
-            //     console.log(collab_entity);
-
-            //     // clbStorage.getChildren({ uuid: collabStorageFolder.uuid, entity_type: 'folder' }).then(function(storage_folder_children) {
-            //     //         $scope.storage_files = storage_folder_children.results
-
-            //     //     }, function() {})
-            //     //     .finally(function() {});
-
-            // }, function(not_worked) {}).finally(function() {});
-
-
-            // console.log("model", model)
-            var collab_id = model.app.collab_id;
-            var app_id = model.app.id;
-
-            var url = "https://collab.humanbrainproject.eu/#/collab/" + collab_id + "/nav/" + app_id +
-                "?state=model." + model.id + ",external"; //to go to collab api
-            window.open(url, 'modelCatalog');
+            app_id.$promise.then(function() {
+                var url = "https://collab.humanbrainproject.eu/#/collab/" + collab_id + "/nav/" + app_id.app_id +
+                    "?state=model." + model.id + ",external"; //to go to collab api
+                window.open(url, 'modelCatalog');
+            });
         }
 
         var setService = function() {

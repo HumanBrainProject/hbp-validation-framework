@@ -187,3 +187,11 @@ ApiCommunicationServices.factory('NotificationRest', ['$resource',
         });
     }
 ]);
+
+ApiCommunicationServices.factory('collabAppID', ['$resource',
+    function($resource) {
+        return $resource('collabappid/', {}, {
+            get: { method: 'GET', params: { format: 'json', ctx: 'ctx' }, isArray: false },
+        });
+    }
+]);

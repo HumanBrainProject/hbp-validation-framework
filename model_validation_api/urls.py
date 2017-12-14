@@ -22,6 +22,7 @@ from .views import (
                     TestTicketRest,
                     IsCollabMemberRest,
                     Results,
+                    CollabAppID,
 
                     )
 
@@ -58,6 +59,11 @@ urlpatterns = (
     url(r'^app/$',
         HomeValidationView.as_view(),
         name="home-validation-view"),
+    
+    url(r'^collabappid/$',
+        CollabAppID.as_view(),
+        ),
+    
 
     url(r'^tests/$',
         Tests.as_view(),

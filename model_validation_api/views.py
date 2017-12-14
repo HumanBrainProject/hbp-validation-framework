@@ -284,6 +284,24 @@ class AppIDRest(APIView):
             'app_id': app_id,
         })
 
+class CollabAppID(APIView): 
+    def get(self, request, format=None, **kwargs):
+
+        param_collab_id = request.GET.getlist('collab_id')
+
+        collab_param = CollabParameters.objects.filter(collab_id = param_collab_id[0], app_type="model_catalog")
+
+        # print collab_param[0].__dict__
+
+        app_id = collab_param[0].id
+
+
+
+        return Response({
+            'app_id': app_id,
+        })
+
+
 
 class ParametersConfigurationRest( APIView): #LoginRequiredMixin, 
 
