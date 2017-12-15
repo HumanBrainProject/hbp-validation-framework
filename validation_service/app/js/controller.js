@@ -76,12 +76,12 @@ testApp.controller('ValTestCtrl', ['$scope', '$rootScope', '$http', '$location',
             var app_id = Context.getAppID();
 
             DataHandler.loadModels({ app_id: app_id }).then(function(data) {
-                $scope.models = data
+                $scope.models = data;
                 $scope.$apply()
             });
 
             DataHandler.loadTests({ app_id: app_id }).then(function(data) {
-                $scope.tests = data
+                $scope.tests = data;
                 $scope.$apply()
             });
             CollabParameters.setService(ctx).then(function() {
@@ -904,8 +904,8 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
     }
 ]);
 
-testApp.controller('ValTestResultDetailCtrl', ['$window', '$scope', '$rootScope', '$http', '$sce', '$location', '$stateParams', 'IsCollabMemberRest', 'AppIDRest', 'ValidationResultRest', 'CollabParameters', 'ScientificModelRest', 'ValidationTestDefinitionRest', "Context", "clbStorage", "clbAuth", 'DataHandler',
-    function($window, $scope, $rootScope, $http, $sce, $location, $stateParams, IsCollabMemberRest, AppIDRest, ValidationResultRest, CollabParameters, ScientificModelRest, ValidationTestDefinitionRest, Context, clbStorage, clbAuth, DataHandler) {
+testApp.controller('ValTestResultDetailCtrl', ['$window', '$scope', '$rootScope', '$http', '$sce', '$location', '$stateParams', 'IsCollabMemberRest', 'AppIDRest', 'ValidationResultRest', 'CollabParameters', 'ScientificModelRest', 'ValidationTestDefinitionRest', "Context", "clbStorage", "clbAuth", 'DataHandler', 'clbCollabNav',
+    function($window, $scope, $rootScope, $http, $sce, $location, $stateParams, IsCollabMemberRest, AppIDRest, ValidationResultRest, CollabParameters, ScientificModelRest, ValidationTestDefinitionRest, Context, clbStorage, clbAuth, DataHandler, clbCollabNav) {
         var vm = this;
 
         Context.setService().then(function() {
@@ -924,12 +924,51 @@ testApp.controller('ValTestResultDetailCtrl', ['$window', '$scope', '$rootScope'
 
                     var result_storage = $scope.test_result.results_storage;
                     result_storage = split_result_storage_sting(result_storage);
-                    var collab_storage = result_storage[0];
+                    var collab = result_storage[0];
                     var folder_name = result_storage[1];
 
-                    clbStorage.getEntity({ path: "?path=/" + collab_storage + "/" + folder_name + "/" }).then(function(collabStorageFolder) {
+                    var storage_app_id = undefined;
+
+                    clbCollabNav.getRoot(collab).then(function(clb_collab) {
+                        for (i in clb_collab.children()) {
+                            if (clb_collab.children()[i].name == "Storage") {
+                                storage_app_id = clb_collab.children()[i].id;
+                                break;
+                            }
+
+                        }
+
+                        if (storage_app_id != undefined) {
+                            $scope.storage_url = "https://collab.humanbrainproject.eu/#/collab/" + collab + "/nav/" + storage_app_id;
+                        } else {
+                            $scope.storage_url = "";
+                        }
+                        // $scope.storage_url = 
+                        //https://collab.humanbrainproject.eu/#/collab/2169/nav/18935
+
+
+                    });
+
+
+                    // clbStorage.getEntity({ collab: collab_storage, entity_type: 'project' }).then(function(collabStorage) {
+
+
+                    //     clbStorage.getMetadata({ uuid: collabStorage.uuid }).then(function(collabPath) {
+                    //         console.log(collabPath);
+                    //         console.log(collabPath);
+                    //         console.log(collabPath);
+                    //         console.log(collabPath);
+
+                    //     });
+                    // });
+
+                    clbStorage.getEntity({ path: "?path=/" + collab + "/" + folder_name + "/" }).then(function(collabStorageFolder) {
+
+
+
 
                         clbStorage.getChildren({ uuid: collabStorageFolder.uuid, entity_type: 'folder' }).then(function(storage_folder_children) {
+
                                 $scope.storage_files = storage_folder_children.results
 
                             }, function() {})
