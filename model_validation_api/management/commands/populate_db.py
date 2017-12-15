@@ -46,8 +46,9 @@ class Command(BaseCommand):
         # Param_organizations(id=uuid.uuid4(),authorized_value='HBP-SP12').save()
         # Param_organizations(id=uuid.uuid4(),authorized_value='Blue Brain Project').save() 
 	# Param_organizations(id=uuid.uuid4(),authorized_value='Other').save()  
-	Param_organizations(id=uuid.uuid4(),authorized_value='KOKI-UNIC').save()
+	# Param_organizations(id=uuid.uuid4(),authorized_value='KOKI-UNIC').save()
         # Param_organizations(id=uuid.uuid4(),authorized_value='KTH-UNIC').save()
+        Param_organizations(id=uuid.uuid4(),authorized_value='<<empty>>').save()
 
  
         	
@@ -965,6 +966,15 @@ class Command(BaseCommand):
         models_to_delete = ScientificModel.objects.filter(app_id=app_id)
         for model in models_to_delete:
                 model.delete()
+
+    def set_default_organisation_to_model_when_empty_string(self, *args, **options):
+        # app_id = CollabParameters.objects.filter(collab_id = collab_id, app_type='model_catalog')
+        models_to_update = ScientificModel.objects.all()
+        for model in models_to_update:
+                if model.organization == '':
+                        model.organization = "<<empty>>"
+                        model.save()
+
     def add_results_to_test_code_heli(self, test_code_id, model_version_id):
         import time
         import datetime
@@ -1005,13 +1015,16 @@ class Command(BaseCommand):
         # self._create_cell_type()
         # self._create_model_type()
 	# self._create_score_type()
-	self._create_organizations()
+	# self._create_organizations()
         # self.delete_specific_organization('KOKI-UNIC')
         # self.add_results_to_test_code_heli("89bedb648d7e4e4db9f1271a9f4f9523","f36b1010cb1e4568b8af1e6739c14aaa")
         # self.add_results_to_test_code_heli("89bedb648d7e4e4db9f1271a9f4f9523","886473570a324cc88dc2aff8d4140a90")
         # self.add_results_to_test_code_heli("302210807cee4f94b6d6e0fc12d90ca5","cce2c00728d4462ba090a2696c1f076d")
         # self.add_results_to_test_code_heli("302210807cee4f94b6d6e0fc12d90ca5","cce2c00728d4462ba090a2696c1f076d")
         # self.add_results_to_test_code_heli("302210807cee4f94b6d6e0fc12d90ca5","886473570a324cc88dc2aff8d4140a90")
+
+
+        # self.set_default_organisation_to_model_when_empty_string()
 
         # self._fake_collab()
 	# self.old_fake_models_test_results()

@@ -697,10 +697,8 @@ class Models(APIView):
 
                 organization_filter = collab_params.organization.split(",")
                 if organization_filter==[u'']:
-                    organization_filter = list(Param_organizations.objects.all().values_list('authorized_value', flat=True))+[u'']
-                else: 
-                    organization_filter += [u'']
-
+                    organization_filter = list(Param_organizations.objects.all().values_list('authorized_value', flat=True)) #+[u'']
+                    
                 if is_authorised(request, collab_id) :
                     rq1 = ScientificModel.objects.filter(
                         private=1,
