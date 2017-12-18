@@ -123,6 +123,7 @@ class ScientificModelInstance(models.Model):
     parameters = models.TextField(null=True, blank=True)
     source = models.URLField(help_text="Version control repository containing the source code of the model")
     timestamp = models.DateTimeField(auto_now_add=True, help_text="Timestamp of when the version was created")
+    code_format = models.CharField(max_length=100 , blank=True, null=True, default=None, help_text = "format of the code (PyNN, Brian, Neuron...)")
     def __str__(self):
         return "Model: {} @ version {}".format(self.model.name, self.version)
 

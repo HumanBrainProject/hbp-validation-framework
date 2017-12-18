@@ -87,20 +87,23 @@
     <table class="table">
         <thead>
             <tr>
-                <th style="width: 25%">Version</th>
-                <th style="width: 25%">ID</th>
-                <th style="width: 25%">Description</th>
-                <th style="width: 25%">Parameters</th>
-                <th style="width: 25%">Code location</th>
+                <th style="width: 15%">Version</th>
+                <th style="width: 15%">ID</th>
+                <th style="width: 15%">Description</th>
+                <th style="width: 15%">Parameters</th>
+                <th style="width: 15%">Code format</th>
+                <th style="width: 15%">Code location</th>
             </tr>
         </thead>
         <tbody>
             <tr ng-repeat="model_instance in model.models[0].instances">
-                <td style="width: 25%">{{ model_instance.version }}</td>
-                <td style="width: 25%">{{ model_instance.id }}</td>
-                <td style="width: 25%"><pre>{{ model_instance.description }}</pre></td>
-                <td style="width: 25%"><pre>{{ model_instance.parameters }}</pre></td>
-                <td style="width: 25%">
+                <td style="width: 15%">{{ model_instance.version }}</td>
+                <td style="width: 15%">{{ model_instance.id }}</td>
+                <td style="width: 15%"><pre>{{ model_instance.description }}</pre></td>
+                <td style="width: 15%"><pre>{{ model_instance.parameters }}</pre></td>
+                <td style="width: 15%">{{ model_instance.code_format }}</td>
+
+                <td style="width: 15%">
                     <a target=_blank href={{model_instance.source}}>{{ model_instance.source }}</a>
                 </td>
         </tbody>

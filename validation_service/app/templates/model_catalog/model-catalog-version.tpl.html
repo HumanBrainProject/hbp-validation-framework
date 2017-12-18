@@ -2,7 +2,7 @@
 
 <head>
     <nav class="navbar ">
-        <h1 align=center> Model: {{ model.models[0].name}} (ID:{{ model.models[0].id }})</h1>
+        <h1 align=center> {{ model.models[0].name}}</h1>
         <h3 align=center> New version</h3>
     </nav>
 </head>
@@ -16,46 +16,81 @@
 
 
     <form>
+
         <table>
             <tbody>
-                </br>
-                <tr>
-                    <td>
-                        <b>Version Name:</b>
-                    </td>
-                    <td>
-                        <input type="text" ng-model="model_instance.version" required/>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <b>Description:</b>
-                    </td>
-                    <td>
-                        <textarea class="scrollabletextbox" rows="5" cols="50" ng-model="model_instance.description"> </textarea>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <b>Parameters:</b>
-                    </td>
-                    <td>
-                        <textarea class="scrollabletextbox" rows="5" cols="50" ng-model="model_instance.parameters"> </textarea>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <b>Code Source:</b>
-                    </td>
-                    <td>
-                        <input type="url" ng-model="model_instance.source" required/>
-                    </td>
-                </tr>
+                <td>
+                    <table>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <font color=red>*</font>
+                                    <b>Version Name:</b>
+                                </td>
+                                <td>
+                                    <input type="text" ng-model="model_instance.version" required />
+                                    <a class="glyphicon glyphicon-question-sign" aria-hidden="true" data-toggle="tooltip" data-placement="right" title="Example: version 1.0"></a>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <b>Description:</b>
+                                </td>
+                                <td>
+                                    <textarea class="scrollabletextbox" rows="5" cols="50" ng-model="model_instance.description"> </textarea>
+                                    <a class="glyphicon glyphicon-question-sign" aria-hidden="true" data-toggle="tooltip" data-placement="right" title="Example:"></a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </td>
+                <td>
+                    <table>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <font color=red>*</font>
+                                    <b>Code Source:</b>
+                                </td>
+                                <td>
+                                    <input type="url" ng-model="model_instance.source" required />
+                                    <a class="glyphicon glyphicon-question-sign" aria-hidden="true" data-toggle="tooltip" data-placement="right" title="Example: http://github.com"></a>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td>
+                                    <b>Parameters:</b>
+                                </td>
+                                <td>
+                                    <textarea class="scrollabletextbox" rows="5" cols="50" ng-model="model_instance.parameters"> </textarea>
+                                    <a class="glyphicon glyphicon-question-sign" aria-hidden="true" data-toggle="tooltip" data-placement="right" title="Example: Vrest = -70 mV"></a>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+
+                                    <b>Code format:</b>
+                                </td>
+                                <td>
+                                    <input type="text" ng-model="model_instance.code_format" />
+                                    <a class="glyphicon glyphicon-question-sign" aria-hidden="true" data-toggle="tooltip" data-placement="right" title="Example: PyNN, Brian, Neuron..."></a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </td>
+
             </tbody>
+
         </table>
+
         <br> <br>
         <div class="navbar navbar-form">
             <button type="submit" class="btn btn-primary" ng-click=saveVersion()>Save</button>
+        </div>
+        <div align=right>
+            <font color=red>* this field is required</font>
         </div>
     </form>
 
