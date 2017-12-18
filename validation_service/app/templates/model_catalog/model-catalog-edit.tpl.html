@@ -170,7 +170,7 @@
                     <div class="group" ng-repeat="img in model.models[0].images track by $index">
                         <figure>
                             <button id="button-sup" type="button" ng-click='deleteImage(img)' class='glyphicon glyphicon-remove'></button>
-                            <button><img id="image-$index"  ng-src="{{img.url}}" class=image> </button>
+                            <button><img id="image-$index"  ng-src="{{img.src}}" class=image> </button>
                             <figcaption> <textarea ng-model="img.caption" rows="3" cols="40" required> </textarea> </figcaption>
                             <br>
                         </figure>

@@ -490,7 +490,7 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
                                 check_elements_in_checkbox(init_graph.list_ids, recent_datas.list_ids);
 
 
-                                //I put that here to test
+
                                 DataHandler.loadModels({ app_id: app_id }).then(function(data) {
                                     $scope.models = data
                                     $scope.$apply()
@@ -1023,7 +1023,6 @@ testApp.controller('ValTestResultDetailCtrl', ['$window', '$scope', '$rootScope'
 
                 clbStorage.downloadUrl({ uuid: uuid }).then(function(FileURL) {
                         var FileURL = FileURL;
-
                         $scope.image = new Image();
                         $scope.image.src = FileURL;
 
@@ -1501,9 +1500,9 @@ ModelCatalogApp.controller('ModelCatalogCreateCtrl', ['$scope', '$rootScope', '$
     }
 ]);
 
-ModelCatalogApp.controller('ModelCatalogDetailCtrl', ['$scope', '$rootScope', '$http', '$location', '$state', '$stateParams', 'ScientificModelRest', 'CollabParameters', 'IsCollabMemberRest', 'Context', 'DataHandler',
+ModelCatalogApp.controller('ModelCatalogDetailCtrl', ['$scope', '$rootScope', '$http', '$location', '$state', '$stateParams', 'ScientificModelRest', 'CollabParameters', 'IsCollabMemberRest', 'Context', 'DataHandler', 'clbStorage',
 
-    function($scope, $rootScope, $http, $location, $state, $stateParams, ScientificModelRest, CollabParameters, IsCollabMemberRest, Context, DataHandler) {
+    function($scope, $rootScope, $http, $location, $state, $stateParams, ScientificModelRest, CollabParameters, IsCollabMemberRest, Context, DataHandler, clbStorage) {
         Context.setService().then(function() {
 
             $scope.Context = Context;
@@ -1519,6 +1518,26 @@ ModelCatalogApp.controller('ModelCatalogDetailCtrl', ['$scope', '$rootScope', '$
 
                     $("#ImagePopupDetail").hide();
                     $scope.model = ScientificModelRest.get({ app_id: $scope.app_id, id: $stateParams.uuid, web_app: "True" });
+                    $scope.model.$promise.then(function(model) {
+                        for (var i in $scope.model.models[0].images) {
+                            var substring = model.models[0].images[i].url.substring(0, 35);
+                            if (substring == "https://collab.humanbrainproject.eu") {
+                                get_url_from_collab_storage(model.models[0].images[i].url, i);
+                            } else {
+                                $scope.model.models[0].images[i].src = $scope.model.models[0].images[i].url;
+                            };
+
+                        };
+                    });
+
+                    var get_url_from_collab_storage = function(url, i) {
+                        var index = url.indexOf("%3D");
+                        var image_uuid = url.slice(index + 3);
+                        clbStorage.downloadUrl({ uuid: image_uuid }).then(function(fileURL) {
+                            $scope.model.models[0].images[i].src = fileURL;
+                        });
+
+                    }
 
                     $scope.toggleSize = function(index, img) {
                         $scope.bigImage = img;
@@ -1545,17 +1564,14 @@ ModelCatalogApp.controller('ModelCatalogDetailCtrl', ['$scope', '$rootScope', '$
                     });
                 });
             }
+
         });
-
-
-
-
     }
 ]);
 
-ModelCatalogApp.controller('ModelCatalogEditCtrl', ['$scope', '$rootScope', '$http', '$location', '$state', '$stateParams', 'ScientificModelRest', 'ScientificModelInstanceRest', 'ScientificModelImageRest', 'CollabParameters', 'Context', 'ScientificModelAliasRest', 'AreVersionsEditableRest', 'DataHandler',
+ModelCatalogApp.controller('ModelCatalogEditCtrl', ['$scope', '$rootScope', '$http', '$location', '$state', '$stateParams', 'ScientificModelRest', 'ScientificModelInstanceRest', 'ScientificModelImageRest', 'CollabParameters', 'Context', 'ScientificModelAliasRest', 'AreVersionsEditableRest', 'DataHandler', 'clbStorage',
 
-    function($scope, $rootScope, $http, $location, $state, $stateParams, ScientificModelRest, ScientificModelInstanceRest, ScientificModelImageRest, CollabParameters, Context, ScientificModelAliasRest, AreVersionsEditableRest, DataHandler) {
+    function($scope, $rootScope, $http, $location, $state, $stateParams, ScientificModelRest, ScientificModelInstanceRest, ScientificModelImageRest, CollabParameters, Context, ScientificModelAliasRest, AreVersionsEditableRest, DataHandler, clbStorage) {
         Context.setService().then(function() {
 
             $scope.Context = Context;
@@ -1581,10 +1597,32 @@ ModelCatalogApp.controller('ModelCatalogEditCtrl', ['$scope', '$rootScope', '$ht
                 $scope.version_is_editable = [];
                 $scope.model = ScientificModelRest.get({ app_id: app_id, id: $stateParams.uuid });
 
+                $scope.model.$promise.then(function(model) {
+                    for (var i in $scope.model.models[0].images) {
+                        var substring = model.models[0].images[i].url.substring(0, 35);
+                        if (substring == "https://collab.humanbrainproject.eu") {
+                            get_url_from_collab_storage(model.models[0].images[i].url, i);
+                        } else {
+                            $scope.model.models[0].images[i].src = $scope.model.models[0].images[i].url;
+                        };
+
+                    };
+                });
+
                 var version_editable = AreVersionsEditableRest.get({ app_id: app_id, model_id: $stateParams.uuid });
                 version_editable.$promise.then(function(versions) {
                     $scope.version_is_editable = versions.are_editable;
                 });
+
+                var get_url_from_collab_storage = function(url, i) {
+                    var index = url.indexOf("%3D");
+                    var image_uuid = url.slice(index + 3);
+                    clbStorage.downloadUrl({ uuid: image_uuid }).then(function(fileURL) {
+                        $scope.model.models[0].images[i].src = fileURL;
+                    });
+
+                }
+
                 $scope.deleteImage = function(img) {
                     var image = img
                     ScientificModelImageRest.delete({ app_id: app_id, id: image.id }).$promise.then(

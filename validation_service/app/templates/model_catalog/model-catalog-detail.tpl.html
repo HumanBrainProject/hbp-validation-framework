@@ -72,7 +72,7 @@
                 <tr>
                     <div class="group" ng-repeat="img in model.models[0].images track by $index">
                         <figure>
-                            <button ng-click='toggleSize($index, img)'><img class=image id="image-$index"  ng-src="{{img.url}}"> </button>
+                            <button ng-click='toggleSize($index, img)'><img class=image id="image-$index"  ng-src="{{img.src}}"> </button>
                             <figcaption id=figcaptionDetail>{{img.caption}}</figcaption> <br>
                         </figure>
                     </div> &ensp;
@@ -115,7 +115,7 @@
         <div class="panel-heading"> <button id="close-button" type="button" class="glyphicon glyphicon-remove" ng-click="closeImagePanel()"></button></div>
         <div class="panel-body" class="imgwrapper">
             <figure id="ImagePopupDetailfig">
-                <img class="img-fluid img-responsive" id=ImagePopupIm ng-src={{bigImage.url}}>
+                <img class="img-fluid img-responsive" id=ImagePopupIm ng-src={{bigImage.src}}>
                 <br>
                 <figcaption markdown="bigImage.caption"></figcaption>
                 <br>
