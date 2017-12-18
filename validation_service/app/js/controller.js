@@ -618,17 +618,31 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
                             }
                             //order results by timestamp
                             code.results = code.results.sort(_sort_by_timestamp_desc);
-
                             instance.test_instances.push(code);
                         }
                         //order test_instances by timestamp
+                        instance.last_result_timestamp = _get_last_result_timestamp(instance.test_instances);
                         instance.test_instances = instance.test_instances.sort(_sort_by_timestamp_asc);
                         organized_data.model_instances.push(instance);
                     }
+                    //sort model instances by last result timestamp
+                    organized_data.model_instances = organized_data.model_instances.sort(_sort_by_last_result_timestamp_desc)
                     return organized_data;
 
                 };
-
+                var _get_last_result_timestamp = function(codes) {
+                    var newest_timestamp = undefined;
+                    for (var code in codes) {
+                        var timestamp = codes[code].results[0].timestamp;
+                        if (newest_timestamp == undefined || (newest_timestamp && timestamp < newest_timestamp)) {
+                            newest_timestamp = timestamp;
+                        }
+                    }
+                    return newest_timestamp;
+                }
+                var _sort_by_last_result_timestamp_desc = function(a, b) {
+                    return new Date(b.last_result_timestamp) - new Date(a.last_result_timestamp);
+                }
 
                 var _sort_by_timestamp_desc = function(a, b) {
                     return new Date(b.timestamp) - new Date(a.timestamp);
