@@ -67,10 +67,14 @@ class ValidationTestCode(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, )
     repository = models.CharField(max_length=200, help_text="location of the code that defines the test")
     version = models.CharField(max_length=128, help_text="version of the code that defines the test")
+    description = models.TextField(null=True, blank=True)
     path = models.CharField(max_length=200, help_text="path to test class within Python code")
     timestamp = models.DateTimeField(auto_now_add=True, help_text="timestamp for this version of the code")
     test_definition = models.ForeignKey(ValidationTestDefinition, help_text="Validation test implemented by this code",
                                         related_name="codes")
+
+
+
     class Meta:
         verbose_name_plural = "validation test code"
         get_latest_by = "timestamp"
