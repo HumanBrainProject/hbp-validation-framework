@@ -235,6 +235,7 @@
         'ContextServices',
         'HelpServices',
         'ngTextTruncate',
+        'hbpCollaboratory',
     ]);
 
     ModelCatalogApp.config(
