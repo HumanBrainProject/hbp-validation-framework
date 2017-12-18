@@ -925,9 +925,9 @@ testApp.controller('ValTestResultDetailCtrl', ['$window', '$scope', '$rootScope'
                     $scope.test_result = test_result.results[0];
 
                     var result_storage = $scope.test_result.results_storage;
-                    result_storage = split_result_storage_sting(result_storage);
-                    var collab = result_storage[0];
-                    var folder_name = result_storage[1];
+                    var result_storage_dict = split_result_storage_sting(result_storage);
+                    var collab = result_storage_dict.collab;
+                    var folder_name = result_storage_dict.folder_path;
                     $scope.folder_name = folder_name;
 
                     var storage_app_id = undefined;
@@ -981,7 +981,12 @@ testApp.controller('ValTestResultDetailCtrl', ['$window', '$scope', '$rootScope'
 
             var split_result_storage_sting = function(storage_string) {
                 storage_string = storage_string.slice(10, storage_string.length)
-                return (storage_string.split('/'));
+
+                storage_string = storage_string.split(/\/(.+)/)
+
+                var dict_to_return = { collab: storage_string[0], folder_path: storage_string[1] }
+
+                return (dict_to_return);
             };
 
             var get_correct_folder_using_name = function(name, folders) {
