@@ -62,7 +62,7 @@
         </thead>
 
         <tbody>
-            <tr class="tr-clickable" ng-repeat="test in test_list.tests | filter:search | filterMultiple:{species:selected_species, brain_region:selected_brain_region, cell_type:selected_cell_type, data_modality:selected_data_modalities, test_type:selected_test_type} | orderBy: selected_sorting_option"
+            <tr class="tr-clickable" ng-repeat="test in tests.tests | filter:search | filterMultiple:{species:selected_species, brain_region:selected_brain_region, cell_type:selected_cell_type, data_modality:selected_data_modalities, test_type:selected_test_type} | orderBy: selected_sorting_option"
                 ng-click="Context.validation_goToTestDetailView(test.id) ">
 
                 <td>{{ test.name }}</td>

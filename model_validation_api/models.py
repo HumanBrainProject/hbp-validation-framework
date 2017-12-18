@@ -103,7 +103,7 @@ class ScientificModel(models.Model):
     code_format = models.CharField(max_length=100 ,blank=True, help_text=".py, .c, etc...")
     alias = models.CharField(max_length=200, unique=True, null=True, default=None,  help_text="alias of the model")
     creation_date = models.DateTimeField(auto_now_add=True, help_text="creation date of the model")
-    organization = models.CharField(max_length=100 ,blank=True)
+    organization = models.CharField(max_length=100 , blank=False, default="<<empty>>")
     # todo: 
     # spiking vs rate?
 
