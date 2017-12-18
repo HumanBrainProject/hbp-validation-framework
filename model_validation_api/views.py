@@ -827,6 +827,16 @@ class Models(APIView):
 
         serializer_context = {'request': request,}
 
+        print request.data['model']
+
+        #make sure organisation is not empty :
+        try :
+            if request.data['model']["organization"] == "" :
+                request.data['model']["organization"] = "<<empty>>"
+        except :
+            request.data['model']["organization"] = "<<empty>>"
+
+
         # check if data is ok else return error
         model_serializer = ScientificModelSerializer(data=request.data['model'], context=serializer_context)
         if model_serializer.is_valid() is not True:
@@ -854,6 +864,7 @@ class Models(APIView):
                 if model_image_serializer.is_valid()  is not True:
                     return Response(model_image_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
+
         
         # no error then save all 
         model = model_serializer.save(app_id=app_id)
@@ -896,6 +907,14 @@ class Models(APIView):
 
 
         serializer_context = {'request': request,}
+
+
+        #make sure organisation is not empty :
+        try :
+            if value["organization"] == "" :
+                value["organization"] = "<<empty>>"
+        except :
+            value["organization"] = "<<empty>>"
 
         # check if data is ok else return error
         model_serializer = ScientificModelSerializer(model, data=value, context=serializer_context)
