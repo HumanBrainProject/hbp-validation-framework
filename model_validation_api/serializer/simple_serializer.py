@@ -45,12 +45,12 @@ class CollabParametersReadOnlyForHomeSerializer(serializers.HyperlinkedModelSeri
 class ScientificModelInstanceSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = ScientificModelInstance
-        fields = ('id', 'version', 'description', 'parameters', 'source', 'model_id')
+        fields = ('id', 'version', 'description', 'parameters', 'code_format', 'source', 'model_id')
 
 class ScientificModelInstanceForModelReadOnlySerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = ScientificModelInstance
-        fields = ('id', 'version', 'description', 'parameters', 'source')
+        fields = ('id', 'version', 'description', 'parameters', 'code_format', 'source')
 
 
 ##########################
@@ -101,7 +101,7 @@ class ValidationTestDefinitionSerializer(serializers.HyperlinkedModelSerializer)
 class ValidationTestCodeSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = ValidationTestCode
-        fields = ('id', 'repository', 'version', 'path', 'timestamp', 'test_definition_id')
+        fields = ('id', 'repository', 'version', 'description', 'path', 'timestamp', 'test_definition_id')
 
 
 

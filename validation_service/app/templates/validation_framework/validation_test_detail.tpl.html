@@ -115,23 +115,27 @@
         <br>
         <h3 style="font-size:1.5em" align=center><b>Code versions</b></h3><br>
         <div><a ng-click="toogleTabs( 'tab_new_version')" class="button-MC button-right">New version</a></div>
-        <br> <br>
+        </br>
+        </br>
         <div>
             <table class="table-create">
                 <thead>
                     <tr>
-                        <th style="width: 12%">ID</th>
-                        <th style="width: 20%">Version</th>
-                        <th style="width: 20%">Date/time</th>
-                        <th style="width: 20%">Test class</th>
-                        <th style="width: 20%">Repository</th>
-                        <th style="width: 5%"></th>
+                        <th>ID</th>
+                        <th>Version</th>
+                        <th>Description</th>
+                        <th>Date/time</th>
+                        <th>Test class</th>
+                        <th>Repository</th>
+                        <th></th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr ng-repeat='code_version in detail_version_test.test_codes'>
                         <td id="editable-id-{{code_version.id}}" contenteditable=false style="width: 12%">{{ code_version.id }}</td>
                         <td id="editable-version-{{code_version.id}}" contenteditable=false style="width: 20%">{{ code_version.version }}</td>
+                        <td id="editable-code-description-{{code_version.id}}" contenteditable=false style="width: 20%">{{ code_version.description }}
+                        </td>
                         <td style="width: 20%">{{ code_version.timestamp | date:'d MMMM yyyy, hh:mm' : 'UTC' }}
                         </td>
                         <td id="editable-path-{{code_version.id}}" contenteditable=false style="width: 20%"><code>{{ code_version.path }}</code></td>
@@ -158,33 +162,58 @@
         <br>
         <form>
             <table>
+                <br>
                 <tbody>
-                    <br>
-                    <tr>
-                        <td>
-                            <b>Version Name:</b>
-                        </td>
-                        <td>
-                            <input type="text" ng-model="test_code.version" required/>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <b>Repository:</b>
-                        </td>
-                        <td>
-                            <input type="url" ng-model="test_code.repository" required/>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <b>Test class:</b>
-                        </td>
-                        <td>
-                            <input type=text rows="5" cols="50" ng-model="test_code.path" required>
-                        </td>
-                    </tr>
+                    <td>
+                        <table>
+                            <tbody>
 
+                                <tr>
+                                    <td>
+                                        <b>Version Name:</b>
+                                    </td>
+                                    <td>
+                                        <input type="text" ng-model="test_code.version" required/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <b>Repository:</b>
+                                    </td>
+                                    <td>
+                                        <input type="url" ng-model="test_code.repository" required/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <b>Test class:</b>
+                                    </td>
+                                    <td>
+                                        <input type=text rows="5" cols="50" ng-model="test_code.path" required>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </td>
+
+                    <td>
+                        <table>
+                            <tbody>
+
+                                <tr>
+
+                                    <td>
+                                        <b>Description:</b>
+                                    </td>
+                                    <td>
+                                        <textarea class="scrollabletextbox" rows="6" cols="60" ng-model="code.description"></textarea>
+                                        <a class="glyphicon glyphicon-question-sign" aria-hidden="true" data-toggle="tooltip" data-placement="right" title="Example: information about the test code ..."></a><br /> <br>
+                                    </td>
+
+                                </tr>
+                            </tbody>
+                        </table>
+                    </td>
                 </tbody>
             </table>
             <br> <br>

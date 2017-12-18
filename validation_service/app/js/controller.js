@@ -618,17 +618,31 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
                             }
                             //order results by timestamp
                             code.results = code.results.sort(_sort_by_timestamp_desc);
-
                             instance.test_instances.push(code);
                         }
                         //order test_instances by timestamp
+                        instance.last_result_timestamp = _get_last_result_timestamp(instance.test_instances);
                         instance.test_instances = instance.test_instances.sort(_sort_by_timestamp_asc);
                         organized_data.model_instances.push(instance);
                     }
+                    //sort model instances by last result timestamp
+                    organized_data.model_instances = organized_data.model_instances.sort(_sort_by_last_result_timestamp_desc)
                     return organized_data;
 
                 };
-
+                var _get_last_result_timestamp = function(codes) {
+                    var newest_timestamp = undefined;
+                    for (var code in codes) {
+                        var timestamp = codes[code].results[0].timestamp;
+                        if (newest_timestamp == undefined || (newest_timestamp && timestamp < newest_timestamp)) {
+                            newest_timestamp = timestamp;
+                        }
+                    }
+                    return newest_timestamp;
+                }
+                var _sort_by_last_result_timestamp_desc = function(a, b) {
+                    return new Date(b.last_result_timestamp) - new Date(a.last_result_timestamp);
+                }
 
                 var _sort_by_timestamp_desc = function(a, b) {
                     return new Date(b.timestamp) - new Date(a.timestamp);
@@ -758,6 +772,8 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
                 $scope.editVersion = function(index) {
                     angular.element(document.querySelector("#editable-repository-" + index)).attr('contenteditable', "true");
                     angular.element(document.querySelector("#editable-repository-" + index)).attr('bgcolor', 'ghostwhite');
+                    angular.element(document.querySelector("#editable-code-description-" + index)).attr('contenteditable', "true");
+                    angular.element(document.querySelector("#editable-code-description-" + index)).attr('bgcolor', 'ghostwhite');
                     angular.element(document.querySelector("#editable-version-" + index)).attr('contenteditable', "true");
                     angular.element(document.querySelector("#editable-version-" + index)).attr('bgcolor', 'ghostwhite');
                     angular.element(document.querySelector("#editable-path-" + index)).attr('contenteditable', "true");
@@ -767,14 +783,17 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
                 };
                 $scope.save_edited_version = function(index) {
                     var repository = $("#editable-repository-" + index).text();
+                    var code_description = $("#editable-code-description-" + index).text();
                     var version = $("#editable-version-" + index).text();
                     var pathway = $("#editable-path-" + index).text();
                     var new_version = JSON.stringify([
-                        { 'id': index, 'repository': repository, 'version': version, 'path': pathway }
+                        { 'id': index, 'repository': repository, 'version': version, 'path': pathway, 'description': code_description }
                     ]);
                     ValidationTestCodeRest.put({ app_id: app_id }, new_version).$promise.then(function() {
                         angular.element(document.querySelector("#editable-repository-" + index)).attr('contenteditable', "false");
                         angular.element(document.querySelector("#editable-repository-" + index)).attr('bgcolor', 'white');
+                        angular.element(document.querySelector("#editable-code-description-" + index)).attr('contenteditable', "false");
+                        angular.element(document.querySelector("#editable-code-description-" + index)).attr('bgcolor', 'white');
                         angular.element(document.querySelector("#editable-version-" + index)).attr('contenteditable', "false");
                         angular.element(document.querySelector("#editable-version-" + index)).attr('bgcolor', 'white');
                         angular.element(document.querySelector("#editable-path-" + index)).attr('contenteditable', "false");
