@@ -1007,6 +1007,23 @@ class Command(BaseCommand):
     def delete_specific_organization(self, organization):
         organization_to_delete = Param_organizations.objects.filter(authorized_value = organization)
         organization_to_delete.delete()
+    
+    def add_empty_to_all_config_orga(self,):
+        collab_param = CollabParameters.objects.all()
+        
+        for i in collab_param :
+                if i.organization == "":
+                        i.organization = i.organization + "<<empty>>" 
+                
+                elif i.organization == None:
+                        pass
+                else :
+                        i.organization = i.organization + ",<<empty>>" 
+
+                i.save()
+
+
+    
     def handle(self, *args, **options):
         # self._create_data_modalities()
         # self._create_test_types()
@@ -1015,7 +1032,9 @@ class Command(BaseCommand):
         # self._create_cell_type()
         # self._create_model_type()
 	# self._create_score_type()
+
 	# self._create_organizations()
+
         # self.delete_specific_organization('KOKI-UNIC')
         # self.add_results_to_test_code_heli("89bedb648d7e4e4db9f1271a9f4f9523","f36b1010cb1e4568b8af1e6739c14aaa")
         # self.add_results_to_test_code_heli("89bedb648d7e4e4db9f1271a9f4f9523","886473570a324cc88dc2aff8d4140a90")
@@ -1023,6 +1042,7 @@ class Command(BaseCommand):
         # self.add_results_to_test_code_heli("302210807cee4f94b6d6e0fc12d90ca5","cce2c00728d4462ba090a2696c1f076d")
         # self.add_results_to_test_code_heli("302210807cee4f94b6d6e0fc12d90ca5","886473570a324cc88dc2aff8d4140a90")
 
+        # self.add_empty_to_all_config_orga()
 
         # self.set_default_organisation_to_model_when_empty_string()
 

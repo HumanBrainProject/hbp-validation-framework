@@ -939,52 +939,42 @@ testApp.controller('ValTestResultDetailCtrl', ['$window', '$scope', '$rootScope'
                 var test_result = ValidationResultRest.get({ id: $stateParams.uuid, order: "", detailed_view: true });
 
                 test_result.$promise.then(function() {
+                    console.log("test_result promise");
+
                     $scope.test_result = test_result.results[0];
 
                     var result_storage = $scope.test_result.results_storage;
-                    result_storage = split_result_storage_sting(result_storage);
-                    var collab = result_storage[0];
-                    var folder_name = result_storage[1];
+                    var result_storage_dict = split_result_storage_sting(result_storage);
+                    var collab = result_storage_dict.collab;
+                    var folder_name = result_storage_dict.folder_path;
+                    $scope.folder_name = folder_name;
 
                     var storage_app_id = undefined;
 
                     clbCollabNav.getRoot(collab).then(function(clb_collab) {
-                        for (i in clb_collab.children()) {
-                            if (clb_collab.children()[i].name == "Storage") {
-                                storage_app_id = clb_collab.children()[i].id;
-                                break;
-                            }
 
-                        }
-
-                        if (storage_app_id != undefined) {
-                            $scope.storage_url = "https://collab.humanbrainproject.eu/#/collab/" + collab + "/nav/" + storage_app_id;
-                        } else {
-                            $scope.storage_url = "";
-                        }
-                        // $scope.storage_url = 
-                        //https://collab.humanbrainproject.eu/#/collab/2169/nav/18935
+                                for (var i in clb_collab.children) {
+                                    if (clb_collab.children[i].name == "Storage") {
+                                        storage_app_id = clb_collab.children[i].id;
+                                        break;
+                                    }
+                                }
 
 
-                    });
+                                if (storage_app_id != undefined) {
+                                    $scope.storage_url = "https://collab.humanbrainproject.eu/#/collab/" + collab + "/nav/" + storage_app_id;
+                                } else {
+                                    $scope.storage_url = "";
+                                }
+                                // $scope.storage_url = 
+                                //https://collab.humanbrainproject.eu/#/collab/2169/nav/18935
 
 
-                    // clbStorage.getEntity({ collab: collab_storage, entity_type: 'project' }).then(function(collabStorage) {
-
-
-                    //     clbStorage.getMetadata({ uuid: collabStorage.uuid }).then(function(collabPath) {
-                    //         console.log(collabPath);
-                    //         console.log(collabPath);
-                    //         console.log(collabPath);
-                    //         console.log(collabPath);
-
-                    //     });
-                    // });
+                            },
+                            function(not_working) {})
+                        .finally(function() {});
 
                     clbStorage.getEntity({ path: "?path=/" + collab + "/" + folder_name + "/" }).then(function(collabStorageFolder) {
-
-
-
 
                         clbStorage.getChildren({ uuid: collabStorageFolder.uuid, entity_type: 'folder' }).then(function(storage_folder_children) {
 
@@ -1010,7 +1000,12 @@ testApp.controller('ValTestResultDetailCtrl', ['$window', '$scope', '$rootScope'
 
             var split_result_storage_sting = function(storage_string) {
                 storage_string = storage_string.slice(10, storage_string.length)
-                return (storage_string.split('/'));
+
+                storage_string = storage_string.split(/\/(.+)/)
+
+                var dict_to_return = { collab: storage_string[0], folder_path: storage_string[1] }
+
+                return (dict_to_return);
             };
 
             var get_correct_folder_using_name = function(name, folders) {
