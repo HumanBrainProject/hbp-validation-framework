@@ -2,9 +2,10 @@
 
     <nav class="navbar">
         <br>
-        <button class="button-MC" ng-click="Context.validation_goToHomeView();">Home</button>&ensp;
+        <div align=right> <button class=linkbutton type="button" ng-click="Context.validation_goToHelpView()"> Help </button> </div>
+        <!--<button class="button-MC" ng-click="Context.validation_goToHomeView();">Home</button>&ensp;-->
 
-        <h1 align=center> Validation Framework </h1>
+        <h1 align=center> Validation Results </h1>
     </nav>
 
 
@@ -35,7 +36,7 @@
                         <multiselect ng-model="selected_test_type" placeholder="Select test type" options="collab_test_type" show-search="true" show-select-all="true" show-unselect-all="true"></multiselect>
                     </td>
                     <td>
-                        <multiselect ng-model="selected_organization" placeholder="Select organization" options="collab_organization"></multiselect>
+                        <multiselect ng-model="selected_organization" placeholder="Select organization" options="collab_organization" show-search="true" show-select-all="true" show-unselect-all="true"></multiselect>
                     </td>
 
                     <td>
@@ -49,7 +50,7 @@
                 </tr>
             </table>
             <br>
-            <div align=right> <button class="button-MC" ng-click="Context.validation_goToTestCatalogView()">Go to Test catalog</button></div>
+            <div align=right> <button class="button-MC" ng-click="Context.validation_goToTestCatalogView()">Go to Test Library</button></div>
             <br>
             <br>
         </nav>
@@ -72,7 +73,7 @@
                         ng-click="Context.validation_goToModelDetailView(model.id)">
                         <td ng-if=!(model.alias) ng-text-truncate=model.name ng-tt-chars-threshold="20" ng-tt-no-toggling> {{model.name}} </td>
                         <td ng-if=model.alias ng-text-truncate=model.alias ng-tt-chars-threshold="20" ng-tt-no-toggling> {{model.alias}} </td>
-                        <td ng-text-truncate=model.id ng-tt-chars-threshold="40" ng-tt-no-toggling>{{model.id}}</td>
+                        <td ng-text-truncate=model.id ng-tt-chars-threshold="8" ng-tt-no-toggling>{{model.id}}</td>
                         <td ng-text-truncate=model.author ng-tt-chars-threshold="20" ng-tt-no-toggling>{{model.author}}</td>
                         <br>
                     </tr>
@@ -93,7 +94,7 @@
 
                         <td ng-if=!(test.alias) ng-text-truncate=test.name ng-tt-chars-threshold="20" ng-tt-no-toggling> {{test.name}} </td>
                         <td ng-if=test.alias ng-text-truncate=test.alias ng-tt-chars-threshold="20" ng-tt-no-toggling> {{test.alias}} </td>
-                        <td ng-text-truncate=test.id ng-tt-chars-threshold="40" ng-tt-no-toggling> {{test.id}}</td>
+                        <td ng-text-truncate=test.id ng-tt-chars-threshold="8" ng-tt-no-toggling> {{test.id}}</td>
                         <td ng-text-truncate=test.author ng-tt-chars-threshold="20" ng-tt-no-toggling>{{test.author}}</td>
                         <br>
                     </tr>

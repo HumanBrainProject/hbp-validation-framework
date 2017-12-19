@@ -163,6 +163,11 @@
                     templateUrl: '/static/templates/validation_framework/home_1.tpl.html',
                     controller: 'HomeCtrl'
                 })
+                .state('help', {
+                    url: '/home/validation_test/help',
+                    templateUrl: '/static/templates/validation_framework/validation_help.tpl.html',
+                    controller: 'ValHelpCtrl'
+                })
                 .state('validation_test', {
                     url: '/home/validation_test',
                     templateUrl: '/static/templates/validation_framework/validation_test.tpl.html',
@@ -247,6 +252,11 @@
                     url: '/model-catalog',
                     templateUrl: '/static/templates/model_catalog/model-catalog.tpl.html',
                     controller: 'ModelCatalogCtrl'
+                })
+                .state('help', {
+                    url: '/model-catalog/help',
+                    templateUrl: '/static/templates/model_catalog/model-catalog_help.tpl.html',
+                    controller: 'ModelCatalogHelpCtrl'
                 })
                 .state('ModelCatalogCreate', {
                     url: '/model-catalog/create',
