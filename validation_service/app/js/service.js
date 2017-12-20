@@ -11,6 +11,20 @@ ContextServices.service('Context', ['$rootScope', '$location', 'AppIDRest', 'Col
         var serviceSet = false;
 
 
+        var validation_goToHelpView = function() {
+            sendState("id", '0');
+            setState('0');
+
+            $location.path("/home/validation_test/help");
+        };
+
+        var modelCatalog_goToHelpView = function() {
+            sendState("id", '0');
+            setState('0');
+
+            $location.path("/model-catalog/help");
+        };
+
         var modelCatalog_goToHomeView = function() {
             clearState();
             setTimeout(function() {
@@ -240,6 +254,8 @@ ContextServices.service('Context', ['$rootScope', '$location', 'AppIDRest', 'Col
             validation_goToResultDetailView: validation_goToResultDetailView,
             validation_goToModelCatalog: validation_goToModelCatalog,
             validation_goToTestCatalogView: validation_goToTestCatalogView,
+            validation_goToHelpView: validation_goToHelpView,
+            modelCatalog_goToHelpView: modelCatalog_goToHelpView,
         }
     }
 ]);

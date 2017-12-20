@@ -29,13 +29,19 @@
         <br>
         <table class="table-create">
             <tbody>
+                <tr>
+                    <td>
+                        <div ng-if="model.models[0].private == 1" class="glyphicon glyphicon-lock"> Private</div>
+                        <div ng-if="model.models[0].private == 0" class="glyphicon glyphicon-book"> Public</div>
+                    </td>
+                </tr>
                 <tr style="width: 15%">
                     <td> <b> ID: </b> {{model.models[0].id}} </td>
                 </tr>
-                <tr style="width: 15%" ng-if="model.models[0].alias!=''">
+                <tr style="width: 15%" ng-if="model.models[0].alias!='' && model.models[0].alias ">
                     <td> <b>Alias: </b> {{ model.models[0].alias}}</td>
                 </tr>
-                <tr style="width: 15%" ng-if="model.models[0].organization!=''">
+                <tr style="width: 15%" ng-if="model.models[0].organization!='' && model.models[0].organization ">
                     <td> <b> Organization: </b> {{ model.models[0].organization }} </td>
                 </tr>
             </tbody>

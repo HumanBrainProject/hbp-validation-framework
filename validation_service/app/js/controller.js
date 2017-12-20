@@ -1164,7 +1164,21 @@ testApp.controller('ValTestCreateCtrl', ['$scope', '$rootScope', '$http', '$loca
 ]);
 
 
+testApp.controller('ValHelpCtrl', ['$scope', '$rootScope', '$http', '$location', 'DataHandler', 'Context', 'CollabParameters',
 
+    function($scope, $rootScope, $http, $location, DataHandler, Context, CollabParameters) {
+        Context.setService().then(function() {
+
+            $scope.Context = Context;
+
+            var ctx = Context.getCtx();
+            var app_id = Context.getAppID();
+
+            CollabParameters.setService(ctx).then(function() {});
+
+        });
+    }
+]);
 
 //Filter multiple
 testApp.filter('filterMultiple', ['$parse', '$filter', function($parse, $filter) {
@@ -1750,7 +1764,21 @@ ModelCatalogApp.controller('ModelCatalogVersionCtrl', ['$scope', '$rootScope', '
     }
 ]);
 
+ModelCatalogApp.controller('ModelCatalogHelpCtrl', ['$scope', '$rootScope', '$http', '$location', 'DataHandler', 'Context', 'CollabParameters',
 
+    function($scope, $rootScope, $http, $location, DataHandler, Context, CollabParameters) {
+        Context.setService().then(function() {
+
+            $scope.Context = Context;
+
+            var ctx = Context.getCtx();
+            var app_id = Context.getAppID();
+
+            CollabParameters.setService(ctx).then(function() {});
+
+        });
+    }
+]);
 
 ///////////////////////////////////////////////////////////////////////
 
