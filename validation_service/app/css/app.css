@@ -76,6 +76,19 @@
     overflow: auto;
 }
 
+.VF-table-result-td-margin-right {
+    padding-right: 10%;
+}
+
+.VF-table-result-td-margin-left {
+    padding-left: 10%;
+}
+
+.VF-table-result-margin {
+    border-spacing: 100px;
+    border-collapse: separate;
+}
+
 #trunc {
     display: inline-block;
     word-wrap: normal;
@@ -249,7 +262,8 @@
 }
 
 .caracteristics-panel-test-validation {
-    height: 300px;
+    height: 400px;
+    max-height: 600px;
     width: 320px;
     padding: 5px;
     border: 2px solid #dfe7ef;
@@ -258,7 +272,6 @@
     margin-left: 2%;
     margin-bottom: 1%;
     margin-top: 5%;
-    overflow: auto;
 }
 
 .caracteristics-panel-testdetail-validation {

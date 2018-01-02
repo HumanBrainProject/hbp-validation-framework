@@ -371,6 +371,13 @@ testApp.controller('ValModelDetailCtrl', ['$scope', '$rootScope', '$http', '$loc
 
         // }
 
+        $scope.is_graph_not_empty = function(score_type) {
+            if (score_type.results.length < 2) {
+                return false;
+            }
+            return true;
+        }
+
         var init_checkbox_latest_versions = function() {
             var list_ids = [];
 
@@ -531,6 +538,14 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
                     });
                 });
 
+                $scope.is_graph_not_empty = function(data_graph) {
+
+                    if (data_graph.length < 2 && data_graph[0].values.length < 2) {
+                        return false;
+                    }
+                    return true;
+                }
+
                 var check_elements_in_checkbox = function(list_all_ids, recent_ids) {
                     $(function() {
                         //not working yet
@@ -598,7 +613,7 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
                             instance.line_id = data.model_instances[model_instance].model_alias + ' ( ' + data.model_instances[model_instance].version + ' )';
 
                         } else {
-                            instance.line_id = data.model_instances[model_instance].model_id + ' ( ' + data.model_instances[model_instance].version + ' )';
+                            instance.line_id = data.model_instances[model_instance].model_id.substring(0, 8) + '... ( ' + data.model_instances[model_instance].version + ' )';
                         }
                         instance.timestamp = data.model_instances[model_instance].timestamp;
                         instance.id = model_instance;
@@ -614,7 +629,10 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
 
                             code.results = [];
                             for (var result in data.model_instances[model_instance].test_codes[test_instance].results) {
-                                code.results.push(data.model_instances[model_instance].test_codes[test_instance].results[result]);
+                                //only keep the first five significant score figures 
+                                var res = data.model_instances[model_instance].test_codes[test_instance].results[result];
+                                res.score = res.score.toPrecision(5);
+                                code.results.push(res);
                             }
                             //order results by timestamp
                             code.results = code.results.sort(_sort_by_timestamp_desc);
