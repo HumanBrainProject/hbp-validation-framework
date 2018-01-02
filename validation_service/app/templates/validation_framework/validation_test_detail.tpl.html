@@ -30,7 +30,7 @@
             <br>
             <div><a ng-click="toogleTabs( 'tab_edit_test')" class="button-MC button-left">Edit</a></div>
 
-            <panel class="caracteristics-panel-test-validation caracteristics-panel-test-validation">
+            <panel class="caracteristics-panel-test-validation ">
                 <h4 align=center> <b>  Test information </b></h4>
                 <br>
                 <table class="table-create">
@@ -65,7 +65,21 @@
                             <td><b>Test type: </b> {{ detail_test.tests[0].test_type }} </tr>
                         <tr style="width: 15%">
                             <td><b>Score type: </b> {{ detail_test.tests[0].score_type }} </tr>
-                        <tr style="width: 15%" ng-if="detail_test.tests[0].data_type!=''">
+                    </tbody>
+                </table>
+            </panel>
+            <br> <br>
+            <br>
+            <panel class=description-panel-validation>
+                <br>
+                <table>
+                    <tbody>
+                        <!--<tr>
+                            <td style="width: 20%" ng-if="detail_test.tests[0].data_type!=''"> <b> Data type: </b> {{detail_test.tests[0].data_type}}</td>
+                            <td style="width: 20%" ng-if="detail_test.tests[0].data_modality!=''"><b> Data modality: </b> {{ detail_test.tests[0].data_modality }} </td>
+                            <td style="width: 20%"> <b> Data location: </b> <a href="{{detail_test.tests[0].data_location}}">{{ detail_test.tests[0].data_location }}</a></td>
+                        </tr>-->
+                        <tr style="width: 20%" ng-if="detail_test.tests[0].data_type!=''">
                             <td> <b> Data type: </b> {{detail_test.tests[0].data_type}}</td>
                         </tr>
                         <tr style="width: 15%" ng-if="detail_test.tests[0].data_modality!=''">
@@ -76,10 +90,8 @@
                         </tr>
                     </tbody>
                 </table>
-            </panel>
-            <br> <br>
-            <br>
-            <panel class=description-panel-validation>
+
+                <br>
                 <table class="table-create">
                     <thead>
                         <h4 align=center><b> Protocol </b> </h4>
@@ -101,7 +113,9 @@
                         </tr>
                     </tbody>
                 </table>
-                <h4 style="font-size:1em" align=left><b>Publication: </b> {{ detail_test.tests[0].publication }}</h4>
+
+
+                <h4 ng-if="detail_test.tests[0].publication && detail_test.tests[0].publication != ''" style="font-size:1em" align=left><b>Publication: </b> {{ detail_test.tests[0].publication }}</h4>
             </panel>
 
             <br>
@@ -139,7 +153,7 @@
                         <td style="width: 20%">{{ code_version.timestamp | date:'d MMMM yyyy, hh:mm' : 'UTC' }}
                         </td>
                         <td id="editable-path-{{code_version.id}}" contenteditable=false style="width: 20%"><code>{{ code_version.path }}</code></td>
-                        <td id="editable-repository-{{code_version.id}}" contenteditable=false style="width: 20%">{{ code_version.repository }}</td>
+                        <td id="editable-repository-{{code_version.id}}" contenteditable=false style="width: 20%"> <a href={{code_version.repository}} target="_blank">{{ code_version.repository }}</a></td>
                         <td style="width:5%">
                             <button ng-if="isInArray(code_version.id, version_is_editable)" ng-click="editVersion(code_version.id)" class="button-MC glyphicon glyphicon-pencil">
                                 </button>
@@ -579,8 +593,8 @@
                                         <thead> </thead>
 
                                         <tbody>
-                                            <tr class=tr-clickable ng-repeat="(key,result) in test_code.results" ng-click=Context.validation_goToResultDetailView(result.id)>
-                                                <td>
+                                            <tr ng-repeat="(key,result) in test_code.results">
+                                                <td class="tr-clickable VF-table-result-td-margin-right" ng-click=Context.validation_goToResultDetailView(result.id)>
                                                     <div ng-if="key == 0">
                                                         <b> {{result.score}} </b>
                                                     </div>
@@ -588,7 +602,7 @@
                                                         {{result.score}}
                                                     </div>
                                                 </td>
-                                                <td>
+                                                <td class=VF-table-result-td-margin-left>
                                                     <div ng-if="key == 0">
                                                         <b> {{result.timestamp  | date:'d MMMM yyyy, hh:mm' : 'UTC' }} </b>
                                                     </div>
@@ -606,9 +620,9 @@
                                         <thead> </thead>
 
                                         <tbody>
-                                            <tr class=tr-clickable ng-repeat="(key,result) in test_code.results" ng-click=Context.validation_goToResultDetailView(result.id)>
+                                            <tr ng-repeat="(key,result) in test_code.results">
 
-                                                <td>
+                                                <td class="tr-clickable VF-table-result-td-margin-right" ng-click=Context.validation_goToResultDetailView(result.id)>
                                                     <div ng-if="key == 0">
                                                         <b> {{result.score}} </b>
 
@@ -618,7 +632,7 @@
 
                                                     </div>
                                                 </td>
-                                                <td>
+                                                <td class=VF-table-result-td-margin-left>
                                                     <div ng-if="key == 0">
                                                         <b> {{result.timestamp  | date:'d MMMM yyyy, hh:mm' : 'UTC' }} </b>
 
@@ -670,7 +684,7 @@
             <br>
             <br>
 
-            <table id=checkbox_table>
+            <table id=checkbox_table ng-show="is_graph_not_empty(graphic_data)">
                 <tbody>
                     <tr>
                         <td style="width: 85%">

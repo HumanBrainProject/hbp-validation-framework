@@ -724,7 +724,7 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'Context', 'ValidationResult
                         if (results_data.model_instances[instance].model_alias && results_data.model_instances[instance].model_alias !== null && results_data.model_instances[instance].model_alias !== '' && results_data.model_instances[instance].model_alias !== "None") {
                             var line_id = results_data.model_instances[instance].model_alias + ' ( ' + results_data.model_instances[instance].version + ' )';
                         } else {
-                            var line_id = results_data.model_instances[instance].model_id + ' ( ' + results_data.model_instances[instance].version + ' )';
+                            var line_id = results_data.model_instances[instance].model_id.substring(0, 8) + '... ( ' + results_data.model_instances[instance].version + ' )';
                         }
                         //manage data for graph
                         values.push(_manageDataForTestGraph2(results_data.model_instances[instance].test_codes, line_id, results_data.model_instances[instance].model_id, abscissa_value, colors[instance]));

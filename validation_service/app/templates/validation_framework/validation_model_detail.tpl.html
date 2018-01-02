@@ -112,8 +112,8 @@
                                     <thead> </thead>
 
                                     <tbody>
-                                        <tr class=tr-clickable ng-repeat="(key, result) in model_instance.results" ng-click=Context.validation_goToResultDetailView(result.id)>
-                                            <td>
+                                        <tr ng-repeat="(key, result) in model_instance.results">
+                                            <td class="tr-clickable VF-table-result-td-margin-right" ng-click=Context.validation_goToResultDetailView(result.id)>
 
                                                 <div ng-if="key == 0">
                                                     <b> {{result.score}} </b>
@@ -125,7 +125,7 @@
                                                 </div>
                                             </td>
 
-                                            <td>
+                                            <td class=" VF-table-result-td-margin-left">
                                                 <div ng-if="key == 0">
                                                     <b> {{result.timestamp  | date:'d MMMM yyyy, hh:mm' : 'UTC' }} </b>
                                                 </div>
@@ -144,8 +144,8 @@
                                     <thead> </thead>
 
                                     <tbody>
-                                        <tr class=tr-clickable ng-repeat="(key, result) in model_instance.results" ng-click=Context.validation_goToResultDetailView(result.id)>
-                                            <td>
+                                        <tr ng-repeat="(key, result) in model_instance.results">
+                                            <td class="tr-clickable VF-table-result-td-margin-right" ng-click=Context.validation_goToResultDetailView(result.id)>
                                                 <div ng-if="key == 0">
                                                     <b> {{result.score}} </b>
 
@@ -156,7 +156,7 @@
                                                 </div>
                                             </td>
 
-                                            <td>
+                                            <td class=" VF-table-result-td-margin-left">
                                                 <div ng-if="key == 0">
                                                     <b> {{result.timestamp  | date:'d MMMM yyyy, hh:mm' : 'UTC' }} </b>
                                                 </div>
@@ -182,8 +182,9 @@
         <br>
         <h4 align=center> <b> Graphs </b></h4>
         <br>
+
         <div ng-repeat="(key,score_type) in init_graph_all | limitTo:init_graph_all.length">
-            <div ng-show=" score_type.list_ids.length !=0 ">
+            <div ng-show=" score_type.list_ids.length !=0 && is_graph_not_empty(score_type) ">
                 <br>
                 <br>
                 <h4 align=center> Add title {{score_type.values[0].test_score_type}}</h4>
