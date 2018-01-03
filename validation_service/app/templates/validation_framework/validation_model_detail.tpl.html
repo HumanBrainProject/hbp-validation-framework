@@ -26,7 +26,7 @@
                     <tr style="width: 15%" ng-if="model.models[0].alias && model.models[0].alias!=''">
                         <td> <b>Alias: </b> {{ model.models[0].alias}}</td>
                     </tr>
-                    <tr style="width: 15%" ng-if="model.models[0].organization!=''">
+                    <tr style="width: 15%" ng-if="model.models[0].organization!='' && model.models[0].organization!='<<empty>>'">
                         <td> <b> Organization: </b> {{ model.models[0].organization }} </td>
                     </tr>
                 </tbody>
