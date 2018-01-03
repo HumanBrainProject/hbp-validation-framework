@@ -1350,7 +1350,13 @@ ModelCatalogApp.controller('ModelCatalogCtrl', [
 
                 DataHandler.loadModels({ app_id: app_id }).then(function(data) {
                     $scope.models = data
-                    $scope.$apply()
+                        //change organization value to avoid errors
+                    for (var model in $scope.models.models) {
+                        if ($scope.models.models[model].organization == "<<empty>>") {
+                            $scope.models.models[model].organization = "";
+                        }
+                    }
+                    $scope.$apply();
                 });
                 Context.sendState("model", "n");
 
