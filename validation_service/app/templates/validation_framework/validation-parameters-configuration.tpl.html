@@ -1,0 +1,200 @@
+<div ng-app="testApp">
+    <div ng-controller="ParametersConfigurationCtrl">
+
+        <head>
+            <nav class="navbar ">
+                <h1 align=center> Validation framework: parameters configuration</h1>
+            </nav>
+        </head>
+
+        <table id="tableTest" class="table table-bordered">
+            <colgroup>
+                <col style="width: 33%" />
+                <col style="width: 33%" />
+                <col style="width: 33%" />
+            </colgroup>
+
+            <thead>
+                <tr>
+                    <th id="tab_title">
+                        <center>
+                            <h4> Data modalities </h4>
+                        </center>
+                    </th>
+
+                    <th id="tab_title">
+                        <center>
+                            <h4>Test type</h4>
+                        </center>
+
+                    </th>
+                    <th id="tab_title">
+                        <center>
+                            <h4>Model type</h4>
+                        </center>
+
+                    </th>
+                </tr>
+
+            </thead>
+            <tbody>
+                <td>
+                    <multiselect id="buttonTest" ng-size="10" placeholder="select" ng-model="selected_data.selected_data_modalities" options="data_modalities " display-prop="authorized_value" id-prop="id" show-search="true" show-select-all="true" show-unselect-all="true">
+                    </multiselect>
+                    <table class="table">
+                        <thead></thead>
+                        <tbody>
+                            <tr ng-repeat="(key, value) in selected_data.selected_data_modalities">
+                                <td>{{value.authorized_value}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </td>
+
+                <td>
+                    <multiselect id="buttonTest" placeholder="select" ng-model="selected_data.selected_test_type" options="test_type " display-prop="authorized_value" id-prop="id" show-search="true" show-select-all="true" show-unselect-all="true">
+                    </multiselect>
+                    <table class="table">
+                        <thead></thead>
+
+                        <tbody>
+                            <tr ng-repeat="(key, value) in selected_data.selected_test_type">
+                                <td>{{value.authorized_value}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </td>
+
+                <td>
+                    <multiselect placeholder="select" ng-model="selected_data.selected_model_type" options="model_type" display-prop="authorized_value" id-prop="id" show-search="true" show-select-all="true" show-unselect-all="true">
+                    </multiselect>
+                    <table class="table">
+                        <thead></thead>
+
+                        <tbody>
+                            <tr ng-repeat="(key, value) in selected_data.selected_model_type">
+                                <td>{{value.authorized_value}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </td>
+            </tbody>
+        </table>
+        </br>
+
+
+
+
+
+        <table id="tableTest" class="table table-bordered">
+            <colgroup>
+                <col style="width: 25%" />
+                <col style="width: 25%" />
+                <col style="width: 25%" />
+                <col style="width: 25%" />
+            </colgroup>
+
+            <thead>
+                <tr>
+                    <th id="tab_title">
+                        <center>
+                            <h4>Species</h4>
+                        </center>
+
+                    </th>
+                    <th id="tab_title">
+                        <center>
+                            <h4>Brain region</h4>
+                        </center>
+
+
+                    </th>
+                    <th id="tab_title">
+                        <center>
+                            <h4>Cell type</h4>
+                        </center>
+
+
+                    </th>
+                    <th id="tab_title">
+                        <center>
+                            <h4>Organization</h4>
+                        </center>
+
+                    </th>
+                </tr>
+            </thead>
+
+            <tbody>
+                <td>
+                    <multiselect placeholder="select" ng-model="selected_data.selected_species" options="species" display-prop="authorized_value" id-prop="id" show-search="true" show-select-all="true" show-unselect-all="true"></multiselect>
+                    <table class="table">
+                        <thead></thead>
+
+                        <tbody>
+                            <tr ng-repeat="(key, value) in selected_data.selected_species">
+                                <td>{{value.authorized_value}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </td>
+
+                <td>
+                    <multiselect placeholder="select" ng-model="selected_data.selected_brain_region" options="brain_region" display-prop="authorized_value" id-prop="id" show-search="true" show-select-all="true" show-unselect-all="true"></multiselect>
+                    <table class="table">
+                        <thead></thead>
+
+                        <tbody>
+                            <tr ng-repeat="(key, value) in selected_data.selected_brain_region">
+                                <td>{{value.authorized_value}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </td>
+
+                <td>
+                    <multiselect placeholder="select" ng-model="selected_data.selected_cell_type" options="cell_type" display-prop="authorized_value" id-prop="id" show-search="true" show-select-all="true" show-unselect-all="true"></multiselect>
+                    <table class="table">
+                        <thead></thead>
+
+                        <tbody>
+                            <tr ng-repeat="(key, value) in selected_data.selected_cell_type">
+                                <td>{{value.authorized_value}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </td>
+                <td>
+                    <multiselect placeholder="select" ng-model="selected_data.selected_organization" options="organization" display-prop="authorized_value" id-prop="id" show-search="true" show-select-all="true" show-unselect-all="true">
+                    </multiselect>
+                    <table class="table">
+                        <thead></thead>
+
+                        <tbody>
+                            <tr ng-repeat="(key, value) in selected_data.selected_organization">
+                                <td>{{value.authorized_value}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </td>
+            </tbody>
+        </table>
+
+
+
+
+        </br>
+        <table>
+            <tr>
+                <td>
+                    <button class="button-MC" ng-click="make_post();">Save</button>
+                </td>
+            </tr>
+
+        </table>
+
+    </div>
+
+
+
+</div>

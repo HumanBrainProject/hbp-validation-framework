@@ -1398,10 +1398,6 @@ ModelCatalogApp.controller('ModelCatalogCreateCtrl', ['$scope', '$rootScope', '$
 
             var ctx = Context.getCtx();
             var app_id = Context.getAppID();
-            // DataHandler.loadModels({ app_id: app_id }).then(function(data) {
-            //     $scope.models = data
-            //     $scope.$apply()
-            // });
 
             CollabParameters.setService(ctx).then(function() {
 
