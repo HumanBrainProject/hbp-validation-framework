@@ -86,12 +86,16 @@ ContextServices.service('Context', ['$rootScope', '$location', 'AppIDRest', 'Col
             });
         }
 
+        var getCurrentLocationSearch = function() {
+            return window.location.search;
+        }
         var setService = function() {
             return new Promise(function(resolve, reject) {
 
                 if (serviceSet == false) {
                     // _getState();
-                    temp_state = window.location.search.split("&")[1];
+                    var location = getCurrentLocationSearch();
+                    temp_state = location.split("&")[1];
 
 
                     if (temp_state != undefined && temp_state != "ctxstate=") {
@@ -172,9 +176,17 @@ ContextServices.service('Context', ['$rootScope', '$location', 'AppIDRest', 'Col
             return state;
         };
 
+        var getStateType = function() {
+            return state_type;
+        }
+
         var getCtx = function() {
             return ctx;
         };
+
+        var setCtx = function(context) {
+            ctx = context;
+        }
 
         var getCollabID = function() {
             return collabID;
@@ -184,7 +196,9 @@ ContextServices.service('Context', ['$rootScope', '$location', 'AppIDRest', 'Col
             return appID;
         };
 
-
+        var getServiceSet = function() {
+            return serviceSet;
+        }
 
         var sendState = function(type, id) {
             state_type = type;
@@ -230,22 +244,21 @@ ContextServices.service('Context', ['$rootScope', '$location', 'AppIDRest', 'Col
             window.location.search = "ctx=" + getCtx() + "&ctxstate=";
         };
 
-        var getStateType = function() {
-            return state_type;
-        };
-
         return {
             setService: setService,
+            setCtx: setCtx,
             getCtx: getCtx,
             getCollabID: getCollabID,
             getAppID: getAppID,
             getState: getState,
+            getServiceSet: getServiceSet,
             sendState: sendState,
             clearState: clearState,
             clearExternal: clearExternal,
             setState: setState,
             getExternal: getExternal,
             getStateType: getStateType,
+            getCurrentLocationSearch: getCurrentLocationSearch,
             modelCatalog_goToHomeView: modelCatalog_goToHomeView,
             modelCatalog_goToModelDetailView: modelCatalog_goToModelDetailView,
             validation_goToHomeView: validation_goToHomeView,
@@ -277,7 +290,6 @@ DataHandlerServices.service('DataHandler', ['$rootScope', 'ScientificModelRest',
         //TODO function to complete the list when the user create a new model
         var loadModels = function(dict_params) {
             return new Promise(function(resolve, reject) {
-                console.log(models);
 
                 if (dict_params.id != undefined) {
                     reject("this function does not support id of models yet")
@@ -352,9 +364,18 @@ DataHandlerServices.service('DataHandler', ['$rootScope', 'ScientificModelRest',
             tests.status = "outdated";
         };
 
+        var getStoredModels = function() {
+            return models;
+        }
+        var getStoredTests = function() {
+            return tests;
+        }
+
         return {
             loadModels: loadModels,
             loadTests: loadTests,
+            getStoredModels: getStoredModels,
+            getStoredTests: getStoredTests,
             setStoredModelsAsOutdated: setStoredModelsAsOutdated,
             setStoredTestsAsOutdated: setStoredTestsAsOutdated,
         };
