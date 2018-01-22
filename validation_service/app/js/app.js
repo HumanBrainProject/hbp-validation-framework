@@ -9,116 +9,32 @@
 
     window.ver_api = '/api/v2/';
 
-    angular.bootstrap().invoke(function($http, $log) {
+    angular.bootstrap().invoke(function($http, $log, $location) {
         $http.get('/config.json').then(function(res) {
             window.bbpConfig = res.data;
 
-            // angular.element(document).ready(function() {
+            angular.element(document).ready(function() {
 
-            //     console.log("okok");
 
-            //     console.log(angular.bootstrap(document, ['testApp']));
+                angular.bootstrap(document.getElementById("validation-app"), ['testApp']);
+                angular.bootstrap(document.getElementById("configuration-app"), ['ParametersConfigurationApp']);
+                angular.bootstrap(document.getElementById("model-catalog-app"), ['ModelCatalogApp']);
 
-            //     angular.bootstrap(document, ['testApp']);
-            //     $log.info('Booted nmpi application');
-            // });
+
+                setTimeout(function() {
+                    // angular.clbBoostrap(document, ['testApp', /*'ModelCatalogApp', 'ParametersConfigurationApp'*/ ]);
+                }, 1000);
+
+
+
+                $log.info('Booted nmpi application');
+            });
 
         }, function() {
             $log.error('Cannot boot nmpi application');
             window.location.href = '/login/hbp/?next=' + encodeURIComponent(window.location.pathname + window.location.search + window.location.hash);
         });
     });
-
-
-
-    // (function() {
-
-    //     window.base_url = '';
-    //     window.ver_api = '/api/v2/';
-
-    //     angular.module('testApp', [
-    //         'ui.router',
-    //         'ng',
-    //         'ngResource',
-    //         'ParametersConfigurationServices',
-    //         'ApiCommunicationServices',
-    //         'GraphicsServices',
-    //         'ngCookies',
-    //         'nvd3',
-    //         'ngTextTruncate',
-    //         'HelpServices',
-
-    //         'hbpCollaboratory',
-    //     ]).config(
-    //         function($cookiesProvider, $httpProvider, $stateProvider, $locationProvider, $rootScopeProvider, $resourceProvider, $urlRouterProvider) {
-    //             $resourceProvider.defaults.stripTrailingSlashes = false;
-    //             $stateProvider
-    //                 .state('home', {
-    //                     url: '/home',
-    //                     templateUrl: '/static/templates/validation_framework/home_1.tpl.html',
-    //                     controller: 'HomeCtrl'
-    //                 })
-    //                 .state('validation_test', {
-    //                     url: '/home/validation_test',
-    //                     templateUrl: '/static/templates/validation_framework/validation_test.tpl.html',
-    //                     controller: 'ValTestCtrl'
-    //                 })
-    //                 .state('create_validation_test', {
-    //                     url: '/home/validation_test/create',
-    //                     templateUrl: '/static/templates/validation_framework/validation_test_create.tpl.html',
-    //                     controller: 'ValTestCreateCtrl'
-    //                 })
-    //                 .state('validation_test_detail', {
-    //                     url: '/home/validation_test/:uuid',
-    //                     templateUrl: '/static/templates/validation_framework/validation_test_detail.tpl.html',
-    //                     controller: 'ValTestDetailCtrl'
-    //                 })
-
-    //             .state('validation_test_result_detail', {
-    //                 url: '/home/validation_test_result/:uuid',
-    //                 templateUrl: '/static/templates/validation_framework/validation_test_result_detail.tpl.html',
-    //                 controller: 'ValTestResultDetailCtrl'
-    //             })
-
-    //             .state('validation_model_detail', {
-    //                     url: '/home/validation_model_detail/:uuid',
-    //                     templateUrl: '/static/templates/validation_framework/validation_model_detail.tpl.html',
-    //                     controller: 'ValModelDetailCtrl'
-    //                 })
-    //                 .state('test_result', {
-    //                     url: '/home/test_result',
-    //                     templateUrl: '/static/templates/validation_framework/test_result.tpl.html',
-    //                     controller: 'TestResultCtrl'
-    //                 });
-
-    //             $urlRouterProvider.otherwise('/home');
-
-    //         })
-
-    //     // Bootstrap function
-    //     angular.bootstrap().invoke(function($http, $log) {
-    //         $http.get('/config.json').then(function(res) {
-    //             window.bbpConfig = res.data;
-    //             angular.element(document).ready(function() {
-    //                 angular.bootstrap(document, ['testApp']);
-    //                 $log.info('Booted testApp application');
-    //             });
-    //         }, function() {
-    //             $log.error('Cannot boot testApp application');
-    //             window.location.href = '/login/hbp/?next=' + encodeURIComponent(window.location.pathname + window.location.search + window.location.hash);
-    //         });
-    //     });
-
-    // }());
-
-
-
-
-
-
-
-    // // (function() {
-
 
 
     var testApp = angular.module('testApp', [
@@ -134,7 +50,13 @@
         'ngTextTruncate',
         'HelpServices',
 
+        'clb-ui-error',
+        'clb-env',
+        'clb-app',
         'hbpCollaboratory',
+
+        // 'hbpCollaboratory',
+        // 'clbBoostrap',
         // 'clb-env',
         // 'clb-error',
         // 'clb-ui-error',
@@ -142,14 +64,9 @@
 
         // 'hbpCollaboratoryCore',
         // 'angular-hbp-collaboratory',
-        // 'clb-env',
-        // 'clb-app',
 
         // 'clb-storage',
 
-        //'hbpCollaboratory',
-        // 'clb-error',
-        // 'clb-ui-error',
 
 
     ]);
@@ -204,27 +121,6 @@
             $urlRouterProvider.otherwise('/home');
 
         });
-
-    // testApp.bootstrap().invoke(function($http, $log) {
-    //     $http.get('/config.json').then(function(res) {
-    //         window.bbpConfig = res.data;
-
-    //         // angular.element(document).ready(function() {
-
-    //         //     console.log("okok");
-
-    //         //     console.log(angular.bootstrap(document, ['testApp']));
-
-    //         //     angular.bootstrap(document, ['testApp']);
-    //         //     $log.info('Booted nmpi application');
-    //         // });
-
-    //     }, function() {
-    //         $log.error('Cannot boot nmpi application');
-    //         window.location.href = '/login/hbp/?next=' + encodeURIComponent(window.location.pathname + window.location.search + window.location.hash);
-    //     });
-    // });
-
 
 
 
@@ -307,7 +203,7 @@
             $stateProvider
                 .state('ParametersConfiguration', {
                     url: '/parametersconfiguration',
-                    templateUrl: '/static/templates/configuration/parameters-configuration.tpl.html',
+                    templateUrl: '/static/templates/configuration/parameters-configuration.html',
                     controller: 'ParametersConfigurationCtrl'
                 })
                 .state('ValidationParametersConfiguration', {
