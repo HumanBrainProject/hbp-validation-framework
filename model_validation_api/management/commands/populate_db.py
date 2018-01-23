@@ -30,6 +30,7 @@ from ...validation_framework_toolbox.fill_db import (
         create_cell_type,
         create_model_type,
         create_models_test_results,
+        create_fake_collab,
 )
 
 class Command(BaseCommand):
@@ -37,20 +38,6 @@ class Command(BaseCommand):
     help = 'our help string comes here'    
 
 
-
-
-    def _fake_collab(self):
-        collab1 = CollabParameters(id='1')
-        collab1.save()
-
-        collab1.data_modalities.add( Param_DataModalities.objects.get(authorized_value='electrophysiology') )
-        collab1.test_type.add( Param_TestType.objects.get(authorized_value='subcellular'))
-        collab1.species.add(Param_Species.objects.get(authorized_value='Other') )
-        collab1.brain_region.add(Param_BrainRegion.objects.get(authorized_value='Hippocampus')  )
-        collab1.cell_type.add(Param_CellType.objects.get(authorized_value='Interneuron'))
-        collab1.model_type.add(Param_ModelType.objects.get(authorized_value='Single Cell') )
-
-        collab1.save()
 
     def old_fake_models_test_results(self):
         
@@ -452,28 +439,15 @@ class Command(BaseCommand):
         create_brain_region()
         create_cell_type()
         create_model_type()
-	create_score_type()
-	create_organizations()
+        create_score_type()
+        create_organizations()
 
 
-        # self.delete_specific_organization('KOKI-UNIC')
-        # self.add_results_to_test_code_heli("89bedb648d7e4e4db9f1271a9f4f9523","f36b1010cb1e4568b8af1e6739c14aaa")
-        # self.add_results_to_test_code_heli("89bedb648d7e4e4db9f1271a9f4f9523","886473570a324cc88dc2aff8d4140a90")
-        # self.add_results_to_test_code_heli("302210807cee4f94b6d6e0fc12d90ca5","cce2c00728d4462ba090a2696c1f076d")
-        # self.add_results_to_test_code_heli("302210807cee4f94b6d6e0fc12d90ca5","cce2c00728d4462ba090a2696c1f076d")
-        # self.add_results_to_test_code_heli("302210807cee4f94b6d6e0fc12d90ca5","886473570a324cc88dc2aff8d4140a90")
-
-        # self.add_empty_to_all_config_orga()
-
-        # self.set_default_organisation_to_model_when_empty_string()
-
-        # self._fake_collab()
-	# self.old_fake_models_test_results()
        
+        # self.create_fake_collab(id='1')
 
 
         create_models_test_results(param_app_id=37928, result_storage = "collab:///2169/folder_test")
-        # self.delete_models_in_collab(collab_id = 2180)
 
 
 

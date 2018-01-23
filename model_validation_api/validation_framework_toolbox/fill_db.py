@@ -25,6 +25,36 @@ import time
 
 
 
+def create_fake_collab(
+                        id, 
+                        data_modality='electrophysiology', 
+                        test_type='subcellular', 
+                        species='Other', 
+                        brain_region='Hippocampus',
+                        cell_type = 'Interneuron',
+                        model_type = 'Single Cell',
+                        ):
+    collab1 = CollabParameters(id=id)
+    collab1.save()
+    collab1.data_modalities.add( Param_DataModalities.objects.get(authorized_value=data_modality) )
+    collab1.test_type.add( Param_TestType.objects.get(authorized_value=test_type))
+    collab1.species.add(Param_Species.objects.get(authorized_value=species) )
+    collab1.brain_region.add(Param_BrainRegion.objects.get(authorized_value=brain_region)  )
+    collab1.cell_type.add(Param_CellType.objects.get(authorized_value=cell_type))
+    collab1.model_type.add(Param_ModelType.objects.get(authorized_value=model_type) )
+
+    collab1.save()
+
+
+def create_all_parameters ():
+    create_data_modalities()
+    create_organizations()
+    create_test_types()
+    create_score_type()
+    create_species()
+    create_brain_region()
+    create_cell_type()
+    create_model_type()
 
 def create_data_modalities():
     Param_DataModalities(id=uuid.uuid4(),authorized_value='electrophysiology').save()
