@@ -204,65 +204,120 @@ def create_models_test_results(param_app_id, result_storage):
     create_specific_result(uuid_result8_2, model_version3, testcode2_2, result_storage,0.3221, time3)
     create_specific_result(uuid_result9_2, model_version3, testcode3_2, result_storage, 0.3321, time3)
 
-def create_specific_test (uuid, name, alias): 
+def create_specific_test (
+                    uuid, 
+                    name, 
+                    alias, 
+                    species="Mouse (Mus musculus)",
+                    brain_region = "Hippocampus", 
+                    cell_type = "Interneuron", 
+                    age = "12",  
+                    data_location = "http://bbbb.com", 
+                    data_type = "data type",
+                    data_modality = "electrophysiology",
+                    test_type = "single cell activity",
+                    protocol ="protocol",
+                    author = "me",
+                    publication = "not published",
+                    score_type="p-value",
+                    ): 
     test1 = ValidationTestDefinition()
     test1.id = uuid
     test1.name = name
     test1.alias = alias
-    test1.species = "Mouse (Mus musculus)"
-    test1.brain_region = "Hippocampus"
-    test1.cell_type = "Interneuron"
-    test1.age = "12"
-    test1.data_location = "http://bbbb.com"
-    test1.data_type = "data type"
-    test1.data_modality = "electrophysiology"
-    test1.test_type = "single cell activity"
-    test1.protocol ="protocol"
-    test1.author = "me"
-    test1.publication = "not published"
-    test1.score_type="p-value"
+    test1.species = species
+    test1.brain_region = brain_region
+    test1.cell_type = cell_type
+    test1.age = age
+    test1.data_location = data_location
+    test1.data_type = data_type
+    test1.data_modality = data_modality
+    test1.test_type = test_type
+    test1.protocol =protocol
+    test1.author = author
+    test1.publication = publication
+    test1.score_type=score_type
     test1.save()
     return (test1)
 
-def create_specific_model (uuid, name, alias, app_id):
+def create_specific_model (
+                    uuid, 
+                    name, 
+                    alias, 
+                    app_id,
+                    description = "description",
+                    species = "Mouse (Mus musculus)",
+                    brain_region = "Hippocampus",
+                    cell_type = "Interneuron",
+                    author = "me",
+                    model_type = "Single Cell",
+                    private = "0",
+                    code_format = "py",
+                    
+                    ):
     model1 = ScientificModel()
     model1.id = uuid         
     model1.name = name
     model1.alias = alias
-    model1.description = "description"
-    model1.species = "Mouse (Mus musculus)"
-    model1.brain_region = "Hippocampus"
-    model1.cell_type = "Interneuron"
-    model1.author = "me"
-    model1.model_type = "Single Cell"
-    model1.private = "0"
+    model1.description = description
+    model1.species = species
+    model1.brain_region = brain_region
+    model1.cell_type = cell_type
+    model1.author = author
+    model1.model_type = model_type
+    model1.private = private
     model1.app_id = app_id
-    model1.code_format = "py"
+    model1.code_format = code_format
     model1.save()   
     return (model1)
 
-def create_specific_modelinstance (uuid, model, version):
+def create_specific_modelinstance (
+                            uuid, 
+                            model,  
+                            version,
+                            parameters = "param",
+                            source = "http://dd.com",
+                            
+                            ):
     model_version1 = ScientificModelInstance()
     model_version1.id = uuid
     model_version1.model = model
     model_version1.version = version
-    model_version1.parameters = "param"
-    model_version1.source = "http://dd.com"
+    model_version1.parameters = parameters
+    model_version1.source = source
     model_version1.save()
     return (model_version1)
 
-def create_specific_testcode (uuid, version, timestamp, test):
+def create_specific_testcode (
+                            uuid, 
+                            version, 
+                            timestamp, 
+                            test,
+                            repository = "",
+                            path = "",
+                            
+                            ):
     testcode1 = ValidationTestCode()
     testcode1.id = uuid
-    testcode1.repository = ""
+    testcode1.repository = repository
     testcode1.version = version
-    testcode1.path = ""
+    testcode1.path = path
     testcode1.timestamp = timestamp
     testcode1.test_definition = test
     testcode1.save()
     return (testcode1)
 
-def create_specific_result (uuid, model_version, test_code, result_storage, score, date_time): 
+def create_specific_result (
+                            uuid, 
+                            model_version, 
+                            test_code, 
+                            result_storage, 
+                            score, 
+                            date_time,
+                            platform = "azerty",
+                            project = "azerty",
+                            
+                            ): 
     result = ValidationTestResult()
     result.id = uuid
     result.model_version = model_version
@@ -272,7 +327,7 @@ def create_specific_result (uuid, model_version, test_code, result_storage, scor
     result.normalized_score= result.score
     result.passed = None
     result.timestamp = datetime.datetime.fromtimestamp(date_time).strftime('%Y-%m-%d %H:%M:%S')
-    result.platform = "azerty"
-    result.project = "azerty"
+    result.platform = platform
+    result.project = project
     result.save()
     return (result)
