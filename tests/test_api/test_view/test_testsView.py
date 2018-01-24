@@ -267,7 +267,7 @@ class TestsViewTest(TestCase):
 
 
     def test_get_no_param (self):
-        response = client.get('/tests/', {})
+        response = client.get('/tests/', data={})
         tests = json.loads(response._container[0])['tests']
         
         self.assertEqual(response.status_code, 200)
