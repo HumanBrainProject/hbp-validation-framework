@@ -1,5 +1,5 @@
 """
-Tests of the ValidationFramework views.
+Tests of the ValidationFramework TestsView.
 """
 
 from __future__ import unicode_literals
@@ -87,7 +87,7 @@ from model_validation_api.validation_framework_toolbox.fill_db import (
         create_specific_testcode,
 )
 
-from auth_for_test_taken_from_validation_clien import BaseClient
+from ..auth_for_test_taken_from_validation_clien import BaseClient
 
 
 
@@ -222,7 +222,7 @@ class TestsViewTest(TestCase):
 
     def compare_serializer_keys (self, tests, targeted_keys_list_type='all'):
         
-        if targeted_keys_list_type == "all" :
+        if targeted_keys_list_type == "standard" :
             targeted_keys = [
                             'id', 
                             'name', 
@@ -240,6 +240,27 @@ class TestsViewTest(TestCase):
                             'author', 
                             'publication', 
                             'score_type',]
+        if targeted_keys_list_type == "full" :
+            targeted_keys = [
+                            'id', 
+                            'name', 
+                            'alias',
+                            'creation_date',
+                            'species', 
+                            'brain_region', 
+                            'cell_type', 
+                            'age', 
+                            'data_location', 
+                            'data_type',  
+                            'data_modality', 
+                            'test_type', 
+                            'protocol', 
+                            'author', 
+                            'publication', 
+                            'codes',
+                            # 'score',
+                            # 'score_type',
+                            ]
 
         for test in tests :
             self.assertEqual(set(test.keys()), set(targeted_keys))
@@ -251,7 +272,7 @@ class TestsViewTest(TestCase):
         
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(tests), 3)
-        self.compare_serializer_keys(tests=tests, targeted_keys_list_type='all')
+        self.compare_serializer_keys(tests=tests, targeted_keys_list_type='standard')
         
 
     def test_get_param_id (self):
@@ -260,7 +281,24 @@ class TestsViewTest(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(tests), 1)
-        self.compare_serializer_keys(tests=tests, targeted_keys_list_type='all')
+        self.compare_serializer_keys(tests=tests, targeted_keys_list_type='full')
+
+        self.assertEqual(len(tests[0]['codes']), 1)
+
+        targeted_keys = [
+                        'id', 
+                        'description', 
+                        'repository',
+                        'timestamp',
+                        'version', 
+                        'path', 
+                        'test_definition_id', 
+                        ]
+
+        for code in tests[0]['codes'] :
+            self.assertEqual(set(code.keys()), set(targeted_keys))                    
+        # raise ValueError('A very specific bad thing happened.')
+        
         
 
     def test_get_param_name (self):
@@ -269,7 +307,7 @@ class TestsViewTest(TestCase):
         
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(tests), 1)
-        self.compare_serializer_keys(tests=tests, targeted_keys_list_type='all')
+        self.compare_serializer_keys(tests=tests, targeted_keys_list_type='standard')
            
 
     def test_get_param_species (self):
@@ -278,7 +316,7 @@ class TestsViewTest(TestCase):
         
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(tests),2)
-        self.compare_serializer_keys(tests=tests, targeted_keys_list_type='all')
+        self.compare_serializer_keys(tests=tests, targeted_keys_list_type='standard')
           
 
     def test_get_param_brain_region (self):
@@ -287,7 +325,7 @@ class TestsViewTest(TestCase):
         
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(tests),2)
-        self.compare_serializer_keys(tests=tests, targeted_keys_list_type='all')
+        self.compare_serializer_keys(tests=tests, targeted_keys_list_type='standard')
          
 
     def test_get_param_cell_type (self):
@@ -296,7 +334,7 @@ class TestsViewTest(TestCase):
         
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(tests),2)
-        self.compare_serializer_keys(tests=tests, targeted_keys_list_type='all')
+        self.compare_serializer_keys(tests=tests, targeted_keys_list_type='standard')
          
 
     def test_get_param_age (self):
@@ -305,7 +343,7 @@ class TestsViewTest(TestCase):
         
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(tests),2)
-        self.compare_serializer_keys(tests=tests, targeted_keys_list_type='all')
+        self.compare_serializer_keys(tests=tests, targeted_keys_list_type='standard')
         
         
     def test_get_param_data_location (self):
@@ -314,7 +352,7 @@ class TestsViewTest(TestCase):
         
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(tests),2)
-        self.compare_serializer_keys(tests=tests, targeted_keys_list_type='all')
+        self.compare_serializer_keys(tests=tests, targeted_keys_list_type='standard')
         
         
     def test_get_param_data_type (self):
@@ -323,7 +361,7 @@ class TestsViewTest(TestCase):
         
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(tests),2)
-        self.compare_serializer_keys(tests=tests, targeted_keys_list_type='all')
+        self.compare_serializer_keys(tests=tests, targeted_keys_list_type='standard')
          
 
     def test_get_param_data_modality (self):
@@ -332,7 +370,7 @@ class TestsViewTest(TestCase):
         
         self.assertEqual(response.status_code, 200)        
         self.assertEqual(len(tests),2)
-        self.compare_serializer_keys(tests=tests, targeted_keys_list_type='all')
+        self.compare_serializer_keys(tests=tests, targeted_keys_list_type='standard')
            
 
     def test_get_param_test_type (self):
@@ -341,7 +379,7 @@ class TestsViewTest(TestCase):
         
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(tests),2)
-        self.compare_serializer_keys(tests=tests, targeted_keys_list_type='all')   
+        self.compare_serializer_keys(tests=tests, targeted_keys_list_type='standard')   
         
 
     def test_get_param_protocol (self):
@@ -350,7 +388,7 @@ class TestsViewTest(TestCase):
         
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(tests),2)
-        self.compare_serializer_keys(tests=tests, targeted_keys_list_type='all')    
+        self.compare_serializer_keys(tests=tests, targeted_keys_list_type='standard')    
         
 
     def test_get_param_author (self):
@@ -359,7 +397,7 @@ class TestsViewTest(TestCase):
         
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(tests),2)
-        self.compare_serializer_keys(tests=tests, targeted_keys_list_type='all')
+        self.compare_serializer_keys(tests=tests, targeted_keys_list_type='standard')
              
 
     def test_get_param_publication (self):
@@ -368,7 +406,7 @@ class TestsViewTest(TestCase):
         
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(tests),2)
-        self.compare_serializer_keys(tests=tests, targeted_keys_list_type='all')
+        self.compare_serializer_keys(tests=tests, targeted_keys_list_type='standard')
           
 
     def test_get_param_score_type (self):
@@ -377,7 +415,7 @@ class TestsViewTest(TestCase):
         
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(tests),2)
-        self.compare_serializer_keys(tests=tests, targeted_keys_list_type='all')
+        self.compare_serializer_keys(tests=tests, targeted_keys_list_type='standard')
             
 
     def test_get_param_alias (self):
@@ -386,7 +424,7 @@ class TestsViewTest(TestCase):
         
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(tests),1)
-        self.compare_serializer_keys(tests=tests, targeted_keys_list_type='all')
+        self.compare_serializer_keys(tests=tests, targeted_keys_list_type='standard')
             
 
     def test_get_param_web_app (self):
@@ -395,7 +433,7 @@ class TestsViewTest(TestCase):
         
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(tests),2)
-        self.compare_serializer_keys(tests=tests, targeted_keys_list_type='all')
+        self.compare_serializer_keys(tests=tests, targeted_keys_list_type='standard')
         
         # raise ValueError('A very specific bad thing happened.')
 
@@ -405,7 +443,7 @@ class TestsViewTest(TestCase):
         
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(tests),3)
-        self.compare_serializer_keys(tests=tests, targeted_keys_list_type='all')
+        self.compare_serializer_keys(tests=tests, targeted_keys_list_type='standard')
         
         
 
