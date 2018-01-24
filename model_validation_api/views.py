@@ -1231,8 +1231,8 @@ class Tests(APIView):
 
                 if len(param_alias) > 0 :
                     q = q.filter(alias__in = param_alias)
-                if len(param_app_id) > 0 :
-                    q = q.filter(app_id__in = param_app_id)
+                # if len(param_app_id) > 0 :
+                #     q = q.filter(app_id__in = param_app_id)
                 if len(param_name) > 0 :
                     q = q.filter(name__in = param_name)
                 if len(param_species) > 0 :
