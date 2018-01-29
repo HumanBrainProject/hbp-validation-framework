@@ -769,16 +769,15 @@ class Models(APIView):
                     q = q.filter(app__in = app_id)
                 if len(organization) > 0 :
                     q = q.filter(organization__in = organization)
-                       
+
                 #For each models, check if collab member, if not then just return the publics....
                 list_app_id = q.values("app").distinct()
                 for app_id in list_app_id :
                     app_id = app_id['app']
                     collab_id = get_collab_id_from_app_id(app_id)
                     if not is_authorised(request, collab_id) :
-                        #exclude it here
-                        q.exclude(app=app_id, private=1)
-
+                        q = q.exclude(app=app_id, private=1)
+                
 
                 models = q
                 model_serializer = ScientificModelReadOnlySerializer(models, context=serializer_context, many=True )
@@ -1231,8 +1230,8 @@ class Tests(APIView):
 
                 if len(param_alias) > 0 :
                     q = q.filter(alias__in = param_alias)
-                if len(param_app_id) > 0 :
-                    q = q.filter(app_id__in = param_app_id)
+                # if len(param_app_id) > 0 :
+                #     q = q.filter(app_id__in = param_app_id)
                 if len(param_name) > 0 :
                     q = q.filter(name__in = param_name)
                 if len(param_species) > 0 :
