@@ -135,7 +135,11 @@ def _is_collaborator_token(request, collab_id):
     svc_url = settings.HBP_COLLAB_SERVICE_URL
 
     url = '%scollab/%s/permissions/' % (svc_url, collab_id)
-    headers = {'Authorization': request.META.get("HTTP_AUTHORIZATION", None)}
+    if request.META.get("HTTP_AUTHORIZATION", None).split(" ")[0].lower() == "bearer" :
+        headers = {'Authorization': request.META.get("HTTP_AUTHORIZATION", None)}
+
+    else :   
+        headers = {'Authorization': "Bearer "+request.META.get("HTTP_AUTHORIZATION", None)}
 
     res = requests.get(url, headers=headers)
 
@@ -145,14 +149,20 @@ def _is_collaborator_token(request, collab_id):
     return res.json().get('UPDATE', False)
 
 def is_authorised(request, collab_id):
-    if str(request.user) == "AnonymousUser" : 
+    if str(request.user) == "AnonymousUser" :
+        # print 'request.user', request.user
+         
         if request.META.get("HTTP_AUTHORIZATION", None) == None :
+            # print "no MATA authorisation"
             return False
         else: 
-            _is_collaborator_token(request, collab_id)
-            return True
+            # print "MATA authorisation"
+            
+            return _is_collaborator_token(request, collab_id)
+            # return True
 
     else :       
+        # print 'request.user', request.user
         
         if not _is_collaborator(request, collab_id):
             return False
