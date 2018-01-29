@@ -34,6 +34,7 @@ def create_fake_collab(
                         brain_region='Hippocampus',
                         cell_type = 'Interneuron',
                         model_type = 'Single Cell',
+                        organization= '',
                         ):
     collab1 = CollabParameters(id=id, collab_id=collab_id)
     collab1.save()
@@ -50,6 +51,9 @@ def create_fake_collab(
     collab1.brain_region = brain_region 
     collab1.cell_type =cell_type
     collab1.model_type = model_type 
+    collab1.organization = organization 
+
+    
 
     collab1.save()
 
@@ -291,6 +295,7 @@ def create_specific_model (
                     model_type = "Single Cell",
                     private = "0",
                     code_format = "py",
+                    organization="",
                     
                     ):
     model1 = ScientificModel()
@@ -306,6 +311,8 @@ def create_specific_model (
     model1.private = private
     model1.app_id = app_id
     model1.code_format = code_format
+    model1.organization = organization
+
     model1.save()   
     return (model1)
 
@@ -351,7 +358,7 @@ def create_specific_result (
                             test_code, 
                             result_storage, 
                             score, 
-                            date_time,
+                            date_time = time.time(),
                             platform = "azerty",
                             project = "azerty",
                             
