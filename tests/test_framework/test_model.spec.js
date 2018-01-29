@@ -169,6 +169,11 @@ describe('CollabParameterRest factory', function() {
         spyOn(CollabParameterRest, 'get').and.callThrough();
     });
 
+    afterEach(function() {
+        $httpBackend.verifyNoOutstandingExpectation();
+        $httpBackend.verifyNoOutstandingRequest();
+    });
+
     //test if factory and methods exists
     it('should exist AuthorizedOrganizationsRest Factory', function() {
         expect(CollabParameterRest).toBeDefined();
