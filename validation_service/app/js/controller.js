@@ -1393,16 +1393,132 @@ ModelCatalogApp.controller('ModelCatalogCtrl', [
 ModelCatalogApp.controller('ModelCatalogCreateCtrl', ['$scope', '$rootScope', '$http', '$location', 'ScientificModelRest', 'CollabParameters', 'CollabIDRest', "Context", "ScientificModelAliasRest", "AuthorizedCollabParameterRest", 'DataHandler',
 
     function($scope, $rootScope, $http, $location, ScientificModelRest, CollabParameters, CollabIDRest, Context, ScientificModelAliasRest, AuthorizedCollabParameterRest, DataHandler) {
+
+        //variables to define
+        $scope.Context = undefined;
+        $scope.ctx = undefined;
+        $scope.app_id = undefined;
+
+        $scope.addImage = false;
+        $scope.alias_is_valid = "";
+        $scope.model_image = [];
+        $scope.authorized_params = undefined;
+        $scope.species = undefined;
+        $scope.brain_region = undefined;
+        $scope.cell_type = undefined;
+        $scope.model_type = undefined;
+        $scope.organization = undefined;
+
+        //functions
+        $scope.displayAddImage = function() {
+            $scope.addImage = true;
+        };
+
+        $scope.saveImage = function() {
+            if (JSON.stringify($scope.image) != undefined) {
+                $scope.model_image.push($scope.image);
+                $scope.addImage = false;
+                $scope.image = undefined;
+            } else {
+                alert("you need to add an url!");
+                return Error('Please enter the image url you want to add.')
+            }
+        };
+
+        $scope.closeImagePanel = function() {
+            $scope.image = {};
+            $scope.addImage = false;
+        };
+
+        $scope._add_access_control = function() {
+            $scope.model.app_id = $scope.app_id;
+        };
+
+        $scope.deleteImage = function(index) {
+            $scope.model_image.splice(index, 1);
+        };
+
+        $scope.checkAliasValidity = function() {
+            $scope.alias_is_valid = ScientificModelAliasRest.get({ app_id: $scope.app_id, model: $scope.model, alias: $scope.model.alias });
+            return $scope.alias_is_valid;
+        };
+
+        $scope._saveModel_AfterAllChecks = function(withInstance) {
+
+            if (withInstance != undefined) {
+                if (withInstance) {
+                    var parameters = JSON.stringify({ model: $scope.model, model_instance: [$scope.model_instance], model_image: $scope.model_image });
+                } else {
+                    var parameters = JSON.stringify({ model: $scope.model, model_instance: [], model_image: $scope.model_image });
+                }
+
+                var a = ScientificModelRest.save({ app_id: $scope.app_id }, parameters).$promise.then(function(data) {
+                    DataHandler.setStoredModelsAsOutdated();
+                    Context.modelCatalog_goToModelDetailView(data.uuid);
+                });
+            }
+        }
+
+        $scope._saveModel_CheckOnModelInstance = function() {
+
+            var saveInstance = undefined;
+            if ($scope.model_instance) {
+                //version is undefined or empty
+                if ($scope.model_instance.version == undefined || $scope.model_instance.version == "") {
+                    //and source is undefined or empty
+                    if ($scope.model_instance.source == undefined || $scope.model_instance.source == "") {
+                        saveInstance = false;
+                    }
+                    // and source not null or undefined then error
+                    else {
+                        alert("If you want to create a new version, please ensure the version name and the code source are correctly filled.")
+                    }
+                }
+                //version is defined and not empty
+                else {
+                    //and source is undefined and empty then error 
+                    if ($scope.model_instance.source == undefined || $scope.model_instance.source == "") {
+                        alert("If you want to create a new version, please ensure the version name and the code source are correctly filled.")
+                    }
+                    //and source is defined then save version 
+                    else {
+                        saveInstance = true;
+                    }
+                }
+            } else {
+                saveInstance = false;
+            }
+            return saveInstance;
+        };
+
+        $scope.saveModel = function() {
+
+            if ($scope.model.alias != '' && $scope.model.alias != undefined) {
+                $scope.alias_is_valid = $scope.checkAliasValidity();
+                $scope.alias_is_valid.$promise.then(function() {
+                    if ($scope.alias_is_valid.is_valid) {
+                        $scope._add_access_control();
+                        var saveInstance = $scope._saveModel_CheckOnModelInstance()
+                        $scope._saveModel_AfterAllChecks(saveInstance);
+                    } else {
+                        alert('Cannot create the model. Please check your Alias.');
+                    };
+                });
+            } else {
+                $scope.model.alias = null;
+                var saveInstance = $scope._saveModel_CheckOnModelInstance()
+                $scope._saveModel_AfterAllChecks(saveInstance);
+            };
+        };
+
+
+        //code
         Context.setService().then(function() {
             $scope.Context = Context;
+            $scope.ctx = Context.getCtx();
+            $scope.app_id = Context.getAppID();
 
-            var ctx = Context.getCtx();
-            var app_id = Context.getAppID();
-
-            CollabParameters.setService(ctx).then(function() {
-
-                $scope.addImage = false;
-                $scope.alias_is_valid = "";
+            CollabParameters.setService($scope.ctx).then(function() {
 
                 $scope.authorized_params = AuthorizedCollabParameterRest.get();
 
@@ -1411,138 +1527,6 @@ ModelCatalogApp.controller('ModelCatalogCreateCtrl', ['$scope', '$rootScope', '$
                 $scope.cell_type = CollabParameters.getParametersOrDefault("cell_type");
                 $scope.model_type = CollabParameters.getParametersOrDefault("model_type");
                 $scope.organization = CollabParameters.getParametersOrDefault("organization");
-
-
-                $scope.model_image = [];
-
-                $scope.displayAddImage = function() {
-                    $scope.addImage = true;
-                };
-                $scope.saveImage = function() {
-                    if (JSON.stringify($scope.image) != undefined) {
-                        $scope.model_image.push($scope.image);
-                        $scope.addImage = false;
-                        $scope.image = undefined;
-                    } else { alert("you need to add an url!"); }
-                };
-                $scope.closeImagePanel = function() {
-                    $scope.image = {};
-                    $scope.addImage = false;
-                };
-
-                var _add_access_control = function() {
-                    $scope.model.app_id = app_id;
-                };
-
-                $scope.saveModel = function() {
-                    if ($scope.model.alias != '' && $scope.model.alias != undefined) {
-                        $scope.alias_is_valid = ScientificModelAliasRest.get({ app_id: app_id, model: $scope.model, alias: $scope.model.alias })
-                        $scope.alias_is_valid.$promise.then(function() {
-                            if ($scope.alias_is_valid.is_valid) {
-                                _add_access_control();
-                                // var parameters = JSON.stringify({ model: $scope.model, model_instance: [$scope.model_instance], model_image: $scope.model_image });
-                                // var a = ScientificModelRest.save({ app_id: app_id }, parameters).$promise.then(function(data) {
-                                //     DataHandler.setStoredModelsAsOutdated();
-                                //     Context.modelCatalog_goToModelDetailView(data.uuid);
-                                // });
-                                if ($scope.model_instance) {
-                                    if ($scope.model_instance.version && $scope.model_instance.source) {
-                                        if ($scope.model_instance.version != "" && $scope.model_instance.source != "") {
-                                            var parameters = JSON.stringify({ model: $scope.model, model_instance: [$scope.model_instance], model_image: $scope.model_image });
-                                            var a = ScientificModelRest.save({ app_id: app_id }, parameters).$promise.then(function(data) {
-                                                DataHandler.setStoredModelsAsOutdated();
-                                                Context.modelCatalog_goToModelDetailView(data.uuid);
-                                            });
-                                        } else {
-                                            if ($scope.model_instance.version == "" && $scope.model_instance.source == "") {
-                                                var parameters = JSON.stringify({ model: $scope.model, model_instance: [], model_image: $scope.model_image });
-                                                var a = ScientificModelRest.save({ app_id: app_id }, parameters).$promise.then(function(data) {
-                                                    DataHandler.setStoredModelsAsOutdated();
-                                                    Context.modelCatalog_goToModelDetailView(data.uuid);
-                                                });
-                                            } else {
-                                                //one of the field is not empty but the other is
-                                                alert("If you want to create a new version, please ensure the version name and the code source are filled.")
-                                            }
-                                        }
-                                    } else {
-                                        if ($scope.model_instance.version == "" || $scope.model_instance.source == "") {
-                                            var parameters = JSON.stringify({ model: $scope.model, model_instance: [], model_image: $scope.model_image });
-                                            var a = ScientificModelRest.save({ app_id: app_id }, parameters).$promise.then(function(data) {
-                                                DataHandler.setStoredModelsAsOutdated();
-                                                Context.modelCatalog_goToModelDetailView(data.uuid);
-                                            });
-                                        } else {
-                                            alert("If you want to create a new version, please  ensure the version name and the code source are filled.")
-                                        }
-                                    }
-                                } else {
-                                    var parameters = JSON.stringify({ model: $scope.model, model_instance: [], model_image: $scope.model_image });
-                                    var a = ScientificModelRest.save({ app_id: app_id }, parameters).$promise.then(function(data) {
-                                        DataHandler.setStoredModelsAsOutdated();
-                                        Context.modelCatalog_goToModelDetailView(data.uuid);
-                                    });
-                                }
-                            } else {
-                                alert('Cannot create the model. Please check your Alias.');
-                            };
-                        });
-                    } else {
-                        $scope.model.alias = null;
-                        // var parameters = JSON.stringify({ model: $scope.model, model_instance: [$scope.model_instance], model_image: $scope.model_image });
-                        // var a = ScientificModelRest.save({ app_id: app_id }, parameters).$promise.then(function(data) {
-                        //     DataHandler.setStoredModelsAsOutdated();
-                        //     Context.modelCatalog_goToModelDetailView(data.uuid);
-                        // });
-                        if ($scope.model_instance) {
-                            if ($scope.model_instance.version && $scope.model_instance.source) {
-                                if ($scope.model_instance.version != "" && $scope.model_instance.source != "") {
-                                    var parameters = JSON.stringify({ model: $scope.model, model_instance: [$scope.model_instance], model_image: $scope.model_image });
-                                    var a = ScientificModelRest.save({ app_id: app_id }, parameters).$promise.then(function(data) {
-                                        DataHandler.setStoredModelsAsOutdated();
-                                        Context.modelCatalog_goToModelDetailView(data.uuid);
-                                    });
-                                } else {
-                                    if ($scope.model_instance.version == "" && $scope.model_instance.source == "") {
-                                        var parameters = JSON.stringify({ model: $scope.model, model_instance: [], model_image: $scope.model_image });
-                                        var a = ScientificModelRest.save({ app_id: app_id }, parameters).$promise.then(function(data) {
-                                            DataHandler.setStoredModelsAsOutdated();
-                                            Context.modelCatalog_goToModelDetailView(data.uuid);
-                                        });
-                                    } else {
-                                        //one of the field is not empty but the other is
-                                        alert("If you want to create a new version, please check all the corresponding fields are filled.")
-                                    }
-                                }
-                            } else {
-                                if ($scope.model_instance.version == "" || $scope.model_instance.source == "") {
-                                    var parameters = JSON.stringify({ model: $scope.model, model_instance: [], model_image: $scope.model_image });
-                                    var a = ScientificModelRest.save({ app_id: app_id }, parameters).$promise.then(function(data) {
-                                        DataHandler.setStoredModelsAsOutdated();
-                                        Context.modelCatalog_goToModelDetailView(data.uuid);
-                                    });
-                                } else {
-                                    alert("If you want to create a new version, please check all the corresponding fields are filled.")
-                                }
-                            }
-                        } else {
-                            var parameters = JSON.stringify({ model: $scope.model, model_instance: [], model_image: $scope.model_image });
-                            var a = ScientificModelRest.save({ app_id: app_id }, parameters).$promise.then(function(data) {
-                                DataHandler.setStoredModelsAsOutdated();
-                                Context.modelCatalog_goToModelDetailView(data.uuid);
-                            });
-                        }
-                    };
-
-                };
-                $scope.deleteImage = function(index) {
-                    $scope.model_image.splicen(index, 1);
-                };
-
-                $scope.checkAliasValidity = function() {
-                    $scope.alias_is_valid = ScientificModelAliasRest.get({ app_id: app_id, model: $scope.model, alias: $scope.model.alias });
-                };
-
             });
         });
     }
@@ -1896,6 +1880,7 @@ ParametersConfigurationApp.controller('ParametersConfigurationCtrl', ['$scope', 
 
 ParametersConfigurationApp.controller('ParametersConfigurationRedirectCtrl', ['$scope', '$rootScope', '$http', '$location', 'CollabParameters', 'AuthorizedCollabParameterRest', 'Context',
     function($scope, $rootScope, $http, $location, CollabParameters, AuthorizedCollabParameterRest, Context) {
+
         $scope.init = function() {
             var app_type = document.getElementById("app").getAttribute("value");
             if (app_type == "model_catalog") {

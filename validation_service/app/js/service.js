@@ -526,41 +526,51 @@ ParametersConfigurationServices.service('CollabParameters', ['$rootScope', 'Coll
 
         var setService = function(ctx_param) {
             return new Promise(function(resolve, reject) {
-                // ctx = ctx_param;
-                // default_parameters = AuthorizedCollabParameterRest.get();
-                // default_parameters = build_formated_default_parameters();
 
-                build_formated_default_parameters().then(function() {
+                if (default_parameters == undefined) {
+                    build_formated_default_parameters().then(function() {
 
-                    if (typeof(parameters) == "undefined") {
-                        parameters = CollabParameterRest.get({ app_id: Context.getAppID() }); //need to get collab number
-                        parameters.$promise.then(function() {
+                        set_parameters().then(function() {
+                            resolve(parameters)
+                        });
+                    });
+                } else {
+                    param = set_parameters().then(function() {
+                        resolve(parameters)
+                    });
+                }
+            });
+        };
 
-                            if (parameters.param.length == 0) {
-                                post = _postInitCollab();
-                                post.$promise.then(function() {
-                                    parameters = CollabParameterRest.get({ app_id: Context.getAppID() });
+        var set_parameters = function() {
+            return new Promise(function(resolve, reject) {
+                if (typeof(parameters) == "undefined") {
 
-                                    parameters.$promise.then(function() {
-                                        resolve(parameters);
-                                    });
+                    var app_id = Context.getAppID();
 
+                    parameters = CollabParameterRest.get({ app_id: app_id }); //need to get collab number
+
+                    parameters.$promise.then(function() {
+
+                        if (parameters.param.length == 0) {
+                            post = _postInitCollab();
+                            post.$promise.then(function() {
+                                parameters = CollabParameterRest.get({ app_id: Context.getAppID() });
+
+                                parameters.$promise.then(function() {
+                                    resolve(parameters);
                                 });
-                            } else {
-                                param_tab = _getParamTabValues();
-                                string_tab = _StringTabToArray(param_tab);
-                                _setParametersNewValues(string_tab);
-                                resolve(parameters);
-
-                            }
-                        });
-                    } else {
-                        parameters.$promise.then(function() {
+                            });
+                        } else {
+                            param_tab = _getParamTabValues();
+                            string_tab = _StringTabToArray(param_tab);
+                            _setParametersNewValues(string_tab);
                             resolve(parameters);
-                        });
-                    }
-                    // return parameters;
-                });
+                        }
+                    });
+                } else {
+                    resolve(parameters);
+                }
             });
         };
 
@@ -631,6 +641,7 @@ ParametersConfigurationServices.service('CollabParameters', ['$rootScope', 'Coll
         };
 
         return {
+            set_parameters: set_parameters,
             addParameter: addParameter,
             getParameters: getParameters,
             getParameters_authorized_value_formated: getParameters_authorized_value_formated,
@@ -644,6 +655,7 @@ ParametersConfigurationServices.service('CollabParameters', ['$rootScope', 'Coll
             setCollabId: setCollabId,
             getDefaultParameters: getDefaultParameters,
             getParametersOrDefault: getParametersOrDefault,
+            build_formated_default_parameters: build_formated_default_parameters,
         };
 
     }

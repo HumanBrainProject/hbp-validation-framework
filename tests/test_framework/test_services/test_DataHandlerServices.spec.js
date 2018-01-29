@@ -20,12 +20,11 @@ describe('Testing service: DataHandlerServices', function() {
         $httpBackend = _$httpBackend_;
 
     }));
+    afterEach(function() {
+        $httpBackend.verifyNoOutstandingExpectation();
+        $httpBackend.verifyNoOutstandingRequest();
+    });
 
-    //spy on methods called //seems it is not really needed here...
-    // beforeEach(function() {
-    //     spyOn(ScientificModelRest, 'get').and.callThrough();
-
-    // })
 
     // test
     it('should load models if app_id is defined', function() {
@@ -48,18 +47,6 @@ describe('Testing service: DataHandlerServices', function() {
         rs1.then(function(res) {
             expect(res.models).toEqual(models_answered);
         });
-
-        // console.log(rs1);
-        // rs1.then(function(res) {
-        //     console.log('res', res);
-        //     expect(res).toEqual(models_answered);
-        // });
-
-        // var res = ScientificModelRest.get();
-        // $httpBackend.flush();
-        // console.log(res)
-        // console.log(models_answered2)
-        // expect(res.$promise.$$state.value.models).toEqual(models_answered);
 
     });
 
