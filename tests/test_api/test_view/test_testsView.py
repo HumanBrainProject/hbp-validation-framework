@@ -91,12 +91,22 @@ from ..auth_for_test_taken_from_validation_clien import BaseClient
 
 
 
+from ..data_for_test import DataForTests
 
 
-username = os.environ.get('HBP_USERNAME')
-base_client = BaseClient(username = username)
-client = Client(HTTP_AUTHORIZATION=base_client.token)
+username_authorized = os.environ.get('HBP_USERNAME_AUTHORIZED')
+password_authorized = os.environ.get('HBP_PASSWORD_AUTHORIZED')
 
+# username_authorized = os.environ.get('HBP_USERNAME_NOT_AUTHORIZED')
+# password_authorized = os.environ.get('HBP_PASSWORD_NOT_AUTHORIZED')
+
+base_client_authorized = BaseClient(username = username_authorized, password=password_authorized)
+client_authorized = Client(HTTP_AUTHORIZATION=base_client_authorized.token)
+
+# username_not_authorized = os.environ.get('HBP_USERNAME_NOT_AUTHORIZED')
+# password_not_authorized = os.environ.get('HBP_PASSWORD_NOT_AUTHORIZED')
+# base_client_not_authorized = BaseClient(username = username_not_authorized, password=password_not_authorized)
+# client_not_authorized = Client(HTTP_AUTHORIZATION=base_client_not_authorized.token)
 
 
 
@@ -109,112 +119,8 @@ class TestsViewTest(TestCase):
     
     @classmethod
     def setUpTestData(cls):
+        cls.data = DataForTests()
         
-        create_all_parameters()
-        create_fake_collab(
-                        id='1', 
-                        collab_id='1',
-                        data_modality='electrophysiology', 
-                        test_type='single cell activity', 
-                        species='Mouse (Mus musculus)', 
-                        brain_region='Hippocampus',
-                        cell_type = 'Interneuron',
-                        model_type = 'Single Cell',
-                        )
-
-        #Create 3 tests with different caracteristics
-        cls.original_time = time.time()
-
-        cls.uuid_test1 = uuid.uuid4()
-        cls.uuid_test1_bis = uuid.uuid4()
-        cls.uuid_test2 = uuid.uuid4()
-
-        cls.uuid_testcode1_1 = uuid.uuid4()
-        cls.uuid_testcode1_bis_1 = uuid.uuid4()
-        cls.uuid_testcode2_1 = uuid.uuid4()
-
-        cls.test1 = create_specific_test (
-                    cls.uuid_test1, 
-                    "name 1", 
-                    "T1", 
-                    species="Mouse (Mus musculus)",
-                    brain_region = "Hippocampus", 
-                    cell_type = "Interneuron", 
-                    age = "12",  
-                    data_location = "http://bbbb.com", 
-                    data_type = "data type",
-                    data_modality = "electrophysiology",
-                    test_type = "single cell activity",
-                    protocol ="protocol",
-                    author = "me",
-                    publication = "not published",
-                    score_type="p-value",
-                    )
-        cls.test1_bis = create_specific_test (
-                    cls.uuid_test1_bis, 
-                    "name 1_bis", 
-                    "T1_bis", 
-                    species="Mouse (Mus musculus)",
-                    brain_region = "Hippocampus", 
-                    cell_type = "Interneuron", 
-                    age = "12",  
-                    data_location = "http://bbbb.com", 
-                    data_type = "data type",
-                    data_modality = "electrophysiology",
-                    test_type = "single cell activity",
-                    protocol ="protocol",
-                    author = "me",
-                    publication = "not published",
-                    score_type="p-value",
-                    )
-        cls.test2 = create_specific_test (
-                    cls.uuid_test2, 
-                    "name 2", 
-                    "T2", 
-                    species="Rat (Rattus rattus)",
-                    brain_region = "Cerebellum", 
-                    cell_type = "Granule Cell", 
-                    age = "13",  
-                    data_location = "http://aaaa.com", 
-                    data_type = "data type2",
-                    data_modality = "histology",
-                    test_type = "network structure",
-                    protocol ="blabla",
-                    author = "me2",
-                    publication = "not published2",
-                    score_type="p-value2",
-                    )
-
-        cls.testcode1 = create_specific_testcode (
-                            cls.uuid_testcode1_1, 
-                            "1.1", 
-                            "2017-01-24T14:59:26.031Z", 
-                            cls.test1,
-                            repository = "",
-                            path = "",
-                            )
-
-        cls.testcode1_bis = create_specific_testcode (
-                            cls.uuid_testcode1_bis_1, 
-                            "1.1", 
-                            "2017-01-24T14:59:26.031Z", 
-                            cls.test1_bis,
-                            repository = "",
-                            path = "",
-                            )
-
-        cls.testcode2 = create_specific_testcode (
-                            cls.uuid_testcode2_1, 
-                            "1.1", 
-                            "2017-01-24T14:59:26.031Z", 
-                            cls.test2,
-                            repository = "",
-                            path = "",
-                            )
-
-
-
-
 
     def setUp(self):
         #Setup run before every test method.
@@ -240,6 +146,11 @@ class TestsViewTest(TestCase):
                             'author', 
                             'publication', 
                             'score_type',]
+            for test in tests :
+                self.assertEqual(set(test.keys()), set(targeted_keys))
+
+
+
         if targeted_keys_list_type == "full" :
             targeted_keys = [
                             'id', 
@@ -262,12 +173,24 @@ class TestsViewTest(TestCase):
                             # 'score_type',
                             ]
 
-        for test in tests :
-            self.assertEqual(set(test.keys()), set(targeted_keys))
+            for test in tests :
+                self.assertEqual(set(test.keys()), set(targeted_keys))
 
+            
+                for code in test['codes'] :
+                    self.assertEqual(set(code.keys()), set([
+                                                    'description',
+                                                    'repository',
+                                                    'timestamp',
+                                                    'version',
+                                                    'path',
+                                                    'id',
+                                                    'test_definition_id',
+                                                    ]))
+                    
 
     def test_get_no_param (self):
-        response = client.get('/tests/', data={})
+        response = client_authorized.get('/tests/', data={})
         tests = json.loads(response._container[0])['tests']
         
         self.assertEqual(response.status_code, 200)
@@ -276,7 +199,7 @@ class TestsViewTest(TestCase):
         
 
     def test_get_param_id (self):
-        response = client.get('/tests/', data={'id': self.uuid_test1})
+        response = client_authorized.get('/tests/', data={'id': self.data.uuid_test1})
         tests = json.loads(response._container[0])['tests']
 
         self.assertEqual(response.status_code, 200)
@@ -302,7 +225,7 @@ class TestsViewTest(TestCase):
         
 
     def test_get_param_name (self):
-        response = client.get('/tests/', data={ 'name': "name 1"})
+        response = client_authorized.get('/tests/', data={ 'name': "name 1"})
         tests = json.loads(response._container[0])['tests']
         
         self.assertEqual(response.status_code, 200)
@@ -311,7 +234,7 @@ class TestsViewTest(TestCase):
            
 
     def test_get_param_species (self):
-        response = client.get('/tests/', data={'species': "Mouse (Mus musculus)"})
+        response = client_authorized.get('/tests/', data={'species': "Mouse (Mus musculus)"})
         tests = json.loads(response._container[0])['tests']
         
         self.assertEqual(response.status_code, 200)
@@ -320,7 +243,7 @@ class TestsViewTest(TestCase):
           
 
     def test_get_param_brain_region (self):
-        response = client.get('/tests/', data={'brain_region' : "Hippocampus" })
+        response = client_authorized.get('/tests/', data={'brain_region' : "Hippocampus" })
         tests = json.loads(response._container[0])['tests']
         
         self.assertEqual(response.status_code, 200)
@@ -329,7 +252,7 @@ class TestsViewTest(TestCase):
          
 
     def test_get_param_cell_type (self):
-        response = client.get('/tests/', data={ 'cell_type' :  "Interneuron"})
+        response = client_authorized.get('/tests/', data={ 'cell_type' :  "Interneuron"})
         tests = json.loads(response._container[0])['tests']
         
         self.assertEqual(response.status_code, 200)
@@ -338,7 +261,7 @@ class TestsViewTest(TestCase):
          
 
     def test_get_param_age (self):
-        response = client.get('/tests/', data={'age': "12" })
+        response = client_authorized.get('/tests/', data={'age': "12" })
         tests = json.loads(response._container[0])['tests']
         
         self.assertEqual(response.status_code, 200)
@@ -347,7 +270,7 @@ class TestsViewTest(TestCase):
         
         
     def test_get_param_data_location (self):
-        response = client.get('/tests/', data={'data_location': "http://bbbb.com"})
+        response = client_authorized.get('/tests/', data={'data_location': "http://bbbb.com"})
         tests = json.loads(response._container[0])['tests']
         
         self.assertEqual(response.status_code, 200)
@@ -356,7 +279,7 @@ class TestsViewTest(TestCase):
         
         
     def test_get_param_data_type (self):
-        response = client.get('/tests/', data={'data_type' : "data type"})
+        response = client_authorized.get('/tests/', data={'data_type' : "data type"})
         tests = json.loads(response._container[0])['tests']
         
         self.assertEqual(response.status_code, 200)
@@ -365,7 +288,7 @@ class TestsViewTest(TestCase):
          
 
     def test_get_param_data_modality (self):
-        response = client.get('/tests/', data={'data_modality' : "electrophysiology"})
+        response = client_authorized.get('/tests/', data={'data_modality' : "electrophysiology"})
         tests = json.loads(response._container[0])['tests']
         
         self.assertEqual(response.status_code, 200)        
@@ -374,7 +297,7 @@ class TestsViewTest(TestCase):
            
 
     def test_get_param_test_type (self):
-        response = client.get('/tests/', data={'test_type' : "single cell activity"})
+        response = client_authorized.get('/tests/', data={'test_type' : "single cell activity"})
         tests = json.loads(response._container[0])['tests']
         
         self.assertEqual(response.status_code, 200)
@@ -383,7 +306,7 @@ class TestsViewTest(TestCase):
         
 
     def test_get_param_protocol (self):
-        response = client.get('/tests/', data={'protocol': "protocol"})
+        response = client_authorized.get('/tests/', data={'protocol': "protocol"})
         tests = json.loads(response._container[0])['tests']
         
         self.assertEqual(response.status_code, 200)
@@ -392,7 +315,7 @@ class TestsViewTest(TestCase):
         
 
     def test_get_param_author (self):
-        response = client.get('/tests/', data={'author' : "me"})
+        response = client_authorized.get('/tests/', data={'author' : "me"})
         tests = json.loads(response._container[0])['tests']
         
         self.assertEqual(response.status_code, 200)
@@ -401,7 +324,7 @@ class TestsViewTest(TestCase):
              
 
     def test_get_param_publication (self):
-        response = client.get('/tests/', data={'publication' :"not published" })
+        response = client_authorized.get('/tests/', data={'publication' :"not published" })
         tests = json.loads(response._container[0])['tests']
         
         self.assertEqual(response.status_code, 200)
@@ -410,7 +333,7 @@ class TestsViewTest(TestCase):
           
 
     def test_get_param_score_type (self):
-        response = client.get('/tests/', data={'score_type' : "p-value"})
+        response = client_authorized.get('/tests/', data={'score_type' : "p-value"})
         tests = json.loads(response._container[0])['tests']
         
         self.assertEqual(response.status_code, 200)
@@ -419,7 +342,7 @@ class TestsViewTest(TestCase):
             
 
     def test_get_param_alias (self):
-        response = client.get('/tests/', data={'alias' : "T1" })
+        response = client_authorized.get('/tests/', data={'alias' : "T1" })
         tests = json.loads(response._container[0])['tests']
         
         self.assertEqual(response.status_code, 200)
@@ -428,7 +351,7 @@ class TestsViewTest(TestCase):
             
 
     def test_get_param_web_app (self):
-        response = client.get('/tests/', data={'web_app' : True, 'app_id' : '1'})
+        response = client_authorized.get('/tests/', data={'web_app' : True, 'app_id' : '1'})
         tests = json.loads(response._container[0])['tests']
         
         self.assertEqual(response.status_code, 200)
@@ -438,7 +361,7 @@ class TestsViewTest(TestCase):
         # raise ValueError('A very specific bad thing happened.')
 
     def test_get_param_app_id (self):
-        response = client.get('/tests/', data={'app_id' : '1'  })
+        response = client_authorized.get('/tests/', data={'app_id' : '1'  })
         tests = json.loads(response._container[0])['tests']
         
         self.assertEqual(response.status_code, 200)
