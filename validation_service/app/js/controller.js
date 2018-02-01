@@ -1741,27 +1741,30 @@ ModelCatalogApp.controller('ModelCatalogEditCtrl', ['$scope', '$rootScope', '$ht
 
 ModelCatalogApp.controller('ModelCatalogVersionCtrl', ['$scope', '$rootScope', '$http', '$location', '$stateParams', 'ScientificModelRest', 'ScientificModelInstanceRest', 'CollabParameters', 'Context', 'DataHandler',
     function($scope, $rootScope, $http, $location, $stateParams, ScientificModelRest, ScientificModelInstanceRest, CollabParameters, Context, DataHandler) {
+
+        $scope.ctx, $scope.app_id;
+        $scope.model;
+
+
+        $scope.saveVersion = function() {
+            $scope.model_instance.model_id = $stateParams.uuid;
+            var parameters = JSON.stringify([$scope.model_instance]);
+            ScientificModelInstanceRest.save({ app_id: $scope.app_id }, parameters).$promise.then(function(data) {
+                $location.path('/model-catalog/detail/' + $stateParams.uuid);
+            }).catch(function(e) {
+                alert(e.data);
+            });
+        };
+
+        //code
         Context.setService().then(function() {
             $scope.Context = Context;
 
-            var ctx = Context.getCtx();
-            var app_id = Context.getAppID();
+            $scope.ctx = Context.getCtx();
+            $scope.app_id = Context.getAppID();
 
             CollabParameters.setService(ctx).then(function() {
                 $scope.model = ScientificModelRest.get({ id: $stateParams.uuid });
-                $scope.saveVersion = function() {
-                    $scope.model_instance.model_id = $stateParams.uuid;
-                    var parameters = JSON.stringify([$scope.model_instance]);
-                    ScientificModelInstanceRest.save({ app_id: app_id }, parameters).$promise.then(function(data) {
-                        $location.path('/model-catalog/detail/' + $stateParams.uuid);
-                    }).catch(function(e) {
-                        alert(e.data);
-                    });
-                };
-                // DataHandler.loadModels({ app_id: app_id }).then(function(data) {
-                //     $scope.models = data
-                //     $scope.$apply()
-                // });
             });
 
         });
@@ -1790,16 +1793,63 @@ var ParametersConfigurationApp = angular.module('ParametersConfigurationApp');
 
 ParametersConfigurationApp.controller('ParametersConfigurationCtrl', ['$scope', '$rootScope', '$http', '$location', 'CollabParameters', 'AuthorizedCollabParameterRest', 'CollabIDRest', 'Context',
     function($scope, $rootScope, $http, $location, CollabParameters, AuthorizedCollabParameterRest, CollabIDRest, Context) {
+
+        $scope.ctx, $scope.app_id, $scope.collab;
+        $scope.list_params;
+        $scope.selected_data = {};
+
+        $scope.make_post = function() {
+            $scope.app_type = document.getElementById("app").getAttribute("value");
+
+            CollabParameters.initConfiguration();
+
+            $scope.selected_data.selected_data_modalities.forEach(function(value, i) {
+                CollabParameters.addParameter("data_modalities", value.authorized_value);
+            });
+
+            $scope.selected_data.selected_test_type.forEach(function(value, i) {
+                CollabParameters.addParameter("test_type", value.authorized_value);
+            });
+
+            $scope.selected_data.selected_model_type.forEach(function(value, i) {
+                CollabParameters.addParameter("model_type", value.authorized_value);
+            });
+
+            $scope.selected_data.selected_species.forEach(function(value, i) {
+                CollabParameters.addParameter("species", value.authorized_value);
+            });
+
+            $scope.selected_data.selected_brain_region.forEach(function(value, i) {
+                CollabParameters.addParameter("brain_region", value.authorized_value);
+            });
+
+            $scope.selected_data.selected_cell_type.forEach(function(value, i) {
+                CollabParameters.addParameter("cell_type", value.authorized_value);
+            });
+
+            $scope.selected_data.selected_organization.forEach(function(value, i) {
+                CollabParameters.addParameter("organization", value.authorized_value);
+            });
+
+            CollabParameters.addParameter("app_type", $scope.app_type);
+
+            CollabParameters.setCollabId("collab_id", $scope.collab.collab_id);
+
+            CollabParameters.put_parameters().$promise.then(function() {
+                CollabParameters.getRequestParameters().$promise.then(function() {});
+                alert("Your app has been configured")
+            });
+
+        };
+
         Context.setService().then(function() {
 
             $scope.Context = Context;
-            var ctx = Context.getCtx();
-            var app_id = Context.getAppID();
+            $scope.ctx = Context.getCtx();
+            $scope.app_id = Context.getAppID();
+            $scope.collab = CollabIDRest.get({ ctx: $scope.ctx });
 
-            var app_type = document.getElementById("app").getAttribute("value");
-            var collab = CollabIDRest.get({ ctx: ctx });
-
-            $scope.list_param = AuthorizedCollabParameterRest.get({ ctx: ctx });
+            $scope.list_param = AuthorizedCollabParameterRest.get({ ctx: $scope.ctx });
 
             $scope.list_param.$promise.then(function() {
                 $scope.data_modalities = $scope.list_param.data_modalities;
@@ -1813,10 +1863,7 @@ ParametersConfigurationApp.controller('ParametersConfigurationCtrl', ['$scope', 
 
 
 
-            CollabParameters.setService(ctx).then(function() {
-
-                var app_type = document.getElementById("app").getAttribute("value");
-                var collab = CollabIDRest.get({ ctx: ctx });
+            CollabParameters.setService($scope.ctx).then(function() {
 
                 $scope.selected_data = {};
                 $scope.selected_data.selected_data_modalities = CollabParameters.getParameters_authorized_value_formated("data_modalities");
@@ -1826,49 +1873,6 @@ ParametersConfigurationApp.controller('ParametersConfigurationCtrl', ['$scope', 
                 $scope.selected_data.selected_brain_region = CollabParameters.getParameters_authorized_value_formated("brain_region");
                 $scope.selected_data.selected_cell_type = CollabParameters.getParameters_authorized_value_formated("cell_type");
                 $scope.selected_data.selected_organization = CollabParameters.getParameters_authorized_value_formated("organization");
-
-                $scope.make_post = function() {
-
-                    CollabParameters.initConfiguration();
-
-                    $scope.selected_data.selected_data_modalities.forEach(function(value, i) {
-                        CollabParameters.addParameter("data_modalities", value.authorized_value);
-                    });
-
-                    $scope.selected_data.selected_test_type.forEach(function(value, i) {
-                        CollabParameters.addParameter("test_type", value.authorized_value);
-                    });
-
-                    $scope.selected_data.selected_model_type.forEach(function(value, i) {
-                        CollabParameters.addParameter("model_type", value.authorized_value);
-                    });
-
-                    $scope.selected_data.selected_species.forEach(function(value, i) {
-                        CollabParameters.addParameter("species", value.authorized_value);
-                    });
-
-                    $scope.selected_data.selected_brain_region.forEach(function(value, i) {
-                        CollabParameters.addParameter("brain_region", value.authorized_value);
-                    });
-
-                    $scope.selected_data.selected_cell_type.forEach(function(value, i) {
-                        CollabParameters.addParameter("cell_type", value.authorized_value);
-                    });
-
-                    $scope.selected_data.selected_organization.forEach(function(value, i) {
-                        CollabParameters.addParameter("organization", value.authorized_value);
-                    });
-
-                    CollabParameters.addParameter("app_type", app_type);
-
-                    CollabParameters.setCollabId("collab_id", collab.collab_id);
-
-                    CollabParameters.put_parameters().$promise.then(function() {
-                        CollabParameters.getRequestParameters().$promise.then(function() {});
-                        alert("Your app has been configured")
-                    });
-
-                };
 
             });
         });
