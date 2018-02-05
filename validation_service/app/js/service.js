@@ -386,7 +386,7 @@ DataHandlerServices.service('DataHandler', ['$rootScope', 'ScientificModelRest',
 var ParametersConfigurationServices = angular.module('ParametersConfigurationServices', ['ngResource', 'btorfs.multiselect', 'ApiCommunicationServices', 'ContextServices']);
 ParametersConfigurationServices.service('CollabParameters', ['$rootScope', 'CollabParameterRest', 'Context', 'AuthorizedCollabParameterRest',
     function($rootScope, CollabParameterRest, Context, AuthorizedCollabParameterRest) {
-        var parameters;
+        var parameters = undefined;
         var default_parameters = undefined; // = build_formated_default_parameters();
         var ctx;
 
@@ -403,12 +403,13 @@ ParametersConfigurationServices.service('CollabParameters', ['$rootScope', 'Coll
             parameters.param[0][type].splice(index, 1);
         };
 
-        var getParameters = function(type) {
+        var getParametersByType = function(type) {
             return parameters.param[0][type];
         };
 
-        var getParametersOrDefault = function(type) {
-            var param = getParameters(type);
+        var getParametersOrDefaultByType = function(type) {
+            var param;
+            param = getParametersByType(type);
 
             if (param.length > 0) {
                 return param;
@@ -463,7 +464,7 @@ ParametersConfigurationServices.service('CollabParameters', ['$rootScope', 'Coll
 
 
         var getParameters_authorized_value_formated = function(type) {
-            data = getParameters(type);
+            data = getParametersByType(type);
             formated_data = [];
 
             size = data.length;
@@ -474,9 +475,6 @@ ParametersConfigurationServices.service('CollabParameters', ['$rootScope', 'Coll
         };
 
         var getRequestParameters = function() {
-            // console.log("getRequestParameters");
-            // console.log(Context.getCollabID());
-            // console.log(Context.getAppID());
 
             parameters = CollabParameterRest.get({ app_id: Context.getAppID() });
             return parameters
@@ -554,9 +552,11 @@ ParametersConfigurationServices.service('CollabParameters', ['$rootScope', 'Coll
 
                         if (parameters.param.length == 0) {
                             post = _postInitCollab();
+                            console.log(post)
                             post.$promise.then(function() {
+                                console.log("in it")
                                 parameters = CollabParameterRest.get({ app_id: Context.getAppID() });
-
+                                console.log(parameters)
                                 parameters.$promise.then(function() {
                                     resolve(parameters);
                                 });
@@ -614,8 +614,8 @@ ParametersConfigurationServices.service('CollabParameters', ['$rootScope', 'Coll
                 'app_type': String(parameters.param[0]['app_type']),
                 'collab_id': Context.getCollabID(),
             });
-
-            put = CollabParameterRest.put({ app_id: Context.getAppID() }, data_to_send, function(value) {});
+            var app_id = Context.getAppID();
+            put = CollabParameterRest.put({ app_id: app_id }, data_to_send, function(value) {});
             return put;
         };
 
@@ -634,16 +634,48 @@ ParametersConfigurationServices.service('CollabParameters', ['$rootScope', 'Coll
                 }, ],
                 '$promise': true,
             };
+            return parameters;
         };
 
         var getDefaultParameters = function() {
             return default_parameters;
         };
 
+        var _get_parameters = function() {
+            return parameters;
+        }
+        var _get_default_parameters = function() {
+            return default_parameters;
+        }
+        var _set_default_parameters = function() {
+            default_parameters = {
+                'param': [{
+                    'data_modalities': [],
+                    'test_type': [],
+                    'species': [],
+                    'brain_region': [],
+                    'cell_type': [],
+                    'model_type': [],
+                    'organization': [],
+                    'app_type': [],
+                    'collab_id': 0,
+                }, ],
+                '$promise': true,
+            };
+        }
+
         return {
+            _set_default_parameters: _set_default_parameters,
+            _get_parameters: _get_parameters,
+            _get_default_parameters: _get_default_parameters,
+            _StringTabToArray: _StringTabToArray,
+            _postInitCollab: _postInitCollab,
+            _getParamTabValues: _getParamTabValues,
+            _setParametersNewValues: _setParametersNewValues,
+            format_parameter_data: format_parameter_data,
             set_parameters: set_parameters,
             addParameter: addParameter,
-            getParameters: getParameters,
+            getParametersByType: getParametersByType,
             getParameters_authorized_value_formated: getParameters_authorized_value_formated,
             getAllParameters: getAllParameters,
             setService: setService,
@@ -654,7 +686,7 @@ ParametersConfigurationServices.service('CollabParameters', ['$rootScope', 'Coll
             getRequestParameters: getRequestParameters,
             setCollabId: setCollabId,
             getDefaultParameters: getDefaultParameters,
-            getParametersOrDefault: getParametersOrDefault,
+            getParametersOrDefaultByType: getParametersOrDefaultByType,
             build_formated_default_parameters: build_formated_default_parameters,
         };
 
@@ -676,8 +708,6 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'Context', 'ValidationResult
                 data.line_id = list_id_couple[i].id_line;
                 list_data.push(data);
             }
-            // console.log(list_data)
-            // console.log(graph_key)
             $rootScope.$broadcast('data_focussed:updated', list_data, graph_key);
         };
         var find_result_in_data = function(id_couple, results_data, type) {

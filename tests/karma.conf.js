@@ -139,7 +139,6 @@ module.exports = function(config) {
             '../validation_service/app/static/angular-hbp-collaboratory/src/ui-stream/ui-stream.module.js',
             '../validation_service/app/static/angular-hbp-collaboratory/src/ui-stream/activity.directive.js',
             '../validation_service/app/static/angular-hbp-collaboratory/src/ui-stream/feed.directive.js',
-            '../validation_service/app/static/angular-hbp-collaboratory/src/ui-stream/ui-stream.module.js',
 
             //angular-hbp-common
             '../validation_service/app/static/angular-hbp-common/dist/angular-hbp-common.min.js',
@@ -182,7 +181,7 @@ module.exports = function(config) {
             './test_framework/test_model_catalog/*.spec.js',
             './test_framework/test_services/*.spec.js',
             './test_framework/test_validation_framework/*.spec.js',
-            './test_framework/*.spec.js',
+            // './test_framework/*.spec.js',
 
 
         ],
