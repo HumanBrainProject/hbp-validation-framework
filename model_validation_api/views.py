@@ -1490,11 +1490,11 @@ class Results (APIView):
             detailed_view = False
             
 
-        if len(param_order) > 0 and (param_order[0] == 'test' or param_order[0] == 'model' or param_order[0] == '' or param_order[0] == 'model_instance' or param_order[0] == 'test_code') :
+        if len(param_order) > 0 and (param_order[0] == 'test' or param_order[0] == 'model' or param_order[0] == '' or param_order[0] == 'model_instance' or param_order[0] == 'test_code' or param_order[0] == 'score_type') :
             param_order = param_order[0]
 
         else :
-            return Response("You need to give 'order' argument. Here are the options : 'test', 'model', 'model_instance', 'test_code', '' ", status=status.HTTP_400_BAD_REQUEST)
+            return Response("You need to give 'order' argument. Here are the options : 'test', 'model', 'model_instance', 'test_code', 'score_type', '' ", status=status.HTTP_400_BAD_REQUEST)
 
         if check_list_uuid_validity(param_id) is False :
             return Response("Badly formed uuid in : id", status=status.HTTP_400_BAD_REQUEST)
@@ -1541,6 +1541,8 @@ class Results (APIView):
                     q = q.prefetch_related().order_by('model_version__timestamp','timestamp')
                 if param_order == "model_instance":
                     q= q.prefetch_related().order_by('test_code__timestamp', 'timestamp')
+                if param_order == "score_type": #if order=score_type, it has to be ordered by test_code also
+                    q = q.prefetch_related().order_by('model_version__timestamp','timestamp')    
             results = q
             #add filter using param_test_id >> filter by tests
             if len(param_test_code_id) == 0 and (len(param_test_id) > 0 or len(param_test_alias) > 0 ) :
