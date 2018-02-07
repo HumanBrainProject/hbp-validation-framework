@@ -2,6 +2,10 @@
 
 
 """
+
+# -*- coding: utf-8 -*-
+
+
 import pprint
 
 import json
@@ -164,7 +168,7 @@ from uuid import UUID
 
 CROSSREF_URL = "http://api.crossref.org/works/"
 
-@method_decorator(login_required(login_url='/login/hbp'), name='dispatch' )
+@method_decorator(login_required(login_url='/login/hbp/'), name='dispatch' )
 class HomeValidationView(View):
     template_name = "validation_framework/validation_home.html"
     login_url='/login/hbp/'
@@ -215,7 +219,11 @@ class AuthorizedCollabParameterRest(APIView):
         ##for python client #'python_client=True' 'parameters= list()'
         if python_client == 'true':
             params_asked = request.GET.getlist('parameters')
-            if(params_asked[0]=='all'):
+            if len(params_asked) ==0 :
+                params_asked = ["all"]
+
+            if(params_asked[0]=='all') :
+                # print "if((params_asked[0]=='all') or (len(params_asked) ==0)):"
                 res = {
                     'data_modalities': data_modalities.values_list('authorized_value', flat=True),
                     'test_type' : test_type.values_list('authorized_value', flat=True),
@@ -228,6 +236,8 @@ class AuthorizedCollabParameterRest(APIView):
                 } 
                 return Response(res)
             else: 
+                # print "not in the IF"
+                # print params_asked
                 res = {}
                 for param in params_asked:
                     if (param == 'species'):
@@ -245,7 +255,10 @@ class AuthorizedCollabParameterRest(APIView):
                     if (param == 'score_type'):
                         res['score_type'] = score_type.values_list('authorized_value', flat=True)
                     if (param == 'organization'):
-                        res['organization'] = organization.values_list('authorized_value', flat=True)       
+                        res['organization'] = organization.values_list('authorized_value', flat=True)   
+
+                # print "final res"
+                # print res    
                 return Response(res)   
 
 
@@ -288,18 +301,24 @@ class CollabAppID(APIView):
     def get(self, request, format=None, **kwargs):
 
         param_collab_id = request.GET.getlist('collab_id')
+        param_app_type = request.GET.getlist('app_type')
 
-        collab_param = CollabParameters.objects.filter(collab_id = param_collab_id[0], app_type="model_catalog")
+        if len(param_app_type) == 0 :
+            param_app_type = ["model_catalog"]
 
-        # print collab_param[0].__dict__
+        if len(param_collab_id) > 0 :
+            collab_param = CollabParameters.objects.filter(collab_id = param_collab_id[0], app_type=param_app_type[0])
 
-        app_id = collab_param[0].id
+            if len(collab_param)> 0 :
+                app_id = collab_param[0].id
+            else : 
+                app_id = ""
+            return Response({
+                'app_id': app_id,
+            })
+        else :
+            return Response(status=status.HTTP_400_BAD_REQUEST)
 
-
-
-        return Response({
-            'app_id': app_id,
-        })
 
 
 
@@ -308,8 +327,14 @@ class ParametersConfigurationRest( APIView): #LoginRequiredMixin,
     def get(self, request, format=None, **kwargs):
         serializer_context = {'request': request,}
 
-        id = request.GET.getlist('app_id')[0]
-        param = CollabParameters.objects.filter(id = id)
+        app_id = request.GET.getlist('app_id')
+        if len(app_id) == 0 :
+            return Response( status=status.HTTP_400_BAD_REQUEST)
+        else : 
+            app_id = app_id[0]
+
+
+        param = CollabParameters.objects.filter(id = app_id)
         param_serializer = CollabParametersSerializer(param, context=serializer_context, many=True)
 
         return Response({
@@ -319,8 +344,19 @@ class ParametersConfigurationRest( APIView): #LoginRequiredMixin,
 
     def post(self, request, format=None):
         # ctx = request.GET.getlist('ctx')[0]
-        app_id = request.GET.getlist('app_id')[0]
-        collab_id = request.GET.getlist('collab_id')[0]
+
+        if 'collab_id' in request.data :
+            collab_id = request.data['collab_id']
+            collab_id = [collab_id]
+        else :
+            collab_id = request.GET.getlist('collab_id')
+
+
+        if len(collab_id) == 0 :
+            return Response( status=status.HTTP_400_BAD_REQUEST)
+        else : 
+            collab_id = collab_id[0]
+
 
         if not is_authorised(request, collab_id):
             return HttpResponseForbidden() 
@@ -329,18 +365,33 @@ class ParametersConfigurationRest( APIView): #LoginRequiredMixin,
         param_serializer = CollabParametersSerializer(data=request.data, context=serializer_context)
         if param_serializer.is_valid():
             param = param_serializer.save(id =request.data['id'] ) 
+            return Response({'uuid': param.id}, status=status.HTTP_201_CREATED)
         else:
             return Response(param_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
          
-        return Response(status=status.HTTP_201_CREATED)
 
     def put(self, request, format=None):
         # ctx = request.GET.getlist('ctx')[0]
-        app_id = request.GET.getlist('app_id')[0]
-        collab_id = get_collab_id_from_app_id(app_id)
 
+        if 'id' in request.data :
+            app_id = request.data['id']
+
+        else :
+            app_id = request.GET.getlist('app_id')
+            if len(app_id) == 0 :
+                return Response( status=status.HTTP_400_BAD_REQUEST)
+            else : 
+                app_id = app_id[0]
+
+        collab_id = get_collab_id_from_app_id(app_id)
         if not is_authorised(request, collab_id):
             return HttpResponseForbidden()
+        
+
+        if 'collab_id' in request.data :
+            collab_id = request.data['collab_id']
+            if not is_authorised(request, collab_id):
+                return HttpResponseForbidden()
         
         serializer_context = {'request': request,}
   
@@ -349,10 +400,19 @@ class ParametersConfigurationRest( APIView): #LoginRequiredMixin,
 
         if param_serializer.is_valid():         
             param_serializer.save()
-            return Response(status=status.HTTP_202_ACCEPTED)
+            return Response({'uuid': param.id},status=status.HTTP_202_ACCEPTED)
         return Response(param_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+def reformat_request_data (data):
+    if type(data) == list :
+        data = data
+
+    elif type(data) == dict :
+        data = [data]
+    else :
+        data = []
+    return data
 
 class ModelInstances (APIView):
 
@@ -403,8 +463,16 @@ class ModelInstances (APIView):
     def post(self, request, format=None):       
         serializer_context = {'request': request,}
 
+        DATA = reformat_request_data(request.data)
+
+        for i in DATA : 
+            if len(i) == 0 :
+                return Response(status=status.HTTP_400_BAD_REQUEST)
+                
+                
+
         #check if valid + security
-        for instance in request.data :
+        for instance in DATA :
             if not instance['model_id']:
                 try: 
                     model = ScientificModel.objects.filter(alias=instance['model_alias'])
@@ -427,7 +495,7 @@ class ModelInstances (APIView):
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         list_id = []
-        for instance in request.data :
+        for instance in DATA :
             serializer = ScientificModelInstanceSerializer(data=instance, context=serializer_context)
 
             if serializer.is_valid(): 
@@ -440,6 +508,11 @@ class ModelInstances (APIView):
     
     def put(self, request, format=None):
         serializer_context = {'request': request,}
+
+        DATA = reformat_request_data(request.data)
+        for i in DATA : 
+            if len(i) == 0 :
+                return Response(status=status.HTTP_400_BAD_REQUEST)
         
         #check if valid
         try:
@@ -447,7 +520,7 @@ class ModelInstances (APIView):
         except: 
             param_web_app = False
 
-        for instance in request.data:
+        for instance in DATA:
              
             if param_web_app==True:
                 original_instance = ScientificModelInstance.objects.get(id=instance.get('id'))
@@ -511,7 +584,7 @@ class ModelInstances (APIView):
 
         list_id = []
         #is valid + authorized : save it
-        for instance in request.data: 
+        for instance in DATA: 
             model_instance = ScientificModelInstance.objects.get(id=instance['id'])
             model_serializer = ScientificModelInstanceSerializer(model_instance, data=instance, context=serializer_context)
 
@@ -568,9 +641,12 @@ class Images (APIView):
 
     def post(self, request, format=None):
         serializer_context = {'request': request,}
+        if not is_hbp_member(request):
+            return HttpResponseForbidden()
 
+        DATA = reformat_request_data(request.data)
         #check if valid + security
-        for image in request.data :
+        for image in DATA :
             serializer = ScientificModelImageSerializer(data=image, context=serializer_context)
             if serializer.is_valid():   
                 #security
@@ -582,12 +658,13 @@ class Images (APIView):
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         list_id = []
-        for image in request.data :
+        for image in DATA :
             serializer = ScientificModelImageSerializer(data=image, context=serializer_context)
 
             if serializer.is_valid(): 
                 im = serializer.save(model_id=image['model_id'])
                 list_id.append(im.id)
+
 
         return Response({'uuid':list_id}, status=status.HTTP_201_CREATED)
 
@@ -595,8 +672,15 @@ class Images (APIView):
 
     def put(self, request, format=None):
         serializer_context = {'request': request,}
+        if not is_hbp_member(request):
+            return HttpResponseForbidden()
 
-        for image in request.data:
+        DATA = reformat_request_data(request.data)
+        for i in DATA : 
+            if len(i) == 0 :
+                return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        for image in DATA:
             model_image = ScientificModelImage.objects.get(id=image['id'])
 
             #security
@@ -611,7 +695,7 @@ class Images (APIView):
                 Response(model_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
         list_id = []
-        for image in request.data:
+        for image in DATA:
             model_image = ScientificModelImage.objects.get(id=image['id'])
 
             model_serializer = ScientificModelImageSerializer(model_image, data=image, context=serializer_context)
@@ -623,6 +707,8 @@ class Images (APIView):
         
 
     def delete(self, request, format=None):
+        if not is_hbp_member(request):
+            return HttpResponseForbidden()
         
         image_id = request.GET.getlist('id')[0]
         
@@ -819,36 +905,44 @@ class Models(APIView):
                 })
 
     def post(self, request, format=None):   
-        app_id = request.GET.getlist('app_id')[0]
+        app_id = request.GET.getlist('app_id')
+
+        if len(app_id) == 0 :
+            return Response("You need to specify the app_id argument", status=status.HTTP_400_BAD_REQUEST)
+        else : 
+            app_id = app_id[0]
+            
         collab_id = get_collab_id_from_app_id(app_id)
         if not is_authorised(request, collab_id):
             return HttpResponseForbidden()
 
         serializer_context = {'request': request,}
 
-        print request.data['model']
 
+        DATA = reformat_request_data(request.data)
+        DATA = DATA[0]
+        
         #make sure organisation is not empty :
         try :
-            if request.data['model']["organization"] == "" :
-                request.data['model']["organization"] = "<<empty>>"
+            if DATA['model']["organization"] == "" :
+                DATA['model']["organization"] = "<<empty>>"
         except :
-            request.data['model']["organization"] = "<<empty>>"
+            DATA['model']["organization"] = "<<empty>>"
 
 
         # check if data is ok else return error
-        model_serializer = ScientificModelSerializer(data=request.data['model'], context=serializer_context)
+        model_serializer = ScientificModelSerializer(data=DATA['model'], context=serializer_context)
         if model_serializer.is_valid() is not True:
             return Response(model_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         else :
-            check_param = check_param_of_model_json(request.data['model'])
+            check_param = check_param_of_model_json(DATA['model'])
             if check_param is not True :
                 return Response(check_param, status=status.HTTP_400_BAD_REQUEST)
                 
                
-        if len(request.data['model_instance']) >  0 :
+        if len(DATA['model_instance']) >  0 :
             list_version_names = []
-            for i in request.data['model_instance']:
+            for i in DATA['model_instance']:
                 list_version_names.append(i["version"])
                 model_instance_serializer = ScientificModelInstanceSerializer(data=i, context=serializer_context)
                 if model_instance_serializer.is_valid() is not True:    
@@ -857,8 +951,8 @@ class Models(APIView):
             if not len(list_version_names) == len(set(list_version_names)) :    
                 return Response("You are sending a version name which are not unique", status=status.HTTP_400_BAD_REQUEST)    
 
-        if len(request.data['model_image']) >  0 :
-            for i in request.data['model_image']:
+        if len(DATA['model_image']) >  0 :
+            for i in DATA['model_image']:
                 model_image_serializer = ScientificModelImageSerializer(data=i, context=serializer_context)  
                 if model_image_serializer.is_valid()  is not True:
                     return Response(model_image_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -868,14 +962,14 @@ class Models(APIView):
         # no error then save all 
         model = model_serializer.save(app_id=app_id)
 
-        if len(request.data['model_instance']) >  0 :
-            for i in request.data['model_instance'] :
+        if len(DATA['model_instance']) >  0 :
+            for i in DATA['model_instance'] :
                 model_instance_serializer = ScientificModelInstanceSerializer(data=i, context=serializer_context)
                 if model_instance_serializer.is_valid():
                     model_instance_serializer.save(model_id=model.id) 
 
-        if len(request.data['model_image']) >  0 :
-            for i in request.data['model_image']: 
+        if len(DATA['model_image']) >  0 :
+            for i in DATA['model_image']: 
                 model_image_serializer = ScientificModelImageSerializer(data=i, context=serializer_context) 
                 if model_image_serializer.is_valid()   :     
                     model_image_serializer.save(model_id=model.id)
@@ -888,18 +982,23 @@ class Models(APIView):
         ## save only modifications on model. if you want to modify images or instances, do separate put.  
         ##get objects 
         value = request.data['models'][0]
-        if value['id']:
+        if 'id' in value and value['id'] != '':
             model = ScientificModel.objects.get(id=value['id'])
         else:
-            if values['alias']:
+            if 'alias' in value and value['alias'] != '':
                 try: 
-                    model = ScientificModel.objects.get(id=value['alias'])
+                    model = ScientificModel.objects.get(alias=value['alias'])
                 except:
                     return Response('There is not model corresponding to this alias. Please give a new alias or use the id of the model', status=status.HTTP_400_BAD_REQUEST )  
             else: 
                 return Response('We cannot update the model. Please give the id or the alias of the model.', status=status.HTTP_400_BAD_REQUEST )
         #security
         app_id = model.app_id
+        collab_id = get_collab_id_from_app_id(app_id)
+        if not is_authorised(request, collab_id):
+            return HttpResponseForbidden()
+
+        app_id = value['app_id']
         collab_id = get_collab_id_from_app_id(app_id)
         if not is_authorised(request, collab_id):
             return HttpResponseForbidden()
@@ -928,19 +1027,6 @@ class Models(APIView):
             return Response(model_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         return Response({'uuid':model.id}, status=status.HTTP_202_ACCEPTED) 
 
-    # def delete(self, request, format=None):
-        
-    #     model_id = request.GET.getlist('id')[0]
-    #     collab_id = request.GET.getlist('collab_id')
-
-    #     if collab_id[0]:
-    #         models_to_delete = ScientificModel.objects.filter(collab_id=collab_id)
-    #         for model in models_to_delete:
-    #             model.delete()
-    #     else:
-    #         model_to_delete = ScientificModel.objects.get(id=model_id)
-    #         model_to_delete.delete()
-    #     return Response( status=status.HTTP_200_OK) 
         
 class ModelAliases(APIView):
     def get(self, request, format=None, **kwargs):
@@ -948,6 +1034,8 @@ class ModelAliases(APIView):
             'request': request,
         }
         alias = request.GET.getlist('alias')
+        if len(alias) == 0 :
+            return Response(status=status.HTTP_400_BAD_REQUEST)
 
         all_alias_in_model = ScientificModel.objects.filter().values_list('alias', flat=True)
         if alias[0] in all_alias_in_model:
@@ -961,7 +1049,7 @@ class ModelAliases(APIView):
             if alias[0] == old_alias[0]:
                 is_valid = True
         except: 
-            print('')
+            pass
         return Response({ 'is_valid':is_valid})
 
 class TestAliases(APIView):
@@ -970,6 +1058,11 @@ class TestAliases(APIView):
             'request': request,
         }
         alias = request.GET.getlist('alias')
+
+        if len(alias) == 0 :
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+            
+            
 
         all_alias_in_test = ValidationTestDefinition.objects.filter().values_list('alias', flat=True)
         if alias[0] in all_alias_in_test:
@@ -983,7 +1076,7 @@ class TestAliases(APIView):
             if alias[0] == old_alias[0]:
                 is_valid = True
         except: 
-            print('')
+            pass
         return Response({ 'is_valid':is_valid})
 
 class TestInstances(APIView):
@@ -1045,7 +1138,11 @@ class TestInstances(APIView):
         if not is_hbp_member(request):
             return HttpResponseForbidden()
 
-        for test_code in request.data :
+
+        DATA = reformat_request_data(request.data)
+
+
+        for test_code in DATA :
             if 'test_alias' in test_code:
                 test = ValidationTestDefinition.objects.get(alias = test_code["test_alias"])
                 test_code['test_definition_id'] = test.id
@@ -1063,7 +1160,7 @@ class TestInstances(APIView):
                 return Response("Oh no... The specified version name already exists for this test. Please, give me a new name", status=status.HTTP_400_BAD_REQUEST)
 
         list_id = []
-        for test_code in request.data :
+        for test_code in DATA :
            
             serializer = ValidationTestCodeSerializer(data=test_code, context=serializer_context)
             if serializer.is_valid():
@@ -1077,8 +1174,13 @@ class TestInstances(APIView):
         if not is_hbp_member(request):
             return HttpResponseForbidden()
 
+        DATA = reformat_request_data(request.data)
+        for i in DATA : 
+            if len(i) == 0 :
+                return Response(status=status.HTTP_400_BAD_REQUEST)
+
         ##check if request is valid 
-        for test_code in request.data:   
+        for test_code in DATA:   
             ##get the test code
             if 'id' in test_code:
                 try: 
@@ -1119,7 +1221,7 @@ class TestInstances(APIView):
 
         ## check is ok so create the serializer and save
         list_updated = []
-        for test_code in request.data:
+        for test_code in DATA:
             original_test_code = ValidationTestCode.objects.get(id= test_code['id'])
             serializer = ValidationTestCodeSerializer(original_test_code, data=test_code, context=serializer_context)
         
@@ -1289,25 +1391,39 @@ class Tests(APIView):
 
         serializer_context = {'request': request,}
 
-        test_serializer = ValidationTestDefinitionSerializer(data=request.data['test_data'], context=serializer_context)
-        code_serializer = ValidationTestCodeSerializer(data=request.data['code_data'], context=serializer_context)
+        DATA = reformat_request_data(request.data)
+
+        for i in DATA :  
+            if len(i) == 0 :
+                return Response( "You gave an empty dictionary",status=status.HTTP_400_BAD_REQUEST)   
+
+        if len(DATA) > 1 :
+            return Response( "Posting more than 1 test is not supported yet",status=status.HTTP_400_BAD_REQUEST)   
+               
+        else : 
+            DATA = DATA[0]
+
+        test_serializer = ValidationTestDefinitionSerializer(data=DATA['test_data'], context=serializer_context)
+        code_serializer = ValidationTestCodeSerializer(data=DATA['code_data'], context=serializer_context)
 
         if test_serializer.is_valid():
             if code_serializer.is_valid():
                        
-                check_param = check_param_of_test_json(request.data['test_data'])
+                check_param = check_param_of_test_json(DATA['test_data'])
                 if check_param is not True :
                     return Response(check_param, status=status.HTTP_400_BAD_REQUEST)
 
                 test = test_serializer.save() 
                 code_serializer.save(test_definition_id=test.id)
+                return Response({'uuid':test.id}, status=status.HTTP_201_CREATED)
                       
             else :       
                 return Response(code_serializer.errors, status=status.HTTP_400_BAD_REQUEST)   
         else :
             return Response(test_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
-        return Response({'uuid':test.id}, status=status.HTTP_201_CREATED)
+
+        
 
     def put(self, request, format=None):
         if not is_hbp_member(request):
@@ -1336,8 +1452,13 @@ class Tests(APIView):
 class TestTicketRest(APIView):
     def get(self, request, format=None, **kwargs):
         serializer_context = {'request': request,}
-        nb_test_id = request.query_params['test_id']
-        tickets = Tickets.objects.filter(test_id = nb_test_id)
+        # nb_test_id = request.query_params['test_id']
+        nb_test_id = request.GET.getlist('test_id')
+
+        if len(nb_test_id) == 0 :
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        tickets = Tickets.objects.filter(test_id__in = nb_test_id)
         for ticket in tickets:
             ticket.comments = Comments.objects.filter(Ticket_id = ticket.id)
         ticket_serializer = TicketReadOnlySerializer(tickets, context=serializer_context, many=True)
@@ -1350,9 +1471,7 @@ class TestTicketRest(APIView):
     def post(self, request, format=None):
         serializer_context = {'request': request,}
 
-        app_id = request.GET.getlist('app_id')[0]
-        collab_id = get_collab_id_from_app_id(app_id)
-        if not is_authorised(request, collab_id):
+        if not is_hbp_member(request):
             return HttpResponseForbidden()
 
         request.data['author'] = str(request.user)
@@ -1367,10 +1486,7 @@ class TestTicketRest(APIView):
         return Response({'uuid':param.id, 'new_ticket':new_ticket_serializer.data}, status=status.HTTP_201_CREATED)
 
     def put(self, request, format=None):
-        app_id = request.GET.getlist('app_id')[0]
-        collab_id = get_collab_id_from_app_id(app_id)
-
-        if not is_authorised(request, collab_id):
+        if not is_hbp_member(request):
             return HttpResponseForbidden()
         
         serializer_context = {'request': request,}
@@ -1380,18 +1496,28 @@ class TestTicketRest(APIView):
 
         if param_serializer.is_valid():         
             param_serializer.save()
-            return Response(status=status.HTTP_202_ACCEPTED)
+            return Response({'uuid':ticket.id}, status=status.HTTP_202_ACCEPTED)
         return Response(param_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class TestCommentRest(APIView):
     def get(self, request, format=None, **kwargs):
-        logger.debug("*** TestCommentRest get ***")
         serializer_context = {'request': request,}
-        nb_ticket_id = str(len(request.GET.getlist('Ticket_id')))
+        ticket_id = request.GET.getlist('Ticket_id')
+        param_id = request.GET.getlist('id')
 
-        comments = Comments.objects.filter(Ticket_id = nb_ticket_id)
-        comments_serializer = CommentsSerializer(comments, context=serializer_context, many=True)
+
+        if len(ticket_id)==0 and len(param_id) == 0 :
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        comments = Comments.objects.all()
+        if len(param_id) >0 :
+            comments = Comments.objects.filter(id__in = param_id)
+
+        if len(ticket_id) > 0 :
+            comments = Comments.objects.filter(Ticket_id__in = ticket_id)
+
+        comments_serializer = CommentSerializer(comments, context=serializer_context, many=True)
 
         return Response({
             'comments': comments_serializer.data,
@@ -1400,9 +1526,7 @@ class TestCommentRest(APIView):
     def post(self, request, format=None):
         serializer_context = {'request': request,}
 
-        app_id = request.GET.getlist('app_id')[0]
-        collab_id = get_collab_id_from_app_id(app_id)
-        if not is_authorised(request, collab_id):
+        if not is_hbp_member(request):
             return HttpResponseForbidden()
 
 
@@ -1418,9 +1542,7 @@ class TestCommentRest(APIView):
         return Response({'uuid':param.id, 'new_comment': new_comment_serializer.data },status=status.HTTP_201_CREATED)
 
     def put(self, request, format=None):
-        app_id = request.query_params['app_id']
-        collab_id = get_collab_id_from_app_id(app_id)
-        if not is_authorised(request, collab_id):
+        if not is_hbp_member(request):
             return HttpResponseForbidden()
         
         serializer_context = {'request': request,}
@@ -1430,11 +1552,11 @@ class TestCommentRest(APIView):
 
         if param_serializer.is_valid():         
             param_serializer.save()
-            return Response(status=status.HTTP_202_ACCEPTED)
+            return Response({'uuid':comment_id}, status=status.HTTP_202_ACCEPTED)
         return Response(param_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
 
-# @method_decorator(login_required(login_url='/login/hbp'), name='dispatch' )
+@method_decorator(login_required(login_url='/login/hbp/'), name='dispatch' )
 class ModelCatalogView(View):
 
     template_name = "model_catalog/model_catalog.html"
@@ -1450,7 +1572,13 @@ class ModelCatalogView(View):
 
 class IsCollabMemberRest (APIView):
     def get(self, request, format=None, **kwargs):
-        app_id = request.GET.getlist('app_id')[0]
+        app_id = request.GET.getlist('app_id')
+
+        if len(app_id) == 0 :
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        else :
+            app_id = app_id[0]
+
         collab_id = get_collab_id_from_app_id(app_id)
         
         is_member = is_authorised(request, collab_id)
@@ -1468,7 +1596,7 @@ class Results (APIView):
         param_score = request.GET.getlist('score')
         param_passed = request.GET.getlist('passed')
         param_timestamp = request.GET.getlist('timestamp')
-        param_platforme = request.GET.getlist('platforme')
+        param_platform = request.GET.getlist('platform')
         param_project = request.GET.getlist('project')
         param_model_version_id = request.GET.getlist('model_version_id')
         param_test_code_id = request.GET.getlist('test_code_id')
@@ -1524,8 +1652,8 @@ class Results (APIView):
                 q = q.filter(passed__in = param_passed)
             if len(param_timestamp) > 0 :
                 q = q.filter(timestamp__in = param_timestamp)
-            if len(param_platforme) > 0 :
-                q = q.filter(platforme__in = param_platforme)
+            if len(param_platform) > 0 :
+                q = q.filter(platform__in = param_platform)
             if len(param_project) > 0 :
                 q = q.filter(project__in = param_project)
             if len(param_model_version_id) > 0 :
@@ -1543,28 +1671,20 @@ class Results (APIView):
                     q= q.prefetch_related().order_by('test_code__timestamp', 'timestamp')
             results = q
             #add filter using param_test_id >> filter by tests
-            if len(param_test_code_id) == 0 and (len(param_test_id) > 0 or len(param_test_alias) > 0 ) :
-                if len(param_test_id) == 0 :
-                    param_test_id = []
-                    for alias in param_test_alias :
-                        test_id = ValidationTestDefinition.objects.filter(alias=alias)
-                        param_test_id.append(test_id)
-
-                testcodes = ValidationTestCode.objects.filter(test_definition_id__in = param_test_id )
-                #from all test codes get the results
-                results = results.filter(test_code_id__in = testcodes.values("id"))
+            if len(param_test_code_id) == 0 :
+                if (len(param_test_id) > 0 or len(param_test_alias) > 0 ) :
+                    if len(param_test_id) == 0 :
+                        param_test_id = ValidationTestDefinition.objects.filter(alias__in=param_test_alias).values_list('id', flat=True)
+                    testcodes = ValidationTestCode.objects.filter(test_definition_id__in = param_test_id )
+                    results = results.filter(test_code_id__in = testcodes.values("id"))
            
             #add filter using param_model_id >> filter by models
-            if len(param_model_version_id) == 0 and (len(param_model_id) > 0 or len(param_model_alias) > 0) : 
-                if len(param_model_id) == 0 :
-                    param_model_id = []
-                    for alias in param_model_alias :
-                        model_id = ScientificModel.objects.filter(alias=alias)
-                        param_model_id.append(model_id)                
-
-                model_instance = ScientificModelInstance.objects.filter(model_id__in = param_model_id )
-                #from all model_instance get the results
-                results = results.filter(model_version_id__in = model_instance.values("id"))
+            if len(param_model_version_id) == 0 :
+                if len(param_model_id) > 0 or len(param_model_alias) > 0 : 
+                    if len(param_model_id) == 0 :
+                        param_model_id = ScientificModel.objects.filter(alias__in=param_model_alias).values_list('id', flat=True)
+                    model_instance = ScientificModelInstance.objects.filter(model_id__in = param_model_id )
+                    results = results.filter(model_version_id__in = model_instance.values("id"))
 
             #add filter using param_test_score_type
             if len(param_test_score_type) != 0:
@@ -1578,8 +1698,7 @@ class Results (APIView):
                 if user_has_acces_to_result(request, result) is False :
                     temp_results.exclude(id = result.id )
             results = temp_results
-
-                             
+                       
         else :
             results =  ValidationTestResult.objects.filter(id__in = param_id)
 
@@ -1598,31 +1717,69 @@ class Results (APIView):
 
     def post(self, request, format=None):
         serializer_context = {'request': request,}
+        if not is_hbp_member(request):
+            return HttpResponseForbidden()
+
+        if type(request.data) == list :
+            DATA = request.data
+
+        elif type(request.data) == dict :
+            DATA = [request.data]
+        else : 
+            return Response(status=status.HTTP_400_BAD_REQUEST)
 
         #check if the user can acces the models, and if data are valids
-        for result in request.data : 
-            serializer = ValidationTestResultSerializer (data=result, context=serializer_context)
-            if serializer.is_valid():  
-                instance_id = result['model_version_id']
-                instance = ScientificModelInstance.objects.get(id=instance_id)
-                model = ScientificModel.objects.get(id=instance.model_id)
-                if not user_has_acces_to_model(request, model) :
-                    return HttpResponseForbidden()
-            else :
-                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        for result in DATA : 
+            value = self.check_data(request, serializer_context, result)
+            if value is not True : 
+                return value
 
         list_id = []
-        for result in request.data : 
-            serializer = ValidationTestResultSerializer(data=result, context=serializer_context)
-            if serializer.is_valid(): 
-                res = serializer.save(model_version_id = result['model_version_id'], test_code_id = result['test_code_id'] )    
-                list_id.append(res.id) 
-    
+        for result in DATA : 
+            value = self.save_data(request, serializer_context, result, list_id)
+            if type(value) is list :
+                list_id = value
             else :
-                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+                return value
 
-        return Response({'uuid':list_id}, status=status.HTTP_201_CREATED) 
+        if len(list_id) > 0 :
+            return Response({'uuid':list_id}, status=status.HTTP_201_CREATED) 
+        else : 
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+
+    @classmethod
+    def check_data(self,  request, serializer_context, result):
+        serializer = ValidationTestResultSerializer (data=result, context=serializer_context)
+        if serializer.is_valid():  
+            instance_id = result['model_version_id']
+            instance = ScientificModelInstance.objects.get(id=instance_id)
+            model = ScientificModel.objects.get(id=instance.model_id)
+            if user_has_acces_to_model(request, model) :
+                return True
+            else : 
+                return HttpResponseForbidden()
+
+        else :
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+    @classmethod
+    def save_data(self, request,serializer_context, result, list_id):
+        serializer = ValidationTestResultSerializer(data=result, context=serializer_context)
+        if serializer.is_valid(): 
+            res = serializer.save(model_version_id = result['model_version_id'], test_code_id = result['test_code_id'] )    
+            list_id.append(res.id)  
+            return list_id
+        else :
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
         
+
+
+
 
     # def put(self, request, format=None):
     #     serializer_context = {'request': request,}
@@ -1685,8 +1842,6 @@ class ParametersConfigurationModelView(View):
 
 
     def get(self, request, *args, **kwargs):
-        print "ParametersConfigurationModelView"
-
         return render(request, self.template_name, {'app_type': "model_catalog"})
 
     @method_decorator(login_required(login_url='/login/hbp/'))
@@ -1696,16 +1851,16 @@ class ParametersConfigurationModelView(View):
      
 
 
-@method_decorator(login_required(login_url='/login/hbp'), name='dispatch' )
-class ParametersConfigurationView(View): 
+# @method_decorator(login_required(login_url='/login/hbp'), name='dispatch' )
+# class ParametersConfigurationView(View): 
 
     
-    template_name = "configuration/parameters-configuration.html"
-    login_url='/login/hbp/'
+#     template_name = "configuration/parameters-configuration.html"
+#     login_url='/login/hbp/'
 
-    def get(self, request, *args, **kwargs):
-        print "ParametersConfigurationView"  
-        return render(request, self.template_name)
+#     def get(self, request, *args, **kwargs):
+#         print "ParametersConfigurationView"  
+#         return render(request, self.template_name)
 
 class  AreVersionsEditableRest(APIView):
     def get(self, request, *args, **kwargs):
@@ -1719,6 +1874,7 @@ class  AreVersionsEditableRest(APIView):
             for test_code in list(test_codes): 
                 if _are_test_code_editable(test_code):
                     list_ids_editable.append(test_code.id)
+        
         if len(model_id)>0:
             model_instances = ScientificModelInstance.objects.filter(model_id__in=model_id)
             for model_instance in model_instances: 

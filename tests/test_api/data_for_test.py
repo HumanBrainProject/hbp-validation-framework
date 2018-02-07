@@ -84,6 +84,9 @@ from model_validation_api.validation_framework_toolbox.fill_db import (
         create_specific_model,
         create_specific_result,
         create_specific_modelinstance,
+        create_specific_ticket,
+        create_specific_comment,
+        create_specific_image,
 )
 
 
@@ -93,7 +96,7 @@ from model_validation_api.validation_framework_toolbox.fill_db import (
 class DataForTests:
     def __init__(self):
         create_all_parameters()
-        create_fake_collab(id='1', 
+        self.collab1 = create_fake_collab(id='1', 
                         collab_id='2169',
                         data_modality='electrophysiology', 
                         test_type='single cell activity', 
@@ -102,8 +105,9 @@ class DataForTests:
                         cell_type = 'Interneuron',
                         model_type = 'Single Cell',
                         organization = '',
+                        app_type = "model_catalog",
                         )
-        create_fake_collab(id='2', 
+        self.collab2 = create_fake_collab(id='2', 
                         collab_id='9000',
                         data_modality='electrophysiology', 
                         test_type='single cell activity', 
@@ -112,6 +116,8 @@ class DataForTests:
                         cell_type = 'Interneuron',
                         model_type = 'Single Cell',
                         organization = '',
+                        app_type = "validation_app",
+                        
                         
                         )
 
@@ -204,6 +210,70 @@ class DataForTests:
                             repository = "repo3",
                             path = "path3",
                             )
+
+        self.uuid_test1_ticket = uuid.uuid4()
+        self.uuid_test1_bis_ticket = uuid.uuid4()
+        self.uuid_test2_ticket = uuid.uuid4()
+
+        self.uuid_test1_ticket_comment = uuid.uuid4()
+        self.uuid_test1_bis_ticket_comment = uuid.uuid4()
+        self.uuid_test2_ticket_comment = uuid.uuid4()
+
+        self.ticket1 = create_specific_ticket (
+                                                self.uuid_test1_ticket, 
+                                                self.test1,
+                                                author = "me1",
+                                                title = "title1",
+                                                text = "text1",
+                                                creation_date = "2017-01-24T14:59:26.031Z", 
+                                            )
+        self.ticket2 = create_specific_ticket (
+                                                self.uuid_test1_bis_ticket, 
+                                                self.test1_bis,
+                                                author = "me2",
+                                                title = "title2",
+                                                text = "text2",
+                                                creation_date = "2017-01-24T14:59:26.031Z", 
+                                                
+                                            )
+        self.ticket3 = create_specific_ticket (
+                                                self.uuid_test2_ticket, 
+                                                self.test2,
+                                                author = "me3",
+                                                title = "title3",
+                                                text = "text3",
+                                                creation_date = "2017-01-24T14:59:26.031Z", 
+                                                
+                                            )
+
+        self.comment1 = create_specific_comment (
+                                                self.uuid_test1_ticket_comment, 
+                                                self.ticket1,
+                                                author = "me1",
+                                                text = "text1",
+                                                creation_date = "2017-01-24T14:59:26.031Z", 
+                                                
+                                                )
+
+        self.comment2 = create_specific_comment (
+                                                self.uuid_test1_bis_ticket_comment, 
+                                                self.ticket2,
+                                                author = "me2",
+                                                text = "text2",
+                                                creation_date = "2017-01-24T14:59:26.031Z", 
+                                                
+                                                )
+
+        self.comment3 = create_specific_comment (
+                                                self.uuid_test2_ticket_comment, 
+                                                self.ticket3,
+                                                author = "me3",
+                                                text = "text3",
+                                                creation_date = "2017-01-24T14:59:26.031Z", 
+                                                
+                                                )
+
+
 
 
         self.uuid_model1 = uuid.uuid4()
@@ -326,6 +396,35 @@ class DataForTests:
                             
                             )
 
+        self.uuid_modelimage1 = uuid.uuid4()
+        self.uuid_modelimage1_bis_private = uuid.uuid4()
+        self.uuid_modeliimage2 = uuid.uuid4()
+        self.uuid_modeliimage3 = uuid.uuid4()
+        self.image1 = create_specific_image (
+                            self.uuid_modelimage1,
+                            self.model1,
+                            url = "http://.aa1.com",
+                            caption = "caption1",
+                            )
+        self.image2 = create_specific_image (
+                            self.uuid_modelimage1_bis_private,
+                            self.model1_bis_private,
+                            url = "http://.aa2.com",
+                            caption = "caption2",
+                            )
+        self.image3 = create_specific_image (
+                            self.uuid_modeliimage2,
+                            self.model2,
+                            url = "http://.aa3.com",
+                            caption = "caption3",
+                            )
+        self.image4 = create_specific_image (
+                            self.uuid_modeliimage3,
+                            self.model3,
+                            url = "http://.aa3.com",
+                            caption = "caption3",
+                            )
+
 
         self.uuid_resultM1_T1 = uuid.uuid4()
         self.uuid_resultM1_T2 = uuid.uuid4()
@@ -351,15 +450,15 @@ class DataForTests:
                             project = "azerty2",
                             )
 
-        self.resultM1_bis_T1_bis = create_specific_result (
-                            self.uuid_resultM1_bis_T1_bis, 
-                            model_version = self.modelinstance1_bis_private, 
-                            test_code = self.testcode1_bis, 
-                            result_storage = "storage3", 
-                            score=  3.0, 
-                            platform = "azerty3",
-                            project = "azerty3",
-                            )
+        # self.resultM1_bis_T1_bis = create_specific_result (
+        #                     self.uuid_resultM1_bis_T1_bis, 
+        #                     model_version = self.modelinstance1_bis_private, 
+        #                     test_code = self.testcode1_bis, 
+        #                     result_storage = "storage3", 
+        #                     score=  3.0, 
+        #                     platform = "azerty3",
+        #                     project = "azerty3",
+        #                     )
         self.resultM2_T2 = create_specific_result (
                             self.uuid_resultM2_T2, 
                             model_version = self.modelinstance2, 

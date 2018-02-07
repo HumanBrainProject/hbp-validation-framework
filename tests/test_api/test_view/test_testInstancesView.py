@@ -1,120 +1,12 @@
-"""
-Tests of the ValidationFramework TestsView.
-"""
+# """
+# Tests of the ValidationFramework TestsView.
+# """
 
-from __future__ import unicode_literals
-
-import os
-import random
-import json
-
-from uuid import uuid4
-import uuid
-
-import time
-from datetime import datetime
-
-
-from django.test import TestCase, Client, RequestFactory
-# SimpleTestCase, TransactionTestCase, TestCase, LiveServerTestCase, assertRedirects
-from django.contrib.auth.models import User
-from social.apps.django_app.default.models import UserSocialAuth
-from hbp_app_python_auth.auth import get_access_token, get_token_type, get_auth_header
-
-from rest_framework.test import APIRequestFactory
-
-from model_validation_api.models import (ValidationTestDefinition, 
-                        ValidationTestCode,
-                        ValidationTestResult, 
-                        ScientificModel, 
-                        ScientificModelInstance,
-                        ScientificModelImage,   
-                        Comments,
-                        Tickets,
-                        # FollowModel,
-                        CollabParameters,
-                        Param_DataModalities,
-                        Param_TestType,
-                        Param_Species,
-                        Param_BrainRegion,
-                        Param_CellType,
-                        Param_ModelType,
-                        Param_ScoreType,
-                        Param_organizations,
-                        )
-
-from validation_service.views import config, home
-
-from model_validation_api.views import (
-                    ModelCatalogView,
-                    HomeValidationView,
-
-                    ParametersConfigurationRest,
-                    AuthorizedCollabParameterRest,
-                    Models,
-                    ModelAliases,
-                    Tests,
-                    TestAliases,
-                    ModelInstances,
-                    Images,
-                    TestInstances,
-                    TestCommentRest,
-                    CollabIDRest,
-                    AppIDRest,
-                    AreVersionsEditableRest,
-                    ParametersConfigurationModelView,
-                    ParametersConfigurationValidationView,
-                    TestTicketRest,
-                    IsCollabMemberRest,
-                    Results,
-                    CollabAppID,
-
-                    )
-
-from model_validation_api.validation_framework_toolbox.fill_db import (
-        create_data_modalities,
-        create_organizations,
-        create_test_types,
-        create_score_type,
-        create_species,
-        create_brain_region,
-        create_cell_type,
-        create_model_type,
-        create_models_test_results,
-        create_fake_collab,
-        create_all_parameters,
-        create_specific_test,
-        create_specific_testcode,
-)
-
-from ..auth_for_test_taken_from_validation_clien import BaseClient
-
-from ..data_for_test import DataForTests
+from test_base import *
 
 
 
-username_authorized = os.environ.get('HBP_USERNAME_AUTHORIZED')
-password_authorized = os.environ.get('HBP_PASSWORD_AUTHORIZED')
-base_client_authorized = BaseClient(username = username_authorized, password=password_authorized)
-client_authorized = Client(HTTP_AUTHORIZATION=base_client_authorized.token)
-
-#jgonintesting
-# username_not_authorized = os.environ.get('HBP_USERNAME_NOT_AUTHORIZED')
-# password_not_authorized = os.environ.get('HBP_PASSWORD_NOT_AUTHORIZED')
-# base_client_not_authorized = BaseClient(username = username_not_authorized, password=password_not_authorized)
-# client_not_authorized = Client(HTTP_AUTHORIZATION=base_client_not_authorized.token)
-
-
-# username_authorized = os.environ.get('HBP_USERNAME_NOT_AUTHORIZED')
-# password_authorized = os.environ.get('HBP_PASSWORD_NOT_AUTHORIZED')
-
-# base_client_authorized = BaseClient(username = username_authorized, password=password_authorized)
-# client_authorized = Client(HTTP_AUTHORIZATION=base_client_authorized.token)
-
-    
-
-
-class TestsInstancesViewTest(TestCase):
+class TestInstancesViewTest(TestCase):
     
     @classmethod
     def setUpTestData(cls):
@@ -151,7 +43,6 @@ class TestsInstancesViewTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(codes), 3)
         self.compare_serializer_keys(codes=codes, targeted_keys_list_type='standard')
-
 
 
     def test_get_param_id (self):
@@ -209,3 +100,212 @@ class TestsInstancesViewTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(codes), 1)
         self.compare_serializer_keys(codes=codes, targeted_keys_list_type='standard')
+
+    def test_post_no_data (self):
+        data= {}
+        data = json.dumps(data)
+        response = client_authorized.post('/test-instances/', data = data,  content_type='application/json')
+
+        self.assertEqual(response.status_code, 400)
+
+    def test_post(self):
+        data = {
+                'version':"ssdsfgs", 
+                'test_definition_id': str(self.data.test1.id),
+                'repository' : "http://sd.com",
+                'path' : "http://sd.com",
+        }
+             
+        data = json.dumps(data)
+        response = client_authorized.post('/test-instances/', data = data,  content_type='application/json')
+        results = json.loads(response._container[0])['uuid']
+        
+        self.assertEqual(response.status_code, 201)
+
+        response = client_authorized.get('/test-instances/', data={'id': results})
+        codes = json.loads(response._container[0])['test_codes']
+        
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(codes), 1)
+        self.compare_serializer_keys(codes=codes, targeted_keys_list_type='standard')
+
+
+    def test_put(self):
+        data = {
+            'version':"ssdsfgs", 
+            'test_definition_id': str(self.data.test1.id),
+            'repository' : "http://sd.com",
+            'path' : "http://sd.com",
+        }
+             
+        data = json.dumps(data)
+        response = client_authorized.post('/test-instances/', data = data,  content_type='application/json')
+        results = json.loads(response._container[0])['uuid']
+        response = client_authorized.get('/test-instances/', data={'id': results})
+        self.assertEqual(response.status_code, 200)
+        
+        instances1 = json.loads(response._container[0])['test_codes']
+
+        data2 = {
+            'id': instances1[0]['id'],
+            'version':"ssdsfgsds", 
+            'test_definition_id': str(self.data.test1.id),
+            'repository' : "http://sd.com",
+            'path' : "http://sd.com",
+        }
+        data2_json = json.dumps(data2)
+        response = client_authorized.put('/test-instances/', data = data2_json,  content_type='application/json')
+
+        self.assertEqual(response.status_code, 202)
+
+        results = json.loads(response._container[0])['uuid'][0]['id']
+        response = client_authorized.get('/test-instances/', data={'id': results})
+
+        instances2 = json.loads(response._container[0])['test_codes']
+
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(instances2), 1)
+        self.compare_serializer_keys(codes=instances2, targeted_keys_list_type='standard')
+
+        self.assertEqual(instances2[0]['version'],data2['version'] )
+        self.assertEqual(instances2[0]['id'],instances1[0]['id'] )
+
+
+    def test_put_bad_id(self):
+        data = {
+            'version':"ssdsfgs", 
+            'test_definition_id': str(self.data.test1.id),
+            'repository' : "http://sd.com",
+            'path' : "http://sd.com",
+        }
+             
+        data = json.dumps(data)
+        response = client_authorized.post('/test-instances/', data = data,  content_type='application/json')
+        results = json.loads(response._container[0])['uuid']
+        response = client_authorized.get('/test-instances/', data={'id': results})
+        self.assertEqual(response.status_code, 200)
+        
+        instances1 = json.loads(response._container[0])['test_codes']
+
+        data2 = {
+            'id': instances1[0]['id']+"888",
+            'version':"ssdsfgsds", 
+            'test_definition_id': str(self.data.test1.id),
+            'repository' : "http://sdddd.com",
+            'path' : "http://sd.com",
+        }
+        data2_json = json.dumps(data2)
+        response = client_authorized.put('/test-instances/', data = data2_json,  content_type='application/json')
+
+        self.assertEqual(response.status_code, 400)
+
+
+    def test_put_no_id_but_test_alias(self):
+        data = {
+            'version':"ssdsfgs", 
+            'test_definition_id': str(self.data.test1.id),
+            'repository' : "http://sd.com",
+            'path' : "http://sd.com",
+        }
+             
+        data = json.dumps(data)
+        response = client_authorized.post('/test-instances/', data = data,  content_type='application/json')
+        results = json.loads(response._container[0])['uuid']
+        response = client_authorized.get('/test-instances/', data={'id': results})
+        self.assertEqual(response.status_code, 200)
+        
+        instances1 = json.loads(response._container[0])['test_codes']
+
+        data2 = {
+            'test_alias': str(self.data.test1.alias),
+            'version':"ssdsfgs", 
+            'repository' : "http://sdddd.com",
+            'path' : "http://sd.com",
+        }
+        data2_json = json.dumps(data2)
+        response = client_authorized.put('/test-instances/', data = data2_json,  content_type='application/json')
+
+        self.assertEqual(response.status_code, 202)
+
+
+        results = json.loads(response._container[0])['uuid'][0]['id']
+        response = client_authorized.get('/test-instances/', data={'id': results})
+
+        instances2 = json.loads(response._container[0])['test_codes']
+
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(instances2), 1)
+        self.compare_serializer_keys(codes=instances2, targeted_keys_list_type='standard')
+
+        self.assertEqual(instances2[0]['repository'],data2['repository'] )
+        self.assertEqual(instances2[0]['id'],instances1[0]['id'] )
+
+
+
+    def test_put_no_id_but_test_definition_id(self):
+        data = {
+            'version':"ssdsfgs", 
+            'test_definition_id': str(self.data.test1.id),
+            'repository' : "http://sd.com",
+            'path' : "http://sd.com",
+        }
+             
+        data = json.dumps(data)
+        response = client_authorized.post('/test-instances/', data = data,  content_type='application/json')
+        results = json.loads(response._container[0])['uuid']
+        response = client_authorized.get('/test-instances/', data={'id': results})
+        self.assertEqual(response.status_code, 200)
+        
+        instances1 = json.loads(response._container[0])['test_codes']
+
+        data2 = {
+            'version':"ssdsfgs", 
+            'test_definition_id': str(self.data.test1.id),
+            'repository' : "http://sdddd.com",
+            'path' : "http://sd.com",
+        }
+        data2_json = json.dumps(data2)
+        response = client_authorized.put('/test-instances/', data = data2_json,  content_type='application/json')
+
+        self.assertEqual(response.status_code, 202)
+
+        results = json.loads(response._container[0])['uuid'][0]['id']
+        response = client_authorized.get('/test-instances/', data={'id': results})
+
+        instances2 = json.loads(response._container[0])['test_codes']
+
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(instances2), 1)
+        self.compare_serializer_keys(codes=instances2, targeted_keys_list_type='standard')
+
+        self.assertEqual(instances2[0]['repository'],data2['repository'] )
+        self.assertEqual(instances2[0]['id'],instances1[0]['id'] )       
+
+    def test_put_no_id_no_version(self):
+        data = {
+            'version':"ssdsfgs", 
+            'test_definition_id': str(self.data.test1.id),
+            'repository' : "http://sd.com",
+            'path' : "http://sd.com",
+        }
+             
+        data = json.dumps(data)
+        response = client_authorized.post('/test-instances/', data = data,  content_type='application/json')
+        results = json.loads(response._container[0])['uuid']
+        response = client_authorized.get('/test-instances/', data={'id': results})
+        self.assertEqual(response.status_code, 200)
+        
+        instances1 = json.loads(response._container[0])['test_codes']
+
+        data2 = {
+            'test_definition_id': str(self.data.test1.id),
+            'repository' : "http://sdddd.com",
+            'path' : "http://sd.com",
+        }
+        data2_json = json.dumps(data2)
+        response = client_authorized.put('/test-instances/', data = data2_json,  content_type='application/json')
+
+        self.assertEqual(response.status_code, 400)
