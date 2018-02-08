@@ -982,6 +982,10 @@ class Models(APIView):
         ## save only modifications on model. if you want to modify images or instances, do separate put.  
         ##get objects 
         value = request.data['models'][0]
+        app_id = request.GET.getlist('app_id')
+        if len(app_id) > 0 :
+            value['app_id'] = app_id[0]
+
         if 'id' in value and value['id'] != '':
             model = ScientificModel.objects.get(id=value['id'])
         else:
