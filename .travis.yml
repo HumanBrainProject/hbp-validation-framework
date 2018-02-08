@@ -1,0 +1,18 @@
+language: python
+python:
+  - "2.7"
+#   - "3.4"
+#   - "3.5"
+#   - "3.6"  
+
+# command to install dependencies
+install:
+  - pip install -r requirements.txt
+#   - pip install coveralls
+#   - pip install . 
+# command to run tests, e.g. python setup.py test
+script:
+  python ./validation_service/manage.py test tests/test_api/test_view/
+#   nosetests --with-coverage --cover-package=neo
+after_success:
+#   coveralls
