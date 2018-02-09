@@ -588,7 +588,6 @@
                             <td colspan=2 class=tr-clickable ng-click=Context.validation_goToModelDetailView(model_instance.model_id)>model #{{model_instance.line_id}} </td>
 
                             <td colspan=2 ng-repeat="test_code in model_instance.test_instances">
-                                {{test_code}}
                                 <div ng-if="test_code.results.length <= 3">
                                     <table>
                                         <thead> </thead>
