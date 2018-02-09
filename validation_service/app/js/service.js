@@ -703,7 +703,6 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'Context', 'ValidationResult
         var get_lines_options = function(title, subtitle, Yaxislabel, caption, results_data, type, graph_key, abscissa_value) {
 
             var yminymax = _get_min_max_yvalues(results_data);
-            console.log('yminymax', yminymax)
             var xminxmax = _get_min_max_xvalues(abscissa_value);
 
             options = {
@@ -857,9 +856,9 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'Context', 'ValidationResult
 
         //tests graphs
 
-        var getRawDataForTest = function(test_versions) {
+        var TestGraph_getRawData = function(test_versions) {
             return new Promise(function(resolve, reject) {
-                var test_id = test_versions.test_codes[0].test_id;
+                var test_id = test_versions.test_codes[0].test_definition_id;
                 var get_raw_data = ValidationResultRest.get({ app_id: Context.getAppID(), test_id: test_id, order: 'model_instance' });
                 get_raw_data.$promise.then(function(raw_data) {
                     resolve(raw_data);
@@ -867,7 +866,7 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'Context', 'ValidationResult
             });
         };
 
-        var init_TestGraph = function(test_versions, raw_data) {
+        var TestGraph_initTestGraph = function(test_versions, raw_data) {
             return new Promise(function(resolve, reject) {
                 var graph_values = [];
                 var list_line_ids = [];
@@ -876,7 +875,7 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'Context', 'ValidationResult
 
                 var colors; //color array for the graph
 
-                abscissa_values = _get_abscissaValues(test_versions); //abscissa array for graphs
+                abscissa_values = TestGraph_getAbscissaValues(test_versions); //abscissa array for graphs
 
 
                 raw_data.$promise.then(function() {
@@ -887,21 +886,21 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'Context', 'ValidationResult
 
                         var model_id = raw_data.model_instances[instance].model_id;
 
-                        var line_id = _get_line_id(raw_data.model_instances[instance])
+                        var line_id = TestGraph_getLineId(raw_data.model_instances[instance])
 
                         list_line_ids.push(line_id)
                             //manage data for graph
-                        graph_values.push(_manageDataForTestGraph(raw_data.model_instances[instance].test_codes, raw_data.model_instances[instance].timestamp, line_id, model_id, instance, abscissa_values, colors[instance]));
-                        results.push(_manage_data_for_results_tab(raw_data.model_instances[instance]))
+                        graph_values.push(TestGraph_manageDataForTestGraph(raw_data.model_instances[instance].test_codes, raw_data.model_instances[instance].timestamp, line_id, model_id, instance, abscissa_values, colors[instance]));
+                        results.push(TestGraph__manageDataForResultsTab(raw_data.model_instances[instance]))
                     }
-                    var latest_model_instances_line_id = get_latest_version_model(graph_values, list_line_ids);
+                    var latest_model_instances_line_id = TestGraph_getLatestVersionModel(graph_values, list_line_ids);
                     resolve({ 'values': graph_values, 'results': results, 'list_ids': list_line_ids, 'abs_info': abscissa_values, 'latest_model_instances_line_id': latest_model_instances_line_id });
                 });
 
             });
         }
 
-        var get_latest_version_model = function(values, list_ids) {
+        var TestGraph_getLatestVersionModel = function(values, list_ids) {
             var latest_version_of_models = [];
             var models_array = [];
 
@@ -926,7 +925,7 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'Context', 'ValidationResult
 
             return latest_version_of_models;
         }
-        var _get_abscissaValues = function(test_versions) {
+        var TestGraph_getAbscissaValues = function(test_versions) {
             var abscissa_value = [];
 
             for (var tv in test_versions.test_codes) {
@@ -937,7 +936,7 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'Context', 'ValidationResult
             return abscissa_value;
         }
 
-        var _get_line_id = function(instance) {
+        var TestGraph_getLineId = function(instance) {
             var line_id;
             if (instance.model_alias && instance.model_alias !== null && instance.model_alias !== '' && instance.model_alias !== "None") {
                 line_id = instance.model_alias + ' ( ' + instance.version + ' )';
@@ -947,7 +946,7 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'Context', 'ValidationResult
             return line_id;
         }
 
-        var _manage_data_for_results_tab = function(instance) {
+        var TestGraph__manageDataForResultsTab = function(instance) {
             var results = [];
             for (var c in instance.test_codes) {
                 var additional_data = {
@@ -966,7 +965,7 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'Context', 'ValidationResult
             return results;
         }
 
-        var _manageDataForTestGraph = function(data, timestamp, line_id, model_id, instance_id, abscissa_value, color) {
+        var TestGraph_manageDataForTestGraph = function(data, timestamp, line_id, model_id, instance_id, abscissa_value, color) {
             var values_temp = [];
             for (var c in data) {
                 for (var r in data[c].results) {
@@ -993,7 +992,7 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'Context', 'ValidationResult
             return (data_to_return);
         }
 
-        var _reorganize_raw_data_for_result_table = function(model_instances) {
+        var TestGraph_reorganizeRawDataForResultTable = function(model_instances, code_versions) {
             var organized_data = new Object();
             organized_data.model_instances = [];
 
@@ -1001,7 +1000,7 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'Context', 'ValidationResult
                 var instance = new Object();
 
                 var model_id = model_instances[model_instance].model_id;
-                var line_id = _get_line_id(model_instances[model_instance]);
+                var line_id = TestGraph_getLineId(model_instances[model_instance]);
 
                 instance.timestamp = model_instances[model_instance].timestamp;
                 instance.id = model_instance;
@@ -1009,6 +1008,10 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'Context', 'ValidationResult
                 instance.model_name = model_instances[model_instance].model_name;
                 instance.line_id = line_id;
                 instance.test_instances = [];
+
+                for (var c in code_versions) {
+                    instance.test_instances.push(code_versions[c]);
+                }
 
                 for (var test_instance in model_instances[model_instance].test_codes) {
                     var code = new Object();
@@ -1024,10 +1027,16 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'Context', 'ValidationResult
                     }
                     //order results by timestamp
                     code.results = code.results.sort(_sort_results_by_timestamp_desc);
-                    instance.test_instances.push(code);
+
+                    for (var i in instance.test_instances) {
+                        if (instance.test_instances[i].version == code.version) {
+                            instance.test_instances[i] = code;
+                        }
+                    }
                 }
+
                 //order test_instances by timestamp
-                instance.last_result_timestamp = _get_last_result_timestamp(instance.test_instances);
+                instance.last_result_timestamp = TestGraph_getLastResultTimestamp(instance.test_instances);
                 instance.test_instances = instance.test_instances.sort(_sort_results_by_timestamp_asc);
                 organized_data.model_instances.push(instance);
             }
@@ -1037,25 +1046,27 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'Context', 'ValidationResult
             return organized_data;
         };
 
-        var _get_last_result_timestamp = function(codes) {
+        var TestGraph_getLastResultTimestamp = function(codes) {
             var newest_timestamp = undefined;
             for (var code in codes) {
-                var timestamp = codes[code].results[0].timestamp;
-                if (newest_timestamp == undefined || (newest_timestamp && timestamp < newest_timestamp)) {
-                    newest_timestamp = timestamp;
+                if (codes[code].results) {
+                    var timestamp = codes[code].results[0].timestamp;
+                    if (newest_timestamp == undefined || (newest_timestamp && timestamp < newest_timestamp)) {
+                        newest_timestamp = timestamp;
+                    }
                 }
             }
             return newest_timestamp;
         }
 
-        var get_mor_recent_versions_graph_values = function(list_version_ids, test_versions, raw_data) {
+        var TestGraph_getMoreRecentVersionsGraphValues = function(list_version_ids, test_versions, raw_data) {
             return new Promise(function(resolve, reject) {
                 var graph_values = [];
                 var abscissa_values = [];
 
                 var colors; //color array for the graph
 
-                abscissa_values = _get_abscissaValues(test_versions); //abscissa array for graphs
+                abscissa_values = TestGraph_getAbscissaValues(test_versions); //abscissa array for graphs
 
                 raw_data.$promise.then(function() {
                     colors = _get_color_array(raw_data.model_instances);
@@ -1063,10 +1074,10 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'Context', 'ValidationResult
 
                         if (list_version_ids.includes(instance)) {
                             var model_id = raw_data.model_instances[instance].model_id;
-                            var line_id = _get_line_id(raw_data.model_instances[instance])
+                            var line_id = TestGraph_getLineId(raw_data.model_instances[instance])
 
                             //manage data for graph
-                            graph_values.push(_manageDataForTestGraph(raw_data.model_instances[instance].test_codes, line_id, model_id, instance, abscissa_values, colors[instance]));
+                            graph_values.push(TestGraph_manageDataForTestGraph(raw_data.model_instances[instance].test_codes, line_id, model_id, instance, abscissa_values, colors[instance]));
                         }
                     }
                     resolve(graph_values);
@@ -1074,8 +1085,9 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'Context', 'ValidationResult
             });
         }
 
+
         // Model detail graphs
-        var getRawDataForModel = function(model_id, score_type_array) {
+        var ModelGraph_getRawData = function(model_id, score_type_array) {
             return new Promise(function(resolve, reject) {
                 var get_raw_data = ValidationResultRest.get({ app_id: Context.getAppID(), model_id: model_id, order: 'score_type' });
                 get_raw_data.$promise.then(function(raw_data) {
@@ -1085,17 +1097,8 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'Context', 'ValidationResult
             })
         };
 
-        var _get_all_graph_values = function(single_graphs_data) {
-            all_values = [];
-            for (var i in single_graphs_data) {
-                for (var j in single_graphs_data[i].values.values) {
-                    all_values.push(single_graphs_data[i].values.values[j]);
-                }
-            }
-            return all_values
-        }
 
-        var init_ModelGraphs = function(model_instances, raw_data) {
+        var ModelGraph_init_Graphs = function(model_instances, raw_data) {
             return new Promise(function(resolve, reject) {
 
                 var abscissa_value = [];
@@ -1103,18 +1106,28 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'Context', 'ValidationResult
                 var single_graphs_datas = [];
 
                 for (var sc_t in raw_data.score_type) {
-                    abscissa_value = _ModelGraph_getAbscissaValue(model_instances);
+                    abscissa_value = ModelGraph_getAbscissaValue(model_instances);
 
-                    single_graphs_datas.push({ score_type: sc_t, values: init_single_ModelGraph(raw_data.score_type[sc_t], abscissa_value, sc_t) });
+                    single_graphs_datas.push({ score_type: sc_t, values: ModelGraph_init_single_ModelGraphs(raw_data.score_type[sc_t], abscissa_value, sc_t) });
                 }
 
-                var all_graphs_values = _get_all_graph_values(single_graphs_datas);
+                var all_graphs_values = ModelGraph_get_all_graph_values(single_graphs_datas);
 
                 resolve({ 'values': all_graphs_values, 'single_graphs_data': single_graphs_datas })
 
             });
         }
-        var init_single_ModelGraph = function(raw_data, abscissa_value, score_type) {
+
+        var ModelGraph_getAbscissaValue = function(model_instances) {
+            var abscissa_value = [];
+            for (var mi in model_instances.instances) {
+                var version_name = model_instances.instances[mi].version;
+                abscissa_value[version_name] = parseInt(mi);
+            }
+            return abscissa_value;
+        }
+
+        var ModelGraph_init_single_ModelGraphs = function(raw_data, abscissa_value, score_type) {
 
             var graph_values = [];
             var list_line_ids = [];
@@ -1126,20 +1139,30 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'Context', 'ValidationResult
 
             for (var code in raw_data.test_codes) {
 
-                var line_id = _ModelGraph_getLineId(raw_data.test_codes[code]);
+                var line_id = ModelGraph_getLineId(raw_data.test_codes[code]);
                 var test_id = raw_data.test_codes[code].test_id;
                 list_line_ids.push(line_id);
                 raw_data.test_codes[code].line_id = line_id;
-                graph_values.push(_ModelGraph_manageDataForGraph(raw_data.test_codes[code].timestamp, raw_data.test_codes[code].model_instances, line_id, test_id, score_type, abscissa_value, colors[code]));
-                results.push(_ModelGraph_manageDataForResultsTab(raw_data.test_codes[code]))
+                graph_values.push(ModelGraph_manageDataForGraph(raw_data.test_codes[code].timestamp, raw_data.test_codes[code].model_instances, line_id, test_id, score_type, abscissa_value, colors[code]));
+                results.push(ModelGraph_manageDataForResultsTab(raw_data.test_codes[code]))
             }
 
-            var latest_test_versions_line_id = get_latest_version_test(graph_values, list_line_ids);
-            console.log("result latest", latest_test_versions_line_id)
+            var latest_test_versions_line_id = ModelGraph_get_latest_version_test(graph_values, list_line_ids);
+
             return ({ 'values': graph_values, 'results': results, 'list_ids': list_line_ids, 'abs_info': abscissa_value, 'latest_test_versions_line_id': latest_test_versions_line_id });
         }
 
-        var get_latest_version_test = function(values, list_ids) {
+        var ModelGraph_get_all_graph_values = function(single_graphs_data) {
+            all_values = [];
+            for (var i in single_graphs_data) {
+                for (var j in single_graphs_data[i].values.values) {
+                    all_values.push(single_graphs_data[i].values.values[j]);
+                }
+            }
+            return all_values
+        }
+
+        var ModelGraph_get_latest_version_test = function(values, list_ids) {
 
             var latest_version_of_tests = [];
             var tests_array = [];
@@ -1166,16 +1189,7 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'Context', 'ValidationResult
             return latest_version_of_tests;
         }
 
-        var _ModelGraph_getAbscissaValue = function(model_instances) {
-            var abscissa_value = [];
-            for (var mi in model_instances.instances) {
-                var version_name = model_instances.instances[mi].version;
-                abscissa_value[version_name] = parseInt(mi);
-            }
-            return abscissa_value;
-        }
-
-        var _ModelGraph_getLineId = function(code) {
+        var ModelGraph_getLineId = function(code) {
             var line_id;
             if (code.test_alias && code.test_alias != null && code.test_alias != '' && code.test_alias != 'None') {
                 line_id = code.test_alias + ' ( ' + code.version + ' )';
@@ -1185,7 +1199,7 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'Context', 'ValidationResult
             return line_id;
         }
 
-        var _ModelGraph_manageDataForResultsTab = function(code) {
+        var ModelGraph_manageDataForResultsTab = function(code) {
             var results = [];
             for (var v in code.model_instances) {
                 var keys = Object.keys(code.model_instances[v].results);
@@ -1196,7 +1210,7 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'Context', 'ValidationResult
             return results;
         }
 
-        var _ModelGraph_manageDataForGraph = function(timestamp, data, line_id, test_id, score_type, abscissa_value, color) {
+        var ModelGraph_manageDataForGraph = function(timestamp, data, line_id, test_id, score_type, abscissa_value, color) {
             var values_temp = [];
 
             for (var v in data) {
@@ -1221,7 +1235,7 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'Context', 'ValidationResult
             };
             return data_to_return;
         }
-        var _ModelGraphs_reorganizeRawDataForResultTable = function(raw_data) {
+        var ModelGraphs_reorganizeRawDataForResultTable = function(raw_data, model_instances) {
             var organized_data = new Object();
             organized_data.test_codes = [];
 
@@ -1238,6 +1252,10 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'Context', 'ValidationResult
                     code.line_id = raw_data.score_type[score_type].test_codes[test_code].line_id;
                     code.model_instances = [];
 
+                    for (var i in model_instances) {
+                        code.model_instances.push(model_instances[i]);
+                    }
+
                     for (var model_instance in raw_data.score_type[score_type].test_codes[test_code].model_instances) {
                         var instance = new Object();
                         instance.version = raw_data.score_type[score_type].test_codes[test_code].model_instances[model_instance].version;
@@ -1252,10 +1270,15 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'Context', 'ValidationResult
                         }
                         //order results by timestamp
                         instance.results = instance.results.sort(_sort_results_by_timestamp_desc);
-                        code.model_instances.push(instance);
+                        for (var j in code.model_instances) {
+                            if (code.model_instances[j].version == instance.version) {
+                                code.model_instances[j] = instance;
+                            }
+                        }
+                        // code.model_instances.push(instance);
                     }
                     //order test_instances by timestamp
-                    code.last_result_timestamp = _get_last_result_timestamp(code.model_instances);
+                    code.last_result_timestamp = TestGraph_getLastResultTimestamp(code.model_instances);
                     code.model_instances = code.model_instances.sort(_sort_results_by_timestamp_asc);
                     organized_data.test_codes.push(code);
                 }
@@ -1266,6 +1289,7 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'Context', 'ValidationResult
             return organized_data;
         };
 
+        //utilitary functions
         var _get_color_array = function(data_row) {
             list_ids = [];
             for (var i in data_row) {
@@ -1305,7 +1329,6 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'Context', 'ValidationResult
             }
             return color;
         };
-        //graphic options
 
         var _get_min_max_yvalues = function(results_data) {
             if (results_data[0]) {
@@ -1362,13 +1385,13 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'Context', 'ValidationResult
             get_lines_options: get_lines_options,
             find_result_in_data: find_result_in_data,
             focus: focus,
-            getRawDataForTest: getRawDataForTest,
-            getRawDataForModel: getRawDataForModel,
-            _reorganize_raw_data_for_result_table: _reorganize_raw_data_for_result_table,
-            get_mor_recent_versions_graph_values: get_mor_recent_versions_graph_values,
-            init_TestGraph: init_TestGraph,
-            init_ModelGraphs: init_ModelGraphs,
-            _ModelGraphs_reorganizeRawDataForResultTable: _ModelGraphs_reorganizeRawDataForResultTable,
+            TestGraph_getRawData: TestGraph_getRawData,
+            ModelGraph_getRawData: ModelGraph_getRawData,
+            TestGraph_reorganizeRawDataForResultTable: TestGraph_reorganizeRawDataForResultTable,
+            TestGraph_getMoreRecentVersionsGraphValues: TestGraph_getMoreRecentVersionsGraphValues,
+            TestGraph_initTestGraph: TestGraph_initTestGraph,
+            ModelGraph_init_Graphs: ModelGraph_init_Graphs,
+            ModelGraphs_reorganizeRawDataForResultTable: ModelGraphs_reorganizeRawDataForResultTable,
             getUpdatedGraph: getUpdatedGraph,
             _sort_by_last_result_timestamp_desc: _sort_by_last_result_timestamp_desc,
             _sort_results_by_timestamp_desc: _sort_results_by_timestamp_desc,
