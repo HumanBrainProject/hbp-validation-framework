@@ -1,116 +1,9 @@
-"""
-Tests of the ValidationFramework TestsView.
-"""
-
-from __future__ import unicode_literals
-
-import os
-import random
-import json
-
-from uuid import uuid4
-import uuid
-
-import time
-from datetime import datetime
+# """
+# Tests of the ValidationFramework TestsView.
+# """
 
 
-from django.test import TestCase, Client, RequestFactory
-# SimpleTestCase, TransactionTestCase, TestCase, LiveServerTestCase, assertRedirects
-from django.contrib.auth.models import User
-from social.apps.django_app.default.models import UserSocialAuth
-from hbp_app_python_auth.auth import get_access_token, get_token_type, get_auth_header
-
-from rest_framework.test import APIRequestFactory
-
-from model_validation_api.models import (ValidationTestDefinition, 
-                        ValidationTestCode,
-                        ValidationTestResult, 
-                        ScientificModel, 
-                        ScientificModelInstance,
-                        ScientificModelImage,   
-                        Comments,
-                        Tickets,
-                        # FollowModel,
-                        CollabParameters,
-                        Param_DataModalities,
-                        Param_TestType,
-                        Param_Species,
-                        Param_BrainRegion,
-                        Param_CellType,
-                        Param_ModelType,
-                        Param_ScoreType,
-                        Param_organizations,
-                        )
-
-from validation_service.views import config, home
-
-from model_validation_api.views import (
-                    ModelCatalogView,
-                    HomeValidationView,
-
-                    ParametersConfigurationRest,
-                    AuthorizedCollabParameterRest,
-                    Models,
-                    ModelAliases,
-                    Tests,
-                    TestAliases,
-                    ModelInstances,
-                    Images,
-                    TestInstances,
-                    TestCommentRest,
-                    CollabIDRest,
-                    AppIDRest,
-                    AreVersionsEditableRest,
-                    ParametersConfigurationModelView,
-                    ParametersConfigurationValidationView,
-                    TestTicketRest,
-                    IsCollabMemberRest,
-                    Results,
-                    CollabAppID,
-
-                    )
-
-from model_validation_api.validation_framework_toolbox.fill_db import (
-        create_data_modalities,
-        create_organizations,
-        create_test_types,
-        create_score_type,
-        create_species,
-        create_brain_region,
-        create_cell_type,
-        create_model_type,
-        create_models_test_results,
-        create_fake_collab,
-        create_all_parameters,
-        create_specific_test,
-        create_specific_testcode,
-)
-
-from ..auth_for_test_taken_from_validation_clien import BaseClient
-
-
-
-from ..data_for_test import DataForTests
-
-
-username_authorized = os.environ.get('HBP_USERNAME_AUTHORIZED')
-password_authorized = os.environ.get('HBP_PASSWORD_AUTHORIZED')
-
-# username_authorized = os.environ.get('HBP_USERNAME_NOT_AUTHORIZED')
-# password_authorized = os.environ.get('HBP_PASSWORD_NOT_AUTHORIZED')
-
-base_client_authorized = BaseClient(username = username_authorized, password=password_authorized)
-client_authorized = Client(HTTP_AUTHORIZATION=base_client_authorized.token)
-
-# username_not_authorized = os.environ.get('HBP_USERNAME_NOT_AUTHORIZED')
-# password_not_authorized = os.environ.get('HBP_PASSWORD_NOT_AUTHORIZED')
-# base_client_not_authorized = BaseClient(username = username_not_authorized, password=password_not_authorized)
-# client_not_authorized = Client(HTTP_AUTHORIZATION=base_client_not_authorized.token)
-
-
-
-
+from test_base import *
 
     
 
@@ -368,5 +261,138 @@ class TestsViewTest(TestCase):
         self.assertEqual(len(tests),3)
         self.compare_serializer_keys(tests=tests, targeted_keys_list_type='standard')
         
+    def test_post_no_data (self):
+        data= {}
+        data = json.dumps(data)
+        response = client_authorized.post('/tests/', data = data,  content_type='application/json')
+
+        self.assertEqual(response.status_code, 400)
+
+    def test_post(self):
+        data = {
+            'test_data': {
+                'name':"FESZFEZEF", 
+                'alias':"SD65SD4D", 
+                'species':"Mouse (Mus musculus)",
+                'brain_region' : "Hippocampus", 
+                'cell_type' : "Interneuron", 
+                'age' : "12",  
+                'data_location' : "http://bbbb.com", 
+                'data_type' : "data type",
+                'data_modality' : "electrophysiology",
+                'test_type' : "single cell activity",
+                'protocol' :"protocol",
+                'author' : "me",
+                'publication' : "not published",
+                'score_type':"p-value",
+            },
+            'code_data' : {
+                'version':"sss", 
+                'test': str(self.data.test1.id),
+                'repository' : "http://sd.com",
+                'path' : "http://sd.com",
+            }
+        }
+             
+        data = json.dumps(data)
+        response = client_authorized.post('/tests/', data = data,  content_type='application/json')
+
+        results = json.loads(response._container[0])
+        
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(len(results), 1)      
+
+
+        response = client_authorized.get('/tests/', data={'id': results['uuid']})
+        tests = json.loads(response._container[0])['tests']
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(tests), 1)
+        self.compare_serializer_keys(tests=tests, targeted_keys_list_type='full')
+
+        self.assertEqual(len(tests[0]['codes']), 1)
+
+        targeted_keys = [
+                        'id', 
+                        'description', 
+                        'repository',
+                        'timestamp',
+                        'version', 
+                        'path', 
+                        'test_definition_id', 
+                        ]
+
+        for code in tests[0]['codes'] :
+            self.assertEqual(set(code.keys()), set(targeted_keys))                    
+        # raise ValueError('A very specific bad thing happened.')
+        
         
 
+    def test_put(self):
+        data = {
+            'test_data': {
+                'name':"FESZFEZEF", 
+                'alias':"SD65SD4D", 
+                'species':"Mouse (Mus musculus)",
+                'brain_region' : "Hippocampus", 
+                'cell_type' : "Interneuron", 
+                'age' : "12",  
+                'data_location' : "http://bbbb.com", 
+                'data_type' : "data type",
+                'data_modality' : "electrophysiology",
+                'test_type' : "single cell activity",
+                'protocol' :"protocol",
+                'author' : "me",
+                'publication' : "not published",
+                'score_type':"p-value",
+            },
+            'code_data' : {
+                'version':"sss", 
+                'test': str(self.data.test1.id),
+                'repository' : "http://sd.com",
+                'path' : "http://sd.com",
+            }
+        }
+             
+        data = json.dumps(data)
+        response = client_authorized.post('/tests/', data = data,  content_type='application/json')
+        results = json.loads(response._container[0])['uuid']
+        response = client_authorized.get('/tests/', data={'id': results})
+        self.assertEqual(response.status_code, 200)
+        
+        instances1 = json.loads(response._container[0])['tests']
+
+        data2 = {
+            'id': instances1[0]['id'],
+            'name':"FESZFEZEFFFF", 
+            'alias':"SD65SD4D", 
+            'species':"Mouse (Mus musculus)",
+            'brain_region' : "Hippocampus", 
+            'cell_type' : "Interneuron", 
+            'age' : "12",  
+            'data_location' : "http://bbbb.com", 
+            'data_type' : "data type",
+            'data_modality' : "electrophysiology",
+            'test_type' : "single cell activity",
+            'protocol' :"protocol",
+            'author' : "me",
+            'publication' : "not published",
+            'score_type':"p-value",
+        }
+        data2_json = json.dumps(data2)
+        response = client_authorized.put('/tests/', data = data2_json,  content_type='application/json')
+
+        self.assertEqual(response.status_code, 202)
+
+        results = json.loads(response._container[0])['uuid']
+        response = client_authorized.get('/tests/', data={'id': results})
+
+        instances2 = json.loads(response._container[0])['tests']
+
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(instances2), 1)
+        self.compare_serializer_keys(tests=instances2, targeted_keys_list_type='full')
+
+        self.assertEqual(instances2[0]['name'],data2['name'] )
+        self.assertEqual(instances2[0]['id'],instances1[0]['id'] )

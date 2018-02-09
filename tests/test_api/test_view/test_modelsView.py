@@ -2,103 +2,8 @@
 Tests of the ValidationFramework TestsView.
 """
 
-from __future__ import unicode_literals
 
-import os
-import random
-import json
-
-from uuid import uuid4
-import uuid
-
-import time
-from datetime import datetime
-
-
-from django.test import TestCase, Client, RequestFactory
-# SimpleTestCase, TransactionTestCase, TestCase, LiveServerTestCase, assertRedirects
-from django.contrib.auth.models import User
-from social.apps.django_app.default.models import UserSocialAuth
-from hbp_app_python_auth.auth import get_access_token, get_token_type, get_auth_header
-
-from rest_framework.test import APIRequestFactory
-
-from model_validation_api.models import (ValidationTestDefinition, 
-                        ValidationTestCode,
-                        ValidationTestResult, 
-                        ScientificModel, 
-                        ScientificModelInstance,
-                        ScientificModelImage,   
-                        Comments,
-                        Tickets,
-                        # FollowModel,
-                        CollabParameters,
-                        Param_DataModalities,
-                        Param_TestType,
-                        Param_Species,
-                        Param_BrainRegion,
-                        Param_CellType,
-                        Param_ModelType,
-                        Param_ScoreType,
-                        Param_organizations,
-                        )
-
-from validation_service.views import config, home
-
-from model_validation_api.views import (
-                    ModelCatalogView,
-                    HomeValidationView,
-
-                    ParametersConfigurationRest,
-                    AuthorizedCollabParameterRest,
-                    Models,
-                    ModelAliases,
-                    Tests,
-                    TestAliases,
-                    ModelInstances,
-                    Images,
-                    TestInstances,
-                    TestCommentRest,
-                    CollabIDRest,
-                    AppIDRest,
-                    AreVersionsEditableRest,
-                    ParametersConfigurationModelView,
-                    ParametersConfigurationValidationView,
-                    TestTicketRest,
-                    IsCollabMemberRest,
-                    Results,
-                    CollabAppID,
-
-                    )
-
-from model_validation_api.validation_framework_toolbox.fill_db import (
-        create_data_modalities,
-        create_organizations,
-        create_test_types,
-        create_score_type,
-        create_species,
-        create_brain_region,
-        create_cell_type,
-        create_model_type,
-        create_models_test_results,
-        create_fake_collab,
-        create_all_parameters,
-        create_specific_test,
-        create_specific_testcode,
-)
-
-from ..auth_for_test_taken_from_validation_clien import BaseClient
-
-from ..data_for_test import DataForTests
-
-
-
-username_authorized = os.environ.get('HBP_USERNAME_AUTHORIZED')
-password_authorized = os.environ.get('HBP_PASSWORD_AUTHORIZED')
-base_client_authorized = BaseClient(username = username_authorized, password=password_authorized)
-client_authorized = Client(HTTP_AUTHORIZATION=base_client_authorized.token)
-
-
+from test_base import *
 
 
 class ModelsViewTest(TestCase):
@@ -140,6 +45,10 @@ class ModelsViewTest(TestCase):
             
                 for image in model['images'] :
                     self.assertEqual(set(image.keys()), set([
+                                                    'id', 
+                                                    'url',
+                                                    'caption', 
+                                                    # 'model_id', 
                                                     
                                                     ]))
 
@@ -166,10 +75,6 @@ class ModelsViewTest(TestCase):
                         'model_type', 
                         'brain_region', 
                         'species', 
-                        # 'description',
-                        # 'images',
-                        # 'instances',
-
                         ]
         if targeted_keys_list_type == "web_id" :
             targeted_keys = [
@@ -184,10 +89,6 @@ class ModelsViewTest(TestCase):
                         'model_type', 
                         'brain_region', 
                         'species', 
-                        # 'description',
-                        # 'images',
-                        # 'instances',
-
                         ]
 
 
@@ -344,20 +245,211 @@ class ModelsViewTest(TestCase):
         self.assertEqual(len(models), 1)
         self.compare_serializer_keys(models=models, targeted_keys_list_type='standard')
 
+    def test_post_no_data (self):
+        data= {}
+        data = json.dumps(data)
+        response = client_authorized.post('/models/', data = data,  content_type='application/json')
+
+        self.assertEqual(response.status_code, 400)
+
+    def test_post(self):
+        data = {
+            'model': {
+                'name' : "sfsdfdf", 
+                'alias' : "54f6s", 
+                'app_id': '1',
+                'description' : "description",
+                'species' : "Mouse (Mus musculus)",
+                'brain_region' : "Hippocampus",
+                'cell_type' : "Interneuron",
+                'author' : "me",
+                'model_type' : "Single Cell",
+                'private' : "0",
+                'code_format' : "py",
+                'organization' : "",
+            },
+            'model_instance' : [{
+                'model_id': str(self.data.model1.id),           
+                'version' : "1.ggggvfszf1",
+                'parameters' : "param",
+                'source' : "http://dd.com",
+
+            }],
+            'model_image': [{
+                'model_id': str(self.data.model1.id), 
+                'url' : "http://aa.com",
+                'caption' : "caption",
+
+            }]
+        }
+             
+        data = json.dumps(data)
+        response = client_authorized.post('/models/?app_id=1', data = data,  content_type='application/json')
+        results = json.loads(response._container[0])['uuid']
+        
+        self.assertEqual(response.status_code, 201)
+
+        response = client_authorized.get('/models/?app_id=1', data={'id': results})
+        models = json.loads(response._container[0])['models']
+        
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(models), 1)
+        self.compare_serializer_keys(models=models, targeted_keys_list_type='standard')
 
 
+    def test_put(self):
+        data = {
+            'model': {
+                'name' : "sfsdfdf", 
+                'alias' : "54f6s", 
+                'app_id': '1',
+                'description' : "description",
+                'species' : "Mouse (Mus musculus)",
+                'brain_region' : "Hippocampus",
+                'cell_type' : "Interneuron",
+                'author' : "me",
+                'model_type' : "Single Cell",
+                'private' : "0",
+                'code_format' : "py",
+                'organization' : "",
+            },
+            'model_instance' : [{
+                'model_id': str(self.data.model1.id),           
+                'version' : "1.ggggvfszf1",
+                'parameters' : "param",
+                'source' : "http://dd.com",
+
+            }],
+            'model_image': [{
+                'model_id': str(self.data.model1.id), 
+                'url' : "http://aa.com",
+                'caption' : "caption",
+
+            }]
+        }
+             
+        data = json.dumps(data)
+        response = client_authorized.post('/models/?app_id=1', data = data,  content_type='application/json')
+        results = json.loads(response._container[0])['uuid']
+        
+        self.assertEqual(response.status_code, 201)
+
+        response = client_authorized.get('/models/?app_id=1', data={'id': results})
+        instances1 = json.loads(response._container[0])['models']
+        
+        self.assertEqual(response.status_code, 200)
+
+        data2 = {
+            'models': [{
+                'id': instances1[0]['id'],
+                'name' : "sfsdfdf", 
+                'alias' : "54f6sss", 
+                'app_id': '1',
+                'description' : "description",
+                'species' : "Mouse (Mus musculus)",
+                'brain_region' : "Hippocampus",
+                'cell_type' : "Interneuron",
+                'author' : "me",
+                'model_type' : "Single Cell",
+                'private' : "0",
+                'code_format' : "py",
+                'organization' : "",
+            }]
+
+        }
+
+        data2_json = json.dumps(data2)
+        response = client_authorized.put('/models/', data = data2_json,  content_type='application/json')
+
+        self.assertEqual(response.status_code, 202)
+
+        results = json.loads(response._container[0])['uuid']
+        response = client_authorized.get('/models/', data={'id': results})
+
+        instances2 = json.loads(response._container[0])['models']
 
 
-                  
-                
-                 
-                 
-                
-                 
-                 
-                 
-                 
-                 
-                 
-                 
-                 
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(instances2), 1)
+        self.compare_serializer_keys(models=instances2, targeted_keys_list_type='standard')
+
+        self.assertEqual(instances2[0]['alias'],data2['models'][0]['alias'] )
+        self.assertEqual(instances2[0]['id'],instances1[0]['id'] )
+
+
+    def test_put_no_uuid_but_allias(self):
+        data = {
+            'model': {
+                'name' : "sfsdfdf", 
+                'alias' : "54f6s", 
+                'app_id': '1',
+                'description' : "description",
+                'species' : "Mouse (Mus musculus)",
+                'brain_region' : "Hippocampus",
+                'cell_type' : "Interneuron",
+                'author' : "me",
+                'model_type' : "Single Cell",
+                'private' : "0",
+                'code_format' : "py",
+                'organization' : "",
+            },
+            'model_instance' : [{
+                'model_id': str(self.data.model1.id),           
+                'version' : "1.ggggvfszf1",
+                'parameters' : "param",
+                'source' : "http://dd.com",
+
+            }],
+            'model_image': [{
+                'model_id': str(self.data.model1.id), 
+                'url' : "http://aa.com",
+                'caption' : "caption",
+
+            }]
+        }
+             
+        data = json.dumps(data)
+        response = client_authorized.post('/models/?app_id=1', data = data,  content_type='application/json')
+        results = json.loads(response._container[0])['uuid']
+        
+        self.assertEqual(response.status_code, 201)
+
+        response = client_authorized.get('/models/?app_id=1', data={'id': results})
+        instances1 = json.loads(response._container[0])['models']
+        
+        self.assertEqual(response.status_code, 200)
+
+        data2 = {
+            'models': [{
+                'name' : "sfsdfdffff", 
+                'alias' : "54f6s", 
+                'app_id': '1',
+                'description' : "description",
+                'species' : "Mouse (Mus musculus)",
+                'brain_region' : "Hippocampus",
+                'cell_type' : "Interneuron",
+                'author' : "me",
+                'model_type' : "Single Cell",
+                'private' : "0",
+                'code_format' : "py",
+                'organization' : "",
+            }]
+
+        }
+
+        data2_json = json.dumps(data2)
+        response = client_authorized.put('/models/', data = data2_json,  content_type='application/json')
+
+        self.assertEqual(response.status_code, 202)
+
+        results = json.loads(response._container[0])['uuid']
+        response = client_authorized.get('/models/', data={'id': results})
+
+        instances2 = json.loads(response._container[0])['models']
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(instances2), 1)
+        self.compare_serializer_keys(models=instances2, targeted_keys_list_type='standard')
+
+        self.assertEqual(instances2[0]['name'],data2['models'][0]['name'] )
+        self.assertEqual(instances2[0]['id'],instances1[0]['id'] )

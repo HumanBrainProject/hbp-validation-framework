@@ -22,16 +22,27 @@ logger.addHandler(stream_handler)
 
     
 def get_authorization_header(request):
+    
+
+
+
+
+
     auth = request.META.get("HTTP_AUTHORIZATION", None)
     if auth is None:
         try:
-#            auth = get_auth_header(request.user.social_auth.get())
-            logger.debug("Got authorization from database")
+            auth = get_auth_header(request.user.social_auth.get())
+            # logger.debug("Got authorization from database")
         except AttributeError:
             pass
     # in case of 401 error, need to trap and redirect to login
     else:
-        logger.debug("Got authorization from HTTP header")
+        if request.META.get("HTTP_AUTHORIZATION", None).split(" ")[0].lower() == "bearer" :
+            auth = request.META.get("HTTP_AUTHORIZATION", None)
+        else :   
+            auth = "Bearer "+request.META.get("HTTP_AUTHORIZATION", None)
+
+        # logger.debug("Got authorization from HTTP header")
     return {'Authorization': auth}
 
 
@@ -76,9 +87,6 @@ def get_storage_file_by_id (request):
     res = requests.get(url, headers=headers)
     if res.status_code != 200:
         return False
-    
-    # print res.__dict__
-    # print res._content
 
     return res._content 
     
@@ -87,12 +95,12 @@ def get_storage_file_by_id (request):
 def get_user_from_token(request):
     url = "{}/user/me".format(settings.HBP_IDENTITY_SERVICE_URL)
     headers = get_authorization_header(request)
-    logger.debug("Requesting user information for given access token")
+    # logger.debug("Requesting user information for given access token")
     res = requests.get(url, headers=headers)
     if res.status_code != 200:
         logger.debug("Error" + res.content)
         raise Exception(res.content)
-    logger.debug("User information retrieved")
+    # logger.debug("User information retrieved")
     return res.json()
 
 
@@ -150,20 +158,14 @@ def _is_collaborator_token(request, collab_id):
 
 def is_authorised(request, collab_id):
     if str(request.user) == "AnonymousUser" :
-        # print 'request.user', request.user
          
         if request.META.get("HTTP_AUTHORIZATION", None) == None :
-            # print "no MATA authorisation"
             return False
         else: 
-            # print "MATA authorisation"
             
             return _is_collaborator_token(request, collab_id)
-            # return True
 
     else :       
-        # print 'request.user', request.user
-        
         if not _is_collaborator(request, collab_id):
             return False
         else: 
@@ -177,7 +179,6 @@ def get_user_info(request):
         'Authorization': get_auth_header(request.user.social_auth.get()),   
     }
     res = requests.post(url, headers=headers)
-    print(res.json())
     return res.json() 
 
 def is_hbp_member (request):

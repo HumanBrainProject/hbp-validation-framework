@@ -76,8 +76,12 @@ def check_uuid_validity (uuid_string):
 
 def get_collab_id_from_app_id (app_id):
     collab_param = CollabParameters.objects.filter(id = app_id)
+    # if len(collab_param) > 0 :
     collab_id = collab_param.values('collab_id')[0]['collab_id']
     return collab_id
+    # else :
+    #     return (false)
+        
 
 def _are_model_instance_version_unique (instance_json):
     new_version_name = instance_json['version']

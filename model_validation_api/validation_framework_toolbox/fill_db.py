@@ -35,6 +35,7 @@ def create_fake_collab(
                         cell_type = 'Interneuron',
                         model_type = 'Single Cell',
                         organization= '',
+                        app_type = '',
                         ):
     collab1 = CollabParameters(id=id, collab_id=collab_id)
     collab1.save()
@@ -52,11 +53,10 @@ def create_fake_collab(
     collab1.cell_type =cell_type
     collab1.model_type = model_type 
     collab1.organization = organization 
-
-    
+    collab1.app_type = app_type 
 
     collab1.save()
-
+    return (collab1)
 
 def create_all_parameters ():
     create_data_modalities()
@@ -376,3 +376,46 @@ def create_specific_result (
     result.project = project
     result.save()
     return (result)
+
+def create_specific_ticket (
+                            uuid,
+                            test,
+                            author ="me",
+                            title = "title",
+                            text = "text",
+                            creation_date = time.time(),
+                            ):
+    ticket = Tickets(id = uuid, test= test)
+    ticket.author = author
+    ticket.title = title
+    ticket.text = text
+    ticket.creation_date = creation_date
+    ticket.save()    
+    return (ticket)
+
+
+def create_specific_comment (
+                            uuid,
+                            ticket,
+                            author ="me",
+                            text = "text",
+                            creation_date = time.time(),
+                            ):
+    comment = Comments(id = uuid, Ticket= ticket)
+    comment.author = author
+    comment.text = text
+    comment.creation_date = creation_date
+    comment.save()
+    return (comment)
+    
+def create_specific_image (
+                            uuid,
+                            model,
+                            url = "http://.aa.com",
+                            caption = "caption",
+                            ):
+    image = ScientificModelImage(id= uuid, model=model)
+    image.url = url
+    image.caption = caption
+    image.save()
+    return (image)
