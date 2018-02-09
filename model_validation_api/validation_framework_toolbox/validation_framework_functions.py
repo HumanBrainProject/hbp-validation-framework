@@ -381,7 +381,31 @@ def organise_results_dict ( detailed_view, point_of_view, results, serializer_co
          
             result_data = ValidationTestResultSerializer(result, context=serializer_context).data
             current[result_data['id']] = result_data  
+    
+    elif  point_of_view == "score_type" :
+        data_to_return['score_type'] = {}
 
+        for result in results :
+            result_info = get_result_informations(result)
+            current = data_to_return['score_type']
+            if result_info['test_score_type'] not in current  :
+                 current[result_info['test_score_type']] = {'test_codes':{}}
+
+            current = current[result_info['test_score_type']]['test_codes']
+
+            if result_info['test_code_id'] not in current  :
+                 current[result_info['test_code_id']] = { 'version' : result_info['test_code_version'],'test_alias': result_info['test_alias'],'test_id': result_info['test_id'], 'test_name': result_info['test_name'], 'model_instances':{}, 'timestamp': result_info['test_code_timestamp'] }
+
+            current = current[result_info['test_code_id']]['model_instances']
+
+            if result_info['model_instance_id'] not in current :
+                current[result_info['model_instance_id']] = {'version' : result_info['model_instance_version'], 'model_alias' : result_info['model_alias'],'model_id' : result_info['model_id'], 'timestamp' : result_info['model_instance_timestamp'] , 'results' : {} }
+
+            current = current[result_info['model_instance_id']]['results']
+
+            result_data = ValidationTestResultSerializer(result, context=serializer_context).data
+            current[result_data['id']] = result_data
+            
     #data_to_return no structuraction 
     else : 
         if detailed_view : 
