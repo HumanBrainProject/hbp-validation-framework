@@ -379,11 +379,11 @@ def organise_results_dict ( detailed_view, point_of_view, results, serializer_co
             current[result_data['id']] = result_data  
     
     elif  point_of_view == "score_type" :
-        data_to_return['score-type'] = {}
+        data_to_return['score_type'] = {}
 
         for result in results :
             result_info = get_result_informations(result)
-            current = data_to_return['score-type']
+            current = data_to_return['score_type']
             if result_info['test_score_type'] not in current  :
                  current[result_info['test_score_type']] = {'test_codes':{}}
 

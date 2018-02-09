@@ -698,359 +698,12 @@ var GraphicsServices = angular.module('GraphicsServices', ['ngResource', 'btorfs
 
 GraphicsServices.factory('Graphics', ['$rootScope', 'Context', 'ValidationResultRest',
     function($rootScope, Context, ValidationResultRest) {
-        // var results_data = undefined;
 
-        var focus = function(list_id_couple, results_data, type, graph_key) {
-            var list_data = [];
-            var i = 0;
-            for (i; i < list_id_couple.length; i++) {
-                data = find_result_in_data(list_id_couple[i], results_data, type);
-                data.line_id = list_id_couple[i].id_line;
-                list_data.push(data);
-            }
-            $rootScope.$broadcast('data_focussed:updated', list_data, graph_key);
-        };
-        var find_result_in_data = function(id_couple, results_data, type) {
-            var result_to_return = undefined;
-            // console.log("id_couple", id_couple)
-            var id_line = id_couple.id_line;
-            var id_result = id_couple.id_result;
-
-            if (type == 'model') {
-                //find the correct result in datablock
-                for (var i in results_data) {
-                    if (id_result == results_data[i].id) {
-                        result_to_return = results_data[i];
-                    };
-                };
-                return result_to_return;
-            };
-            if (type == 'test') {
-                for (var i in results_data) {
-                    for (var j in results_data[i].result) {
-                        if (id_result == results_data[i].result[j].id) {
-                            var result_to_return = results_data[i].result[j];
-                            result_to_return.additional_data = results_data[i].additional_data;
-                        };
-                    };
-                };
-                return result_to_return;
-            };
-        };
-
-        var getResultsfromTestID = function(test, ids) {
-            return new Promise(function(resolve, reject) {
-                var values = [];
-                var list_ids = [];
-                var j = 0;
-                var x = 0;
-
-                var results_data = ValidationTestResultRest.get({ app_id: Context.getAppID(), test_id: test.tests[0].id, list_id: ids, });
-                results_data.$promise.then(function() {
-                    for (j; j < results_data.data.length; j++) {
-                        values[j] = _manageDataForGraph(results_data.data[j], results_data.data_block_id[j].id)
-                    };
-                    for (x; x < results_data.versions_id_all.length; x++) {
-                        list_ids[x] = results_data.versions_id_all[x];
-                    };
-                    var data = { 'values': values, 'ids_all': list_ids, 'results': results_data }
-                    resolve(data);
-                });
-            });
-        };
-        var getResultsfromTestID2 = function(test, test_versions) {
-            return new Promise(function(resolve, reject) {
-
-                var values = [];
-                var list_ids = [];
-                var results = [];
-                var abscissa_value = [];
-
-                for (var tv in test_versions.test_codes) {
-                    var version_name = test_versions.test_codes[tv].version;
-
-                    abscissa_value[version_name] = parseInt(tv);
-                }
-
-                var results_data = ValidationResultRest.get({ app_id: Context.getAppID(), test_id: test.tests[0].id, order: 'model_instance' });
-                results_data.$promise.then(function() {
-
-                    var colors = _get_color_array(results_data.model_instances);
-
-                    for (var instance in results_data.model_instances) {
-                        // if (results_data.model_instances[instance].model_alias) {
-                        //     m = results_data.model_instances[instance].model_alias
-                        // } else { m = results_data.model_instances[instance].model_id }
-
-
-                        //get line id; model_id is replaced by alias if it exists
-                        if (results_data.model_instances[instance].model_alias && results_data.model_instances[instance].model_alias !== null && results_data.model_instances[instance].model_alias !== '' && results_data.model_instances[instance].model_alias !== "None") {
-                            var line_id = results_data.model_instances[instance].model_alias + ' ( ' + results_data.model_instances[instance].version + ' )';
-                        } else {
-                            var line_id = results_data.model_instances[instance].model_id.substring(0, 8) + '... ( ' + results_data.model_instances[instance].version + ' )';
-                        }
-                        //manage data for graph
-                        values.push(_manageDataForTestGraph2(results_data.model_instances[instance].test_codes, line_id, results_data.model_instances[instance].model_id, abscissa_value, colors[instance]));
-                        list_ids.push(line_id)
-
-                        //manage data for results
-                        for (var c in results_data.model_instances[instance].test_codes) {
-                            var additional_data = {
-                                "model_name": results_data.model_instances[instance].model_name,
-                                "model_id": results_data.model_instances[instance].model_id,
-                                "model_instance": results_data.model_instances[instance].version,
-                                "test_code": results_data.model_instances[instance].test_codes[c].version
-                            }
-
-                            var res = [];
-                            for (var r in results_data.model_instances[instance].test_codes[c].results) {
-                                res.push(results_data.model_instances[instance].test_codes[c].results[r]);
-                            }
-
-                            results.push({ "result": res.sort(_sort_results_by_timestamp), "additional_data": additional_data });
-                            // results.push({ "result": results_data.model_instances[instance].test_codes[c].results, "additional_data": additional_data });
-                        }
-                    }
-
-                });
-                resolve({ 'raw_data': results_data, 'values': values, 'results': results, 'list_ids': list_ids, 'abs_info': abscissa_value });
-            });
-        }
-
-        var _get_color_array = function(data_row) {
-            list_ids = [];
-            for (var i in data_row) {
-                list_ids.push(i);
-            }
-
-            var colorMap = palette('tol-rainbow', list_ids.length);
-
-            var res = [];
-            for (var j in list_ids) {
-                res[list_ids[j]] = colorMap[j];
-            }
-
-            return res;
-        }
-
-        var _sort_results_by_timestamp = function(a, b) {
-            return new Date(b.timestamp) - new Date(a.timestamp);
-        }
-
-        var _manageDataForTestGraph2 = function(data, line_id, model_id, abscissa_value, color) {
-
-            var values_temp = [];
-
-            for (var c in data) {
-                for (var r in data[c].results) {
-                    var temp = {
-                        x: abscissa_value[data[c].version], //new Date(data[t].test_codes[c].result.timestamp),
-                        y: data[c].results[r].score,
-                        label: data[c].version,
-                        id: line_id,
-                        id_test_result: data[c].results[r].id,
-                    };
-                    values_temp.push(temp);
-                };
-            };
-            //sort datas by test code abscissa value
-
-            var data_to_return = {
-                values: values_temp.sort(_sort_results_by_x), //values - represents the array of {x,y} data points
-                key: line_id, //key  - the name of the series.
-                color: "#" + color, //_pickRandomColor(), //color - optional: choose your own line color.
-                test_id: model_id,
-            };
-
-            return data_to_return;
-        }
-
-        function _sort_results_by_x(a, b) {
-            return a.x - b.x
-        }
-
-        function getResultsfromModelResultID2(model, model_instances, score_type) {
-            return new Promise(function(resolve, reject) {
-                var values = [];
-                var list_ids = [];
-                var results = [];
-                var abscissa_value = [];
-
-                //give an abscissa value to each model instance
-                for (var mi in model_instances.instances) {
-                    var version_name = model_instances.instances[mi].version;
-                    abscissa_value[version_name] = parseInt(mi);
-                }
-
-                var results_data = ValidationResultRest.get({ app_id: Context.getAppID(), model_id: model.models[0].id, order: 'test_code', score_type: score_type });
-                results_data.$promise.then(function() {
-
-                    var colors = _get_color_array(results_data.test_codes);
-
-                    for (var code in results_data.test_codes) {
-                        if (results_data.test_codes[code].test_alias && results_data.test_codes[code].test_alias != null && results_data.test_codes[code].test_alias != '' && results_data.test_codes[code].test_alias != 'None') {
-                            var line_id = results_data.test_codes[code].test_alias + ' ( ' + results_data.test_codes[code].version + ' )';
-                        } else {
-                            var line_id = results_data.test_codes[code].test_id + ' ( ' + results_data.test_codes[code].version + ' )';
-                        }
-
-                        results_data.test_codes[code].line_id = line_id;
-
-                        var a = values.push(_manageDataForGraph2(results_data.test_codes[code].timestamp, results_data.test_codes[code].model_instances, line_id, results_data.test_codes[code].test_id, score_type, abscissa_value, colors[code]));
-                        list_ids.push(line_id);
-                    };
-
-                    var latest_test_versions_line_id = get_latest_version_test(values, list_ids);
-
-                    // manage data for focus
-                    for (var code in results_data.test_codes) {
-                        for (var v in results_data.test_codes[code].model_instances) {
-                            var keys = Object.keys(results_data.test_codes[code].model_instances[v].results);
-                            for (var k in keys) {
-                                results.push(results_data.test_codes[code].model_instances[v].results[keys[k]]);
-                            }
-                        }
-                    }
-                    resolve({ results_data: results_data, 'values': values, 'results': results, 'list_ids': list_ids, 'abs_info': abscissa_value, 'latest_test_versions_line_id': latest_test_versions_line_id });
-                });
-            });
-        };
-
-        var get_latest_version_test = function(values, list_ids) {
-
-            var latest_version_of_tests = {}
-
-            for (i in values) {
-
-                if (list_ids.indexOf(values[i].key) === -1) {
-
-                } else {
-
-                    if (latest_version_of_tests[values[i].test_id] == undefined) {
-                        latest_version_of_tests[values[i].test_id] = { 'latest_line_id': values[i].key, 'latest_timestamp': values[i].timestamp }
-                    } else {
-
-                        if (latest_version_of_tests[values[i].test_id].latest_timestamp < values[i].timestamp) {
-                            latest_version_of_tests[values[i].test_id].latest_line_id = values[i].key;
-                            latest_version_of_tests[values[i].test_id].latest_timestamp = values[i].timestamp;
-                        }
-                    }
-                }
-            }
-
-            return (latest_version_of_tests);
-
-        }
-
-        var _manageDataForGraph2 = function(timestamp, data, line_id, test_id, score_type, abscissa_value, color) {
-            var values_temp = [];
-
-            for (var v in data) {
-                for (var r in data[v].results) {
-                    var temp = {
-                        x: abscissa_value[data[v].version], //new Date(data[v].result.timestamp),
-                        y: data[v].results[r].score,
-                        label: data[v].version,
-                        id: line_id,
-                        id_test_result: data[v].results[r].id,
-                    };
-                    values_temp.push(temp);
-                };
-            };
-            var data_to_return = {
-                values: values_temp.sort(_sort_results_by_x), //values - represents the array of {x,y} data points
-                key: line_id, //key  - the name of the series.
-                color: "#" + color, //_pickRandomColor(), //color - optional: choose your own line color.
-                test_id: test_id,
-                test_score_type: score_type,
-                timestamp: timestamp,
-            };
-            return data_to_return;
-        };
-        var getUpdatedGraph = function(data, list_ids) {
-            var newdata = [];
-            for (var i in data) {
-                for (var j in list_ids) {
-                    if (data[i].key == list_ids[j]) {
-                        newdata.push(data[i]);
-                    }
-                }
-            }
-            return newdata;
-        }
-
-        // async function getGraphsByScoreType(data) {
-        //     var new_data;
-        //     var score_types = [];
-        //     console.log("fegzethgrtz", data, data.length, data[0])
-        //     for (var i in data) {
-        //         console.log(i, 'iiiiiiiiiiiiii')
-        //         var sc_t = data[i].test_score_type;
-        //         if (score_types.includes(sc_t)) {
-        //             new_data[sc_t].push(data[i]);
-        //         } else {
-        //             score_types.push(sc_t);
-        //             new_data[sc_t] = [];
-        //             new_data[sc_t].push(data[i]);
-        //         }
-        //     }
-        //     return await new_data
-        // }
-
-        var getResultsfromModelID = function(model, ids) {
-            var values = [];
-            var list_ids = [];
-            var j = 0;
-            var x = 0;
-
-            var results_data = ValidationModelResultRest.get({ app_id: Context.getAppID(), model_id: model.models[0].id, list_id: ids, });
-            results_data.$promise.then(function() {
-                for (j; j < results_data.data.length; j++) {
-                    values[j] = _manageDataForGraph(results_data.data[j], results_data.data_block_id[j].id)
-                };
-                for (x; x < results_data.versions_id_all.length; x++) {
-                    list_ids[x] = results_data.versions_id_all[x];
-                };
-            });
-
-            return { 'values': values, 'ids_all': list_ids, 'results': results_data };
-        };
-
-        var _manageDataForGraph = function(data, line_id) {
-            var values_temp = [];
-            var ij = 0;
-
-            for (ij; ij < data.length; ij++) {
-                var temp = {
-                    x: new Date(data[ij].timestamp),
-                    y: data[ij].score,
-                    id: line_id,
-                    id_test_result: data[ij].id,
-                };
-                values_temp.push(temp);
-            };
-            var data_to_return = {
-                values: values_temp, //values - represents the array of {x,y} data points
-                key: line_id, //key  - the name of the series.
-                color: _pickRandomColor(), //color - optional: choose your own line color.
-                infosup: data,
-            };
-            return data_to_return;
-        };
-
-        var _pickRandomColor = function() {
-            var letters = '0123456789ABCDEF';
-            var color = '#';
-            var i = 0;
-            for (i; i < 6; i++) {
-                color += letters[Math.floor(Math.random() * 16)];
-            }
-            return color;
-        };
-
+        //graphs functions 
         var get_lines_options = function(title, subtitle, Yaxislabel, caption, results_data, type, graph_key, abscissa_value) {
 
             var yminymax = _get_min_max_yvalues(results_data);
+            console.log('yminymax', yminymax)
             var xminxmax = _get_min_max_xvalues(abscissa_value);
 
             options = {
@@ -1147,29 +800,537 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'Context', 'ValidationResult
 
 
         }
+
+        var focus = function(list_id_couple, results_data, type, graph_key) {
+            var list_data = [];
+            var i = 0;
+            for (i; i < list_id_couple.length; i++) {
+                data = find_result_in_data(list_id_couple[i], results_data, type);
+                data.line_id = list_id_couple[i].id_line;
+                list_data.push(data);
+            }
+            $rootScope.$broadcast('data_focussed:updated', list_data, graph_key);
+        };
+
+        var find_result_in_data = function(id_couple, results_data, type) {
+            var result_to_return = undefined;
+            var id_line = id_couple.id_line;
+            var id_result = id_couple.id_result;
+
+            if (type == 'model') {
+                //find the correct result in datablock
+                for (var i in results_data) {
+                    for (var j in results_data[i]) {
+                        if (id_result == results_data[i][j].id) {
+                            result_to_return = results_data[i][j];
+                        };
+                    }
+                };
+                return result_to_return;
+            };
+            if (type == 'test') {
+                for (var i in results_data) {
+                    for (var j in results_data[i]) {
+                        for (var k in results_data[i][j].result) {
+                            if (id_result == results_data[i][j].result[k].id) {
+                                var result_to_return = results_data[i][j].result[k];
+                                result_to_return.additional_data = results_data[i][j].additional_data;
+                            };
+                        };
+                    }
+                };
+                return result_to_return;
+            };
+        };
+
+        var getUpdatedGraph = function(data, list_ids) {
+            var newdata = [];
+            for (var i in data) {
+                for (var j in list_ids) {
+                    if (data[i].key == list_ids[j]) {
+                        newdata.push(data[i]);
+                    }
+                }
+            }
+            return newdata;
+        }
+
+        //tests graphs
+
+        var getRawDataForTest = function(test_versions) {
+            return new Promise(function(resolve, reject) {
+                var test_id = test_versions.test_codes[0].test_id;
+                var get_raw_data = ValidationResultRest.get({ app_id: Context.getAppID(), test_id: test_id, order: 'model_instance' });
+                get_raw_data.$promise.then(function(raw_data) {
+                    resolve(raw_data);
+                });
+            });
+        };
+
+        var init_TestGraph = function(test_versions, raw_data) {
+            return new Promise(function(resolve, reject) {
+                var graph_values = [];
+                var list_line_ids = [];
+                var results = [];
+                var abscissa_values = [];
+
+                var colors; //color array for the graph
+
+                abscissa_values = _get_abscissaValues(test_versions); //abscissa array for graphs
+
+
+                raw_data.$promise.then(function() {
+
+                    colors = _get_color_array(raw_data.model_instances);
+
+                    for (var instance in raw_data.model_instances) {
+
+                        var model_id = raw_data.model_instances[instance].model_id;
+
+                        var line_id = _get_line_id(raw_data.model_instances[instance])
+
+                        list_line_ids.push(line_id)
+                            //manage data for graph
+                        graph_values.push(_manageDataForTestGraph(raw_data.model_instances[instance].test_codes, raw_data.model_instances[instance].timestamp, line_id, model_id, instance, abscissa_values, colors[instance]));
+                        results.push(_manage_data_for_results_tab(raw_data.model_instances[instance]))
+                    }
+                    var latest_model_instances_line_id = get_latest_version_model(graph_values, list_line_ids);
+                    resolve({ 'values': graph_values, 'results': results, 'list_ids': list_line_ids, 'abs_info': abscissa_values, 'latest_model_instances_line_id': latest_model_instances_line_id });
+                });
+
+            });
+        }
+
+        var get_latest_version_model = function(values, list_ids) {
+            var latest_version_of_models = [];
+            var models_array = [];
+
+            for (var i in values) {
+                if (models_array[values[i].model_id] == undefined) {
+                    models_array[values[i].model_id] = [];
+                    if (list_ids.includes(values[i].key)) {
+                        models_array[values[i].model_id].push(values[i]);
+                    }
+
+                } else {
+                    if (list_ids.includes(values[i].key)) {
+                        models_array[values[i].model_id].push(values[i]);
+                    }
+                }
+            }
+
+            for (var model in models_array) {
+                models_array[model].sort(_sort_results_by_timestamp_desc);
+                latest_version_of_models.push({ 'latest_line_id': models_array[model][0].key, 'latest_timestamp': models_array[model][0].timestamp })
+            }
+
+            return latest_version_of_models;
+        }
+        var _get_abscissaValues = function(test_versions) {
+            var abscissa_value = [];
+
+            for (var tv in test_versions.test_codes) {
+                var version_name = test_versions.test_codes[tv].version;
+
+                abscissa_value[version_name] = parseInt(tv);
+            }
+            return abscissa_value;
+        }
+
+        var _get_line_id = function(instance) {
+            var line_id;
+            if (instance.model_alias && instance.model_alias !== null && instance.model_alias !== '' && instance.model_alias !== "None") {
+                line_id = instance.model_alias + ' ( ' + instance.version + ' )';
+            } else {
+                line_id = instance.model_id.substring(0, 8) + '... ( ' + instance.version + ' )';
+            }
+            return line_id;
+        }
+
+        var _manage_data_for_results_tab = function(instance) {
+            var results = [];
+            for (var c in instance.test_codes) {
+                var additional_data = {
+                    "model_name": instance.model_name,
+                    "model_id": instance.model_id,
+                    "model_instance": instance.version,
+                    "test_code": instance.test_codes[c].version
+                }
+
+                var res = [];
+                for (var r in instance.test_codes[c].results) {
+                    res.push(instance.test_codes[c].results[r]);
+                }
+                results.push({ "result": res.sort(_sort_results_by_timestamp_desc), "additional_data": additional_data });
+            }
+            return results;
+        }
+
+        var _manageDataForTestGraph = function(data, timestamp, line_id, model_id, instance_id, abscissa_value, color) {
+            var values_temp = [];
+            for (var c in data) {
+                for (var r in data[c].results) {
+                    var temp = {
+                        x: abscissa_value[data[c].version],
+                        y: data[c].results[r].score,
+                        label: data[c].version,
+                        id: line_id,
+                        id_test_result: data[c].results[r].id,
+                    };
+                    values_temp.push(temp);
+                };
+            };
+            //sort datas by test code abscissa value
+
+            var data_to_return = {
+                values: values_temp.sort(_sort_results_by_x), //values - represents the array of {x,y} data points
+                key: line_id, //key  - the name of the series.
+                id: instance_id,
+                color: "#" + color, //_pickRandomColor(), //color - optional: choose your own line color.
+                model_id: model_id,
+                timestamp: timestamp,
+            };
+            return (data_to_return);
+        }
+
+        var _reorganize_raw_data_for_result_table = function(model_instances) {
+            var organized_data = new Object();
+            organized_data.model_instances = [];
+
+            for (var model_instance in model_instances) {
+                var instance = new Object();
+
+                var model_id = model_instances[model_instance].model_id;
+                var line_id = _get_line_id(model_instances[model_instance]);
+
+                instance.timestamp = model_instances[model_instance].timestamp;
+                instance.id = model_instance;
+                instance.model_id = model_instances[model_instance].model_id;
+                instance.model_name = model_instances[model_instance].model_name;
+                instance.line_id = line_id;
+                instance.test_instances = [];
+
+                for (var test_instance in model_instances[model_instance].test_codes) {
+                    var code = new Object();
+                    code.version = model_instances[model_instance].test_codes[test_instance].version;
+                    code.timestamp = model_instances[model_instance].test_codes[test_instance].timestamp;
+
+                    code.results = [];
+                    for (var result in model_instances[model_instance].test_codes[test_instance].results) {
+                        //only keep the first five significant score figures 
+                        var res = model_instances[model_instance].test_codes[test_instance].results[result];
+                        res.score = res.score.toPrecision(5);
+                        code.results.push(res);
+                    }
+                    //order results by timestamp
+                    code.results = code.results.sort(_sort_results_by_timestamp_desc);
+                    instance.test_instances.push(code);
+                }
+                //order test_instances by timestamp
+                instance.last_result_timestamp = _get_last_result_timestamp(instance.test_instances);
+                instance.test_instances = instance.test_instances.sort(_sort_results_by_timestamp_asc);
+                organized_data.model_instances.push(instance);
+            }
+            //sort model instances by last result timestamp
+            organized_data.model_instances = organized_data.model_instances.sort(_sort_by_last_result_timestamp_desc)
+
+            return organized_data;
+        };
+
+        var _get_last_result_timestamp = function(codes) {
+            var newest_timestamp = undefined;
+            for (var code in codes) {
+                var timestamp = codes[code].results[0].timestamp;
+                if (newest_timestamp == undefined || (newest_timestamp && timestamp < newest_timestamp)) {
+                    newest_timestamp = timestamp;
+                }
+            }
+            return newest_timestamp;
+        }
+
+        var get_mor_recent_versions_graph_values = function(list_version_ids, test_versions, raw_data) {
+            return new Promise(function(resolve, reject) {
+                var graph_values = [];
+                var abscissa_values = [];
+
+                var colors; //color array for the graph
+
+                abscissa_values = _get_abscissaValues(test_versions); //abscissa array for graphs
+
+                raw_data.$promise.then(function() {
+                    colors = _get_color_array(raw_data.model_instances);
+                    for (var instance in raw_data.model_instances) {
+
+                        if (list_version_ids.includes(instance)) {
+                            var model_id = raw_data.model_instances[instance].model_id;
+                            var line_id = _get_line_id(raw_data.model_instances[instance])
+
+                            //manage data for graph
+                            graph_values.push(_manageDataForTestGraph(raw_data.model_instances[instance].test_codes, line_id, model_id, instance, abscissa_values, colors[instance]));
+                        }
+                    }
+                    resolve(graph_values);
+                });
+            });
+        }
+
+        // Model detail graphs
+        var getRawDataForModel = function(model_id, score_type_array) {
+            return new Promise(function(resolve, reject) {
+                var get_raw_data = ValidationResultRest.get({ app_id: Context.getAppID(), model_id: model_id, order: 'score_type' });
+                get_raw_data.$promise.then(function(raw_data) {
+                    // var data = _rearrange_raw_data_in_score_type_array(raw_data)
+                    resolve(raw_data);
+                })
+            })
+        };
+
+        var _get_all_graph_values = function(single_graphs_data) {
+            all_values = [];
+            for (var i in single_graphs_data) {
+                for (var j in single_graphs_data[i].values.values) {
+                    all_values.push(single_graphs_data[i].values.values[j]);
+                }
+            }
+            return all_values
+        }
+
+        var init_ModelGraphs = function(model_instances, raw_data) {
+            return new Promise(function(resolve, reject) {
+
+                var abscissa_value = [];
+
+                var single_graphs_datas = [];
+
+                for (var sc_t in raw_data.score_type) {
+                    abscissa_value = _ModelGraph_getAbscissaValue(model_instances);
+
+                    single_graphs_datas.push({ score_type: sc_t, values: init_single_ModelGraph(raw_data.score_type[sc_t], abscissa_value, sc_t) });
+                }
+
+                var all_graphs_values = _get_all_graph_values(single_graphs_datas);
+
+                resolve({ 'values': all_graphs_values, 'single_graphs_data': single_graphs_datas })
+
+            });
+        }
+        var init_single_ModelGraph = function(raw_data, abscissa_value, score_type) {
+
+            var graph_values = [];
+            var list_line_ids = [];
+            var results = [];
+
+            var colors; //color array for the graph
+
+            colors = _get_color_array(raw_data.test_codes)
+
+            for (var code in raw_data.test_codes) {
+
+                var line_id = _ModelGraph_getLineId(raw_data.test_codes[code]);
+                var test_id = raw_data.test_codes[code].test_id;
+                list_line_ids.push(line_id);
+                raw_data.test_codes[code].line_id = line_id;
+                graph_values.push(_ModelGraph_manageDataForGraph(raw_data.test_codes[code].timestamp, raw_data.test_codes[code].model_instances, line_id, test_id, score_type, abscissa_value, colors[code]));
+                results.push(_ModelGraph_manageDataForResultsTab(raw_data.test_codes[code]))
+            }
+
+            var latest_test_versions_line_id = get_latest_version_test(graph_values, list_line_ids);
+            console.log("result latest", latest_test_versions_line_id)
+            return ({ 'values': graph_values, 'results': results, 'list_ids': list_line_ids, 'abs_info': abscissa_value, 'latest_test_versions_line_id': latest_test_versions_line_id });
+        }
+
+        var get_latest_version_test = function(values, list_ids) {
+
+            var latest_version_of_tests = [];
+            var tests_array = [];
+
+            for (var i in values) {
+                if (tests_array[values[i].test_id] == undefined) {
+                    tests_array[values[i].test_id] = [];
+                    if (list_ids.includes(values[i].key)) {
+                        tests_array[values[i].test_id].push(values[i]);
+                    }
+
+                } else {
+                    if (list_ids.includes(values[i].key)) {
+                        tests_array[values[i].test_id].push(values[i]);
+                    }
+                }
+            }
+
+            for (var test in tests_array) {
+                tests_array[test].sort(_sort_by_last_result_timestamp_desc);
+                latest_version_of_tests.push({ 'latest_line_id': tests_array[test][0].key, 'latest_timestamp': tests_array[test][0].timestamp })
+            }
+
+            return latest_version_of_tests;
+        }
+
+        var _ModelGraph_getAbscissaValue = function(model_instances) {
+            var abscissa_value = [];
+            for (var mi in model_instances.instances) {
+                var version_name = model_instances.instances[mi].version;
+                abscissa_value[version_name] = parseInt(mi);
+            }
+            return abscissa_value;
+        }
+
+        var _ModelGraph_getLineId = function(code) {
+            var line_id;
+            if (code.test_alias && code.test_alias != null && code.test_alias != '' && code.test_alias != 'None') {
+                line_id = code.test_alias + ' ( ' + code.version + ' )';
+            } else {
+                line_id = code.test_id + ' ( ' + code.version + ' )';
+            }
+            return line_id;
+        }
+
+        var _ModelGraph_manageDataForResultsTab = function(code) {
+            var results = [];
+            for (var v in code.model_instances) {
+                var keys = Object.keys(code.model_instances[v].results);
+                for (var k in keys) {
+                    results.push(code.model_instances[v].results[keys[k]]);
+                }
+            }
+            return results;
+        }
+
+        var _ModelGraph_manageDataForGraph = function(timestamp, data, line_id, test_id, score_type, abscissa_value, color) {
+            var values_temp = [];
+
+            for (var v in data) {
+                for (var r in data[v].results) {
+                    var temp = {
+                        x: abscissa_value[data[v].version],
+                        y: data[v].results[r].score,
+                        label: data[v].version,
+                        id: line_id,
+                        id_test_result: data[v].results[r].id,
+                    };
+                    values_temp.push(temp);
+                };
+            };
+            var data_to_return = {
+                values: values_temp.sort(_sort_results_by_x), //values - represents the array of {x,y} data points
+                key: line_id, //key  - the name of the series.
+                color: "#" + color,
+                test_id: test_id,
+                test_score_type: score_type,
+                timestamp: timestamp,
+            };
+            return data_to_return;
+        }
+        var _ModelGraphs_reorganizeRawDataForResultTable = function(raw_data) {
+            var organized_data = new Object();
+            organized_data.test_codes = [];
+
+            for (score_type in raw_data.score_type) {
+                for (test_code in raw_data.score_type[score_type].test_codes) {
+                    var code = new Object();
+
+                    code.timestamp = raw_data.score_type[score_type].test_codes[test_code].timestamp;
+
+                    code.id = test_code;
+                    code.test_id = raw_data.score_type[score_type].test_codes[test_code].test_id;
+                    code.test_name = raw_data.score_type[score_type].test_codes[test_code].test_name;
+
+                    code.line_id = raw_data.score_type[score_type].test_codes[test_code].line_id;
+                    code.model_instances = [];
+
+                    for (var model_instance in raw_data.score_type[score_type].test_codes[test_code].model_instances) {
+                        var instance = new Object();
+                        instance.version = raw_data.score_type[score_type].test_codes[test_code].model_instances[model_instance].version;
+                        instance.timestamp = raw_data.score_type[score_type].test_codes[test_code].model_instances[model_instance].timestamp;
+
+                        instance.results = [];
+                        for (var result in raw_data.score_type[score_type].test_codes[test_code].model_instances[model_instance].results) {
+                            //only keep the first five significant score figures 
+                            var res = raw_data.score_type[score_type].test_codes[test_code].model_instances[model_instance].results[result];
+                            res.score = res.score.toPrecision(5);
+                            instance.results.push(res);
+                        }
+                        //order results by timestamp
+                        instance.results = instance.results.sort(_sort_results_by_timestamp_desc);
+                        code.model_instances.push(instance);
+                    }
+                    //order test_instances by timestamp
+                    code.last_result_timestamp = _get_last_result_timestamp(code.model_instances);
+                    code.model_instances = code.model_instances.sort(_sort_results_by_timestamp_asc);
+                    organized_data.test_codes.push(code);
+                }
+                //sort model instances by last result timestamp
+                organized_data.test_codes = organized_data.test_codes.sort(_sort_by_last_result_timestamp_desc)
+
+            }
+            return organized_data;
+        };
+
+        var _get_color_array = function(data_row) {
+            list_ids = [];
+            for (var i in data_row) {
+                list_ids.push(i);
+            }
+
+            var colorMap = palette('tol-rainbow', list_ids.length);
+
+            var res = [];
+            for (var j in list_ids) {
+                res[list_ids[j]] = colorMap[j];
+            }
+            return res;
+        }
+
+        var _sort_results_by_timestamp_desc = function(a, b) {
+            return new Date(b.timestamp) - new Date(a.timestamp);
+        }
+        var _sort_results_by_timestamp_asc = function(a, b) {
+            return new Date(a.timestamp) - new Date(b.timestamp);
+        }
+
+        var _sort_by_last_result_timestamp_desc = function(a, b) {
+            return new Date(b.last_result_timestamp) - new Date(a.last_result_timestamp);
+        }
+
+        function _sort_results_by_x(a, b) {
+            return a.x - b.x
+        }
+
+        var _pickRandomColor = function() {
+            var letters = '0123456789ABCDEF';
+            var color = '#';
+            var i = 0;
+            for (i; i < 6; i++) {
+                color += letters[Math.floor(Math.random() * 16)];
+            }
+            return color;
+        };
+        //graphic options
+
         var _get_min_max_yvalues = function(results_data) {
-            if (results_data.length != 0) {
+            if (results_data[0]) {
                 var minY = undefined;
                 var maxY = undefined;
 
                 var all_scores = [];
                 //get all score value
                 var i = 0;
+                var k = 0;
                 for (i; i < results_data.length; i++) {
+                    for (k; k < results_data[i].length; k++) {
+                        if (results_data[i][k].result != undefined) {
+                            for (var j in results_data[i][k].result) {
 
-                    if (results_data[i].result != undefined) {
-                        for (var j in results_data[i].result) {
+                                all_scores.push(results_data[i][k].result[j].score);
+                            }
+                        } else {
 
-                            all_scores.push(results_data[i].result[j].score);
-                        }
-                    } else {
+                            if (results_data[i][k].score) {
 
-                        if (results_data[i].score) {
-
-                            all_scores.push(results_data[i].score);
+                                all_scores.push(results_data[i][k].score);
+                            }
                         }
                     }
-
                 }
                 //define min and max value as a purcentage of min and max scores
                 minY = Math.min.apply(Math, all_scores);
@@ -1197,21 +1358,21 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'Context', 'ValidationResult
             return { value: [minX, maxX], range: all_abscissa_values.sort() };
         }
 
-        var get_DataMultipleResult = function() {
-            return multiple_result_data;
-        }
-
-
         return {
             get_lines_options: get_lines_options,
             find_result_in_data: find_result_in_data,
             focus: focus,
-            getResultsfromModelID: getResultsfromModelID,
-            getResultsfromTestID: getResultsfromTestID,
-            getResultsfromModelResultID2: getResultsfromModelResultID2,
-            getResultsfromTestID2: getResultsfromTestID2,
+            getRawDataForTest: getRawDataForTest,
+            getRawDataForModel: getRawDataForModel,
+            _reorganize_raw_data_for_result_table: _reorganize_raw_data_for_result_table,
+            get_mor_recent_versions_graph_values: get_mor_recent_versions_graph_values,
+            init_TestGraph: init_TestGraph,
+            init_ModelGraphs: init_ModelGraphs,
+            _ModelGraphs_reorganizeRawDataForResultTable: _ModelGraphs_reorganizeRawDataForResultTable,
             getUpdatedGraph: getUpdatedGraph,
-            // getGraphsByScoreType: getGraphsByScoreType,
+            _sort_by_last_result_timestamp_desc: _sort_by_last_result_timestamp_desc,
+            _sort_results_by_timestamp_desc: _sort_results_by_timestamp_desc,
+
         };
 
     }

@@ -114,86 +114,75 @@ testApp.controller('ValTestCtrl', ['$scope', '$rootScope', '$http', '$location',
 testApp.controller('ValModelDetailCtrl', ['$scope', '$rootScope', '$http', '$location', '$stateParams', 'ScientificModelRest', 'ScientificModelInstanceRest', 'CollabParameters', 'IsCollabMemberRest', 'AppIDRest', 'Graphics', 'Context', 'AuthorizedCollabParameterRest', 'DataHandler', 'clbStorage',
 
     function($scope, $rootScope, $http, $location, $stateParams, ScientificModelRest, ScientificModelInstanceRest, CollabParameters, IsCollabMemberRest, AppIDRest, Graphics, Context, AuthorizedCollabParameterRest, DataHandler, clbStorage) {
-        $scope.Context = Context;
-        // var latest_test_versions_line_id = {};
+
         Context.setService().then(function() {
             $scope.Context = Context;
-            var ctx = Context.getCtx();
-            var app_id = Context.getAppID();
+            $scope.ctx = Context.getCtx();
+            $scope.app_id = Context.getAppID();
 
 
-            CollabParameters.setService(ctx).then(function() {
-                // $scope.is_collab_member = false;
-                // $scope.is_collab_member = IsCollabMemberRest.get({ app_id: app_id });
-                // $scope.is_collab_member.$promise.then(function() {
-                //     $scope.is_collab_member = $scope.is_collab_member.is_member;
-                // });
+            CollabParameters.setService($scope.ctx).then(function() {
 
                 $scope.authorized_parameters = AuthorizedCollabParameterRest.get();
 
-                // console.log($scope.authorized_parameters);
-
-                $scope.model = ScientificModelRest.get({ app_id: app_id, id: $stateParams.uuid });
-                $scope.model_instances = ScientificModelInstanceRest.get({ app_id: app_id, model_id: $stateParams.uuid })
+                $scope.model = ScientificModelRest.get({ app_id: $scope.app_id, id: $stateParams.uuid });
+                $scope.model_instances = ScientificModelInstanceRest.get({ app_id: $scope.app_id, model_id: $stateParams.uuid })
                 $scope.model.$promise.then(function() {
+
                     $scope.model_instances.$promise.then(function() {
-                        //graph and table results
-                        Graphics.getResultsfromModelResultID2($scope.model, $scope.model_instances, undefined).then(function(init_graph) {
-                            $scope.data = init_graph.values;
+
+                        var get_raw_data = Graphics.getRawDataForModel($scope.model.models[0].id);
+
+                        get_raw_data.then(function(raw_data) {
+
+                            $scope.raw_data = raw_data;
                             $scope.init_graph_all = new Array();
                             $scope.line_result_focussed = new Array();
                             $scope.options5 = new Array();
                             $scope.init_checkbox = new Array();
 
+                            Graphics.init_ModelGraphs($scope.model_instances, raw_data).then(function(init_graph) {
+                                $scope.data = init_graph.values;
 
-                            for (var i in $scope.authorized_parameters.score_type) {
+                                for (var i in init_graph.single_graphs_data) {
 
-                                var score_type = $scope.authorized_parameters.score_type[i].authorized_value;
+                                    var key = $scope.init_graph_all.push(init_graph.single_graphs_data[i]);
 
-                                Graphics.getResultsfromModelResultID2($scope.model, $scope.model_instances, score_type).then(function(value) {
-                                    var key = $scope.init_graph_all.push(value);
-
-                                    $scope.options5.push(Graphics.get_lines_options('', '', $scope.authorized_parameters.score_type[key - 1].authorized_value, "", value.results, "model", key - 1, value.abs_info));
-                                    //  $scope.init_checkbox.push(value.list_ids);
+                                    $scope.options5.push(Graphics.get_lines_options('', '', init_graph.single_graphs_data[i].score_type, "", init_graph.single_graphs_data[i].values.results, "model", key - 1, init_graph.single_graphs_data[i].values.abs_info));
 
                                     $scope.line_result_focussed.push();
                                     $scope.$apply();
 
+                                };
 
-                                    if ($scope.authorized_parameters.score_type[i] == $scope.authorized_parameters.score_type[$scope.authorized_parameters.score_type.length - 1]) {
-                                        init_checkbox_latest_versions();
-                                    }
+                                $scope.init_checkbox = init_graph.list_ids;
 
+                                var raw_results_data = init_graph.results_data
+
+                                $scope.data_for_table = Graphics._ModelGraphs_reorganizeRawDataForResultTable($scope.raw_data);
+                                $scope.init_checkbox_latest_versions();
+                                $scope.$on('data_focussed:updated', function(event, data, key) {
+                                    $scope.line_result_focussed[key] = data;
+                                    $scope.$apply();
                                 });
-
-                            };
-                            $scope.$on('data_focussed:updated', function(event, data, key) {
-                                $scope.line_result_focussed[key] = data;
-                                $scope.$apply();
+                                $scope.init_graph = init_graph.values;
                             });
 
-
-                            // console.log($scope.init_graph_all);
-                            $scope.init_checkbox = init_graph.list_ids;
-                            // $scope.init_graph = format_data_for_table(init_graph);
-                            $scope.init_graph = init_graph;
-
-
-                            var raw_results_data = init_graph.results_data
-                            $scope.data_for_table = raw_result_data_formated_for_table_data(raw_results_data);
-                            console.log("$scope.data_for_table", $scope.data_for_table)
-
-                            DataHandler.loadModels({ app_id: app_id }).then(function(data) {
+                            DataHandler.loadModels({ app_id: $scope.app_id }).then(function(data) {
                                 $scope.models = data
                                 $scope.$apply()
                             });
 
-                            DataHandler.loadTests({ app_id: app_id }).then(function(data) {
+                            DataHandler.loadTests({ app_id: $scope.app_id }).then(function(data) {
                                 $scope.tests = data
                                 $scope.$apply()
                             });
 
-                        })
+                        }).catch(function(err) {
+                            console.error('Erreur !');
+                            console.dir(err);
+                            console.log(err);
+                        });
 
 
                     });
@@ -204,110 +193,108 @@ testApp.controller('ValModelDetailCtrl', ['$scope', '$rootScope', '$http', '$loc
 
         });
 
-        var raw_result_data_formated_for_table_data = function(raw) {
+        // var raw_result_data_formated_for_table_data = function(raw) {
 
-            for (var i in raw.test_codes) {
-                // console.log("previous model_instances", raw.test_codes[i].model_instances);
-                raw.test_codes[i].model_instances = reformat_model_instances_into_sorted_array(raw.test_codes[i].model_instances);
-                raw.test_codes[i].model_instances = reformat_model_instances_results_into_sorted_array(raw.test_codes[i].model_instances);
-                // console.log("new model_instances", raw.test_codes[i].model_instances);
-            }
-            return raw;
+        //     for (var i in raw.test_codes) {
+        //         raw.test_codes[i].model_instances = reformat_model_instances_into_sorted_array(raw.test_codes[i].model_instances);
+        //         raw.test_codes[i].model_instances = reformat_model_instances_results_into_sorted_array(raw.test_codes[i].model_instances);
+        //     }
+        //     return raw;
 
-        };
-        var reformat_model_instances_results_into_sorted_array = function(model_instances) {
-            for (var i in model_instances) {
-                model_instances[i].results = dict_to_array(model_instances[i].results);
-                model_instances[i].results = reformat_results_into_sorted_array(model_instances[i].results);
-            }
+        // };
+        // var reformat_model_instances_results_into_sorted_array = function(model_instances) {
+        //     for (var i in model_instances) {
+        //         model_instances[i].results = dict_to_array(model_instances[i].results);
+        //         model_instances[i].results = reformat_results_into_sorted_array(model_instances[i].results);
+        //     }
 
-            return model_instances;
-        };
+        //     return model_instances;
+        // };
 
-        var dict_to_array = function(dict) {
-            var array = []
-            for (var i in dict) {
-                array.push(dict[i]);
-            }
-            return (array);
-        };
+        // var dict_to_array = function(dict) {
+        //     var array = []
+        //     for (var i in dict) {
+        //         array.push(dict[i]);
+        //     }
+        //     return (array);
+        // };
 
-        var reformat_results_into_sorted_array = function(results) {
-            var temp_results = Object.assign([], results);
-            var new_results = [];
+        // var reformat_results_into_sorted_array = function(results) {
+        //     var temp_results = Object.assign([], results);
+        //     var new_results = [];
 
-            for (var i in results) {
-                new_results.push(get_and_clean_newest_result(temp_results));
-            }
+        //     for (var i in results) {
+        //         new_results.push(get_and_clean_newest_result(temp_results));
+        //     }
 
-            return new_results;
-        }
+        //     return new_results;
+        // }
 
-        var get_and_clean_newest_result = function(list) {
-            var newest_element = null;
-            for (var i in list) {
+        // var get_and_clean_newest_result = function(list) {
+        //     var newest_element = null;
+        //     for (var i in list) {
 
-                if (newest_element == null) {
-                    newest_element = list[i];
-                    var count = i;
-                } else {
-                    if (list[i].timestamp < newest_element.timestamp) {
-                        newest_element = list[i];
-                        var count = i;
-                    }
-                }
-            }
-            delete(list[count]);
-            return (newest_element);
+        //         if (newest_element == null) {
+        //             newest_element = list[i];
+        //             var count = i;
+        //         } else {
+        //             if (list[i].timestamp < newest_element.timestamp) {
+        //                 newest_element = list[i];
+        //                 var count = i;
+        //             }
+        //         }
+        //     }
+        //     delete(list[count]);
+        //     return (newest_element);
 
-        };
+        // };
 
-        var reformat_model_instances_into_sorted_array = function(model_instances) {
+        // var reformat_model_instances_into_sorted_array = function(model_instances) {
 
-            var temp_model_instances = Object.assign({}, model_instances);
-            var new_instances = [];
+        //     var temp_model_instances = Object.assign({}, model_instances);
+        //     var new_instances = [];
 
-            for (var new_instances_count in model_instances) {
-                new_instances.push(get_and_clean_newest_instance(temp_model_instances));
-            }
+        //     for (var new_instances_count in model_instances) {
+        //         new_instances.push(get_and_clean_newest_instance(temp_model_instances));
+        //     }
 
-            return new_instances;
+        //     return new_instances;
 
-        };
+        // };
 
 
-        var get_and_clean_newest_instance = function(dict) {
+        // var get_and_clean_newest_instance = function(dict) {
 
-            var newest_element = null;
-            for (var i in dict) {
+        //     var newest_element = null;
+        //     for (var i in dict) {
 
-                if (newest_element == null) {
-                    newest_element = dict[i];
-                    var count = i;
-                } else {
-                    if (dict[i].timestamp < newest_element.timestamp) {
-                        newest_element = dict[i];
-                        var count = i;
-                    }
-                }
-            }
-            delete(dict[count]);
-            return (newest_element);
+        //         if (newest_element == null) {
+        //             newest_element = dict[i];
+        //             var count = i;
+        //         } else {
+        //             if (dict[i].timestamp < newest_element.timestamp) {
+        //                 newest_element = dict[i];
+        //                 var count = i;
+        //             }
+        //         }
+        //     }
+        //     delete(dict[count]);
+        //     return (newest_element);
 
-        }
+        // }
 
-        var get_newest = function(dict) {
+        // var get_newest = function(dict) {
 
 
-            var newest_element = null;
-            for (var i in dict) {
-                if (dict[i].timestamp < newest_element.timestamp || newest_element.timestamp == undefined) {
-                    newest_element = dict[i];
-                }
-            }
-            return (newest_element);
+        //     var newest_element = null;
+        //     for (var i in dict) {
+        //         if (dict[i].timestamp < newest_element.timestamp || newest_element.timestamp == undefined) {
+        //             newest_element = dict[i];
+        //         }
+        //     }
+        //     return (newest_element);
 
-        }
+        // }
 
         $scope.validation_goToModelCatalog = function(model) {
             Context.validation_goToModelCatalog(model = model);
@@ -368,48 +355,37 @@ testApp.controller('ValModelDetailCtrl', ['$scope', '$rootScope', '$http', '$loc
         //         }
         //     }
         //     return (false);
-
         // }
 
         $scope.is_graph_not_empty = function(score_type) {
-            if (score_type.results.length < 2) {
+            if (score_type.values.results.length < 2) {
                 return false;
             }
             return true;
         }
 
-        var init_checkbox_latest_versions = function() {
+        $scope.init_checkbox_latest_versions = function() {
             var list_ids = [];
-
             for (var i = 0; i < $scope.init_graph_all.length; i++) {
-                if ($scope.init_graph_all[i].values.length > 0) {
-                    var graph = $scope.init_graph_all[i];
-                    var score_type = graph.values[0].test_score_type
+                // if ($scope.init_graph_all[i].values.length > 0) {
+                var graph = $scope.init_graph_all[i];
 
-                    for (var line_id in graph.latest_test_versions_line_id) {
-                        list_ids.push(graph.latest_test_versions_line_id[line_id].latest_line_id);
-                        // console.log(graph.latest_test_versions_line_id[line_id].latest_line_id);
-                        document.getElementById('check-' + i + '-' + graph.latest_test_versions_line_id[line_id].latest_line_id).checked = true;
-                    }
+                var score_type = graph.values.values[0].test_score_type
 
-                    $scope.init_graph_all[i].values = Graphics.getUpdatedGraph($scope.init_graph_all[i].values, list_ids); // might have problem here
-                    $scope.line_result_focussed[i] = null;
+                for (var line_id in graph.values.latest_test_versions_line_id) {
+                    list_ids.push(graph.values.latest_test_versions_line_id[line_id].latest_line_id);
 
+                    document.getElementById('check-' + i + '-' + graph.values.latest_test_versions_line_id[line_id].latest_line_id).checked = true;
                 }
+                $scope.init_graph_all[i].values.values = Graphics.getUpdatedGraph($scope.init_graph_all[i].values.values, list_ids);
+                $scope.line_result_focussed[i] = null;
             }
         };
 
         $scope.updateGraph = function(key) {
             var list_ids = _IsCheck(key);
 
-            console.log("key : ", key);
-            console.log("list_ids : ", list_ids);
-
-            console.log("$scope.init_graph_all[key]", $scope.init_graph_all[key]);
-            console.log("$scope.init_graph", $scope.init_graph);
-
-
-            $scope.init_graph_all[key].values = Graphics.getUpdatedGraph($scope.init_graph.values, list_ids);
+            $scope.init_graph_all[key].values.values = Graphics.getUpdatedGraph($scope.init_graph, list_ids);
             $scope.line_result_focussed[key] = null;
         };
 
@@ -417,9 +393,9 @@ testApp.controller('ValModelDetailCtrl', ['$scope', '$rootScope', '$http', '$loc
             var list_ids = [];
             var i = 0;
 
-            for (i; i < $scope.init_graph_all[key].list_ids.length; i++) {
-                if (document.getElementById('check-' + key + '-' + $scope.init_graph_all[key].list_ids[i]).checked) {
-                    list_ids.push($scope.init_graph_all[key].list_ids[i]);
+            for (i; i < $scope.init_graph_all[key].values.list_ids.length; i++) {
+                if (document.getElementById('check-' + key + '-' + $scope.init_graph_all[key].values.list_ids[i]).checked) {
+                    list_ids.push($scope.init_graph_all[key].values.list_ids[i]);
                 };
             };
             return list_ids
@@ -452,8 +428,10 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
             $scope.ctx = Context.getCtx();
             $scope.app_id = Context.getAppID();
 
+            $scope.init_graph, $scope.graphic_data, $scope.init_checkbox, $scope.graphic_options;
+            $scope.data_for_table;
 
-            CollabParameters.setService(ctx).then(function() {
+            CollabParameters.setService($scope.ctx).then(function() {
 
                 $scope.detail_test = ValidationTestDefinitionRest.get({ app_id: $scope.app_id, id: $stateParams.uuid });
 
@@ -466,45 +444,46 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
                 $scope.test_type = CollabParameters.getParametersOrDefaultByType("test_type");
                 $scope.data_modalities = CollabParameters.getParametersOrDefaultByType("data_modalities");
 
-                $scope.detail_version_test = ValidationTestCodeRest.get({ app_id: app_id, test_definition_id: $stateParams.uuid });
+                $scope.detail_version_test = ValidationTestCodeRest.get({ app_id: $scope.app_id, test_definition_id: $stateParams.uuid });
                 //TODO: take detail_test and detail_version_test in one get
 
                 $scope.detail_test.$promise.then(function() {
-
                     $scope.detail_version_test.$promise.then(function() {
-                        Graphics.getResultsfromTestID2($scope.detail_test, $scope.detail_version_test).then(function(init_graph) {
 
-                            $scope.result_focussed;
-                            $scope.$on('data_focussed:updated', function(event, data, key) {
-                                $scope.result_focussed = data;
-                                $scope.$apply();
-                            });
+                        var get_raw_data = Graphics.getRawDataForTest($scope.detail_version_test)
 
-                            $scope.init_graph = init_graph;
-                            $scope.graphic_data = init_graph.values; //initialise graph before to updte with latest versions
-                            $scope.init_checkbox = init_graph.list_ids;
+                        get_raw_data.then(function(raw_data) {
 
-                            var raw_data = init_graph.raw_data;
-                            raw_data.$promise.then(function() {
-                                $scope.graphic_options = Graphics.get_lines_options('', '', $scope.detail_test.tests[0].score_type, "", init_graph.results, "test", "", init_graph.abs_info);
-                                $scope.data_for_table = _reorganize_raw_data_for_table(raw_data);
-                                var recent_datas = _get_more_recent_versions(init_graph.values, $scope.data_for_table);
-                                $scope.graphic_data = recent_datas.values;
-                                check_elements_in_checkbox(init_graph.list_ids, recent_datas.list_ids);
+                            $scope.raw_data = raw_data;
 
+                            var init_graph = Graphics.init_TestGraph($scope.detail_version_test, $scope.raw_data);
 
+                            $scope.data_for_table = Graphics._reorganize_raw_data_for_result_table($scope.raw_data.model_instances);
 
-                                DataHandler.loadModels({ app_id: $scope.app_id }).then(function(data) {
-                                    $scope.models = data
-                                    $scope.$apply()
+                            init_graph.then(function(data_init_graph) {
+
+                                $scope.init_graph = data_init_graph;
+                                $scope.graphic_data = $scope.init_graph.values; //initialise graph before to updte with latest versions
+                                console.log("graphic_data before update", $scope.graphic_data)
+                                $scope.init_checkbox = data_init_graph.list_ids;
+
+                                $scope.graphic_options = Graphics.get_lines_options('', '', $scope.detail_test.tests[0].score_type, "", data_init_graph.results, "test", "", data_init_graph.abs_info);
+
+                                $scope.init_checkbox_latest_versions();
+                                // $scope.recent_datas = $scope._get_more_recent_versions();
+                                // $scope.recent_datas.then(function(datas) {
+                                //     $scope.graphic_data = datas.values;
+                                // });
+                                //check_elements_in_checkbox(data_init_graph.list_ids, recent_datas.list_ids);
+                                $scope.result_focussed;
+                                $scope.$on('data_focussed:updated', function(event, data, key) {
+                                    $scope.result_focussed = data;
+                                    $scope.$apply();
                                 });
-
-                                DataHandler.loadTests({ app_id: $scope.app_id }).then(function(data) {
-                                    $scope.tests = data
-                                    $scope.$apply()
-                                });
-
-
+                            }).catch(function(err) {
+                                console.error('Erreur !');
+                                console.dir(err);
+                                console.log(err);
                             });
 
                         }).catch(function(err) {
@@ -533,121 +512,72 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
 
                     });
                 });
+                $scope.init_checkbox_latest_versions = function() {
+                    var list_ids = [];
+                    for (var line_id in $scope.init_graph.latest_model_instances_line_id) {
+                        list_ids.push($scope.init_graph.latest_model_instances_line_id[line_id].latest_line_id);
+                        // document.getElementById('check-' + $scope.init_graph.latest_model_instances_line_id[line_id].latest_line_id).checked = true;
+                    }
+                    $scope.graphic_data = Graphics.getUpdatedGraph($scope.init_graph.values, list_ids);
+                    $scope.line_result_focussed = null;
+                };
 
+                // $scope._get_more_recent_versions = function() {
+                //     return new Promise(function(resolve, reject) {
+                //         var list_instances = [];
+                //         var new_list = [];
+                //         $scope.get_latest_recent_versions_id().then(function(list_recent_instances_ids) {
+                //             new_list = Graphics.get_mor_recent_versions_graph_values(list_recent_instances_ids, $scope.detail_version_test, $scope.raw_data);
+                //             new_list.then(function(list) {
+                //                 resolve({ "values": list });
+                //             });
+                //         })
+                //     });
+                // }
+
+                // $scope.get_latest_recent_versions_id = function() {
+                //     return new Promise(function(resolve, reject) {
+                //         var list_instances = [];
+                //         var list_ids_to_return = [];
+                //         for (var instance in $scope.raw_data.model_instances) {
+                //             $scope.raw_data.model_instances[instance].id = instance;
+                //             if (list_instances[$scope.raw_data.model_instances[instance].model_id]) {
+                //                 list_instances[$scope.raw_data.model_instances[instance].model_id].push($scope.raw_data.model_instances[instance]);
+                //             } else {
+                //                 list_instances[$scope.raw_data.model_instances[instance].model_id] = [];
+                //                 list_instances[$scope.raw_data.model_instances[instance].model_id].push($scope.raw_data.model_instances[instance]);
+                //             }
+                //         }
+                //         for (var model_array in list_instances) {
+                //             list_instances[model_array].sort(Graphics._sort_results_by_timestamp_desc);
+                //             list_ids_to_return.push(list_instances[model_array][0].id)
+                //         }
+                //         resolve(list_ids_to_return);
+                //     });
+                // };
                 $scope.is_graph_not_empty = function(data_graph) {
-
                     if (data_graph.length < 2 && data_graph[0].values.length < 2) {
                         return false;
                     }
                     return true;
                 }
 
-                var check_elements_in_checkbox = function(list_all_ids, recent_ids) {
-                    $(function() {
-                        //not working yet
-                        for (var id in recent_ids) {
-                            var i = 0;
-                            for (i; i <= list_all_ids.length; i++) {
-                                if (recent_ids[id] == list_all_ids[i]) {
-                                    document.getElementById('check-' + i);
-                                };
-                            };
-                        };
-                    });
-                };
-
-                var _get_more_recent_versions = function(values, data) {
-
-                    var key_list_recent_versions = _get_more_recent_version_keys(data.model_instances)
-                        //take values corresponding to the key list
-                    var new_values = [];
-                    for (var value in values) {
-                        for (var key in key_list_recent_versions) {
-                            if (values[value].key == key_list_recent_versions[key]) {
-                                new_values.push(values[value]);
-                            };
-                        }
-
-                    };
-
-                    return { values: new_values, list_ids: key_list_recent_versions }
-                }
-
-                var _get_more_recent_version_keys = function(model_instances) {
-                    var temp_models = [];
-                    var res = [];
-                    for (var instance in model_instances) {
-                        if (temp_models[model_instances[instance].model_name]) {
-                            temp_models[model_instances[instance].model_name].push(model_instances[instance]);
-                        } else {
-                            temp_models[model_instances[instance].model_name] = [];
-                            temp_models[model_instances[instance].model_name].push(model_instances[instance]);
-                        }
-                    }
-                    //reorder data by time and take the last one
-                    for (var raw in temp_models) {
-                        temp_models[raw].sort(_sort_by_timestamp_desc);
-                        res.push(temp_models[raw][0].line_id);
-                    }
-                    return res
-                }
-
-                var _reorganize_raw_data_for_table = function(data) {
-                    var organized_data = new Object();
-                    organized_data.model_instances = [];
+                // var check_elements_in_checkbox = function(list_all_ids, recent_ids) {
+                //     $(function() {
+                //         //not working yet
+                //         for (var id in recent_ids) {
+                //             var i = 0;
+                //             for (i; i <= list_all_ids.length; i++) {
+                //                 if (recent_ids[id] == list_all_ids[i]) {
+                //                     document.getElementById('check-' + list_all_ids[i]);
+                //                 };
+                //             };
+                //         };
+                //     });
+                // };
 
 
-                    for (var model_instance in data.model_instances) {
-                        var instance = new Object();
-                        if (data.model_instances[model_instance].model_alias && data.model_instances[model_instance].model_alias !== null && data.model_instances[model_instance].model_alias !== '' && data.model_instances[model_instance].model_alias !== "None") {
-                            instance.line_id = data.model_instances[model_instance].model_alias + ' ( ' + data.model_instances[model_instance].version + ' )';
 
-                        } else {
-                            instance.line_id = data.model_instances[model_instance].model_id.substring(0, 8) + '... ( ' + data.model_instances[model_instance].version + ' )';
-                        }
-                        instance.timestamp = data.model_instances[model_instance].timestamp;
-                        instance.id = model_instance;
-                        instance.model_id = data.model_instances[model_instance].model_id;
-                        instance.model_name = data.model_instances[model_instance].model_name;
-
-                        instance.test_instances = [];
-
-                        for (var test_instance in data.model_instances[model_instance].test_codes) {
-                            var code = new Object();
-                            code.version = data.model_instances[model_instance].test_codes[test_instance].version;
-                            code.timestamp = data.model_instances[model_instance].test_codes[test_instance].timestamp;
-
-                            code.results = [];
-                            for (var result in data.model_instances[model_instance].test_codes[test_instance].results) {
-                                //only keep the first five significant score figures 
-                                var res = data.model_instances[model_instance].test_codes[test_instance].results[result];
-                                res.score = res.score.toPrecision(5);
-                                code.results.push(res);
-                            }
-                            //order results by timestamp
-                            code.results = code.results.sort(_sort_by_timestamp_desc);
-                            instance.test_instances.push(code);
-                        }
-                        //order test_instances by timestamp
-                        instance.last_result_timestamp = _get_last_result_timestamp(instance.test_instances);
-                        instance.test_instances = instance.test_instances.sort(_sort_by_timestamp_asc);
-                        organized_data.model_instances.push(instance);
-                    }
-                    //sort model instances by last result timestamp
-                    organized_data.model_instances = organized_data.model_instances.sort(_sort_by_last_result_timestamp_desc)
-                    return organized_data;
-
-                };
-                var _get_last_result_timestamp = function(codes) {
-                    var newest_timestamp = undefined;
-                    for (var code in codes) {
-                        var timestamp = codes[code].results[0].timestamp;
-                        if (newest_timestamp == undefined || (newest_timestamp && timestamp < newest_timestamp)) {
-                            newest_timestamp = timestamp;
-                        }
-                    }
-                    return newest_timestamp;
-                }
                 var _sort_by_last_result_timestamp_desc = function(a, b) {
                     return new Date(b.last_result_timestamp) - new Date(a.last_result_timestamp);
                 }
@@ -732,7 +662,7 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
                     _add_params();
 
                     var parameters = JSON.stringify([$scope.test_code]);
-                    var test_version_response = ValidationTestCodeRest.save({ app_id: app_id, test_definition_id: $scope.detail_test.tests[0].id }, parameters).$promise.then(function() {
+                    var test_version_response = ValidationTestCodeRest.save({ app_id: $scope.app_id, test_definition_id: $scope.detail_test.tests[0].id }, parameters).$promise.then(function() {
                         document.getElementById("tab_description").style.display = "none";
                         document.getElementById("tab_version").style.display = "block";
                         document.getElementById("tab_new_version").style.display = "none";
@@ -746,11 +676,11 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
 
                 $scope.editTest = function() {
                     if ($scope.detail_test.tests[0].alias != '' && $scope.detail_test.tests[0].alias != null) {
-                        $scope.alias_is_valid = ValidationTestAliasRest.get({ app_id: app_id, test_id: $scope.detail_test.tests[0].id, alias: $scope.detail_test.tests[0].alias });
+                        $scope.alias_is_valid = ValidationTestAliasRest.get({ app_id: $scope.app_id, test_id: $scope.detail_test.tests[0].id, alias: $scope.detail_test.tests[0].alias });
                         $scope.alias_is_valid.$promise.then(function() {
                             if ($scope.alias_is_valid.is_valid) {
                                 var parameters = JSON.stringify($scope.detail_test.tests[0]);
-                                ValidationTestDefinitionRest.put({ app_id: app_id, id: $scope.detail_test.tests[0].id }, parameters).$promise.then(function() {
+                                ValidationTestDefinitionRest.put({ app_id: $scope.app_id, id: $scope.detail_test.tests[0].id }, parameters).$promise.then(function() {
                                     document.getElementById("tab_description").style.display = "none";
                                     document.getElementById("tab_version").style.display = "block";
                                     document.getElementById("tab_new_version").style.display = "none";
@@ -766,7 +696,7 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
                     } else {
                         $scope.detail_test.tests[0].alias = null;
                         var parameters = JSON.stringify($scope.detail_test.tests[0]);
-                        ValidationTestDefinitionRest.put({ app_id: app_id, id: $scope.detail_test.tests[0].id }, parameters).$promise.then(function() {
+                        ValidationTestDefinitionRest.put({ app_id: $scope.app_id, id: $scope.detail_test.tests[0].id }, parameters).$promise.then(function() {
                             document.getElementById("tab_description").style.display = "none";
                             document.getElementById("tab_version").style.display = "block";
                             document.getElementById("tab_new_version").style.display = "none";
@@ -816,9 +746,7 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
                 };
 
                 var _send_notification = function() {
-                    NotificationRest.post({ app_id: $scope.app_id, ctx: ctx }).$promise.then(function(data) {
-                        // console.log(data)
-                    });
+                    NotificationRest.post({ app_id: $scope.app_id, ctx: $scope.ctx }).$promise.then(function(data) {});
                 }
 
                 $scope.saveTicket = function() {
@@ -826,7 +754,6 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
                     var data = JSON.stringify($scope.ticket);
                     $scope.new_ticket = TestTicketRest.post({ app_id: $scope.app_id }, data, function(value) {})
                     $scope.new_ticket.$promise.then(function() {
-                        // console.log($scope.new_ticket)
                         $scope.test_tickets.tickets.push($scope.new_ticket.new_ticket[0]);
                         document.getElementById("formT").reset();
                         _send_notification();
@@ -911,7 +838,7 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
                     var text = $("#editable-ctext-" + com_id).text();
 
                     var parameters = JSON.stringify({ 'id': com_id, 'text': text });
-                    var a = TestCommentRest.put({ app_id: app_id }, parameters).$promise.then(function(data) {
+                    var a = TestCommentRest.put({ app_id: $scope.app_id }, parameters).$promise.then(function(data) {
                         angular.element(document.querySelector("#editable-ctext-" + com_id)).attr('contenteditable', "false");
                         angular.element(document.querySelector("#editable-ctext-" + com_id)).attr('bgcolor', 'white');
                         $scope.button_save_comment.splice($scope.button_save_comment.indexOf(com_id));
@@ -944,7 +871,6 @@ testApp.controller('ValTestResultDetailCtrl', ['$window', '$scope', '$rootScope'
                 var test_result = ValidationResultRest.get({ id: $stateParams.uuid, order: "", detailed_view: true });
 
                 test_result.$promise.then(function() {
-                    console.log("test_result promise");
 
                     $scope.test_result = test_result.results[0];
 
@@ -1738,7 +1664,7 @@ ModelCatalogApp.controller('ModelCatalogVersionCtrl', ['$scope', '$rootScope', '
             $scope.ctx = Context.getCtx();
             $scope.app_id = Context.getAppID();
 
-            CollabParameters.setService(ctx).then(function() {
+            CollabParameters.setService($scope.ctx).then(function() {
                 $scope.model = ScientificModelRest.get({ id: $stateParams.uuid });
             });
 

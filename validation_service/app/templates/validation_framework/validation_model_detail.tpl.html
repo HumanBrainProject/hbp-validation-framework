@@ -102,7 +102,7 @@
                 </thead>
                 <tbody>
                     <tr ng-repeat="test_code in data_for_table.test_codes">
-                        <td class=tr-clickable ng-click=Context.validation_goToTestDetailView(test_code.test_id)>test #{{test_code.test_alias}} {{test_code.version}} </td>
+                        <td class=tr-clickable ng-click=Context.validation_goToTestDetailView(test_code.test_id)>test #{{test_code.line_id}}</td>
                         <td colspan=2 ng-repeat="model_instance in test_code.model_instances">
 
                             <div ng-if="model_instance.results.length <= 3">
@@ -184,19 +184,19 @@
         <br>
 
         <div ng-repeat="(key,score_type) in init_graph_all | limitTo:init_graph_all.length">
-            <div ng-show=" score_type.list_ids.length !=0 && is_graph_not_empty(score_type) ">
+            <div ng-show=" score_type.values.list_ids.length !=0 && is_graph_not_empty(score_type) ">
                 <br>
                 <br>
-                <h4 align=center> Add title {{score_type.values[0].test_score_type}}</h4>
+                <h4 align=center> Add title {{score_type.values.values[0].test_score_type}}</h4>
                 <table>
                     <tbody>
                         <tr>
                             <td style="width: 85% ">
-                                <nvd3 options="options5[key] " data=score_type.values id='chart_svg_{{key}}'></nvd3>
+                                <nvd3 options="options5[key] " data=score_type.values.values id='chart_svg_{{key}}'></nvd3>
                             </td>
                             <td style="width: 15% ">
                                 <div id="checkbox-{{key}} ">
-                                    <div ng-repeat=" (key2,test_code) in score_type.list_ids " class=checkbox>
+                                    <div ng-repeat=" (key2,test_code) in score_type.values.list_ids " class=checkbox>
                                         <label> <input id="check-{{key}}-{{test_code}} " type="checkbox" >{{test_code}}
                              </label>
 
