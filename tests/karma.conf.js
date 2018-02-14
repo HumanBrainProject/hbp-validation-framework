@@ -172,6 +172,7 @@ module.exports = function(config) {
             '../validation_service/app/static/moment-2.19.2/moment.js',
             '../validation_service/app/static/angular-moment-1.1.0/angular-moment.js',
 
+            '../validation_service/app/static/palette.js-master/palette.js',
             //.js | files
             '../validation_service/app/js/*.js',
             './test_framework/*.js',
