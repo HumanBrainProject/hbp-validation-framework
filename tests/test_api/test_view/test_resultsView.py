@@ -192,7 +192,7 @@ class ResultsTest(TestCase):
         response = client_authorized.get('/results/', data={})
         message = json.loads(response._container[0])
 
-        error_message = "You need to give 'order' argument. Here are the options : 'test', 'model', 'model_instance', 'test_code', '' "
+        error_message = "You need to give 'order' argument. Here are the options : 'test', 'model', 'model_instance', 'test_code', 'score_type', '' "
 
         self.assertEqual(json.loads(response._container[0]), error_message)
         
