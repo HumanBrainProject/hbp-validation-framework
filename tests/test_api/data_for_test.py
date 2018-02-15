@@ -67,27 +67,27 @@ from datetime import datetime
 
 #                     )
 
-from model_validation_api.validation_framework_toolbox.fill_db import (
-        create_data_modalities,
-        create_organizations,
-        create_test_types,
-        create_score_type,
-        create_species,
-        create_brain_region,
-        create_cell_type,
-        create_model_type,
-        create_models_test_results,
-        create_fake_collab,
-        create_all_parameters,
-        create_specific_test,
-        create_specific_testcode,
-        create_specific_model,
-        create_specific_result,
-        create_specific_modelinstance,
-        create_specific_ticket,
-        create_specific_comment,
-        create_specific_image,
-)
+# from model_validation_api.validation_framework_toolbox.fill_db import (
+#         create_data_modalities,
+#         create_organizations,
+#         create_test_types,
+#         create_score_type,
+#         create_species,
+#         create_brain_region,
+#         create_cell_type,
+#         create_model_type,
+#         create_models_test_results,
+#         create_fake_collab,
+#         create_all_parameters,
+#         create_specific_test,
+#         create_specific_testcode,
+#         create_specific_model,
+#         create_specific_result,
+#         create_specific_modelinstance,
+#         create_specific_ticket,
+#         create_specific_comment,
+#         create_specific_image,
+# )
 
 
 
