@@ -35,6 +35,7 @@ before_script:
 - ls 
 - pwd
 - ls ./validation_service
+- ls ./model_validation_api
 - python -c "import django; print(django.get_version())"
 # - export NMPI_ENV=travis
 script:
