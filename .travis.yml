@@ -29,7 +29,7 @@ install:
 - unzip packages/hbp-app-python-auth-0.1.5.zip -d packages/
 - pip install -r ./validation_service/requirements.txt
 - pip install coveralls
-#   - pip install . 
+- pip install . 
 before_script:
 # - export PYTHONPATH=$PYTHONPATH:$(pwd)
 # - python -c "import django; print(django.get_version())"
