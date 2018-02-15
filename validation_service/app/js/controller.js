@@ -17,13 +17,13 @@ testApp.controller('HomeCtrl', ['$scope', '$rootScope', '$http', '$location', "S
 
                 CollabParameters.setService(ctx).then(function() {
 
-                    $scope.collab_species = CollabParameters.getParametersOrDefault("species");
-                    $scope.collab_brain_region = CollabParameters.getParametersOrDefault("brain_region");
-                    $scope.collab_cell_type = CollabParameters.getParametersOrDefault("cell_type");
-                    $scope.collab_model_type = CollabParameters.getParametersOrDefault("model_type");
-                    $scope.collab_test_type = CollabParameters.getParametersOrDefault("test_type");
-                    $scope.collab_data_modalities = CollabParameters.getParametersOrDefault("data_modalities");
-                    $scope.collab_organization = CollabParameters.getParametersOrDefault("organization");
+                    $scope.collab_species = CollabParameters.getParametersOrDefaultByType("species");
+                    $scope.collab_brain_region = CollabParameters.getParametersOrDefaultByType("brain_region");
+                    $scope.collab_cell_type = CollabParameters.getParametersOrDefaultByType("cell_type");
+                    $scope.collab_model_type = CollabParameters.getParametersOrDefaultByType("model_type");
+                    $scope.collab_test_type = CollabParameters.getParametersOrDefaultByType("test_type");
+                    $scope.collab_data_modalities = CollabParameters.getParametersOrDefaultByType("data_modalities");
+                    $scope.collab_organization = CollabParameters.getParametersOrDefaultByType("organization");
 
                     // $scope.models = ScientificModelRest.get({ app_id: app_id }, function(data) {});
                     // $scope.tests = ValidationTestDefinitionRest.get({ app_id: app_id }, function(data) {});
@@ -86,13 +86,13 @@ testApp.controller('ValTestCtrl', ['$scope', '$rootScope', '$http', '$location',
             });
             CollabParameters.setService(ctx).then(function() {
 
-                $scope.collab_species = CollabParameters.getParametersOrDefault("species");
-                $scope.collab_brain_region = CollabParameters.getParametersOrDefault("brain_region");
-                $scope.collab_cell_type = CollabParameters.getParametersOrDefault("cell_type");
-                $scope.collab_model_type = CollabParameters.getParametersOrDefault("model_type");
-                $scope.collab_test_type = CollabParameters.getParametersOrDefault("test_type");
-                $scope.collab_data_modalities = CollabParameters.getParametersOrDefault("data_modalities");
-                // $scope.collab_organization = CollabParameters.getParameters("organization");
+                $scope.collab_species = CollabParameters.getParametersOrDefaultByType("species");
+                $scope.collab_brain_region = CollabParameters.getParametersOrDefaultByType("brain_region");
+                $scope.collab_cell_type = CollabParameters.getParametersOrDefaultByType("cell_type");
+                $scope.collab_model_type = CollabParameters.getParametersOrDefaultByType("model_type");
+                $scope.collab_test_type = CollabParameters.getParametersOrDefaultByType("test_type");
+                $scope.collab_data_modalities = CollabParameters.getParametersOrDefaultByType("data_modalities");
+                // $scope.collab_organization = CollabParameters.getParametersByType("organization");
 
                 $scope.is_collab_member = false;
                 $scope.is_collab_member = IsCollabMemberRest.get({ app_id: app_id, });
@@ -114,86 +114,75 @@ testApp.controller('ValTestCtrl', ['$scope', '$rootScope', '$http', '$location',
 testApp.controller('ValModelDetailCtrl', ['$scope', '$rootScope', '$http', '$location', '$stateParams', 'ScientificModelRest', 'ScientificModelInstanceRest', 'CollabParameters', 'IsCollabMemberRest', 'AppIDRest', 'Graphics', 'Context', 'AuthorizedCollabParameterRest', 'DataHandler', 'clbStorage',
 
     function($scope, $rootScope, $http, $location, $stateParams, ScientificModelRest, ScientificModelInstanceRest, CollabParameters, IsCollabMemberRest, AppIDRest, Graphics, Context, AuthorizedCollabParameterRest, DataHandler, clbStorage) {
-        $scope.Context = Context;
-        // var latest_test_versions_line_id = {};
+
         Context.setService().then(function() {
             $scope.Context = Context;
-            var ctx = Context.getCtx();
-            var app_id = Context.getAppID();
+            $scope.ctx = Context.getCtx();
+            $scope.app_id = Context.getAppID();
 
 
-            CollabParameters.setService(ctx).then(function() {
-                // $scope.is_collab_member = false;
-                // $scope.is_collab_member = IsCollabMemberRest.get({ app_id: app_id });
-                // $scope.is_collab_member.$promise.then(function() {
-                //     $scope.is_collab_member = $scope.is_collab_member.is_member;
-                // });
+            CollabParameters.setService($scope.ctx).then(function() {
 
                 $scope.authorized_parameters = AuthorizedCollabParameterRest.get();
 
-                // console.log($scope.authorized_parameters);
-
-                $scope.model = ScientificModelRest.get({ app_id: app_id, id: $stateParams.uuid });
-                $scope.model_instances = ScientificModelInstanceRest.get({ app_id: app_id, model_id: $stateParams.uuid })
+                $scope.model = ScientificModelRest.get({ app_id: $scope.app_id, id: $stateParams.uuid });
+                $scope.model_instances = ScientificModelInstanceRest.get({ app_id: $scope.app_id, model_id: $stateParams.uuid })
                 $scope.model.$promise.then(function() {
+
                     $scope.model_instances.$promise.then(function() {
-                        //graph and table results
-                        Graphics.getResultsfromModelResultID2($scope.model, $scope.model_instances, undefined).then(function(init_graph) {
-                            $scope.data = init_graph.values;
+
+                        var get_raw_data = Graphics.ModelGraph_getRawData($scope.model.models[0].id);
+
+                        get_raw_data.then(function(raw_data) {
+
+                            $scope.raw_data = raw_data;
                             $scope.init_graph_all = new Array();
                             $scope.line_result_focussed = new Array();
                             $scope.options5 = new Array();
                             $scope.init_checkbox = new Array();
 
+                            Graphics.ModelGraph_init_Graphs($scope.model_instances, raw_data).then(function(init_graph) {
+                                $scope.data = init_graph.values;
 
-                            for (var i in $scope.authorized_parameters.score_type) {
+                                for (var i in init_graph.single_graphs_data) {
 
-                                var score_type = $scope.authorized_parameters.score_type[i].authorized_value;
+                                    var key = $scope.init_graph_all.push(init_graph.single_graphs_data[i]);
 
-                                Graphics.getResultsfromModelResultID2($scope.model, $scope.model_instances, score_type).then(function(value) {
-                                    var key = $scope.init_graph_all.push(value);
-
-                                    $scope.options5.push(Graphics.get_lines_options('', '', $scope.authorized_parameters.score_type[key - 1].authorized_value, "", value.results, "model", key - 1, value.abs_info));
-                                    //  $scope.init_checkbox.push(value.list_ids);
+                                    $scope.options5.push(Graphics.get_lines_options('', '', init_graph.single_graphs_data[i].score_type, "", init_graph.single_graphs_data[i].values.results, "model", key - 1, init_graph.single_graphs_data[i].values.abs_info));
 
                                     $scope.line_result_focussed.push();
                                     $scope.$apply();
 
+                                };
 
-                                    if ($scope.authorized_parameters.score_type[i] == $scope.authorized_parameters.score_type[$scope.authorized_parameters.score_type.length - 1]) {
-                                        init_checkbox_latest_versions();
-                                    }
+                                $scope.init_checkbox = init_graph.list_ids;
 
+                                var raw_results_data = init_graph.results_data
+
+                                $scope.data_for_table = Graphics.ModelGraphs_reorganizeRawDataForResultTable($scope.raw_data, $scope.model_instances.instances);
+                                $scope.init_checkbox_latest_versions();
+                                $scope.$on('data_focussed:updated', function(event, data, key) {
+                                    $scope.line_result_focussed[key] = data;
+                                    $scope.$apply();
                                 });
-
-                            };
-                            $scope.$on('data_focussed:updated', function(event, data, key) {
-                                $scope.line_result_focussed[key] = data;
-                                $scope.$apply();
+                                $scope.init_graph = init_graph.values;
                             });
 
-
-                            // console.log($scope.init_graph_all);
-                            $scope.init_checkbox = init_graph.list_ids;
-                            // $scope.init_graph = format_data_for_table(init_graph);
-                            $scope.init_graph = init_graph;
-
-
-                            var raw_results_data = init_graph.results_data
-                            $scope.data_for_table = raw_result_data_formated_for_table_data(raw_results_data);
-                            console.log("$scope.data_for_table", $scope.data_for_table)
-
-                            DataHandler.loadModels({ app_id: app_id }).then(function(data) {
+                            DataHandler.loadModels({ app_id: $scope.app_id }).then(function(data) {
                                 $scope.models = data
                                 $scope.$apply()
                             });
 
-                            DataHandler.loadTests({ app_id: app_id }).then(function(data) {
+                            DataHandler.loadTests({ app_id: $scope.app_id }).then(function(data) {
                                 $scope.tests = data
                                 $scope.$apply()
                             });
 
-                        })
+                        }).catch(function(err) {
+                            console.error('Erreur !');
+                            console.dir(err);
+                            console.log(err);
+                        });
 
 
                     });
@@ -204,212 +193,39 @@ testApp.controller('ValModelDetailCtrl', ['$scope', '$rootScope', '$http', '$loc
 
         });
 
-        var raw_result_data_formated_for_table_data = function(raw) {
-
-            for (var i in raw.test_codes) {
-                // console.log("previous model_instances", raw.test_codes[i].model_instances);
-                raw.test_codes[i].model_instances = reformat_model_instances_into_sorted_array(raw.test_codes[i].model_instances);
-                raw.test_codes[i].model_instances = reformat_model_instances_results_into_sorted_array(raw.test_codes[i].model_instances);
-                // console.log("new model_instances", raw.test_codes[i].model_instances);
-            }
-            return raw;
-
-        };
-        var reformat_model_instances_results_into_sorted_array = function(model_instances) {
-            for (var i in model_instances) {
-                model_instances[i].results = dict_to_array(model_instances[i].results);
-                model_instances[i].results = reformat_results_into_sorted_array(model_instances[i].results);
-            }
-
-            return model_instances;
-        };
-
-        var dict_to_array = function(dict) {
-            var array = []
-            for (var i in dict) {
-                array.push(dict[i]);
-            }
-            return (array);
-        };
-
-        var reformat_results_into_sorted_array = function(results) {
-            var temp_results = Object.assign([], results);
-            var new_results = [];
-
-            for (var i in results) {
-                new_results.push(get_and_clean_newest_result(temp_results));
-            }
-
-            return new_results;
-        }
-
-        var get_and_clean_newest_result = function(list) {
-            var newest_element = null;
-            for (var i in list) {
-
-                if (newest_element == null) {
-                    newest_element = list[i];
-                    var count = i;
-                } else {
-                    if (list[i].timestamp < newest_element.timestamp) {
-                        newest_element = list[i];
-                        var count = i;
-                    }
-                }
-            }
-            delete(list[count]);
-            return (newest_element);
-
-        };
-
-        var reformat_model_instances_into_sorted_array = function(model_instances) {
-
-            var temp_model_instances = Object.assign({}, model_instances);
-            var new_instances = [];
-
-            for (var new_instances_count in model_instances) {
-                new_instances.push(get_and_clean_newest_instance(temp_model_instances));
-            }
-
-            return new_instances;
-
-        };
-
-
-        var get_and_clean_newest_instance = function(dict) {
-
-            var newest_element = null;
-            for (var i in dict) {
-
-                if (newest_element == null) {
-                    newest_element = dict[i];
-                    var count = i;
-                } else {
-                    if (dict[i].timestamp < newest_element.timestamp) {
-                        newest_element = dict[i];
-                        var count = i;
-                    }
-                }
-            }
-            delete(dict[count]);
-            return (newest_element);
-
-        }
-
-        var get_newest = function(dict) {
-
-
-            var newest_element = null;
-            for (var i in dict) {
-                if (dict[i].timestamp < newest_element.timestamp || newest_element.timestamp == undefined) {
-                    newest_element = dict[i];
-                }
-            }
-            return (newest_element);
-
-        }
-
         $scope.validation_goToModelCatalog = function(model) {
             Context.validation_goToModelCatalog(model = model);
         }
 
-
-        // var format_data_for_table = function(init_graph) {
-        //     console.log(init_graph)
-
-        //     for (i in init_graph.values) {
-        //         init_graph.values[i]
-        //         init_graph.values[i].last_result = "";
-        //         init_graph.values[i].versions_for_table = organise_version_for_table(init_graph.values[i].values);
-        //     }
-
-
-        //     return (init_graph);
-        // };
-
-        // var organise_version_for_table = function(values) {
-
-        //     var formated_data = [];
-
-        //     console.log("IN for :");
-        //     for (var i in values) {
-
-        //         console.log(values);
-
-        //         var formated_data_index = get_index_label_in_list_dict(values[i].label, formated_data)
-
-        //         console.log("formated_data ", formated_data)
-        //         console.log("formated_data_index", formated_data_index)
-
-        //         //if formated_data has values[i].label
-        //         if (Number.isInteger(formated_data_index)) {
-
-        //             console.log(formated_data[formated_data_index]);
-
-        //             // then add the dict value
-        //             formated_data[formated_data_index].values.push({ id_test_result: values[i].id_test_result, score: values[i].y });
-
-
-        //         } else {
-        //             // create this new label 
-        //             formated_data.push({ label: values[i].label, values: [] })
-
-        //             //add the value inside
-        //             formated_data[formated_data.length - 1].values.push({ id_test_result: values[i].id_test_result, score: values[i].y });
-
-        //         }
-        //     }
-
-        // };
-        // var get_index_label_in_list_dict = function(label, list_dict) {
-        //     for (var i in list_dict) {
-        //         if (list_dict[i].label == label) {
-        //             return (i);
-        //         }
-        //     }
-        //     return (false);
-
-        // }
-
         $scope.is_graph_not_empty = function(score_type) {
-            if (score_type.results.length < 2) {
+            if (score_type.values.results.length < 2) {
                 return false;
             }
             return true;
         }
 
-        var init_checkbox_latest_versions = function() {
+        $scope.init_checkbox_latest_versions = function() {
             var list_ids = [];
-
             for (var i = 0; i < $scope.init_graph_all.length; i++) {
-                if ($scope.init_graph_all[i].values.length > 0) {
-                    var graph = $scope.init_graph_all[i];
-                    var score_type = graph.values[0].test_score_type
+                // if ($scope.init_graph_all[i].values.length > 0) {
+                var graph = $scope.init_graph_all[i];
 
-                    for (var line_id in graph.latest_test_versions_line_id) {
-                        list_ids.push(graph.latest_test_versions_line_id[line_id].latest_line_id);
-                        // console.log(graph.latest_test_versions_line_id[line_id].latest_line_id);
-                        document.getElementById('check-' + i + '-' + graph.latest_test_versions_line_id[line_id].latest_line_id).checked = true;
-                    }
+                var score_type = graph.values.values[0].test_score_type
 
-                    $scope.init_graph_all[i].values = Graphics.getUpdatedGraph($scope.init_graph_all[i].values, list_ids); // might have problem here
-                    $scope.line_result_focussed[i] = null;
+                for (var line_id in graph.values.latest_test_versions_line_id) {
+                    list_ids.push(graph.values.latest_test_versions_line_id[line_id].latest_line_id);
 
+                    document.getElementById('check-' + i + '-' + graph.values.latest_test_versions_line_id[line_id].latest_line_id).checked = true;
                 }
+                $scope.init_graph_all[i].values.values = Graphics.getUpdatedGraph($scope.init_graph_all[i].values.values, list_ids);
+                $scope.line_result_focussed[i] = null;
             }
         };
 
         $scope.updateGraph = function(key) {
             var list_ids = _IsCheck(key);
 
-            console.log("key : ", key);
-            console.log("list_ids : ", list_ids);
-
-            console.log("$scope.init_graph_all[key]", $scope.init_graph_all[key]);
-            console.log("$scope.init_graph", $scope.init_graph);
-
-
-            $scope.init_graph_all[key].values = Graphics.getUpdatedGraph($scope.init_graph.values, list_ids);
+            $scope.init_graph_all[key].values.values = Graphics.getUpdatedGraph($scope.init_graph, list_ids);
             $scope.line_result_focussed[key] = null;
         };
 
@@ -417,9 +233,9 @@ testApp.controller('ValModelDetailCtrl', ['$scope', '$rootScope', '$http', '$loc
             var list_ids = [];
             var i = 0;
 
-            for (i; i < $scope.init_graph_all[key].list_ids.length; i++) {
-                if (document.getElementById('check-' + key + '-' + $scope.init_graph_all[key].list_ids[i]).checked) {
-                    list_ids.push($scope.init_graph_all[key].list_ids[i]);
+            for (i; i < $scope.init_graph_all[key].values.list_ids.length; i++) {
+                if (document.getElementById('check-' + key + '-' + $scope.init_graph_all[key].values.list_ids[i]).checked) {
+                    list_ids.push($scope.init_graph_all[key].values.list_ids[i]);
                 };
             };
             return list_ids
@@ -446,69 +262,64 @@ testApp.directive('markdown', function() {
 testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$location', '$stateParams', '$state', 'ValidationTestDefinitionRest', 'ValidationTestCodeRest', 'CollabParameters', 'TestCommentRest', "IsCollabMemberRest", "Graphics", "Context", 'TestTicketRest', 'AuthorizedCollabParameterRest', 'ValidationTestAliasRest', 'NotificationRest', 'AreVersionsEditableRest', 'DataHandler',
 
     function($scope, $rootScope, $http, $location, $stateParams, $state, ValidationTestDefinitionRest, ValidationTestCodeRest, CollabParameters, TestCommentRest, IsCollabMemberRest, Graphics, Context, TestTicketRest, AuthorizedCollabParameterRest, ValidationTestAliasRest, NotificationRest, AreVersionsEditableRest, DataHandler) {
+
         Context.setService().then(function() {
             $scope.Context = Context;
-            var ctx = Context.getCtx();
-            var app_id = Context.getAppID();
+            $scope.ctx = Context.getCtx();
+            $scope.app_id = Context.getAppID();
 
+            $scope.init_graph, $scope.graphic_data, $scope.init_checkbox, $scope.graphic_options;
+            $scope.data_for_table;
 
-            CollabParameters.setService(ctx).then(function() {
+            CollabParameters.setService($scope.ctx).then(function() {
 
-                $scope.detail_test = ValidationTestDefinitionRest.get({ app_id: app_id, id: $stateParams.uuid });
+                $scope.detail_test = ValidationTestDefinitionRest.get({ app_id: $scope.app_id, id: $stateParams.uuid });
 
                 $scope.auhtorized_params = AuthorizedCollabParameterRest.get();
 
-                $scope.species = CollabParameters.getParametersOrDefault("species");
-                $scope.brain_region = CollabParameters.getParametersOrDefault("brain_region");
-                $scope.cell_type = CollabParameters.getParametersOrDefault("cell_type");
-                $scope.model_type = CollabParameters.getParametersOrDefault("model_type");
-                $scope.test_type = CollabParameters.getParametersOrDefault("test_type");
-                $scope.data_modalities = CollabParameters.getParametersOrDefault("data_modalities");
+                $scope.species = CollabParameters.getParametersOrDefaultByType("species");
+                $scope.brain_region = CollabParameters.getParametersOrDefaultByType("brain_region");
+                $scope.cell_type = CollabParameters.getParametersOrDefaultByType("cell_type");
+                $scope.model_type = CollabParameters.getParametersOrDefaultByType("model_type");
+                $scope.test_type = CollabParameters.getParametersOrDefaultByType("test_type");
+                $scope.data_modalities = CollabParameters.getParametersOrDefaultByType("data_modalities");
 
-                $scope.detail_version_test = ValidationTestCodeRest.get({ app_id: app_id, test_definition_id: $stateParams.uuid });
+                $scope.detail_version_test = ValidationTestCodeRest.get({ app_id: $scope.app_id, test_definition_id: $stateParams.uuid });
                 //TODO: take detail_test and detail_version_test in one get
 
                 $scope.detail_test.$promise.then(function() {
-                    // $scope.is_collab_member = false;
-                    // $scope.is_collab_member = IsCollabMemberRest.get({ app_id: $scope.detail_test.tests[0].app_id });
-                    // $scope.is_collab_member.$promise.then(function() {
-                    //     $scope.is_collab_member = $scope.is_collab_member.is_member;
-                    // });
                     $scope.detail_version_test.$promise.then(function() {
-                        Graphics.getResultsfromTestID2($scope.detail_test, $scope.detail_version_test).then(function(init_graph) {
 
+                        var get_raw_data = Graphics.TestGraph_getRawData($scope.detail_version_test)
 
-                            $scope.result_focussed;
-                            $scope.$on('data_focussed:updated', function(event, data, key) {
-                                $scope.result_focussed = data;
-                                $scope.$apply();
-                            });
+                        get_raw_data.then(function(raw_data) {
 
-                            $scope.init_graph = init_graph;
-                            $scope.graphic_data = init_graph.values; //initialise graph before to updte with latest versions
-                            $scope.init_checkbox = init_graph.list_ids;
+                            $scope.raw_data = raw_data;
 
-                            var raw_data = init_graph.raw_data;
-                            raw_data.$promise.then(function() {
-                                $scope.graphic_options = Graphics.get_lines_options('', '', $scope.detail_test.tests[0].score_type, "", init_graph.results, "test", "", init_graph.abs_info);
-                                $scope.data_for_table = _reorganize_raw_data_for_table(raw_data);
-                                var recent_datas = _get_more_recent_versions(init_graph.values, $scope.data_for_table);
-                                $scope.graphic_data = recent_datas.values;
-                                check_elements_in_checkbox(init_graph.list_ids, recent_datas.list_ids);
+                            var init_graph = Graphics.TestGraph_initTestGraph($scope.detail_version_test, $scope.raw_data);
 
+                            $scope.data_for_table = Graphics.TestGraph_reorganizeRawDataForResultTable($scope.raw_data.model_instances, $scope.detail_version_test.test_codes);
 
+                            init_graph.then(function(data_init_graph) {
 
-                                DataHandler.loadModels({ app_id: app_id }).then(function(data) {
-                                    $scope.models = data
-                                    $scope.$apply()
+                                $scope.init_graph = data_init_graph;
+                                $scope.graphic_data = $scope.init_graph.values; //initialise graph before to updte with latest versions
+
+                                $scope.init_checkbox = data_init_graph.list_ids;
+
+                                $scope.graphic_options = Graphics.get_lines_options('', '', $scope.detail_test.tests[0].score_type, "", data_init_graph.results, "test", "", data_init_graph.abs_info);
+
+                                $scope.init_checkbox_latest_versions();
+
+                                $scope.result_focussed;
+                                $scope.$on('data_focussed:updated', function(event, data, key) {
+                                    $scope.result_focussed = data;
+                                    $scope.$apply();
                                 });
-
-                                DataHandler.loadTests({ app_id: app_id }).then(function(data) {
-                                    $scope.tests = data
-                                    $scope.$apply()
-                                });
-
-
+                            }).catch(function(err) {
+                                console.error('Erreur !');
+                                console.dir(err);
+                                console.log(err);
                             });
 
                         }).catch(function(err) {
@@ -521,7 +332,7 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
                         $scope.version_in_edition = [];
                         $scope.version_is_editable = [];
                         //for tab_comments
-                        $scope.test_tickets = TestTicketRest.get({ app_id: app_id, test_id: $stateParams.uuid });
+                        $scope.test_tickets = TestTicketRest.get({ app_id: $scope.app_id, test_id: $stateParams.uuid });
                         $scope.comments_to_show = [];
                         $scope.create_comment_to_show = [];
                         $scope.button_save_ticket = [];
@@ -530,7 +341,7 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
 
 
 
-                        var version_editable = AreVersionsEditableRest.get({ app_id: app_id, test_id: $stateParams.uuid });
+                        var version_editable = AreVersionsEditableRest.get({ app_id: $scope.app_id, test_id: $stateParams.uuid });
                         version_editable.$promise.then(function(versions) {
                             $scope.version_is_editable = versions.are_editable;
                         });
@@ -538,126 +349,26 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
                     });
                 });
 
-                $scope.is_graph_not_empty = function(data_graph) {
+                $scope.init_checkbox_latest_versions = function() {
+                    var list_ids = [];
+                    for (var line_id in $scope.init_graph.latest_model_instances_line_id) {
+                        list_ids.push($scope.init_graph.latest_model_instances_line_id[line_id].latest_line_id);
+                        // document.getElementById('check-' + $scope.init_graph.latest_model_instances_line_id[line_id].latest_line_id).checked = true;
+                    }
+                    $scope.graphic_data = Graphics.getUpdatedGraph($scope.init_graph.values, list_ids);
+                    $scope.line_result_focussed = null;
+                };
 
+
+                $scope.is_graph_not_empty = function(data_graph) {
                     if (data_graph.length < 2 && data_graph[0].values.length < 2) {
                         return false;
                     }
                     return true;
                 }
 
-                var check_elements_in_checkbox = function(list_all_ids, recent_ids) {
-                    $(function() {
-                        //not working yet
-                        // console.log(document.querySelectorAll('*[id]:not([id=""])'));
-                        for (var id in recent_ids) {
-                            var i = 0;
-                            for (i; i <= list_all_ids.length; i++) {
-                                if (recent_ids[id] == list_all_ids[i]) {
-                                    // document.getElementById('check-' + i).checked = true;
-                                    // $("#check-" + i).attr("checked", true);
-                                    // $("#check-" + i).prop('checked', true);
-                                    // console.log($("#check-" + i).is(":checked"));
-                                    document.getElementById('check-' + i);
-                                    // console.log(document.getElementById('check-' + i))
-                                };
-                            };
-                        };
-                    });
-                };
-
-                var _get_more_recent_versions = function(values, data) {
-
-                    var key_list_recent_versions = _get_more_recent_version_keys(data.model_instances)
-                        //take values corresponding to the key list
-                    var new_values = [];
-                    for (var value in values) {
-                        for (var key in key_list_recent_versions) {
-                            if (values[value].key == key_list_recent_versions[key]) {
-                                new_values.push(values[value]);
-                            };
-                        }
-
-                    };
-
-                    return { values: new_values, list_ids: key_list_recent_versions }
-                }
-
-                var _get_more_recent_version_keys = function(model_instances) {
-                    var temp_models = [];
-                    var res = [];
-                    for (var instance in model_instances) {
-                        if (temp_models[model_instances[instance].model_name]) {
-                            temp_models[model_instances[instance].model_name].push(model_instances[instance]);
-                        } else {
-                            temp_models[model_instances[instance].model_name] = [];
-                            temp_models[model_instances[instance].model_name].push(model_instances[instance]);
-                        }
-                    }
-                    //reorder data by time and take the last one
-                    for (var raw in temp_models) {
-                        temp_models[raw].sort(_sort_by_timestamp_desc);
-                        res.push(temp_models[raw][0].line_id);
-                    }
-                    return res
-                }
-
-                var _reorganize_raw_data_for_table = function(data) {
-                    var organized_data = new Object();
-                    organized_data.model_instances = [];
 
 
-                    for (var model_instance in data.model_instances) {
-                        var instance = new Object();
-                        if (data.model_instances[model_instance].model_alias && data.model_instances[model_instance].model_alias !== null && data.model_instances[model_instance].model_alias !== '' && data.model_instances[model_instance].model_alias !== "None") {
-                            instance.line_id = data.model_instances[model_instance].model_alias + ' ( ' + data.model_instances[model_instance].version + ' )';
-
-                        } else {
-                            instance.line_id = data.model_instances[model_instance].model_id.substring(0, 8) + '... ( ' + data.model_instances[model_instance].version + ' )';
-                        }
-                        instance.timestamp = data.model_instances[model_instance].timestamp;
-                        instance.id = model_instance;
-                        instance.model_id = data.model_instances[model_instance].model_id;
-                        instance.model_name = data.model_instances[model_instance].model_name;
-
-                        instance.test_instances = [];
-
-                        for (var test_instance in data.model_instances[model_instance].test_codes) {
-                            var code = new Object();
-                            code.version = data.model_instances[model_instance].test_codes[test_instance].version;
-                            code.timestamp = data.model_instances[model_instance].test_codes[test_instance].timestamp;
-
-                            code.results = [];
-                            for (var result in data.model_instances[model_instance].test_codes[test_instance].results) {
-                                //only keep the first five significant score figures 
-                                var res = data.model_instances[model_instance].test_codes[test_instance].results[result];
-                                res.score = res.score.toPrecision(5);
-                                code.results.push(res);
-                            }
-                            //order results by timestamp
-                            code.results = code.results.sort(_sort_by_timestamp_desc);
-                            instance.test_instances.push(code);
-                        }
-                        //order test_instances by timestamp
-                        instance.last_result_timestamp = _get_last_result_timestamp(instance.test_instances);
-                        instance.test_instances = instance.test_instances.sort(_sort_by_timestamp_asc);
-                        organized_data.model_instances.push(instance);
-                    }
-                    //sort model instances by last result timestamp
-                    organized_data.model_instances = organized_data.model_instances.sort(_sort_by_last_result_timestamp_desc)
-                    return organized_data;
-
-                };
-                var _get_last_result_timestamp = function(codes) {
-                    var newest_timestamp = undefined;
-                    for (var code in codes) {
-                        var timestamp = codes[code].results[0].timestamp;
-                        if (newest_timestamp == undefined || (newest_timestamp && timestamp < newest_timestamp)) {
-                            newest_timestamp = timestamp;
-                        }
-                    }
-                    return newest_timestamp;
-                }
                 var _sort_by_last_result_timestamp_desc = function(a, b) {
                     return new Date(b.last_result_timestamp) - new Date(a.last_result_timestamp);
                 }
@@ -742,7 +453,7 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
                     _add_params();
 
                     var parameters = JSON.stringify([$scope.test_code]);
-                    var test_version_response = ValidationTestCodeRest.save({ app_id: app_id, test_definition_id: $scope.detail_test.tests[0].id }, parameters).$promise.then(function() {
+                    var test_version_response = ValidationTestCodeRest.save({ app_id: $scope.app_id, test_definition_id: $scope.detail_test.tests[0].id }, parameters).$promise.then(function() {
                         document.getElementById("tab_description").style.display = "none";
                         document.getElementById("tab_version").style.display = "block";
                         document.getElementById("tab_new_version").style.display = "none";
@@ -756,11 +467,11 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
 
                 $scope.editTest = function() {
                     if ($scope.detail_test.tests[0].alias != '' && $scope.detail_test.tests[0].alias != null) {
-                        $scope.alias_is_valid = ValidationTestAliasRest.get({ app_id: app_id, test_id: $scope.detail_test.tests[0].id, alias: $scope.detail_test.tests[0].alias });
+                        $scope.alias_is_valid = ValidationTestAliasRest.get({ app_id: $scope.app_id, test_id: $scope.detail_test.tests[0].id, alias: $scope.detail_test.tests[0].alias });
                         $scope.alias_is_valid.$promise.then(function() {
                             if ($scope.alias_is_valid.is_valid) {
                                 var parameters = JSON.stringify($scope.detail_test.tests[0]);
-                                ValidationTestDefinitionRest.put({ app_id: app_id, id: $scope.detail_test.tests[0].id }, parameters).$promise.then(function() {
+                                ValidationTestDefinitionRest.put({ app_id: $scope.app_id, id: $scope.detail_test.tests[0].id }, parameters).$promise.then(function() {
                                     document.getElementById("tab_description").style.display = "none";
                                     document.getElementById("tab_version").style.display = "block";
                                     document.getElementById("tab_new_version").style.display = "none";
@@ -776,7 +487,7 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
                     } else {
                         $scope.detail_test.tests[0].alias = null;
                         var parameters = JSON.stringify($scope.detail_test.tests[0]);
-                        ValidationTestDefinitionRest.put({ app_id: app_id, id: $scope.detail_test.tests[0].id }, parameters).$promise.then(function() {
+                        ValidationTestDefinitionRest.put({ app_id: $scope.app_id, id: $scope.detail_test.tests[0].id }, parameters).$promise.then(function() {
                             document.getElementById("tab_description").style.display = "none";
                             document.getElementById("tab_version").style.display = "block";
                             document.getElementById("tab_new_version").style.display = "none";
@@ -822,21 +533,18 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
 
                 }
                 $scope.checkAliasValidity = function() {
-                    $scope.alias_is_valid = ValidationTestAliasRest.get({ app_id: app_id, test_id: $scope.detail_test.tests[0].id, alias: $scope.detail_test.tests[0].alias });
+                    $scope.alias_is_valid = ValidationTestAliasRest.get({ app_id: $scope.app_id, test_id: $scope.detail_test.tests[0].id, alias: $scope.detail_test.tests[0].alias });
                 };
 
                 var _send_notification = function() {
-                    NotificationRest.post({ app_id: app_id, ctx: ctx }).$promise.then(function(data) {
-                        // console.log(data)
-                    });
+                    NotificationRest.post({ app_id: $scope.app_id, ctx: $scope.ctx }).$promise.then(function(data) {});
                 }
 
                 $scope.saveTicket = function() {
                     $scope.ticket.test_id = $stateParams.uuid;
                     var data = JSON.stringify($scope.ticket);
-                    $scope.new_ticket = TestTicketRest.post({ app_id: app_id }, data, function(value) {})
+                    $scope.new_ticket = TestTicketRest.post({ app_id: $scope.app_id }, data, function(value) {})
                     $scope.new_ticket.$promise.then(function() {
-                        // console.log($scope.new_ticket)
                         $scope.test_tickets.tickets.push($scope.new_ticket.new_ticket[0]);
                         document.getElementById("formT").reset();
                         _send_notification();
@@ -846,7 +554,7 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
                 $scope.saveComment = function(ticket_id, comment_post, ticket_index) {
                     comment_post.Ticket_id = ticket_id;
                     var data = JSON.stringify(comment_post);
-                    $scope.new_comment = TestCommentRest.post({ app_id: app_id }, data, function(value) {})
+                    $scope.new_comment = TestCommentRest.post({ app_id: $scope.app_id }, data, function(value) {})
                     $scope.new_comment.$promise.then(function() {
                         $scope.create_comment_to_show.splice($scope.create_comment_to_show.indexOf(ticket_id));
 
@@ -903,7 +611,7 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
                     var text = $("#editable-text-" + ticket_id).text();
                     var title = $("#editable-title-" + ticket_id).text();
                     var parameters = JSON.stringify({ 'id': ticket_id, 'title': title, 'text': text });
-                    var a = TestTicketRest.put({ app_id: app_id }, parameters).$promise.then(function(data) {
+                    var a = TestTicketRest.put({ app_id: $scope.app_id }, parameters).$promise.then(function(data) {
                         angular.element(document.querySelector("#editable-title-" + ticket_id)).attr('contenteditable', "false");
                         angular.element(document.querySelector("#editable-title-" + ticket_id)).attr('bgcolor', '');
                         angular.element(document.querySelector("#editable-text-" + ticket_id)).attr('contenteditable', "false");
@@ -921,7 +629,7 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
                     var text = $("#editable-ctext-" + com_id).text();
 
                     var parameters = JSON.stringify({ 'id': com_id, 'text': text });
-                    var a = TestCommentRest.put({ app_id: app_id }, parameters).$promise.then(function(data) {
+                    var a = TestCommentRest.put({ app_id: $scope.app_id }, parameters).$promise.then(function(data) {
                         angular.element(document.querySelector("#editable-ctext-" + com_id)).attr('contenteditable', "false");
                         angular.element(document.querySelector("#editable-ctext-" + com_id)).attr('bgcolor', 'white');
                         $scope.button_save_comment.splice($scope.button_save_comment.indexOf(com_id));
@@ -935,9 +643,6 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
 
 
         });
-
-
-
     }
 ]);
 
@@ -957,7 +662,6 @@ testApp.controller('ValTestResultDetailCtrl', ['$window', '$scope', '$rootScope'
                 var test_result = ValidationResultRest.get({ id: $stateParams.uuid, order: "", detailed_view: true });
 
                 test_result.$promise.then(function() {
-                    console.log("test_result promise");
 
                     $scope.test_result = test_result.results[0];
 
@@ -1064,12 +768,8 @@ testApp.controller('ValTestResultDetailCtrl', ['$window', '$scope', '$rootScope'
                     .finally(function() {
 
                     });
-
             };
-
-
         });
-
     }
 ]);
 
@@ -1117,64 +817,56 @@ testApp.controller('TestResultCtrl', ['$scope', '$rootScope', '$http', '$locatio
 
 testApp.controller('ValTestCreateCtrl', ['$scope', '$rootScope', '$http', '$location', 'ValidationTestDefinitionRest', 'ValidationTestCodeRest', 'CollabParameters', 'Context', 'AuthorizedCollabParameterRest', 'ValidationTestAliasRest', 'DataHandler',
     function($scope, $rootScope, $http, $location, ValidationTestDefinitionRest, ValidationTestCodeRest, CollabParameters, Context, AuthorizedCollabParameterRest, ValidationTestAliasRest, DataHandler) {
+
+        $scope.saveTest = function() {
+            if ($scope.test.alias != '' && $scope.test.alias != undefined) {
+                $scope.alias_is_valid = ValidationTestAliasRest.get({ app_id: $scope.app_id, alias: $scope.test.alias });
+                $scope.alias_is_valid.$promise.then(function() {
+                    if ($scope.alias_is_valid.is_valid) {
+                        var parameters = JSON.stringify({ test_data: $scope.test, code_data: $scope.code });
+                        ValidationTestDefinitionRest.save({ app_id: $scope.app_id }, parameters).$promise.then(function(data) {
+                            DataHandler.setStoredTestsAsOutdated();
+                            Context.validation_goToTestDetailView(data.uuid);
+                        });
+                    } else {
+                        alert('Cannot update the test. Please check the alias.');
+                    };
+                });
+            } else {
+                $scope.test.alias = null;
+                var parameters = JSON.stringify({ test_data: $scope.test, code_data: $scope.code });
+                ValidationTestDefinitionRest.save({ app_id: $scope.app_id }, parameters).$promise.then(function(data) {
+                    DataHandler.setStoredTestsAsOutdated();
+                    Context.validation_goToTestDetailView(data.uuid);
+                });
+            };
+        };
+
+        $scope.checkAliasValidity = function() {
+            $scope.alias_is_valid = ValidationTestAliasRest.get({ app_id: $scope.app_id, alias: $scope.test.alias });
+        };
+
         Context.setService().then(function() {
 
             $scope.Context = Context;
 
-            var ctx = Context.getCtx();
-            var app_id = Context.getAppID();
-            // DataHandler.loadModels({ app_id: app_id }).then(function(data) {
-            //     $scope.models = data
-            //     $scope.$apply()
-            // });
-
-            // DataHandler.loadTests({ app_id: app_id }).then(function(data) {
-            //     $scope.tests = data
-            //     $scope.$apply()
-            // });
+            $scope.ctx = Context.getCtx();
+            $scope.app_id = Context.getAppID();
 
 
-            CollabParameters.setService(ctx).then(function() {
+            CollabParameters.setService($scope.ctx).then(function() {
 
                 $scope.alias_is_valid = "";
                 $scope.auhtorized_params = AuthorizedCollabParameterRest.get();
 
-                $scope.species = CollabParameters.getParametersOrDefault("species");
-                $scope.brain_region = CollabParameters.getParametersOrDefault("brain_region");
-                $scope.cell_type = CollabParameters.getParametersOrDefault("cell_type");
-                $scope.data_modalities = CollabParameters.getParametersOrDefault("data_modalities");
-                $scope.test_type = CollabParameters.getParametersOrDefault("test_type");
+                $scope.species = CollabParameters.getParametersOrDefaultByType("species");
+                $scope.brain_region = CollabParameters.getParametersOrDefaultByType("brain_region");
+                $scope.cell_type = CollabParameters.getParametersOrDefaultByType("cell_type");
+                $scope.data_modalities = CollabParameters.getParametersOrDefaultByType("data_modalities");
+                $scope.test_type = CollabParameters.getParametersOrDefaultByType("test_type");
 
-                // $scope.data_type = CollabParameters.getParameters("data_type");
+                // $scope.data_type = CollabParameters.getParametersByType("data_type");
                 $scope.data_type;
-
-
-                $scope.saveTest = function() {
-                    if ($scope.test.alias != '' && $scope.test.alias != undefined) {
-                        $scope.alias_is_valid = ValidationTestAliasRest.get({ app_id: app_id, alias: $scope.test.alias });
-                        $scope.alias_is_valid.$promise.then(function() {
-                            if ($scope.alias_is_valid.is_valid) {
-                                var parameters = JSON.stringify({ test_data: $scope.test, code_data: $scope.code });
-                                ValidationTestDefinitionRest.save({ app_id: app_id }, parameters).$promise.then(function(data) {
-                                    DataHandler.setStoredTestsAsOutdated();
-                                    Context.validation_goToTestDetailView(data.uuid);
-                                });
-                            } else {
-                                alert('Cannot update the test. Please check the alias.');
-                            };
-                        });
-                    } else {
-                        $scope.test.alias = null;
-                        var parameters = JSON.stringify({ test_data: $scope.test, code_data: $scope.code });
-                        ValidationTestDefinitionRest.save({ app_id: app_id }, parameters).$promise.then(function(data) {
-                            DataHandler.setStoredTestsAsOutdated();
-                            Context.validation_goToTestDetailView(data.uuid);
-                        });
-                    };
-                };
-                $scope.checkAliasValidity = function() {
-                    $scope.alias_is_valid = ValidationTestAliasRest.get({ app_id: app_id, alias: $scope.test.alias });
-                };
             });
 
         });
@@ -1365,11 +1057,11 @@ ModelCatalogApp.controller('ModelCatalogCtrl', [
                     $scope.model_privacy = [{ "name": "private", "value": true }, { "name": "public", "value": false }];
                     $scope.selected_privacy = $scope.model_privacy;
 
-                    $scope.collab_species = CollabParameters.getParametersOrDefault("species");
-                    $scope.collab_brain_region = CollabParameters.getParametersOrDefault("brain_region");
-                    $scope.collab_cell_type = CollabParameters.getParametersOrDefault("cell_type");
-                    $scope.collab_model_type = CollabParameters.getParametersOrDefault("model_type");
-                    $scope.collab_organization = CollabParameters.getParametersOrDefault("organization");
+                    $scope.collab_species = CollabParameters.getParametersOrDefaultByType("species");
+                    $scope.collab_brain_region = CollabParameters.getParametersOrDefaultByType("brain_region");
+                    $scope.collab_cell_type = CollabParameters.getParametersOrDefaultByType("cell_type");
+                    $scope.collab_model_type = CollabParameters.getParametersOrDefaultByType("model_type");
+                    $scope.collab_organization = CollabParameters.getParametersOrDefaultByType("organization");
 
                     // $scope.models = ScientificModelRest.get({ app_id: app_id });
 
@@ -1522,11 +1214,11 @@ ModelCatalogApp.controller('ModelCatalogCreateCtrl', ['$scope', '$rootScope', '$
 
                 $scope.authorized_params = AuthorizedCollabParameterRest.get();
 
-                $scope.species = CollabParameters.getParametersOrDefault("species");
-                $scope.brain_region = CollabParameters.getParametersOrDefault("brain_region");
-                $scope.cell_type = CollabParameters.getParametersOrDefault("cell_type");
-                $scope.model_type = CollabParameters.getParametersOrDefault("model_type");
-                $scope.organization = CollabParameters.getParametersOrDefault("organization");
+                $scope.species = CollabParameters.getParametersOrDefaultByType("species");
+                $scope.brain_region = CollabParameters.getParametersOrDefaultByType("brain_region");
+                $scope.cell_type = CollabParameters.getParametersOrDefaultByType("cell_type");
+                $scope.model_type = CollabParameters.getParametersOrDefaultByType("model_type");
+                $scope.organization = CollabParameters.getParametersOrDefaultByType("organization");
             });
         });
     }
@@ -1619,11 +1311,11 @@ ModelCatalogApp.controller('ModelCatalogEditCtrl', ['$scope', '$rootScope', '$ht
 
                 $scope.addImage = false;
 
-                $scope.species = CollabParameters.getParametersOrDefault("species");
-                $scope.brain_region = CollabParameters.getParametersOrDefault("brain_region");
-                $scope.cell_type = CollabParameters.getParametersOrDefault("cell_type");
-                $scope.model_type = CollabParameters.getParametersOrDefault("model_type");
-                $scope.organization = CollabParameters.getParametersOrDefault("organization");
+                $scope.species = CollabParameters.getParametersOrDefaultByType("species");
+                $scope.brain_region = CollabParameters.getParametersOrDefaultByType("brain_region");
+                $scope.cell_type = CollabParameters.getParametersOrDefaultByType("cell_type");
+                $scope.model_type = CollabParameters.getParametersOrDefaultByType("model_type");
+                $scope.organization = CollabParameters.getParametersOrDefaultByType("organization");
 
 
                 $scope.version_is_editable = [];
@@ -1741,27 +1433,30 @@ ModelCatalogApp.controller('ModelCatalogEditCtrl', ['$scope', '$rootScope', '$ht
 
 ModelCatalogApp.controller('ModelCatalogVersionCtrl', ['$scope', '$rootScope', '$http', '$location', '$stateParams', 'ScientificModelRest', 'ScientificModelInstanceRest', 'CollabParameters', 'Context', 'DataHandler',
     function($scope, $rootScope, $http, $location, $stateParams, ScientificModelRest, ScientificModelInstanceRest, CollabParameters, Context, DataHandler) {
+
+        $scope.ctx, $scope.app_id;
+        $scope.model;
+
+
+        $scope.saveVersion = function() {
+            $scope.model_instance.model_id = $stateParams.uuid;
+            var parameters = JSON.stringify([$scope.model_instance]);
+            ScientificModelInstanceRest.save({ app_id: $scope.app_id }, parameters).$promise.then(function(data) {
+                $location.path('/model-catalog/detail/' + $stateParams.uuid);
+            }).catch(function(e) {
+                alert(e.data);
+            });
+        };
+
+        //code
         Context.setService().then(function() {
             $scope.Context = Context;
 
-            var ctx = Context.getCtx();
-            var app_id = Context.getAppID();
+            $scope.ctx = Context.getCtx();
+            $scope.app_id = Context.getAppID();
 
-            CollabParameters.setService(ctx).then(function() {
+            CollabParameters.setService($scope.ctx).then(function() {
                 $scope.model = ScientificModelRest.get({ id: $stateParams.uuid });
-                $scope.saveVersion = function() {
-                    $scope.model_instance.model_id = $stateParams.uuid;
-                    var parameters = JSON.stringify([$scope.model_instance]);
-                    ScientificModelInstanceRest.save({ app_id: app_id }, parameters).$promise.then(function(data) {
-                        $location.path('/model-catalog/detail/' + $stateParams.uuid);
-                    }).catch(function(e) {
-                        alert(e.data);
-                    });
-                };
-                // DataHandler.loadModels({ app_id: app_id }).then(function(data) {
-                //     $scope.models = data
-                //     $scope.$apply()
-                // });
             });
 
         });
@@ -1790,16 +1485,63 @@ var ParametersConfigurationApp = angular.module('ParametersConfigurationApp');
 
 ParametersConfigurationApp.controller('ParametersConfigurationCtrl', ['$scope', '$rootScope', '$http', '$location', 'CollabParameters', 'AuthorizedCollabParameterRest', 'CollabIDRest', 'Context',
     function($scope, $rootScope, $http, $location, CollabParameters, AuthorizedCollabParameterRest, CollabIDRest, Context) {
+
+        $scope.ctx, $scope.app_id, $scope.collab;
+        $scope.list_params;
+        $scope.selected_data = {};
+
+        $scope.make_post = function() {
+            $scope.app_type = document.getElementById("app").getAttribute("value");
+
+            CollabParameters.initConfiguration();
+
+            $scope.selected_data.selected_data_modalities.forEach(function(value, i) {
+                CollabParameters.addParameter("data_modalities", value.authorized_value);
+            });
+
+            $scope.selected_data.selected_test_type.forEach(function(value, i) {
+                CollabParameters.addParameter("test_type", value.authorized_value);
+            });
+
+            $scope.selected_data.selected_model_type.forEach(function(value, i) {
+                CollabParameters.addParameter("model_type", value.authorized_value);
+            });
+
+            $scope.selected_data.selected_species.forEach(function(value, i) {
+                CollabParameters.addParameter("species", value.authorized_value);
+            });
+
+            $scope.selected_data.selected_brain_region.forEach(function(value, i) {
+                CollabParameters.addParameter("brain_region", value.authorized_value);
+            });
+
+            $scope.selected_data.selected_cell_type.forEach(function(value, i) {
+                CollabParameters.addParameter("cell_type", value.authorized_value);
+            });
+
+            $scope.selected_data.selected_organization.forEach(function(value, i) {
+                CollabParameters.addParameter("organization", value.authorized_value);
+            });
+
+            CollabParameters.addParameter("app_type", $scope.app_type);
+
+            CollabParameters.setCollabId("collab_id", $scope.collab.collab_id);
+
+            CollabParameters.put_parameters().$promise.then(function() {
+                CollabParameters.getRequestParameters().$promise.then(function() {});
+                alert("Your app has been configured")
+            });
+
+        };
+
         Context.setService().then(function() {
 
             $scope.Context = Context;
-            var ctx = Context.getCtx();
-            var app_id = Context.getAppID();
+            $scope.ctx = Context.getCtx();
+            $scope.app_id = Context.getAppID();
+            $scope.collab = CollabIDRest.get({ ctx: $scope.ctx });
 
-            var app_type = document.getElementById("app").getAttribute("value");
-            var collab = CollabIDRest.get({ ctx: ctx });
-
-            $scope.list_param = AuthorizedCollabParameterRest.get({ ctx: ctx });
+            $scope.list_param = AuthorizedCollabParameterRest.get({ ctx: $scope.ctx });
 
             $scope.list_param.$promise.then(function() {
                 $scope.data_modalities = $scope.list_param.data_modalities;
@@ -1813,10 +1555,7 @@ ParametersConfigurationApp.controller('ParametersConfigurationCtrl', ['$scope', 
 
 
 
-            CollabParameters.setService(ctx).then(function() {
-
-                var app_type = document.getElementById("app").getAttribute("value");
-                var collab = CollabIDRest.get({ ctx: ctx });
+            CollabParameters.setService($scope.ctx).then(function() {
 
                 $scope.selected_data = {};
                 $scope.selected_data.selected_data_modalities = CollabParameters.getParameters_authorized_value_formated("data_modalities");
@@ -1826,49 +1565,6 @@ ParametersConfigurationApp.controller('ParametersConfigurationCtrl', ['$scope', 
                 $scope.selected_data.selected_brain_region = CollabParameters.getParameters_authorized_value_formated("brain_region");
                 $scope.selected_data.selected_cell_type = CollabParameters.getParameters_authorized_value_formated("cell_type");
                 $scope.selected_data.selected_organization = CollabParameters.getParameters_authorized_value_formated("organization");
-
-                $scope.make_post = function() {
-
-                    CollabParameters.initConfiguration();
-
-                    $scope.selected_data.selected_data_modalities.forEach(function(value, i) {
-                        CollabParameters.addParameter("data_modalities", value.authorized_value);
-                    });
-
-                    $scope.selected_data.selected_test_type.forEach(function(value, i) {
-                        CollabParameters.addParameter("test_type", value.authorized_value);
-                    });
-
-                    $scope.selected_data.selected_model_type.forEach(function(value, i) {
-                        CollabParameters.addParameter("model_type", value.authorized_value);
-                    });
-
-                    $scope.selected_data.selected_species.forEach(function(value, i) {
-                        CollabParameters.addParameter("species", value.authorized_value);
-                    });
-
-                    $scope.selected_data.selected_brain_region.forEach(function(value, i) {
-                        CollabParameters.addParameter("brain_region", value.authorized_value);
-                    });
-
-                    $scope.selected_data.selected_cell_type.forEach(function(value, i) {
-                        CollabParameters.addParameter("cell_type", value.authorized_value);
-                    });
-
-                    $scope.selected_data.selected_organization.forEach(function(value, i) {
-                        CollabParameters.addParameter("organization", value.authorized_value);
-                    });
-
-                    CollabParameters.addParameter("app_type", app_type);
-
-                    CollabParameters.setCollabId("collab_id", collab.collab_id);
-
-                    CollabParameters.put_parameters().$promise.then(function() {
-                        CollabParameters.getRequestParameters().$promise.then(function() {});
-                        alert("Your app has been configured")
-                    });
-
-                };
 
             });
         });
