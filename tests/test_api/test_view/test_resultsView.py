@@ -188,6 +188,7 @@ class ResultsTest(TestCase):
 
 
 
+
     def test_get_no_param (self):
         response = client_authorized.get('/results/', data={})
         message = json.loads(response._container[0])
