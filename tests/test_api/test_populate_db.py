@@ -1,3 +1,5 @@
+print "ok in test pop db"
+
 from model_validation_api.models import (ValidationTestDefinition, 
                         ValidationTestCode,
                         ValidationTestResult, 

@@ -1,5 +1,7 @@
 from __future__ import unicode_literals
 
+print "OK we are in base test"
+
 import os
 import random
 import json
