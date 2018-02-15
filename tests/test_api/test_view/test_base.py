@@ -89,6 +89,7 @@ from ..data_for_test import DataForTests
 
 
 
+
 username_authorized = os.environ.get('HBP_USERNAME_AUTHORIZED')
 password_authorized = os.environ.get('HBP_PASSWORD_AUTHORIZED')
 base_client_authorized = BaseClient(username = username_authorized, password=password_authorized)
