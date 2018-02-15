@@ -35,7 +35,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'model_validation_api',
+    # 'model_validation_api',
     #'social_django',
     'jsonify',
     'social.apps.django_app.default',

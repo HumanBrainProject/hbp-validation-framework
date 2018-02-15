@@ -38,7 +38,7 @@ before_script:
 - python -c "import django; print(django.get_version())"
 # - export NMPI_ENV=travis
 script:
-- python ./validation_service/manage.py migrate --noinput
+# - python ./validation_service/manage.py migrate --noinput
 - python ./validation_service/manage.py test tests/test_api/test_view/
 #   nosetests --with-coverage --cover-package=neo
 after_success:
