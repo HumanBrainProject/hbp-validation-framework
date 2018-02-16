@@ -120,16 +120,16 @@ describe('AuthorizedScoreTypeRest factory', function() {
     });
 
     //test if factory and methods exists
-    it('should exist AuthorizedOrganizationsRest Factory', function() {
+    it('should exist AuthorizedScoreTypeRest Factory', function() {
         expect(AuthorizedScoreTypeRest).toBeDefined();
     });
 
-    it('should exist AuthorizedOrganizationsRest.get', function() {
+    it('should exist AuthorizedScoreTypeRest.get', function() {
         expect(AuthorizedScoreTypeRest.get).toBeDefined();
     });
 
     // test funcions get, post, ...
-    it('should get answer from AuthorizedOrganizationsRest', function() {
+    it('should get answer from AuthorizedScoreTypeRest', function() {
 
         $httpBackend.expectGET('authorizedscoretyperest?app_id=app_id&format=json').respond(200);
         var rs1;

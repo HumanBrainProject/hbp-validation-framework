@@ -59,8 +59,8 @@ module.exports = function(config) {
             '../validation_service/app/static/angular-bootstrap-multiselect/dist/angular-bootstrap-multiselect.js',
 
             //angular-hbp-collaboratory
-            '../validation_service/app/static/angular-hbp-collaboratory/angular-hbp-collaboratory.js',
 
+            '../validation_service/app/static/angular-hbp-collaboratory/angular-hbp-collaboratory.js',
             '../validation_service/app/static/angular-hbp-collaboratory/src/main.js',
 
             '../validation_service/app/static/angular-hbp-collaboratory/src/app/app.module.js',
@@ -69,8 +69,8 @@ module.exports = function(config) {
             '../validation_service/app/static/angular-hbp-collaboratory/src/app/authHttp.service.js',
             '../validation_service/app/static/angular-hbp-collaboratory/src/app/bootstrap.js',
 
-            '../validation_service/app/static/angular-hbp-collaboratory/src/error/error.service.js',
             '../validation_service/app/static/angular-hbp-collaboratory/src/error/error.module.js',
+            '../validation_service/app/static/angular-hbp-collaboratory/src/error/error.service.js',
 
             '../validation_service/app/static/angular-hbp-collaboratory/src/env/env.module.js',
             '../validation_service/app/static/angular-hbp-collaboratory/src/env/env.provider.js',
@@ -96,8 +96,8 @@ module.exports = function(config) {
             '../validation_service/app/static/angular-hbp-collaboratory/src/identity/util.js',
 
             '../validation_service/app/static/angular-hbp-collaboratory/src/rest/rest.module.js',
-            '../validation_service/app/static/angular-hbp-collaboratory/src/rest/pagination.service.js',
 
+            '../validation_service/app/static/angular-hbp-collaboratory/src/rest/pagination.service.js',
             '../validation_service/app/static/angular-hbp-collaboratory/src/storage/storage.module.js',
             '../validation_service/app/static/angular-hbp-collaboratory/src/storage/storage.service.js',
 
@@ -115,6 +115,7 @@ module.exports = function(config) {
             '../validation_service/app/static/angular-hbp-collaboratory/src/ui-error/error-dialog.factory.js',
             '../validation_service/app/static/angular-hbp-collaboratory/src/ui-error/error-message.directive.js',
 
+
             '../validation_service/app/static/angular-hbp-collaboratory/src/ui-form/ui-form.module.js',
             '../validation_service/app/static/angular-hbp-collaboratory/src/ui-form/form-control-focus.directive.js',
             '../validation_service/app/static/angular-hbp-collaboratory/src/ui-form/form-group-state.directive.js',
@@ -124,6 +125,7 @@ module.exports = function(config) {
             '../validation_service/app/static/angular-hbp-collaboratory/src/ui-identity/usercard-popover.service.js',
             '../validation_service/app/static/angular-hbp-collaboratory/src/ui-identity/usercard-popover.tpl.js',
             '../validation_service/app/static/angular-hbp-collaboratory/src/ui-identity/usercard.directive.js',
+
 
             '../validation_service/app/static/angular-hbp-collaboratory/src/ui-loading/ui-loading.module.js',
             '../validation_service/app/static/angular-hbp-collaboratory/src/ui-loading/loading.directive.js',
@@ -136,9 +138,12 @@ module.exports = function(config) {
             '../validation_service/app/static/angular-hbp-collaboratory/src/ui-storage/file-browser.directive.js',
             '../validation_service/app/static/angular-hbp-collaboratory/src/ui-storage/file-upload.directive.js',
 
+
             '../validation_service/app/static/angular-hbp-collaboratory/src/ui-stream/ui-stream.module.js',
             '../validation_service/app/static/angular-hbp-collaboratory/src/ui-stream/activity.directive.js',
             '../validation_service/app/static/angular-hbp-collaboratory/src/ui-stream/feed.directive.js',
+
+
 
             //angular-hbp-common
             '../validation_service/app/static/angular-hbp-common/dist/angular-hbp-common.min.js',
@@ -172,6 +177,7 @@ module.exports = function(config) {
             '../validation_service/app/static/moment-2.19.2/moment.js',
             '../validation_service/app/static/angular-moment-1.1.0/angular-moment.js',
 
+            '../validation_service/app/static/palette.js-master/palette.js',
             //.js | files
             '../validation_service/app/js/*.js',
             './test_framework/*.js',
