@@ -134,16 +134,14 @@ describe('Testing service: Graphic Services', function() {
         }
     }
     var model_instances = {
-            "instances": [
-                { "id": "a091c6b0-9f86-4094-be62-4e42bdcebc7f", "version": "version 1", "description": null, "parameters": "param", "code_format": null, "source": "http://dd.com", "model_id": "61df5b12-c885-4cb7-a511-e5315101b420" },
-                { "id": "4d02d0a9-adfc-4b9e-af4a-2f1f007e1283", "version": "version 2", "description": null, "parameters": "param", "code_format": null, "source": "http://dd.com", "model_id": "61df5b12-c885-4cb7-a511-e5315101b420" },
-                { "id": "69f3495a-dd92-4165-aa91-2d3811d0ba0b", "version": "version 3", "description": null, "parameters": "param", "code_format": null, "source": "http://dd.com", "model_id": "61df5b12-c885-4cb7-a511-e5315101b420" },
-                { "id": "eebce4df-e83a-4537-85b3-c5488848cc4b", "version": ",jkuy", "description": null, "parameters": "g,jg", "code_format": null, "source": "https://collab.humanbrainproject.eu", "model_id": "61df5b12-c885-4cb7-a511-e5315101b420" }
-            ]
-        }
-        // var raw_data = new Promise(function(resolve, reject) {
-        //     resolve(results_given)
-        // });
+        "instances": [
+            { "id": "a091c6b0-9f86-4094-be62-4e42bdcebc7f", "version": "version 1", "description": null, "parameters": "param", "code_format": null, "source": "http://dd.com", "model_id": "61df5b12-c885-4cb7-a511-e5315101b420" },
+            { "id": "4d02d0a9-adfc-4b9e-af4a-2f1f007e1283", "version": "version 2", "description": null, "parameters": "param", "code_format": null, "source": "http://dd.com", "model_id": "61df5b12-c885-4cb7-a511-e5315101b420" },
+            { "id": "69f3495a-dd92-4165-aa91-2d3811d0ba0b", "version": "version 3", "description": null, "parameters": "param", "code_format": null, "source": "http://dd.com", "model_id": "61df5b12-c885-4cb7-a511-e5315101b420" },
+            { "id": "eebce4df-e83a-4537-85b3-c5488848cc4b", "version": ",jkuy", "description": null, "parameters": "g,jg", "code_format": null, "source": "https://collab.humanbrainproject.eu", "model_id": "61df5b12-c885-4cb7-a511-e5315101b420" }
+        ]
+    }
+
 
     var results_data = [
             [{
@@ -1090,15 +1088,15 @@ describe('Testing service: Graphic Services', function() {
             expect(res).toBeGreaterThan(0);
         })
 
-        it(' _sort_results_by_timestamp_asc', function() {
+        it('should sort results by timestamp asc', function() {
             var res = Graphics._sort_results_by_timestamp_asc(results_given.model_instances['a091c6b0-9f86-4094-be62-4e42bdcebc7f'], results_given.model_instances['4d02d0a9-adfc-4b9e-af4a-2f1f007e1283'])
             expect(res).toBeLessThan(0);
         })
-        it('_sort_by_last_result_timestamp_desc', function() {
+        it('should sort by last result timestamp desc', function() {
             var res = Graphics._sort_results_by_timestamp_desc(results_given.model_instances['a091c6b0-9f86-4094-be62-4e42bdcebc7f'], results_given.model_instances['4d02d0a9-adfc-4b9e-af4a-2f1f007e1283'])
             expect(res).toBeGreaterThan(0);
         })
-        it('_sort_results_by_x', function() {
+        it('should sort results by x', function() {
             var a = { x: 0 }
             var b = { x: 1 }
             var res = Graphics._sort_results_by_x(a, b);
