@@ -111,9 +111,60 @@ testApp.controller('ValTestCtrl', ['$scope', '$rootScope', '$http', '$location',
 ]);
 
 
-testApp.controller('ValModelDetailCtrl', ['$scope', '$rootScope', '$http', '$location', '$stateParams', 'ScientificModelRest', 'ScientificModelInstanceRest', 'CollabParameters', 'IsCollabMemberRest', 'AppIDRest', 'Graphics', 'Context', 'AuthorizedCollabParameterRest', 'DataHandler', 'clbStorage',
+testApp.controller('ValModelDetailCtrl', ['$scope', '$rootScope', '$http', '$location', '$stateParams', 'ScientificModelRest', 'ScientificModelInstanceRest', 'CollabParameters', 'IsCollabMemberRest', 'AppIDRest', 'Graphics', 'Context', 'AuthorizedCollabParameterRest', 'DataHandler',
 
-    function($scope, $rootScope, $http, $location, $stateParams, ScientificModelRest, ScientificModelInstanceRest, CollabParameters, IsCollabMemberRest, AppIDRest, Graphics, Context, AuthorizedCollabParameterRest, DataHandler, clbStorage) {
+    function($scope, $rootScope, $http, $location, $stateParams, ScientificModelRest, ScientificModelInstanceRest, CollabParameters, IsCollabMemberRest, AppIDRest, Graphics, Context, AuthorizedCollabParameterRest, DataHandler) {
+
+        $scope.validation_goToModelCatalog = function(model) {
+            Context.validation_goToModelCatalog(model = model);
+        }
+
+        $scope.is_graph_not_empty = function(score_type) {
+            if (score_type.values.results.length < 2) {
+                return false;
+            }
+            return true;
+        }
+
+        $scope.init_checkbox_latest_versions = function() {
+            var list_ids = [];
+            for (var i = 0; i < $scope.init_graph_all.length; i++) {
+
+                var graph = $scope.init_graph_all[i];
+                var score_type = graph.values.values[0].test_score_type
+
+                for (var line_id in graph.values.latest_test_versions_line_id) {
+                    list_ids.push(graph.values.latest_test_versions_line_id[line_id].latest_line_id);
+
+                    document.getElementById('check-' + i + '-' + graph.values.latest_test_versions_line_id[line_id].latest_line_id).checked = true;
+                }
+                $scope.init_graph_all[i].values.values = Graphics.getUpdatedGraph($scope.init_graph_all[i].values.values, list_ids);
+                $scope.line_result_focussed[i] = null;
+            }
+        };
+
+        $scope.updateGraph = function(key) {
+
+            var list_ids = $scope._IsCheck(key);
+
+            $scope.init_graph_all[key].values.values = Graphics.getUpdatedGraph($scope.init_graph, list_ids);
+            $scope.line_result_focussed[key] = null;
+        };
+
+        $scope._IsCheck = function(key) {
+
+            var list_ids = [];
+            var i = 0;
+
+            for (i; i < $scope.init_graph_all[key].values.list_ids.length; i++) {
+                if (document.getElementById('check-' + key + '-' + $scope.init_graph_all[key].values.list_ids[i]).checked) {
+                    list_ids.push($scope.init_graph_all[key].values.list_ids[i]);
+                };
+            };
+
+            return list_ids
+        };
+
 
         Context.setService().then(function() {
             $scope.Context = Context;
@@ -187,59 +238,11 @@ testApp.controller('ValModelDetailCtrl', ['$scope', '$rootScope', '$http', '$loc
 
                     });
                 });
-            }).then(function() {
-
             });
 
         });
 
-        $scope.validation_goToModelCatalog = function(model) {
-            Context.validation_goToModelCatalog(model = model);
-        }
 
-        $scope.is_graph_not_empty = function(score_type) {
-            if (score_type.values.results.length < 2) {
-                return false;
-            }
-            return true;
-        }
-
-        $scope.init_checkbox_latest_versions = function() {
-            var list_ids = [];
-            for (var i = 0; i < $scope.init_graph_all.length; i++) {
-                // if ($scope.init_graph_all[i].values.length > 0) {
-                var graph = $scope.init_graph_all[i];
-
-                var score_type = graph.values.values[0].test_score_type
-
-                for (var line_id in graph.values.latest_test_versions_line_id) {
-                    list_ids.push(graph.values.latest_test_versions_line_id[line_id].latest_line_id);
-
-                    document.getElementById('check-' + i + '-' + graph.values.latest_test_versions_line_id[line_id].latest_line_id).checked = true;
-                }
-                $scope.init_graph_all[i].values.values = Graphics.getUpdatedGraph($scope.init_graph_all[i].values.values, list_ids);
-                $scope.line_result_focussed[i] = null;
-            }
-        };
-
-        $scope.updateGraph = function(key) {
-            var list_ids = _IsCheck(key);
-
-            $scope.init_graph_all[key].values.values = Graphics.getUpdatedGraph($scope.init_graph, list_ids);
-            $scope.line_result_focussed[key] = null;
-        };
-
-        var _IsCheck = function(key) {
-            var list_ids = [];
-            var i = 0;
-
-            for (i; i < $scope.init_graph_all[key].values.list_ids.length; i++) {
-                if (document.getElementById('check-' + key + '-' + $scope.init_graph_all[key].values.list_ids[i]).checked) {
-                    list_ids.push($scope.init_graph_all[key].values.list_ids[i]);
-                };
-            };
-            return list_ids
-        };
     }
 ]);
 
