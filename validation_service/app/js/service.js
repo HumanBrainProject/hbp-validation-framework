@@ -878,26 +878,23 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'Context', 'ValidationResult
                 abscissa_values = TestGraph_getAbscissaValues(test_versions); //abscissa array for graphs
 
 
-                raw_data.$promise.then(function() {
+                colors = _get_color_array(raw_data.model_instances);
 
-                    colors = _get_color_array(raw_data.model_instances);
+                for (var instance in raw_data.model_instances) {
 
-                    for (var instance in raw_data.model_instances) {
+                    var model_id = raw_data.model_instances[instance].model_id;
 
-                        var model_id = raw_data.model_instances[instance].model_id;
+                    var line_id = TestGraph_getLineId(raw_data.model_instances[instance])
 
-                        var line_id = TestGraph_getLineId(raw_data.model_instances[instance])
-
-                        list_line_ids.push(line_id)
-                            //manage data for graph
-                        graph_values.push(TestGraph_manageDataForTestGraph(raw_data.model_instances[instance].test_codes, raw_data.model_instances[instance].timestamp, line_id, model_id, instance, abscissa_values, colors[instance]));
-                        results.push(TestGraph__manageDataForResultsTab(raw_data.model_instances[instance]))
-                    }
-                    var latest_model_instances_line_id = TestGraph_getLatestVersionModel(graph_values, list_line_ids);
-                    resolve({ 'values': graph_values, 'results': results, 'list_ids': list_line_ids, 'abs_info': abscissa_values, 'latest_model_instances_line_id': latest_model_instances_line_id });
-                });
-
+                    list_line_ids.push(line_id)
+                        //manage data for graph
+                    graph_values.push(TestGraph_manageDataForTestGraph(raw_data.model_instances[instance].test_codes, raw_data.model_instances[instance].timestamp, line_id, model_id, instance, abscissa_values, colors[instance]));
+                    results.push(TestGraph__manageDataForResultsTab(raw_data.model_instances[instance]))
+                }
+                var latest_model_instances_line_id = TestGraph_getLatestVersionModel(graph_values, list_line_ids);
+                resolve({ 'values': graph_values, 'results': results, 'list_ids': list_line_ids, 'abs_info': abscissa_values, 'latest_model_instances_line_id': latest_model_instances_line_id });
             });
+
         }
 
         var TestGraph_getLatestVersionModel = function(values, list_ids) {
@@ -922,15 +919,14 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'Context', 'ValidationResult
                 models_array[model].sort(_sort_results_by_timestamp_desc);
                 latest_version_of_models.push({ 'latest_line_id': models_array[model][0].key, 'latest_timestamp': models_array[model][0].timestamp })
             }
-
             return latest_version_of_models;
         }
+
         var TestGraph_getAbscissaValues = function(test_versions) {
-            var abscissa_value = [];
+            var abscissa_value = new Object();
 
             for (var tv in test_versions.test_codes) {
                 var version_name = test_versions.test_codes[tv].version;
-
                 abscissa_value[version_name] = parseInt(tv);
             }
             return abscissa_value;
@@ -947,7 +943,7 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'Context', 'ValidationResult
         }
 
         var TestGraph__manageDataForResultsTab = function(instance) {
-            var results = [];
+            var results = new Array();
             for (var c in instance.test_codes) {
                 var additional_data = {
                     "model_name": instance.model_name,
@@ -956,7 +952,7 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'Context', 'ValidationResult
                     "test_code": instance.test_codes[c].version
                 }
 
-                var res = [];
+                var res = new Array();
                 for (var r in instance.test_codes[c].results) {
                     res.push(instance.test_codes[c].results[r]);
                 }
@@ -1041,6 +1037,7 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'Context', 'ValidationResult
                 organized_data.model_instances.push(instance);
             }
             //sort model instances by last result timestamp
+
             organized_data.model_instances = organized_data.model_instances.sort(_sort_by_last_result_timestamp_desc)
 
             return organized_data;
@@ -1050,8 +1047,9 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'Context', 'ValidationResult
             var newest_timestamp = undefined;
             for (var code in codes) {
                 if (codes[code].results) {
-                    var timestamp = codes[code].results[0].timestamp;
-                    if (newest_timestamp == undefined || (newest_timestamp && timestamp < newest_timestamp)) {
+                    var id_first = Object.keys(codes[code].results);
+                    var timestamp = codes[code].results[id_first[0]].timestamp;
+                    if (newest_timestamp == undefined || (newest_timestamp && timestamp > newest_timestamp)) {
                         newest_timestamp = timestamp;
                     }
                 }
@@ -1059,31 +1057,31 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'Context', 'ValidationResult
             return newest_timestamp;
         }
 
-        var TestGraph_getMoreRecentVersionsGraphValues = function(list_version_ids, test_versions, raw_data) {
-            return new Promise(function(resolve, reject) {
-                var graph_values = [];
-                var abscissa_values = [];
+        // var TestGraph_getMoreRecentVersionsGraphValues = function(list_version_ids, test_versions, raw_data) {
+        //     return new Promise(function(resolve, reject) {
+        //         var graph_values = [];
+        //         var abscissa_values = [];
 
-                var colors; //color array for the graph
+        //         var colors; //color array for the graph
 
-                abscissa_values = TestGraph_getAbscissaValues(test_versions); //abscissa array for graphs
+        //         abscissa_values = TestGraph_getAbscissaValues(test_versions); //abscissa array for graphs
 
-                raw_data.$promise.then(function() {
-                    colors = _get_color_array(raw_data.model_instances);
-                    for (var instance in raw_data.model_instances) {
+        //         raw_data.$promise.then(function() {
+        //             colors = _get_color_array(raw_data.model_instances);
+        //             for (var instance in raw_data.model_instances) {
 
-                        if (list_version_ids.includes(instance)) {
-                            var model_id = raw_data.model_instances[instance].model_id;
-                            var line_id = TestGraph_getLineId(raw_data.model_instances[instance])
+        //                 if (list_version_ids.includes(instance)) {
+        //                     var model_id = raw_data.model_instances[instance].model_id;
+        //                     var line_id = TestGraph_getLineId(raw_data.model_instances[instance])
 
-                            //manage data for graph
-                            graph_values.push(TestGraph_manageDataForTestGraph(raw_data.model_instances[instance].test_codes, line_id, model_id, instance, abscissa_values, colors[instance]));
-                        }
-                    }
-                    resolve(graph_values);
-                });
-            });
-        }
+        //                     //manage data for graph
+        //                     graph_values.push(TestGraph_manageDataForTestGraph(raw_data.model_instances[instance].test_codes, line_id, model_id, instance, abscissa_values, colors[instance]));
+        //                 }
+        //             }
+        //             resolve(graph_values);
+        //         });
+        //     });
+        // }
 
 
         // Model detail graphs
@@ -1106,7 +1104,7 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'Context', 'ValidationResult
                 var single_graphs_datas = [];
 
                 for (var sc_t in raw_data.score_type) {
-                    abscissa_value = ModelGraph_getAbscissaValue(model_instances);
+                    abscissa_value = ModelGraph_getAbscissaValues(model_instances);
 
                     single_graphs_datas.push({ score_type: sc_t, values: ModelGraph_init_single_ModelGraphs(raw_data.score_type[sc_t], abscissa_value, sc_t) });
                 }
@@ -1118,8 +1116,8 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'Context', 'ValidationResult
             });
         }
 
-        var ModelGraph_getAbscissaValue = function(model_instances) {
-            var abscissa_value = [];
+        var ModelGraph_getAbscissaValues = function(model_instances) {
+            var abscissa_value = new Object();
             for (var mi in model_instances.instances) {
                 var version_name = model_instances.instances[mi].version;
                 abscissa_value[version_name] = parseInt(mi);
@@ -1154,11 +1152,13 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'Context', 'ValidationResult
 
         var ModelGraph_get_all_graph_values = function(single_graphs_data) {
             all_values = [];
+
             for (var i in single_graphs_data) {
                 for (var j in single_graphs_data[i].values.values) {
                     all_values.push(single_graphs_data[i].values.values[j]);
                 }
             }
+
             return all_values
         }
 
@@ -1298,7 +1298,7 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'Context', 'ValidationResult
 
             var colorMap = palette('tol-rainbow', list_ids.length);
 
-            var res = [];
+            var res = new Object();
             for (var j in list_ids) {
                 res[list_ids[j]] = colorMap[j];
             }
@@ -1385,16 +1385,36 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'Context', 'ValidationResult
             get_lines_options: get_lines_options,
             find_result_in_data: find_result_in_data,
             focus: focus,
-            TestGraph_getRawData: TestGraph_getRawData,
-            ModelGraph_getRawData: ModelGraph_getRawData,
-            TestGraph_reorganizeRawDataForResultTable: TestGraph_reorganizeRawDataForResultTable,
-            TestGraph_getMoreRecentVersionsGraphValues: TestGraph_getMoreRecentVersionsGraphValues,
-            TestGraph_initTestGraph: TestGraph_initTestGraph,
-            ModelGraph_init_Graphs: ModelGraph_init_Graphs,
-            ModelGraphs_reorganizeRawDataForResultTable: ModelGraphs_reorganizeRawDataForResultTable,
             getUpdatedGraph: getUpdatedGraph,
+            _get_min_max_yvalues: _get_min_max_yvalues,
+            _get_min_max_xvalues: _get_min_max_xvalues,
             _sort_by_last_result_timestamp_desc: _sort_by_last_result_timestamp_desc,
             _sort_results_by_timestamp_desc: _sort_results_by_timestamp_desc,
+            _sort_results_by_timestamp_asc: _sort_results_by_timestamp_asc,
+            _sort_results_by_x: _sort_results_by_x,
+            _get_color_array: _get_color_array,
+
+            TestGraph_getRawData: TestGraph_getRawData,
+            TestGraph_getAbscissaValues: TestGraph_getAbscissaValues,
+            TestGraph_getLineId: TestGraph_getLineId,
+            TestGraph_manageDataForTestGraph: TestGraph_manageDataForTestGraph,
+            TestGraph__manageDataForResultsTab: TestGraph__manageDataForResultsTab,
+            TestGraph_getLatestVersionModel: TestGraph_getLatestVersionModel,
+            TestGraph_getLastResultTimestamp: TestGraph_getLastResultTimestamp,
+            TestGraph_reorganizeRawDataForResultTable: TestGraph_reorganizeRawDataForResultTable,
+            TestGraph_initTestGraph: TestGraph_initTestGraph,
+
+            ModelGraph_getRawData: ModelGraph_getRawData,
+            ModelGraph_getAbscissaValues: ModelGraph_getAbscissaValues,
+            ModelGraph_getLineId: ModelGraph_getLineId,
+            ModelGraph_manageDataForResultsTab: ModelGraph_manageDataForResultsTab,
+            ModelGraph_manageDataForGraph: ModelGraph_manageDataForGraph,
+            ModelGraph_get_latest_version_test: ModelGraph_get_latest_version_test,
+            ModelGraph_init_single_ModelGraphs: ModelGraph_init_single_ModelGraphs,
+            ModelGraph_get_all_graph_values: ModelGraph_get_all_graph_values,
+            ModelGraph_init_Graphs: ModelGraph_init_Graphs,
+            ModelGraphs_reorganizeRawDataForResultTable: ModelGraphs_reorganizeRawDataForResultTable,
+
 
         };
 

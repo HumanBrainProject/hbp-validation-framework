@@ -263,13 +263,335 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
 
     function($scope, $rootScope, $http, $location, $stateParams, $state, ValidationTestDefinitionRest, ValidationTestCodeRest, CollabParameters, TestCommentRest, IsCollabMemberRest, Graphics, Context, TestTicketRest, AuthorizedCollabParameterRest, ValidationTestAliasRest, NotificationRest, AreVersionsEditableRest, DataHandler) {
 
+        $scope.init_graph, $scope.graphic_data, $scope.init_checkbox, $scope.graphic_options;
+        $scope.data_for_table;
+        $scope.selected_tab = "";
+
+        //for tab version (edit)
+        $scope.version_in_edition = [];
+        $scope.version_is_editable = [];
+        //for tab_comments
+        $scope.comments_to_show = [];
+        $scope.create_comment_to_show = [];
+        $scope.button_save_ticket = [];
+        $scope.button_save_comment = [];
+
+
+        $scope.init_checkbox_latest_versions = function() {
+            var list_ids = [];
+            for (var line_id in $scope.init_graph.latest_model_instances_line_id) {
+                list_ids.push($scope.init_graph.latest_model_instances_line_id[line_id].latest_line_id);
+                // document.getElementById('check-' + $scope.init_graph.latest_model_instances_line_id[line_id].latest_line_id).checked = true;
+            }
+            $scope.graphic_data = Graphics.getUpdatedGraph($scope.init_graph.values, list_ids);
+            $scope.line_result_focussed = null;
+        };
+
+
+        $scope.is_graph_not_empty = function(data_graph) {
+            if (data_graph.length < 2 && data_graph[0].values.length < 2) {
+                return false;
+            }
+            return true;
+        }
+
+        // var _sort_by_last_result_timestamp_desc = function(a, b) {
+        //     return new Date(b.last_result_timestamp) - new Date(a.last_result_timestamp);
+        // }
+
+        // var _sort_by_timestamp_desc = function(a, b) {
+        //     return new Date(b.timestamp) - new Date(a.timestamp);
+        // }
+
+        // var _sort_by_timestamp_asc = function(a, b) {
+        //     return new Date(a.timestamp) - new Date(b.timestamp);
+        // }
+
+        $scope.toogleTabs = function(id_tab) {
+            $scope.selected_tab = id_tab;
+
+            var list_tab_id = [
+                "tab_description",
+                "tab_version",
+                "tab_new_version",
+                "tab_results", // this one must be visibility: hidden or visible
+                "tab_comments",
+                "tab_edit_test",
+            ]
+
+            //set all tabs style display to "none"
+            var i = 0;
+            for (i; i < list_tab_id.length; i++) {
+                if (list_tab_id[i] == "tab_results") {
+                    document.getElementById(list_tab_id[i]).style.visibility = "hidden";
+
+                } else {
+                    document.getElementById(list_tab_id[i]).style.display = "none";
+                }
+
+            }
+
+            //set id_tab style display to "block" or visible
+            if (id_tab == "tab_results") {
+                document.getElementById(id_tab).style.visibility = "visible";
+            } else {
+                document.getElementById(id_tab).style.display = "block";
+            };
+
+            _active_tab(id_tab);
+        };
+
+        var _active_tab = function(id_tab) {
+            var a = document.getElementById("li_tab_description");
+            var b = document.getElementById("li_tab_version");
+            var c = document.getElementById("li_tab_results");
+            var d = document.getElementById("li_tab_comments");
+            a.className = b.className = c.className = d.className = "nav-link";
+            if (id_tab != "tab_new_version" || id_tab != "tab_edit_test") {
+                var e = document.getElementById("li_" + id_tab);
+                e.className += " active";
+
+            };
+        };
+        $scope.updateGraph = function() {
+            var list_ids = $scope._IsCheck();
+            $scope.graphic_data = Graphics.getUpdatedGraph($scope.init_graph.values, list_ids);
+            $scope.result_focussed = null;
+        };
+
+        $scope._IsCheck = function() {
+            var list_ids = [];
+            var i = 0;
+            for (i; i < $scope.init_checkbox.length; i++) {
+                if (document.getElementById('check-' + i).checked) {
+                    list_ids.push($scope.init_checkbox[i]);
+                };
+            };
+            return list_ids
+        };
+
+        $scope.saveVersion = function() {
+            $scope.test_code.test_definition_id = $scope.detail_test.tests[0].id;
+
+            var parameters = JSON.stringify([$scope.test_code]);
+            var test_version_response = ValidationTestCodeRest.save({ app_id: $scope.app_id, test_definition_id: $scope.detail_test.tests[0].id }, parameters).$promise.then(function() {
+                document.getElementById("tab_description").style.display = "none";
+                document.getElementById("tab_version").style.display = "block";
+                document.getElementById("tab_new_version").style.display = "none";
+                document.getElementById("tab_results").style.visibility = "hidden";
+                document.getElementById("tab_comments").style.display = "none";
+                $state.reload();
+            }).catch(function(e) {
+                alert(e.data);
+            });
+        };
+
+        $scope.editTest = function() {
+            if ($scope.detail_test.tests[0].alias != '' && $scope.detail_test.tests[0].alias != null) {
+                $scope.alias_is_valid = ValidationTestAliasRest.get({ app_id: $scope.app_id, test_id: $scope.detail_test.tests[0].id, alias: $scope.detail_test.tests[0].alias });
+                $scope.alias_is_valid.$promise.then(function() {
+                    if ($scope.alias_is_valid.is_valid) {
+                        var parameters = JSON.stringify($scope.detail_test.tests[0]);
+                        ValidationTestDefinitionRest.put({ app_id: $scope.app_id, id: $scope.detail_test.tests[0].id }, parameters).$promise.then(function() {
+                            document.getElementById("tab_description").style.display = "none";
+                            document.getElementById("tab_version").style.display = "block";
+                            document.getElementById("tab_new_version").style.display = "none";
+                            document.getElementById("tab_results").style.display = "none";
+                            document.getElementById("tab_comments").style.display = "none";
+                            $state.reload();
+                            DataHandler.setStoredTestsAsOutdated();
+                        });
+                    } else {
+                        alert('Cannot update the test. Please check the alias.');
+                    };
+                });
+            } else {
+                $scope.detail_test.tests[0].alias = null;
+                var parameters = JSON.stringify($scope.detail_test.tests[0]);
+                ValidationTestDefinitionRest.put({ app_id: $scope.app_id, id: $scope.detail_test.tests[0].id }, parameters).$promise.then(function() {
+                    document.getElementById("tab_description").style.display = "none";
+                    document.getElementById("tab_version").style.display = "block";
+                    document.getElementById("tab_new_version").style.display = "none";
+                    document.getElementById("tab_results").style.display = "none";
+                    document.getElementById("tab_comments").style.display = "none";
+                    $state.reload();
+                    DataHandler.setStoredTestsAsOutdated();
+                });
+            }
+        };
+        $scope.editVersion = function(index) {
+            angular.element(document.querySelector("#editable-repository-" + index)).attr('contenteditable', "true");
+            angular.element(document.querySelector("#editable-repository-" + index)).attr('bgcolor', 'ghostwhite');
+            angular.element(document.querySelector("#editable-code-description-" + index)).attr('contenteditable', "true");
+            angular.element(document.querySelector("#editable-code-description-" + index)).attr('bgcolor', 'ghostwhite');
+            angular.element(document.querySelector("#editable-version-" + index)).attr('contenteditable', "true");
+            angular.element(document.querySelector("#editable-version-" + index)).attr('bgcolor', 'ghostwhite');
+            angular.element(document.querySelector("#editable-path-" + index)).attr('contenteditable', "true");
+            angular.element(document.querySelector("#editable-path-" + index)).attr('bgcolor', 'ghostwhite');
+            $scope.version_in_edition.push(index);
+
+        };
+        $scope.save_edited_version = function(index) {
+            var repository = $("#editable-repository-" + index).text();
+            var code_description = $("#editable-code-description-" + index).text();
+            var version = $("#editable-version-" + index).text();
+            var pathway = $("#editable-path-" + index).text();
+            var new_version = JSON.stringify([
+                { 'id': index, 'repository': repository, 'version': version, 'path': pathway, 'description': code_description }
+            ]);
+            ValidationTestCodeRest.put({ app_id: $scope.app_id }, new_version).$promise.then(function() {
+                angular.element(document.querySelector("#editable-repository-" + index)).attr('contenteditable', "false");
+                angular.element(document.querySelector("#editable-repository-" + index)).attr('bgcolor', 'white');
+                angular.element(document.querySelector("#editable-code-description-" + index)).attr('contenteditable', "false");
+                angular.element(document.querySelector("#editable-code-description-" + index)).attr('bgcolor', 'white');
+                angular.element(document.querySelector("#editable-version-" + index)).attr('contenteditable', "false");
+                angular.element(document.querySelector("#editable-version-" + index)).attr('bgcolor', 'white');
+                angular.element(document.querySelector("#editable-path-" + index)).attr('contenteditable', "false");
+                angular.element(document.querySelector("#editable-path-" + index)).attr('bgcolor', 'white');
+
+                var i = $scope.version_in_edition.indexOf(index)
+                if (i == 0) {
+                    $scope.version_in_edition.splice(0, 1)
+                } else { $scope.version_in_edition.splice(i, i); }
+            });
+
+
+        }
+
+        $scope.checkAliasValidity = function() {
+            $scope.alias_is_valid = ValidationTestAliasRest.get({ app_id: $scope.app_id, test_id: $scope.detail_test.tests[0].id, alias: $scope.detail_test.tests[0].alias });
+        };
+
+        var _send_notification = function() {
+            //not used for now
+            NotificationRest.post({ app_id: $scope.app_id, ctx: $scope.ctx }).$promise.then(function(data) {});
+        }
+
+        $scope.saveTicket = function() {
+            $scope.ticket.test_id = $stateParams.uuid;
+            var data = JSON.stringify($scope.ticket);
+            $scope.new_ticket = TestTicketRest.post({ app_id: $scope.app_id }, data, function(value) {})
+            $scope.new_ticket.$promise.then(function() {
+                $scope.test_tickets.tickets.push($scope.new_ticket.new_ticket[0]);
+                document.getElementById("formT").reset();
+                //_send_notification();
+            });
+
+        };
+        $scope.saveComment = function(ticket_id, comment_post, ticket_index) {
+            comment_post.Ticket_id = ticket_id;
+            var data = JSON.stringify(comment_post);
+            $scope.new_comment = TestCommentRest.post({ app_id: $scope.app_id }, data, function(value) {})
+            $scope.new_comment.$promise.then(function() {
+                var i = $scope.create_comment_to_show.indexOf(ticket_id)
+                if (i == 0) {
+                    $scope.create_comment_to_show.splice(0, 1)
+                } else { $scope.create_comment_to_show.splice(i, i); }
+
+                if ($scope.test_tickets.tickets[ticket_index].comments) {
+                    $scope.test_tickets.tickets[ticket_index].comments.push($scope.new_comment.new_comment[0]);
+                } else {
+                    $scope.test_tickets.tickets[ticket_index].comments = [];
+                    $scope.test_tickets.tickets[ticket_index].comments.push($scope.new_comment.new_comment[0]);
+                }
+                document.getElementById("btn-create-comment-" + ticket_id).innerHTML = "Reply";
+                document.getElementById("formC-" + ticket_id).reset();
+            });
+        };
+
+        // $scope._reset = function(form) {
+        //     if (form) {
+        //         form.$setPristine();
+        //         form.$setUntouched();
+        //     };
+        // };
+
+        $scope.showComments = function(ticket_id) {
+            var classe = document.getElementById("button-com-" + ticket_id).className;
+            if (classe == "glyphicon glyphicon-plus button-click") {
+                $scope.comments_to_show.push(ticket_id);
+                document.getElementById("button-com-" + ticket_id).className = "glyphicon glyphicon-minus button-click";
+            } else {
+                var i = $scope.comments_to_show.indexOf(ticket_id);
+                if (i == 0) {
+                    $scope.comments_to_show.splice(0, 1);
+                } else { $scope.comments_to_show.splice(i, i); }
+
+                document.getElementById("button-com-" + ticket_id).className = "glyphicon glyphicon-plus button-click";
+            };
+        };
+
+        $scope.showCreateComment = function(ticket_id) {
+            var button = document.getElementById("btn-create-comment-" + ticket_id);
+            if (button.innerHTML == "Reply") {
+                $scope.create_comment_to_show.push(ticket_id);
+                button.innerHTML = "Hide";
+            } else {
+                var i = $scope.create_comment_to_show.indexOf(ticket_id);
+                if (i == 0) {
+                    $scope.create_comment_to_show.splice(0, 1);
+                } else { $scope.create_comment_to_show.splice(i, i); }
+                button.innerHTML = "Reply";
+            };
+        };
+
+        $scope.editTicket = function(ticket_id) {
+            angular.element(document.querySelector("#editable-title-" + ticket_id)).attr('contenteditable', "true");
+            angular.element(document.querySelector("#editable-title-" + ticket_id)).attr('bgcolor', 'ghostwhite');
+            angular.element(document.querySelector("#editable-text-" + ticket_id)).attr('contenteditable', "true");
+            angular.element(document.querySelector("#editable-text-" + ticket_id)).attr('bgcolor', 'ghostwhite');
+            $scope.button_save_ticket.push(ticket_id);
+        };
+
+        $scope.saveEditedTicket = function(ticket_id) {
+            var text = $("#editable-text-" + ticket_id).text();
+            var title = $("#editable-title-" + ticket_id).text();
+            var parameters = JSON.stringify({ 'id': ticket_id, 'title': title, 'text': text });
+            var a = TestTicketRest.put({ app_id: $scope.app_id }, parameters).$promise.then(function(data) {
+                angular.element(document.querySelector("#editable-title-" + ticket_id)).attr('contenteditable', "false");
+                angular.element(document.querySelector("#editable-title-" + ticket_id)).attr('bgcolor', '');
+                angular.element(document.querySelector("#editable-text-" + ticket_id)).attr('contenteditable', "false");
+                angular.element(document.querySelector("#editable-text-" + ticket_id)).attr('bgcolor', 'white');
+
+                var i = $scope.button_save_ticket.indexOf(ticket_id);
+                if (i == 0) {
+                    $scope.button_save_ticket.splice(0, 1);
+                } else {
+                    $scope.button_save_ticket.splice(i, i);
+                }
+            });
+        };
+        $scope.editComment = function(com_id) {
+            angular.element(document.querySelector("#editable-ctext-" + com_id)).attr('contenteditable', "true");
+            angular.element(document.querySelector("#editable-ctext-" + com_id)).attr('bgcolor', 'ghostwhite');
+            $scope.button_save_comment.push(com_id);
+        };
+
+        $scope.saveEditedComment = function(com_id) {
+            var text = $("#editable-ctext-" + com_id).text();
+
+            var parameters = JSON.stringify({ 'id': com_id, 'text': text });
+            var a = TestCommentRest.put({ app_id: $scope.app_id }, parameters).$promise.then(function(data) {
+                angular.element(document.querySelector("#editable-ctext-" + com_id)).attr('contenteditable', "false");
+                angular.element(document.querySelector("#editable-ctext-" + com_id)).attr('bgcolor', 'white');
+                var i = $scope.button_save_comment.indexOf(com_id);
+                if (i == 0) {
+                    $scope.button_save_comment.splice(0, 1);
+                } else {
+                    $scope.button_save_comment.splice(i, i);
+                }
+            });
+        }
+
+        $scope.isInArray = function(value, array) {
+            return array.indexOf(value) > -1;
+        }
+
+        //code
         Context.setService().then(function() {
             $scope.Context = Context;
             $scope.ctx = Context.getCtx();
             $scope.app_id = Context.getAppID();
-
-            $scope.init_graph, $scope.graphic_data, $scope.init_checkbox, $scope.graphic_options;
-            $scope.data_for_table;
 
             CollabParameters.setService($scope.ctx).then(function() {
 
@@ -328,17 +650,7 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
                             console.log(err);
                         });
 
-                        //for tab version (edit)
-                        $scope.version_in_edition = [];
-                        $scope.version_is_editable = [];
-                        //for tab_comments
                         $scope.test_tickets = TestTicketRest.get({ app_id: $scope.app_id, test_id: $stateParams.uuid });
-                        $scope.comments_to_show = [];
-                        $scope.create_comment_to_show = [];
-                        $scope.button_save_ticket = [];
-                        $scope.button_save_comment = [];
-
-
 
 
                         var version_editable = AreVersionsEditableRest.get({ app_id: $scope.app_id, test_id: $stateParams.uuid });
@@ -348,300 +660,7 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
 
                     });
                 });
-
-                $scope.init_checkbox_latest_versions = function() {
-                    var list_ids = [];
-                    for (var line_id in $scope.init_graph.latest_model_instances_line_id) {
-                        list_ids.push($scope.init_graph.latest_model_instances_line_id[line_id].latest_line_id);
-                        // document.getElementById('check-' + $scope.init_graph.latest_model_instances_line_id[line_id].latest_line_id).checked = true;
-                    }
-                    $scope.graphic_data = Graphics.getUpdatedGraph($scope.init_graph.values, list_ids);
-                    $scope.line_result_focussed = null;
-                };
-
-
-                $scope.is_graph_not_empty = function(data_graph) {
-                    if (data_graph.length < 2 && data_graph[0].values.length < 2) {
-                        return false;
-                    }
-                    return true;
-                }
-
-
-
-                var _sort_by_last_result_timestamp_desc = function(a, b) {
-                    return new Date(b.last_result_timestamp) - new Date(a.last_result_timestamp);
-                }
-
-                var _sort_by_timestamp_desc = function(a, b) {
-                    return new Date(b.timestamp) - new Date(a.timestamp);
-                }
-
-                var _sort_by_timestamp_asc = function(a, b) {
-                    return new Date(a.timestamp) - new Date(b.timestamp);
-                }
-
-                var _add_params = function() {
-                    $scope.test_code.test_definition_id = $scope.detail_test.tests[0].id;
-                };
-
-                $scope.selected_tab = "";
-                $scope.toogleTabs = function(id_tab) {
-                    $scope.selected_tab = id_tab;
-
-                    var list_tab_id = [
-                        "tab_description",
-                        "tab_version",
-                        "tab_new_version",
-                        "tab_results", // this one must be visibility: hidden or visible
-                        "tab_comments",
-                        "tab_edit_test",
-                    ]
-
-                    //set all tabs style display to "none"
-                    var i = 0;
-                    for (i; i < list_tab_id.length; i++) {
-                        if (list_tab_id[i] == "tab_results") {
-                            document.getElementById(list_tab_id[i]).style.visibility = "hidden";
-
-                        } else {
-                            document.getElementById(list_tab_id[i]).style.display = "none";
-                        }
-
-                    }
-
-                    //set id_tab style display to "block" or visible
-                    if (id_tab == "tab_results") {
-                        document.getElementById(id_tab).style.visibility = "visible";
-                    } else {
-                        document.getElementById(id_tab).style.display = "block";
-                    };
-
-                    _active_tab(id_tab);
-                };
-
-                var _active_tab = function(id_tab) {
-                    var a = document.getElementById("li_tab_description");
-                    var b = document.getElementById("li_tab_version");
-                    var c = document.getElementById("li_tab_results");
-                    var d = document.getElementById("li_tab_comments");
-                    a.className = b.className = c.className = d.className = "nav-link";
-                    if (id_tab != "tab_new_version" || id_tab != "tab_edit_test") {
-                        var e = document.getElementById("li_" + id_tab);
-                        e.className += " active";
-
-                    };
-                };
-                $scope.updateGraph = function() {
-                    var list_ids = _IsCheck();
-                    $scope.graphic_data = Graphics.getUpdatedGraph($scope.init_graph.values, list_ids);
-                    $scope.result_focussed = null;
-                    // $scope.$apply();
-                    // $scope.api.refresh();
-                };
-                var _IsCheck = function() {
-                    var list_ids = [];
-                    var i = 0;
-                    for (i; i < $scope.init_checkbox.length; i++) {
-                        if (document.getElementById('check-' + i).checked) {
-                            list_ids.push($scope.init_checkbox[i]);
-                        };
-                    };
-                    return list_ids
-                };
-                $scope.saveVersion = function() {
-                    _add_params();
-
-                    var parameters = JSON.stringify([$scope.test_code]);
-                    var test_version_response = ValidationTestCodeRest.save({ app_id: $scope.app_id, test_definition_id: $scope.detail_test.tests[0].id }, parameters).$promise.then(function() {
-                        document.getElementById("tab_description").style.display = "none";
-                        document.getElementById("tab_version").style.display = "block";
-                        document.getElementById("tab_new_version").style.display = "none";
-                        document.getElementById("tab_results").style.visibility = "hidden";
-                        document.getElementById("tab_comments").style.display = "none";
-                        $state.reload();
-                    }).catch(function(e) {
-                        alert(e.data);
-                    });
-                };
-
-                $scope.editTest = function() {
-                    if ($scope.detail_test.tests[0].alias != '' && $scope.detail_test.tests[0].alias != null) {
-                        $scope.alias_is_valid = ValidationTestAliasRest.get({ app_id: $scope.app_id, test_id: $scope.detail_test.tests[0].id, alias: $scope.detail_test.tests[0].alias });
-                        $scope.alias_is_valid.$promise.then(function() {
-                            if ($scope.alias_is_valid.is_valid) {
-                                var parameters = JSON.stringify($scope.detail_test.tests[0]);
-                                ValidationTestDefinitionRest.put({ app_id: $scope.app_id, id: $scope.detail_test.tests[0].id }, parameters).$promise.then(function() {
-                                    document.getElementById("tab_description").style.display = "none";
-                                    document.getElementById("tab_version").style.display = "block";
-                                    document.getElementById("tab_new_version").style.display = "none";
-                                    document.getElementById("tab_results").style.display = "none";
-                                    document.getElementById("tab_comments").style.display = "none";
-                                    $state.reload();
-                                    DataHandler.setStoredTestsAsOutdated();
-                                });
-                            } else {
-                                alert('Cannot update the test. Please check the alias.');
-                            };
-                        });
-                    } else {
-                        $scope.detail_test.tests[0].alias = null;
-                        var parameters = JSON.stringify($scope.detail_test.tests[0]);
-                        ValidationTestDefinitionRest.put({ app_id: $scope.app_id, id: $scope.detail_test.tests[0].id }, parameters).$promise.then(function() {
-                            document.getElementById("tab_description").style.display = "none";
-                            document.getElementById("tab_version").style.display = "block";
-                            document.getElementById("tab_new_version").style.display = "none";
-                            document.getElementById("tab_results").style.display = "none";
-                            document.getElementById("tab_comments").style.display = "none";
-                            $state.reload();
-                            DataHandler.setStoredTestsAsOutdated();
-                        });
-                    }
-                };
-                $scope.editVersion = function(index) {
-                    angular.element(document.querySelector("#editable-repository-" + index)).attr('contenteditable', "true");
-                    angular.element(document.querySelector("#editable-repository-" + index)).attr('bgcolor', 'ghostwhite');
-                    angular.element(document.querySelector("#editable-code-description-" + index)).attr('contenteditable', "true");
-                    angular.element(document.querySelector("#editable-code-description-" + index)).attr('bgcolor', 'ghostwhite');
-                    angular.element(document.querySelector("#editable-version-" + index)).attr('contenteditable', "true");
-                    angular.element(document.querySelector("#editable-version-" + index)).attr('bgcolor', 'ghostwhite');
-                    angular.element(document.querySelector("#editable-path-" + index)).attr('contenteditable', "true");
-                    angular.element(document.querySelector("#editable-path-" + index)).attr('bgcolor', 'ghostwhite');
-                    $scope.version_in_edition.push(index);
-
-                };
-                $scope.save_edited_version = function(index) {
-                    var repository = $("#editable-repository-" + index).text();
-                    var code_description = $("#editable-code-description-" + index).text();
-                    var version = $("#editable-version-" + index).text();
-                    var pathway = $("#editable-path-" + index).text();
-                    var new_version = JSON.stringify([
-                        { 'id': index, 'repository': repository, 'version': version, 'path': pathway, 'description': code_description }
-                    ]);
-                    ValidationTestCodeRest.put({ app_id: app_id }, new_version).$promise.then(function() {
-                        angular.element(document.querySelector("#editable-repository-" + index)).attr('contenteditable', "false");
-                        angular.element(document.querySelector("#editable-repository-" + index)).attr('bgcolor', 'white');
-                        angular.element(document.querySelector("#editable-code-description-" + index)).attr('contenteditable', "false");
-                        angular.element(document.querySelector("#editable-code-description-" + index)).attr('bgcolor', 'white');
-                        angular.element(document.querySelector("#editable-version-" + index)).attr('contenteditable', "false");
-                        angular.element(document.querySelector("#editable-version-" + index)).attr('bgcolor', 'white');
-                        angular.element(document.querySelector("#editable-path-" + index)).attr('contenteditable', "false");
-                        angular.element(document.querySelector("#editable-path-" + index)).attr('bgcolor', 'white');
-                        $scope.version_in_edition.splice(index);
-                    });
-
-
-                }
-                $scope.checkAliasValidity = function() {
-                    $scope.alias_is_valid = ValidationTestAliasRest.get({ app_id: $scope.app_id, test_id: $scope.detail_test.tests[0].id, alias: $scope.detail_test.tests[0].alias });
-                };
-
-                var _send_notification = function() {
-                    NotificationRest.post({ app_id: $scope.app_id, ctx: $scope.ctx }).$promise.then(function(data) {});
-                }
-
-                $scope.saveTicket = function() {
-                    $scope.ticket.test_id = $stateParams.uuid;
-                    var data = JSON.stringify($scope.ticket);
-                    $scope.new_ticket = TestTicketRest.post({ app_id: $scope.app_id }, data, function(value) {})
-                    $scope.new_ticket.$promise.then(function() {
-                        $scope.test_tickets.tickets.push($scope.new_ticket.new_ticket[0]);
-                        document.getElementById("formT").reset();
-                        _send_notification();
-                    });
-
-                };
-                $scope.saveComment = function(ticket_id, comment_post, ticket_index) {
-                    comment_post.Ticket_id = ticket_id;
-                    var data = JSON.stringify(comment_post);
-                    $scope.new_comment = TestCommentRest.post({ app_id: $scope.app_id }, data, function(value) {})
-                    $scope.new_comment.$promise.then(function() {
-                        $scope.create_comment_to_show.splice($scope.create_comment_to_show.indexOf(ticket_id));
-
-                        if ($scope.test_tickets.tickets[ticket_index].comments) {
-                            $scope.test_tickets.tickets[ticket_index].comments.push($scope.new_comment.new_comment[0]);
-                        } else {
-                            $scope.test_tickets.tickets[ticket_index].comments = [];
-                            $scope.test_tickets.tickets[ticket_index].comments.push($scope.new_comment.new_comment[0]);
-                        }
-                        document.getElementById("btn-create-comment-" + ticket_id).innerHTML = "Reply";
-                        document.getElementById("formC-" + ticket_id).reset();
-                    });
-
-                };
-
-                $scope._reset = function(form) {
-                    if (form) {
-                        form.$setPristine();
-                        form.$setUntouched();
-                    };
-                };
-
-                $scope.showComments = function(ticket_id) {
-                    var classe = document.getElementById("button-com-" + ticket_id).className;
-                    if (classe == "glyphicon glyphicon-plus button-click") {
-                        $scope.comments_to_show.push(ticket_id);
-                        document.getElementById("button-com-" + ticket_id).className = "glyphicon glyphicon-minus button-click";
-                    } else {
-                        $scope.comments_to_show.splice($scope.comments_to_show.indexOf(ticket_id));
-                        document.getElementById("button-com-" + ticket_id).className = "glyphicon glyphicon-plus button-click";
-                    };
-                };
-                $scope.showCreateComment = function(ticket_id) {
-                    var button = document.getElementById("btn-create-comment-" + ticket_id);
-                    if (button.innerHTML == "Reply") {
-                        $scope.create_comment_to_show.push(ticket_id);
-                        button.innerHTML = "Hide";
-                    } else {
-                        $scope.create_comment_to_show.splice($scope.create_comment_to_show.indexOf(ticket_id));
-                        button.innerHTML = "Reply";
-
-                    };
-                };
-
-                $scope.editTicket = function(ticket_id) {
-                    angular.element(document.querySelector("#editable-title-" + ticket_id)).attr('contenteditable', "true");
-                    angular.element(document.querySelector("#editable-title-" + ticket_id)).attr('bgcolor', 'ghostwhite');
-                    angular.element(document.querySelector("#editable-text-" + ticket_id)).attr('contenteditable', "true");
-                    angular.element(document.querySelector("#editable-text-" + ticket_id)).attr('bgcolor', 'ghostwhite');
-                    $scope.button_save_ticket.push(ticket_id);
-                };
-
-                $scope.saveEditedTicket = function(ticket_id) {
-                    var text = $("#editable-text-" + ticket_id).text();
-                    var title = $("#editable-title-" + ticket_id).text();
-                    var parameters = JSON.stringify({ 'id': ticket_id, 'title': title, 'text': text });
-                    var a = TestTicketRest.put({ app_id: $scope.app_id }, parameters).$promise.then(function(data) {
-                        angular.element(document.querySelector("#editable-title-" + ticket_id)).attr('contenteditable', "false");
-                        angular.element(document.querySelector("#editable-title-" + ticket_id)).attr('bgcolor', '');
-                        angular.element(document.querySelector("#editable-text-" + ticket_id)).attr('contenteditable', "false");
-                        angular.element(document.querySelector("#editable-text-" + ticket_id)).attr('bgcolor', 'white');
-                        $scope.button_save_ticket.splice($scope.button_save_ticket.indexOf(ticket_id));
-                    });
-                };
-                $scope.editComment = function(com_id) {
-                    angular.element(document.querySelector("#editable-ctext-" + com_id)).attr('contenteditable', "true");
-                    angular.element(document.querySelector("#editable-ctext-" + com_id)).attr('bgcolor', 'ghostwhite');
-                    $scope.button_save_comment.push(com_id);
-                };
-
-                $scope.saveEditedComment = function(com_id) {
-                    var text = $("#editable-ctext-" + com_id).text();
-
-                    var parameters = JSON.stringify({ 'id': com_id, 'text': text });
-                    var a = TestCommentRest.put({ app_id: $scope.app_id }, parameters).$promise.then(function(data) {
-                        angular.element(document.querySelector("#editable-ctext-" + com_id)).attr('contenteditable', "false");
-                        angular.element(document.querySelector("#editable-ctext-" + com_id)).attr('bgcolor', 'white');
-                        $scope.button_save_comment.splice($scope.button_save_comment.indexOf(com_id));
-                    });
-                }
-                $scope.isInArray = function(value, array) {
-                    return array.indexOf(value) > -1;
-                }
-
             });
-
-
         });
     }
 ]);
