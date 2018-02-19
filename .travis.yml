@@ -33,12 +33,15 @@ install:
 before_script:
 - export PYTHONPATH=$PYTHONPATH:$(pwd)
 # - export PYTHONPATH=$PYTHONPATH:$(pwd)
-- ls 
-- pwd
-- ls ./validation_service
-- ls ./model_validation_api
-- pwd
+# - ls 
+# - pwd
+# - ls ./validation_service
+# - ls ./model_validation_api
+# - pwd
+
 - python -c "import django; print(django.get_version())"
+- python ./validation_service/manage.py makemigrations
+- python ./validation_service/manage.py migrate
 # - export NMPI_ENV=travis
 script:
 # - python ./validation_service/manage.py migrate --noinput
