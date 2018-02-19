@@ -31,11 +31,13 @@ install:
 - pip install coveralls
 # - pip install . 
 before_script:
+- export PYTHONPATH=$PYTHONPATH:$(pwd)
 # - export PYTHONPATH=$PYTHONPATH:$(pwd)
 - ls 
 - pwd
 - ls ./validation_service
 - ls ./model_validation_api
+- pwd
 - python -c "import django; print(django.get_version())"
 # - export NMPI_ENV=travis
 script:
