@@ -670,16 +670,54 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
 
 testApp.controller('ValTestResultDetailCtrl', ['$window', '$scope', '$rootScope', '$http', '$sce', '$location', '$stateParams', 'IsCollabMemberRest', 'AppIDRest', 'ValidationResultRest', 'CollabParameters', 'ScientificModelRest', 'ValidationTestDefinitionRest', "Context", "clbStorage", "clbAuth", 'DataHandler', 'clbCollabNav',
     function($window, $scope, $rootScope, $http, $sce, $location, $stateParams, IsCollabMemberRest, AppIDRest, ValidationResultRest, CollabParameters, ScientificModelRest, ValidationTestDefinitionRest, Context, clbStorage, clbAuth, DataHandler, clbCollabNav) {
-        var vm = this;
+        // var vm = this;
+
+        $scope.split_result_storage_string = function(storage_string) {
+            storage_string = storage_string.slice(10, storage_string.length)
+
+            storage_string = storage_string.split(/\/(.+)/)
+
+            var dict_to_return = { collab: storage_string[0], folder_path: storage_string[1] }
+
+            return (dict_to_return);
+        };
+
+        //NOT USED?
+        //  $scope.get_correct_folder_using_name = function(name, folders) {
+        //     for (var i in folders) {
+        //         if (folders[i].name == name) {
+        //             return (folders[i]);
+        //         }
+        //     }
+        //     return null;
+        // };
+
+        $scope.download_file = function(uuid) {
+            clbStorage.downloadUrl({ uuid: uuid }).then(function(DownloadURL) {
+                var DownloadURL = DownloadURL;
+
+                var win = window.open(DownloadURL, '_blank');
+                win.focus();
+
+            });
+        };
+
+        $scope.open_overview_file = function(uuid) {
+            clbStorage.downloadUrl({ uuid: uuid }).then(function(FileURL) {
+                // var FileURL = FileURL;
+                $scope.image = new Image();
+                $scope.image.src = FileURL;
+            });
+        };
 
         Context.setService().then(function() {
             $scope.Context = Context;
 
-            var ctx = Context.getCtx();
-            var app_id = Context.getAppID();
+            $scope.ctx = Context.getCtx();
+            $scope.app_id = Context.getAppID();
 
 
-            CollabParameters.setService(ctx).then(function() {
+            CollabParameters.setService($scope.ctx).then(function() {
 
                 var test_result = ValidationResultRest.get({ id: $stateParams.uuid, order: "", detailed_view: true });
 
@@ -688,7 +726,7 @@ testApp.controller('ValTestResultDetailCtrl', ['$window', '$scope', '$rootScope'
                     $scope.test_result = test_result.results[0];
 
                     var result_storage = $scope.test_result.results_storage;
-                    var result_storage_dict = split_result_storage_sting(result_storage);
+                    var result_storage_dict = $scope.split_result_storage_string(result_storage);
                     var collab = result_storage_dict.collab;
                     var folder_name = result_storage_dict.folder_path;
                     $scope.folder_name = folder_name;
@@ -729,12 +767,12 @@ testApp.controller('ValTestResultDetailCtrl', ['$window', '$scope', '$rootScope'
 
                     }, function(not_worked) {}).finally(function() {});
 
-                    DataHandler.loadModels({ app_id: app_id }).then(function(data) {
+                    DataHandler.loadModels({ app_id: $scope.app_id }).then(function(data) {
                         $scope.models = data
                         $scope.$apply()
                     });
 
-                    DataHandler.loadTests({ app_id: app_id }).then(function(data) {
+                    DataHandler.loadTests({ app_id: $scope.app_id }).then(function(data) {
                         $scope.tests = data
                         $scope.$apply()
                     });
@@ -742,55 +780,7 @@ testApp.controller('ValTestResultDetailCtrl', ['$window', '$scope', '$rootScope'
             });
 
 
-            var split_result_storage_sting = function(storage_string) {
-                storage_string = storage_string.slice(10, storage_string.length)
 
-                storage_string = storage_string.split(/\/(.+)/)
-
-                var dict_to_return = { collab: storage_string[0], folder_path: storage_string[1] }
-
-                return (dict_to_return);
-            };
-
-            var get_correct_folder_using_name = function(name, folders) {
-                for (var i in folders) {
-                    if (folders[i].name == name) {
-                        return (folders[i]);
-                    }
-                }
-                return null;
-            };
-
-            $scope.download_file = function(uuid) {
-                clbStorage.downloadUrl({ uuid: uuid }).then(function(DownloadURL) {
-                        var DownloadURL = DownloadURL;
-
-                        var win = window.open(DownloadURL, '_blank');
-                        win.focus();
-
-                    }, function() {
-
-                    })
-                    .finally(function() {
-
-                    });
-
-            };
-
-            $scope.open_overview_file = function(uuid) {
-
-                clbStorage.downloadUrl({ uuid: uuid }).then(function(FileURL) {
-                        var FileURL = FileURL;
-                        $scope.image = new Image();
-                        $scope.image.src = FileURL;
-
-                    }, function() {
-
-                    })
-                    .finally(function() {
-
-                    });
-            };
         });
     }
 ]);
@@ -1249,6 +1239,37 @@ ModelCatalogApp.controller('ModelCatalogCreateCtrl', ['$scope', '$rootScope', '$
 ModelCatalogApp.controller('ModelCatalogDetailCtrl', ['$scope', '$rootScope', '$http', '$location', '$state', '$stateParams', 'ScientificModelRest', 'CollabParameters', 'IsCollabMemberRest', 'Context', 'DataHandler', 'clbStorage',
 
     function($scope, $rootScope, $http, $location, $state, $stateParams, ScientificModelRest, CollabParameters, IsCollabMemberRest, Context, DataHandler, clbStorage) {
+
+        $scope.change_collab_url_to_real_url = function() {
+            for (var i in $scope.model.models[0].images) {
+                var substring = $scope.model.models[0].images[i].url.substring(0, 35);
+                if (substring == "https://collab.humanbrainproject.eu") {
+                    $scope.get_url_from_collab_storage($scope.model.models[0].images[i].url, i);
+                } else {
+                    $scope.model.models[0].images[i].src = $scope.model.models[0].images[i].url;
+                };
+            };
+        }
+
+        $scope.get_url_from_collab_storage = function(url, i) {
+            var index = url.indexOf("%3D");
+            var image_uuid = url.slice(index + 3);
+            clbStorage.downloadUrl({ uuid: image_uuid }).then(function(fileURL) {
+                $scope.model.models[0].images[i].src = fileURL;
+            });
+        }
+
+        $scope.toggleSize = function(index, img) {
+            $scope.bigImage = img;
+            $("#ImagePopupDetail").show();
+        }
+
+        $scope.closeImagePanel = function() {
+            $scope.image = {};
+            $("#ImagePopupDetail").hide();
+        };
+
+
         Context.setService().then(function() {
 
             $scope.Context = Context;
@@ -1265,35 +1286,8 @@ ModelCatalogApp.controller('ModelCatalogDetailCtrl', ['$scope', '$rootScope', '$
                     $("#ImagePopupDetail").hide();
                     $scope.model = ScientificModelRest.get({ app_id: $scope.app_id, id: $stateParams.uuid, web_app: "True" });
                     $scope.model.$promise.then(function(model) {
-                        for (var i in $scope.model.models[0].images) {
-                            var substring = model.models[0].images[i].url.substring(0, 35);
-                            if (substring == "https://collab.humanbrainproject.eu") {
-                                get_url_from_collab_storage(model.models[0].images[i].url, i);
-                            } else {
-                                $scope.model.models[0].images[i].src = $scope.model.models[0].images[i].url;
-                            };
-
-                        };
+                        $scope.change_collab_url_to_real_url()
                     });
-
-                    var get_url_from_collab_storage = function(url, i) {
-                        var index = url.indexOf("%3D");
-                        var image_uuid = url.slice(index + 3);
-                        clbStorage.downloadUrl({ uuid: image_uuid }).then(function(fileURL) {
-                            $scope.model.models[0].images[i].src = fileURL;
-                        });
-
-                    }
-
-                    $scope.toggleSize = function(index, img) {
-                        $scope.bigImage = img;
-                        $("#ImagePopupDetail").show();
-                    }
-
-                    $scope.closeImagePanel = function() {
-                        $scope.image = {};
-                        $("#ImagePopupDetail").hide();
-                    };
 
                     $scope.is_collab_member = false;
                     $scope.model.$promise.then(function() {
@@ -1310,7 +1304,6 @@ ModelCatalogApp.controller('ModelCatalogDetailCtrl', ['$scope', '$rootScope', '$
                     });
                 });
             }
-
         });
     }
 ]);
@@ -1318,18 +1311,124 @@ ModelCatalogApp.controller('ModelCatalogDetailCtrl', ['$scope', '$rootScope', '$
 ModelCatalogApp.controller('ModelCatalogEditCtrl', ['$scope', '$rootScope', '$http', '$location', '$state', '$stateParams', 'ScientificModelRest', 'ScientificModelInstanceRest', 'ScientificModelImageRest', 'CollabParameters', 'Context', 'ScientificModelAliasRest', 'AreVersionsEditableRest', 'DataHandler', 'clbStorage',
 
     function($scope, $rootScope, $http, $location, $state, $stateParams, ScientificModelRest, ScientificModelInstanceRest, ScientificModelImageRest, CollabParameters, Context, ScientificModelAliasRest, AreVersionsEditableRest, DataHandler, clbStorage) {
+
+        $scope.change_collab_url_to_real_url = function() {
+            //COULD BE IN A SERVICE
+            for (var i in $scope.model.models[0].images) {
+                var substring = $scope.model.models[0].images[i].url.substring(0, 35);
+                if (substring == "https://collab.humanbrainproject.eu") {
+                    $scope.get_url_from_collab_storage($scope.model.models[0].images[i].url, i);
+                } else {
+                    $scope.model.models[0].images[i].src = $scope.model.models[0].images[i].url;
+                };
+            };
+        };
+
+        $scope.get_url_from_collab_storage = function(url, i) {
+            //COULD BE IN A SERVICE
+            var index = url.indexOf("%3D");
+            var image_uuid = url.slice(index + 3);
+            clbStorage.downloadUrl({ uuid: image_uuid }).then(function(fileURL) {
+                $scope.model.models[0].images[i].src = fileURL;
+            });
+        }
+
+        $scope.deleteImage = function(img) {
+            var image = img
+            ScientificModelImageRest.delete({ app_id: $scope.app_id, id: image.id }).$promise.then(
+                function(data) {
+                    alert('Image ' + img.id + ' has been deleted !');
+                    $scope.reloadState();
+                });
+        };
+        $scope.reloadState = function() {
+            //to simplify testing
+            $state.reload();
+        }
+
+        $scope.displayAddImage = function() {
+            $scope.addImage = true;
+        };
+        $scope.saveImage = function() {
+            if (JSON.stringify($scope.image) != undefined) {
+                $scope.image.model_id = $stateParams.uuid;
+
+                var parameters = JSON.stringify([$scope.image]);
+                ScientificModelImageRest.post({ app_id: $scope.app_id }, parameters).$promise.then(function(data) {
+                    $scope.addImage = false;
+                    alert('Image has been saved !');
+                    $scope.reloadState();
+                }).catch(function(e) {
+                    alert(e.data);
+                });
+            } else { alert("You need to add an url !") }
+        };
+        $scope.closeImagePanel = function() {
+            $scope.image = {};
+            $scope.addImage = false;
+        };
+        $scope.editImages = function() {
+            var parameters = $scope.model.models[0].images;
+            var a = ScientificModelImageRest.put({ app_id: $scope.app_id }, parameters).$promise.then(function(data) {
+                alert('Model images have been correctly edited');
+            }).catch(function(e) {
+                alert(e.data);
+            });
+        };
+        $scope.saveModel = function() {
+            if ($scope.model.models[0].alias != '' && $scope.model.models[0].alias != null) {
+                $scope.alias_is_valid = ScientificModelAliasRest.get({ app_id: $scope.app_id, model_id: $scope.model.models[0].id, alias: $scope.model.models[0].alias });
+                $scope.alias_is_valid.$promise.then(function() {
+                    if ($scope.alias_is_valid.is_valid) {
+                        var parameters = $scope.model;
+                        var a = ScientificModelRest.put({ app_id: $scope.app_id }, parameters).$promise.then(function(data) {
+                            DataHandler.setStoredModelsAsOutdated();
+                            alert('Model correctly edited');
+                        }).catch(function(e) {
+                            alert(e.data);
+                        });
+                    } else {
+                        alert('Cannot update the model. Please check the alias.');
+                    }
+                });
+            } else {
+                $scope.model.models[0].alias = null;
+                var parameters = $scope.model;
+                var a = ScientificModelRest.put({ app_id: $scope.app_id }, parameters).$promise.then(function(data) {
+                    DataHandler.setStoredModelsAsOutdated();
+
+                    alert('Model correctly edited');
+                }).catch(function(e) {
+                    alert(e.data);
+                });
+            }
+        };
+        $scope.saveModelInstance = function(model_instance) {
+            var parameters = JSON.stringify([model_instance]);
+            var a = ScientificModelInstanceRest.put({ app_id: $scope.app_id }, parameters).$promise.then(function(data) { alert('model instances correctly edited') }).catch(function(e) {
+                alert(e.data);
+            });
+        };
+        $scope.checkAliasValidity = function() {
+            $scope.alias_is_valid = ScientificModelAliasRest.get({ app_id: $scope.app_id, model_id: $scope.model.models[0].id, alias: $scope.model.models[0].alias });
+        };
+        $scope.isInArray = function(value, array) {
+            return array.indexOf(value) > -1;
+        }
+
+
         Context.setService().then(function() {
 
             $scope.Context = Context;
 
-            var ctx = Context.getCtx();
-            var app_id = Context.getAppID();
+            $scope.ctx = Context.getCtx();
+            $scope.app_id = Context.getAppID();
             // DataHandler.loadModels({ app_id: app_id }).then(function(data) {
             //     $scope.models = data
             //     $scope.$apply()
             // });
 
-            CollabParameters.setService(ctx).then(function() {
+            CollabParameters.setService($scope.ctx).then(function() {
 
                 $scope.addImage = false;
 
@@ -1339,113 +1438,18 @@ ModelCatalogApp.controller('ModelCatalogEditCtrl', ['$scope', '$rootScope', '$ht
                 $scope.model_type = CollabParameters.getParametersOrDefaultByType("model_type");
                 $scope.organization = CollabParameters.getParametersOrDefaultByType("organization");
 
-
                 $scope.version_is_editable = [];
-                $scope.model = ScientificModelRest.get({ app_id: app_id, id: $stateParams.uuid });
+                $scope.model = ScientificModelRest.get({ app_id: $scope.app_id, id: $stateParams.uuid });
 
                 $scope.model.$promise.then(function(model) {
-                    for (var i in $scope.model.models[0].images) {
-                        var substring = model.models[0].images[i].url.substring(0, 35);
-                        if (substring == "https://collab.humanbrainproject.eu") {
-                            get_url_from_collab_storage(model.models[0].images[i].url, i);
-                        } else {
-                            $scope.model.models[0].images[i].src = $scope.model.models[0].images[i].url;
-                        };
-
-                    };
+                    $scope.change_collab_url_to_real_url();
                 });
 
-                var version_editable = AreVersionsEditableRest.get({ app_id: app_id, model_id: $stateParams.uuid });
+                var version_editable = AreVersionsEditableRest.get({ app_id: $scope.app_id, model_id: $stateParams.uuid });
                 version_editable.$promise.then(function(versions) {
                     $scope.version_is_editable = versions.are_editable;
                 });
 
-                var get_url_from_collab_storage = function(url, i) {
-                    var index = url.indexOf("%3D");
-                    var image_uuid = url.slice(index + 3);
-                    clbStorage.downloadUrl({ uuid: image_uuid }).then(function(fileURL) {
-                        $scope.model.models[0].images[i].src = fileURL;
-                    });
-
-                }
-
-                $scope.deleteImage = function(img) {
-                    var image = img
-                    ScientificModelImageRest.delete({ app_id: app_id, id: image.id }).$promise.then(
-                        function(data) {
-                            alert('Image ' + img.id + ' has been deleted !');
-                            $state.reload();
-                        });
-                };
-                $scope.displayAddImage = function() {
-                    $scope.addImage = true;
-                };
-                $scope.saveImage = function() {
-                    if (JSON.stringify($scope.image) != undefined) {
-                        $scope.image.model_id = $stateParams.uuid;
-
-                        var parameters = JSON.stringify([$scope.image]);
-                        ScientificModelImageRest.post({ app_id: app_id }, parameters).$promise.then(function(data) {
-                            $scope.addImage = false;
-                            alert('Image has been saved !');
-                            $state.reload();
-                        }).catch(function(e) {
-                            alert(e.data);
-                        });
-                    } else { alert("You need to add an url !") }
-                };
-                $scope.closeImagePanel = function() {
-                    $scope.image = {};
-                    $scope.addImage = false;
-                };
-                $scope.editImages = function() {
-                    var parameters = $scope.model.models[0].images;
-                    var a = ScientificModelImageRest.put({ app_id: app_id }, parameters).$promise.then(function(data) {
-                        alert('Model images have been correctly edited');
-                    }).catch(function(e) {
-                        alert(e.data);
-                    });
-                };
-                $scope.saveModel = function() {
-                    if ($scope.model.models[0].alias != '' && $scope.model.models[0].alias != null) {
-                        $scope.alias_is_valid = ScientificModelAliasRest.get({ app_id: app_id, model_id: $scope.model.models[0].id, alias: $scope.model.models[0].alias });
-                        $scope.alias_is_valid.$promise.then(function() {
-                            if ($scope.alias_is_valid.is_valid) {
-                                var parameters = $scope.model;
-                                var a = ScientificModelRest.put({ app_id: app_id }, parameters).$promise.then(function(data) {
-                                    DataHandler.setStoredModelsAsOutdated();
-                                    alert('Model correctly edited');
-                                }).catch(function(e) {
-                                    alert(e.data);
-                                });
-                            } else {
-                                alert('Cannot update the model. Please check the alias.');
-                            }
-                        });
-                    } else {
-                        $scope.model.models[0].alias = null;
-                        var parameters = $scope.model;
-                        var a = ScientificModelRest.put({ app_id: app_id }, parameters).$promise.then(function(data) {
-                            DataHandler.setStoredModelsAsOutdated();
-
-                            alert('Model correctly edited');
-                        }).catch(function(e) {
-                            alert(e.data);
-                        });
-                    }
-                };
-                $scope.saveModelInstance = function(model_instance) {
-                    var parameters = JSON.stringify([model_instance]);
-                    var a = ScientificModelInstanceRest.put({ app_id: app_id }, parameters).$promise.then(function(data) { alert('model instances correctly edited') }).catch(function(e) {
-                        alert(e.data);
-                    });
-                };
-                $scope.checkAliasValidity = function() {
-                    $scope.alias_is_valid = ScientificModelAliasRest.get({ app_id: app_id, model_id: $scope.model.models[0].id, alias: $scope.model.models[0].alias });
-                };
-                $scope.isInArray = function(value, array) {
-                    return array.indexOf(value) > -1;
-                }
             });
         });
 

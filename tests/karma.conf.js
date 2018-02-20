@@ -26,7 +26,7 @@ module.exports = function(config) {
         // list of files / patterns to load in the browser
         files: [
 
-            // static files
+            //static files
             //lodash
             '../validation_service/app/static/lodash/lodash.min.js',
 
@@ -58,91 +58,91 @@ module.exports = function(config) {
             '../validation_service/app/static/angular-bootstrap/ui-bootstrap-tpls.min.js',
             '../validation_service/app/static/angular-bootstrap-multiselect/dist/angular-bootstrap-multiselect.js',
 
-            //angular-hbp-collaboratory
+            // //angular-hbp-collaboratory
 
-            '../validation_service/app/static/angular-hbp-collaboratory/angular-hbp-collaboratory.js',
-            '../validation_service/app/static/angular-hbp-collaboratory/src/main.js',
+            // '../validation_service/app/static/angular-hbp-collaboratory/angular-hbp-collaboratory.js',
+            // '../validation_service/app/static/angular-hbp-collaboratory/src/main.js',
 
-            '../validation_service/app/static/angular-hbp-collaboratory/src/app/app.module.js',
-            '../validation_service/app/static/angular-hbp-collaboratory/src/app/app.service.js',
-            '../validation_service/app/static/angular-hbp-collaboratory/src/app/auth.provider.js',
-            '../validation_service/app/static/angular-hbp-collaboratory/src/app/authHttp.service.js',
-            '../validation_service/app/static/angular-hbp-collaboratory/src/app/bootstrap.js',
+            // '../validation_service/app/static/angular-hbp-collaboratory/src/app/app.module.js',
+            // // '../validation_service/app/static/angular-hbp-collaboratory/src/app/app.service.js',
+            // // '../validation_service/app/static/angular-hbp-collaboratory/src/app/auth.provider.js',
+            // // '../validation_service/app/static/angular-hbp-collaboratory/src/app/authHttp.service.js',
+            // // '../validation_service/app/static/angular-hbp-collaboratory/src/app/bootstrap.js',
 
-            '../validation_service/app/static/angular-hbp-collaboratory/src/error/error.module.js',
-            '../validation_service/app/static/angular-hbp-collaboratory/src/error/error.service.js',
+            // '../validation_service/app/static/angular-hbp-collaboratory/src/error/error.module.js',
+            // // '../validation_service/app/static/angular-hbp-collaboratory/src/error/error.service.js',
 
-            '../validation_service/app/static/angular-hbp-collaboratory/src/env/env.module.js',
-            '../validation_service/app/static/angular-hbp-collaboratory/src/env/env.provider.js',
+            // '../validation_service/app/static/angular-hbp-collaboratory/src/env/env.module.js',
+            // // '../validation_service/app/static/angular-hbp-collaboratory/src/env/env.provider.js',
 
-            '../validation_service/app/static/angular-hbp-collaboratory/src/automator/automator.module.js',
-            '../validation_service/app/static/angular-hbp-collaboratory/src/automator/automator.service.js',
+            // '../validation_service/app/static/angular-hbp-collaboratory/src/automator/automator.module.js',
+            // // '../validation_service/app/static/angular-hbp-collaboratory/src/automator/automator.service.js',
 
-            '../validation_service/app/static/angular-hbp-collaboratory/src/collab/collab.module.js',
-            '../validation_service/app/static/angular-hbp-collaboratory/src/collab/collab.service.js',
-            '../validation_service/app/static/angular-hbp-collaboratory/src/collab/collab.model.js',
-            '../validation_service/app/static/angular-hbp-collaboratory/src/collab/clb-collab-app.service.js',
-            '../validation_service/app/static/angular-hbp-collaboratory/src/collab/collab-nav.service.js',
-            '../validation_service/app/static/angular-hbp-collaboratory/src/collab/collab-team-role.service.js',
-            '../validation_service/app/static/angular-hbp-collaboratory/src/collab/collab-team.service.js',
-            '../validation_service/app/static/angular-hbp-collaboratory/src/collab/context.model.js',
-            '../validation_service/app/static/angular-hbp-collaboratory/src/collab/context.service.js',
+            // '../validation_service/app/static/angular-hbp-collaboratory/src/collab/collab.module.js',
+            // // '../validation_service/app/static/angular-hbp-collaboratory/src/collab/collab.service.js',
+            // // '../validation_service/app/static/angular-hbp-collaboratory/src/collab/collab.model.js',
+            // // '../validation_service/app/static/angular-hbp-collaboratory/src/collab/clb-collab-app.service.js',
+            // // '../validation_service/app/static/angular-hbp-collaboratory/src/collab/collab-nav.service.js',
+            // // '../validation_service/app/static/angular-hbp-collaboratory/src/collab/collab-team-role.service.js',
+            // // '../validation_service/app/static/angular-hbp-collaboratory/src/collab/collab-team.service.js',
+            // // '../validation_service/app/static/angular-hbp-collaboratory/src/collab/context.model.js',
+            // // '../validation_service/app/static/angular-hbp-collaboratory/src/collab/context.service.js',
 
-            '../validation_service/app/static/angular-hbp-collaboratory/src/lodash/lodash.module.js',
+            // '../validation_service/app/static/angular-hbp-collaboratory/src/lodash/lodash.module.js',
 
-            '../validation_service/app/static/angular-hbp-collaboratory/src/identity/identity.module.js',
-            '../validation_service/app/static/angular-hbp-collaboratory/src/identity/group.service.js',
-            '../validation_service/app/static/angular-hbp-collaboratory/src/identity/user.service.js',
-            '../validation_service/app/static/angular-hbp-collaboratory/src/identity/util.js',
+            // '../validation_service/app/static/angular-hbp-collaboratory/src/identity/identity.module.js',
+            // // '../validation_service/app/static/angular-hbp-collaboratory/src/identity/group.service.js',
+            // // '../validation_service/app/static/angular-hbp-collaboratory/src/identity/user.service.js',
+            // // '../validation_service/app/static/angular-hbp-collaboratory/src/identity/util.js',
 
-            '../validation_service/app/static/angular-hbp-collaboratory/src/rest/rest.module.js',
+            // '../validation_service/app/static/angular-hbp-collaboratory/src/rest/rest.module.js',
 
-            '../validation_service/app/static/angular-hbp-collaboratory/src/rest/pagination.service.js',
-            '../validation_service/app/static/angular-hbp-collaboratory/src/storage/storage.module.js',
-            '../validation_service/app/static/angular-hbp-collaboratory/src/storage/storage.service.js',
+            // // '../validation_service/app/static/angular-hbp-collaboratory/src/rest/pagination.service.js',
+            // '../validation_service/app/static/angular-hbp-collaboratory/src/storage/storage.module.js',
+            // // '../validation_service/app/static/angular-hbp-collaboratory/src/storage/storage.service.js',
 
-            '../validation_service/app/static/angular-hbp-collaboratory/src/ctx-data/clb-ctx-data.module.js',
-            '../validation_service/app/static/angular-hbp-collaboratory/src/ctx-data/clb-ctx-data.service.js',
+            // '../validation_service/app/static/angular-hbp-collaboratory/src/ctx-data/clb-ctx-data.module.js',
+            // // '../validation_service/app/static/angular-hbp-collaboratory/src/ctx-data/clb-ctx-data.service.js',
 
-            '../validation_service/app/static/angular-hbp-collaboratory/src/stream/stream.module.js',
-            '../validation_service/app/static/angular-hbp-collaboratory/src/stream/resource-locator.provider.js',
-            '../validation_service/app/static/angular-hbp-collaboratory/src/stream/stream.service.js',
+            // '../validation_service/app/static/angular-hbp-collaboratory/src/stream/stream.module.js',
+            // // '../validation_service/app/static/angular-hbp-collaboratory/src/stream/resource-locator.provider.js',
+            // // '../validation_service/app/static/angular-hbp-collaboratory/src/stream/stream.service.js',
 
-            '../validation_service/app/static/angular-hbp-collaboratory/src/ui-dialog/ui-dialog.module.js',
-            '../validation_service/app/static/angular-hbp-collaboratory/src/ui-dialog/confirm.service.js',
+            // '../validation_service/app/static/angular-hbp-collaboratory/src/ui-dialog/ui-dialog.module.js',
+            // // '../validation_service/app/static/angular-hbp-collaboratory/src/ui-dialog/confirm.service.js',
 
-            '../validation_service/app/static/angular-hbp-collaboratory/src/ui-error/ui-error.module.js',
-            '../validation_service/app/static/angular-hbp-collaboratory/src/ui-error/error-dialog.factory.js',
-            '../validation_service/app/static/angular-hbp-collaboratory/src/ui-error/error-message.directive.js',
-
-
-            '../validation_service/app/static/angular-hbp-collaboratory/src/ui-form/ui-form.module.js',
-            '../validation_service/app/static/angular-hbp-collaboratory/src/ui-form/form-control-focus.directive.js',
-            '../validation_service/app/static/angular-hbp-collaboratory/src/ui-form/form-group-state.directive.js',
-
-            '../validation_service/app/static/angular-hbp-collaboratory/src/ui-identity/ui-identity.module.js',
-            '../validation_service/app/static/angular-hbp-collaboratory/src/ui-identity/user-avatar.directive.js',
-            '../validation_service/app/static/angular-hbp-collaboratory/src/ui-identity/usercard-popover.service.js',
-            '../validation_service/app/static/angular-hbp-collaboratory/src/ui-identity/usercard-popover.tpl.js',
-            '../validation_service/app/static/angular-hbp-collaboratory/src/ui-identity/usercard.directive.js',
+            // '../validation_service/app/static/angular-hbp-collaboratory/src/ui-error/ui-error.module.js',
+            // // '../validation_service/app/static/angular-hbp-collaboratory/src/ui-error/error-dialog.factory.js',
+            // // '../validation_service/app/static/angular-hbp-collaboratory/src/ui-error/error-message.directive.js',
 
 
-            '../validation_service/app/static/angular-hbp-collaboratory/src/ui-loading/ui-loading.module.js',
-            '../validation_service/app/static/angular-hbp-collaboratory/src/ui-loading/loading.directive.js',
-            '../validation_service/app/static/angular-hbp-collaboratory/src/ui-loading/perform-action.directive.js',
+            // '../validation_service/app/static/angular-hbp-collaboratory/src/ui-form/ui-form.module.js',
+            // // '../validation_service/app/static/angular-hbp-collaboratory/src/ui-form/form-control-focus.directive.js',
+            // // '../validation_service/app/static/angular-hbp-collaboratory/src/ui-form/form-group-state.directive.js',
 
-            '../validation_service/app/static/angular-hbp-collaboratory/src/ui-storage/ui-storage.module.js',
-            '../validation_service/app/static/angular-hbp-collaboratory/src/ui-storage/file-browser-folder.directive.js',
-            '../validation_service/app/static/angular-hbp-collaboratory/src/ui-storage/file-browser-path.directive.js',
-            '../validation_service/app/static/angular-hbp-collaboratory/src/ui-storage/file-browser-tooltip.tpl.js',
-            '../validation_service/app/static/angular-hbp-collaboratory/src/ui-storage/file-browser.directive.js',
-            '../validation_service/app/static/angular-hbp-collaboratory/src/ui-storage/file-upload.directive.js',
+            // '../validation_service/app/static/angular-hbp-collaboratory/src/ui-identity/ui-identity.module.js',
+            // // '../validation_service/app/static/angular-hbp-collaboratory/src/ui-identity/user-avatar.directive.js',
+            // // '../validation_service/app/static/angular-hbp-collaboratory/src/ui-identity/usercard-popover.service.js',
+            // // '../validation_service/app/static/angular-hbp-collaboratory/src/ui-identity/usercard-popover.tpl.js',
+            // // '../validation_service/app/static/angular-hbp-collaboratory/src/ui-identity/usercard.directive.js',
 
 
-            '../validation_service/app/static/angular-hbp-collaboratory/src/ui-stream/ui-stream.module.js',
-            '../validation_service/app/static/angular-hbp-collaboratory/src/ui-stream/activity.directive.js',
-            '../validation_service/app/static/angular-hbp-collaboratory/src/ui-stream/feed.directive.js',
+            // '../validation_service/app/static/angular-hbp-collaboratory/src/ui-loading/ui-loading.module.js',
+            // // '../validation_service/app/static/angular-hbp-collaboratory/src/ui-loading/loading.directive.js',
+            // // '../validation_service/app/static/angular-hbp-collaboratory/src/ui-loading/perform-action.directive.js',
 
+            // '../validation_service/app/static/angular-hbp-collaboratory/src/ui-storage/ui-storage.module.js',
+            // // '../validation_service/app/static/angular-hbp-collaboratory/src/ui-storage/file-browser-folder.directive.js',
+            // // '../validation_service/app/static/angular-hbp-collaboratory/src/ui-storage/file-browser-path.directive.js',
+            // // '../validation_service/app/static/angular-hbp-collaboratory/src/ui-storage/file-browser-tooltip.tpl.js',
+            // // '../validation_service/app/static/angular-hbp-collaboratory/src/ui-storage/file-browser.directive.js',
+            // // '../validation_service/app/static/angular-hbp-collaboratory/src/ui-storage/file-upload.directive.js',
+
+
+            // '../validation_service/app/static/angular-hbp-collaboratory/src/ui-stream/ui-stream.module.js',
+            // '../validation_service/app/static/angular-hbp-collaboratory/src/ui-stream/activity.directive.js',
+            // '../validation_service/app/static/angular-hbp-collaboratory/src/ui-stream/feed.directive.js',
+            './mock_clbStorageModule.js',
 
 
             //angular-hbp-common
