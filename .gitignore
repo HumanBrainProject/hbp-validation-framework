@@ -70,7 +70,8 @@ Thumbs.db
 #packages
 /static
 /app/static/
-packages
+packages/*
+!packages/.keep 
 
 validation_service/app/static/
 

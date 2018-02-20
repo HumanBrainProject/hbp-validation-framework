@@ -13,7 +13,7 @@
 appdirs==1.4.0            # via setuptools
 argparse==1.2.1
 django-sslserver==0.19
-django==1.10.5
+django==1.11.2
 httplib2==0.10.3
 markdown==2.6.8
 mechanize==0.2.5
