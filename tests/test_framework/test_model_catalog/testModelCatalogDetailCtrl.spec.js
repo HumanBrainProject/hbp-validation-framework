@@ -23,25 +23,27 @@ describe('Testing controller: ModelCatalogDetailCtrl', function() {
         controller = $controller('ModelCatalogDetailCtrl', { $scope: $scope });
     })));
 
-    // beforeEach(function() {
+    beforeEach(function() {
 
-    //     $httpBackend.whenGET("collabidrest/?ctx=&format=json").respond(9999);
-    //     $httpBackend.whenGET("appidrest/?ctx=&format=json").respond(8888);
-    //     $httpBackend.whenPOST("models/").respond();
+        $httpBackend.whenGET("collabidrest/?ctx=&format=json").respond(9999);
+        $httpBackend.whenGET("appidrest/?ctx=&format=json").respond(8888);
+        $httpBackend.whenPOST("models/").respond();
+        $httpBackend.whenGET('/static/templates/model_catalog/model-catalog.tpl.html').respond()
 
-    // })
+    })
 
-    // afterEach(function() {
-    //     $httpBackend.verifyNoOutstandingExpectation();
-    //     $httpBackend.verifyNoOutstandingRequest();
-    // });
+    afterEach(function() {
+        $httpBackend.verifyNoOutstandingExpectation();
+        $httpBackend.verifyNoOutstandingRequest();
+    });
 
     it('should be defined', function() {
-        // $httpBackend.flush();
+        $httpBackend.flush();
         expect(controller).toBeDefined();
     });
 
     it('should get url from collab_storage', function() {
+        $httpBackend.flush();
         spyOn(clbStorage, "downloadUrl").and.callFake(function() {
             return new Promise(function(resolve, reject) {
                 resolve('https://collab.humanbrainproject.eu/#/collab/2180/nav/18995?state=uuid%3Df850feba-f029-469c-8dcc-24e3a0b15466')
@@ -63,7 +65,7 @@ describe('Testing controller: ModelCatalogDetailCtrl', function() {
     })
 
     it('should change collab url to real url', function() {
-
+        $httpBackend.flush();
         spyOn(clbStorage, "downloadUrl").and.callFake(function() {
             return new Promise(function(resolve, reject) {
                 resolve('https://collab.humanbrainproject.eu/#/collab/2180/nav/18995?state=uuid%3Df850feba-f029-469c-8dcc-24e3a0b15466')
@@ -85,6 +87,7 @@ describe('Testing controller: ModelCatalogDetailCtrl', function() {
     })
 
     it('should toggle size', function() {
+        $httpBackend.flush();
         var img = {};
         img.src = "https://fake-image-url.jpg"
         $scope.toggleSize(1, img);
@@ -92,6 +95,7 @@ describe('Testing controller: ModelCatalogDetailCtrl', function() {
     })
 
     it('should close image panel', function() {
+        $httpBackend.flush();
         $scope.image = 'totest';
         $scope.closeImagePanel();
         expect($scope.image).toEqual({});
