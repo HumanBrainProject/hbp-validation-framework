@@ -2,16 +2,15 @@
 describe('AuthorizedCollabParameterRest factory', function() {
 
     var AuthorizedCollabParameterRest;
-    var $httpBackend, $q, $location, $scope;
+    var $httpBackend;
 
     beforeEach(angular.mock.module('ApiCommunicationServices'));
 
-    beforeEach(inject(function(_AuthorizedCollabParameterRest_, _$httpBackend_, _$q_, _$location_) {
+    beforeEach(inject(function(_AuthorizedCollabParameterRest_, _$httpBackend_) {
         AuthorizedCollabParameterRest = _AuthorizedCollabParameterRest_;
         $httpBackend = _$httpBackend_;
-        $q = _$q_;
-        $location = _$location_;
     }));
+
 
     beforeEach(function() {
         // Spy and force the return value when UsersFactory.all() is called
@@ -50,18 +49,15 @@ describe('AuthorizedCollabParameterRest factory', function() {
 
 ///////////////////Test Authorized Organization Rest/////////////////////////////////////
 describe('AuthorizedOrganizationsRest factory', function() {
-    // var authentificationToken = ;
     var AuthorizedOrganizationsRest;
-    var $httpBackend, $q, $location, $scope;
+    var $httpBackend;
 
 
     beforeEach(angular.mock.module('ApiCommunicationServices'));
 
-    beforeEach(inject(function(_AuthorizedOrganizationsRest_, _$httpBackend_, _$q_, _$location_) {
+    beforeEach(inject(function(_AuthorizedOrganizationsRest_, _$httpBackend_) {
         AuthorizedOrganizationsRest = _AuthorizedOrganizationsRest_;
         $httpBackend = _$httpBackend_;
-        $q = _$q_;
-        $location = _$location_;
     }));
 
     beforeEach(function() {
@@ -102,16 +98,14 @@ describe('AuthorizedOrganizationsRest factory', function() {
 describe('AuthorizedScoreTypeRest factory', function() {
     // var authentificationToken = ;
     var AuthorizedScoreTypeRest;
-    var $httpBackend, $q, $location, $scope;
+    var $httpBackend;
 
 
     beforeEach(angular.mock.module('ApiCommunicationServices'));
 
-    beforeEach(inject(function(_AuthorizedScoreTypeRest_, _$httpBackend_, _$q_, _$location_) {
+    beforeEach(inject(function(_AuthorizedScoreTypeRest_, _$httpBackend_) {
         AuthorizedScoreTypeRest = _AuthorizedScoreTypeRest_;
         $httpBackend = _$httpBackend_;
-        $q = _$q_;
-        $location = _$location_;
     }));
 
     beforeEach(function() {
@@ -152,16 +146,13 @@ describe('AuthorizedScoreTypeRest factory', function() {
 describe('CollabParameterRest factory', function() {
     // var authentificationToken = ;
     var CollabParameterRest;
-    var $httpBackend, $q, $location, $scope;
-
+    var $httpBackend;
 
     beforeEach(angular.mock.module('ApiCommunicationServices'));
 
-    beforeEach(inject(function(_CollabParameterRest_, _$httpBackend_, _$q_, _$location_) {
+    beforeEach(inject(function(_CollabParameterRest_, _$httpBackend_) {
         CollabParameterRest = _CollabParameterRest_;
         $httpBackend = _$httpBackend_;
-        $q = _$q_;
-        $location = _$location_;
     }));
 
     beforeEach(function() {
@@ -227,15 +218,13 @@ describe('CollabParameterRest factory', function() {
 describe('ScientificModelInstanceRest factory', function() {
 
     var ScientificModelInstanceRest;
-    var $httpBackend, $q, $location;
+    var $httpBackend;
 
     beforeEach(angular.mock.module('ApiCommunicationServices'));
 
-    beforeEach(inject(function(_ScientificModelInstanceRest_, _$httpBackend_, _$q_, _$location_) {
+    beforeEach(inject(function(_ScientificModelInstanceRest_, _$httpBackend_) {
         ScientificModelInstanceRest = _ScientificModelInstanceRest_;
         $httpBackend = _$httpBackend_;
-        $q = _$q_;
-        $location = _$location_;
     }));
 
     beforeEach(function() {
@@ -312,15 +301,13 @@ describe('ScientificModelInstanceRest factory', function() {
 describe('ScientificModelRest factory', function() {
 
     var ScientificModelRest;
-    var $httpBackend, $q, $location;
+    var $httpBackend;
 
     beforeEach(angular.mock.module('ApiCommunicationServices'));
 
-    beforeEach(inject(function(_ScientificModelRest_, _$httpBackend_, _$q_, _$location_) {
+    beforeEach(inject(function(_ScientificModelRest_, _$httpBackend_) {
         ScientificModelRest = _ScientificModelRest_;
         $httpBackend = _$httpBackend_;
-        $q = _$q_;
-        $location = _$location_;
     }));
 
     beforeEach(function() {
@@ -397,15 +384,13 @@ describe('ScientificModelRest factory', function() {
 describe('ScientificModelImageRest factory', function() {
 
     var ScientificModelImageRest;
-    var $httpBackend, $q, $location;
+    var $httpBackend;
 
     beforeEach(angular.mock.module('ApiCommunicationServices'));
 
-    beforeEach(inject(function(_ScientificModelImageRest_, _$httpBackend_, _$q_, _$location_) {
+    beforeEach(inject(function(_ScientificModelImageRest_, _$httpBackend_) {
         ScientificModelImageRest = _ScientificModelImageRest_;
         $httpBackend = _$httpBackend_;
-        $q = _$q_;
-        $location = _$location_;
     }));
 
     beforeEach(function() {
@@ -477,16 +462,14 @@ describe('ScientificModelImageRest factory', function() {
 describe('AuthorizedScoreTypeRest factory', function() {
     // var authentificationToken = ;
     var AuthorizedScoreTypeRest;
-    var $httpBackend, $q, $location, $scope;
+    var $httpBackend;
 
 
     beforeEach(angular.mock.module('ApiCommunicationServices'));
 
-    beforeEach(inject(function(_AuthorizedScoreTypeRest_, _$httpBackend_, _$q_, _$location_) {
+    beforeEach(inject(function(_AuthorizedScoreTypeRest_, _$httpBackend_) {
         AuthorizedScoreTypeRest = _AuthorizedScoreTypeRest_;
         $httpBackend = _$httpBackend_;
-        $q = _$q_;
-        $location = _$location_;
     }));
 
     beforeEach(function() {
@@ -527,16 +510,14 @@ describe('AuthorizedScoreTypeRest factory', function() {
 describe('ScientificModelAliasRest factory', function() {
 
     var ScientificModelAliasRest;
-    var $httpBackend, $q, $location, $scope;
+    var $httpBackend;
 
 
     beforeEach(angular.mock.module('ApiCommunicationServices'));
 
-    beforeEach(inject(function(_ScientificModelAliasRest_, _$httpBackend_, _$q_, _$location_) {
+    beforeEach(inject(function(_ScientificModelAliasRest_, _$httpBackend_) {
         ScientificModelAliasRest = _ScientificModelAliasRest_;
         $httpBackend = _$httpBackend_;
-        $q = _$q_;
-        $location = _$location_;
     }));
 
     beforeEach(function() {
@@ -576,16 +557,14 @@ describe('ScientificModelAliasRest factory', function() {
 describe('ValidationTestAliasRest factory', function() {
 
     var ValidationTestAliasRest;
-    var $httpBackend, $q, $location, $scope;
+    var $httpBackend;
 
 
     beforeEach(angular.mock.module('ApiCommunicationServices'));
 
-    beforeEach(inject(function(_ValidationTestAliasRest_, _$httpBackend_, _$q_, _$location_) {
+    beforeEach(inject(function(_ValidationTestAliasRest_, _$httpBackend_) {
         ValidationTestAliasRest = _ValidationTestAliasRest_;
         $httpBackend = _$httpBackend_;
-        $q = _$q_;
-        $location = _$location_;
     }));
 
     beforeEach(function() {
@@ -626,15 +605,13 @@ describe('ValidationTestAliasRest factory', function() {
 describe('ValidationTestCodeRest factory', function() {
 
     var ValidationTestCodeRest;
-    var $httpBackend, $q, $location;
+    var $httpBackend;
 
     beforeEach(angular.mock.module('ApiCommunicationServices'));
 
-    beforeEach(inject(function(_ValidationTestCodeRest_, _$httpBackend_, _$q_, _$location_) {
+    beforeEach(inject(function(_ValidationTestCodeRest_, _$httpBackend_) {
         ValidationTestCodeRest = _ValidationTestCodeRest_;
         $httpBackend = _$httpBackend_;
-        $q = _$q_;
-        $location = _$location_;
     }));
 
     beforeEach(function() {
@@ -693,15 +670,13 @@ describe('ValidationTestCodeRest factory', function() {
 describe('ValidationTestDefinitionRest factory', function() {
 
     var ValidationTestDefinitionRest;
-    var $httpBackend, $q, $location;
+    var $httpBackend;
 
     beforeEach(angular.mock.module('ApiCommunicationServices'));
 
-    beforeEach(inject(function(_ValidationTestDefinitionRest_, _$httpBackend_, _$q_, _$location_) {
+    beforeEach(inject(function(_ValidationTestDefinitionRest_, _$httpBackend_) {
         ValidationTestDefinitionRest = _ValidationTestDefinitionRest_;
         $httpBackend = _$httpBackend_;
-        $q = _$q_;
-        $location = _$location_;
     }));
 
     beforeEach(function() {
@@ -761,15 +736,13 @@ describe('ValidationTestDefinitionRest factory', function() {
 describe('TestCommentRest factory', function() {
 
     var TestCommentRest;
-    var $httpBackend, $q, $location;
+    var $httpBackend;
 
     beforeEach(angular.mock.module('ApiCommunicationServices'));
 
-    beforeEach(inject(function(_TestCommentRest_, _$httpBackend_, _$q_, _$location_) {
+    beforeEach(inject(function(_TestCommentRest_, _$httpBackend_) {
         TestCommentRest = _TestCommentRest_;
         $httpBackend = _$httpBackend_;
-        $q = _$q_;
-        $location = _$location_;
     }));
 
     beforeEach(function() {
@@ -829,15 +802,13 @@ describe('TestCommentRest factory', function() {
 describe('TestTicketRest factory', function() {
 
     var TestTicketRest;
-    var $httpBackend, $q, $location;
+    var $httpBackend;
 
     beforeEach(angular.mock.module('ApiCommunicationServices'));
 
-    beforeEach(inject(function(_TestTicketRest_, _$httpBackend_, _$q_, _$location_) {
+    beforeEach(inject(function(_TestTicketRest_, _$httpBackend_) {
         TestTicketRest = _TestTicketRest_;
         $httpBackend = _$httpBackend_;
-        $q = _$q_;
-        $location = _$location_;
     }));
 
     beforeEach(function() {
@@ -896,16 +867,14 @@ describe('TestTicketRest factory', function() {
 describe('IsCollabMemberRest factory', function() {
     // var authentificationToken = ;
     var IsCollabMemberRest;
-    var $httpBackend, $q, $location, $scope;
+    var $httpBackend;
 
 
     beforeEach(angular.mock.module('ApiCommunicationServices'));
 
-    beforeEach(inject(function(_IsCollabMemberRest_, _$httpBackend_, _$q_, _$location_) {
+    beforeEach(inject(function(_IsCollabMemberRest_, _$httpBackend_) {
         IsCollabMemberRest = _IsCollabMemberRest_;
         $httpBackend = _$httpBackend_;
-        $q = _$q_;
-        $location = _$location_;
     }));
 
     beforeEach(function() {
@@ -945,16 +914,14 @@ describe('IsCollabMemberRest factory', function() {
 describe('CollabIDRest factory', function() {
     // var authentificationToken = ;
     var CollabIDRest;
-    var $httpBackend, $q, $location, $scope;
+    var $httpBackend;
 
 
     beforeEach(angular.mock.module('ApiCommunicationServices'));
 
-    beforeEach(inject(function(_CollabIDRest_, _$httpBackend_, _$q_, _$location_) {
+    beforeEach(inject(function(_CollabIDRest_, _$httpBackend_) {
         CollabIDRest = _CollabIDRest_;
         $httpBackend = _$httpBackend_;
-        $q = _$q_;
-        $location = _$location_;
     }));
 
     beforeEach(function() {
@@ -993,16 +960,14 @@ describe('CollabIDRest factory', function() {
 describe('AppIDRest factory', function() {
     // var authentificationToken = ;
     var AppIDRest;
-    var $httpBackend, $q, $location, $scope;
+    var $httpBackend;
 
 
     beforeEach(angular.mock.module('ApiCommunicationServices'));
 
-    beforeEach(inject(function(_AppIDRest_, _$httpBackend_, _$q_, _$location_) {
+    beforeEach(inject(function(_AppIDRest_, _$httpBackend_) {
         AppIDRest = _AppIDRest_;
         $httpBackend = _$httpBackend_;
-        $q = _$q_;
-        $location = _$location_;
     }));
 
     beforeEach(function() {
@@ -1041,16 +1006,14 @@ describe('AppIDRest factory', function() {
 describe('collabAppID factory', function() {
     // var authentificationToken = ;
     var collabAppID;
-    var $httpBackend, $q, $location, $scope;
+    var $httpBackend;
 
 
     beforeEach(angular.mock.module('ApiCommunicationServices'));
 
-    beforeEach(inject(function(_collabAppID_, _$httpBackend_, _$q_, _$location_) {
+    beforeEach(inject(function(_collabAppID_, _$httpBackend_) {
         collabAppID = _collabAppID_;
         $httpBackend = _$httpBackend_;
-        $q = _$q_;
-        $location = _$location_;
     }));
 
     beforeEach(function() {
@@ -1089,16 +1052,14 @@ describe('collabAppID factory', function() {
 describe('AreVersionsEditableRest', function() {
     // var authentificationToken = ;
     var AreVersionsEditableRest;
-    var $httpBackend, $q, $location, $scope;
+    var $httpBackend;
 
 
     beforeEach(angular.mock.module('ApiCommunicationServices'));
 
-    beforeEach(inject(function(_AreVersionsEditableRest_, _$httpBackend_, _$q_, _$location_) {
+    beforeEach(inject(function(_AreVersionsEditableRest_, _$httpBackend_) {
         AreVersionsEditableRest = _AreVersionsEditableRest_;
         $httpBackend = _$httpBackend_;
-        $q = _$q_;
-        $location = _$location_;
     }));
 
     beforeEach(function() {
