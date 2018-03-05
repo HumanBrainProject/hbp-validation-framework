@@ -29,7 +29,12 @@ def home(request):
     svc_url = settings.HBP_COLLAB_SERVICE_URL    
     url = '%scollab/context/%s/' % (svc_url, ctx)
     res = requests.get(url, headers=headers)
-    app_id = res.json()['id']
+
+    try :
+        app_id = res.json()['id']
+    except :
+        return  render(request, 'welcome.html', {})
+        
 
 
     app_params=list(CollabParameters.objects.filter(id = app_id).values('app_type'))
