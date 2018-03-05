@@ -167,19 +167,23 @@ from uuid import UUID
 
 CROSSREF_URL = "http://api.crossref.org/works/"
 
+
+
+# class WelcomeView(View):
+#     template_name = "welcome.html"
+#     # login_url='/login/hbp/'
+
+#     def get(self, request, *args, **kwargs): 
+
+#         return render(request, self.template_name, {})
+
 @method_decorator(login_required(login_url='/login/hbp/'), name='dispatch' )
 class HomeValidationView(View):
     template_name = "validation_framework/validation_home.html"
     login_url='/login/hbp/'
 
     def get(self, request, *args, **kwargs): 
-        tests = ValidationTestDefinition.objects.all()
-        models = ScientificModel.objects.all()
-        tests = serializers.serialize("json", tests)
-        models = serializers.serialize("json", models) 
-
-
-        return render(request, self.template_name, { 'tests':tests, 'models':models})
+        return render(request, self.template_name, {})
 
 class AuthorizedCollabParameterRest(APIView):
 
@@ -1564,9 +1568,7 @@ class ModelCatalogView(View):
     login_url='/login/hbp/'
 
     def get(self, request, *args, **kwargs):
-        models = ScientificModel.objects.all()
-        models = serializers.serialize("json", models) 
-        return render(request, self.template_name, {'models':models})
+        return render(request, self.template_name, {})
 
 
 
