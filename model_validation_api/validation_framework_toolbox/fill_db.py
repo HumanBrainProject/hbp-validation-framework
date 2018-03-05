@@ -295,7 +295,7 @@ def create_specific_model (
                     model_type = "Single Cell",
                     private = "0",
                     code_format = "py",
-                    organization="",
+                    organization="<<empty>>",
                     
                     ):
     model1 = ScientificModel()
