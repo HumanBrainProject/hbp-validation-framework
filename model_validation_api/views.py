@@ -148,7 +148,6 @@ from .validation_framework_toolbox.validation_framework_functions import (
 )
 
 
-#dirty logg ... need a module 
 import logging
 
 from logging.handlers import RotatingFileHandler
@@ -725,9 +724,6 @@ class Images (APIView):
 
 
 
-# class  Param_organizations (models.Model):
-#         id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, )
-#     authorized_value = models.CharField(max_length=200, default="")
 
 
 class Models(APIView):
@@ -861,6 +857,7 @@ class Models(APIView):
                 for app_id in list_app_id :
                     app_id = app_id['app']
                     collab_id = get_collab_id_from_app_id(app_id)
+                    #TODO... keep all data and make only one request to HBP
                     if not is_authorised(request, collab_id) :
                         q = q.exclude(app=app_id, private=1)
                 
@@ -1571,7 +1568,6 @@ class ModelCatalogView(View):
         models = serializers.serialize("json", models) 
         return render(request, self.template_name, {'models':models})
 
-# @method_decorator(login_required(login_url='/login/hbp'), name='dispatch' )
 
 
 class IsCollabMemberRest (APIView):
@@ -1840,7 +1836,6 @@ class ParametersConfigurationValidationView(View):
       
             
 
-# @method_decorator(login_required(login_url='/login/hbp'), name='dispatch' )
 class ParametersConfigurationModelView(View):
     
     template_name = "configuration/parameters-configuration.html"
@@ -1857,16 +1852,7 @@ class ParametersConfigurationModelView(View):
      
 
 
-# @method_decorator(login_required(login_url='/login/hbp'), name='dispatch' )
-# class ParametersConfigurationView(View): 
 
-    
-#     template_name = "configuration/parameters-configuration.html"
-#     login_url='/login/hbp/'
-
-#     def get(self, request, *args, **kwargs):
-#         print "ParametersConfigurationView"  
-#         return render(request, self.template_name)
 
 class  AreVersionsEditableRest(APIView):
     def get(self, request, *args, **kwargs):
