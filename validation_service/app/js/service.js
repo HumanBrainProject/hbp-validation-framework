@@ -408,8 +408,7 @@ ParametersConfigurationServices.service('CollabParameters', ['$rootScope', 'Coll
         };
 
         var getParametersOrDefaultByType = function(type) {
-            var param;
-            param = getParametersByType(type);
+            var param = getParametersByType(type);
 
             if (param.length > 0) {
                 return param;
@@ -427,6 +426,7 @@ ParametersConfigurationServices.service('CollabParameters', ['$rootScope', 'Coll
             }
             return formated_data;
         };
+
         var build_formated_default_parameters = function() {
             return new Promise(function(resolve, reject) {
                 if (default_parameters == undefined) {
@@ -526,6 +526,7 @@ ParametersConfigurationServices.service('CollabParameters', ['$rootScope', 'Coll
             return new Promise(function(resolve, reject) {
 
                 if (default_parameters == undefined) {
+
                     build_formated_default_parameters().then(function() {
 
                         set_parameters().then(function() {
@@ -533,6 +534,7 @@ ParametersConfigurationServices.service('CollabParameters', ['$rootScope', 'Coll
                         });
                     });
                 } else {
+
                     param = set_parameters().then(function() {
                         resolve(parameters)
                     });
@@ -543,7 +545,6 @@ ParametersConfigurationServices.service('CollabParameters', ['$rootScope', 'Coll
         var set_parameters = function() {
             return new Promise(function(resolve, reject) {
                 if (typeof(parameters) == "undefined") {
-
                     var app_id = Context.getAppID();
 
                     parameters = CollabParameterRest.get({ app_id: app_id }); //need to get collab number
@@ -552,11 +553,8 @@ ParametersConfigurationServices.service('CollabParameters', ['$rootScope', 'Coll
 
                         if (parameters.param.length == 0) {
                             post = _postInitCollab();
-                            console.log(post)
                             post.$promise.then(function() {
-                                console.log("in it")
                                 parameters = CollabParameterRest.get({ app_id: Context.getAppID() });
-                                console.log(parameters)
                                 parameters.$promise.then(function() {
                                     resolve(parameters);
                                 });
@@ -569,7 +567,9 @@ ParametersConfigurationServices.service('CollabParameters', ['$rootScope', 'Coll
                         }
                     });
                 } else {
-                    resolve(parameters);
+                    parameters.$promise.then(function() {
+                        resolve(parameters);
+                    });
                 }
             });
         };
@@ -620,21 +620,23 @@ ParametersConfigurationServices.service('CollabParameters', ['$rootScope', 'Coll
         };
 
         var initConfiguration = function() {
-            parameters = {
-                'param': [{
-                    'data_modalities': [],
-                    'test_type': [],
-                    'species': [],
-                    'brain_region': [],
-                    'cell_type': [],
-                    'model_type': [],
-                    'organization': [],
-                    'app_type': [],
-                    'collab_id': 0,
-                }, ],
-                '$promise': true,
-            };
-            return parameters;
+            return new Promise(function(resolve, reject) {
+                parameters = {
+                    'param': [{
+                        'data_modalities': [],
+                        'test_type': [],
+                        'species': [],
+                        'brain_region': [],
+                        'cell_type': [],
+                        'model_type': [],
+                        'organization': [],
+                        'app_type': [],
+                        'collab_id': 0,
+                    }, ],
+                    '$promise': true,
+                };
+                resolve(parameters);
+            });
         };
 
         var getDefaultParameters = function() {
