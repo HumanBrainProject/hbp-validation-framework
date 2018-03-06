@@ -1514,9 +1514,51 @@ ParametersConfigurationApp.controller('ParametersConfigurationCtrl', ['$scope', 
 
         $scope.ctx, $scope.app_id, $scope.collab;
         $scope.list_params;
-        // $scope.selected_data = {};
+        $scope.selected_data = {};
 
+        $scope.make_post = function() {
+            $scope.app_type = document.getElementById("app").getAttribute("value");
 
+            CollabParameters.initConfiguration();
+
+            $scope.selected_data.selected_data_modalities.forEach(function(value, i) {
+                CollabParameters.addParameter("data_modalities", value.authorized_value);
+            });
+
+            $scope.selected_data.selected_test_type.forEach(function(value, i) {
+                CollabParameters.addParameter("test_type", value.authorized_value);
+            });
+
+            $scope.selected_data.selected_model_type.forEach(function(value, i) {
+                CollabParameters.addParameter("model_type", value.authorized_value);
+            });
+
+            $scope.selected_data.selected_species.forEach(function(value, i) {
+                CollabParameters.addParameter("species", value.authorized_value);
+            });
+
+            $scope.selected_data.selected_brain_region.forEach(function(value, i) {
+                CollabParameters.addParameter("brain_region", value.authorized_value);
+            });
+
+            $scope.selected_data.selected_cell_type.forEach(function(value, i) {
+                CollabParameters.addParameter("cell_type", value.authorized_value);
+            });
+
+            $scope.selected_data.selected_organization.forEach(function(value, i) {
+                CollabParameters.addParameter("organization", value.authorized_value);
+            });
+
+            CollabParameters.addParameter("app_type", $scope.app_type);
+
+            CollabParameters.setCollabId("collab_id", $scope.collab.collab_id);
+
+            CollabParameters.put_parameters().$promise.then(function() {
+                CollabParameters.getRequestParameters().$promise.then(function() {});
+                alert("Your app has been configured")
+            });
+
+        };
 
         Context.setService().then(function() {
 
@@ -1537,8 +1579,6 @@ ParametersConfigurationApp.controller('ParametersConfigurationCtrl', ['$scope', 
                 $scope.organization = $scope.list_param.organization;
             });
 
-
-
             CollabParameters.setService($scope.ctx).then(function() {
 
                 $scope.selected_data = {};
@@ -1550,54 +1590,10 @@ ParametersConfigurationApp.controller('ParametersConfigurationCtrl', ['$scope', 
                 $scope.selected_data.selected_cell_type = CollabParameters.getParameters_authorized_value_formated("cell_type");
                 $scope.selected_data.selected_organization = CollabParameters.getParameters_authorized_value_formated("organization");
 
-                $scope.make_post = function() {
-                    $scope.app_type = document.getElementById("app").getAttribute("value");
-
-                    CollabParameters.initConfiguration();
-
-                    $scope.selected_data.selected_data_modalities.forEach(function(value, i) {
-                        CollabParameters.addParameter("data_modalities", value.authorized_value);
-                    });
-
-                    $scope.selected_data.selected_test_type.forEach(function(value, i) {
-                        CollabParameters.addParameter("test_type", value.authorized_value);
-                    });
-
-                    $scope.selected_data.selected_model_type.forEach(function(value, i) {
-                        CollabParameters.addParameter("model_type", value.authorized_value);
-                    });
-
-                    $scope.selected_data.selected_species.forEach(function(value, i) {
-                        CollabParameters.addParameter("species", value.authorized_value);
-                    });
-
-                    $scope.selected_data.selected_brain_region.forEach(function(value, i) {
-                        CollabParameters.addParameter("brain_region", value.authorized_value);
-                    });
-
-                    $scope.selected_data.selected_cell_type.forEach(function(value, i) {
-                        CollabParameters.addParameter("cell_type", value.authorized_value);
-                    });
-
-                    $scope.selected_data.selected_organization.forEach(function(value, i) {
-                        CollabParameters.addParameter("organization", value.authorized_value);
-                    });
-
-                    CollabParameters.addParameter("app_type", $scope.app_type);
-
-                    CollabParameters.setCollabId("collab_id", $scope.collab.collab_id);
-
-                    CollabParameters.put_parameters().$promise.then(function() {
-                        CollabParameters.getRequestParameters().$promise.then(function() {});
-                        alert("Your app has been configured")
-                    });
-
-                };
+                $scope.$apply();
 
             });
         });
-
-
     }
 ]);
 
