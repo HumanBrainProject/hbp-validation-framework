@@ -246,18 +246,29 @@ testApp.controller('ValModelDetailCtrl', ['$scope', '$rootScope', '$http', '$loc
     }
 ]);
 
-testApp.directive('markdown', function() {
-    var converter = new Showdown.converter();
+testApp.provider('markdownConverter', function() {
+    var opts = {};
     return {
-        restrict: 'A',
-        link: function(scope, element, attrs) {
-            function renderMarkdown() {
-                var htmlText = converter.makeHtml(scope.$eval(attrs.markdown) || '');
-                element.html(htmlText);
-            }
-            scope.$watch(attrs.markdown, renderMarkdown);
-            renderMarkdown();
+        config: function(newOpts) {
+            opts = newOpts;
+        },
+        $get: function() {
+            return new Showdown.converter(opts);
         }
+    };
+})
+
+testApp.directive("markdown", function(markdownConverter) {
+    return {
+        restrict: "A",
+        controller: ["$scope", "$element", "$attrs", function($scope, $element, $attrs) {
+            $scope.$watch($attrs.markdown, function(value) {
+                $element.text(value == undefined ? "" : value);
+                var html = markdownConverter.makeHtml($element.text());
+                $element.html(html);
+                MathJax.Hub.Queue(["Typeset", MathJax.Hub, $element[0]]);
+            });
+        }]
     };
 });
 
@@ -960,21 +971,32 @@ testApp.filter('filterMultiple', ['$parse', '$filter', function($parse, $filter)
 //Model catalog
 //directives and filters 
 var ModelCatalogApp = angular.module('ModelCatalogApp');
-
-ModelCatalogApp.directive('markdown', function() {
-    var converter = new Showdown.converter();
+ModelCatalogApp.provider('markdownConverter', function() {
+    var opts = {};
     return {
-        restrict: 'A',
-        link: function(scope, element, attrs) {
-            function renderMarkdown() {
-                var htmlText = converter.makeHtml(scope.$eval(attrs.markdown) || '');
-                element.html(htmlText);
-            }
-            scope.$watch(attrs.markdown, renderMarkdown);
-            renderMarkdown();
+        config: function(newOpts) {
+            opts = newOpts;
+        },
+        $get: function() {
+            return new Showdown.converter(opts);
         }
     };
+})
+
+ModelCatalogApp.directive("markdown", function(markdownConverter) {
+    return {
+        restrict: "A",
+        controller: ["$scope", "$element", "$attrs", function($scope, $element, $attrs) {
+            $scope.$watch($attrs.markdown, function(value) {
+                $element.text(value == undefined ? "" : value);
+                var html = markdownConverter.makeHtml($element.text());
+                $element.html(html);
+                MathJax.Hub.Queue(["Typeset", MathJax.Hub, $element[0]]);
+            });
+        }]
+    };
 });
+
 
 //Filter multiple
 ModelCatalogApp.filter('filterMultiple', ['$parse', '$filter', function($parse, $filter) {
