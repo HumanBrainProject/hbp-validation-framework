@@ -1,16 +1,17 @@
 <html id="model-detail" ng-controller="ModelCatalogDetailCtrl">
 
 <head>
+
+
+</head>
+
+<body>
     <br>
     <nav class="navbar ">
         <h1 align=center> {{ model.models[0].name}}
         </h1>
         <h3 align=center> Author(s): {{ model.models[0].author }} </h3>
     </nav>
-</head>
-
-<body>
-
     <nav>
 
         <button class="button-MC" ng-click="Context.modelCatalog_goToHomeView();">Home</button>&ensp;
@@ -73,6 +74,7 @@
                 <tr>
                     <!--<b> Description: </b> <br><br>-->
                     <div markdown="model.models[0].description" class="text-justify"></div>
+                    <!--<div mathjax-bind="model.models[0].description" class="text-justify"></div>-->
                     <br><br>
                 </tr>
                 <tr>
