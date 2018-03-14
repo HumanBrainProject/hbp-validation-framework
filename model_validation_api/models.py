@@ -12,7 +12,7 @@ from django.utils.encoding import python_2_unicode_compatible
 class CollabParameters(models.Model):
     # id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, ) 
     id = models.CharField(primary_key=True, max_length=100 , default="")
-    app_type = models.CharField(max_length=100 ,blank=True, help_text="type of application: model catalog or validation test")
+    app_type = models.CharField(max_length=100 ,blank=True, help_text="type of application: model_catalog or validation_app")
     data_modalities = models.CharField(max_length=500 ,blank=True, help_text="data modalities")
     test_type = models.CharField(max_length=500, blank=True, help_text="test type")
     species = models.CharField(max_length=500,blank=True, help_text="species")
@@ -125,9 +125,10 @@ class ScientificModelInstance(models.Model):
     version = models.CharField(max_length=200)
     description = models.TextField(null=True, blank=True)
     parameters = models.TextField(null=True, blank=True)
-    source = models.URLField(help_text="Version control repository containing the source code of the model")
+    source = models.URLField(blank=True, help_text="Version control repository containing the source code of the model")
     timestamp = models.DateTimeField(auto_now_add=True, help_text="Timestamp of when the version was created")
     code_format = models.CharField(max_length=100 , blank=True, null=True, default=None, help_text = "format of the code (PyNN, Brian, Neuron...)")
+    hash = models.CharField(max_length=100 , blank=True, null=True, default=None, help_text = "")
     def __str__(self):
         return "Model: {} @ version {}".format(self.model.name, self.version)
 
