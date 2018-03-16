@@ -68,7 +68,7 @@ class ValidationTestCode(models.Model):
     repository = models.CharField(max_length=200, help_text="location of the code that defines the test")
     version = models.CharField(max_length=128, help_text="version of the code that defines the test")
     description = models.TextField(null=True, blank=True)
-    path = models.CharField(max_length=200, help_text="path to test class within Python code")
+    path = models.CharField( help_text="path to test class within Python code")
     timestamp = models.DateTimeField(auto_now_add=True, help_text="timestamp for this version of the code")
     test_definition = models.ForeignKey(ValidationTestDefinition, help_text="Validation test implemented by this code",
                                         related_name="codes")
@@ -139,7 +139,7 @@ class ScientificModelImage(models.Model):
     """
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, )
     model = models.ForeignKey(ScientificModel, related_name="images", on_delete=models.CASCADE)
-    url =  models.URLField(max_length=500, blank=False, help_text="Version control repository containing the source code of the model")
+    url =  models.URLField( blank=False, help_text="Version control repository containing the source code of the model")
     caption = models.TextField(null=True, blank=True)
 
     def __str__(self):
