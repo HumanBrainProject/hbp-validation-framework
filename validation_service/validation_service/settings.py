@@ -20,7 +20,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True#os.environ.get('DEBUG') in ['True', '1']
-LOCAL_DB = True# only applies when ENV='dev'
+LOCAL_DB = False  ## only applies when ENV='dev'
 
 ALLOWED_HOSTS = ["*"]
 
@@ -130,6 +130,8 @@ else:
             'PASSWORD': os.environ.get("VALIDATION_SERVICE_PASSWORD"),
             'HOST': os.environ.get("VALIDATION_SERVICE_HOST"),
             'PORT': os.environ.get("VALIDATION_SERVICE_PORT", "5432"),  
+
+
         },
     }
 
