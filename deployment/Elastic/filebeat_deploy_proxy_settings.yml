@@ -1,0 +1,73 @@
+
+### prospector for docker 
+filebeat.prospectors:
+- type: log
+  paths:
+   - '/var/lib/docker/containers/*/*.log'
+  json.message_key: log
+  json.keys_under_root: true
+  processors:
+  - add_docker_metadata: ~
+
+  # document_type: docker
+  # json.message_key: log
+
+# document_type: syslog  
+
+
+# filebeat.prospectors:
+# - type: log
+#   enabled: true
+#   paths:
+#   #if filebeat not in container :
+#    - /var/lib/docker/containers/*/*.log
+  #  - /var/log/*.log
+
+
+  # input_type: log
+# tail_files: true
+
+# fields:
+#          product: order_online
+#       fields_under_root: true
+
+#   json.message_key: log
+#   json.keys_under_root: true
+#   processors:
+#   - add_docker_metadata: ~
+
+
+
+# output:
+#   http:
+#     hosts: ["82.196.10.240:8081"]
+
+
+output.logstash:
+  hosts: ["82.196.10.240:5044"]
+  # hosts: ["0.0.0.0:5044"]
+  # hosts: ["127.0.0.1:5044"]
+  # hosts: ["82.196.10.240:8081"]
+  # hosts: ["82.196.10.240:8081"]
+  # proxy_url: socks5://user:password@socks5-proxy:2233
+  # proxy_url: socks5://82.196.10.240:8081
+  # proxy_use_local_resolver: true
+
+
+# +username+':'+password+'@'
+  # ${NAME:beats}
+    # username: "elastic"
+    # password: "elkmdp456"
+
+
+
+# output.elasticsearch:
+#   hosts: ["http://82.196.10.240:9200"]
+#   # username: "elastic"
+#   # password: "elastic"
+
+# setup.kibana:
+#   host: "http://82.196.10.240:8091"
+  # host: "http://82.196.10.240:8091"
+# #   username: "elastic"
+# #   password: "elastic"

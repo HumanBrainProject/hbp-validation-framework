@@ -1,0 +1,18 @@
+---
+## Default Logstash configuration from logstash-docker.
+## from https://github.com/elastic/logstash-docker/blob/master/build/logstash/config/logstash-oss.yml
+#
+# http.host: "82.196.10.240"
+# http.host: "http://82.196.10.240"
+# http.port: 82.196.10.240
+# path.config: /usr/share/logstash/pipeline
+
+
+
+http.host : 0.0.0.0
+
+path.config : /usr/share/logstash/pipeline
+
+
+
+

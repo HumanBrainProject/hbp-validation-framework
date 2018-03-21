@@ -1,0 +1,56 @@
+
+filebeat.prospectors:
+- type: log
+  paths:
+   - '/var/lib/docker/containers/*/*.log'
+  json.message_key: log
+  json.keys_under_root: true
+  processors:
+  - add_docker_metadata: ~
+
+# filebeat.prospectors:
+# - type: log
+#   enabled: true
+#   paths:
+#   #if filebeat not in container :
+#    - /var/lib/docker/containers/*/*.log
+#    - /var/log/*.log
+
+#   #  - /usr/share/filebeat/containers_from_host/*/*.log
+#   #  - /usr/share/filebeat/logs_from_host/*.log
+
+#   #  - /usr/share/filebeat/log_test/fakefile.log
+
+#   input_type: log
+# tail_files: true
+
+# fields:
+#          product: order_online
+#       fields_under_root: true
+
+#   json.message_key: log
+#   json.keys_under_root: true
+#   processors:
+#   - add_docker_metadata: ~
+
+
+
+# output.logstash:
+#   hosts: ["http://82.196.10.240:5044"]
+#     # username: "elastic"
+#     # password: "elastic"
+
+
+
+output.elasticsearch:
+  # hosts: ["http://82.196.10.240:9200"]
+  hosts: ["http://127.0.0.1:9200"]
+
+  # username: "elastic"
+  # password: "elastic"
+
+setup.kibana:
+  # host: "http://82.196.10.240:5601"
+  host: "http://127.0.0.1:5601"
+# #   username: "elastic"
+# #   password: "elastic"
