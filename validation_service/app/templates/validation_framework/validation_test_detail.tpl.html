@@ -148,7 +148,8 @@
                     <tr ng-repeat='code_version in detail_version_test.test_codes'>
                         <td id="editable-id-{{code_version.id}}" contenteditable=false style="width: 12%">{{ code_version.id }}</td>
                         <td id="editable-version-{{code_version.id}}" contenteditable=false style="width: 20%">{{ code_version.version }}</td>
-                        <td id="editable-code-description-{{code_version.id}}" contenteditable=false style="width: 20%">{{ code_version.description }}
+                        <td id="editable-code-description-{{code_version.id}}" contenteditable=false style="width: 20%">
+                            <div markdown=code_version.description></div>
                         </td>
                         <td style="width: 20%">{{ code_version.timestamp | date:'d MMMM yyyy, hh:mm' : 'UTC' }}
                         </td>

@@ -107,8 +107,8 @@
             <tr ng-repeat="model_instance in model.models[0].instances">
                 <td style="width: 15%">{{ model_instance.version }}</td>
                 <td style="width: 15%">{{ model_instance.id }}</td>
-                <td style="width: 15%"><pre markdown=model_instance.description></pre></td>
-                <td style="width: 15%"><pre markdown=model_instance.parameters></pre></td>
+                <td style="width: 15%"><pre> <div markdown=model_instance.description></div></pre></td>
+                <td style="width: 15%"><pre> <div markdown=model_instance.parameters></div></pre></td>
                 <td style="width: 15%">{{ model_instance.code_format }}</td>
 
                 <td style="width: 15%">
