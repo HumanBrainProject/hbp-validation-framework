@@ -60,6 +60,6 @@ matrix:
 
       script:
         - unzip ./validation_framework/app/static.tar -d ./validation_framework/app/
-        - ./node_modules/karma/bin/karma start tests/test_framework/karma.conf.js --browsers Chrome_travis_ci --single-run 
+        - ./node_modules/karma/bin/karma start tests/karma.conf.js --browsers Chrome_travis_ci --single-run 
       # before_script:
       #   - export TEST_ENV=travis
