@@ -179,6 +179,7 @@ module.exports = function(config) {
 
             '../validation_service/app/static/palette.js-master/palette.js',
             //.js | files
+            './environment.js',
             '../validation_service/app/js/*.js',
             './test_framework/*.js',
 

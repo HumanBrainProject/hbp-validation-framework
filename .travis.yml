@@ -1,57 +1,64 @@
-language: python
-python:
-  - "2.7"
-#   - "3.4"
-#   - "3.5"
-#   - "3.6"  
+matrix:
+  include:
+    - language: python
+      python:
+        - 2.7
+      before_install:
+        - gpg --output packages/hbp-app-python-auth-0.1.5.zip --decrypt --passphrase $ENCRYPTION_KEY encrypted_modules/hbp-app-python-auth-0.1.5.zip.enc
 
-before_install:
-- gpg --output packages/hbp-app-python-auth-0.1.5.zip --decrypt --passphrase $ENCRYPTION_KEY encrypted_modules/hbp-app-python-auth-0.1.5.zip.enc
+      #for not sensitiv data
+      env:
+      global:
+        - VALIDATION_SERVICE_ENV = 'dev'
 
-#for not sensitiv data
-env:
-  global:
-    - VALIDATION_SERVICE_ENV = 'dev'
+      # for encrypted data : 
+      # -secure : fljfz4fz35f1e3g@#?
 
-    # for encrypted data : 
-    # -secure : fljfz4fz35f1e3g@#?
-
-  #for diferent version of env
-  matrix:
-    #ex :
-    # - USE_NETWORK=true
-    # - USE_NETWORK=false
+      #for diferent version of env
+      matrix:
+      #ex :
+      # - USE_NETWORK=true
+      # - USE_NETWORK=false
 
 
-install:
-# - sudo apt-get install libpq-dev python-dev
-- ls -R packages/
-- unzip packages/hbp-app-python-auth-0.1.5.zip -d packages/
-- pip install -r ./validation_service/requirements.txt
-- pip install coveralls
-# - pip install . 
-before_script:
-- export PYTHONPATH=$PYTHONPATH:$(pwd)
-# - export PYTHONPATH=$PYTHONPATH:$(pwd)
-# - ls 
-# - pwd
-# - ls ./validation_service
-# - ls ./model_validation_api
-# - pwd
+      install:
+        # - sudo apt-get install libpq-dev python-dev
+        - ls -R packages/
+        - unzip packages/hbp-app-python-auth-0.1.5.zip -d packages/
+        - pip install -r ./validation_service/requirements.txt
+        - pip install coveralls
+        # - pip install . 
+      before_script:
+        - export PYTHONPATH=$PYTHONPATH:$(pwd)
+        # - export PYTHONPATH=$PYTHONPATH:$(pwd)
+        # - ls 
+        # - pwd
+        # - ls ./validation_service
+        # - ls ./model_validation_api
+        # - pwd
 
-- python -c "import django; print(django.get_version())"
-- python ./validation_service/manage.py makemigrations
-- python ./validation_service/manage.py migrate
-# - export NMPI_ENV=travis
-script:
-# - python ./validation_service/manage.py migrate --noinput
-- python ./validation_service/manage.py test tests/test_api/test_view/
-#   nosetests --with-coverage --cover-package=neo
-after_success:
-#   coveralls
+        - python -c "import django; print(django.get_version())"
+        - python ./validation_service/manage.py makemigrations
+        - python ./validation_service/manage.py migrate
+      script:
+        # - python ./validation_service/manage.py migrate --noinput
+        - python ./validation_service/manage.py test tests/test_api/test_view/
+        #   nosetests --with-coverage --cover-package=neo
+      after_success:
+        #   coveralls
 
-
-
-# script:
-# - cd job_manager
-# - python manage.py test simqueue
+    - language: node_js
+      node_js:
+        - "node"
+        - "9"
+      # before_script:
+      before_install:
+        - openssl aes-256-cbc -K $encrypted_9bafa974f199_key -iv $encrypted_9bafa974f199_iv -in static.tar.enc -out static.tar -d
+        - export CHROME_BIN=chromium-browser
+        - export DISPLAY=:99.0
+        - sh -e /etc/init.d/xvfb start
+      script:
+        - unzip ./validation_framework/app/static.tar -d ./validation_framework/app/
+        - karma start tests/test_framework/karma.conf.js --browsers Chrome_travis_ci --single-run 
+      # before_script:
+      #   - export TEST_ENV=travis

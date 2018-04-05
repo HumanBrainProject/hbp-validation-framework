@@ -32,7 +32,9 @@
 
         }, function() {
             $log.error('Cannot boot nmpi application');
-            window.location.href = '/login/hbp/?next=' + encodeURIComponent(window.location.pathname + window.location.search + window.location.hash);
+            if (window.env && window.env.name != 'envServices') {
+                window.location.href = '/login/hbp/?next=' + encodeURIComponent(window.location.pathname + window.location.search + window.location.hash);
+            }
         });
     });
 
