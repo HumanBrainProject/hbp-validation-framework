@@ -1929,7 +1929,7 @@ class Results (APIView):
         :param order: str
         :type order: str
         :param detailed_view: str
-        :type detailed_view: str
+        :type detailed_view: str 
         :return: str -- data_to_return
         """
         param_id = request.GET.getlist('id')
