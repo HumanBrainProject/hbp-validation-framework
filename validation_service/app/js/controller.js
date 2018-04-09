@@ -1165,7 +1165,7 @@ ModelCatalogApp.controller('ModelCatalogCreateCtrl', ['$scope', '$rootScope', '$
         };
 
         $scope.checkAliasValidity = function() {
-            $scope.alias_is_valid = ScientificModelAliasRest.get({ app_id: $scope.app_id, model: $scope.model, alias: $scope.model.alias });
+            $scope.alias_is_valid = ScientificModelAliasRest.get({ app_id: $scope.app_id, model_id: $scope.model.id, alias: $scope.model.alias });
             return $scope.alias_is_valid;
         };
 

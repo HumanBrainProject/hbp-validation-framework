@@ -1044,7 +1044,7 @@ class ModelAliases(APIView):
 
         all_alias_in_model = ScientificModel.objects.filter().values_list('alias', flat=True)
         if alias[0] in all_alias_in_model:
-            is_valid= False
+            is_valid = False
         else: 
             is_valid = True
 
