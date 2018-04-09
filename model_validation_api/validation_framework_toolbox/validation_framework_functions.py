@@ -60,6 +60,12 @@ from ..serializer.serializer import (ValidationTestDefinitionSerializer,
 
 
 def check_list_uuid_validity (uuid_list) :
+    """
+    Check validity of a list of uuid
+    :param uuid_list: list of uuid 
+    :type uuid_list: list
+    :returns: response boolean
+    """
     for i in uuid_list :
         if check_uuid_validity(i) is False :
             return False
@@ -67,6 +73,12 @@ def check_list_uuid_validity (uuid_list) :
         
     
 def check_uuid_validity (uuid_string):
+    """
+    Check validity of uuid
+    :param uuid_string: string of uuid 
+    :type uuid_string: str
+    :returns: response boolean
+    """
     try :
         UUID(uuid_string)
         return True
@@ -75,6 +87,12 @@ def check_uuid_validity (uuid_string):
 
 
 def get_collab_id_from_app_id (app_id):
+    """
+    Get collab id with app id
+    :param app_id: id of app 
+    :type app_id: int
+    :returns: collab_id int
+    """
     collab_param = CollabParameters.objects.filter(id = app_id)
     # if len(collab_param) > 0 :
     collab_id = collab_param.values('collab_id')[0]['collab_id']
