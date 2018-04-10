@@ -17,7 +17,7 @@ from model_validation_api.url_handler import get_url_ctx
 
 @login_required(login_url='/login/hbp/')
 def home(request):
-    
+
     ctx = get_url_ctx(request)
 
     #to get app_id
