@@ -30,7 +30,7 @@
                             <b> Score ({{test_result.test_code.test_definition.score_type}}): </b>
                         </td>
                         <td>
-                            {{test_result.score}}
+                            <span precision=test_result.score>  </span>
                             <font class="glyphicon glyphicon-ok" ng-if="test_result.passed" color="green"> </font>
                             <!--<font class="glyphicon glyphicon-remove" ng-if="!test_result.data.passed" color="red"> </font>-->
                         </td>

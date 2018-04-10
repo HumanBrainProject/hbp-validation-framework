@@ -936,7 +936,8 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'Context', 'ValidationResult
 
         var TestGraph_getLineId = function(instance) {
             var line_id;
-            if (instance.model_alias && instance.model_alias !== null && instance.model_alias !== '' && instance.model_alias !== "None") {
+
+            if (instance.model_alias && instance.model_alias != null && instance.model_alias != '' && instance.model_alias != "None") {
                 line_id = instance.model_alias + ' ( ' + instance.version + ' )';
             } else {
                 line_id = instance.model_id.substring(0, 8) + '... ( ' + instance.version + ' )';
@@ -996,10 +997,8 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'Context', 'ValidationResult
 
             for (var model_instance in model_instances) {
                 var instance = new Object();
-
                 var model_id = model_instances[model_instance].model_id;
                 var line_id = TestGraph_getLineId(model_instances[model_instance]);
-
                 instance.timestamp = model_instances[model_instance].timestamp;
                 instance.id = model_instance;
                 instance.model_id = model_instances[model_instance].model_id;
@@ -1020,7 +1019,7 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'Context', 'ValidationResult
                     for (var result in model_instances[model_instance].test_codes[test_instance].results) {
                         //only keep the first five significant score figures 
                         var res = model_instances[model_instance].test_codes[test_instance].results[result];
-                        res.score = res.score.toPrecision(5);
+                        res.score = res.score; //.toPrecision(5);
                         code.results.push(res);
                     }
                     //order results by timestamp
@@ -1251,7 +1250,7 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'Context', 'ValidationResult
                     code.test_id = raw_data.score_type[score_type].test_codes[test_code].test_id;
                     code.test_name = raw_data.score_type[score_type].test_codes[test_code].test_name;
 
-                    code.line_id = raw_data.score_type[score_type].test_codes[test_code].line_id;
+                    code.line_id = ModelGraph_getLineId(raw_data.score_type[score_type].test_codes[test_code]);
                     code.model_instances = [];
 
                     for (var i in model_instances) {
@@ -1267,7 +1266,7 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'Context', 'ValidationResult
                         for (var result in raw_data.score_type[score_type].test_codes[test_code].model_instances[model_instance].results) {
                             //only keep the first five significant score figures 
                             var res = raw_data.score_type[score_type].test_codes[test_code].model_instances[model_instance].results[result];
-                            res.score = res.score.toPrecision(5);
+                            res.score = res.score; //.toPrecision(5);
                             instance.results.push(res);
                         }
                         //order results by timestamp
