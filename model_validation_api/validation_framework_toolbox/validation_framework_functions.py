@@ -64,7 +64,8 @@ def check_list_uuid_validity (uuid_list) :
     Check validity of a list of uuid
     :param uuid_list: list of uuid 
     :type uuid_list: list
-    :returns: response boolean
+    :returns: response
+    :rtype: boolean
     """
     for i in uuid_list :
         if check_uuid_validity(i) is False :
@@ -77,7 +78,8 @@ def check_uuid_validity (uuid_string):
     Check validity of uuid
     :param uuid_string: string of uuid 
     :type uuid_string: str
-    :returns: response boolean
+    :returns: response
+    :rtype: boolean
     """
     try :
         UUID(uuid_string)
@@ -91,7 +93,8 @@ def get_collab_id_from_app_id (app_id):
     Get collab id with app id
     :param app_id: id of app 
     :type app_id: int
-    :returns: collab_id int
+    :returns: collab_id
+    :rtype: int
     """
     collab_param = CollabParameters.objects.filter(id = app_id)
     # if len(collab_param) > 0 :
@@ -106,7 +109,8 @@ def _are_model_instance_version_unique (instance_json):
     Check if versions of model instance are unique
     :param instance_json: datas of instance
     :type instance_json: dict
-    :returns: response boolean
+    :returns: response
+    :rtype: boolean
     """
     new_version_name = instance_json['version']
     try :
@@ -123,7 +127,8 @@ def _are_test_code_version_unique (testcode_json):
     Check if versions of test code are unique
     :param testcode_json: datas of test code
     :type testcode_json: dict
-    :returns: response boolean
+    :returns: response
+    :rtype: boolean
     """
     new_version_name = testcode_json['version']
     try :
@@ -140,7 +145,8 @@ def _are_test_code_editable(testcode_json):
     Check if tests code are editable
     :param testcode_json: datas of test code
     :type testcode_json: dict
-    :returns: response boolean
+    :returns: response
+    :rtype: boolean
     """
     try:
         results = ValidationTestResult.objects.filter(test_code_id=testcode_json['id'])
@@ -158,7 +164,8 @@ def _are_model_instance_editable(model_instance_json):
     Check if model instance are editable
     :param model_instance_json: datas of test code
     :type model_instance_json: dict
-    :returns: response boolean
+    :returns: response
+    :rtype: boolean
     """
     try:
         results = ValidationTestResult.objects.filter(model_version_id=model_instance_json['id'])
@@ -179,7 +186,8 @@ def check_versions_unique (list_given, list_already_there):
     :type list_given: list
     :param list_already_there: second list
     :type list_already_there: list
-    :returns: response boolean
+    :returns: response
+    :rtype: boolean
     """
     #inner check on list_givent
     if not len(list_given) == len(set(list_given)) :
@@ -198,10 +206,11 @@ def extract_all_code_version_from_test_object_id (put_id, test_id):
     """
     get all code versions with test object id
     :param put_id: param to exclude
-    :type: int
+    :type put_id: int
     :param test_id: id of object
-    :type: int
+    :type test_id: int
     :returns: extracted list of code version
+    :rtype: list
     """
     if put_id :
         test_code_list_id = ValidationTestCode.objects.filter(test_definition_id = test_id).exclude(id=put_id).values_list("version", flat=True)
@@ -214,10 +223,11 @@ def extract_all_instance_version_from_model_id (put_id,  model_id):
     """
     get all instances versions with test object id
     :param put_id: param to exclude
-    :type: int
+    :type put_id: int
     :param test_id: id of model
-    :type: int
+    :type test_id: int
     :returns: extracted list of instances version
+    :rtype: list
     """
     if put_id :
         model_instance_list_id = ScientificModelInstance.objects.filter(model_id = model_id).exclude(id=put_id).values_list("version",flat=True)
@@ -230,8 +240,9 @@ def extract_versions_and_model_id_from_instance_json (instance_json):
     """
     Get versions and id of models in json string with instance_json
     :param instance_json: data of instance
-    :type: dict
-    :returns: str json response 
+    :type instance_json: dict
+    :returns: str json response
+    :rtype: str
     """
     return {'model_id': instance_json["model_id"] ,  'version_name': instance_json["version"] }
     
@@ -239,8 +250,9 @@ def extract_versions_and_test_id_from_list_testcode_json (testcode_json):
     """
     Get versions and id of test in json string with testcode_json
     :param testcode_json: data of test code
-    :type: dict
+    :type testcode_json: dict
     :returns: str json response 
+    :rtype: str
     """
     return {'test_id' :testcode_json["test_definition_id"] ,  'version_name': testcode_json["version"] }
 
@@ -248,8 +260,9 @@ def check_commun_params_json (json):
     """
     Check validity of params of json params. It need each one of next parameters: cell_type, species and brain_region.
     :param json: json dict of data with parameters to check
-    :type: dict
+    :type json: dict
     :returns: response boolean
+    :rtype: boolean
     """
     if 'cell_type' in json :
         if json['cell_type'] != "" :
@@ -278,8 +291,9 @@ def check_param_of_model_json (json):
     """
     Check validity of params of model json. It need each one of next parameters: model_type and organization.
     :param json: json dict of data with parameters to check
-    :type: dict
-    :returns: response boolean
+    :type json: dict
+    :returns: response
+    :rtype: boolean
     """
     commun = check_commun_params_json(json)
     if commun is True :
@@ -305,8 +319,9 @@ def check_param_of_test_json (json):
     """
     Check validity of params of test json. It need each one of next parameters: data_modality, test_type and score_type.
     :param json: json dict of data with parameters to check
-    :type: dict
-    :returns: response boolean
+    :type json: dict
+    :returns: response
+    :rtype: boolean
     """
     commun = check_commun_params_json(json)
     if commun is True :   
@@ -340,10 +355,11 @@ def user_has_acces_to_model (request, model):
     """
     Check if user execute request has access to model
     :param request: request
-    :type: str
+    :type request: str
     :param model: model
-    :type: object
-    :returns: response boolean
+    :type model: object
+    :returns: response
+    :rtype: boolean
     """
     if model.private == 0 :
         return True
@@ -360,10 +376,11 @@ def user_has_acces_to_result (request, result):
     """
     Check if user execute request has access to result
     :param request: request
-    :type: str
+    :type request: str
     :param result: result
-    :type: object
-    :returns: response boolean
+    :type result: object
+    :returns: response
+    :rtype: boolean
     """
 
     model_version_id = result.model_version_id
@@ -378,8 +395,9 @@ def get_result_informations (result):
     """
     Get information of result
     :param result: result
-    :type: object
+    :type result: object
     :returns: list result_info
+    :rtype: list
     """
     result_info = {}
 
@@ -415,14 +433,15 @@ def organise_results_dict ( detailed_view, point_of_view, results, serializer_co
     """
     Get result informations and organize it in term of points of view in only one json string
     :param detailed_view: detailed_view
-    :type: boolean
+    :type detailed_view: boolean
     :param point_of_view: point_of_view
-    :type: str
+    :type point_of_view: str
     :param results: results
-    :type: str
+    :type results: str
     :param serializer_context: serializer_context
-    :type: str
+    :type serializer_context: str
     :returns: str json data_to_return 
+    :rtype: str
     """
     data_to_return = {}
 
@@ -551,8 +570,9 @@ def _get_collab_id(request):
     """
     Extract collab_id from request
     :param request: request
-    :type: str
-    :returns: int collab_id 
+    :type request: str
+    :returns: collab_id 
+    :rtype: int
     """
     social_auth = request.user.social_auth.get()
     headers = {
@@ -570,8 +590,9 @@ def _get_app_id(request):
     """
     Extract app_id from request
     :param request: request
-    :type: str
-    :returns: int app_id 
+    :type request: str
+    :returns: app_id 
+    :rtype: int
     """
     social_auth = request.user.social_auth.get()
     headers = {

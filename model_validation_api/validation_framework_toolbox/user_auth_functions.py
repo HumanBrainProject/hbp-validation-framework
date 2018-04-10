@@ -65,7 +65,8 @@ def get_storage_navigation_data (request, collab_id):
     Get HTTP authorization header
     :param request: request 
     :type request: str
-    :returns http status: string
+    :returns: http status
+    :rtype: str
     """
     svc_url = settings.HBP_COLLAB_SERVICE_URL
     headers = {'Authorization': get_auth_header(request.user.social_auth.get())}
@@ -93,7 +94,8 @@ def get_storage_file_by_id (request):
     Get file in collab storage with id
     :param request: request 
     :type request: str
-    :returns res._content: string
+    :returns: res._content
+    :rtype: str
     """
     url = "https://services.humanbrainproject.eu/storage/v1/api/file/7047b77d-10a7-45ee-903a-29fe7a8cc9e5/content/"
 
@@ -111,7 +113,8 @@ def get_user_from_token(request):
     Get user id with token
     :param request: request 
     :type request: str
-    :returns res._content: string
+    :returns: res._content
+    :rtype: str
     """
     url = "{}/user/me".format(settings.HBP_IDENTITY_SERVICE_URL)
     headers = get_authorization_header(request)
@@ -130,7 +133,8 @@ def is_admin(request):
     Check if user is an administrator
     :param request: request 
     :type request: str
-    :returns admins: boolean
+    :returns: admins
+    :rtype: boolean
     """
     try:
         admins = get_admin_list(request)
@@ -152,7 +156,8 @@ def _is_collaborator(request, collab_id):
     :type request: str
     :param collab_id: int 
     :type collab_id: int
-    :returns admins: boolean
+    :returns: admins
+    :rtype: boolean
     """
 
     svc_url = settings.HBP_COLLAB_SERVICE_URL
@@ -175,7 +180,8 @@ def _is_collaborator_token(request, collab_id):
     :type request: str
     :param collab_id: int 
     :type collab_id: int
-    :returns: response boolean
+    :returns: response
+    :rtype: boolean
     """
     # user = get_user_from_token(request)
     # request.user = user
@@ -203,7 +209,8 @@ def is_authorised(request, collab_id):
     :type request: str
     :param collab_id: int 
     :type collab_id: int
-    :returns: response boolean
+    :returns: response
+    :rtype: boolean
     """
     if str(request.user) == "AnonymousUser" :
          
@@ -226,7 +233,8 @@ def get_user_info(request):
     :type request: str
     :param collab_id: int 
     :type collab_id: int
-    :returns: response str
+    :returns: response
+    :rtype: str
     """
     social_auth = request.user.social_auth.get()
     url = "https://services.humanbrainproject.eu/oidc/userinfo"
@@ -241,7 +249,8 @@ def is_hbp_member (request):
     Check if user is hbp member depending on token if user is anonymous
     :param request: request 
     :type request: str
-    :returns: response boolean
+    :returns: response
+    :rtype: boolean
     """
     svc_url = settings.HBP_COLLAB_SERVICE_URL
 

@@ -14,13 +14,14 @@ ENV = 'dev'
 
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
+# VALIDATION_SERVICE_HOST = '172.17.0.2'
+# VALIDATION_SERVICE_PORT = '32768'
 
 
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True#os.environ.get('DEBUG') in ['True', '1']
-LOCAL_DB = False  ## only applies when ENV='dev'
+LOCAL_DB = True# False  ## only applies when ENV='dev'
 
 ALLOWED_HOSTS = ["*"]
 
