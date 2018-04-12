@@ -52,17 +52,6 @@ from .models import (ValidationTestDefinition,
                         )
 
 
-# from .forms import (ValidationTestDefinitionForm, 
-#                         ValidationTestCodeForm,
-#                         ScientificModelForm,
-#                         ScientificModelImageForm,  
-#                         ScientificTestForm, 
-#                         ValidationTestResultForm, 
-#                         ScientificModelInstanceForm,
-#                         CommentForm,
-# #                        configviewForm,  
-#                         )
-
 from .serializer.serializer import (ValidationTestDefinitionSerializer, 
                             ScientificModelSerializer,
                             ScientificModelReadOnlySerializer, 
@@ -185,11 +174,14 @@ class HomeValidationView(View):
         return render(request, self.template_name, {})
 
 class AuthorizedCollabParameterRest(APIView):
-
+    '''Get Authorized Collab Parameter'''
     def get(self, request,  format=None, **kwargs):
         """
+        get the authorized values for the collab parameters: data_modalities, test_type, species, brain_region, cell_type, model_type, score_type, organization. 
         :param python_client: 
         :type python_client: boolean
+        :returns: list of the autorized values for each parameter: data_modalities, test_type, species, brain_region, cell_type, model_type, score_type, organization
+        :rtype: string list: 
         """
         try:
             python_client = request.GET.getlist('python_client')[0]
@@ -286,9 +278,10 @@ class CollabIDRest(APIView):
     def get(self, request, format=None, **kwargs):
         """
         Get collab ID
-        :param request.user: user string
-        :type request.user: string
-        :return: collab_id : int
+        :param user: user name
+        :type user: string
+        :returns: id of the collab <collab_id>
+        :rtype: int:
         """
         if self.request.user == "AnonymousUser" :
             collab_id = 0
@@ -307,9 +300,10 @@ class AppIDRest(APIView):
     def get(self, request, format=None, **kwargs):
         """
         Get app ID
-        :param request.user: user string
-        :type request.user: string
-        :return: app_id : int
+        :param user: user name
+        :type user: string
+        :return: id or the application <app_id> 
+        r_type: int:
         """
         if self.request.user == "AnonymousUser" :
             app_id = 0
@@ -329,9 +323,10 @@ class CollabAppID(APIView):
         Get app id with collab_id and app_type
         :param collab_id: id of collaboratory
         :type collab_id: int
-        :param app_type: id of type of application
+        :param app_type: string equal to "model_catalog" or "validation_framework"
         :type app_type: int
-        :return: app_id : int
+        :returns: app_id : id of the application
+        rtype: int:
         """
         param_collab_id = request.GET.getlist('collab_id')
         param_app_type = request.GET.getlist('app_type')
@@ -356,12 +351,15 @@ class CollabAppID(APIView):
 
 
 class ParametersConfigurationRest( APIView): #LoginRequiredMixin, 
-    """
-    :param app_id: id of application 
-    :type app_id: int
-    :returns param_serializer.data: string
-    """
+    ''' Manage app configuration '''
     def get(self, request, format=None, **kwargs):
+        """
+        Get app configuration. 
+    :param app_id: id of application 
+    :type app_id: string
+    :returns: configuration array
+    :rtype: json:
+    """
         serializer_context = {'request': request,}
 
         app_id = request.GET.getlist('app_id')
@@ -381,9 +379,11 @@ class ParametersConfigurationRest( APIView): #LoginRequiredMixin,
 
     def post(self, request, format=None):
         """
-        :param collab_id: id of collaboratory
+        Post app configuration.
+        :param collab_id: id of collab
         :type collab_id: int
-        :return:
+        :return: :param uuid: app id 
+                :type uuid: int
         """
         # ctx = request.GET.getlist('ctx')[0]
 
@@ -414,9 +414,11 @@ class ParametersConfigurationRest( APIView): #LoginRequiredMixin,
 
     def put(self, request, format=None):
         """
+        Edit app configuration
         :param collab_id: id of collaboratory
         :type collab_id: int
-        :return: int status HTTP response of request
+         :return: :param uuid: app id 
+                :type uuid: int
         """
         # ctx = request.GET.getlist('ctx')[0]
 
@@ -451,12 +453,13 @@ class ParametersConfigurationRest( APIView): #LoginRequiredMixin,
         return Response(param_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-def reformat_request_data (data):
+def _reformat_request_data (data):
     """
-    This function reformat list and dict of data
+    Utilitary function to reformat data to a list
     :param data: string of data
     :type data: str
-    :return: str -- reformatted data
+    :returns: data formatted
+    :rtype: list
     """
     if type(data) == list :
         data = data
@@ -474,21 +477,22 @@ class ModelInstances (APIView):
     def get(self, request, format=None, **kwargs):
         """
         get Instance of model_validation_api_scientificmodelinstance
-        :param param_id: int
-        :type param_id: int
-        :param model_id: int
-        :type model_id: int
-        :param version: str
+        :param id: instance id
+        :type id: UUID
+        :param model_id: model id
+        :type model_id: UUID
+        :param version: instance version
         :type version: str
-        :param parameters: str
-        :type parameters: str
-        :param source: str
-        :type source: str
-        :param timestamp: datetime
+        :param parameters: parameters of the version
+        :type parameters: string
+        :param source: url of the code source
+        :type source: url
+        :param timestamp: creation date of the instance
         :type timestamp: datetime
-        :param model_alias: str
+        :param model_alias: alias of the model name
         :type model_alias: str
-        :return: str -- serialized data
+        :return: list of instances 
+        :rtype: dictionnary
         """
         serializer_context = {'request': request,}
 
@@ -535,14 +539,15 @@ class ModelInstances (APIView):
 
     def post(self, request, format=None):
         """
-        Post serialized request to model_validation_api_scientificmodelinstance table
-        :param request.data: str
-        :type request.data: str
-        :return: int status response of request
+        Save model instance in the table
+        :param data: instance array
+        :type data: object array
+        :returns: uuid list of the created objects
+        :rtype: uuid list
         """    
         serializer_context = {'request': request,}
 
-        DATA = reformat_request_data(request.data)
+        DATA = _reformat_request_data(request.data)
 
         for i in DATA : 
             if len(i) == 0 :
@@ -587,15 +592,16 @@ class ModelInstances (APIView):
     
     def put(self, request, format=None):
         """
-        modify/put serialized request to model_validation_api_scientificmodelinstance table
-        :param web_app: boolean
+        Update model instance
+        :param web_app: true if the request comes from the web application, false if not.
         :type web_app: boolean
-        :return: int status response of request
+        :returns: uuid list of the updated objects
+        :rtype: uuid list:
         """
 
         serializer_context = {'request': request,}
 
-        DATA = reformat_request_data(request.data)
+        DATA = _reformat_request_data(request.data)
         for i in DATA : 
             if len(i) == 0 :
                 return Response(status=status.HTTP_400_BAD_REQUEST)
@@ -684,22 +690,23 @@ class ModelInstances (APIView):
 
 class Images (APIView):
     """
-    Model of table model_validation_api_scientificmodelimage
+    Model images view
     """
     def get(self, request, format=None, **kwargs):
         """
         get Instance of model_validation_api_scientificmodelimage
-        :param id: int
-        :type id: int
-        :param model_id: int
-        :type model_id: int
-        :param model_alias: str
+        :param id: image id
+        :type id: uuid
+        :param model_id: model id
+        :type model_id: uuid
+        :param model_alias: alias of the model
         :type model_alias: str
-        :param url: str
-        :type url: str
-        :param caption: str
+        :param url: source of the image
+        :type url: url
+        :param caption: description of the image
         :type caption: str
-        :return: str -- serialized data
+        :return: updated list of model images
+        :rtype: dictionnary 
         """
         serializer_context = {'request': request,}
 
@@ -744,15 +751,16 @@ class Images (APIView):
 
     def post(self, request, format=None):
         """
-        Post serialized request to model_validation_api_scientificmodelimage table
-        :param request: str
-        :return: int status response of request
+        Save image in model_validation_api_scientificmodelimage table
+        :param data: list of images to save
+        :returns: uuid list of the saved objects
+        :rtype: uuid list:
         """
         serializer_context = {'request': request,}
         if not is_hbp_member(request):
             return HttpResponseForbidden()
 
-        DATA = reformat_request_data(request.data)
+        DATA = _reformat_request_data(request.data)
         #check if valid + security
         for image in DATA :
             serializer = ScientificModelImageSerializer(data=image, context=serializer_context)
@@ -780,16 +788,17 @@ class Images (APIView):
 
     def put(self, request, format=None):
         """
-        modify/put serialized request to model_validation_api_scientificmodelimage table
-        :param request: str
-        :return: int status response of request
+        Update image in model_validation_api_scientificmodelimage table
+        :param data: list of image objects
+        :returns: UUID list of the updated images
+        :rtype: UUID list
         """
 
         serializer_context = {'request': request,}
         if not is_hbp_member(request):
             return HttpResponseForbidden()
 
-        DATA = reformat_request_data(request.data)
+        DATA = _reformat_request_data(request.data)
         for i in DATA : 
             if len(i) == 0 :
                 return Response(status=status.HTTP_400_BAD_REQUEST)
@@ -822,9 +831,9 @@ class Images (APIView):
 
     def delete(self, request, format=None):
         """
-        delete serialized request to model_validation_api_scientificmodelimage table
-        :param image_id: int
-        :type image_id: int
+        delete model image from table
+        :param image_id: image id
+        :type image_id: uuid
         :return: int status response of request
         """
 
@@ -851,38 +860,38 @@ class Models(APIView):
     """
     def get(self, request, format=None, **kwargs):
         """
-        get Instance of model_validation_api_scientificmodel
-        :param int: id
-        :type int: id
-        :param web_app: boolean
+        get models
+        :param id: list of model ids
+        :type id: uuid list
+        :param web_app: true if the request comes from the web application, false if not.
         :type web_app: boolean
-        :param app_id: int
+        :param app_id: app id
         :type app_id: int
-        :param name: str
+        :param name: model name
         :type name: str
-        :param description: str
+        :param description: model description
         :type description: str
-        :param species: str
+        :param species: species parameter
         :type species: str
-        :param brain_region: str
+        :param brain_region: brain region parameter
         :type brain_region: str
-        :param cell_type: str
+        :param cell_type: cell type parameter
         :type cell_type: str
-        :param author: str
+        :param author: author(s) of the model
         :type author: str
-        :param model_type: str
+        :param model_type: model type parameter
         :type model_type: str
-        :param private: boolean
+        :param private: privacy of the model
         :type private: boolean
-        :param code_format: str
+        :param code_format: format used in the code
         :type code_format: str
-        :param alias: str
+        :param alias: alias of the model
         :type alias: str
-        :param organization: str
+        :param organization: organization parameter
         :type organization: str
-        :param:
-        :type:
-        :return: str model_serializer.data -- serialized data
+
+        :returns: list of serialized Models
+        :rtype: object list
         """
         serializer_context = {
             'request': request,
@@ -1041,6 +1050,7 @@ class Models(APIView):
                     #if private check if collab member
                     app_id = models.values("app")[0]['app']
                     collab_id = get_collab_id_from_app_id(app_id)
+                    print("app_id",app_id,collab_id,"collab_id")
                     if not is_authorised(request, collab_id) :
                         return HttpResponse('Unauthorized', status=401)
                         return HttpResponseForbidden()
@@ -1059,10 +1069,11 @@ class Models(APIView):
 
     def post(self, request, format=None): 
         """
-        Post serialized request to model_validation_api_scientificmodel table
-        :param app_id: int
+        Save a new model in model_validation_api_scientificmodel table - if the model contains images and a version, it saves it also.
+        :param app_id: application id
         :type app_id: int
-        :return: int status response of request
+        :return: uuid of the created object
+        :rtype: uuid:
         """  
         app_id = request.GET.getlist('app_id')
 
@@ -1078,7 +1089,7 @@ class Models(APIView):
         serializer_context = {'request': request,}
 
 
-        DATA = reformat_request_data(request.data)
+        DATA = _reformat_request_data(request.data)
         DATA = DATA[0]
         
         #make sure organisation is not empty :
@@ -1137,10 +1148,13 @@ class Models(APIView):
 
     def put(self, request, format=None):
         """
-        modify/put serialized request to model_validation_api_scientificmodel table
-        :param app_id: int
+        Update model  
+        :param app_id: application id
         :type app_id: int
-        :return: int status response of request
+        :param id: model id 
+        :type id: uuid
+        :returns: model id of the updated model 
+        :rtype: uuid:
         """
 
         ## save only modifications on model. if you want to modify images or instances, do separate put.  
@@ -1198,13 +1212,14 @@ class Models(APIView):
         
 class ModelAliases(APIView):
     """
-    Model of table 
+    Tes valididy of model Alias 
     """
     def get(self, request, format=None, **kwargs):
         """
-        :param alias: str
+        Check if the alias entered is valid (not already used)
+        :param alias: model alias
         :type alias: str
-        :param model_id: int
+        :param model_id: model id
         :type model_id: int
         :return: bool -- is_valid
         """
@@ -1233,12 +1248,14 @@ class ModelAliases(APIView):
 
 class TestAliases(APIView):
     """
-    Class to test validity of aliases
+    Test validity of test aliases
     """
     def get(self, request, format=None, **kwargs):
         """
         :param alias: str
         :type alias: str
+        :param test_id: test id
+        :type test_id: int
         :return: bool -- is_valid
         """
         serializer_context = {
@@ -1248,7 +1265,6 @@ class TestAliases(APIView):
 
         if len(alias) == 0 :
             return Response(status=status.HTTP_400_BAD_REQUEST)
-            
             
 
         all_alias_in_test = ValidationTestDefinition.objects.filter().values_list('alias', flat=True)
@@ -1268,23 +1284,26 @@ class TestAliases(APIView):
 
 class TestInstances(APIView):
     """
-    Class to test validity of instances
+    Test instances
     """
-     def get(self, request, format=None, **kwargs):
+    def get(self, request, format=None, **kwargs):
         """
-        :param id: int
-        :type id: int
-        :param repository: str
+        :param id: test instance id
+        :type id: uuid
+        :param repository: test instance repository
         :type repository: str
-        :param version: str
+        :param version: test instance name
         :type version: str
-        :param path: str
-        :type path: str
-        :param timestamp: datetime
+        :param path: test instance path
+        :type path: url
+        :param timestamp: creation date of the instance
         :type timestamp: datetime
-        :param test_alias: str
+        :param test_definition_id: test id
+        :type test_definition_id: uuid
+        :param test_alias: test alias
         :type test_alias: str
-        :return: str -- test_codes
+        :returns: test_codes: list of test instances
+        :rtype: object list
         """
         serializer_context = {'request': request,}
 
@@ -1336,10 +1355,11 @@ class TestInstances(APIView):
         })
         
 
-     def post(self, request, format=None):
+    def post(self, request, format=None):
         """
-        :param request: str
-        :return: str: http status
+        :param data: test instance object list
+        :returns: UUID list of saved objects
+        :rtype: uuid list:
         """
 
         serializer_context = {'request': request,}
@@ -1348,7 +1368,7 @@ class TestInstances(APIView):
             return HttpResponseForbidden()
 
 
-        DATA = reformat_request_data(request.data)
+        DATA = _reformat_request_data(request.data)
 
 
         for test_code in DATA :
@@ -1377,10 +1397,12 @@ class TestInstances(APIView):
                 list_id.append(saved_test_code.id)          
         return Response({'uuid':list_id}, status=status.HTTP_201_CREATED)
 
-     def put(self, request, format=None):
+    def put(self, request, format=None):
         """
-        :param request: str
-        :return: str: http status
+        :param data: test instance
+        :type data: object    
+        :returns: uuid list of the updated objects
+        :rtype: uuid list
         """
 
         serializer_context = {'request': request,}        
@@ -1388,7 +1410,7 @@ class TestInstances(APIView):
         if not is_hbp_member(request):
             return HttpResponseForbidden()
 
-        DATA = reformat_request_data(request.data)
+        DATA = _reformat_request_data(request.data)
         for i in DATA : 
             if len(i) == 0 :
                 return Response(status=status.HTTP_400_BAD_REQUEST)
@@ -1446,7 +1468,7 @@ class TestInstances(APIView):
         return Response({'uuid':list_updated}, status=status.HTTP_202_ACCEPTED)
         
 
-     def get_serializer_class(self):
+    def get_serializer_class(self): #############not used???? TO delete?
         #  if self.request.method in ('GET', )
         #      return ValidationTestDefinitionFullSerializer
          return ValidationTestCodeSerializer
@@ -1455,44 +1477,46 @@ class TestInstances(APIView):
 
 class Tests(APIView):
     """
-    Class to check validity of serialization
+    Class tests
     """
     def get(self, request, format=None, **kwargs):
         """
-        :param id: int
-        :type id: int
-        :param name: str
+        Get the tests from the database
+        :param id: test id
+        :type id: uuid
+        :param name: test name
         :type name: str
-        :param species: str
+        :param species: species parameter
         :type species: str
-        :param brain_region: str
+        :param brain_region: brain_region parameter
         :type brain_region: str
-        :param cell_type: str
+        :param cell_type: cell type parameter
         :type cell_type: str
-        :param age: int
-        :type age: int
-        :param data_location: str
+        :param age: age parameter
+        :type age: str
+        :param data_location: location of the data
         :type data_location: str
-        :param data_type: str
+        :param data_type: type of data
         :type data_type: str
-        :param data_modality: str
+        :param data_modality: data modality parameter
         :type data_modality: str
-        :param test_type: str
+        :param test_type: test type parameter
         :type test_type: str
-        :param protocol: str
+        :param protocol: protocol of the test
         :type protocol: str
-        :param author: str
+        :param author: author(s)
         :type author: str
-        :param publication: str
+        :param publication: plublication related to the test
         :type publication: str
-        :param score_type: str
+        :param score_type: score type
         :type score_type: str
-        :param alias: str
+        :param alias: test name alias
         :type alias: str
-        :param web_app: boolean
+        :param web_app: true if the request comes from the web application, false if not.
         :type web_app: boolean
 
-        :return: str: http status
+        :returns: list of the requested Tests
+        :rtype: json
         """
         serializer_context = {'request': request,}
 
@@ -1633,8 +1657,10 @@ class Tests(APIView):
 
     def post(self, request, format=None):
         """
-        :param request: str
-        :return: str: http status
+        Save the tests in the database
+        :param data: test object
+        :returns:  list of test id
+        :rtype: uuid list:
         """
         # ctx = request.GET.getlist('ctx')[0]    
         if not is_hbp_member(request):
@@ -1647,7 +1673,7 @@ class Tests(APIView):
 
         serializer_context = {'request': request,}
 
-        DATA = reformat_request_data(request.data)
+        DATA = _reformat_request_data(request.data)
 
         for i in DATA :  
             if len(i) == 0 :
@@ -1683,8 +1709,10 @@ class Tests(APIView):
 
     def put(self, request, format=None):
         """
-        :param request: str
-        :return: str: http status
+        Update a test in the database 
+        :param data: test obeject
+        :returns: test id
+        :rtype: uuid
         """
         if not is_hbp_member(request):
             return HttpResponseForbidden()
@@ -1711,13 +1739,15 @@ class Tests(APIView):
 
 class TestTicketRest(APIView):
     """
-    Check validity of REST ticket
+    Test ticket Class
     """
     def get(self, request, format=None, **kwargs):
         """
-        :param test_id: int
-        :type test_id: int
-        :return: str: http status
+        Get the tickets for a particular test
+        :param test_id: test id
+        :type test_id: uuid
+        :returns: tickets objects related to the test
+        :rtype: tickets objects 
         """
         serializer_context = {'request': request,}
         # nb_test_id = request.query_params['test_id']
@@ -1733,13 +1763,16 @@ class TestTicketRest(APIView):
 
         return Response({
             'tickets': ticket_serializer.data,
-            'user_connected':str(request.user)
+            'user_connected':str(request.user)###should not be there. TO CHANGE
         })
   
     def post(self, request, format=None):
         """
-        :param request: str
-        :return: str: http status
+        Save a ticket
+        :param data: ticket object
+        :type data: json object
+        :returns: the created ticket
+        :rtype: json object 
         """
         serializer_context = {'request': request,}
 
@@ -1755,12 +1788,15 @@ class TestTicketRest(APIView):
         new_ticket = Tickets.objects.filter(id=param.id)
         new_ticket_serializer = TicketReadOnlySerializer(new_ticket, context=serializer_context, many=True)
 
-        return Response({'uuid':param.id, 'new_ticket':new_ticket_serializer.data}, status=status.HTTP_201_CREATED)
+        return Response({'uuid':param.id, 'new_ticket':new_ticket_serializer.data}, status=status.HTTP_201_CREATED) ##uuid is contained inside new_ticket ## TO CHANGE
 
     def put(self, request, format=None):
         """
-        :param request: str
-        :return: str: http status
+        Update the ticket
+        :param data: ticket object
+         :type data: json object
+        :returns: the updated ticket id
+        :rtype: uuid 
         """
         if not is_hbp_member(request):
             return HttpResponseForbidden()
@@ -1778,15 +1814,17 @@ class TestTicketRest(APIView):
 
 class TestCommentRest(APIView):
     """
-    Class to ckect validitu of comments
+    Test comment class
     """
     def get(self, request, format=None, **kwargs):
         """
-        :param request: Ticket_id
-        :type request: Ticket_id
-        :param request: id
-        :type request: id
-        :return: str: http status
+        Get one or several comment(s) of one or a list of ticket(s)
+        :param ticket_id: Ticket id list
+        :type ticket_id: uuid list
+        :param id: comment id list
+        :type id: uuid list
+        :returns: comment list
+        :rtype: object list
         """
         serializer_context = {'request': request,}
         ticket_id = request.GET.getlist('Ticket_id')
@@ -1811,8 +1849,10 @@ class TestCommentRest(APIView):
   
     def post(self, request, format=None):
         """
-        :param request: str
-        :return: str: http status
+        Save a comment
+        :param data: comment object
+        :returns: comment created
+        :rtype: comment object
         """
         serializer_context = {'request': request,}
 
@@ -1829,12 +1869,14 @@ class TestCommentRest(APIView):
         new_comment = Comments.objects.filter(id=param.id)
         new_comment_serializer = CommentSerializer (new_comment, context=serializer_context, many=True)
         
-        return Response({'uuid':param.id, 'new_comment': new_comment_serializer.data },status=status.HTTP_201_CREATED)
+        return Response({'uuid':param.id, 'new_comment': new_comment_serializer.data },status=status.HTTP_201_CREATED) ##id should be inside new_comment ##TO CHANGE
 
     def put(self, request, format=None):
         """
-        :param request: str
-        :return: str: http status
+        Update a comment
+        :param data: comment object
+        :returns: comment id
+        :rtype: uuid
         """
         if not is_hbp_member(request):
             return HttpResponseForbidden()
@@ -1865,11 +1907,11 @@ class ModelCatalogView(View):
 
 class IsCollabMemberRest (APIView):
     """
-    Class to check if collab is valid member
+    Class to check if user is a valid collab member
     """
     def get(self, request, format=None, **kwargs):
         """
-        :param app_id: int
+        :param app_id: id of the application
         :type app_id: int
         :return: bool: is_member
         """
@@ -1893,44 +1935,48 @@ class IsCollabMemberRest (APIView):
 Model of table model_validation_api_validationtestresult
 """
 class Results (APIView):
+
+    '''Test Result Class'''
+
     def get(self, request, format=None, **kwargs):
         """
         get Instance of model_validation_api_validationtestresult
-        :param id: int
-        :type id: int
-        :param results_storage: str
+        :param id: result id
+        :type id: uuid
+        :param results_storage: 
         :type results_storage: str
-        :param score: int
+        :param score: core of the result
         :type score: int
-        :param passed: boolean
+        :param passed: true if the result passed, false else. 
         :type passed: boolean
-        :param timestamp: datetime
+        :param timestamp: creation date of the result
         :type timestamp: datetime
         :param platform: str
         :type platform: str
         :param project: str
         :type project: str
-        :param model_version_id: int
-        :type model_version_id: int
-        :param test_code_id: int
-        :type test_code_id: int
-        :param normalized_score: int
+        :param model_version_id: id of the model instance
+        :type model_version_id: uuid
+        :param test_code_id: id of the test instance
+        :type test_code_id: uuid
+        :param normalized_score: normalized score
         :type normalized_score: int
-        :param model_id: int
-        :type model_id: int
-        :param test_id: int
-        :type test_id: int
-        :param model_alias: str
+        :param model_id: model id
+        :type model_id: uuid
+        :param test_id: test id
+        :type test_id: uuid
+        :param model_alias: model name alias
         :type model_alias: str
-        :param test_alias: str
+        :param test_alias: test name alias
         :type test_alias: str
-        :param score_type: str
+        :param score_type: type of score
         :type score_type: str
-        :param order: str
+        :param order: order to get the results (test_code, model_instance, score_type)
         :type order: str
-        :param detailed_view: str
-        :type detailed_view: str 
-        :return: str -- data_to_return
+        :param detailed_view: to say results are for the detail view
+        :type detailed_view: boolean 
+        :returns: organized dictionnary in function of the order param
+        :rtype: dictionnary
         """
         param_id = request.GET.getlist('id')
         param_results_storage = request.GET.getlist('results_storage')
@@ -2060,8 +2106,10 @@ class Results (APIView):
 
     def post(self, request, format=None):
         """
-        :param request: str
-        :return: str -- http result
+        Save a result or a list of results
+        :param data: list of result objects
+        :returns: list of results id
+        :rtype: uuid list
         """
         serializer_context = {'request': request,}
         if not is_hbp_member(request):
@@ -2100,11 +2148,11 @@ class Results (APIView):
     @classmethod
     def check_data(self,  request, serializer_context, result):
         """
-        Check validity of serializer and get instance of scientific model
-        :param request: str
-        :param serializer_context: str
-        :param result: str
-        :return: str -- http response
+        Check check if user has access to result by checking acces to the model
+        :param data: result
+        :type data: object
+        :returns: true if user has access, false else:
+        :rtype: boolean
         """
         serializer = ValidationTestResultSerializer (data=result, context=serializer_context)
         if serializer.is_valid():  
@@ -2115,7 +2163,6 @@ class Results (APIView):
                 return True
             else : 
                 return HttpResponseForbidden()
-
         else :
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -2123,12 +2170,15 @@ class Results (APIView):
     @classmethod
     def save_data(self, request,serializer_context, result, list_id):
         """
-        Check validity of serializer and save it
-        :param request: str
-        :param serializer_context: str
-        :param result: str
-        :param list_id: str
-        :return: str -- http response
+        Save the result in the database
+        :param result: result object
+        :type result: object
+        :param serializer_context: context
+        :type serializer_context: dictionnary
+        :param list_id: list of results id
+        :type list_id: uuid list
+        :returns: list of results id saved
+        :type list_id: uuid list
         """
         serializer = ValidationTestResultSerializer(data=result, context=serializer_context)
         if serializer.is_valid(): 
@@ -2184,10 +2234,11 @@ class Results (APIView):
         
 class ParametersConfigurationValidationView(View):
     """
-    Get template for validation
+    Get template for configuration of the validation_app
     """
     template_name = "configuration/parameters-configuration.html"
     login_url='/login/hbp/'
+
     def get(self, request, *args, **kwargs):
        return render(request, self.template_name, {'app_type': "validation_app"})
     
@@ -2200,11 +2251,10 @@ class ParametersConfigurationValidationView(View):
 
 class ParametersConfigurationModelView(View):
     """
-    Get template for configuration
+     Get template for configuration of the model_catalog
     """
     template_name = "configuration/parameters-configuration.html"
     login_url='/login/hbp/'
-
 
     def get(self, request, *args, **kwargs):
         return render(request, self.template_name, {'app_type': "model_catalog"})
@@ -2219,13 +2269,16 @@ class ParametersConfigurationModelView(View):
 
 
 class  AreVersionsEditableRest(APIView):
+    '''Class to check if the test or model versions are editable'''
     def get(self, request, *args, **kwargs):
         """
-        :param test_id: int
-        :type test_id: int
-        :param model_id: int
-        :type model_id: int
-        :return: int -- list_ids_editable
+        Get a list of the versions id that are editable
+        :param test_id: id of the test
+        :type test_id: uuid
+        :param model_id: id of the model
+        :type model_id: uuid
+        :returns: list of editable result ids 
+        :rtype: uuid list 
         """
         test_id = request.GET.getlist('test_id')
         model_id = request.GET.getlist('model_id')
