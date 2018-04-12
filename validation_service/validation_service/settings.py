@@ -17,10 +17,9 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
 
-
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True#os.environ.get('DEBUG') in ['True', '1']
-LOCAL_DB = True  ## only applies when ENV='dev'
+LOCAL_DB = True# False  ## only applies when ENV='dev'
 
 ALLOWED_HOSTS = ["*"]
 
