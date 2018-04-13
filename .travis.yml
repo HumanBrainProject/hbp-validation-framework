@@ -63,6 +63,7 @@ matrix:
         - 'npm install karma-chrome-launcher'
         - 'npm install karma-html-reporter'
         - 'npm install karma-spec-reporter'
+        - 'npm install Chrome_travis_ci'
         - sh -e /etc/init.d/xvfb start
 
       script:
