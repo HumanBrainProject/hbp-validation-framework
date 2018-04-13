@@ -4,7 +4,7 @@ Miscellaneous
 
 .. _misc_get_config_model_catalog_app:
 
-Get Configuration of Model Catalog App
+Get configuration of model catalog app
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. http:get:: https://validation-v1.brainsimulation.eu/parametersconfiguration-model-catalog/parametersconfigurationrest/?app_id=(string:app_id)
@@ -15,7 +15,7 @@ Get Configuration of Model Catalog App
 
    .. sourcecode:: http
 
-      GET /parametersconfiguration-model-catalog/parametersconfigurationrest/ HTTP/1.1
+      GET /parametersconfiguration-model-catalog/parametersconfigurationrest/?app_id=80841 HTTP/1.1
       Accept: application/json
       Authorization: Bearer TOKEN
       Content-Type: application/json
@@ -49,12 +49,12 @@ Get Configuration of Model Catalog App
    :reqheader Authorization: Bearer TOKEN
    :status 200: configuration successfully retrieved
    :status 400: incorrect API call
-   :status 403: invalid Oauth2 token provided
+   :status 403: invalid token provided
 
 
 .. _misc_initial_config_model_catalog_app:
 
-Initial Configuration of Model Catalog App
+Initial configuration of model catalog app
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. http:post:: https://validation-v1.brainsimulation.eu/parametersconfiguration-model-catalog/parametersconfigurationrest/?app_id=(string:app_id)
@@ -65,7 +65,7 @@ Initial Configuration of Model Catalog App
 
    .. sourcecode:: http
 
-      POST /parametersconfiguration-model-catalog/parametersconfigurationrest/ HTTP/1.1
+      POST /parametersconfiguration-model-catalog/parametersconfigurationrest/?app_id=80841 HTTP/1.1
       Accept: application/json
       Authorization: Bearer TOKEN
       Content-Type: application/json
@@ -100,13 +100,13 @@ Initial Configuration of Model Catalog App
    :reqheader Authorization: Bearer TOKEN
    :status 201: app successfully configured
    :status 400: incorrect API call
-   :status 403: invalid Oauth2 token provided
+   :status 403: invalid token provided
 
 
 .. _misc_reconfig_model_catalog_app:
 
-Reconfiguration of Model Catalog App
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Reconfiguration of model catalog app
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. http:put:: https://validation-v1.brainsimulation.eu/parametersconfiguration-model-catalog/parametersconfigurationrest/?app_id=(string:app_id)
 
@@ -116,7 +116,7 @@ Reconfiguration of Model Catalog App
 
    .. sourcecode:: http
 
-      PUT /parametersconfiguration-model-catalog/parametersconfigurationrest/ HTTP/1.1
+      PUT /parametersconfiguration-model-catalog/parametersconfigurationrest/?app_id=80841 HTTP/1.1
       Accept: application/json
       Authorization: Bearer TOKEN
       Content-Type: application/json
@@ -151,12 +151,12 @@ Reconfiguration of Model Catalog App
    :reqheader Authorization: Bearer TOKEN
    :status 202: app successfully reconfigured
    :status 400: incorrect API call
-   :status 403: invalid Oauth2 token provided
+   :status 403: invalid token provided
 
 
 .. _misc_get_config_validation_app:
 
-Get Configuration of Validation Framework App
+Get configuration of validation framework app
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. http:get:: https://validation-v1.brainsimulation.eu/parametersconfiguration-validation-app/parametersconfigurationrest/?app_id=(string:app_id)
@@ -167,7 +167,7 @@ Get Configuration of Validation Framework App
 
    .. sourcecode:: http
 
-      GET /parametersconfiguration-validation-app/parametersconfigurationrest/ HTTP/1.1
+      GET /parametersconfiguration-validation-app/parametersconfigurationrest/?app_id=80839 HTTP/1.1
       Accept: application/json
       Authorization: Bearer TOKEN
       Content-Type: application/json
@@ -201,12 +201,12 @@ Get Configuration of Validation Framework App
    :reqheader Authorization: Bearer TOKEN
    :status 200: configuration successfully retrieved
    :status 400: incorrect API call
-   :status 403: invalid Oauth2 token provided
+   :status 403: invalid token provided
 
 
 .. _misc_initial_config_validation_app:
 
-Initial Configuration of Validation Framework App
+Initial configuration of validation framework app
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. http:post:: https://validation-v1.brainsimulation.eu/parametersconfiguration-validation-app/parametersconfigurationrest/?app_id=(string:app_id)
@@ -217,7 +217,7 @@ Initial Configuration of Validation Framework App
 
    .. sourcecode:: http
 
-      POST /parametersconfiguration-validation-app/parametersconfigurationrest/ HTTP/1.1
+      POST /parametersconfiguration-validation-app/parametersconfigurationrest/?app_id=80839 HTTP/1.1
       Accept: application/json
       Authorization: Bearer TOKEN
       Content-Type: application/json
@@ -252,12 +252,12 @@ Initial Configuration of Validation Framework App
    :reqheader Authorization: Bearer TOKEN
    :status 201: app successfully configured
    :status 400: incorrect API call
-   :status 403: invalid Oauth2 token provided
+   :status 403: invalid token provided
 
 
 .. _misc_reconfig_validation_app:
 
-Reconfiguration of Validation Framework App
+Reconfiguration of validation framework app
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. http:put:: https://validation-v1.brainsimulation.eu/parametersconfiguration-validation-app/parametersconfigurationrest/?app_id=(string:app_id)
@@ -268,7 +268,7 @@ Reconfiguration of Validation Framework App
 
    .. sourcecode:: http
 
-      PUT /parametersconfiguration-validation-app/parametersconfigurationrest/ HTTP/1.1
+      PUT /parametersconfiguration-validation-app/parametersconfigurationrest/?app_id=80839 HTTP/1.1
       Accept: application/json
       Authorization: Bearer TOKEN
       Content-Type: application/json
@@ -303,12 +303,12 @@ Reconfiguration of Validation Framework App
    :reqheader Authorization: Bearer TOKEN
    :status 202: app successfully reconfigured
    :status 400: incorrect API call
-   :status 403: invalid Oauth2 token provided
+   :status 403: invalid token provided
 
 
 .. _misc_get_valid_attribute_values:
 
-Get Valid Attribute Values
+Get valid attribute values
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. http:get:: https://validation-v1.brainsimulation.eu/authorizedcollabparameterrest/?python_client=true&parameters=(string:attribute_name)&format=json
