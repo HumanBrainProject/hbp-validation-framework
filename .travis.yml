@@ -56,6 +56,7 @@ matrix:
         - openssl aes-256-cbc -K $encrypted_13c6fcb02b52_key -iv $encrypted_13c6fcb02b52_iv -in static.tar.enc -out ./validation_service/app/static.tar -d
         - export CHROME_BIN=chromium-browser
         - export DISPLAY=:99.0
+        - 'npm install angular'
         - 'npm install karma'
         - 'npm install karma-phantomjs-launcher'
         - 'npm install karma-junit-reporter'
