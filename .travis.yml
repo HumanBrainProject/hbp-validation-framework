@@ -61,8 +61,7 @@ matrix:
 
       script:
         - tar -xvf ./validation_framework/app/static_1.tar -C ./validation_framework/app/ 
-        - tar -xvf ./validation_framework/app/static_1.tar -C ./validation_framework/app/ 
-        - tar -xvf ./validation_framework/app/static_1.tar -C ./validation_framework/app/ 
+        - tar -xvf ./validation_framework/app/static_2.tar -C ./validation_framework/app/ 
         - mkdir ./validation_framework/app/static
         - rsync -a ./validation_framework/app/static_1/ ./validation_framework/app/static
         - rsync -a ./validation_framework/app/static_2/ ./validation_framework/app/static
