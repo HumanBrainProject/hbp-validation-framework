@@ -1,0 +1,32 @@
+{
+  "name": "showdown-math",
+  "description": "Math extension for showdown",
+  "homepage": "https://github.com/lucidogen/math-extension",
+  "license": "BSD-2-Clause",
+  "authors": [
+    "Gaspard Bucher (https://github.com/gaspard)"
+  ],
+  "keywords": [
+    "markdown",
+    "showdown",
+    "showdown extension",
+    "math"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lucidogen/math-extension.git",
+    "web": "https://github.com/lucidogen/math-extension"
+  },
+  "main": ["dist/showdown-math.js"],
+  "dependencies": {
+    "showdown": "1.0.x"
+  },
+  "ignore": [
+    "src/",
+    "test/",
+    ".eslintrc.json",
+    ".gitignore",
+    ".travis.yml",
+    "Gruntfile.js"
+  ]
+}

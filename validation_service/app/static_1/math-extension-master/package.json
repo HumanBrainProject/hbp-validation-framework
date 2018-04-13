@@ -1,0 +1,40 @@
+{
+  "name": "showdown-math",
+  "version": "1.0.1",
+  "description": "Math extension for showdown",
+  "keywords": [
+    "markdown",
+    "showdown",
+    "showdown extension",
+    "math"
+  ],
+  "author": "Gaspard Bucher",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lucidogen/math-extension.git",
+    "web": "https://github.com/lucidogen/math-extension"
+  },
+  "bugs": {
+    "url": "https://github.com/lucidogen/math-extension/issues"
+  },
+  "main": "./dist/showdown-math.js",
+  "scripts": {
+    "test": "grunt test"
+  },
+  "dependencies": {
+    "showdown": "^1.3.0"
+  },
+  "devDependencies": {
+    "chai": "^2.3.0",
+    "grunt": "^0.4.5",
+    "grunt-cli": "^0.1.13",
+    "grunt-contrib-concat": "^0.5.0",
+    "grunt-contrib-uglify": "^0.6.0",
+    "grunt-conventional-changelog": "^1.1.0",
+    "grunt-eslint": "^18.0.0",
+    "grunt-simple-mocha": "^0.4.0",
+    "grunt-stripcomments": "^0.3.1",
+    "load-grunt-tasks": "^3.2.0"
+  }
+}

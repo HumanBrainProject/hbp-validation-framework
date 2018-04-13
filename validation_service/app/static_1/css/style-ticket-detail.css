@@ -1,0 +1,56 @@
+
+
+#table-ticket-detail{
+    /*background-color:   #9ac6cc;*/
+    /*background-color:   #bbdce1;*/
+    background-color:   #a1cdd3;
+    border: 3px solid #9ac6cc;
+    font-weight: bold;
+}
+
+#table-ticket-detail-content{
+    /*width: 1250px;*/
+    /*height: 500px;*/
+    /*overflow:scroll;*/
+    background-color:   white;
+    border: 3px solid #9ac6cc;
+}
+
+
+#table-ticket-detail-comment{
+/*background-color:   #bbdce1;*/
+background-color:   #b2d4d9;
+border: 2px solid #e9e9e9; /*width: 1250px;*/
+font-weight: bold;
+}
+
+#table-ticket-detail-comment-content{
+    /*width: 350px;*/
+    /*height: 500px;*/
+    /*overflow:scroll;*/
+    background-color:   white;
+    border: 2px solid #e9e9e9;
+}
+
+#ticket-form-style{
+    /*width: 1500px; largeur page*/
+    /*height: 500px;*/
+    /*overflow:scroll;*/
+    /*background-color:   white;*/
+    /*border: 2px solid #e9e9e9;*/
+}
+
+#CommentTextbox{
+   max-height:200 px !important;
+   min-height: 150 px
+}
+
+#panel-title-style{ /*Ticket detail*/
+    font-weight: bold;
+}
+
+
+#title-commment{ /*Comment*/
+    font-weight: bold;
+}
+

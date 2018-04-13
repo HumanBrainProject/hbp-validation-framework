@@ -1,0 +1,95 @@
+{
+  "_args": [
+    [
+      "angular-cookies@1.4.12",
+      "/media/helissande/DATA/git-repository"
+    ]
+  ],
+  "_from": "angular-cookies@1.4.12",
+  "_id": "angular-cookies@1.4.12",
+  "_inCache": true,
+  "_location": "/angular-cookies",
+  "_nodeVersion": "4.4.5",
+  "_npmOperationalInternal": {
+    "host": "packages-16-east.internal.npmjs.com",
+    "tmp": "tmp/angular-cookies-1.4.12.tgz_1466013569449_0.2532693571411073"
+  },
+  "_npmUser": {
+    "email": "angular-core+npm@google.com",
+    "name": "angularcore"
+  },
+  "_npmVersion": "2.15.5",
+  "_phantomChildren": {},
+  "_requested": {
+    "name": "angular-cookies",
+    "raw": "angular-cookies@1.4.12",
+    "rawSpec": "1.4.12",
+    "scope": null,
+    "spec": "1.4.12",
+    "type": "version"
+  },
+  "_requiredBy": [
+    "#USER"
+  ],
+  "_resolved": "https://registry.npmjs.org/angular-cookies/-/angular-cookies-1.4.12.tgz",
+  "_shasum": "dfd86c3c86c1220340983fc628853b99e42edf60",
+  "_shrinkwrap": null,
+  "_spec": "angular-cookies@1.4.12",
+  "_where": "/media/helissande/DATA/git-repository",
+  "author": {
+    "email": "angular-core+npm@google.com",
+    "name": "Angular Core Team"
+  },
+  "bugs": {
+    "url": "https://github.com/angular/angular.js/issues"
+  },
+  "dependencies": {},
+  "description": "AngularJS module for cookies",
+  "devDependencies": {},
+  "directories": {},
+  "dist": {
+    "shasum": "dfd86c3c86c1220340983fc628853b99e42edf60",
+    "tarball": "https://registry.npmjs.org/angular-cookies/-/angular-cookies-1.4.12.tgz"
+  },
+  "gitHead": "507de433a8932235037d91d4a68bb63554ba42c6",
+  "homepage": "http://angularjs.org",
+  "installable": true,
+  "jspm": {
+    "shim": {
+      "angular-cookies": {
+        "deps": [
+          "angular"
+        ]
+      }
+    }
+  },
+  "keywords": [
+    "angular",
+    "browser",
+    "client-side",
+    "cookies",
+    "framework"
+  ],
+  "license": "MIT",
+  "main": "index.js",
+  "maintainers": [
+    {
+      "name": "angularcore",
+      "email": "angular-core+npm@google.com"
+    },
+    {
+      "name": "petebd",
+      "email": "pete@bacondarwin.com"
+    }
+  ],
+  "name": "angular-cookies",
+  "optionalDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/angular/angular.js.git"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "version": "1.4.12"
+}

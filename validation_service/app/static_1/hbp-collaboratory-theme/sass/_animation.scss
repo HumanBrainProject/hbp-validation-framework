@@ -1,0 +1,13 @@
+// Declare basic CSS animation
+
+.hbp-spinning {
+    animation: hbp-spinning;
+    animation-duration: 2s;
+    animation-iteration-count: infinite;
+    animation-timing-function: linear;
+}
+
+@keyframes hbp-spinning {
+    0% {transform: rotate(0);}
+    100% {transform: rotate(1turn);}
+}
