@@ -61,7 +61,6 @@ matrix:
         - 'npm install karma-junit-reporter'
         - 'npm install karma-jasmine'
         - 'npm install karma-chrome-launcher'
-        - 'npm install karma-core'
         - 'npm install karma-html-reporter'
         - 'npm install karma-spec-reporter'
         - sh -e /etc/init.d/xvfb start
