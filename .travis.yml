@@ -58,6 +58,12 @@ matrix:
         - export DISPLAY=:99.0
         - 'npm install karma'
         - 'npm install karma-phantomjs-launcher'
+        - 'npm install karma-junit-reporter'
+        - 'npm install karma-jasmine'
+        - 'npm install karma-chrome-launcher'
+        - 'npm install karma-core'
+        - 'npm install karma-html-reporter'
+        - 'npm install karma-spec-reporter'
         - sh -e /etc/init.d/xvfb start
 
       script:
