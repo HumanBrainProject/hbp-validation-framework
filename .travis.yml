@@ -67,7 +67,7 @@ matrix:
         - sh -e /etc/init.d/xvfb start
 
       script:
-        - tar -xvf ./validation_framework/app/static.tar -C ./validation_framework/app/ 
+        - tar -xvf ./validation_service/app/static.tar -C ./validation_service/app/ 
         - ./node_modules/karma/bin/karma start tests/karma.conf.js --browsers Chrome_travis_ci --single-run 
       # before_script:
       #   - export TEST_ENV=travis
