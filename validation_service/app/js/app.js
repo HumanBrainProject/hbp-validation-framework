@@ -10,35 +10,37 @@
     window.ver_api = '/api/v2/';
 
     angular.bootstrap().invoke(function($http, $log, $location) {
-        if (window.env && window.env.name != 'envServices') {
-            $http.get('/config.json').then(function(res) {
-                window.bbpConfig = res.data;
 
-                angular.element(document).ready(function() {
+        // if (window.env && window.env.name != 'envServices') {
+        //     console.log("getting config.json")
+        $http.get('/config.json').then(function(res) {
+            window.bbpConfig = res.data;
 
-
-                    angular.bootstrap(document.getElementById("validation-app"), ['testApp']);
-                    angular.bootstrap(document.getElementById("configuration-app"), ['ParametersConfigurationApp']);
-                    angular.bootstrap(document.getElementById("model-catalog-app"), ['ModelCatalogApp']);
+            angular.element(document).ready(function() {
 
 
-                    setTimeout(function() {
-                        // angular.clbBoostrap(document, ['testApp', /*'ModelCatalogApp', 'ParametersConfigurationApp'*/ ]);
-                    }, 1000);
+                angular.bootstrap(document.getElementById("validation-app"), ['testApp']);
+                angular.bootstrap(document.getElementById("configuration-app"), ['ParametersConfigurationApp']);
+                angular.bootstrap(document.getElementById("model-catalog-app"), ['ModelCatalogApp']);
+
+
+                setTimeout(function() {
+                    // angular.clbBoostrap(document, ['testApp', /*'ModelCatalogApp', 'ParametersConfigurationApp'*/ ]);
+                }, 1000);
 
 
 
-                    $log.info('Booted nmpi application');
-                });
-
-            }, function() {
-                $log.error('Cannot boot nmpi application');
-                if (window.env && window.env.name != 'envServices') {
-                    window.location.href = '/login/hbp/?next=' + encodeURIComponent(window.location.pathname + window.location.search + window.location.hash);
-                }
-
+                $log.info('Booted nmpi application');
             });
-        }
+
+        }, function() {
+            $log.error('Cannot boot nmpi application');
+            if (window.env && window.env.name != 'envServices') {
+                window.location.href = '/login/hbp/?next=' + encodeURIComponent(window.location.pathname + window.location.search + window.location.hash);
+            }
+
+        });
+        // }
     });
 
 
