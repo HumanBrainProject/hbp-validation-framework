@@ -64,6 +64,7 @@ matrix:
         - 'npm install karma-chrome-launcher'
         - 'npm install karma-html-reporter'
         - 'npm install karma-spec-reporter'
+        - 'npm install moment'
         - sh -e /etc/init.d/xvfb start
 
       script:
