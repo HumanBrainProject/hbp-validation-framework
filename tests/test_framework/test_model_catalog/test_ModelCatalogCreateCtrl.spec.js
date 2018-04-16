@@ -196,7 +196,7 @@ describe('Testing controller: ModelCatalogCreateCtrl', function() {
         $scope.model = { name: 'model_1', description: "a model to test", author: 'me', alias: 'M1' };
         $httpBackend.whenGET("collabidrest/?ctx=&format=json").respond(9999);
         $httpBackend.whenGET("appidrest/?ctx=&format=json").respond(8888);
-        $httpBackend.whenGET("model-aliases/?alias=M1&format=json&model=%7B%22name%22:%22model_1%22,%22description%22:%22a+model+to+test%22,%22author%22:%22me%22,%22alias%22:%22M1%22%7D&web_app=True").respond({ is_valid: false });
+        $httpBackend.whenGET("model-aliases/?alias=M1&format=json&web_app=True").respond({ is_valid: false });
         var spy_ModelRestSave = spyOn(ScientificModelRest, 'save').and.callThrough();
 
         $scope.saveModel();
@@ -210,7 +210,7 @@ describe('Testing controller: ModelCatalogCreateCtrl', function() {
         $scope.model = { name: 'model_1', description: "a model to test", author: 'me', alias: 'M1' };
         $httpBackend.whenGET("collabidrest/?ctx=&format=json").respond(9999);
         $httpBackend.whenGET("appidrest/?ctx=&format=json").respond(8888);
-        $httpBackend.whenGET("model-aliases/?alias=M1&format=json&model=%7B%22name%22:%22model_1%22,%22description%22:%22a+model+to+test%22,%22author%22:%22me%22,%22alias%22:%22M1%22%7D&web_app=True").respond({ is_valid: true });
+        $httpBackend.whenGET("model-aliases/?alias=M1&format=json&web_app=True").respond({ is_valid: true });
         $httpBackend.whenPOST("models/").respond();
         var spy_ModelRestSave = spyOn(ScientificModelRest, 'save').and.callThrough();
 

@@ -14,8 +14,6 @@ ENV = 'dev'
 
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-# VALIDATION_SERVICE_HOST = '172.17.0.2'
-# VALIDATION_SERVICE_PORT = '32768'
 
 
 

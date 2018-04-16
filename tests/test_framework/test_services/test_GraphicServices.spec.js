@@ -824,7 +824,25 @@ describe('Testing service: Graphic Services', function() {
         })
 
         it('it should return a line_id containing the model_id if alias is undefined, null, empty or None', function() {
-            var instance_without_alias = results_given.model_instances["a091c6b0-9f86-4094-be62-4e42bdcebc7f"];
+            var instance_without_alias = {
+                "model_id": "61df5b12-c885-4cb7-a511-e5315101b420",
+                "timestamp": "2017-10-03 12:18:05.178009+00:00",
+                "model_alias": "Mm1",
+                "test_codes": {
+                    "9d39eebd-3185-44d6-9cea-d0819abf8ba8": {
+                        "timestamp": "2017-10-27 12:04:53.156645+00:00",
+                        "test_id": "cfdb6b8b-9017-4191-a904-1527c7140001",
+                        "version": "1.5nhf",
+                        "results": {
+                            "341865f0-c934-448c-902e-cc02ddec7fa1": { "id": "341865f0-c934-448c-902e-cc02ddec7fa1", "model_version_id": "a091c6b0-9f86-4094-be62-4e42bdcebc7f", "test_code_id": "9d39eebd-3185-44d6-9cea-d0819abf8ba8", "results_storage": "azerty", "score": 0.8, "passed": null, "timestamp": "2017-11-14T15:35:25.344722Z", "platform": "azerty", "project": "azerty", "normalized_score": 0.8 },
+                            "269e0db3-b587-46dd-a639-ee2383390580": { "id": "269e0db3-b587-46dd-a639-ee2383390580", "model_version_id": "a091c6b0-9f86-4094-be62-4e42bdcebc7f", "test_code_id": "9d39eebd-3185-44d6-9cea-d0819abf8ba8", "results_storage": "azerty", "score": 0.3, "passed": null, "timestamp": "2017-11-14T15:35:25.235718Z", "platform": "azerty", "project": "azerty", "normalized_score": 0.3 }
+                        },
+                        "test_alias": "Tt22"
+                    },
+                },
+                "version": "version 1",
+                "model_name": "model for result test"
+            }
 
             instance_without_alias.model_alias = undefined;
             var res = Graphics.TestGraph_getLineId(instance_without_alias)
@@ -869,7 +887,41 @@ describe('Testing service: Graphic Services', function() {
         it('should reorganize raw data for result table', function() {
             var res = Graphics.TestGraph_reorganizeRawDataForResultTable(results_given.model_instances, test_versions.test_codes)
 
-            var expected_answer = Object({ model_instances: [Object({ timestamp: '2017-10-03 12:18:05.244111+00:00', id: '4d02d0a9-adfc-4b9e-af4a-2f1f007e1283', model_id: '61df5b12-c885-4cb7-a511-e5315101b420', model_name: 'model for result test', line_id: 'Mm1 ( version 2 )', test_instances: [Object({ id: '6d59d750-bd7c-4715-9f9a-6439379169fd', repository: '', version: '1.1', description: null, path: '', timestamp: '2017-10-03T12:18:04.728547Z', test_definition_id: 'cfdb6b8b-9017-4191-a904-1527c7140001' }), Object({ version: '2.1', timestamp: '2017-10-05 12:18:04.953497+00:00', results: [Object({ id: '0fe8565b-b469-434f-934b-d57977bec04a', model_version_id: '4d02d0a9-adfc-4b9e-af4a-2f1f007e1283', test_code_id: '554e6463-cd1d-453d-95ae-475f74f6f928', results_storage: 'azerty', score: '0.88800', passed: null, timestamp: '2025-10-03T15:21:24Z', platform: 'azerty', project: 'azerty', normalized_score: 0.888 }), Object({ id: '01bbe77d-66a1-44e4-8f25-b562e2f7436a', model_version_id: '4d02d0a9-adfc-4b9e-af4a-2f1f007e1283', test_code_id: '554e6463-cd1d-453d-95ae-475f74f6f928', results_storage: 'azerty', score: '0.80000', passed: null, timestamp: '2017-11-14T15:35:25.027650Z', platform: 'azerty', project: 'azerty', normalized_score: 0.8 }), Object({ id: 'b2288403-d05f-4563-8f80-5837f1da9b07', model_version_id: '4d02d0a9-adfc-4b9e-af4a-2f1f007e1283', test_code_id: '554e6463-cd1d-453d-95ae-475f74f6f928', results_storage: 'azerty', score: '0.30000', passed: null, timestamp: '2017-11-14T15:35:24.952689Z', platform: 'azerty', project: 'azerty', normalized_score: 0.3 })] }), Object({ version: '1.5nhf', timestamp: '2017-10-27 12:04:53.156645+00:00', results: [Object({ id: 'f7ddb5b1-85cf-482c-b0fc-40749dbb985d', model_version_id: '4d02d0a9-adfc-4b9e-af4a-2f1f007e1283', test_code_id: '9d39eebd-3185-44d6-9cea-d0819abf8ba8', results_storage: 'collab:///2180/', score: '0.80000', passed: null, timestamp: '2017-11-14T15:35:25.536056Z', platform: 'azerty', project: 'azerty', normalized_score: 0.8 }), Object({ id: '0e06a80a-6d19-4e4b-9a35-f6cafdbc105c', model_version_id: '4d02d0a9-adfc-4b9e-af4a-2f1f007e1283', test_code_id: '9d39eebd-3185-44d6-9cea-d0819abf8ba8', results_storage: 'azerty', score: '0.30000', passed: null, timestamp: '2017-11-14T15:35:25.444335Z', platform: 'azerty', project: 'azerty', normalized_score: 0.3 })] }), Object({ id: '3e2777f6-bdb6-4010-8590-933ecfc04755', repository: 'https://collab.humanbrainproject.eu', version: 'mii', description: null, path: 'mo', timestamp: '2017-12-13T09:46:57.813819Z', test_definition_id: 'cfdb6b8b-9017-4191-a904-1527c7140001' })], last_result_timestamp: '2025-10-03T15:21:24Z' }), Object({ timestamp: '2017-10-03 12:18:05.178009+00:00', id: 'a091c6b0-9f86-4094-be62-4e42bdcebc7f', model_id: '61df5b12-c885-4cb7-a511-e5315101b420', model_name: 'model for result test', line_id: '61df5b12... ( version 1 )', test_instances: [Object({ id: '6d59d750-bd7c-4715-9f9a-6439379169fd', repository: '', version: '1.1', description: null, path: '', timestamp: '2017-10-03T12:18:04.728547Z', test_definition_id: 'cfdb6b8b-9017-4191-a904-1527c7140001' }), Object({ id: '554e6463-cd1d-453d-95ae-475f74f6f928', repository: '', version: '2.1', description: null, path: '', timestamp: '2017-10-05T12:18:04.953497Z', test_definition_id: 'cfdb6b8b-9017-4191-a904-1527c7140001' }), Object({ version: '1.5nhf', timestamp: '2017-10-27 12:04:53.156645+00:00', results: [Object({ id: '341865f0-c934-448c-902e-cc02ddec7fa1', model_version_id: 'a091c6b0-9f86-4094-be62-4e42bdcebc7f', test_code_id: '9d39eebd-3185-44d6-9cea-d0819abf8ba8', results_storage: 'azerty', score: '0.80000', passed: null, timestamp: '2017-11-14T15:35:25.344722Z', platform: 'azerty', project: 'azerty', normalized_score: 0.8 }), Object({ id: '269e0db3-b587-46dd-a639-ee2383390580', model_version_id: 'a091c6b0-9f86-4094-be62-4e42bdcebc7f', test_code_id: '9d39eebd-3185-44d6-9cea-d0819abf8ba8', results_storage: 'azerty', score: '0.30000', passed: null, timestamp: '2017-11-14T15:35:25.235718Z', platform: 'azerty', project: 'azerty', normalized_score: 0.3 })] }), Object({ id: '3e2777f6-bdb6-4010-8590-933ecfc04755', repository: 'https://collab.humanbrainproject.eu', version: 'mii', description: null, path: 'mo', timestamp: '2017-12-13T09:46:57.813819Z', test_definition_id: 'cfdb6b8b-9017-4191-a904-1527c7140001' })], last_result_timestamp: '2017-11-14T15:35:25.344722Z' })] });
+            var expected_answer = Object({
+                model_instances: [
+                    Object({
+                        timestamp: '2017-10-03 12:18:05.244111+00:00',
+                        id: '4d02d0a9-adfc-4b9e-af4a-2f1f007e1283',
+                        model_id: '61df5b12-c885-4cb7-a511-e5315101b420',
+                        model_name: 'model for result test',
+                        line_id: 'Mm1 ( version 2 )',
+                        test_instances: [Object({ id: '6d59d750-bd7c-4715-9f9a-6439379169fd', repository: '', version: '1.1', description: null, path: '', timestamp: '2017-10-03T12:18:04.728547Z', test_definition_id: 'cfdb6b8b-9017-4191-a904-1527c7140001' }), Object({
+                            version: '2.1',
+                            timestamp: '2017-10-05 12:18:04.953497+00:00',
+                            results: [
+                                Object({ id: '0fe8565b-b469-434f-934b-d57977bec04a', model_version_id: '4d02d0a9-adfc-4b9e-af4a-2f1f007e1283', test_code_id: '554e6463-cd1d-453d-95ae-475f74f6f928', results_storage: 'azerty', score: 0.888, passed: null, timestamp: '2025-10-03T15:21:24Z', platform: 'azerty', project: 'azerty', normalized_score: 0.888 }), Object({ id: '01bbe77d-66a1-44e4-8f25-b562e2f7436a', model_version_id: '4d02d0a9-adfc-4b9e-af4a-2f1f007e1283', test_code_id: '554e6463-cd1d-453d-95ae-475f74f6f928', results_storage: 'azerty', score: 0.8, passed: null, timestamp: '2017-11-14T15:35:25.027650Z', platform: 'azerty', project: 'azerty', normalized_score: 0.8 }), Object({ id: 'b2288403-d05f-4563-8f80-5837f1da9b07', model_version_id: '4d02d0a9-adfc-4b9e-af4a-2f1f007e1283', test_code_id: '554e6463-cd1d-453d-95ae-475f74f6f928', results_storage: 'azerty', score: 0.3, passed: null, timestamp: '2017-11-14T15:35:24.952689Z', platform: 'azerty', project: 'azerty', normalized_score: 0.3 })
+                            ]
+                        }), Object({
+                            version: '1.5nhf',
+                            timestamp: '2017-10-27 12:04:53.156645+00:00',
+                            results: [
+                                Object({ id: 'f7ddb5b1-85cf-482c-b0fc-40749dbb985d', model_version_id: '4d02d0a9-adfc-4b9e-af4a-2f1f007e1283', test_code_id: '9d39eebd-3185-44d6-9cea-d0819abf8ba8', results_storage: 'collab:///2180/', score: 0.8, passed: null, timestamp: '2017-11-14T15:35:25.536056Z', platform: 'azerty', project: 'azerty', normalized_score: 0.8 }), Object({ id: '0e06a80a-6d19-4e4b-9a35-f6cafdbc105c', model_version_id: '4d02d0a9-adfc-4b9e-af4a-2f1f007e1283', test_code_id: '9d39eebd-3185-44d6-9cea-d0819abf8ba8', results_storage: 'azerty', score: 0.3, passed: null, timestamp: '2017-11-14T15:35:25.444335Z', platform: 'azerty', project: 'azerty', normalized_score: 0.3 })
+                            ]
+                        }), Object({ id: '3e2777f6-bdb6-4010-8590-933ecfc04755', repository: 'https://collab.humanbrainproject.eu', version: 'mii', description: null, path: 'mo', timestamp: '2017-12-13T09:46:57.813819Z', test_definition_id: 'cfdb6b8b-9017-4191-a904-1527c7140001' })],
+                        last_result_timestamp: '2025-10-03T15:21:24Z'
+                    }), Object({
+                        timestamp: '2017-10-03 12:18:05.178009+00:00',
+                        id: 'a091c6b0-9f86-4094-be62-4e42bdcebc7f',
+                        model_id: '61df5b12-c885-4cb7-a511-e5315101b420',
+                        model_name: 'model for result test',
+                        line_id: 'Mm1 ( version 1 )',
+                        test_instances: [
+                            Object({ id: '6d59d750-bd7c-4715-9f9a-6439379169fd', repository: '', version: '1.1', description: null, path: '', timestamp: '2017-10-03T12:18:04.728547Z', test_definition_id: 'cfdb6b8b-9017-4191-a904-1527c7140001' }), Object({ id: '554e6463-cd1d-453d-95ae-475f74f6f928', repository: '', version: '2.1', description: null, path: '', timestamp: '2017-10-05T12:18:04.953497Z', test_definition_id: 'cfdb6b8b-9017-4191-a904-1527c7140001' }), Object({ version: '1.5nhf', timestamp: '2017-10-27 12:04:53.156645+00:00', results: [Object({ id: '341865f0-c934-448c-902e-cc02ddec7fa1', model_version_id: 'a091c6b0-9f86-4094-be62-4e42bdcebc7f', test_code_id: '9d39eebd-3185-44d6-9cea-d0819abf8ba8', results_storage: 'azerty', score: 0.8, passed: null, timestamp: '2017-11-14T15:35:25.344722Z', platform: 'azerty', project: 'azerty', normalized_score: 0.8 }), Object({ id: '269e0db3-b587-46dd-a639-ee2383390580', model_version_id: 'a091c6b0-9f86-4094-be62-4e42bdcebc7f', test_code_id: '9d39eebd-3185-44d6-9cea-d0819abf8ba8', results_storage: 'azerty', score: 0.3, passed: null, timestamp: '2017-11-14T15:35:25.235718Z', platform: 'azerty', project: 'azerty', normalized_score: 0.3 })] }), Object({ id: '3e2777f6-bdb6-4010-8590-933ecfc04755', repository: 'https://collab.humanbrainproject.eu', version: 'mii', description: null, path: 'mo', timestamp: '2017-12-13T09:46:57.813819Z', test_definition_id: 'cfdb6b8b-9017-4191-a904-1527c7140001' })
+                        ],
+                        last_result_timestamp: '2017-11-14T15:35:25.344722Z'
+                    })
+                ]
+            });
 
             expect(res).toEqual(expected_answer);
         })

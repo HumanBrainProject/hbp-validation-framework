@@ -148,7 +148,8 @@
                     <tr ng-repeat='code_version in detail_version_test.test_codes'>
                         <td id="editable-id-{{code_version.id}}" contenteditable=false style="width: 12%">{{ code_version.id }}</td>
                         <td id="editable-version-{{code_version.id}}" contenteditable=false style="width: 20%">{{ code_version.version }}</td>
-                        <td id="editable-code-description-{{code_version.id}}" contenteditable=false style="width: 20%">{{ code_version.description }}
+                        <td id="editable-code-description-{{code_version.id}}" contenteditable=false style="width: 20%">
+                            <div markdown=code_version.description></div>
                         </td>
                         <td style="width: 20%">{{ code_version.timestamp | date:'d MMMM yyyy, hh:mm' : 'UTC' }}
                         </td>
@@ -596,10 +597,10 @@
                                             <tr ng-repeat="(key,result) in test_code.results">
                                                 <td class="tr-clickable VF-table-result-td-margin-right" ng-click=Context.validation_goToResultDetailView(result.id)>
                                                     <div ng-if="key == 0">
-                                                        <b> {{result.score}} </b>
+                                                        <b precision=result.score> </b>
                                                     </div>
-                                                    <div ng-if="key != 0">
-                                                        {{result.score}}
+                                                    <div ng-if="key != 0" precision=result.score>
+
                                                     </div>
                                                 </td>
                                                 <td class=VF-table-result-td-margin-left>
@@ -624,11 +625,10 @@
 
                                                 <td class="tr-clickable VF-table-result-td-margin-right" ng-click=Context.validation_goToResultDetailView(result.id)>
                                                     <div ng-if="key == 0">
-                                                        <b> {{result.score}} </b>
+                                                        <b precision=result.score>  </b>
 
                                                     </div>
-                                                    <div ng-if="key != 0">
-                                                        {{result.score}}
+                                                    <div ng-if="key != 0" precision=result.score>
 
                                                     </div>
                                                 </td>
@@ -738,7 +738,7 @@
                                 <td>{{ result.timestamp | date:'d MMMM yyyy, hh:mm' : 'UTC' }}
                                 </td>
                                 <td>{{ result.results_storage }}</td>
-                                <td>{{ result.score }}</td>
+                                <td><span precision=result.score></span></td>
                                 <td>{{ result.passed }}</td>
                                 <td>{{ result.platform }}</td>
                                 <td>{{ result.project }}</td>

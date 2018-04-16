@@ -68,7 +68,7 @@ class ValidationTestCode(models.Model):
     repository = models.CharField(max_length=200, help_text="location of the code that defines the test")
     version = models.CharField(max_length=128, help_text="version of the code that defines the test")
     description = models.TextField(null=True, blank=True)
-    path = models.CharField(max_length=200, help_text="path to test class within Python code")
+    path = models.CharField(max_length=500, help_text="path to test class within Python code")
     timestamp = models.DateTimeField(auto_now_add=True, help_text="timestamp for this version of the code")
     test_definition = models.ForeignKey(ValidationTestDefinition, help_text="Validation test implemented by this code",
                                         related_name="codes")
@@ -125,7 +125,7 @@ class ScientificModelInstance(models.Model):
     version = models.CharField(max_length=200)
     description = models.TextField(null=True, blank=True)
     parameters = models.TextField(null=True, blank=True)
-    source = models.URLField(blank=True, help_text="Version control repository containing the source code of the model")
+    source = models.URLField(max_length=500, blank=True, help_text="Version control repository containing the source code of the model")
     timestamp = models.DateTimeField(auto_now_add=True, help_text="Timestamp of when the version was created")
     code_format = models.CharField(max_length=100 , blank=True, null=True, default=None, help_text = "format of the code (PyNN, Brian, Neuron...)")
     hash = models.CharField(max_length=100 , blank=True, null=True, default=None, help_text = "")
