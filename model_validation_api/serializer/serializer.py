@@ -121,7 +121,7 @@ class ValidationTestDefinitionFullSerializer(serializers.HyperlinkedModelSeriali
         model = ValidationTestDefinition
         fields = ('id', 'name', 'alias', 'species', 'brain_region', 
                     'cell_type', 'age', 'data_location', 
-                    'data_type', 'data_modality', 'test_type', 
+                    'data_type', 'data_modality', 'test_type', 'score_type',
                     'protocol', 'author', 'creation_date', 'publication', 'codes')
 
 
