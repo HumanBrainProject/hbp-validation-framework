@@ -54,7 +54,7 @@ class ScientificModelReadOnlySerializer2(serializers.HyperlinkedModelSerializer)
     app = CollabParametersSerializer (read_only = True)
     class Meta:
         model = ScientificModel
-        fields = ('id', 'name', 'description', 'species', 'brain_region', 'cell_type', 'author', 'model_type','private','organization','app','alias')
+        fields = ('id', 'name', 'description', 'species', 'brain_region', 'cell_type', 'author','owner', 'model_type','private','organization','app','alias','license', 'project')
 
 
 #############################
@@ -81,7 +81,7 @@ class ScientificModelReadOnlySerializer(serializers.HyperlinkedModelSerializer):
     app = CollabParametersReadOnlyForHomeSerializer(read_only=True)
     class Meta:        
         model = ScientificModel
-        fields = ('id', 'name', 'alias', 'author', 'app','organization','private', 'cell_type', 'model_type', 'brain_region', 'species','description', 'instances', 'images')
+        fields = ('id', 'name', 'alias', 'author','owner', 'app','organization','project','private','license', 'cell_type', 'model_type', 'brain_region', 'species','description', 'instances', 'images')
 
 class ScientificModelFullReadOnlySerializer(serializers.HyperlinkedModelSerializer):
     app = CollabParametersSerializer( read_only=True)
@@ -89,7 +89,7 @@ class ScientificModelFullReadOnlySerializer(serializers.HyperlinkedModelSerializ
     images = ScientificModelImageSerializer (read_only=True , many=True )
     class Meta:
         model = ScientificModel
-        fields = ('id', 'name', 'alias', 'author', 'app','organization','private', 'cell_type', 'model_type', 'brain_region', 'species','description', 'instances', 'images')
+        fields = ('id', 'name', 'alias', 'author','owner', 'app','organization','project','private','license', 'cell_type', 'model_type', 'brain_region', 'species','description', 'instances', 'images')
 
 class ScientificModelReadOnlyForHomeSerializer(serializers.HyperlinkedModelSerializer):
     app = CollabParametersReadOnlyForHomeSerializer (read_only = True)

@@ -33,7 +33,7 @@ class ValidationTestDefinition(models.Model):
     brain_region = models.CharField(max_length=100,default='',blank=True, help_text="brain region")  # I
     cell_type = models.CharField(max_length=100, default='', blank=True,help_text="cell type")  # D
     age = models.CharField(max_length=50, null=True, blank=True, help_text="age of animal, e.g. '6 weeks'")
-    data_location = models.CharField(max_length=200, help_text="location of comparison data")  # M
+    data_location = models.CharField(null=True, blank=True, max_length=200, help_text="location of comparison data")  # M
     data_type = models.CharField(max_length=100, help_text="type of comparison data (number, histogram, time series, etc.)")  # S
     data_modality = models.CharField(max_length=100, default='', blank=True,
                                      help_text="recording modality for comparison data (ephys, fMRI, 2-photon, etc)")  # J, K
@@ -68,6 +68,7 @@ class ValidationTestCode(models.Model):
     repository = models.CharField(max_length=200, help_text="location of the code that defines the test")
     version = models.CharField(max_length=128, help_text="version of the code that defines the test")
     description = models.TextField(null=True, blank=True)
+    parameters = models.TextField(null=True, blank=True)
     path = models.CharField(max_length=500, help_text="path to test class within Python code")
     timestamp = models.DateTimeField(auto_now_add=True, help_text="timestamp for this version of the code")
     test_definition = models.ForeignKey(ValidationTestDefinition, help_text="Validation test implemented by this code",
@@ -105,9 +106,12 @@ class ScientificModel(models.Model):
     private = models.BooleanField ( default= False ,help_text="privacy of the model: can be private (if true) or public (if false)")
     app = models.ForeignKey(CollabParameters, related_name="collab_params")
     code_format = models.CharField(max_length=100 ,blank=True, help_text=".py, .c, etc...")
-    alias = models.CharField(max_length=200, unique=True, null=True, default=None,  help_text="alias of the model")
+    alias = models.CharField(max_length=200, unique=True, blank=True, null=True, default=None,  help_text="alias of the model")
     creation_date = models.DateTimeField(auto_now_add=True, help_text="creation date of the model")
     organization = models.CharField(max_length=100 , blank=False, default="<<empty>>")
+    owner = models.TextField(max_length=100, blank=True, null = True)
+    project = models.TextField(max_length=100, blank=True, null = True)
+    license = models.TextField(max_length=200, blank=True, null = True)
     # todo: 
     # spiking vs rate?
 
@@ -125,7 +129,7 @@ class ScientificModelInstance(models.Model):
     version = models.CharField(max_length=200)
     description = models.TextField(null=True, blank=True)
     parameters = models.TextField(null=True, blank=True)
-    source = models.URLField(max_length=500, blank=True, help_text="Version control repository containing the source code of the model")
+    source = models.TextField(max_length=500, blank=True, help_text="Version control repository containing the source code of the model")
     timestamp = models.DateTimeField(auto_now_add=True, help_text="Timestamp of when the version was created")
     code_format = models.CharField(max_length=100 , blank=True, null=True, default=None, help_text = "format of the code (PyNN, Brian, Neuron...)")
     hash = models.CharField(max_length=100 , blank=True, null=True, default=None, help_text = "")

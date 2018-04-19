@@ -1472,7 +1472,7 @@ ModelCatalogApp.controller('ModelCatalogEditCtrl', ['$scope', '$rootScope', '$ht
 
                 $scope.version_is_editable = [];
                 $scope.model = ScientificModelRest.get({ app_id: $scope.app_id, id: $stateParams.uuid });
-
+                console.log("model", $scope.model)
                 $scope.model.$promise.then(function(model) {
                     $scope.change_collab_url_to_real_url();
                 });

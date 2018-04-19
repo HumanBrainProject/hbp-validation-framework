@@ -889,7 +889,12 @@ class Models(APIView):
         :type alias: str
         :param organization: organization parameter
         :type organization: str
-
+        :param owner: owner of the model, for contact
+        :type owner: str
+        :param project: project parameter
+        :type project: str
+        :param license: license
+        :type license: str
         :returns: list of serialized Models
         :rtype: object list
         """
@@ -991,6 +996,10 @@ class Models(APIView):
                 code_format =request.GET.getlist('code_format')
                 alias =request.GET.getlist('alias')
                 organization = request.GET.getlist('organization')
+                owner = request.GET.getlist('owner')
+                license_param = request.GET.getlist('license')
+                owner = request.GET.getlist('owner')
+                project = request.GET.getlist('project')
 
                 q = ScientificModel.objects.all()
 
@@ -1016,6 +1025,12 @@ class Models(APIView):
                     q = q.filter(app__in = app_id)
                 if len(organization) > 0 :
                     q = q.filter(organization__in = organization)
+                if len(owner) > 0 :
+                    q = q.filter(owner__in = owner)
+                if len(project) > 0 :
+                    q = q.filter(project__in = project)
+                if len(license_param) > 0 :
+                    q = q.filter(license__in = license_param)
 
                 #For each models, check if collab member, if not then just return the publics....
                 list_app_id = q.values("app").distinct()
@@ -1050,10 +1065,11 @@ class Models(APIView):
                     #if private check if collab member
                     app_id = models.values("app")[0]['app']
                     collab_id = get_collab_id_from_app_id(app_id)
-                    print("app_id",app_id,collab_id,"collab_id")
+                 
                     if not is_authorised(request, collab_id) :
                         return HttpResponse('Unauthorized', status=401)
                         return HttpResponseForbidden()
+                    
                 if len(web_app) > 0 and web_app[0] == 'True' :
                     model_serializer = ScientificModelFullReadOnlySerializer(models, context=serializer_context, many=True)
                 else:
