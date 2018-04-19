@@ -133,7 +133,7 @@ class ValidationTestCodeReadOnlySerializer(serializers.HyperlinkedModelSerialize
     test_definition = ValidationTestDefinitionSerializer (read_only = True)
     class Meta:
         model = ValidationTestCode
-        fields = ('id', 'repository', 'version', 'description', 'path', 'timestamp', 'test_definition')
+        fields = ('id', 'repository', 'version', 'description', 'parameters', 'path', 'timestamp', 'test_definition')
 
 
 
