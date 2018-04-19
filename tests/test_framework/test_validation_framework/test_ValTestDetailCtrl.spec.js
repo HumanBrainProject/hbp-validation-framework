@@ -269,7 +269,7 @@ describe('Testing controller: ValTestDetailCtrl', function() {
         $scope.save_edited_version(index);
         $httpBackend.flush();
 
-        expect(spy_put).toHaveBeenCalledWith(Object({ app_id: 888 }), '[{"id":1,"repository":"","version":"","path":"","description":""}]')
+        expect(spy_put).toHaveBeenCalledWith(Object({ app_id: 888 }), '[{"id":1,"repository":"","version":"","path":"","description":"","parameters":""}]')
         expect($scope.version_in_edition).toEqual([55, 3, 4])
 
         $httpBackend.expectPUT('test-instances/?app_id=888&format=json&web_app=True').respond(200);
