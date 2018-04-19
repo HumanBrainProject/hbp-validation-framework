@@ -10,6 +10,7 @@
     <nav class="navbar ">
         <h1 align=center> {{ model.models[0].name}}
         </h1>
+        <h3 align=center> Owner: {{ model.models[0].owner }} </h3>
         <h3 align=center> Author(s): {{ model.models[0].author }} </h3>
     </nav>
     <nav>
@@ -39,11 +40,17 @@
                 <tr style="width: 15%">
                     <td> <b> ID: </b> {{model.models[0].id}} </td>
                 </tr>
-                <tr style="width: 15%" ng-if="model.models[0].alias!='' && model.models[0].alias ">
+                <tr style="width: 15%" ng-if="model.models[0].alias && model.models[0].alias!=''  ">
                     <td> <b>Alias: </b> {{ model.models[0].alias}}</td>
                 </tr>
-                <tr style="width: 15%" ng-if="model.models[0].organization!='' && model.models[0].organization && model.models[0].organization!='<<empty>>'">
+                <tr style="width: 15%" ng-if="model.models[0].organization && model.models[0].organization!='' &&  model.models[0].organization!='<<empty>>'">
                     <td> <b> Organization: </b> {{ model.models[0].organization }} </td>
+                </tr>
+                <tr style="width: 15%" ng-if="model.models[0].parameters && model.models[0].parameters!=''">
+                    <td> <b> Parameters: </b> {{ model.models[0].parameters }} </td>
+                </tr>
+                <tr style="width: 15%" ng-if="model.models[0].license && model.models[0].license!=''">
+                    <td> <b> License: </b> {{ model.models[0].license }} </td>
                 </tr>
             </tbody>
         </table>
@@ -91,32 +98,33 @@
     </panel>
     <br>
     <br>
-    <h2>Model versions</h2>
-    <table class="table">
-        <thead>
-            <tr>
-                <th style="width: 15%">Version</th>
-                <th style="width: 15%">ID</th>
-                <th style="width: 15%">Description</th>
-                <th style="width: 15%">Parameters</th>
-                <th style="width: 15%">Code format</th>
-                <th style="width: 15%">Code location</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr ng-repeat="model_instance in model.models[0].instances">
-                <td style="width: 15%">{{ model_instance.version }}</td>
-                <td style="width: 15%">{{ model_instance.id }}</td>
-                <td style="width: 15%"><pre> <div markdown=model_instance.description></div></pre></td>
-                <td style="width: 15%"><pre> {{model_instance.parameters}} ></div></pre></td>
-                <td style="width: 15%">{{ model_instance.code_format }}</td>
+    <panel class="panel-full-size">
+        <h2>Model versions</h2>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th style="width: 15%">Version</th>
+                    <th style="width: 15%">ID</th>
+                    <th style="width: 15%">Description</th>
+                    <th style="width: 15%">Parameters</th>
+                    <th style="width: 15%">Code format</th>
+                    <th style="width: 15%">Code location</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="model_instance in model.models[0].instances">
+                    <td style="width: 15%">{{ model_instance.version }}</td>
+                    <td style="width: 15%">{{ model_instance.id }}</td>
+                    <td style="width: 15%"><pre> <div markdown=model_instance.description></div></pre></td>
+                    <td style="width: 15%"><pre "width: 15%"> {{model_instance.parameters}} ></div></pre></td>
+                    <td style="width: 15%">{{ model_instance.code_format }}</td>
 
-                <td style="width: 15%">
-                    <a target=_blank href={{model_instance.source}}>{{ model_instance.source }}</a>
-                </td>
-        </tbody>
-    </table>
-
+                    <td style="width: 15%">
+                        <a target=_blank href={{model_instance.source}}>{{ model_instance.source }}</a>
+                    </td>
+            </tbody>
+        </table>
+    </panel>
     <div class=" w3-card-4  w3-hover-shadow ng-cloak" id="ImagePopupDetail">
         <style>
             .ng-cloak {

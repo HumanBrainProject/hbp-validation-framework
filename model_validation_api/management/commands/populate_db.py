@@ -412,6 +412,7 @@ class Command(BaseCommand):
         result.platform = "azerty"
         result.project = "azerty"
         result.save()
+
     def delete_specific_organization(self, organization):
         organization_to_delete = Param_organizations.objects.filter(authorized_value = organization)
         organization_to_delete.delete()
@@ -430,24 +431,49 @@ class Command(BaseCommand):
 
                 i.save()
 
+    def delete(self,table_type, list_uuid, *args, **options):
+        
+        if table_type == 'model':	 
+        	elements_to_delete = ScientificModel.objects.filter(id__in=list_uuid)
+        	for model in elements_to_delete:
+                	model.delete()
 
+	if table_type == 'model_instance':	 
+        	elements_to_delete = ScientificModelInstance.objects.filter(id__in=list_uuid)
+        	for model_instance in elements_to_delete:
+                	model_instance.delete()
+
+
+	if table_type == 'test':	 
+        	elements_to_delete = ValidationTestDefinition.objects.filter(id__in=list_uuid)
+        	for test in elements_to_delete:
+                	test.delete()
+
+	if table_type == 'test_instance':	 
+        	elements_to_delete = ValidationTestCode.objects.filter(id__in=list_uuid)
+        	for test_instance in elements_to_delete:
+                	test_instance.delete()
+	
     
     def handle(self, *args, **options):
-        create_data_modalities()
-        create_test_types()
-        create_species()
-        create_brain_region()
-        create_cell_type()
-        create_model_type()
-        create_score_type()
-        create_organizations()
+        #create_data_modalities()
+        #create_test_types()
+        #create_species()
+        #create_brain_region()
+        #create_cell_type()
+        #create_model_type()
+        #create_score_type()
+        #create_organizations()
+	# self.create_fake_collab(id='1')
+        #create_models_test_results(param_app_id=37928, result_storage = "collab:///2169/folder_test")
+	
 
-
+	#self.delete("model", ['2b160a50e2a445c69d908773a8d81f9b'])
+	#self.delete("model_instance", ['2b160a50e2a445c69d908773a8d81f9b'])
+	#self.delete("test", ['111307e4c86541529c2076fa26762051'])
+	self.delete("test_instance", ['01270b83f1af49c79f16c500262e9c9a','a11b6786318d4546922f85dedf8c3491'])
        
-        # self.create_fake_collab(id='1')
-
-
-        create_models_test_results(param_app_id=37928, result_storage = "collab:///2169/folder_test")
+       
 
 
 

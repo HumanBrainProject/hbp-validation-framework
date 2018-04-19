@@ -7,7 +7,7 @@ testApp.controller('HomeCtrl', ['$scope', '$rootScope', '$http', '$location', "S
     function($scope, $rootScope, $http, $location, ScientificModelRest, ValidationTestDefinitionRest, CollabParameters, IsCollabMemberRest, Context, ScientificModelInstanceRest, ValidationTestCodeRest, DataHandler) {
 
         Context.setService().then(function() {
-
+            console.log('collab parameters setted')
 
             $scope.Context = Context;
             var ctx = Context.getCtx();
@@ -18,6 +18,7 @@ testApp.controller('HomeCtrl', ['$scope', '$rootScope', '$http', '$location', "S
                 CollabParameters.setService(ctx).then(function() {
 
                     $scope.collab_species = CollabParameters.getParametersOrDefaultByType("species");
+
                     $scope.collab_brain_region = CollabParameters.getParametersOrDefaultByType("brain_region");
                     $scope.collab_cell_type = CollabParameters.getParametersOrDefaultByType("cell_type");
                     $scope.collab_model_type = CollabParameters.getParametersOrDefaultByType("model_type");
@@ -25,9 +26,8 @@ testApp.controller('HomeCtrl', ['$scope', '$rootScope', '$http', '$location', "S
                     $scope.collab_data_modalities = CollabParameters.getParametersOrDefaultByType("data_modalities");
                     $scope.collab_organization = CollabParameters.getParametersOrDefaultByType("organization");
 
-                    // $scope.models = ScientificModelRest.get({ app_id: app_id }, function(data) {});
-                    // $scope.tests = ValidationTestDefinitionRest.get({ app_id: app_id }, function(data) {});
-
+                    //$scope.models = ScientificModelRest.get({ app_id: app_id }, function(data) {});
+                    //$scope.tests = ValidationTestDefinitionRest.get({ app_id: app_id }, function(data) {});
                     // //for test
                     // $scope.put_test1 = ValidationTestCodeRest.put({ app_id: app_id, test_definition_id: "53a7a2db-b18f-49ef-b1de-88bd48960c81", version: "1.1" });
                     DataHandler.loadModels({ app_id: app_id }).then(function(data) {
@@ -374,9 +374,9 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
             if (id_tab != "tab_new_version" || id_tab != "tab_edit_test") {
                 var e = document.getElementById("li_" + id_tab);
                 e.className += " active";
-
             };
         };
+
         $scope.updateGraph = function() {
             var list_ids = $scope._IsCheck();
             $scope.graphic_data = Graphics.getUpdatedGraph($scope.init_graph.values, list_ids);
@@ -448,6 +448,8 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
             angular.element(document.querySelector("#editable-repository-" + index)).attr('bgcolor', 'ghostwhite');
             angular.element(document.querySelector("#editable-code-description-" + index)).attr('contenteditable', "true");
             angular.element(document.querySelector("#editable-code-description-" + index)).attr('bgcolor', 'ghostwhite');
+            angular.element(document.querySelector("#editable-code-parameters-" + index)).attr('contenteditable', "true");
+            angular.element(document.querySelector("#editable-code-parameters-" + index)).attr('bgcolor', 'ghostwhite');
             angular.element(document.querySelector("#editable-version-" + index)).attr('contenteditable', "true");
             angular.element(document.querySelector("#editable-version-" + index)).attr('bgcolor', 'ghostwhite');
             angular.element(document.querySelector("#editable-path-" + index)).attr('contenteditable', "true");
@@ -458,16 +460,19 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
         $scope.save_edited_version = function(index) {
             var repository = $("#editable-repository-" + index).text();
             var code_description = $("#editable-code-description-" + index).text();
+            var code_parameters = $("#editable-code-parameters-" + index).text();
             var version = $("#editable-version-" + index).text();
             var pathway = $("#editable-path-" + index).text();
             var new_version = JSON.stringify([
-                { 'id': index, 'repository': repository, 'version': version, 'path': pathway, 'description': code_description }
+                { 'id': index, 'repository': repository, 'version': version, 'path': pathway, 'description': code_description, 'parameters': code_parameters }
             ]);
             ValidationTestCodeRest.put({ app_id: $scope.app_id }, new_version).$promise.then(function() {
                 angular.element(document.querySelector("#editable-repository-" + index)).attr('contenteditable', "false");
                 angular.element(document.querySelector("#editable-repository-" + index)).attr('bgcolor', 'white');
                 angular.element(document.querySelector("#editable-code-description-" + index)).attr('contenteditable', "false");
                 angular.element(document.querySelector("#editable-code-description-" + index)).attr('bgcolor', 'white');
+                angular.element(document.querySelector("#editable-code-parameters-" + index)).attr('contenteditable', "false");
+                angular.element(document.querySelector("#editable-code-parameters-" + index)).attr('bgcolor', 'white');
                 angular.element(document.querySelector("#editable-version-" + index)).attr('contenteditable', "false");
                 angular.element(document.querySelector("#editable-version-" + index)).attr('bgcolor', 'white');
                 angular.element(document.querySelector("#editable-path-" + index)).attr('contenteditable', "false");
@@ -1472,7 +1477,7 @@ ModelCatalogApp.controller('ModelCatalogEditCtrl', ['$scope', '$rootScope', '$ht
 
                 $scope.version_is_editable = [];
                 $scope.model = ScientificModelRest.get({ app_id: $scope.app_id, id: $stateParams.uuid });
-
+                console.log("model", $scope.model)
                 $scope.model.$promise.then(function(model) {
                     $scope.change_collab_url_to_real_url();
                 });

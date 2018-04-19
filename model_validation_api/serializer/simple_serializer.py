@@ -73,7 +73,7 @@ class ScientificModelImageSerializer(serializers.HyperlinkedModelSerializer):
 class ScientificModelSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = ScientificModel
-        fields = ('id', 'name','alias', 'author','app_id','organization','private', 'cell_type', 'model_type', 'brain_region', 'species', 'description')
+        fields = ('id', 'name','alias', 'author','owner','app_id','organization','project','private','license', 'cell_type', 'model_type', 'brain_region', 'species', 'description')
 
 
 ###########################
@@ -101,7 +101,7 @@ class ValidationTestDefinitionSerializer(serializers.HyperlinkedModelSerializer)
 class ValidationTestCodeSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = ValidationTestCode
-        fields = ('id', 'repository', 'version', 'description', 'path', 'timestamp', 'test_definition_id')
+        fields = ('id', 'repository', 'version', 'description', 'parameters', 'path', 'timestamp', 'test_definition_id')
 
 
 

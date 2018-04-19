@@ -248,8 +248,21 @@
     color: red;
 }
 
+.panel-full-size {
+    width: 100%;
+    min-width: 100%;
+    padding: 5px;
+    /*border: 2px solid white;*/
+    float: right;
+    margin-right: 1%;
+    margin-left: 2%;
+    margin-bottom: 1%;
+    margin-top: 1%;
+    overflow: auto;
+}
+
 .caracteristics-panel-validation {
-    height: 300px;
+    height: 330px;
     width: 320px;
     padding: 5px;
     border: 2px solid #dfe7ef;

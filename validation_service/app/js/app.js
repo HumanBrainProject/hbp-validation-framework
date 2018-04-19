@@ -1,47 +1,49 @@
 // Bootstrap function 
 
 (function() {
+    if (!window.env || window.env.name != 'envServices') {
 
-    window.base_url = 'https://127.0.0.1:8000/';
-    // window.base_url = '';
-    //window.base_url = 'https://validation-dev.brainsimulation.eu:443/';
-    // window.base_url = 'https://138.197.190.105:443/';
+        window.base_url = 'https://127.0.0.1:8000/';
+        // window.base_url = '';
+        //window.base_url = 'https://validation-dev.brainsimulation.eu:443/';
+        // window.base_url = 'https://138.197.190.105:443/';
 
-    window.ver_api = '/api/v2/';
+        window.ver_api = '/api/v2/';
 
-    angular.bootstrap().invoke(function($http, $log, $location) {
+        angular.bootstrap().invoke(function($http, $log, $location) {
 
-        // if (window.env && window.env.name != 'envServices') {
-        //     console.log("getting config.json")
-        $http.get('/config.json').then(function(res) {
-            window.bbpConfig = res.data;
+            // if (window.env && window.env.name != 'envServices') {
+            //     console.log("getting config.json")
+            $http.get('/config.json').then(function(res) {
+                window.bbpConfig = res.data;
 
-            angular.element(document).ready(function() {
-
-
-                angular.bootstrap(document.getElementById("validation-app"), ['testApp']);
-                angular.bootstrap(document.getElementById("configuration-app"), ['ParametersConfigurationApp']);
-                angular.bootstrap(document.getElementById("model-catalog-app"), ['ModelCatalogApp']);
+                angular.element(document).ready(function() {
 
 
-                setTimeout(function() {
-                    // angular.clbBoostrap(document, ['testApp', /*'ModelCatalogApp', 'ParametersConfigurationApp'*/ ]);
-                }, 1000);
+                    angular.bootstrap(document.getElementById("validation-app"), ['testApp']);
+                    angular.bootstrap(document.getElementById("configuration-app"), ['ParametersConfigurationApp']);
+                    angular.bootstrap(document.getElementById("model-catalog-app"), ['ModelCatalogApp']);
+
+
+                    setTimeout(function() {
+                        // angular.clbBoostrap(document, ['testApp', /*'ModelCatalogApp', 'ParametersConfigurationApp'*/ ]);
+                    }, 1000);
 
 
 
-                $log.info('Booted nmpi application');
+                    $log.info('Booted nmpi application');
+                });
+
+            }, function() {
+                $log.error('Cannot boot nmpi application');
+                // if (window.env && window.env.name != 'envServices') {
+                window.location.href = '/login/hbp/?next=' + encodeURIComponent(window.location.pathname + window.location.search + window.location.hash);
+                // }
+
             });
 
-        }, function() {
-            $log.error('Cannot boot nmpi application');
-            if (window.env && window.env.name != 'envServices') {
-                window.location.href = '/login/hbp/?next=' + encodeURIComponent(window.location.pathname + window.location.search + window.location.hash);
-            }
-
         });
-        // }
-    });
+    }
 
 
     var testApp = angular.module('testApp', [

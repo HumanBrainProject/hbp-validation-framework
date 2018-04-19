@@ -138,6 +138,7 @@
                         <th>ID</th>
                         <th>Version</th>
                         <th>Description</th>
+                        <th>Parameters</th>
                         <th>Date/time</th>
                         <th>Test class</th>
                         <th>Repository</th>
@@ -150,6 +151,9 @@
                         <td id="editable-version-{{code_version.id}}" contenteditable=false style="width: 20%">{{ code_version.version }}</td>
                         <td id="editable-code-description-{{code_version.id}}" contenteditable=false style="width: 20%">
                             <div markdown=code_version.description></div>
+                        </td>
+                        <td id="editable-code-parameters-{{code_version.id}}" contenteditable=false style="width: 20%">
+                            <div> {{code_version.parameters}} </div>
                         </td>
                         <td style="width: 20%">{{ code_version.timestamp | date:'d MMMM yyyy, hh:mm' : 'UTC' }}
                         </td>
@@ -224,7 +228,13 @@
                                         <textarea class="scrollabletextbox" rows="6" cols="60" ng-model="test_code.description"></textarea>
                                         <a class="glyphicon glyphicon-question-sign" aria-hidden="true" data-toggle="tooltip" data-placement="right" title="Example: information about the test code ..."></a><br /> <br>
                                     </td>
-
+                                    <td>
+                                        <b>Parameters:</b>
+                                    </td>
+                                    <td>
+                                        <textarea class="scrollabletextbox" rows="6" cols="60" ng-model="test_code.parameters"></textarea>
+                                        <a class="glyphicon glyphicon-question-sign" aria-hidden="true" data-toggle="tooltip" data-placement="right" title="Example: information about the test code ..."></a><br /> <br>
+                                    </td>
                                 </tr>
                             </tbody>
                         </table>
