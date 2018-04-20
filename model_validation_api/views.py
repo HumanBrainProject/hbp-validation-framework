@@ -920,8 +920,17 @@ class Models(APIView):
                 collab_id = get_collab_id_from_app_id(app_id)
 
                 collab_params = CollabParameters.objects.get(id = app_id )
-                all_ctx_from_collab = CollabParameters.objects.filter(collab_id = collab_id).distinct()
 
+                collab_ids = CollabParameters.objects.all().values_list('collab_id', flat=True).distinct()
+               
+                for collab in collab_ids:
+                   
+                    if not is_authorised(request, collab):
+                        collab_ids.exclude(collab)
+                
+                all_ctx_from_collab = CollabParameters.objects.filter(collab_id__in=collab_ids).distinct()
+               
+                print('ctx:',all_ctx_from_collab)
                 #if one of the collab_param is empty, don't filter on it. 
                 species_filter = collab_params.species.split(",")
                 if species_filter==[u'']:
@@ -950,9 +959,10 @@ class Models(APIView):
                 organization_filter = collab_params.organization.split(",")
                 if organization_filter==[u'']:
                     organization_filter = list(Param_organizations.objects.all().values_list('authorized_value', flat=True)) #+[u'']
-                    
-                if is_authorised(request, collab_id) :
-                    rq1 = ScientificModel.objects.filter(
+
+    
+               
+                rq1 = ScientificModel.objects.filter(
                         private=1,
                         app__in=all_ctx_from_collab.values("id"), 
                         species__in=species_filter, 
@@ -960,10 +970,8 @@ class Models(APIView):
                         cell_type__in=cell_type_filter, 
                         model_type__in=model_type_filter,
                         organization__in=organization_filter).prefetch_related()
-                else :
-                    rq1 = []
                     
-    
+                print(rq1)
                 rq2 = ScientificModel.objects.filter (
                     private=0, 
                     species__in=species_filter, 
@@ -1069,7 +1077,6 @@ class Models(APIView):
                     if not is_authorised(request, collab_id) :
                         return HttpResponse('Unauthorized', status=401)
                         return HttpResponseForbidden()
-                    
                 if len(web_app) > 0 and web_app[0] == 'True' :
                     model_serializer = ScientificModelFullReadOnlySerializer(models, context=serializer_context, many=True)
                 else:
