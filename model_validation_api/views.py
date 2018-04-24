@@ -921,16 +921,14 @@ class Models(APIView):
 
                 collab_params = CollabParameters.objects.get(id = app_id )
 
-                collab_ids = CollabParameters.objects.all().values_list('collab_id', flat=True).distinct()
-               
-                for collab in collab_ids:
-                   
-                    if not is_authorised(request, collab):
-                        collab_ids.exclude(collab)
+                collab_ids = list(CollabParameters.objects.all().values_list('collab_id', flat=True).distinct())
                 
+                for collab in collab_ids:
+                    if not is_authorised(request, collab):
+                        collab_ids.remove(collab)
+       
                 all_ctx_from_collab = CollabParameters.objects.filter(collab_id__in=collab_ids).distinct()
-               
-                print('ctx:',all_ctx_from_collab)
+
                 #if one of the collab_param is empty, don't filter on it. 
                 species_filter = collab_params.species.split(",")
                 if species_filter==[u'']:
@@ -970,8 +968,7 @@ class Models(APIView):
                         cell_type__in=cell_type_filter, 
                         model_type__in=model_type_filter,
                         organization__in=organization_filter).prefetch_related()
-                    
-                print(rq1)
+         
                 rq2 = ScientificModel.objects.filter (
                     private=0, 
                     species__in=species_filter, 
