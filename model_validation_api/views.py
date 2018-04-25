@@ -6,7 +6,7 @@
 
 
 import pprint
-
+import math
 import json
 import logging
 from urlparse import urlparse, parse_qs
@@ -2107,6 +2107,7 @@ class Results (APIView):
                 if user_has_acces_to_result(request, result) is False :
                     temp_results.exclude(id = result.id )
             results = temp_results
+
                        
         else :
             results =  ValidationTestResult.objects.filter(id__in = param_id)
@@ -2115,8 +2116,14 @@ class Results (APIView):
             for result in results :
                 if user_has_acces_to_result(request, result) is False :
                     return Response("You do not access to result : {}".format(result.id), status=status.HTTP_403_FORBIDDEN)
-                    
-        data_to_return = organise_results_dict(detailed_view, param_order, results, serializer_context)
+       
+        #####quick fix to get out nan and infinity numbers --will need to change it by allowing the json    
+        new_results = []
+        for result in results:
+            if not math.isnan(result.score) and not math.isnan(result.normalized_score):
+                new_results.append(result)
+
+        data_to_return = organise_results_dict(detailed_view, param_order, new_results, serializer_context)
 
         # file = get_storage_file_by_id(request)
         # data_to_return['PDF'] = file
