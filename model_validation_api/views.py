@@ -922,12 +922,12 @@ class Models(APIView):
                 collab_params = CollabParameters.objects.get(id = app_id )
 
                 collab_ids = list(CollabParameters.objects.all().values_list('collab_id', flat=True).distinct())
-                
+                collab_ids_new = []
                 for collab in collab_ids:
-                    if not is_authorised(request, collab):
-                        collab_ids.remove(collab)
+                    if is_authorised(request, collab):
+                        collab_ids_new.append(collab)
        
-                all_ctx_from_collab = CollabParameters.objects.filter(collab_id__in=collab_ids).distinct()
+                all_ctx_from_collab = CollabParameters.objects.filter(collab_id__in=collab_ids_new).distinct()
 
                 #if one of the collab_param is empty, don't filter on it. 
                 species_filter = collab_params.species.split(",")
