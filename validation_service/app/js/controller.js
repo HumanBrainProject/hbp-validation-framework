@@ -1098,6 +1098,9 @@ ModelCatalogApp.controller('ModelCatalogCtrl', [
                         }
                     }
                     $scope.$apply();
+                    $('#status').fadeOut(); // will first fade out the loading animation 
+                    $('#preloader').delay(350).fadeOut('slow'); // will fade out the white DIV that covers the website. 
+                    $('body').delay(350).css({ 'overflow': 'visible' });
                 });
                 Context.sendState("model", "n");
 
@@ -1127,6 +1130,7 @@ ModelCatalogApp.controller('ModelCatalogCtrl', [
                 Context.modelCatalog_goToModelDetailView(model_id);
                 $scope.$apply()
             }
+
         });
     }
 ]);
