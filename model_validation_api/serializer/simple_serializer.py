@@ -45,12 +45,12 @@ class CollabParametersReadOnlyForHomeSerializer(serializers.HyperlinkedModelSeri
 class ScientificModelInstanceSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = ScientificModelInstance
-        fields = ('id', 'version', 'description', 'parameters', 'code_format', 'source', 'model_id')
+        fields = ('id', 'version', 'description', 'parameters', 'code_format', 'source', 'model_id', 'hash')
 
 class ScientificModelInstanceForModelReadOnlySerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = ScientificModelInstance
-        fields = ('id', 'version', 'description', 'parameters', 'code_format', 'source')
+        fields = ('id', 'version', 'description', 'parameters', 'code_format', 'source', 'hash')
 
 
 ##########################
