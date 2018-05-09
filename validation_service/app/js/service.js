@@ -40,7 +40,6 @@ ContextServices.service('Context', ['$rootScope', '$location', 'AppIDRest', 'Col
             })
         }
         var newTab_goToValidationModel = function(model) {
-            app_type = '';
             _getCollabIDAndAppIDFromUrl().then(function(ids) {
                 var url = "https://collab.humanbrainproject.eu/#/collab/" + ids.collab_id + "/nav/" + ids.app_id +
                     "?state=model." + model.id + ",external"; //to go to collab api
@@ -126,15 +125,15 @@ ContextServices.service('Context', ['$rootScope', '$location', 'AppIDRest', 'Col
                     break;
             }
         }
-        var goToValidationModelView = function(evt, test) {
+        var goToValidationModelView = function(evt, model) {
             switch (evt.which) {
                 case 1:
-                    validation_goToModelDetailView(test.id)
+                    validation_goToModelDetailView(model.id)
                     break;
 
                 case 3:
                     // open in new tab
-                    newTab_goToValidationModel(test);
+                    newTab_goToValidationModel(model);
                     break;
             }
         }
