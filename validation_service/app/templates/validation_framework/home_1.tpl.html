@@ -70,7 +70,7 @@
                     </thead>
                     <br>
                     <tr class=tr-clickable id="test1" ng-repeat="model in models.models | filter: search | filterMultiple:{organization:selected_organization, species:selected_species, brain_region:selected_brain_region, cell_type:selected_cell_type, model_type:selected_model_type} | orderBy: selected_sorting_option"
-                        ng-click="Context.validation_goToModelDetailView(model.id)">
+                        ng-mousedown="Context.goToValidationModelView($event, model)">
                         <td ng-if=!(model.alias) ng-text-truncate=model.name ng-tt-chars-threshold="20" ng-tt-no-toggling> {{model.name}} </td>
                         <td ng-if=model.alias ng-text-truncate=model.alias ng-tt-chars-threshold="20" ng-tt-no-toggling> {{model.alias}} </td>
                         <td ng-text-truncate=model.id ng-tt-chars-threshold="8" ng-tt-no-toggling>{{model.id}}</td>
@@ -90,7 +90,7 @@
                     </thead>
                     <br>
 
-                    <tr class="tr-clickable" ng-repeat="test in tests.tests | filter:search | filterMultiple:{species:selected_species, brain_region:selected_brain_region, cell_type:selected_cell_type, model_type:selected_model_type} | orderBy: selected_sorting_option" ng-click="Context.validation_goToTestDetailView(test.id)">
+                    <tr class="tr-clickable" ng-mousedown="Context.goToTestDetailView($event, test.id)" ng-repeat="test in tests.tests | filter:search | filterMultiple:{species:selected_species, brain_region:selected_brain_region, cell_type:selected_cell_type, model_type:selected_model_type} | orderBy: selected_sorting_option">
 
                         <td ng-if=!(test.alias) ng-text-truncate=test.name ng-tt-chars-threshold="20" ng-tt-no-toggling> {{test.name}} </td>
                         <td ng-if=test.alias ng-text-truncate=test.alias ng-tt-chars-threshold="20" ng-tt-no-toggling> {{test.alias}} </td>

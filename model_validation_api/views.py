@@ -355,11 +355,11 @@ class ParametersConfigurationRest( APIView): #LoginRequiredMixin,
     def get(self, request, format=None, **kwargs):
         """
         Get app configuration. 
-    :param app_id: id of application 
-    :type app_id: string
-    :returns: configuration array
-    :rtype: json:
-    """
+        :param app_id: id of application 
+        :type app_id: string
+        :returns: configuration array
+        :rtype: json:
+        """
         serializer_context = {'request': request,}
 
         app_id = request.GET.getlist('app_id')

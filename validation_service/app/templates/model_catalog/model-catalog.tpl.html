@@ -61,8 +61,8 @@
             </tr>
         </thead>
         <tbody>
-            <tr class="tr-clickable " ng-repeat="model in models.models | filter:search | filterMultiple:{ organization:selected_organization, species:selected_species, brain_region:selected_brain_region , cell_type:selected_cell_type, model_type:selected_model_type}
-                        | orderBy: selected_sorting_option" ng-click="Context.modelCatalog_goToModelDetailView(model.id) " ng-if="model.private== selected_privacy[0].value || model.private== selected_privacy[1].value ">
+            <tr ng-mousedown="Context.goToModelDetailView($event, model,'')" oncontextmenu="return false" class="tr-clickable " ng-repeat="model in models.models | filter:search | filterMultiple:{ organization:selected_organization, species:selected_species, brain_region:selected_brain_region , cell_type:selected_cell_type, model_type:selected_model_type}
+                        | orderBy: selected_sorting_option" ng-if="model.private== selected_privacy[0].value || model.private== selected_privacy[1].value ">
                 <td>{{ model.name}}</td>
                 <td ng-text-truncate=model.alias ng-tt-chars-threshold="50 " ng-tt-no-toggling>{{ model.alias }}</td>
                 <td ng-text-truncate=model.species ng-tt-chars-threshold="50 " ng-tt-no-toggling>{{ model.species }}</td>
