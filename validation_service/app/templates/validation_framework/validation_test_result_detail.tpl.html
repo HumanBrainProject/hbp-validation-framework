@@ -147,9 +147,9 @@
                     <tr>
                         <b> Description: </b> <br><br>
                         <div markdown="test_result.model_version.model.description" ng-text-truncate="test_result.model_version.model.description" ng-tt-words-threshold="100" ng-tt-no-toggling></div>
-                        <button class=linkbutton align=right text-align=right type="button" ng-click="Context.validation_goToModelDetailView(test_result.model_version.model.id)"> (more details on model results page)</button>
+                        <button class=linkbutton align=right text-align=right type="button" ng-mousedown="Context.goToValidationModelView($event,test_result.model_version.model)"> (more details on model results page)</button>
                         <br>
-                        <button class=linkbutton align=right text-align=right type="button" ng-click="Context.validation_goToModelCatalog(test_result.model_version.model)"> (more details on model catalog)</button>
+                        <button class=linkbutton align=right text-align=right type="button" ng-mousedown="Context.goToModelDetailView($event,test_result.model_version.model.id,'validation')"> (more details on model catalog)</button>
 
                         <br><br>
                     </tr>
@@ -184,7 +184,7 @@
                     <tr>
                         <b>Protocol: </b> <br><br>
                         <div markdown="test_result.test_code.test_definition.protocol" ng-text-truncate="test_result.test_code.test_definition.protocol" ng-tt-words-threshold="100" ng-tt-no-toggling></div>
-                        <button class=linkbutton align=right text-align=right type="button" ng-click="Context.validation_goToTestDetailView(test_result.test_code.test_definition.id)">(more details on test results page)</button>
+                        <button class=linkbutton align=right text-align=right type="button" ng-mousedown="Context.goToTestDetailView($event,test_result.test_code.test_definition.id)">(more details on test results page)</button>
                         <br><br>
                     </tr>
                 </tbody>

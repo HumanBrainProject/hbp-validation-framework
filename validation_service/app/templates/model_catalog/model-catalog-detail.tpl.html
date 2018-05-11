@@ -10,7 +10,7 @@
     <nav class="navbar ">
         <h1 align=center> {{ model.models[0].name}}
         </h1>
-        <h3 align=center> Owner: {{ model.models[0].owner }} </h3>
+        <h3 ng-if="model.models[0].owner && model.models[0].owner!=''" align=center> Owner: {{ model.models[0].owner }} </h3>
         <h3 align=center> Author(s): {{ model.models[0].author }} </h3>
     </nav>
     <nav>
@@ -45,6 +45,9 @@
                 </tr>
                 <tr style="width: 15%" ng-if="model.models[0].organization && model.models[0].organization!='' &&  model.models[0].organization!='<<empty>>'">
                     <td> <b> Organization: </b> {{ model.models[0].organization }} </td>
+                </tr>
+                <tr style="width: 15%" ng-if="model.models[0].project && model.models[0].project!=''">
+                    <td> <b> Project: </b> {{ model.models[0].project }} </td>
                 </tr>
                 <tr style="width: 15%" ng-if="model.models[0].parameters && model.models[0].parameters!=''">
                     <td> <b> Parameters: </b> {{ model.models[0].parameters }} </td>
@@ -116,7 +119,7 @@
                     <td style="width: 15%">{{ model_instance.version }}</td>
                     <td style="width: 15%">{{ model_instance.id }}</td>
                     <td style="width: 15%"><pre> <div markdown=model_instance.description></div></pre></td>
-                    <td style="width: 15%"><pre "width: 15%"> {{model_instance.parameters}} ></div></pre></td>
+                    <td style="width: 15%"><pre "width: 15%"> {{model_instance.parameters}}</div></pre></td>
                     <td style="width: 15%">{{ model_instance.code_format }}</td>
 
                     <td style="width: 15%">

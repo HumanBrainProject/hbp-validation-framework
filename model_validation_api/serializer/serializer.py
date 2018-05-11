@@ -64,7 +64,7 @@ class ScientificModelInstanceReadOnlySerializer(serializers.HyperlinkedModelSeri
     model = ScientificModelReadOnlySerializer2(read_only=True)
     class Meta:
         model = ScientificModelInstance
-        fields = ('id', 'version','description', 'parameters', 'code_format', 'source', 'model')
+        fields = ('id', 'version','description', 'parameters', 'code_format', 'source', 'model', 'hash')
 
 
 ##########################

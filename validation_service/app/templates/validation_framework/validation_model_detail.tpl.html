@@ -105,7 +105,7 @@
                 </thead>
                 <tbody>
                     <tr ng-repeat="test_code in data_for_table.test_codes">
-                        <td class=tr-clickable ng-click=Context.validation_goToTestDetailView(test_code.test_id)>test #{{test_code.line_id}}</td>
+                        <td class=tr-clickable ng-mousedown="Context.goToTestDetailView($event, test_code.test_id)">test #{{test_code.line_id}}</td>
                         <td colspan=2 ng-repeat="model_instance in test_code.model_instances">
 
                             <div ng-if="model_instance.results.length <= 3">
@@ -116,22 +116,22 @@
 
                                     <tbody>
                                         <tr ng-repeat="(key, result) in model_instance.results">
-                                            <td class="tr-clickable VF-table-result-td-margin-right" ng-click=Context.validation_goToResultDetailView(result.id)>
+                                            <td class="tr-clickable VF-table-result-td-margin-right" ng-mousedown="Context.goToResultDetailView($event, result.id)">
 
-                                                <div ng-if="key == 0">
+                                                <div ng-if=" key==0 ">
                                                     <b precision=result.score> </b>
 
                                                 </div>
-                                                <div ng-if="key != 0" precision=result.score>
+                                                <div ng-if="key !=0 " precision=result.score>
 
                                                 </div>
                                             </td>
 
-                                            <td class=" VF-table-result-td-margin-left">
-                                                <div ng-if="key == 0">
+                                            <td class=" VF-table-result-td-margin-left ">
+                                                <div ng-if="key==0 ">
                                                     <b> {{result.timestamp  | date:'d MMMM yyyy, hh:mm' : 'UTC' }} </b>
                                                 </div>
-                                                <div ng-if="key != 0">
+                                                <div ng-if="key !=0 ">
                                                     {{result.timestamp | date:'d MMMM yyyy, hh:mm' : 'UTC' }}
                                                 </div>
                                             </td>
@@ -141,13 +141,13 @@
                                 </table>
                             </div>
 
-                            <div ng-if="model_instance.results.length > 3" style="height:75px;overflow:auto;">
+                            <div ng-if="model_instance.results.length> 3" style="height:75px;overflow:auto;">
                                 <table>
                                     <thead> </thead>
 
                                     <tbody>
                                         <tr ng-repeat="(key, result) in model_instance.results">
-                                            <td class="tr-clickable VF-table-result-td-margin-right" ng-click=Context.validation_goToResultDetailView(result.id)>
+                                            <td class="tr-clickable VF-table-result-td-margin-right" ng-click=Context.goToResultDetailView($event,result)>
                                                 <div ng-if="key == 0">
                                                     <b precision=result.score> </b>
 

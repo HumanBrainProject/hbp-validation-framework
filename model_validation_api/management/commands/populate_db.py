@@ -454,7 +454,14 @@ class Command(BaseCommand):
         	for test_instance in elements_to_delete:
                 	test_instance.delete()
 	
-    
+    def add_element(self, table_type, list_elements, *args, **options):
+	if table_type == 'species':
+		for elem in list_elements:
+			Param_Species(id=uuid.uuid4(),authorized_value=elem).save()
+	if table_type == 'data_modalities':
+		for elem in list_elements:
+			Param_DataModalities(id=uuid.uuid4(),authorized_value=elem).save()
+
     def handle(self, *args, **options):
         #create_data_modalities()
         #create_test_types()

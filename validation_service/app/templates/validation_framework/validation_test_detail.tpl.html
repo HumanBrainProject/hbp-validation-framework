@@ -596,7 +596,7 @@
                     </thead>
                     <tbody>
                         <tr ng-repeat="model_instance in data_for_table.model_instances">
-                            <td colspan=2 class=tr-clickable ng-click=Context.validation_goToModelDetailView(model_instance.model_id)>model #{{model_instance.line_id}} </td>
+                            <td colspan=2 class=tr-clickable ng-mousedown="Context.goToModelDetailView($event,model_instance.model_id,'validation')">model #{{model_instance.line_id}} </td>
 
                             <td colspan=2 ng-repeat="test_code in model_instance.test_instances">
                                 <div ng-if="test_code.results.length <= 3">
@@ -605,7 +605,7 @@
 
                                         <tbody>
                                             <tr ng-repeat="(key,result) in test_code.results">
-                                                <td class="tr-clickable VF-table-result-td-margin-right" ng-click=Context.validation_goToResultDetailView(result.id)>
+                                                <td class="tr-clickable VF-table-result-td-margin-right" ng-mousedown="Context.goToResultDetailView($event, result.id)">
                                                     <div ng-if="key == 0">
                                                         <b precision=result.score> </b>
                                                     </div>
@@ -633,7 +633,7 @@
                                         <tbody>
                                             <tr ng-repeat="(key,result) in test_code.results">
 
-                                                <td class="tr-clickable VF-table-result-td-margin-right" ng-click=Context.validation_goToResultDetailView(result.id)>
+                                                <td class="tr-clickable VF-table-result-td-margin-right" ng-mousedown="Context.goToResultDetailView($event, result)">
                                                     <div ng-if="key == 0">
                                                         <b precision=result.score>  </b>
 

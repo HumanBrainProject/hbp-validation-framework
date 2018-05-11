@@ -6,7 +6,7 @@
 
 
 import pprint
-
+import math
 import json
 import logging
 from urlparse import urlparse, parse_qs
@@ -355,11 +355,11 @@ class ParametersConfigurationRest( APIView): #LoginRequiredMixin,
     def get(self, request, format=None, **kwargs):
         """
         Get app configuration. 
-    :param app_id: id of application 
-    :type app_id: string
-    :returns: configuration array
-    :rtype: json:
-    """
+        :param app_id: id of application 
+        :type app_id: string
+        :returns: configuration array
+        :rtype: json:
+        """
         serializer_context = {'request': request,}
 
         app_id = request.GET.getlist('app_id')
@@ -922,12 +922,12 @@ class Models(APIView):
                 collab_params = CollabParameters.objects.get(id = app_id )
 
                 collab_ids = list(CollabParameters.objects.all().values_list('collab_id', flat=True).distinct())
-                
+                collab_ids_new = []
                 for collab in collab_ids:
-                    if not is_authorised(request, collab):
-                        collab_ids.remove(collab)
+                    if is_authorised(request, collab):
+                        collab_ids_new.append(collab)
        
-                all_ctx_from_collab = CollabParameters.objects.filter(collab_id__in=collab_ids).distinct()
+                all_ctx_from_collab = CollabParameters.objects.filter(collab_id__in=collab_ids_new).distinct()
 
                 #if one of the collab_param is empty, don't filter on it. 
                 species_filter = collab_params.species.split(",")
@@ -2107,6 +2107,7 @@ class Results (APIView):
                 if user_has_acces_to_result(request, result) is False :
                     temp_results.exclude(id = result.id )
             results = temp_results
+
                        
         else :
             results =  ValidationTestResult.objects.filter(id__in = param_id)
@@ -2115,8 +2116,14 @@ class Results (APIView):
             for result in results :
                 if user_has_acces_to_result(request, result) is False :
                     return Response("You do not access to result : {}".format(result.id), status=status.HTTP_403_FORBIDDEN)
-                    
-        data_to_return = organise_results_dict(detailed_view, param_order, results, serializer_context)
+       
+        #####quick fix to get out nan and infinity numbers --will need to change it by allowing the json    
+        new_results = []
+        for result in results:
+            if not math.isnan(result.score) and not math.isnan(result.normalized_score):
+                new_results.append(result)
+
+        data_to_return = organise_results_dict(detailed_view, param_order, new_results, serializer_context)
 
         # file = get_storage_file_by_id(request)
         # data_to_return['PDF'] = file

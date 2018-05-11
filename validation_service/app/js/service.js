@@ -32,19 +32,111 @@ ContextServices.service('Context', ['$rootScope', '$location', 'AppIDRest', 'Col
 
             }, 300);
         };
-        var modelCatalog_goToModelDetailView = function(model_id) {
+        var newTab_goToValidationTest = function(test_id) {
+            _getCollabIDAndAppIDFromUrl().then(function(ids) {
+                var url = "https://collab.humanbrainproject.eu/#/collab/" + ids.collab_id + "/nav/" + ids.app_id +
+                    "?state=test." + test_id + ",external"; //to go to collab api
+                window.open(url, '_blank');
+            })
+        }
+        var newTab_goToValidationModel = function(model) {
+            _getCollabIDAndAppIDFromUrl().then(function(ids) {
+                var url = "https://collab.humanbrainproject.eu/#/collab/" + ids.collab_id + "/nav/" + ids.app_id +
+                    "?state=model." + model.id + ",external"; //to go to collab api
+                window.open(url, '_blank');
+            })
+        }
+        var newTab_goToModelCatalogModel = function(model_id, app_type) {
+            _getCollabIDAndAppIDFromUrl(app_type).then(function(ids) {
+                var url = "https://collab.humanbrainproject.eu/#/collab/" + ids.collab_id + "/nav/" + ids.app_id +
+                    "?state=model." + model_id + ",external"; //to go to collab api
+                window.open(url, '_blank')
+            })
+        }
+        var newTab_goToTestResult = function(result_id) {
+            app_type = ''
+            _getCollabIDAndAppIDFromUrl(app_type).then(function(ids) {
+                var url = "https://collab.humanbrainproject.eu/#/collab/" + ids.collab_id + "/nav/" + ids.app_id +
+                    "?state=result." + result_id + ",external"; //to go to collab api
+                window.open(url, '_blank')
+            })
+        }
+        var goToModelDetailView = function(evt, model_id, app_type) {
+            switch (evt.which) {
+                case 1:
+                    if (app_type == 'validation') {
+                        newTab_goToModelCatalogModel(model_id, app_type)
+                    } else {
+                        modelCatalog_goToModelDetailView(model_id)
+                    }
 
+                    break;
+
+                case 3:
+                    // this is right click
+                    newTab_goToModelCatalogModel(model_id, app_type)
+                    break;
+            }
+        }
+
+        var modelCatalog_goToModelDetailView = function(model_id) {
             sendState("model", model_id);
             setState(model_id);
 
-            $location.path('/model-catalog/detail/' + model_id);
-            // $location.replace();
-
-
-            // $scope.$apply()
-
+            $location.path('/model-catalog/detail/' + model_id); // this is left click
             setTimeout(function() {}, 0);
         };
+
+        var validation_goToModelCatalog = function(model, collab_id) {
+
+            collab_id = typeof collab_id !== 'undefined' ? collab_id : this.collabID;
+
+            var collab_id = collabID;
+            var app_id = collabAppID.get({ collab_id: collab_id });
+
+            app_id.$promise.then(function() {
+                var url = "https://collab.humanbrainproject.eu/#/collab/" + collab_id + "/nav/" + app_id.app_id +
+                    "?state=model." + model.id + ",external"; //to go to collab api
+                window.open(url, 'ModelCatalog');
+            });
+        }
+        var goToTestDetailView = function(evt, test_id) {
+            console.log("test_id", test_id)
+            switch (evt.which) {
+                case 1:
+                    validation_goToTestDetailView(test_id)
+                    break;
+
+                case 3:
+                    // open in new tab
+                    newTab_goToValidationTest(test_id);
+                    break;
+            }
+        }
+        var goToResultDetailView = function(evt, result) {
+            switch (evt.which) {
+                case 1:
+                    validation_goToResultDetailView(result.id)
+                    break;
+
+                case 3:
+                    // open in new tab
+                    newTab_goToTestResult(result);
+                    break;
+            }
+        }
+        var goToValidationModelView = function(evt, model) {
+            switch (evt.which) {
+                case 1:
+                    validation_goToModelDetailView(model.id)
+                    break;
+
+                case 3:
+                    // open in new tab
+                    newTab_goToValidationModel(model);
+                    break;
+            }
+        }
         var validation_goToTestCatalogView = function() {
             sendState("id", '0');
             setState('0');
@@ -72,19 +164,7 @@ ContextServices.service('Context', ['$rootScope', '$location', 'AppIDRest', 'Col
             setState(result_id);
             $location.path('/home/validation_test_result/' + result_id);
         };
-        var validation_goToModelCatalog = function(model, collab_id) {
 
-            collab_id = typeof collab_id !== 'undefined' ? collab_id : this.collabID;
-
-            var collab_id = collabID;
-            var app_id = collabAppID.get({ collab_id: collab_id });
-
-            app_id.$promise.then(function() {
-                var url = "https://collab.humanbrainproject.eu/#/collab/" + collab_id + "/nav/" + app_id.app_id +
-                    "?state=model." + model.id + ",external"; //to go to collab api
-                window.open(url, 'modelCatalog');
-            });
-        }
 
         var getCurrentLocationSearch = function() {
             return window.location.search;
@@ -162,7 +242,59 @@ ContextServices.service('Context', ['$rootScope', '$location', 'AppIDRest', 'Col
 
             });
         };
+        _getCollabIDAndAppIDFromUrl = function(app_type) {
+            return new Promise(function(resolve, reject) {
+                var location = getCurrentLocationSearch();
+                temp_state = location.split("&")[1];
 
+
+                if (temp_state != undefined && temp_state != "ctxstate=") {
+                    temp_state2 = temp_state.split("%2C")[0];
+                    temp_state2 = temp_state2.substring(9);
+                    state_type = temp_state2.split(".")[0]
+                    state = temp_state2.split(".")[1]
+
+                    if (temp_state.split("%2C")[1] != undefined) {
+                        external = temp_state.split("%2C")[1];
+                    }
+                }
+
+                // _getCtx();
+                if (ctx == undefined) {
+                    ctx = window.location.search.split("&")[0].substring(5);
+                }
+
+                // getCollabID();
+                if (collabID == undefined || collabID == "") {
+                    var collab_request = CollabIDRest.get({ ctx: ctx }); //.collab_id;
+                    collab_request.$promise.then(function() {
+                        collabID = collab_request.collab_id
+                    });
+                }
+
+                // getAppID();
+
+                if (app_type == 'validation') {
+                    var app_id = collabAppID.get({ collab_id: collabID });
+                    app_id.$promise.then(function() {
+                        appID = app_id.app_id;
+                        console.log('app_id', app_id)
+                        resolve({ collab_id: collabID, app_id: appID })
+                    })
+                } else {
+                    if (appID == undefined || appID == "") {
+                        var app_request = AppIDRest.get({ ctx: ctx }); //.collab_id;
+                        app_request.$promise.then(function() {
+                            appID = app_request.app_id
+                        });
+                    }
+                    resolve({ collab_id: collabID, app_id: appID })
+                }
+
+
+            })
+
+        }
         var setState = function(id) {
             state = id;
         };
@@ -259,6 +391,14 @@ ContextServices.service('Context', ['$rootScope', '$location', 'AppIDRest', 'Col
             getExternal: getExternal,
             getStateType: getStateType,
             getCurrentLocationSearch: getCurrentLocationSearch,
+            goToModelDetailView: goToModelDetailView,
+            goToTestDetailView: goToTestDetailView,
+            goToValidationModelView: goToValidationModelView,
+            goToResultDetailView: goToResultDetailView,
+            newTab_goToModelCatalogModel: newTab_goToModelCatalogModel,
+            newTab_goToValidationTest: newTab_goToValidationTest,
+            newTab_goToTestResult: newTab_goToTestResult,
+            newTab_goToValidationModel: newTab_goToValidationModel,
             modelCatalog_goToHomeView: modelCatalog_goToHomeView,
             modelCatalog_goToModelDetailView: modelCatalog_goToModelDetailView,
             validation_goToHomeView: validation_goToHomeView,
