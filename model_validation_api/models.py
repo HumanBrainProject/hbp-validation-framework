@@ -43,7 +43,7 @@ class ValidationTestDefinition(models.Model):
     author = models.CharField(max_length=100, help_text="Author of this test")  # H
     publication = models.CharField(max_length=1000, null=True, blank=True, help_text="Publication in which the validation data set was reported")  # E
     score_type = models.CharField(help_text="Type of score: p-value, r square ..", max_length=20)
-    alias = models.CharField(max_length=200, unique=True, null=True, default=None, help_text="alias of the test") 
+    alias = models.CharField(max_length=200, unique=True, null=True, blank=True, default=None, help_text="alias of the test") 
     creation_date = models.DateTimeField(auto_now_add=True, help_text="creation date of the test")
     
     # missing fields wrt Lungsi's spreadsheet
@@ -60,7 +60,11 @@ class ValidationTestDefinition(models.Model):
         Return the most recent code for this test
         """
         return self.code.latest()
-
+    def clean_something_unique_or_null(self):
+        if self.cleaned_data['alias'] == "":
+            return None
+        else:
+            return self.cleaned_data['alias']
 
 @python_2_unicode_compatible
 class ValidationTestCode(models.Model):
@@ -118,6 +122,11 @@ class ScientificModel(models.Model):
     def __str__(self):
         return "Model: {} ({})".format(self.name, self.id)
 
+    def clean_something_unique_or_null(self):
+        if self.cleaned_data['alias'] == "":
+            return None
+        else:
+            return self.cleaned_data['alias']
 
 @python_2_unicode_compatible
 class ScientificModelInstance(models.Model):

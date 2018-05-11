@@ -336,11 +336,12 @@
     width: 200px;
     height: 200px;
     position: absolute;
+    padding: 0 1px 18px 0;
     left: 50%;
     /* centers the loading animation horizontally one the screen */
     top: 50%;
     /* centers the loading animation vertically one the screen */
-    background-image: url(../static/PreLoadMe-master/img/status.gif);
+    background-image: url("./status.gif");
     /* path to your loading animation */
     background-repeat: no-repeat;
     background-position: center;
