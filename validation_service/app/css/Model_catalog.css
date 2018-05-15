@@ -262,7 +262,24 @@
         overflow: auto;
     }
     
+    .permissions-panel {
+        /*height:10px;
+        width: 320px;*/
+        padding: 5px;
+        border: 2px solid #dfe7ef;
+        float: right;
+        margin-right: 7%;
+        margin-left: 2%;
+        margin-bottom: 1%;
+        margin-top: 1%;
+        overflow: auto;
+    }
+    
     .text-justify {
         text-align: justify;
         text-justify: inter-word;
+    }
+    
+    .text-centered {
+        text-align: center;
     }
