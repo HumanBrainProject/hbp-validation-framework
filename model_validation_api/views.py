@@ -25,7 +25,7 @@ from django.http import (HttpResponse, JsonResponse,
                          HttpResponseNotAllowed,     # 405
                          HttpResponseNotModified,    # 304
                          HttpResponseRedirect)       # 302
-from django.db.models import Max, Count
+from django.db.models import Max, Count, CASCADE
 from django.conf import settings
 from django.template import loader
 import requests
@@ -1104,6 +1104,7 @@ class Models(APIView):
             
         collab_id = get_collab_id_from_app_id(app_id)
         if not is_authorised(request, collab_id):
+            return HttpResponse('Unauthorized', status=401)
             return HttpResponseForbidden()
 
         serializer_context = {'request': request,}
@@ -1198,9 +1199,11 @@ class Models(APIView):
         app_id = model.app_id
         collab_id = get_collab_id_from_app_id(app_id)
         if not is_authorised(request, collab_id):
+            return HttpResponse('Unauthorized', status=401)
             return HttpResponseForbidden()
 
         app_id = value['app_id']
+        
         collab_id = get_collab_id_from_app_id(app_id)
         if not is_authorised(request, collab_id):
             return HttpResponseForbidden()
@@ -1221,7 +1224,7 @@ class Models(APIView):
         if model_serializer.is_valid() :        
             check_param = check_param_of_model_json(value)
             if check_param is True :
-                model = model_serializer.save()
+                model = model_serializer.save(app_id=app_id)
             else :
                 return Response(check_param, status=status.HTTP_400_BAD_REQUEST)
                 
