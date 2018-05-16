@@ -9,6 +9,7 @@ import pprint
 import math
 import json
 import logging
+import time
 from urlparse import urlparse, parse_qs
 from datetime import date
 from django.shortcuts import render
@@ -28,6 +29,7 @@ from django.http import (HttpResponse, JsonResponse,
 from django.db.models import Max, Count, CASCADE
 from django.conf import settings
 from django.template import loader
+from django.db import connection
 import requests
 from hbp_app_python_auth.auth import get_access_token, get_auth_header
 
@@ -190,29 +192,29 @@ class AuthorizedCollabParameterRest(APIView):
             
         serializer_context = {'request': request,}
 
-        data_modalities = Param_DataModalities.objects.all()
+        data_modalities = Param_DataModalities.objects.all().order_by('authorized_value')
         data_modalities_serializer = Param_DataModalitiesSerializer(data_modalities, context=serializer_context, many=True)
         
-        test_type = Param_TestType.objects.all()
+        test_type = Param_TestType.objects.all().order_by('authorized_value')
         test_type_serializer = Param_TestTypeSerializer(test_type, context=serializer_context, many=True)
         
-        species = Param_Species.objects.all()
+        species = Param_Species.objects.all().order_by('authorized_value')
         species_serializer = Param_SpeciesSerializer(species, context=serializer_context, many=True)
         
-        brain_region = Param_BrainRegion.objects.all()
+        brain_region = Param_BrainRegion.objects.all().order_by('authorized_value')
         brain_region_serializer = Param_BrainRegionSerializer(brain_region, context=serializer_context, many=True)
         
-        cell_type = Param_CellType.objects.all()
+        cell_type = Param_CellType.objects.all().order_by('authorized_value')
         cell_type_serializer = Param_CellTypeSerializer(cell_type, context=serializer_context, many=True)
         
-        model_type = Param_ModelType.objects.all()
-        model_type_serializer = Param_ModelTypeSerializer(model_type, context=serializer_context, many=True)     
+        model_type = Param_ModelType.objects.all().order_by('authorized_value')
+        model_type_serializer = Param_ModelTypeSerializer(model_type, context=serializer_context, many=True)  
 
-        score_type = Param_ScoreType.objects.all()
+        score_type = Param_ScoreType.objects.all().order_by('authorized_value')
         score_type_serializer = Param_ScoreTypeSerializer(score_type, context=serializer_context, many=True)     
         
-        organization = Param_organizations.objects.all()
-        organization_serializer = Param_OrganizationsSerializer(organization, context=serializer_context, many=True)   
+        organization = Param_organizations.objects.all().order_by('authorized_value')
+        organization_serializer = Param_OrganizationsSerializer(organization, context=serializer_context, many=True)  
 
         ##for python client #'python_client=True' 'parameters= list()'
         if python_client == 'true':
@@ -245,7 +247,7 @@ class AuthorizedCollabParameterRest(APIView):
                     if (param == 'test_type'):
                         res['test_type'] = test_type.values_list('authorized_value', flat=True)
                     if (param == 'brain_region'):
-                        res['brain_region'] = brain_region.values_list('authorized_value', flat=True) 
+                        res['brain_region'] = brain_region.values_list('authorized_value', flat=True)
                     if (param == 'cell_type'):
                         res['cell_type'] = cell_type.values_list('authorized_value', flat=True)
                     if (param == 'model_type'):
@@ -901,34 +903,47 @@ class Models(APIView):
         serializer_context = {
             'request': request,
         }
-
-        id = request.GET.getlist('id')
+        # time_spent=time.time()
+        # id = request.GET.getlist('id')
         if check_list_uuid_validity(id) is False :
             return Response("Badly formed uuid in : id", status=status.HTTP_400_BAD_REQUEST)
             
 
         #if model id not specifiedorresponding to this alias. 
         if(len(id) == 0):
-
+            
+            # print("after going in first loop :", time.time()-time_spent)
+            # time_spent=time.time()
             web_app = request.GET.getlist('web_app')    
 
 
             #if the request comes from the webapp : uses collab_parameters
             if len(web_app) > 0 and web_app[0] == 'True' :  
-
+               
+                # print("after going in first if :", time.time()-time_spent)
+                # time_spent=time.time()
                 app_id = request.GET.getlist('app_id')[0]
+                # print("after getting app_id:", time.time()-time_spent)
+                # time_spent=time.time()
                 collab_id = get_collab_id_from_app_id(app_id)
-
+                # print("after getting collab_id :", time.time()-time_spent)
+                # time_spent=time.time()
                 collab_params = CollabParameters.objects.get(id = app_id )
 
                 collab_ids = list(CollabParameters.objects.all().values_list('collab_id', flat=True).distinct())
+                # print("after getting collab_ids_list :", time.time()-time_spent)
+                # collab_ids = ["2180"] #######don't forget to erase it!!!!
+                # time_spent=time.time()
                 collab_ids_new = []
                 for collab in collab_ids:
                     if is_authorised(request, collab):
                         collab_ids_new.append(collab)
-       
+                # print("after checking permissions :", time.time()-time_spent)
+                # time_spent=time.time()        
                 all_ctx_from_collab = CollabParameters.objects.filter(collab_id__in=collab_ids_new).distinct()
-
+                
+                # print("after getting all ctx :", time.time()-time_spent)
+                # time_spent=time.time()
                 #if one of the collab_param is empty, don't filter on it. 
                 species_filter = collab_params.species.split(",")
                 if species_filter==[u'']:
@@ -958,8 +973,9 @@ class Models(APIView):
                 if organization_filter==[u'']:
                     organization_filter = list(Param_organizations.objects.all().values_list('authorized_value', flat=True)) #+[u'']
 
-    
-               
+         
+                # print("after filtering with config :", time.time()-time_spent)    
+                # time_spent=time.time()
                 rq1 = ScientificModel.objects.filter(
                         private=1,
                         app__in=all_ctx_from_collab.values("id"), 
@@ -981,8 +997,13 @@ class Models(APIView):
                     models  = (rq1 | rq2).distinct().order_by('-creation_date')
                 else:
                     models = rq2.distinct().order_by('-creation_date')
-                
+               
                 model_serializer = ScientificModelReadOnlyForHomeSerializer(models, context=serializer_context, many=True )
+                
+                # print("after getting queries :", time.time()-time_spent)
+                # print("get models requests:")
+                # for query in connection.queries:
+                #     print(query)
                 return Response({
                 'models': model_serializer.data,
                 })

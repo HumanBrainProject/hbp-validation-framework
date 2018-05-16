@@ -551,9 +551,11 @@ ParametersConfigurationServices.service('CollabParameters', ['$rootScope', 'Coll
             var param = getParametersByType(type);
 
             if (param.length > 0) {
+                param = _move_element_at_the_end_of_array("Other", param)
                 return param;
             } else {
-                return default_parameters[type];
+                param = _move_element_at_the_end_of_array("Other", default_parameters[type])
+                return param;
             }
         };
 
@@ -661,6 +663,12 @@ ParametersConfigurationServices.service('CollabParameters', ['$rootScope', 'Coll
             parameters.param[0]['test_type'] = string_tab[5];
             parameters.param[0]['organization'] = string_tab[6];
         };
+
+        var _move_element_at_the_end_of_array = function(elem, array) {
+            array.splice(array.indexOf(elem), 1)
+            array.push(elem)
+            return array;
+        }
 
         var setService = function(ctx_param) {
             return new Promise(function(resolve, reject) {
