@@ -8,10 +8,30 @@
 <body>
     <br>
     <nav class="navbar ">
+
+        <panel id="panel-permissions" class=permissions-panel>
+            <table class="table-create text-centered">
+                <thead>
+                    <th>
+                        <div align=center> Permissions </div>
+                    </th>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <div ng-if="is_collab_member == true"> Read and Write</div>
+                            <div ng-if="is_collab_member == false"> Read only</div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </panel>
+
         <h1 align=center> {{ model.models[0].name}}
         </h1>
         <h3 ng-if="model.models[0].owner && model.models[0].owner!=''" align=center> Owner: {{ model.models[0].owner }} </h3>
         <h3 align=center> Author(s): {{ model.models[0].author }} </h3>
+
     </nav>
     <nav>
 
@@ -19,6 +39,7 @@
 
         <a ng-href="#/model-catalog/edit/{{model.models[0].id}}" ng-if="is_collab_member == true" class="button-MC">Edit</a>&ensp;
         <a ng-href="#/model-catalog/version/{{model.models[0].id}}" class="button-MC">New version</a>&ensp;
+
     </nav>
     <br>
     <br>
@@ -26,6 +47,9 @@
     <br>
     <h4 style="margin-left:33%"> <b>Model Description</b> </h4>
     <br>
+
+
+
     <panel class=caracteristics-panel>
         <h4 align=center> <b>  Model information </b></h4>
         <br>

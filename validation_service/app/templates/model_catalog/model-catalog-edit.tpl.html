@@ -27,128 +27,130 @@
                 <tr>
                     <table>
 
-                        <body>
+                        <tbody>
                             <tr>
-                                <td>
-                                    <table>
 
-                                        <body>
-                                            <tr>
-                                                <td>
-                                                    <b>Name:</b>
-                                                </td>
-                                                <td>
-                                                    <input type="text" ng-model=model.models[0].name required/>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>
-                                                    <b>Author:</b>
-                                                </td>
-                                                <td>
-                                                    <input type="text" ng-model=model.models[0].author required/>
-                                                </td>
-                                            </tr>
-                                        </body>
-                                    </table>
+                                <td>
+                                    <b>Name:</b>
                                 </td>
                                 <td>
-                                    <table id="table-create">
-                                        <tbody>
-                                            <tr>
-                                                <td>
-                                                    <b>Species:</b>
-                                                </td>
-                                                <td>
-                                                    <select id="select-species" data-style="btn-primary" ng-model="model.models[0].species" required>
-                                         <option ng-repeat="s in species" value="{{s}}">{{s}}</option>
-                                    </select>
-                                                </td>
-                                                <td>
-                                                    <b>Brain region: </b>
-                                                </td>
-                                                <td>
-                                                    <select id="select-brain-region" data-style="btn-primary" ng-model="model.models[0].brain_region" required>
-                                         <option ng-repeat="br in brain_region" value="{{br}}">{{br}}</option>
-                                    </select>
-                                                </td>
-                                                <td>
-                                                    <b>Organization: </b>
-                                                </td>
-                                                <td>
-                                                    <select id="select-organization" data-style="btn-primary" ng-model="model.models[0].organization" required>
+                                    <input type="text" ng-model=model.models[0].name required/>
+                                </td>
+                                <td>
+                                    <b>Alias (optional):</b>
+                                </td>
+                                <td>
+                                    <input type="text" ng-model=model.models[0].alias />
+
+                                    <br>
+                                    <span ng-show="alias_is_valid.is_valid==false" class="red-font">This alias already exists. Please choose another one. </span>
+                                    <span ng-show="alias_is_valid.is_valid==true" class="green-font">This alias is valid!</span>
+                                </td>
+
+                                <td>
+                                    <a class="glyphicon glyphicon-question-sign" aria-hidden="true" data-toggle="tooltip" data-placement="right" title="Example: M#1"></a>
+                                    <button type="button" ng-click=checkAliasValidity()> Check validity</button>
+                                </td>
+
+                            </tr>
+                            <tr>
+                                <td>
+                                    <b>Author:</b>
+                                </td>
+                                <td>
+                                    <input type="text" ng-model=model.models[0].author required/>
+                                </td>
+                                <td>
+                                    <b>Owner:</b>
+                                </td>
+                                <td>
+                                    <input type="text" ng-model=model.models[0].owner required/>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td>
+                                    <b>App id:</b>
+                                </td>
+                                <td>
+                                    <input type="text" ng-model=model.models[0].app.id required/>
+                                </td>
+                                <td>
+                                    <b>License:</b>
+                                </td>
+                                <td>
+                                    <input type="text" ng-model=model.models[0].license>
+                                </td>
+                                <td>
+                                    <b>Private: </b> &nbsp
+                                    <!--</td>
+                                <td>-->
+                                    <label><input type="radio" ng-model="model.models[0].private" value="false"/>no</label> &emsp;
+                                    <label><input type="radio" ng-model="model.models[0].private" value="true" />yes</label>
+                                </td>
+
+                            </tr>
+                            <tr>
+                                <td>
+                                    <b>Organization: </b>
+                                </td>
+                                <td>
+                                    <select id="select-organization" data-style="btn-primary" ng-model="model.models[0].organization" required>
                                          <option ng-repeat="o in organization" value="{{o}}">{{o}}</option>
                                     </select>
-                                                </td>
-                                                <td>
-                                                    <b>Private: </b>
-                                                </td>
-                                                <td>
-                                                    <label><input type="radio" ng-model="model.models[0].private" value="false"/>no</label> &emsp;
-                                                    <label><input type="radio" ng-model="model.models[0].private" value="true" />yes</label>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>
-                                                    <b>Cell type:</b>
-                                                </td>
-                                                <td>
-                                                    <select id="select-cell-type" data-style="btn-primary" ng-model="model.models[0].cell_type" required>
-                                         <option ng-repeat="ct in cell_type" value="{{ct}}">{{ct}}</option>
-                                    </select>
-                                                </td>
-                                                <td>
-                                                    <b>Model type:</b>
-                                                </td>
-                                                <td>
-                                                    <select id="select-model-type" data-style="btn-primary" ng-model="model.models[0].model_type" required>
-                                         <option ng-repeat="mt in model_type" value="{{mt}}">{{mt}}</option>
-                                    </select>
-                                                </td>
+                                </td>
 
-                                                <td>
-                                                    <b>Project:</b>
-                                                </td>
-                                                <td>
-                                                    <input type="text" ng-model=model.models[0].project>
-                                                </td>
-                                                <td>
-                                                    <b>License:</b>
-                                                </td>
-                                                <td>
-                                                    <input type="text" ng-model=model.models[0].license>
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
+                                <td>
+                                    <b>Project:</b>
+                                </td>
+                                <td>
+                                    <input type="text" ng-model=model.models[0].project>
+                                </td>
+
+
+
+                            </tr>
+
+                            <tr>
+
+                                <td>
+                                    <b>Species:</b>
+                                </td>
+                                <td>
+                                    <select id="select-species" data-style="btn-primary" ng-model="model.models[0].species" required>
+                                         <option ng-repeat="s in species" value="{{s}}">{{s}}</option>
+                                    </select>
+                                </td>
+                                <td>
+                                    <b>Brain region: </b>
+                                </td>
+                                <td>
+                                    <select id="select-brain-region" data-style="btn-primary" ng-model="model.models[0].brain_region" required>
+                                         <option ng-repeat="br in brain_region" value="{{br}}">{{br}}</option>
+                                    </select>
                                 </td>
                             </tr>
                             <tr>
-                                <table id="table-create">
-                                    <tbody>
-                                        <tr>
-                                            <td>
-                                                <b>Owner:</b>
-                                            </td>
-                                            <td>
-                                                <input type="text" ng-model=model.models[0].owner required/>
-                                            </td>
-                                            <td>
-                                                <b>Alias (optional):</b>
-                                            </td>
-                                            <td>
-                                                <input type="text" ng-model=model.models[0].alias />
-                                                <a class="glyphicon glyphicon-question-sign" aria-hidden="true" data-toggle="tooltip" data-placement="right" title="Example: M#1"></a>
-                                                <button type="button" ng-click=checkAliasValidity()> Check validity</button>
-                                                <br>
-                                                <span ng-show="alias_is_valid.is_valid==false" class="red-font">This alias already exists. Please choose another one. </span>
-                                                <span ng-show="alias_is_valid.is_valid==true" class="green-font">This alias is valid!</span>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
+                                <td>
+                                    <b>Cell type:</b>
+                                </td>
+                                <td>
+                                    <select id="select-cell-type" data-style="btn-primary" ng-model="model.models[0].cell_type" required>
+                                         <option ng-repeat="ct in cell_type" value="{{ct}}">{{ct}}</option>
+                                    </select>
+                                </td>
+                                <td>
+                                    <b>Model type:</b>
+                                </td>
+                                <td>
+                                    <select id="select-model-type" data-style="btn-primary" ng-model="model.models[0].model_type" required>
+                                         <option ng-repeat="mt in model_type" value="{{mt}}">{{mt}}</option>
+                                    </select>
+                                </td>
+
                             </tr>
-                        </body>
+
+                        </tbody>
                     </table>
                     <table>
                         <tbody>
