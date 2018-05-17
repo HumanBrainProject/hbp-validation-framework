@@ -904,7 +904,7 @@ class Models(APIView):
             'request': request,
         }
         # time_spent=time.time()
-        # id = request.GET.getlist('id')
+        id = request.GET.getlist('id')
         if check_list_uuid_validity(id) is False :
             return Response("Badly formed uuid in : id", status=status.HTTP_400_BAD_REQUEST)
             
