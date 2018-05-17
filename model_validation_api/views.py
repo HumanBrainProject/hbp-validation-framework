@@ -1683,7 +1683,7 @@ class Tests(APIView):
                         
                 tests = q.order_by('-creation_date')
                 #serializer : ValidationTestDefinition
-                test_serializer = ValidationTestDefinitionSerializer(tests, context=serializer_context, many=True)
+                test_serializer = ValidationTestDefinitionFullSerializer(tests, context=serializer_context, many=True)
 
                 
 
