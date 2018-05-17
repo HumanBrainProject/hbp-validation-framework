@@ -644,12 +644,6 @@ class ModelInstances (APIView):
                     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
             else:
                 if 'version' in instance:
-                    if 'model_alias' in instance:
-                        try: 
-                            model = ScientificModel.objects.get(alias = instance['model_alias'])
-                        except:
-                            return Response('There is no model with this alias. Please give a new alias or try with the model_id directly.', status=status.HTTP_400_BAD_REQUEST)
-                        instance['model_id'] = model.id
                     if 'model_id' in instance:
                         try: 
                             original_instance = ScientificModelInstance.objects.get(model_id= instance['model_id'], version=instance['version'])
@@ -659,6 +653,12 @@ class ModelInstances (APIView):
                         serializer = ScientificModelInstanceSerializer(original_instance, data=instance, context=serializer_context)
                         if not serializer.is_valid():
                             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+                    if 'model_alias' in instance:
+                        try: 
+                            model = ScientificModel.objects.get(alias = instance['model_alias'])
+                        except:
+                            return Response('There is no model with this alias. Please give a new alias or try with the model_id directly.', status=status.HTTP_400_BAD_REQUEST)
+                        instance['model_id'] = model.id 
                 else:
                     return Response("To edit a model instance, you need to give an id, or a model_id with a version, or a model_alias with a version ", status=status.HTTP_400_BAD_REQUEST)    
 
