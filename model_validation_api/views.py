@@ -1002,7 +1002,7 @@ class Models(APIView):
                     page = request.GET.getlist('page')[0]
                 except:
                     page=0
-                pagination_number = 10
+                pagination_number = 50
 
                 if(page != 0):
                     if page == '1':

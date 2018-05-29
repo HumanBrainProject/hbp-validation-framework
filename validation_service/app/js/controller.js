@@ -1075,7 +1075,7 @@ ModelCatalogApp.controller('ModelCatalogCtrl', [
     function($scope, $rootScope, $http, $location, ScientificModelRest, CollabParameters, IsCollabMemberRest, Context, Help, DataHandler) {
 
         //pagination parameters
-        $scope.itemsPerPages = 10;
+        $scope.itemsPerPages = 20;
         $scope.models = [];
         $scope.total_models = 0;
 
