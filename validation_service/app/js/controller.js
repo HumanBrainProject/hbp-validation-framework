@@ -55,13 +55,7 @@ testApp.controller('HomeCtrl', ['$scope', '$rootScope', '$http', '$location', "S
                 }
 
             }
-
         });
-
-
-
-
-
     }
 ]);
 
@@ -1094,21 +1088,20 @@ ModelCatalogApp.controller('ModelCatalogCtrl', [
             return models
         }
 
-        $scope.pageChanged = function(nbPage) {
-            if ($scope.models_by_page) {
-                $scope.models = $scope.models_by_page[nbPage];
-            }
-        }
 
         $scope._load_other_models = function() {
             var i = 2;
             for (i; i <= $scope.nb_pages; i++) {
                 DataHandler.loadModelsByPage({ app_id: $scope.app_id, page: i }).then(function(new_models) {
-                    $scope.models_by_page[new_models.page] = $scope._change_empty_organization_string(new_models);
+                    $scope.models.models = $scope.models.models.concat($scope._change_empty_organization_string(new_models).models);
+                    $scope.models.models = $scope.models.models.sort(_sort_array_by_timestamp_desc)
                     $scope.$apply();
-                    $scope.models.concat(new_models.models);
                 })
             }
+        }
+
+        var _sort_array_by_timestamp_desc = function(a, b) {
+            return new Date(b.creation_date) - new Date(a.creation_date);
         }
 
         Context.setService().then(function() {
@@ -1128,13 +1121,6 @@ ModelCatalogApp.controller('ModelCatalogCtrl', [
                     $scope.maxSize = 5;
                     $scope.current_page = 1;
                     $scope.models = $scope._change_empty_organization_string(data);
-                    $scope.models_by_page = [];
-                    $scope.models_by_page[1] = $scope._change_empty_organization_string(data);
-                    var i = 2
-                    for (i; i <= $scope.nb_pages; i++) {
-                        $scope.models_by_page[i] = new Array();
-                        $scope.$apply();
-                    }
 
                     $scope.$apply();
 
