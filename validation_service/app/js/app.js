@@ -146,6 +146,7 @@
         'HelpServices',
         'ngTextTruncate',
         'hbpCollaboratory',
+        'angularUtils.directives.dirPagination',
     ]);
 
     ModelCatalogApp.config(

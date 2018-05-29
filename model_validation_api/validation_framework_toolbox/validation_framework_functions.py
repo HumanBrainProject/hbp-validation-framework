@@ -607,3 +607,12 @@ def _get_app_id(request):
     app_id = res.json()['id']
     
     return app_id
+
+def _get_nb_pages (total_items, nb_per_pages):
+    mod = divmod(total_items,nb_per_pages)
+    if mod[1] == 0:
+        pages = mod[0]
+    else:
+        pages = mod[0]+1
+
+    return pages

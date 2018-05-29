@@ -425,6 +425,7 @@ DataHandlerServices.service('DataHandler', ['$rootScope', 'ScientificModelRest',
         //- up to date
         //- outdated 
         //- undefined
+        //- loading //loading the pages
 
 
         //TODO function to complete the list when the user create a new model
@@ -438,7 +439,7 @@ DataHandlerServices.service('DataHandler', ['$rootScope', 'ScientificModelRest',
                 if (models.status == undefined) {
                     var temp_models = ScientificModelRest.get(dict_params);
                     temp_models.$promise.then(function() {
-                        models = { date_last_load: new Date(), status: "up to date", data: temp_models };
+                        models = { date_last_load: new Date(), status: "loading", data: temp_models };
                         resolve(models.data);
                     });
 
@@ -449,15 +450,49 @@ DataHandlerServices.service('DataHandler', ['$rootScope', 'ScientificModelRest',
                     } else {
                         var temp_models = ScientificModelRest.get(dict_params);
                         temp_models.$promise.then(function() {
-                            models = { date_last_load: new Date(), status: "up to date", data: temp_models };
+                            if (temp_models.total_nb_pages == dict_params.page) {
+                                models = { date_last_load: new Date(), status: "loading", data: temp_models };
+                            } else {
+                                models = { date_last_load: new Date(), status: "up_to_date", data: temp_models };
+                            }
                             resolve(models.data);
                         });
                     }
                 }
-
             });
         };
 
+        var loadModelsByPage = function(dict_params) {
+            return new Promise(function(resolve, reject) {
+                var temp_models = ScientificModelRest.get(dict_params);
+                //var temp_models = _get_models_sequentially(dict_params);
+                temp_models.$promise.then(function() {
+                    if (temp_models.total_nb_pages == dict_params.page) {
+                        models = { date_last_load: new Date(), status: "loading", data: temp_models };
+                    } else {
+                        models = { date_last_load: new Date(), status: "up_to_date", data: temp_models };
+                    }
+                    resolve(models.data);
+                });
+            })
+        }
+        var _get_models_sequentially = function(dict_params) {
+            //load 50 first elements should return also the number of pages
+            var temp_models = ScientificModelRest.get(dict_params);
+            temp_models.$promise.then(function() {
+                models = { date_last_load: new Date(), status: "up to date", data: temp_models };
+                // resolve(models.data);
+
+                for (i = 1; i <= temp_models.total_nb_pages; i++) {
+                    dict_params['page'] = i;
+                    ScientificModelRest.get(dict_params).$promise.then(function(next_models) {
+                        new_models = models //will have to change to append new files
+                        models = { date_last_load: new Date(), status: "up to date", data: new_models };
+                        resolve(models.data);
+                    });
+                }
+            })
+        }
         var loadTests = function(dict_params) {
             return new Promise(function(resolve, reject) {
                 if (dict_params.id != undefined) {
@@ -513,6 +548,7 @@ DataHandlerServices.service('DataHandler', ['$rootScope', 'ScientificModelRest',
 
         return {
             loadModels: loadModels,
+            loadModelsByPage: loadModelsByPage,
             loadTests: loadTests,
             getStoredModels: getStoredModels,
             getStoredTests: getStoredTests,

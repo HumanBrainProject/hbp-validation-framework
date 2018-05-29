@@ -133,8 +133,8 @@ from .validation_framework_toolbox.validation_framework_functions import (
     get_result_informations,
     organise_results_dict,
     _get_collab_id,
-    _get_app_id
-
+    _get_app_id,
+    _get_nb_pages,
 )
 
 
@@ -644,12 +644,6 @@ class ModelInstances (APIView):
                     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
             else:
                 if 'version' in instance:
-                    if 'model_alias' in instance:
-                        try: 
-                            model = ScientificModel.objects.get(alias = instance['model_alias'])
-                        except:
-                            return Response('There is no model with this alias. Please give a new alias or try with the model_id directly.', status=status.HTTP_400_BAD_REQUEST)
-                        instance['model_id'] = model.id
                     if 'model_id' in instance:
                         try: 
                             original_instance = ScientificModelInstance.objects.get(model_id= instance['model_id'], version=instance['version'])
@@ -659,6 +653,12 @@ class ModelInstances (APIView):
                         serializer = ScientificModelInstanceSerializer(original_instance, data=instance, context=serializer_context)
                         if not serializer.is_valid():
                             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+                    if 'model_alias' in instance:
+                        try: 
+                            model = ScientificModel.objects.get(alias = instance['model_alias'])
+                        except:
+                            return Response('There is no model with this alias. Please give a new alias or try with the model_id directly.', status=status.HTTP_400_BAD_REQUEST)
+                        instance['model_id'] = model.id 
                 else:
                     return Response("To edit a model instance, you need to give an id, or a model_id with a version, or a model_alias with a version ", status=status.HTTP_400_BAD_REQUEST)    
 
@@ -904,7 +904,7 @@ class Models(APIView):
             'request': request,
         }
         # time_spent=time.time()
-        # id = request.GET.getlist('id')
+        id = request.GET.getlist('id')
         if check_list_uuid_validity(id) is False :
             return Response("Badly formed uuid in : id", status=status.HTTP_400_BAD_REQUEST)
             
@@ -974,8 +974,6 @@ class Models(APIView):
                     organization_filter = list(Param_organizations.objects.all().values_list('authorized_value', flat=True)) #+[u'']
 
          
-                # print("after filtering with config :", time.time()-time_spent)    
-                # time_spent=time.time()
                 rq1 = ScientificModel.objects.filter(
                         private=1,
                         app__in=all_ctx_from_collab.values("id"), 
@@ -997,15 +995,30 @@ class Models(APIView):
                     models  = (rq1 | rq2).distinct().order_by('-creation_date')
                 else:
                     models = rq2.distinct().order_by('-creation_date')
-               
-                model_serializer = ScientificModelReadOnlyForHomeSerializer(models, context=serializer_context, many=True )
-                
-                # print("after getting queries :", time.time()-time_spent)
-                # print("get models requests:")
-                # for query in connection.queries:
-                #     print(query)
+
+
+                ####check for pages###
+                try:
+                    page = request.GET.getlist('page')[0]
+                except:
+                    page=0
+                pagination_number = 50
+
+                if(page != 0):
+                    if page == '1':
+                        model_serializer = ScientificModelReadOnlyForHomeSerializer(models[0:pagination_number], context=serializer_context, many=True )
+                    else:
+                        init = (int(page)-1)*(pagination_number)
+                        end = (int(page)-1)*(pagination_number)+pagination_number-1
+                        model_serializer = ScientificModelReadOnlyForHomeSerializer(models[init:end], context=serializer_context, many=True )
+                else: 
+                    model_serializer = ScientificModelReadOnlyForHomeSerializer(models, context=serializer_context, many=True )
+             
                 return Response({
                 'models': model_serializer.data,
+                'page':page,
+                'total_nb_pages': _get_nb_pages(len(models), pagination_number),
+                'total_models':len(models)
                 })
             
 
@@ -1683,7 +1696,7 @@ class Tests(APIView):
                         
                 tests = q.order_by('-creation_date')
                 #serializer : ValidationTestDefinition
-                test_serializer = ValidationTestDefinitionSerializer(tests, context=serializer_context, many=True)
+                test_serializer = ValidationTestDefinitionFullSerializer(tests, context=serializer_context, many=True)
 
                 
 
