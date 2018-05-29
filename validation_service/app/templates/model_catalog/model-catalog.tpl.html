@@ -1,13 +1,10 @@
 <html id="model-list" ng-controller="ModelCatalogCtrl">
 
-<head>
+<body>
     <nav class="navbar ">
         <div align=right> <button class=linkbutton type="button" ng-click="Context.modelCatalog_goToHelpView()"> Help </button> </div>
         <h1 align=center> Model Catalog</h1>
     </nav>
-</head>
-
-<body>
     <nav>
         <table>
             <tr>
@@ -61,8 +58,8 @@
             </tr>
         </thead>
         <tbody>
-            <tr ng-mousedown="Context.goToModelDetailView($event, model.id)" oncontextmenu="return false" class="tr-clickable " ng-repeat="model in models.models | filter:search | filterMultiple:{ organization:selected_organization, species:selected_species, brain_region:selected_brain_region , cell_type:selected_cell_type, model_type:selected_model_type}
-                        | orderBy: selected_sorting_option" ng-if="model.private== selected_privacy[0].value || model.private== selected_privacy[1].value ">
+            <tr ng-mousedown="Context.goToModelDetailView($event, model.id)" oncontextmenu="return false" class="tr-clickable " dir-paginate="model in models.models | filter:search | filterMultiple:{ organization:selected_organization, species:selected_species, brain_region:selected_brain_region , cell_type:selected_cell_type, model_type:selected_model_type}
+                        | orderBy: selected_sorting_option | itemsPerPage: itemsPerPages" pagination-id="models" total-items="total_models">
                 <td>{{ model.name}}</td>
                 <td ng-text-truncate=model.alias ng-tt-chars-threshold="50 " ng-tt-no-toggling>{{ model.alias }}</td>
                 <td ng-text-truncate=model.species ng-tt-chars-threshold="50 " ng-tt-no-toggling>{{ model.species }}</td>
@@ -76,10 +73,11 @@
                     <div ng-if="model.private == 1" class="glyphicon glyphicon-lock">Private</div>
                     <div ng-if="model.private == 0" class="glyphicon glyphicon-book">Public</div>
                 </td>
-                <!--<td ng-text-truncate=model.app.collab_id ng-tt-chars-threshold="50 " ng-tt-no-toggling>{{ model.app.collab_id }}</td>-->
             </tr>
         </tbody>
     </table>
+    <dir-pagination-controls pagination-id="models" class="pull-right" on-page-change="pageChanged(newPageNumber)"></dir-pagination-controls>
+
     <div id="preloader">
         <div id="status">&nbsp;</div>
     </div>

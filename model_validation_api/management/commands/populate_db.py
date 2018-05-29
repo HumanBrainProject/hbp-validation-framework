@@ -455,12 +455,30 @@ class Command(BaseCommand):
                 	test_instance.delete()
 	
     def add_element(self, table_type, list_elements, *args, **options):
-	if table_type == 'species':
-		for elem in list_elements:
-			Param_Species(id=uuid.uuid4(),authorized_value=elem).save()
-	if table_type == 'data_modalities':
-		for elem in list_elements:
-			Param_DataModalities(id=uuid.uuid4(),authorized_value=elem).save()
+	    if table_type == 'species':
+		    for elem in list_elements:
+			    Param_Species(id=uuid.uuid4(),authorized_value=elem).save()
+	    if table_type == 'data_modalities':
+		    for elem in list_elements:
+			    Param_DataModalities(id=uuid.uuid4(),authorized_value=elem).save()
+    
+    def create_fake_models(self, number_models,*args, **options):
+        import uuid
+        for i in range(0,number_models):
+            uuid_model = uuid.uuid4()
+            model = ScientificModel(id= uuid_model)         
+            model.name = "fake_model_name_"+str(i)
+            model.description = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed non risus. Suspendisse lectus tortor, dignissim sit amet, adipiscing nec, ultricies sed, dolor. Cras elementum ultrices diam. Maecenas ligula massa, varius a, semper congue, euismod non, mi. Proin porttitor, orci nec nonummy molestie, enim est eleifend mi, non fermentum diam nisl sit amet erat. Duis semper. Duis arcu massa, scelerisque vitae, consequat in, pretium a, enim. Pellentesque congue. Ut in risus volutpat libero pharetra tempor. Cras vestibulum bibendum augue. Praesent egestas leo in pede. Praesent blandit odio eu enim. Pellentesque sed dui ut augue blandit sodales. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Aliquam nibh. Mauris ac mauris sed pede pellentesque fermentum. Maecenas adipiscing ante non diam sodales hendrerit.Ut velit mauris, egestas sed, gravida nec, ornare ut, mi. Aenean ut orci vel massa suscipit pulvinar. Nulla sollicitudin. Fusce varius, ligula non tempus aliquam, nunc turpis ullamcorper nibh, in tempus sapien eros vitae ligula. Pellentesque rhoncus nunc et augue. Integer id felis. Curabitur aliquet pellentesque diam. Integer quis metus vitae elit lobortis egestas. Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Morbi vel erat non mauris convallis vehicula. Nulla et sapien. Integer tortor tellus, aliquam faucibus, convallis id, congue eu, quam. Mauris ullamcorper felis vitae erat. Proin feugiat, augue non elementum posuere, metus purus iaculis lectus, et tristique ligula justo vitae magna.Aliquam convallis sollicitudin purus. Praesent aliquam, enim at fermentum mollis, ligula massa adipiscing nisl, ac euismod nibh nisl eu lectus. Fusce vulputate sem at sapien. Vivamus leo. Aliquam euismod libero eu enim. Nulla nec felis sed leo placerat imperdiet. Aenean suscipit nulla in justo. Suspendisse cursus rutrum augue. Nulla tincidunt tincidunt mi. Curabitur iaculis, lorem vel rhoncus faucibus, felis magna fermentum augue, et ultricies lacus lorem varius purus. Curabitur eu amet"
+            model.species = "Mouse (Mus musculus)"
+            model.brain_region = "Hippocampus"
+            model.cell_type = "Interneuron"
+            model.author = "heli"
+            model.model_type = "Single Cell"
+            model.private = "1"
+            model.app_id = "38111"
+            model.code_format = "py"
+            model.save()        
+
 
     def handle(self, *args, **options):
         #create_data_modalities()
@@ -478,8 +496,8 @@ class Command(BaseCommand):
 	#self.delete("model", ['2b160a50e2a445c69d908773a8d81f9b'])
 	#self.delete("model_instance", ['2b160a50e2a445c69d908773a8d81f9b'])
 	#self.delete("test", ['111307e4c86541529c2076fa26762051'])
-	self.delete("test_instance", ['01270b83f1af49c79f16c500262e9c9a','a11b6786318d4546922f85dedf8c3491'])
-       
+	#self.delete("test_instance", ['01270b83f1af49c79f16c500262e9c9a','a11b6786318d4546922f85dedf8c3491'])
+       self.create_fake_models(62)
        
 
 

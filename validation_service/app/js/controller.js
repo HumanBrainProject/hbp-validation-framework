@@ -1080,31 +1080,77 @@ ModelCatalogApp.controller('ModelCatalogCtrl', [
 
     function($scope, $rootScope, $http, $location, ScientificModelRest, CollabParameters, IsCollabMemberRest, Context, Help, DataHandler) {
 
+        //pagination parameters
+        $scope.itemsPerPages = 10;
+        $scope.models = [];
+        $scope.total_models = 0;
+
+        $scope._change_empty_organization_string = function(models) {
+            for (var model in models.models) {
+                if (models.models[model].organization == "<<empty>>") {
+                    models.models[model].organization = "";
+                }
+            }
+            return models
+        }
+
+        $scope.pageChanged = function(nbPage) {
+            if ($scope.models_by_page) {
+                $scope.models = $scope.models_by_page[nbPage];
+            }
+        }
+
+        $scope._load_other_models = function() {
+            var i = 2;
+            for (i; i <= $scope.nb_pages; i++) {
+                DataHandler.loadModelsByPage({ app_id: $scope.app_id, page: i }).then(function(new_models) {
+                    $scope.models_by_page[new_models.page] = $scope._change_empty_organization_string(new_models);
+                    $scope.$apply();
+                    $scope.models.concat(new_models.models);
+                })
+            }
+        }
+
         Context.setService().then(function() {
 
             $scope.Context = Context;
 
-            var ctx = Context.getCtx();
-            var app_id = Context.getAppID();
-
+            $scope.ctx = Context.getCtx();
+            $scope.app_id = Context.getAppID();
+            $scope.pagination = {
+                current: 1
+            };
             if (Context.getState() == "" || Context.getState() == undefined || Context.getState() == "n") {
 
-                DataHandler.loadModels({ app_id: app_id }).then(function(data) {
-                    $scope.models = data
-                        //change organization value to avoid errors
-                    for (var model in $scope.models.models) {
-                        if ($scope.models.models[model].organization == "<<empty>>") {
-                            $scope.models.models[model].organization = "";
-                        }
+                DataHandler.loadModels({ app_id: $scope.app_id, page: 1 }).then(function(data) {
+                    $scope.total_models = data.total_models;
+                    $scope.nb_pages = data.total_nb_pages;
+                    $scope.maxSize = 5;
+                    $scope.current_page = 1;
+                    $scope.models = $scope._change_empty_organization_string(data);
+                    $scope.models_by_page = [];
+                    $scope.models_by_page[1] = $scope._change_empty_organization_string(data);
+                    var i = 2
+                    for (i; i <= $scope.nb_pages; i++) {
+                        $scope.models_by_page[i] = new Array();
+                        $scope.$apply();
                     }
+
                     $scope.$apply();
+
                     $('#status').fadeOut(); // will first fade out the loading animation 
                     $('#preloader').delay(350).fadeOut('slow'); // will fade out the white DIV that covers the website. 
                     $('body').delay(350).css({ 'overflow': 'visible' });
+
+
+                    $scope._load_other_models();
+
+
                 });
                 Context.sendState("model", "n");
 
-                CollabParameters.setService(ctx).then(function() {
+
+                CollabParameters.setService($scope.ctx).then(function() {
 
                     $scope.model_privacy = [{ "name": "private", "value": true }, { "name": "public", "value": false }];
                     $scope.selected_privacy = $scope.model_privacy;
@@ -1120,7 +1166,7 @@ ModelCatalogApp.controller('ModelCatalogCtrl', [
 
 
                     $scope.is_collab_member = false;
-                    $scope.is_collab_member = IsCollabMemberRest.get({ app_id: app_id, });
+                    $scope.is_collab_member = IsCollabMemberRest.get({ app_id: $scope.app_id, });
                     $scope.is_collab_member.$promise.then(function() {
                         $scope.is_collab_member = $scope.is_collab_member.is_member;
                     });

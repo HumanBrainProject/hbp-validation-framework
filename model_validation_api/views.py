@@ -133,8 +133,8 @@ from .validation_framework_toolbox.validation_framework_functions import (
     get_result_informations,
     organise_results_dict,
     _get_collab_id,
-    _get_app_id
-
+    _get_app_id,
+    _get_nb_pages,
 )
 
 
@@ -974,8 +974,6 @@ class Models(APIView):
                     organization_filter = list(Param_organizations.objects.all().values_list('authorized_value', flat=True)) #+[u'']
 
          
-                # print("after filtering with config :", time.time()-time_spent)    
-                # time_spent=time.time()
                 rq1 = ScientificModel.objects.filter(
                         private=1,
                         app__in=all_ctx_from_collab.values("id"), 
@@ -997,15 +995,30 @@ class Models(APIView):
                     models  = (rq1 | rq2).distinct().order_by('-creation_date')
                 else:
                     models = rq2.distinct().order_by('-creation_date')
-               
-                model_serializer = ScientificModelReadOnlyForHomeSerializer(models, context=serializer_context, many=True )
-                
-                # print("after getting queries :", time.time()-time_spent)
-                # print("get models requests:")
-                # for query in connection.queries:
-                #     print(query)
+
+
+                ####check for pages###
+                try:
+                    page = request.GET.getlist('page')[0]
+                except:
+                    page=0
+                pagination_number = 10
+
+                if(page != 0):
+                    if page == '1':
+                        model_serializer = ScientificModelReadOnlyForHomeSerializer(models[0:pagination_number], context=serializer_context, many=True )
+                    else:
+                        init = (int(page)-1)*(pagination_number)
+                        end = (int(page)-1)*(pagination_number)+pagination_number-1
+                        model_serializer = ScientificModelReadOnlyForHomeSerializer(models[init:end], context=serializer_context, many=True )
+                else: 
+                    model_serializer = ScientificModelReadOnlyForHomeSerializer(models, context=serializer_context, many=True )
+             
                 return Response({
                 'models': model_serializer.data,
+                'page':page,
+                'total_nb_pages': _get_nb_pages(len(models), pagination_number),
+                'total_models':len(models)
                 })
             
 
