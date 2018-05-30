@@ -58,9 +58,7 @@
             </tr>
         </thead>
         <tbody>
-            <!--<tr ng-mousedown="Context.goToModelDetailView($event, model.id)" oncontextmenu="return false" class="tr-clickable " dir-paginate="model in models.models | filter:search | filterMultiple:{ organization:selected_organization, species:selected_species, brain_region:selected_brain_region , cell_type:selected_cell_type, model_type:selected_model_type}
-                        | orderBy: selected_sorting_option | itemsPerPage: itemsPerPages" pagination-id="models" total-items="total_models">-->
-            <tr ng-mousedown="Context.goToModelDetailView($event, model.id)" oncontextmenu="return false" class="tr-clickable " dir-paginate="model in models.models | filter:search | filterMultiple:{ organization:selected_organization, species:selected_species, brain_region:selected_brain_region , cell_type:selected_cell_type, model_type:selected_model_type}
+            <tr ng-mousedown="Context.goToModelDetailView($event, model.id)" oncontextmenu="return false" class="tr-clickable " dir-paginate="model in models.models | filter:search | filterMultiple:{ organization:selected_organization, species:selected_species, brain_region:selected_brain_region , cell_type:selected_cell_type, model_type:selected_model_type, private: selected_privacy}
                         | orderBy: selected_sorting_option | itemsPerPage: itemsPerPages" pagination-id="models">
                 <td>{{ model.name}}</td>
                 <td ng-text-truncate=model.alias ng-tt-chars-threshold="50 " ng-tt-no-toggling>{{ model.alias }}</td>

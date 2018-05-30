@@ -211,6 +211,7 @@ testApp.controller('ValModelDetailCtrl', ['$scope', '$rootScope', '$http', '$loc
                                     $scope.$apply();
                                 });
                                 $scope.init_graph = init_graph.values;
+                                console.log("init graph", $scope.init_graph, $scope.init_graph.length)
                             });
 
                             DataHandler.loadModels({ app_id: $scope.app_id }).then(function(data) {
@@ -945,7 +946,11 @@ testApp.filter('filterMultiple', ['$parse', '$filter', function($parse, $filter)
                         if (obj.length > 0) {
                             for (var i = 0; i < obj.length; i++) {
                                 if (angular.isDefined(obj[i])) {
-                                    fObj[key] = obj[i];
+                                    if (angular.isDefined(obj[i]['value'])) {
+                                        fObj[key] = obj[i]['value'];
+                                    } else {
+                                        fObj[key] = obj[i];
+                                    }
                                     fData = fData.concat($filter('filter')(this.filteredData, fObj));
                                 }
                             }
@@ -1030,7 +1035,11 @@ ModelCatalogApp.filter('filterMultiple', ['$parse', '$filter', function($parse, 
                         if (obj.length > 0) {
                             for (var i = 0; i < obj.length; i++) {
                                 if (angular.isDefined(obj[i])) {
-                                    fObj[key] = obj[i];
+                                    if (angular.isDefined(obj[i]['value'])) {
+                                        fObj[key] = obj[i]['value'];
+                                    } else {
+                                        fObj[key] = obj[i];
+                                    }
                                     fData = fData.concat($filter('filter')(this.filteredData, fObj));
                                 }
                             }
@@ -1138,8 +1147,7 @@ ModelCatalogApp.controller('ModelCatalogCtrl', [
 
                 CollabParameters.setService($scope.ctx).then(function() {
 
-                    $scope.model_privacy = [{ "name": "private", "value": true }, { "name": "public", "value": false }];
-                    $scope.selected_privacy = $scope.model_privacy;
+                    $scope.model_privacy = [{ value: "true", name: "private" }, { value: "false", name: "public" }] //[{ "name": "private", "value": "true" }, { "name": "public", "value": "false" }];
 
                     $scope.collab_species = CollabParameters.getParametersOrDefaultByType("species");
                     $scope.collab_brain_region = CollabParameters.getParametersOrDefaultByType("brain_region");
@@ -1147,7 +1155,6 @@ ModelCatalogApp.controller('ModelCatalogCtrl', [
                     $scope.collab_model_type = CollabParameters.getParametersOrDefaultByType("model_type");
                     $scope.collab_organization = CollabParameters.getParametersOrDefaultByType("organization");
 
-                    // $scope.models = ScientificModelRest.get({ app_id: app_id });
 
 
 

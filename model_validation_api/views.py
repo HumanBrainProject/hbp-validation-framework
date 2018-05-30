@@ -911,40 +911,30 @@ class Models(APIView):
 
         #if model id not specifiedorresponding to this alias. 
         if(len(id) == 0):
-            
-            # print("after going in first loop :", time.time()-time_spent)
-            # time_spent=time.time()
+         
             web_app = request.GET.getlist('web_app')    
 
 
             #if the request comes from the webapp : uses collab_parameters
             if len(web_app) > 0 and web_app[0] == 'True' :  
                
-                # print("after going in first if :", time.time()-time_spent)
-                # time_spent=time.time()
+            
                 app_id = request.GET.getlist('app_id')[0]
-                # print("after getting app_id:", time.time()-time_spent)
-                # time_spent=time.time()
+              
                 collab_id = get_collab_id_from_app_id(app_id)
-                # print("after getting collab_id :", time.time()-time_spent)
-                # time_spent=time.time()
+             
                 collab_params = CollabParameters.objects.get(id = app_id )
 
                 collab_ids = list(CollabParameters.objects.all().values_list('collab_id', flat=True).distinct())
-                # print("after getting collab_ids_list :", time.time()-time_spent)
-                # collab_ids = ["2180"] #######don't forget to erase it!!!!
-                # time_spent=time.time()
+         
                 collab_ids_new = []
                 for collab in collab_ids:
                     if is_authorised(request, collab):
                         collab_ids_new.append(collab)
-                # print("after checking permissions :", time.time()-time_spent)
-                # time_spent=time.time()        
+           
                 all_ctx_from_collab = CollabParameters.objects.filter(collab_id__in=collab_ids_new).distinct()
                 
-                # print("after getting all ctx :", time.time()-time_spent)
-                # time_spent=time.time()
-                #if one of the collab_param is empty, don't filter on it. 
+              
                 species_filter = collab_params.species.split(",")
                 if species_filter==[u'']:
                     species_filter = list(Param_Species.objects.all().values_list('authorized_value', flat=True))+[u'']
@@ -2157,9 +2147,9 @@ class Results (APIView):
         #####quick fix to get out nan and infinity numbers --will need to change it by allowing the json    
         new_results = []
         for result in results:
-            if not math.isnan(result.score) and not math.isnan(result.normalized_score):
+            if not math.isnan(float(result.score)) and not math.isnan(float(result.normalized_score)) and not math.isinf(float(result.score)) and not math.isinf(float(result.normalized_score)):
                 new_results.append(result)
-
+                
         data_to_return = organise_results_dict(detailed_view, param_order, new_results, serializer_context)
 
         # file = get_storage_file_by_id(request)
