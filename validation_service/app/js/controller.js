@@ -211,6 +211,7 @@ testApp.controller('ValModelDetailCtrl', ['$scope', '$rootScope', '$http', '$loc
                                     $scope.$apply();
                                 });
                                 $scope.init_graph = init_graph.values;
+                                console.log("init graph", $scope.init_graph, $scope.init_graph.length)
                             });
 
                             DataHandler.loadModels({ app_id: $scope.app_id }).then(function(data) {

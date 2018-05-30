@@ -2147,9 +2147,9 @@ class Results (APIView):
         #####quick fix to get out nan and infinity numbers --will need to change it by allowing the json    
         new_results = []
         for result in results:
-            if not math.isnan(result.score) and not math.isnan(result.normalized_score):
+            if not math.isnan(float(result.score)) and not math.isnan(float(result.normalized_score)) and not math.isinf(float(result.score)) and not math.isinf(float(result.normalized_score)):
                 new_results.append(result)
-
+                
         data_to_return = organise_results_dict(detailed_view, param_order, new_results, serializer_context)
 
         # file = get_storage_file_by_id(request)

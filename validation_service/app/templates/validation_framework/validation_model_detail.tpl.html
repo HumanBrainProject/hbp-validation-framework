@@ -69,12 +69,12 @@
 
     <br>
     <br>
-    <div id='panel-no-results' ng-if="init_graph.values.length == 0">
+    <div id='panel-no-results' ng-if="init_graph.length == 0">
         <h3 align=center> No result available for this model </h3>
     </div>
 
 
-    <div id=panel-results ng-if="init_graph.values.length != 0">
+    <div id=panel-results ng-if="init_graph.length != 0">
         <h4 align=center> <b>  Results </b></h4>
         <br>
         <div id=VF-model-table-all-data>
