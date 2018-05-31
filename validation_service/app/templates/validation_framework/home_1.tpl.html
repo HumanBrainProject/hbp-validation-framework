@@ -69,8 +69,8 @@
                         <th>Author</th>
                     </thead>
                     <br>
-                    <tr class=tr-clickable id="test1" ng-repeat="model in models.models | filter: search | filterMultiple:{organization:selected_organization, species:selected_species, brain_region:selected_brain_region, cell_type:selected_cell_type, model_type:selected_model_type} | orderBy: selected_sorting_option"
-                        ng-mousedown="Context.goToValidationModelView($event, model)">
+                    <tr class=tr-clickable id="test1" dir-paginate="model in models.models | filter: search | filterMultiple:{organization:selected_organization, species:selected_species, brain_region:selected_brain_region, cell_type:selected_cell_type, model_type:selected_model_type} | orderBy: selected_sorting_option | itemsPerPage: itemsPerPages"
+                        pagination-id="models-pagination" ng-mousedown="Context.goToValidationModelView($event, model)">
                         <td ng-if=!(model.alias) ng-text-truncate=model.name ng-tt-chars-threshold="20" ng-tt-no-toggling> {{model.name}} </td>
                         <td ng-if=model.alias ng-text-truncate=model.alias ng-tt-chars-threshold="20" ng-tt-no-toggling> {{model.alias}} </td>
                         <td ng-text-truncate=model.id ng-tt-chars-threshold="8" ng-tt-no-toggling>{{model.id}}</td>
@@ -78,6 +78,7 @@
                         <br>
                     </tr>
                 </table>
+                <dir-pagination-controls pagination-id="models-pagination" class="pull-left"></dir-pagination-controls>
             </div>
             <div class="element-middle"></div>
             <div class="element-right">
@@ -90,7 +91,8 @@
                     </thead>
                     <br>
 
-                    <tr class="tr-clickable" ng-mousedown="Context.goToTestDetailView($event, test.id)" ng-repeat="test in tests.tests | filter:search | filterMultiple:{species:selected_species, brain_region:selected_brain_region, cell_type:selected_cell_type, model_type:selected_model_type} | orderBy: selected_sorting_option">
+                    <tr class="tr-clickable" ng-mousedown="Context.goToTestDetailView($event, test.id)" dir-paginate="test in tests.tests | filter:search | filterMultiple:{species:selected_species, brain_region:selected_brain_region, cell_type:selected_cell_type, model_type:selected_model_type} | orderBy: selected_sorting_option | itemsPerPage: itemsPerPages"
+                        pagination-id="tests-pagination">
 
                         <td ng-if=!(test.alias) ng-text-truncate=test.name ng-tt-chars-threshold="20" ng-tt-no-toggling> {{test.name}} </td>
                         <td ng-if=test.alias ng-text-truncate=test.alias ng-tt-chars-threshold="20" ng-tt-no-toggling> {{test.alias}} </td>
@@ -99,6 +101,7 @@
                         <br>
                     </tr>
                 </table>
+                <dir-pagination-controls pagination-id="tests-pagination" class="pull-right"></dir-pagination-controls>
             </div>
 
         </div>
