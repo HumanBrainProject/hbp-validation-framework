@@ -5,17 +5,34 @@ var testApp = angular.module('testApp');
 
 testApp.controller('HomeCtrl', ['$scope', '$rootScope', '$http', '$location', "ScientificModelRest", "ValidationTestDefinitionRest", 'CollabParameters', 'IsCollabMemberRest', 'Context', 'ScientificModelInstanceRest', 'ValidationTestCodeRest', 'DataHandler',
     function($scope, $rootScope, $http, $location, ScientificModelRest, ValidationTestDefinitionRest, CollabParameters, IsCollabMemberRest, Context, ScientificModelInstanceRest, ValidationTestCodeRest, DataHandler) {
+        $scope.itemsPerPages = 20;
+        $scope.models = [];
+        $scope.tests = [];
+        $scope.total_models = 0;
 
+        $scope._load_other_models = function() {
+            var i = 2;
+            for (i; i <= $scope.nb_pages; i++) {
+                DataHandler.loadModelsByPage({ app_id: $scope.app_id, page: i }).then(function(new_models) {
+                    $scope.models.models = $scope.models.models.concat(new_models.models);
+                    $scope.models.models = $scope.models.models.sort(_sort_array_by_timestamp_desc)
+                    $scope.$apply();
+                })
+            }
+        }
+        var _sort_array_by_timestamp_desc = function(a, b) {
+            return new Date(b.creation_date) - new Date(a.creation_date);
+        }
         Context.setService().then(function() {
             console.log('collab parameters setted')
 
             $scope.Context = Context;
-            var ctx = Context.getCtx();
-            var app_id = Context.getAppID();
+            $scope.ctx = Context.getCtx();
+            $scope.app_id = Context.getAppID();
 
             if (Context.getStateType() == "" || Context.getStateType() == undefined) {
 
-                CollabParameters.setService(ctx).then(function() {
+                CollabParameters.setService($scope.ctx).then(function() {
 
                     $scope.collab_species = CollabParameters.getParametersOrDefaultByType("species");
 
@@ -30,13 +47,19 @@ testApp.controller('HomeCtrl', ['$scope', '$rootScope', '$http', '$location', "S
                     //$scope.tests = ValidationTestDefinitionRest.get({ app_id: app_id }, function(data) {});
                     // //for test
                     // $scope.put_test1 = ValidationTestCodeRest.put({ app_id: app_id, test_definition_id: "53a7a2db-b18f-49ef-b1de-88bd48960c81", version: "1.1" });
-                    DataHandler.loadModels({ app_id: app_id }).then(function(data) {
-                        $scope.models = data
-                        $scope.$apply()
+                    DataHandler.loadModels({ app_id: $scope.app_id, page: 1 }).then(function(data) {
+                        $scope.total_models = data.total_models;
+                        $scope.nb_pages = data.total_nb_pages;
+                        $scope.maxSize = 5;
+                        $scope.current_page = 1;
+                        $scope.models = data;
+                        $scope.$apply();
+
+                        $scope._load_other_models();
                     });
 
-                    DataHandler.loadTests({ app_id: app_id }).then(function(data) {
-                        $scope.tests = data
+                    DataHandler.loadTests({ app_id: $scope.app_id }).then(function(data) {
+                        $scope.tests = data;
                         $scope.$apply()
                     });
                 });
@@ -69,9 +92,9 @@ testApp.controller('ValTestCtrl', ['$scope', '$rootScope', '$http', '$location',
             var ctx = Context.getCtx();
             var app_id = Context.getAppID();
 
-            DataHandler.loadModels({ app_id: app_id }).then(function(data) {
+            DataHandler.loadModels({ app_id: $scope.app_id }).then(function(data) {
                 $scope.models = data;
-                $scope.$apply()
+                $scope.$apply();
             });
 
             DataHandler.loadTests({ app_id: app_id }).then(function(data) {
