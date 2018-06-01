@@ -113,15 +113,15 @@ ContextServices.service('Context', ['$rootScope', '$location', 'AppIDRest', 'Col
                     break;
             }
         }
-        var goToResultDetailView = function(evt, result) {
+        var goToResultDetailView = function(evt, result_id) {
             switch (evt.which) {
                 case 1:
-                    validation_goToResultDetailView(result.id)
+                    validation_goToResultDetailView(result_id)
                     break;
 
                 case 3:
                     // open in new tab
-                    newTab_goToTestResult(result);
+                    newTab_goToTestResult(result_id);
                     break;
             }
         }
