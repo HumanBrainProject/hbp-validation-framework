@@ -701,8 +701,10 @@ ParametersConfigurationServices.service('CollabParameters', ['$rootScope', 'Coll
         };
 
         var _move_element_at_the_end_of_array = function(elem, array) {
-            array.splice(array.indexOf(elem), 1)
-            array.push(elem)
+            if (array.indexOf(elem) > 0) {
+                array.splice(array.indexOf(elem), 1)
+                array.push(elem)
+            }
             return array;
         }
 
@@ -858,6 +860,7 @@ ParametersConfigurationServices.service('CollabParameters', ['$rootScope', 'Coll
             _postInitCollab: _postInitCollab,
             _getParamTabValues: _getParamTabValues,
             _setParametersNewValues: _setParametersNewValues,
+            _move_element_at_the_end_of_array: _move_element_at_the_end_of_array,
             format_parameter_data: format_parameter_data,
             set_parameters: set_parameters,
             addParameter: addParameter,
