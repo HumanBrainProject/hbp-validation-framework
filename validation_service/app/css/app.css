@@ -332,6 +332,26 @@
     z-index: 99;
 }
 
+#preloader-models {
+    position: fixed;
+    top: 70%;
+    left: 0;
+    right: 50%;
+    bottom: 0;
+    background-color: #fff;
+    z-index: 99;
+}
+
+#preloader-tests {
+    position: fixed;
+    top: 70%;
+    left: 50%;
+    right: 0;
+    bottom: 0;
+    background-color: #fff;
+    z-index: 99;
+}
+
 #status {
     width: 200px;
     height: 200px;

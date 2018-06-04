@@ -55,12 +55,21 @@ testApp.controller('HomeCtrl', ['$scope', '$rootScope', '$http', '$location', "S
                         $scope.models = data;
                         $scope.$apply();
 
+                        $('#status').fadeOut(); // will first fade out the loading animation 
+                        $('#preloader-models').delay(350).fadeOut('slow'); // will fade out the white DIV that covers the website. 
+                        $('#models-panel').delay(350).css({ 'overflow': 'visible' });
+
                         $scope._load_other_models();
                     });
 
                     DataHandler.loadTests({ app_id: $scope.app_id }).then(function(data) {
                         $scope.tests = data;
                         $scope.$apply()
+
+                        $('#status-tests').fadeOut(); // will first fade out the loading animation 
+                        $('#preloader-tests').delay(350).fadeOut('slow'); // will fade out the white DIV that covers the website. 
+                        $('#tests-panel').delay(350).css({ 'overflow': 'visible' });
+
                     });
                 });
             } else {
@@ -116,10 +125,6 @@ testApp.controller('ValTestCtrl', ['$scope', '$rootScope', '$http', '$location',
                 $scope.is_collab_member.$promise.then(function() {
                     $scope.is_collab_member = $scope.is_collab_member.is_member;
                 });
-
-                // $scope.test_list = ValidationTestDefinitionRest.get({ app_id: app_id }, function(data) {});
-
-                // $scope.tests = ValidationTestDefinitionRest.get({ app_id: app_id }, function(data) {});
 
             });
         });
@@ -234,7 +239,6 @@ testApp.controller('ValModelDetailCtrl', ['$scope', '$rootScope', '$http', '$loc
                                     $scope.$apply();
                                 });
                                 $scope.init_graph = init_graph.values;
-                                console.log("init graph", $scope.init_graph, $scope.init_graph.length)
                             });
 
                             DataHandler.loadModels({ app_id: $scope.app_id }).then(function(data) {
