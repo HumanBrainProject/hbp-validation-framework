@@ -55,6 +55,12 @@
     overflow: auto;
 }
 
+#VF-model-table-all-data,
+table {
+    min-width: 50%;
+    max-width: 90%;
+}
+
 #VF-model-table-all-results-not-more-than-three {
     display: block;
     margin-left: auto;
@@ -317,6 +323,10 @@
     margin-bottom: 1%;
     margin-top: 1%;
     overflow: auto;
+}
+
+.th-td-limited-size {
+    width: 8%;
 }
 
 
