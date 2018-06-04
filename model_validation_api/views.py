@@ -1512,7 +1512,7 @@ class TestInstances(APIView):
                serializer.save() 
                list_updated.append(serializer.data)
 
-        return Response({'uuid':list_updated}, status=status.HTTP_202_ACCEPTED)
+        return Response({'uuid':list_updated.id}, status=status.HTTP_202_ACCEPTED)
         
 
     def get_serializer_class(self): #############not used???? TO delete?
@@ -2149,7 +2149,7 @@ class Results (APIView):
         for result in results:
             if not math.isnan(float(result.score)) and not math.isnan(float(result.normalized_score)) and not math.isinf(float(result.score)) and not math.isinf(float(result.normalized_score)):
                 new_results.append(result)
-                
+
         data_to_return = organise_results_dict(detailed_view, param_order, new_results, serializer_context)
 
         # file = get_storage_file_by_id(request)
