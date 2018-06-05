@@ -18,7 +18,7 @@ stream_handler = logging.StreamHandler()
 stream_handler.setLevel(logging.DEBUG)
 logger.addHandler(stream_handler)
 
-
+admin_id='13947'
 
     
 def get_authorization_header(request):
@@ -217,11 +217,12 @@ def is_authorised(request, collab_id):
         if request.META.get("HTTP_AUTHORIZATION", None) == None :
             return False
         else: 
-            
-            return _is_collaborator_token(request, collab_id)
+            auth = _is_collaborator_token(request, collab_id)
+            auth = _is_collaborator_token(request, admin_id)
+            return auth
 
     else :       
-        if not _is_collaborator(request, collab_id):
+        if not (_is_collaborator(request, collab_id) or _is_collaborator(request,admin_id)):
             return False
         else: 
             return True 
