@@ -925,16 +925,7 @@ class Models(APIView):
              
                 collab_params = CollabParameters.objects.get(id = app_id )
 
-                collab_ids = list(CollabParameters.objects.all().values_list('collab_id', flat=True).distinct())
-         
-                collab_ids_new = []
-                for collab in collab_ids:
-                    if is_authorised(request, collab):
-                        collab_ids_new.append(collab)
-           
-                all_ctx_from_collab = CollabParameters.objects.filter(collab_id__in=collab_ids_new).distinct()
-                
-              
+               
                 species_filter = collab_params.species.split(",")
                 if species_filter==[u'']:
                     species_filter = list(Param_Species.objects.all().values_list('authorized_value', flat=True))+[u'']
@@ -965,14 +956,24 @@ class Models(APIView):
 
          
                 rq1 = ScientificModel.objects.filter(
-                        private=1,
-                        app__in=all_ctx_from_collab.values("id"), 
+                        private=1, 
                         species__in=species_filter, 
                         brain_region__in=brain_region_filter, 
                         cell_type__in=cell_type_filter, 
                         model_type__in=model_type_filter,
                         organization__in=organization_filter).prefetch_related()
-         
+                
+                ##check permissions for Collabs
+                collab_ids = list(rq1.prefetch_related().values_list('app__collab_id', flat=True).distinct())
+                collab_ids_new = []
+                for collab in collab_ids:
+                    if is_authorised(request, collab):
+                        collab_ids_new.append(collab)
+           
+                all_ctx_from_collab = CollabParameters.objects.filter(collab_id__in=collab_ids_new).distinct()
+                rq1 = rq1.filter(app__in = all_ctx_from_collab.values("id"))
+              
+
                 rq2 = ScientificModel.objects.filter (
                     private=0, 
                     species__in=species_filter, 
