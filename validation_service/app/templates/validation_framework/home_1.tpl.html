@@ -8,7 +8,6 @@
         <h1 align=center> Validation Results </h1>
     </nav>
 
-
     <header>
         <nav>
             <table class="table-create">
@@ -59,7 +58,7 @@
     <body>
         <div id="conteneur">
 
-            <div class="element-left">
+            <div id=models-panel class="element-left">
 
                 <table class="table-create table" id=test-table>
                     <thead>
@@ -79,6 +78,9 @@
                     </tr>
                 </table>
                 <dir-pagination-controls pagination-id="models-pagination" class="pull-left"></dir-pagination-controls>
+            </div>
+            <div id="preloader-models">
+                <div id="status">&nbsp;</div>
             </div>
             <div class="element-middle"></div>
             <div class="element-right">
@@ -103,7 +105,9 @@
                 </table>
                 <dir-pagination-controls pagination-id="tests-pagination" class="pull-right"></dir-pagination-controls>
             </div>
-
+            <div id="preloader-tests">
+                <div id="status">&nbsp;</div>
+            </div>
         </div>
     </body>
 

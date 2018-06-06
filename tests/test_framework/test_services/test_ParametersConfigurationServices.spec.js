@@ -159,15 +159,22 @@ describe('Testing service: Collab Parameters', function() {
         expect(CollabParameters.getParametersByType('model_type')).toEqual([]);
     });
 
-    it('should get the parameters if they are set and not the defaults parameters', function() {
-        CollabParameters.initConfiguration();
-        CollabParameters.addParameter('data_modalities', {
-            "id": "4631f734-1661-4e16-94f6-5aeeec8ce5c3",
-            "authorized_value": "electrophysiology"
-        })
-        var res = CollabParameters.getParametersOrDefaultByType('data_modalities');
+    it('should move an element at the end of an array', function() {
+        var array = ["a", "b", "f", "c", "d", "e"]
+        var res = CollabParameters._move_element_at_the_end_of_array("f", array)
+        expect(res).toEqual(["a", "b", "c", "d", "e", "f"])
+    });
 
-        var expected_answer = [Object({ id: '4631f734-1661-4e16-94f6-5aeeec8ce5c3', authorized_value: 'electrophysiology' })];
+    it('should get the parameters if they are set and not the defaults parameters', function() {
+        spyOn(CollabParameters, '_move_element_at_the_end_of_array').and.returnValue(["fMRI", 'electrophysiology', 'Other'])
+
+        CollabParameters.initConfiguration();
+        CollabParameters.addParameter('data_modalities', "fMRI")
+        CollabParameters.addParameter('data_modalities', "Other")
+        CollabParameters.addParameter('data_modalities', "electrophysiology")
+
+        var res = CollabParameters.getParametersOrDefaultByType('data_modalities');
+        var expected_answer = ['fMRI', 'electrophysiology', 'Other'];
         expect(res).toEqual(expected_answer)
     });
 

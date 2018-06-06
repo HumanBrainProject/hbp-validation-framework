@@ -23,7 +23,7 @@ from .views import (
                     IsCollabMemberRest,
                     Results,
                     CollabAppID,
-
+                    IsSuperUserRest,
                     )
 
 # from django.contrib.auth.decorators import login_required
@@ -45,6 +45,10 @@ urlpatterns = (
     url(r'^appidrest/$',
          AppIDRest.as_view(),
         ),
+     url(r'^issuperuser/$',
+         IsSuperUserRest.as_view(),
+        ),
+        
     # url(r'^notificationrest/$',
     #     NotificationRest.as_view(),
     #     ), 

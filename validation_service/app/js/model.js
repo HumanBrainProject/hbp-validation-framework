@@ -195,3 +195,11 @@ ApiCommunicationServices.factory('collabAppID', ['$resource',
         });
     }
 ]);
+
+ApiCommunicationServices.factory('IsSuperUserRest', ['$resource',
+    function($resource) {
+        return $resource('issuperuser/', {}, {
+            get: { method: 'GET', params: { format: 'json', ctx: 'ctx' }, isArray: false },
+        });
+    }
+]);

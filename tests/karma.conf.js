@@ -178,6 +178,8 @@ module.exports = function(config) {
             '../validation_service/app/static/angular-moment-1.1.0/angular-moment.js',
 
             '../validation_service/app/static/palette.js-master/palette.js',
+
+            '../validation_service/app/static/angularUtils-pagination/dirPagination.js',
             //.js | files
             './environment.js',
             '../validation_service/app/js/*.js',

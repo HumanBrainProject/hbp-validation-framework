@@ -55,6 +55,12 @@
     overflow: auto;
 }
 
+#VF-model-table-all-data,
+table {
+    min-width: 50%;
+    max-width: 90%;
+}
+
 #VF-model-table-all-results-not-more-than-three {
     display: block;
     margin-left: auto;
@@ -319,6 +325,10 @@
     overflow: auto;
 }
 
+.th-td-limited-size {
+    width: 8%;
+}
+
 
 /* Preloader */
 
@@ -328,6 +338,26 @@
     left: 0;
     right: 0;
     bottom: 50%;
+    background-color: #fff;
+    z-index: 99;
+}
+
+#preloader-models {
+    position: fixed;
+    top: 70%;
+    left: 0;
+    right: 50%;
+    bottom: 0;
+    background-color: #fff;
+    z-index: 99;
+}
+
+#preloader-tests {
+    position: fixed;
+    top: 70%;
+    left: 50%;
+    right: 0;
+    bottom: 0;
     background-color: #fff;
     z-index: 99;
 }

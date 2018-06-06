@@ -162,6 +162,8 @@
                         <td style="width:5%">
                             <button ng-if="isInArray(code_version.id, version_is_editable)" ng-click="editVersion(code_version.id)" class="button-MC glyphicon glyphicon-pencil">
                                 </button>
+                            <button ng-if="!isInArray(code_version.id, version_is_editable) && isSuperUser.is_superuser" ng-click="editVersion(code_version.id)" class="glyphicon glyphicon-pencil superuser-button">
+                                </button>
                         </td>
 
                         <td>
@@ -586,11 +588,11 @@
                         </tr>
                         <tr>
                             <th colspan=2></th>
-                            <th ng-repeat-start="version in detail_version_test.test_codes">
+                            <th class=th-td-limited-size ng-repeat-start="version in detail_version_test.test_codes">
                                 score
                             </th>
-                            <th ng-repeat-end="version in detail_version_test.test_codes">
-                                <span>date </span>
+                            <th class=th-td-limited-size ng-repeat-end="version in detail_version_test.test_codes">
+                                date
                             </th>
                         </tr>
                     </thead>
@@ -605,7 +607,7 @@
 
                                         <tbody>
                                             <tr ng-repeat="(key,result) in test_code.results">
-                                                <td class="tr-clickable VF-table-result-td-margin-right" ng-mousedown="Context.goToResultDetailView($event, result.id)">
+                                                <td class="th-td-limited-size tr-clickable VF-table-result-td-margin-right" ng-mousedown="Context.goToResultDetailView($event, result.id)">
                                                     <div ng-if="key == 0">
                                                         <b precision=result.score> </b>
                                                     </div>
@@ -613,12 +615,12 @@
 
                                                     </div>
                                                 </td>
-                                                <td class=VF-table-result-td-margin-left>
+                                                <td class="th-td-limited-size VF-table-result-td-margin-left">
                                                     <div ng-if="key == 0">
-                                                        <b> {{result.timestamp  | date:'d MMMM yyyy, hh:mm' : 'UTC' }} </b>
+                                                        <b> {{result.timestamp  | date:'dd/MM/yyyy, hh:mm' : 'UTC' }} </b>
                                                     </div>
                                                     <div ng-if="key != 0">
-                                                        {{result.timestamp | date:'d MMMM yyyy, hh:mm' : 'UTC' }}
+                                                        {{result.timestamp | date:'dd/MM/yyyy, hh:mm' : 'UTC' }}
                                                     </div>
                                                 </td>
                                             </tr>
@@ -644,11 +646,11 @@
                                                 </td>
                                                 <td class=VF-table-result-td-margin-left>
                                                     <div ng-if="key == 0">
-                                                        <b> {{result.timestamp  | date:'d MMMM yyyy, hh:mm' : 'UTC' }} </b>
+                                                        <b> {{result.timestamp  | date:'dd/MM/yyyy, hh:mm' : 'UTC' }} </b>
 
                                                     </div>
                                                     <div ng-if="key != 0">
-                                                        {{result.timestamp | date:'d MMMM yyyy, hh:mm' : 'UTC' }}
+                                                        {{result.timestamp | date:'dd/MM/yyyy, hh:mm' : 'UTC' }}
 
                                                     </div>
                                                 </td>
@@ -690,7 +692,7 @@
             <br><br>
             <br><br>
 
-            <h4 align=center> <b> Graphs </b></h4>
+            <h4 ng-show="is_graph_not_empty(graphic_data)" align=center> <b> Graphs </b></h4>
             <br>
             <br>
 

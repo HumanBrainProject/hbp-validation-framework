@@ -34,13 +34,13 @@
                                     <b>Name:</b>
                                 </td>
                                 <td>
-                                    <input type="text" ng-model=model.models[0].name required/>
+                                    <input type="text" ng-model="model.models[0].name" required/>
                                 </td>
                                 <td>
                                     <b>Alias (optional):</b>
                                 </td>
                                 <td>
-                                    <input type="text" ng-model=model.models[0].alias />
+                                    <input type="text" ng-model="model.models[0].alias" />
 
                                     <br>
                                     <span ng-show="alias_is_valid.is_valid==false" class="red-font">This alias already exists. Please choose another one. </span>
@@ -58,13 +58,13 @@
                                     <b>Author:</b>
                                 </td>
                                 <td>
-                                    <input type="text" ng-model=model.models[0].author required/>
+                                    <input type="text" ng-model="model.models[0].author" required/>
                                 </td>
                                 <td>
                                     <b>Owner:</b>
                                 </td>
                                 <td>
-                                    <input type="text" ng-model=model.models[0].owner/>
+                                    <input type="text" ng-model="model.models[0].owner" />
                                 </td>
                             </tr>
 
@@ -73,13 +73,13 @@
                                     <b>App id:</b>
                                 </td>
                                 <td>
-                                    <input type="text" ng-model=model.models[0].app.id required/>
+                                    <input type="text" ng-model="model.models[0].app.id" required/>
                                 </td>
                                 <td>
                                     <b>License:</b>
                                 </td>
                                 <td>
-                                    <input type="text" ng-model=model.models[0].license>
+                                    <input type="text" ng-model="model.models[0].license">
                                 </td>
                                 <td>
                                     <b>Private: </b> &nbsp
@@ -103,7 +103,7 @@
                                     <b>Project:</b>
                                 </td>
                                 <td>
-                                    <input type="text" ng-model=model.models[0].project>
+                                    <input type="text" ng-model="model.models[0].project">
                                 </td>
 
 
@@ -217,7 +217,7 @@
                             <th>Version</th>
                             <th>Description</th>
                             <th>Parameters</th>
-                            <th>Code location</th>
+                            <th>Download location</th>
                             <th>Code format</th>
                         </tr>
                     </thead>
@@ -230,6 +230,7 @@
                             <td><input type="text" ng-model=model_instance.code_format /></td>
                             <td><button ng-if="isInArray(model_instance.id, version_is_editable)" type="submit" class="btn btn-primary" ng-click=saveModelInstance(model_instance)>Save changes</button>
                                 <button ng-if="!isInArray(model_instance.id, version_is_editable)" type="" class="btn btn-danger">Not editable</button></td>
+                            <td><button ng-if="isSuperUser.is_superuser" type="submit" class="btn btn-primary" ng-click=saveModelInstance(model_instance)>SuperUser Edit</button></td>
                         </tr>
                     </tbody>
                 </table>

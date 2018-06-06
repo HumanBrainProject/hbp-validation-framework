@@ -618,10 +618,12 @@ class ModelInstances (APIView):
              
             if param_web_app==True:
                 original_instance = ScientificModelInstance.objects.get(id=instance.get('id'))
-                #check if version is editable
-                if not _are_model_instance_editable(instance):
-                    return Response("This version is no longer editable as there is at least one result associated with it.", status=status.HTTP_400_BAD_REQUEST)
-    
+                #check if version is editable - only if you are not super user
+                if not is_authorised(request,settings.ADMIN_COLLAB_ID):
+                    if not _are_model_instance_editable(instance):
+                        return Response("This version is no longer editable as there is at least one result associated with it.", status=status.HTTP_400_BAD_REQUEST)
+                
+                
                 #check if versions are unique
                 if not _are_model_instance_version_unique(instance) :
                     return Response("Oh no... The specified version name already exists for this model. Please, give me a new name", status=status.HTTP_400_BAD_REQUEST)
@@ -669,8 +671,9 @@ class ModelInstances (APIView):
                 return HttpResponseForbidden()
     
             #check if version is editable
-            if not _are_model_instance_editable(instance):
-                return Response("This version is no longer editable as there is at least one result associated with it.", status=status.HTTP_400_BAD_REQUEST)
+            if not is_authorised(request, settings.ADMIN_COLLAB_ID):
+                if not _are_model_instance_editable(instance):
+                    return Response("This version is no longer editable as there is at least one result associated with it.", status=status.HTTP_400_BAD_REQUEST)
                 
             #check if versions are unique
             if not _are_model_instance_version_unique(instance) :
@@ -925,16 +928,7 @@ class Models(APIView):
              
                 collab_params = CollabParameters.objects.get(id = app_id )
 
-                collab_ids = list(CollabParameters.objects.all().values_list('collab_id', flat=True).distinct())
-         
-                collab_ids_new = []
-                for collab in collab_ids:
-                    if is_authorised(request, collab):
-                        collab_ids_new.append(collab)
-           
-                all_ctx_from_collab = CollabParameters.objects.filter(collab_id__in=collab_ids_new).distinct()
-                
-              
+               
                 species_filter = collab_params.species.split(",")
                 if species_filter==[u'']:
                     species_filter = list(Param_Species.objects.all().values_list('authorized_value', flat=True))+[u'']
@@ -965,14 +959,24 @@ class Models(APIView):
 
          
                 rq1 = ScientificModel.objects.filter(
-                        private=1,
-                        app__in=all_ctx_from_collab.values("id"), 
+                        private=1, 
                         species__in=species_filter, 
                         brain_region__in=brain_region_filter, 
                         cell_type__in=cell_type_filter, 
                         model_type__in=model_type_filter,
                         organization__in=organization_filter).prefetch_related()
-         
+                
+                ##check permissions for Collabs
+                collab_ids = list(rq1.prefetch_related().values_list('app__collab_id', flat=True).distinct())
+                collab_ids_new = []
+                for collab in collab_ids:
+                    if is_authorised(request, collab):
+                        collab_ids_new.append(collab)
+           
+                all_ctx_from_collab = CollabParameters.objects.filter(collab_id__in=collab_ids_new).distinct()
+                rq1 = rq1.filter(app__in = all_ctx_from_collab.values("id"))
+              
+
                 rq2 = ScientificModel.objects.filter (
                     private=0, 
                     species__in=species_filter, 
@@ -1495,8 +1499,9 @@ class TestInstances(APIView):
                     return Response("To edit a test instance, you need to give an id, or a test_definition_id with a version, or a test_definition_alias with a version ", status=status.HTTP_400_BAD_REQUEST)    
 
             #check if version is editable
-            if not _are_test_code_editable(test_code):
-                return Response("This version is no longer editable as there is at least one result associated with it", status=status.HTTP_400_BAD_REQUEST)
+            if not is_authorised(request,settings.ADMIN_COLLAB_ID):
+                if not _are_test_code_editable(test_code):
+                    return Response("This version is no longer editable as there is at least one result associated with it", status=status.HTTP_400_BAD_REQUEST)
 
             #check if versions are unique
             if not _are_test_code_version_unique(test_code) :
@@ -1512,7 +1517,7 @@ class TestInstances(APIView):
                serializer.save() 
                list_updated.append(serializer.data)
 
-        return Response({'uuid':list_updated}, status=status.HTTP_202_ACCEPTED)
+        return Response({'uuid':list_updated.id}, status=status.HTTP_202_ACCEPTED)
         
 
     def get_serializer_class(self): #############not used???? TO delete?
@@ -1977,6 +1982,21 @@ class IsCollabMemberRest (APIView):
         })
 
 
+class IsSuperUserRest (APIView):
+    """
+    Class to check if user is an admin
+    """
+    def get(self, request, format=None, **kwargs):
+        """
+        :param app_id: id of the application
+        :type app_id: int
+        :return: bool: is_member
+        """
+    
+        is_superuser = is_authorised(request, settings.ADMIN_COLLAB_ID)
+        return Response({
+            'is_superuser':  is_superuser,
+        })
 
 """
 Model of table model_validation_api_validationtestresult
@@ -2149,7 +2169,7 @@ class Results (APIView):
         for result in results:
             if not math.isnan(float(result.score)) and not math.isnan(float(result.normalized_score)) and not math.isinf(float(result.score)) and not math.isinf(float(result.normalized_score)):
                 new_results.append(result)
-                
+
         data_to_return = organise_results_dict(detailed_view, param_order, new_results, serializer_context)
 
         # file = get_storage_file_by_id(request)
