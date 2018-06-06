@@ -1415,9 +1415,10 @@ ModelCatalogApp.controller('ModelCatalogDetailCtrl', ['$scope', '$rootScope', '$
     }
 ]);
 
-ModelCatalogApp.controller('ModelCatalogEditCtrl', ['$scope', '$rootScope', '$http', '$location', '$state', '$stateParams', 'ScientificModelRest', 'ScientificModelInstanceRest', 'ScientificModelImageRest', 'CollabParameters', 'Context', 'ScientificModelAliasRest', 'AreVersionsEditableRest', 'DataHandler', 'clbStorage',
+ModelCatalogApp.controller('ModelCatalogEditCtrl', ['$scope', '$rootScope', '$http', '$location', '$state', '$stateParams', 'ScientificModelRest', 'ScientificModelInstanceRest', 'ScientificModelImageRest', 'CollabParameters', 'Context', 'ScientificModelAliasRest', 'AreVersionsEditableRest', 'DataHandler', 'clbStorage', 'IsSuperUserRest',
 
-    function($scope, $rootScope, $http, $location, $state, $stateParams, ScientificModelRest, ScientificModelInstanceRest, ScientificModelImageRest, CollabParameters, Context, ScientificModelAliasRest, AreVersionsEditableRest, DataHandler, clbStorage) {
+    function($scope, $rootScope, $http, $location, $state, $stateParams, ScientificModelRest, ScientificModelInstanceRest, ScientificModelImageRest, CollabParameters, Context, ScientificModelAliasRest, AreVersionsEditableRest, DataHandler, clbStorage, IsSuperUserRest) {
+
 
         $scope.change_collab_url_to_real_url = function() {
             //COULD BE IN A SERVICE
@@ -1523,7 +1524,6 @@ ModelCatalogApp.controller('ModelCatalogEditCtrl', ['$scope', '$rootScope', '$ht
             return array.indexOf(value) > -1;
         }
 
-
         Context.setService().then(function() {
 
             $scope.Context = Context;
@@ -1534,6 +1534,8 @@ ModelCatalogApp.controller('ModelCatalogEditCtrl', ['$scope', '$rootScope', '$ht
             //     $scope.models = data
             //     $scope.$apply()
             // });
+            $scope.isSuperUser = IsSuperUserRest.get({ app_id: $scope.app_id })
+
 
             CollabParameters.setService($scope.ctx).then(function() {
 

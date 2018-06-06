@@ -170,7 +170,7 @@ HBP_COLLAB_SERVICE_URL = 'https://services.humanbrainproject.eu/collab/v0/'
 HBP_ENV_URL = 'https://collab.humanbrainproject.eu/config.json'
 HBP_IDENTITY_SERVICE_URL = 'https://services.humanbrainproject.eu/idm/v1/api'
 HBP_STORAGE_SERVICE_URL = 'https://services.humanbrainproject.eu/storage/v1/api/entity/'
-
+ADMIN_COLLAB_ID = "13947"
 
 
 # SECURITY WARNING: keep the secret key used in production secret!

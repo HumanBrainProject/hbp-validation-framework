@@ -618,10 +618,12 @@ class ModelInstances (APIView):
              
             if param_web_app==True:
                 original_instance = ScientificModelInstance.objects.get(id=instance.get('id'))
-                #check if version is editable
-                if not _are_model_instance_editable(instance):
-                    return Response("This version is no longer editable as there is at least one result associated with it.", status=status.HTTP_400_BAD_REQUEST)
-    
+                #check if version is editable - only if you are not super user
+                if not is_authorised(request,settings.ADMIN_COLLAB_ID):
+                    if not _are_model_instance_editable(instance):
+                        return Response("This version is no longer editable as there is at least one result associated with it.", status=status.HTTP_400_BAD_REQUEST)
+                
+                
                 #check if versions are unique
                 if not _are_model_instance_version_unique(instance) :
                     return Response("Oh no... The specified version name already exists for this model. Please, give me a new name", status=status.HTTP_400_BAD_REQUEST)
@@ -669,8 +671,9 @@ class ModelInstances (APIView):
                 return HttpResponseForbidden()
     
             #check if version is editable
-            if not _are_model_instance_editable(instance):
-                return Response("This version is no longer editable as there is at least one result associated with it.", status=status.HTTP_400_BAD_REQUEST)
+            if not is_authorised(request, settings.ADMIN_COLLAB_ID):
+                if not _are_model_instance_editable(instance):
+                    return Response("This version is no longer editable as there is at least one result associated with it.", status=status.HTTP_400_BAD_REQUEST)
                 
             #check if versions are unique
             if not _are_model_instance_version_unique(instance) :
@@ -1978,6 +1981,21 @@ class IsCollabMemberRest (APIView):
         })
 
 
+class IsSuperUserRest (APIView):
+    """
+    Class to check if user is an admin
+    """
+    def get(self, request, format=None, **kwargs):
+        """
+        :param app_id: id of the application
+        :type app_id: int
+        :return: bool: is_member
+        """
+    
+        is_superuser = is_authorised(request, settings.ADMIN_COLLAB_ID)
+        return Response({
+            'is_superuser':  is_superuser,
+        })
 
 """
 Model of table model_validation_api_validationtestresult

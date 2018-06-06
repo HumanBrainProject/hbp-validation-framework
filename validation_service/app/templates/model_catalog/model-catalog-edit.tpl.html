@@ -230,6 +230,7 @@
                             <td><input type="text" ng-model=model_instance.code_format /></td>
                             <td><button ng-if="isInArray(model_instance.id, version_is_editable)" type="submit" class="btn btn-primary" ng-click=saveModelInstance(model_instance)>Save changes</button>
                                 <button ng-if="!isInArray(model_instance.id, version_is_editable)" type="" class="btn btn-danger">Not editable</button></td>
+                            <td><button ng-if="isSuperUser.is_superuser" type="submit" class="btn btn-primary" ng-click=saveModelInstance(model_instance)>SuperUser Edit</button></td>
                         </tr>
                     </tbody>
                 </table>
