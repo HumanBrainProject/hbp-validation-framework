@@ -162,6 +162,8 @@
                         <td style="width:5%">
                             <button ng-if="isInArray(code_version.id, version_is_editable)" ng-click="editVersion(code_version.id)" class="button-MC glyphicon glyphicon-pencil">
                                 </button>
+                            <button ng-if="!isInArray(code_version.id, version_is_editable) && isSuperUser.is_superuser" ng-click="editVersion(code_version.id)" class="glyphicon glyphicon-pencil superuser-button">
+                                </button>
                         </td>
 
                         <td>

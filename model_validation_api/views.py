@@ -1499,8 +1499,9 @@ class TestInstances(APIView):
                     return Response("To edit a test instance, you need to give an id, or a test_definition_id with a version, or a test_definition_alias with a version ", status=status.HTTP_400_BAD_REQUEST)    
 
             #check if version is editable
-            if not _are_test_code_editable(test_code):
-                return Response("This version is no longer editable as there is at least one result associated with it", status=status.HTTP_400_BAD_REQUEST)
+            if not is_authorised(request,settings.ADMIN_COLLAB_ID):
+                if not _are_test_code_editable(test_code):
+                    return Response("This version is no longer editable as there is at least one result associated with it", status=status.HTTP_400_BAD_REQUEST)
 
             #check if versions are unique
             if not _are_test_code_version_unique(test_code) :

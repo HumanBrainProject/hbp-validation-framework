@@ -305,9 +305,9 @@ testApp.directive("precision", function() {
     };
 });
 
-testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$location', '$stateParams', '$state', 'ValidationTestDefinitionRest', 'ValidationTestCodeRest', 'CollabParameters', 'TestCommentRest', "IsCollabMemberRest", "Graphics", "Context", 'TestTicketRest', 'AuthorizedCollabParameterRest', 'ValidationTestAliasRest', 'NotificationRest', 'AreVersionsEditableRest', 'DataHandler',
+testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$location', '$stateParams', '$state', 'ValidationTestDefinitionRest', 'ValidationTestCodeRest', 'CollabParameters', 'TestCommentRest', "IsCollabMemberRest", "Graphics", "Context", 'TestTicketRest', 'AuthorizedCollabParameterRest', 'ValidationTestAliasRest', 'NotificationRest', 'AreVersionsEditableRest', 'DataHandler', 'IsSuperUserRest',
 
-    function($scope, $rootScope, $http, $location, $stateParams, $state, ValidationTestDefinitionRest, ValidationTestCodeRest, CollabParameters, TestCommentRest, IsCollabMemberRest, Graphics, Context, TestTicketRest, AuthorizedCollabParameterRest, ValidationTestAliasRest, NotificationRest, AreVersionsEditableRest, DataHandler) {
+    function($scope, $rootScope, $http, $location, $stateParams, $state, ValidationTestDefinitionRest, ValidationTestCodeRest, CollabParameters, TestCommentRest, IsCollabMemberRest, Graphics, Context, TestTicketRest, AuthorizedCollabParameterRest, ValidationTestAliasRest, NotificationRest, AreVersionsEditableRest, DataHandler, IsSuperUserRest) {
 
         $scope.init_graph, $scope.graphic_data, $scope.init_checkbox, $scope.graphic_options;
         $scope.data_for_table;
@@ -643,6 +643,8 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
             $scope.Context = Context;
             $scope.ctx = Context.getCtx();
             $scope.app_id = Context.getAppID();
+
+            $scope.isSuperUser = IsSuperUserRest.get({ app_id: $scope.app_id })
 
             CollabParameters.setService($scope.ctx).then(function() {
 
@@ -1549,7 +1551,7 @@ ModelCatalogApp.controller('ModelCatalogEditCtrl', ['$scope', '$rootScope', '$ht
 
                 $scope.version_is_editable = [];
                 $scope.model = ScientificModelRest.get({ app_id: $scope.app_id, id: $stateParams.uuid });
-                console.log("model", $scope.model)
+
                 $scope.model.$promise.then(function(model) {
                     $scope.change_collab_url_to_real_url();
                 });
