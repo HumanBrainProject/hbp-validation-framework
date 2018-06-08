@@ -217,9 +217,10 @@ def is_authorised(request, collab_id):
         if request.META.get("HTTP_AUTHORIZATION", None) == None :
             return False
         else: 
-            auth = _is_collaborator_token(request, collab_id)
-            auth = _is_collaborator_token(request, admin_id)
-            return auth
+            if not (_is_collaborator_token(request, collab_id) or _is_collaborator_token(request, collab_id)):
+                return False
+            else:
+                return True 
 
     else :       
         if not (_is_collaborator(request, collab_id) or _is_collaborator(request,admin_id)):
