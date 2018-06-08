@@ -440,41 +440,52 @@ DataHandlerServices.service('DataHandler', ['$rootScope', 'ScientificModelRest',
                     var temp_models = ScientificModelRest.get(dict_params);
                     temp_models.$promise.then(function() {
                         models = { date_last_load: new Date(), status: "loading", data: temp_models };
-                        resolve(models.data);
+                        resolve(models.data, models.status);
                     });
 
                 } else {
-                    if (models.status == "up to date") {
+                    if (models.status == "up_to_date") {
                         var data = _loadStoredModels();
-                        resolve(data);
+                        resolve(data, models.status);
                     } else {
                         var temp_models = ScientificModelRest.get(dict_params);
                         temp_models.$promise.then(function() {
-                            if (temp_models.total_nb_pages == dict_params.page) {
-                                models = { date_last_load: new Date(), status: "loading", data: temp_models };
-                            } else {
-                                models = { date_last_load: new Date(), status: "up_to_date", data: temp_models };
-                            }
-                            resolve(models.data);
+                            models = { date_last_load: new Date(), status: "up_to_date", data: temp_models };
+                            resolve(models.data, models.status);
                         });
                     }
                 }
             });
         };
 
-        var loadModelsByPage = function(dict_params) {
-            return new Promise(function(resolve, reject) {
-                var temp_models = ScientificModelRest.get(dict_params);
-                //var temp_models = _get_models_sequentially(dict_params);
-                temp_models.$promise.then(function() {
-                    if (temp_models.total_nb_pages == dict_params.page) {
-                        models = { date_last_load: new Date(), status: "loading", data: temp_models };
-                    } else {
-                        models = { date_last_load: new Date(), status: "up_to_date", data: temp_models };
-                    }
-                    resolve(models.data);
-                });
-            })
+        var loadModelsByPage = function(app_id, nb_pages) {
+            var i = 1;
+            var pages_loaded = new Array();
+            pages_loaded.push(1);
+
+            for (i; i <= nb_pages; i++) {
+                if (pages_loaded.indexOf(i) == -1) {
+                    pages_loaded.push(i);
+                    ScientificModelRest.get({ app_id: app_id, page: i }).$promise.then(function(new_models) {
+                        models.data.models = models.data.models.concat(new_models.models);
+                        models.data.models = models.data.models.sort(_sort_array_by_timestamp_desc)
+
+                        //fire event to update models
+                        $rootScope.$broadcast('models_updated', models.data);
+
+                        //change status if last load is done
+                        if (pages_loaded.length == nb_pages.length) {
+                            models.date_last_load = new Date();
+                            models.status = "up_to_date";
+                        }
+                    })
+                }
+
+            }
+        }
+
+        var _sort_array_by_timestamp_desc = function(a, b) {
+            return new Date(b.creation_date) - new Date(a.creation_date);
         }
         var _get_models_sequentially = function(dict_params) {
             //load 50 first elements should return also the number of pages
@@ -545,6 +556,9 @@ DataHandlerServices.service('DataHandler', ['$rootScope', 'ScientificModelRest',
         var getStoredTests = function() {
             return tests;
         }
+        var getCurrentStatus = function() {
+            return models.status
+        }
 
         return {
             loadModels: loadModels,
@@ -552,8 +566,10 @@ DataHandlerServices.service('DataHandler', ['$rootScope', 'ScientificModelRest',
             loadTests: loadTests,
             getStoredModels: getStoredModels,
             getStoredTests: getStoredTests,
+            getCurrentStatus: getCurrentStatus,
             setStoredModelsAsOutdated: setStoredModelsAsOutdated,
             setStoredTestsAsOutdated: setStoredTestsAsOutdated,
+
         };
 
     }
