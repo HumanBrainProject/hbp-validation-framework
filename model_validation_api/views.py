@@ -1209,7 +1209,9 @@ class Models(APIView):
         ## save only modifications on model. if you want to modify images or instances, do separate put.  
         ##get objects 
         value = request.data['models'][0]
+
         app_id = request.GET.getlist('app_id')
+
         if len(app_id) > 0 :
             value['app_id'] = app_id[0]
 
@@ -1230,7 +1232,7 @@ class Models(APIView):
             return HttpResponse('Unauthorized', status=401)
             return HttpResponseForbidden()
 
-        app_id = value['app_id']
+        app_id = value['app']['id']
         
         collab_id = get_collab_id_from_app_id(app_id)
         if not is_authorised(request, collab_id):
