@@ -10,21 +10,12 @@ testApp.controller('HomeCtrl', ['$scope', '$rootScope', '$http', '$location', "S
         $scope.tests = [];
         $scope.total_models = 0;
 
-        $scope._load_other_models = function() {
-            var i = 2;
-            for (i; i <= $scope.nb_pages; i++) {
-                DataHandler.loadModelsByPage({ app_id: $scope.app_id, page: i }).then(function(new_models) {
-                    $scope.models.models = $scope.models.models.concat(new_models.models);
-                    $scope.models.models = $scope.models.models.sort(_sort_array_by_timestamp_desc)
-                    $scope.$apply();
-                })
-            }
-        }
-        var _sort_array_by_timestamp_desc = function(a, b) {
-            return new Date(b.creation_date) - new Date(a.creation_date);
-        }
+        $scope.$on('models_updated', function(event, models) {
+            $scope.models = models;
+        });
+
+
         Context.setService().then(function() {
-            console.log('collab parameters setted')
 
             $scope.Context = Context;
             $scope.ctx = Context.getCtx();
@@ -43,10 +34,7 @@ testApp.controller('HomeCtrl', ['$scope', '$rootScope', '$http', '$location', "S
                     $scope.collab_data_modalities = CollabParameters.getParametersOrDefaultByType("data_modalities");
                     $scope.collab_organization = CollabParameters.getParametersOrDefaultByType("organization");
 
-                    //$scope.models = ScientificModelRest.get({ app_id: app_id }, function(data) {});
-                    //$scope.tests = ValidationTestDefinitionRest.get({ app_id: app_id }, function(data) {});
-                    // //for test
-                    // $scope.put_test1 = ValidationTestCodeRest.put({ app_id: app_id, test_definition_id: "53a7a2db-b18f-49ef-b1de-88bd48960c81", version: "1.1" });
+
                     DataHandler.loadModels({ app_id: $scope.app_id, page: 1 }).then(function(data) {
                         $scope.total_models = data.total_models;
                         $scope.nb_pages = data.total_nb_pages;
@@ -59,7 +47,11 @@ testApp.controller('HomeCtrl', ['$scope', '$rootScope', '$http', '$location', "S
                         $('#preloader-models').delay(350).fadeOut('slow'); // will fade out the white DIV that covers the website. 
                         $('#models-panel').delay(350).css({ 'overflow': 'visible' });
 
-                        $scope._load_other_models();
+
+                        var status = DataHandler.getCurrentStatus();
+                        if (status != "up_to_date") {
+                            DataHandler.loadModelsByPage($scope.app_id, $scope.nb_pages);
+                        }
                     });
 
                     DataHandler.loadTests({ app_id: $scope.app_id }).then(function(data) {
@@ -1126,21 +1118,9 @@ ModelCatalogApp.controller('ModelCatalogCtrl', [
             return models
         }
 
-
-        $scope._load_other_models = function() {
-            var i = 2;
-            for (i; i <= $scope.nb_pages; i++) {
-                DataHandler.loadModelsByPage({ app_id: $scope.app_id, page: i }).then(function(new_models) {
-                    $scope.models.models = $scope.models.models.concat($scope._change_empty_organization_string(new_models).models);
-                    $scope.models.models = $scope.models.models.sort(_sort_array_by_timestamp_desc)
-                    $scope.$apply();
-                })
-            }
-        }
-
-        var _sort_array_by_timestamp_desc = function(a, b) {
-            return new Date(b.creation_date) - new Date(a.creation_date);
-        }
+        $scope.$on('models_updated', function(event, models) {
+            $scope.models = $scope._change_empty_organization_string(models);
+        });
 
         Context.setService().then(function() {
 
@@ -1166,11 +1146,12 @@ ModelCatalogApp.controller('ModelCatalogCtrl', [
                     $('#preloader').delay(350).fadeOut('slow'); // will fade out the white DIV that covers the website. 
                     $('body').delay(350).css({ 'overflow': 'visible' });
 
-
-                    $scope._load_other_models();
-
-
+                    var status = DataHandler.getCurrentStatus();
+                    if (status != "up_to_date") {
+                        DataHandler.loadModelsByPage($scope.app_id, $scope.nb_pages);
+                    }
                 });
+
                 Context.sendState("model", "n");
 
 
