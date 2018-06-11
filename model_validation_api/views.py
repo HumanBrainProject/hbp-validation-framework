@@ -493,6 +493,10 @@ class ModelInstances (APIView):
         :type timestamp: datetime
         :param model_alias: alias of the model name
         :type model_alias: str
+        :param code_format: format of the code
+        :type code_format: str
+        :param hash: hash
+        :type hash: str
         :return: list of instances 
         :rtype: dictionnary
         """
@@ -505,6 +509,8 @@ class ModelInstances (APIView):
         param_source = request.GET.getlist('source')
         param_timestamp = request.GET.getlist('timestamp')
         param_model_alias = request.GET.getlist('model_alias')
+        param_code_format = request.GET.getlist('code_format')
+        param_hash = request.GET.getlist('hash')
 
         if check_list_uuid_validity(param_id) is False :
             return Response("Badly formed uuid in : id", status=status.HTTP_400_BAD_REQUEST)
@@ -529,6 +535,10 @@ class ModelInstances (APIView):
             q = q.filter(source__in = param_source )
         if len(param_timestamp) > 0 :
             q = q.filter(timestamp__in = param_timestamp )
+        if len(param_code_format) > 0 :
+            q = q.filter(code_format__in = param_code_format )
+        if len(param_hash) > 0 :
+            q = q.filter(hash__in = param_hash )
             
         instances = q
 
