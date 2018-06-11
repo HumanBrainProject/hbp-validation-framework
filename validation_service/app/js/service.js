@@ -450,7 +450,7 @@ DataHandlerServices.service('DataHandler', ['$rootScope', 'ScientificModelRest',
                     } else {
                         var temp_models = ScientificModelRest.get(dict_params);
                         temp_models.$promise.then(function() {
-                            models = { date_last_load: new Date(), status: "up_to_date", data: temp_models };
+                            models = { date_last_load: new Date(), status: "loading", data: temp_models };
                             resolve(models.data, models.status);
                         });
                     }
@@ -474,7 +474,7 @@ DataHandlerServices.service('DataHandler', ['$rootScope', 'ScientificModelRest',
                         $rootScope.$broadcast('models_updated', models.data);
 
                         //change status if last load is done
-                        if (pages_loaded.length == nb_pages.length) {
+                        if (pages_loaded.length == nb_pages) {
                             models.date_last_load = new Date();
                             models.status = "up_to_date";
                         }

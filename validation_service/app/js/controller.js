@@ -50,6 +50,7 @@ testApp.controller('HomeCtrl', ['$scope', '$rootScope', '$http', '$location', "S
 
                         var status = DataHandler.getCurrentStatus();
                         if (status != "up_to_date") {
+                            console.log("status")
                             DataHandler.loadModelsByPage($scope.app_id, $scope.nb_pages);
                         }
                     });
