@@ -759,7 +759,6 @@ class Images (APIView):
         image_serializer = ScientificModelImageSerializer(data=images, context=serializer_context, many=True)
         image_serializer.is_valid() # needed....
 
-
         return Response({
                 'images': image_serializer.data,
                 })
@@ -781,7 +780,10 @@ class Images (APIView):
             serializer = ScientificModelImageSerializer(data=image, context=serializer_context)
             if serializer.is_valid():   
                 #security
-                app_id = ScientificModel.objects.get(id=image['model_id']).app_id
+                try:
+                    app_id = ScientificModel.objects.get(id=image['model_id']).app_id
+                except:
+                    app_id = ScientificModel.objects.get(alias=image['model_alias']).app_id
                 collab_id = get_collab_id_from_app_id(app_id)
                 if not is_authorised(request, collab_id):
                     return HttpResponseForbidden()
@@ -793,7 +795,12 @@ class Images (APIView):
             serializer = ScientificModelImageSerializer(data=image, context=serializer_context)
 
             if serializer.is_valid(): 
-                im = serializer.save(model_id=image['model_id'])
+                if image['model_id']:
+                    im = serializer.save(model_id=image['model_id'])
+                else:
+                    if image['model_alias']:
+                        model_id = ScientificModel.objects.get(alias=image['model_alias']).id
+                        im = serializer.save(model_id=model_id)
                 list_id.append(im.id)
 
 
@@ -1097,12 +1104,12 @@ class Models(APIView):
             try:
                 web_app = request.GET.getlist('web_app')
             except:
-                web_app = False    
+                web_app = False  
             id =id[0]
             models = ScientificModel.objects.filter(id=id)
 
             if len(models) > 0 :
-
+         
                 #check if private 
                 if models.values("private")[0]["private"] == 1 :
                     #if private check if collab member
