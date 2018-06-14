@@ -73,12 +73,14 @@ testApp.controller('HomeCtrl', ['$scope', '$rootScope', '$http', '$location', "S
 
                 if (state_type == "model") {
                     Context.validation_goToModelDetailView(element);
+                    $scope.$apply();
                 } else if (state_type == "test") {
                     Context.validation_goToTestDetailView(element);
+                    $scope.$apply();
                 } else if (state_type == "result") {
                     Context.validation_goToResultDetailView(element);
+                    $scope.$apply();
                 }
-
             }
         });
     }
