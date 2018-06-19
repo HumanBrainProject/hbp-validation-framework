@@ -8,9 +8,7 @@
     <nav>
         <table>
             <tr>
-                <td>
-                    <label> Search :  <input id="search_model"  ng-model='search.$'> </label>
-                </td>
+
 
                 <td>
                     <multiselect ng-model="selected_species" placeholder="Select species" options="collab_species"></multiselect>
@@ -31,13 +29,25 @@
                     <multiselect ng-model="selected_privacy" placeholder="Select privacy" options="model_privacy" id-prop="value" display-prop="name"></multiselect>
                 </td>
                 <td>
+                    <multiselect ng-model="selected_collab" placeholder="Select collab" options="collab_ids_to_select"></multiselect>
+                </td>
+                <td>
                     <select id="sorting_option" placeholder="Sorting options" class="form-control" ng-model="selected_sorting_option">
                         <option value="">Sorting options</option>
                         <option value="-creation_date ">Sorting: Newest first</option>
                         <option value="creation_date ">Sorting: Oldest first</option>
                     </select>
                 </td>
+                </td>
                 <td><a class="button-MC " ng-href="#/model-catalog/create " ng-if="is_collab_member==true " class="btn btn-primary ">New model </a></td>
+            </tr>
+
+        </table>
+        <table>
+            <tr>
+                <td width="90%">
+                    <label> Search :  <input id="search_model"  ng-model='search.$' size=30> </label>
+
             </tr>
         </table>
         <br>
@@ -58,8 +68,9 @@
             </tr>
         </thead>
         <tbody>
-            <tr ng-mousedown="Context.goToModelDetailView($event, model.id)" oncontextmenu="return false" class="tr-clickable " dir-paginate="model in models.models | filter:search | filterMultiple:{ organization:selected_organization, species:selected_species, brain_region:selected_brain_region , cell_type:selected_cell_type, model_type:selected_model_type, private: selected_privacy}
+            <tr ng-mousedown="Context.goToModelDetailView($event, model.id)" oncontextmenu="return false" class="tr-clickable " dir-paginate="model in models.models | filter:search | filterMultiple:{ organization:selected_organization, species:selected_species, brain_region:selected_brain_region , cell_type:selected_cell_type, model_type:selected_model_type, private: selected_privacy, collab_id: selected_collab}
                         | orderBy: selected_sorting_option | itemsPerPage: itemsPerPages" pagination-id="models">
+
                 <td>{{ model.name}}</td>
                 <td ng-text-truncate=model.alias ng-tt-chars-threshold="50 " ng-tt-no-toggling>{{ model.alias }}</td>
                 <td ng-text-truncate=model.species ng-tt-chars-threshold="50 " ng-tt-no-toggling>{{ model.species }}</td>

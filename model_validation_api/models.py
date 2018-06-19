@@ -164,7 +164,7 @@ class ValidationTestResult(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, )
     model_version = models.ForeignKey(ScientificModelInstance)
     test_code = models.ForeignKey(ValidationTestCode)
-    results_storage = models.TextField(help_text="Location of data files produced by the test run")  # or store locations of individual files?
+    results_storage = models.TextField(blank=True, help_text="Location of data files produced by the test run")  # or store locations of individual files?
     score = models.FloatField(help_text="A numerical measure of the difference between model and experiment")  # name this 'score'? like sciunit
     # should result be a Quantity?
     passed = models.NullBooleanField(help_text="Whether the test passed or failed")
