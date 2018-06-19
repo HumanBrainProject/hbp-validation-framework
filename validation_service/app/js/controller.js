@@ -1043,6 +1043,7 @@ ModelCatalogApp.filter('filterMultiple', ['$parse', '$filter', function($parse, 
         if (!angular.isArray(items)) {
             return items;
         }
+
         var filterObj = {
             data: items,
             filteredData: [],
