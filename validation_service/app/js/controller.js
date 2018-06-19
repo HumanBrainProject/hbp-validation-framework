@@ -1062,7 +1062,12 @@ ModelCatalogApp.filter('filterMultiple', ['$parse', '$filter', function($parse, 
                                     if (angular.isDefined(obj[i]['value'])) {
                                         fObj[key] = obj[i]['value'];
                                     } else {
-                                        fObj[key] = obj[i];
+                                        if (key == 'collab_id') { //specific for Model Catalog home: to allow filter by collab (deep filter) 
+                                            fObj['app'] = {}
+                                            fObj['app'][key] = obj[i];
+                                        } else {
+                                            fObj[key] = obj[i];
+                                        }
                                     }
                                     fData = fData.concat($filter('filter')(this.filteredData, fObj));
                                 }
@@ -1121,8 +1126,20 @@ ModelCatalogApp.controller('ModelCatalogCtrl', [
             return models
         }
 
+        $scope._get_collab_and_app_ids_from_models = function() {
+            for (var i in $scope.models.models) {
+                if ($scope.models.models[i].app != null) {
+                    if ($scope.collab_ids_to_select.indexOf($scope.models.models[i].app.collab_id.toString()) == -1) {
+                        $scope.collab_ids_to_select.push($scope.models.models[i].app.collab_id.toString());
+                    }
+                }
+            }
+            $scope.$apply();
+        }
+
         $scope.$on('models_updated', function(event, models) {
             $scope.models = $scope._change_empty_organization_string(models);
+            $scope.collab_ids_to_select = $scope._get_collab_and_app_ids_from_models();
         });
 
         Context.setService().then(function() {
@@ -1167,8 +1184,9 @@ ModelCatalogApp.controller('ModelCatalogCtrl', [
                     $scope.collab_cell_type = CollabParameters.getParametersOrDefaultByType("cell_type");
                     $scope.collab_model_type = CollabParameters.getParametersOrDefaultByType("model_type");
                     $scope.collab_organization = CollabParameters.getParametersOrDefaultByType("organization");
-
-
+                    $scope.collab_ids_to_select = new Array();
+                    $scope._get_collab_and_app_ids_from_models();
+                    // $scope.selected_collab = $scope.collab_ids_to_select //initialize 
 
 
                     $scope.is_collab_member = false;
