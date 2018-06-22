@@ -1,6 +1,12 @@
 <html id="test-result-detail">
 
 <head>
+
+</head>
+
+
+
+<body>
     <nav class="navbar ">
         <br>
 
@@ -9,11 +15,7 @@
 
         <h1 align=center> Test result ID: {{test_result.id}}</h1>
     </nav>
-</head>
-
-<br>
-
-<body>
+    <br>
     <div id=conteneur>
         <!--test result data -->
         <panel class=description-panel-validation-test-detail>
@@ -228,8 +230,6 @@
                         <div ng-if="file.content_type == 'image/png'">
                             <button class="button-MC" ng-click="open_overview_file(file.uuid);"> Preview </button>&ensp;
                         </div>
-
-
                     </td>
                     <td>
                         <button class="button-MC" ng-click="download_file(file.uuid);"> Download </button>&ensp;
@@ -240,6 +240,7 @@
             </tbody>
         </table>
 
+        <div id="grid1" ui-grid="gridOptions" ui-grid-tree-view class="grid"></div>
         <div align=center>
             <img src="{{image.src}}" alt="" max-height="400" max-width="600">
         </div>
