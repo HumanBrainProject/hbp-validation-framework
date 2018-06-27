@@ -64,6 +64,7 @@
         'clb-app',
         'hbpCollaboratory',
         'angularUtils.directives.dirPagination',
+        'ui.tree',
         // 'hbpCollaboratory',
         // 'clbBoostrap',
         // 'clb-env',

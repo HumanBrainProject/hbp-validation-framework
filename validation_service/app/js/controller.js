@@ -726,9 +726,61 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
     }
 ]);
 
-testApp.controller('ValTestResultDetailCtrl', ['$window', '$scope', '$rootScope', '$http', '$sce', '$location', '$stateParams', 'IsCollabMemberRest', 'AppIDRest', 'ValidationResultRest', 'CollabParameters', 'ScientificModelRest', 'ValidationTestDefinitionRest', "Context", "clbStorage", "clbAuth", 'DataHandler', 'clbCollabNav', 'uiGridTreeViewConstants',
-    function($window, $scope, $rootScope, $http, $sce, $location, $stateParams, IsCollabMemberRest, AppIDRest, ValidationResultRest, CollabParameters, ScientificModelRest, ValidationTestDefinitionRest, Context, clbStorage, clbAuth, DataHandler, clbCollabNav, uiGridTreeViewConstants) {
-        // var vm = this;
+testApp.controller('ValTestResultDetailCtrl', ['$window', '$scope', '$rootScope', '$http', '$sce', '$location', '$stateParams', 'IsCollabMemberRest', 'AppIDRest', 'ValidationResultRest', 'CollabParameters', 'ScientificModelRest', 'ValidationTestDefinitionRest', "Context", "clbStorage", "clbAuth", 'DataHandler', 'clbCollabNav',
+    function($window, $scope, $rootScope, $http, $sce, $location, $stateParams, IsCollabMemberRest, AppIDRest, ValidationResultRest, CollabParameters, ScientificModelRest, ValidationTestDefinitionRest, Context, clbStorage, clbAuth, DataHandler, clbCollabNav) {
+
+        //ui-tree
+
+        $scope.toggle = function(scope) {
+            scope.toggle();
+        };
+
+        $scope.collapseAll = function() {
+            $scope.$broadcast('angular-ui-tree:collapse-all');
+        };
+
+        $scope.expandAll = function() {
+            $scope.$broadcast('angular-ui-tree:expand-all');
+        };
+
+        $scope._tranform_data_for_ui_tree = function(storage_folder_children) {
+            var data = [];
+
+            var i = 0;
+            for (i; i < storage_folder_children.results.length; i++) {
+                var elem = storage_folder_children.results[i];
+
+                if (elem.entity_type == "folder") {
+                    elem.nodes = [];
+                }
+                data.push(elem);
+            }
+            return data;
+        }
+
+        $scope.getFolderContent = function(scope, node) {
+                var nodeData = scope.$modelValue;
+                if (!node.nodes.length > 0) {
+
+                    clbStorage.getChildren({ uuid: node.uuid, entity_type: 'folder' }).then(function(res) {
+
+                        var i = 0;
+                        for (i; i < res.results.length; i++) {
+                            var elem = res.results[i];
+                            if (elem.entity_type == "folder") {
+                                elem.nodes = [];
+                            }
+                            nodeData.nodes.push(elem);
+                        }
+                    })
+                } else {
+                    if (!nodeData.nodes.length > 0) {
+                        nodeData.nodes = node.nodes;
+                    }
+                }
+                scope.toggle();
+            }
+            ////ui tree
 
         $scope.split_result_storage_string = function(storage_string) {
             storage_string = storage_string.slice(10, storage_string.length)
@@ -768,48 +820,13 @@ testApp.controller('ValTestResultDetailCtrl', ['$window', '$scope', '$rootScope'
             });
         };
 
-        $scope._get_storage_folder_content = function(storage) {
 
-            clbStorage.getChildren({ uuid: storage_uuid, entity_type: 'folder' }).then(function(storage_folder_children) {
-                var storage = storage_folder_children;
-
-                return (storage);
-            });
-        }
-
-        $scope.gridOptions = {
-            enableSorting: true,
-            enableFiltering: false,
-            showTreeExpandNoChildren: false,
-            columnDefs: [
-                { name: 'name', width: '20%' },
-                { name: 'content_type', width: '20%' },
-                { name: 'created_on', width: '20%' },
-                { name: 'preview', width: '20%' },
-                { name: 'download', width: '20%' },
-            ],
-            onRegisterApi: function(gridApi) {
-                $scope.gridApi = gridApi;
-                $scope.gridApi.treeBase.on.rowExpanded($scope, function(row) {
-                    if (row.entity.$$hashKey === $scope.gridOptions.data[50].$$hashKey && !$scope.nodeLoaded) {
-
-                        // $scope.gridOptions.data.splice(51,0,
-                        //   {name: 'Dynamic 1', gender: 'female', age: 53, company: 'Griddable grids', balance: 38000, $$treeLevel: 1},
-                        //   {name: 'Dynamic 2', gender: 'male', age: 18, company: 'Griddable grids', balance: 29000, $$treeLevel: 1}
-                        // );
-                        // $scope.nodeLoaded = true;
-
-                    }
-                });
-            }
-        };
 
         Context.setService().then(function() {
             $scope.Context = Context;
 
             $scope.ctx = Context.getCtx();
             $scope.app_id = Context.getAppID();
-
 
             CollabParameters.setService($scope.ctx).then(function() {
 
@@ -850,14 +867,13 @@ testApp.controller('ValTestResultDetailCtrl', ['$window', '$scope', '$rootScope'
 
                     clbStorage.getEntity({ path: "?path=/" + collab + "/" + folder_name + "/" }).then(function(collabStorageFolder) {
 
-                        clbStorage.getChildren({ uuid: collabStorageFolder.uuid, entity_type: 'folder' }).then(function(storage_folder_children) {
-                            $scope.storage_files = storage_folder_children.results
+                            clbStorage.getChildren({ uuid: collabStorageFolder.uuid, entity_type: 'folder' }).then(function(storage_folder_children) {
 
-                            $scope.gridOptions.data = $scope.storage_files;
-                            console.log("storage files", $scope.storage_files)
-                        });
+                                $scope.storage_files = $scope._tranform_data_for_ui_tree(storage_folder_children)
 
-                    }, function(not_worked) {}).finally(function() {});
+                            });
+                        },
+                        function(not_worked) {}).finally(function() {});
 
                     DataHandler.loadModels({ app_id: $scope.app_id }).then(function(data) {
                         $scope.models = data
@@ -1055,8 +1071,6 @@ testApp.filter('filterMultiple', ['$parse', '$filter', function($parse, $filter)
         return filterObj.filteredData;
     }
 }]);
-
-
 
 
 //Model catalog
