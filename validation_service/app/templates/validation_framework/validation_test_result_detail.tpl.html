@@ -203,29 +203,30 @@
 
 
         <h2 align=center>Storage</h2>
-
+        <br>
+        <br>
 
         <script type="text/ng-template" id="nodes_renderer.html">
-            <div ng-if="node.nodes" ui-tree-handle class="tree-node tree-node-content">
+            <div ng-if="node.nodes" ui-tree-handle data-nodrag class="tree-node tree-node-content">
                 <a class="btn btn-xs" data-nodrag ng-click="getFolderContent(this, node)">
-                    <span class="glyphicon" ng-class="{' glyphicon glyphicon-folder-close': collapsed,' 	glyphicon glyphicon-folder-open': !collapsed}"></span>
+                    <span class="glyphicon" ng-class="{'glyphicon glyphicon-folder-close': collapsed,'glyphicon glyphicon-folder-open': !collapsed}"></span>
                 </a>
                 {{node.name}}
             </div>
-            <div ng-if="!node.nodes" ui-tree-handle class="tree-node tree-node-content">
+            <div ng-if="!node.nodes" ui-tree-handle data-nodrag class="tree-node tree-node-content">
                 <a class="btn btn-xs" data-nodrag>
                     <span class="glyphicon glyphicon-file"></span>
                 </a>
                 {{node.name}}
-                <a data-nodrag ng-if="(node.entity_type == 'image/jpeg' || 'image/png')" class="btn btn-xs glyphicon glyphicon-eye-open pull-right" ng-click="open_overview_file(node.uuid);">
-                    </button>
+                <a data-nodrag ng-if="node.content_type == 'image/jpeg' || node.content_type == 'image/png'" class="btn btn-xs glyphicon glyphicon-eye-open pull-right" ng-click="open_overview_file(node.uuid);">
+                </a>
 
 
-                    <a data-nodrag class="btn btn-xs glyphicon glyphicon-download-alt pull-right" ng-click="download_file(node.uuid);"> </a>&ensp;
+                <a data-nodrag class="btn btn-xs glyphicon glyphicon-download-alt pull-right" ng-click="download_file(node.uuid);"> </a>&ensp;
 
             </div>
             <ol ui-tree-nodes="" ng-model="node.nodes" ng-class="{hidden: collapsed}">
-                <li ng-repeat="node in node.nodes" ui-tree-node ng-include="'nodes_renderer.html'" data-collapsed="true">
+                <li ng-repeat="node in node.nodes" data-nodrag ui-tree-node ng-include="'nodes_renderer.html'" data-collapsed="true">
                 </li>
             </ol>
         </script>
@@ -238,18 +239,19 @@
                 <button class="button-MC" ng-click="collapseAll()">Collapse all</button>
             </div>
         </div>
-
+        <br>
         <div class="row">
             <div class="col-sm-6">
                 <div ui-tree id="tree-root">
                     <ol ui-tree-nodes ng-model="storage_files">
-                        <li ng-repeat="node in storage_files" ui-tree-node ng-include="'nodes_renderer.html'" data-collapsed="true"></li>
+                        <li ng-repeat="node in storage_files" data-nodrag ui-tree-node ng-include="'nodes_renderer.html'" data-collapsed="true"></li>
                     </ol>
                 </div>
             </div>
-
+            <br>
+            <br>
             <div align=center>
-                <img src="{{image.src}}" alt="" max-height="400" max-width="600">
+                <img src="{{image.src}}" width="600">
             </div>
 
             <br>

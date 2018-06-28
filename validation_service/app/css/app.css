@@ -387,17 +387,18 @@ table {
 }
 
 .angular-ui-tree-handle {
-    background: #f8faff;
+    /*background: #f8faff;*/
     border: 1px solid #dae2ea;
-    color: #7c9eb2;
+    color: #687074;
     padding: 10px 10px;
 }
 
-.angular-ui-tree-handle:hover {
+
+/*.angular-ui-tree-handle:hover {
     color: #438eb9;
     background: #f4f6f7;
     border-color: #dce2e8;
-}
+}*/
 
 .angular-ui-tree-placeholder {
     background: #f0f9ff;
@@ -412,8 +413,8 @@ tr.angular-ui-tree-empty {
 }
 
 .group-title {
-    background-color: #687074 !important;
-    color: #FFF !important;
+    background-color: #687074;
+    color: #FFF;
 }
 
 
@@ -421,8 +422,9 @@ tr.angular-ui-tree-empty {
 
 .tree-node {
     border: 1px solid #dae2ea;
-    background: #f8faff;
-    color: #7c9eb2;
+    /*background: #f8faff;*/
+    /*color: #7c9eb2;*/
+    /*color: darkgrey;*/
 }
 
 .nodrop {
@@ -435,15 +437,15 @@ tr.angular-ui-tree-empty {
 
 .tree-handle {
     padding: 10px;
-    background: #428bca;
-    color: #FFF;
+    /*background: #428bca;*/
+    /*color: #FFF;*/
     margin-right: 10px;
 }
 
 .angular-ui-tree-handle:hover {}
 
 .angular-ui-tree-placeholder {
-    background: #f0f9ff;
+    /*background: #f0f9ff;*/
     border: 2px dashed #bed2db;
     -webkit-box-sizing: border-box;
     -moz-box-sizing: border-box;
