@@ -12,8 +12,19 @@ testApp.controller('HomeCtrl', ['$scope', '$rootScope', '$http', '$location', "S
 
         $scope.$on('models_updated', function(event, models) {
             $scope.models = models;
+            $scope.collab_ids_to_select = $scope._get_collab_and_app_ids_from_models();
         });
 
+        $scope._get_collab_and_app_ids_from_models = function() {
+            for (var i in $scope.models.models) {
+                if ($scope.models.models[i].app != null) {
+                    if ($scope.collab_ids_to_select.indexOf($scope.models.models[i].app.collab_id.toString()) == -1) {
+                        $scope.collab_ids_to_select.push($scope.models.models[i].app.collab_id.toString());
+                    }
+                }
+            }
+            $scope.$apply();
+        }
 
         Context.setService().then(function() {
 
@@ -47,6 +58,8 @@ testApp.controller('HomeCtrl', ['$scope', '$rootScope', '$http', '$location', "S
                         $('#preloader-models').delay(350).fadeOut('slow'); // will fade out the white DIV that covers the website. 
                         $('#models-panel').delay(350).css({ 'overflow': 'visible' });
 
+                        $scope.collab_ids_to_select = new Array();
+                        $scope._get_collab_and_app_ids_from_models();
 
                         var status = DataHandler.getCurrentStatus();
                         if (status != "up_to_date") {
@@ -715,7 +728,59 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
 
 testApp.controller('ValTestResultDetailCtrl', ['$window', '$scope', '$rootScope', '$http', '$sce', '$location', '$stateParams', 'IsCollabMemberRest', 'AppIDRest', 'ValidationResultRest', 'CollabParameters', 'ScientificModelRest', 'ValidationTestDefinitionRest', "Context", "clbStorage", "clbAuth", 'DataHandler', 'clbCollabNav',
     function($window, $scope, $rootScope, $http, $sce, $location, $stateParams, IsCollabMemberRest, AppIDRest, ValidationResultRest, CollabParameters, ScientificModelRest, ValidationTestDefinitionRest, Context, clbStorage, clbAuth, DataHandler, clbCollabNav) {
-        // var vm = this;
+
+        //ui-tree
+
+        $scope.toggle = function(scope) {
+            scope.toggle();
+        };
+
+        $scope.collapseAll = function() {
+            $scope.$broadcast('angular-ui-tree:collapse-all');
+        };
+
+        $scope.expandAll = function() {
+            $scope.$broadcast('angular-ui-tree:expand-all');
+        };
+
+        $scope._tranform_data_for_ui_tree = function(storage_folder_children) {
+            var data = [];
+
+            var i = 0;
+            for (i; i < storage_folder_children.results.length; i++) {
+                var elem = storage_folder_children.results[i];
+
+                if (elem.entity_type == "folder") {
+                    elem.nodes = [];
+                }
+                data.push(elem);
+            }
+            return data;
+        }
+
+        $scope.getFolderContent = function(scope, node) {
+                var nodeData = scope.$modelValue;
+                if (!node.nodes.length > 0) {
+
+                    clbStorage.getChildren({ uuid: node.uuid, entity_type: 'folder' }).then(function(res) {
+
+                        var i = 0;
+                        for (i; i < res.results.length; i++) {
+                            var elem = res.results[i];
+                            if (elem.entity_type == "folder") {
+                                elem.nodes = [];
+                            }
+                            nodeData.nodes.push(elem);
+                        }
+                    })
+                } else {
+                    if (!nodeData.nodes.length > 0) {
+                        nodeData.nodes = node.nodes;
+                    }
+                }
+                scope.toggle();
+            }
+            ////ui tree
 
         $scope.split_result_storage_string = function(storage_string) {
             storage_string = storage_string.slice(10, storage_string.length)
@@ -728,7 +793,7 @@ testApp.controller('ValTestResultDetailCtrl', ['$window', '$scope', '$rootScope'
         };
 
         //NOT USED?
-        //  $scope.get_correct_folder_using_name = function(name, folders) {
+        // $scope.get_correct_folder_using_name = function(name, folders) {
         //     for (var i in folders) {
         //         if (folders[i].name == name) {
         //             return (folders[i]);
@@ -755,12 +820,13 @@ testApp.controller('ValTestResultDetailCtrl', ['$window', '$scope', '$rootScope'
             });
         };
 
+
+
         Context.setService().then(function() {
             $scope.Context = Context;
 
             $scope.ctx = Context.getCtx();
             $scope.app_id = Context.getAppID();
-
 
             CollabParameters.setService($scope.ctx).then(function() {
 
@@ -795,22 +861,19 @@ testApp.controller('ValTestResultDetailCtrl', ['$window', '$scope', '$rootScope'
                                 }
                                 // $scope.storage_url = 
                                 //https://collab.humanbrainproject.eu/#/collab/2169/nav/18935
-
-
                             },
                             function(not_working) {})
                         .finally(function() {});
 
                     clbStorage.getEntity({ path: "?path=/" + collab + "/" + folder_name + "/" }).then(function(collabStorageFolder) {
 
-                        clbStorage.getChildren({ uuid: collabStorageFolder.uuid, entity_type: 'folder' }).then(function(storage_folder_children) {
+                            clbStorage.getChildren({ uuid: collabStorageFolder.uuid, entity_type: 'folder' }).then(function(storage_folder_children) {
 
-                                $scope.storage_files = storage_folder_children.results
+                                $scope.storage_files = $scope._tranform_data_for_ui_tree(storage_folder_children)
 
-                            }, function() {})
-                            .finally(function() {});
-
-                    }, function(not_worked) {}).finally(function() {});
+                            });
+                        },
+                        function(not_worked) {}).finally(function() {});
 
                     DataHandler.loadModels({ app_id: $scope.app_id }).then(function(data) {
                         $scope.models = data
@@ -954,6 +1017,7 @@ testApp.filter('filterMultiple', ['$parse', '$filter', function($parse, $filter)
         if (!angular.isArray(items)) {
             return items;
         }
+
         var filterObj = {
             data: items,
             filteredData: [],
@@ -973,9 +1037,15 @@ testApp.filter('filterMultiple', ['$parse', '$filter', function($parse, $filter)
                                     if (angular.isDefined(obj[i]['value'])) {
                                         fObj[key] = obj[i]['value'];
                                     } else {
-                                        fObj[key] = obj[i];
+                                        if (key == 'collab_id') { //specific for Model Catalog home: to allow filter by collab (deep filter) 
+                                            fObj['app'] = {}
+                                            fObj['app'][key] = obj[i];
+                                        } else {
+                                            fObj[key] = obj[i];
+                                        }
                                     }
                                     fData = fData.concat($filter('filter')(this.filteredData, fObj));
+
                                 }
                             }
                         }
@@ -998,12 +1068,9 @@ testApp.filter('filterMultiple', ['$parse', '$filter', function($parse, $filter)
                 filterObj.applyFilter(obj, key);
             });
         }
-
         return filterObj.filteredData;
     }
 }]);
-
-
 
 
 //Model catalog
@@ -1141,6 +1208,7 @@ ModelCatalogApp.controller('ModelCatalogCtrl', [
         $scope.$on('models_updated', function(event, models) {
             $scope.models = $scope._change_empty_organization_string(models);
             $scope.collab_ids_to_select = $scope._get_collab_and_app_ids_from_models();
+
         });
 
         Context.setService().then(function() {

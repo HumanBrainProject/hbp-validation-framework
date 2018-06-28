@@ -1,6 +1,12 @@
 <html id="test-result-detail">
 
 <head>
+
+</head>
+
+
+
+<body>
     <nav class="navbar ">
         <br>
 
@@ -9,11 +15,7 @@
 
         <h1 align=center> Test result ID: {{test_result.id}}</h1>
     </nav>
-</head>
-
-<br>
-
-<body>
+    <br>
     <div id=conteneur>
         <!--test result data -->
         <panel class=description-panel-validation-test-detail>
@@ -201,56 +203,64 @@
 
 
         <h2 align=center>Storage</h2>
+        <br>
+        <br>
 
-        <!--<table class="table-storage">-->
-        <table class="table table-bordered table-hover specialCollapse">
-
-            <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Content_type</th>
-                    <th>Creation date</th>
-
-                    <th>Preview</th>
-                    <th>Download</th>
-
-                </tr>
-            </thead>
-            <tbody>
-                <tr ng-repeat="file in storage_files ">
-                    <td>{{ file.name}}</td>
-                    <td>{{ file.content_type }}</td>
-                    <td>{{ file.created_on | date:'d MMMM yyyy, hh:mm' : 'UTC'}}</td>
-                    <td>
-                        <div ng-if="file.content_type == 'image/jpeg'">
-                            <button class="button-MC" ng-click="open_overview_file(file.uuid);"> Preview </button>&ensp;
-                        </div>
-                        <div ng-if="file.content_type == 'image/png'">
-                            <button class="button-MC" ng-click="open_overview_file(file.uuid);"> Preview </button>&ensp;
-                        </div>
+        <script type="text/ng-template" id="nodes_renderer.html">
+            <div ng-if="node.nodes" ui-tree-handle data-nodrag class="tree-node tree-node-content">
+                <a class="btn btn-xs" data-nodrag ng-click="getFolderContent(this, node)">
+                    <span class="glyphicon" ng-class="{'glyphicon glyphicon-folder-close': collapsed,'glyphicon glyphicon-folder-open': !collapsed}"></span>
+                </a>
+                {{node.name}}
+            </div>
+            <div ng-if="!node.nodes" ui-tree-handle data-nodrag class="tree-node tree-node-content">
+                <a class="btn btn-xs" data-nodrag>
+                    <span class="glyphicon glyphicon-file"></span>
+                </a>
+                {{node.name}}
+                <a data-nodrag ng-if="node.content_type == 'image/jpeg' || node.content_type == 'image/png'" class="btn btn-xs glyphicon glyphicon-eye-open pull-right" ng-click="open_overview_file(node.uuid);">
+                </a>
 
 
-                    </td>
-                    <td>
-                        <button class="button-MC" ng-click="download_file(file.uuid);"> Download </button>&ensp;
-                    </td>
+                <a data-nodrag class="btn btn-xs glyphicon glyphicon-download-alt pull-right" ng-click="download_file(node.uuid);"> </a>&ensp;
+
+            </div>
+            <ol ui-tree-nodes="" ng-model="node.nodes" ng-class="{hidden: collapsed}">
+                <li ng-repeat="node in node.nodes" data-nodrag ui-tree-node ng-include="'nodes_renderer.html'" data-collapsed="true">
+                </li>
+            </ol>
+        </script>
 
 
-                </tr>
-            </tbody>
-        </table>
-
-        <div align=center>
-            <img src="{{image.src}}" alt="" max-height="400" max-width="600">
+        <!--main -->
+        <div class="row">
+            <div class="col-sm-12">
+                <button class="button-MC" ng-click="expandAll()">Expand all</button>
+                <button class="button-MC" ng-click="collapseAll()">Collapse all</button>
+            </div>
         </div>
+        <br>
+        <div class="row">
+            <div class="col-sm-6">
+                <div ui-tree id="tree-root">
+                    <ol ui-tree-nodes ng-model="storage_files">
+                        <li ng-repeat="node in storage_files" data-nodrag ui-tree-node ng-include="'nodes_renderer.html'" data-collapsed="true"></li>
+                    </ol>
+                </div>
+            </div>
+            <br>
+            <br>
+            <div align=center>
+                <img src="{{image.src}}" width="600">
+            </div>
 
-        <br>
-        <br>
-        <br>
-        <br>
-
-
+            <br>
+            <br>
+            <br>
+            <br>
 
 </body>
+
+
 
 </html>
