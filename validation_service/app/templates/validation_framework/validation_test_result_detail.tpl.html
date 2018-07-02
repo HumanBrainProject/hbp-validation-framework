@@ -211,17 +211,15 @@
                 <a class="btn btn-xs" data-nodrag ng-click="getFolderContent(this, node)">
                     <span class="glyphicon" ng-class="{'glyphicon glyphicon-folder-close': collapsed,'glyphicon glyphicon-folder-open': !collapsed}"></span>
                 </a>
-                {{node.name}}
+                {{node.name}} &emsp; {{node.created_on | date:'dd/MM/yyyy' : 'UTC'}}
             </div>
             <div ng-if="!node.nodes" ui-tree-handle data-nodrag class="tree-node tree-node-content">
                 <a class="btn btn-xs" data-nodrag>
                     <span class="glyphicon glyphicon-file"></span>
                 </a>
-                {{node.name}}
+                {{node.name}} &emsp; {{node.created_on | date:'dd/MM/yyyy' : 'UTC' }}
                 <a data-nodrag ng-if="node.content_type == 'image/jpeg' || node.content_type == 'image/png'" class="btn btn-xs glyphicon glyphicon-eye-open pull-right" ng-click="open_overview_file(node.uuid);">
                 </a>
-
-
                 <a data-nodrag class="btn btn-xs glyphicon glyphicon-download-alt pull-right" ng-click="download_file(node.uuid);"> </a>&ensp;
 
             </div>
