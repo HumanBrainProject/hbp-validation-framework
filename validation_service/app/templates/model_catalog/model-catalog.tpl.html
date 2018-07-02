@@ -5,11 +5,10 @@
         <div align=right> <button class=linkbutton type="button" ng-click="Context.modelCatalog_goToHelpView()"> Help </button> </div>
         <h1 align=center> Model Catalog</h1>
     </nav>
+
     <nav>
         <table>
             <tr>
-
-
                 <td>
                     <multiselect ng-model="selected_species" placeholder="Select species" options="collab_species"></multiselect>
                 </td>
@@ -47,9 +46,9 @@
             <tr>
                 <td width="90%">
                     <label> Search :  <input id="search_model"  ng-model='search.$' size=30> </label>
-
             </tr>
         </table>
+        <div class="pull-right text-warning" ng-if="isloading()"> ...data still loading...</div>
         <br>
     </nav>
     <table class="table ">
@@ -87,6 +86,7 @@
             </tr>
         </tbody>
     </table>
+
     <dir-pagination-controls pagination-id="models" class="pull-right"></dir-pagination-controls>
     <!--<dir-pagination-controls pagination-id="models" class="pull-right" on-page-change="pageChanged(newPageNumber)"></dir-pagination-controls>-->
 

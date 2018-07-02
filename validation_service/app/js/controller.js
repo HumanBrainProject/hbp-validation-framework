@@ -15,6 +15,15 @@ testApp.controller('HomeCtrl', ['$scope', '$rootScope', '$http', '$location', "S
             $scope.collab_ids_to_select = $scope._get_collab_and_app_ids_from_models();
         });
 
+        $scope.isloading = function() {
+            var status = DataHandler.getCurrentStatus();
+            if (status == "loading") {
+                return true
+            } else {
+                return false
+            }
+        }
+
         $scope._get_collab_and_app_ids_from_models = function() {
             for (var i in $scope.models.models) {
                 if ($scope.models.models[i].app != null) {
@@ -1205,10 +1214,18 @@ ModelCatalogApp.controller('ModelCatalogCtrl', [
             $scope.$apply();
         }
 
+        $scope.isloading = function() {
+            var status = DataHandler.getCurrentStatus();
+            if (status == "loading") {
+                return true
+            } else {
+                return false
+            }
+        }
+
         $scope.$on('models_updated', function(event, models) {
             $scope.models = $scope._change_empty_organization_string(models);
             $scope.collab_ids_to_select = $scope._get_collab_and_app_ids_from_models();
-
         });
 
         Context.setService().then(function() {
