@@ -792,10 +792,10 @@ testApp.controller('ValTestResultDetailCtrl', ['$window', '$scope', '$rootScope'
             ////ui tree
 
         $scope.split_result_storage_string = function(storage_string) {
-            storage_string = storage_string.slice(10, storage_string.length)
-
+            storage_string = storage_string.slice(9, storage_string.length)
+            console.log("storage string", storage_string)
             storage_string = storage_string.split(/\/(.+)/)
-
+            console.log("storage string", storage_string)
             var dict_to_return = { collab: storage_string[0], folder_path: storage_string[1] }
 
             return (dict_to_return);
@@ -1607,6 +1607,13 @@ ModelCatalogApp.controller('ModelCatalogEditCtrl', ['$scope', '$rootScope', '$ht
                 alert(e.data);
             });
         };
+        $scope.deleteModelInstance = function(model_instance) {
+            var parameters = JSON.stringify([model_instance]);
+            var a = ScientificModelInstanceRest.delete({ app_id: $scope.app_id }, parameters).$promise.then(function(data) { alert('model instances correctly edited') }).catch(function(e) {
+                alert(e.data);
+            });
+        }
+
         $scope.checkAliasValidity = function() {
             $scope.alias_is_valid = ScientificModelAliasRest.get({ app_id: $scope.app_id, model_id: $scope.model.models[0].id, alias: $scope.model.models[0].alias });
         };

@@ -479,7 +479,15 @@ class Command(BaseCommand):
             model.code_format = "py"
             model.save()        
 
-
+    def replace_collab_storage_files(self, *args, **options):
+        results = ValidationTestResult.objects.all()
+        for result in results:
+            
+            if result.results_storage.startswith("collab:///"):
+                result.results_storage = str(result.results_storage)
+                result.results_storage = "collab://" + str(result.results_storage.split("collab:///")[1])
+                result.save()
+                print(result)
     def handle(self, *args, **options):
         #create_data_modalities()
         #create_test_types()
@@ -497,9 +505,9 @@ class Command(BaseCommand):
 	#self.delete("model_instance", ['2b160a50e2a445c69d908773a8d81f9b'])
 	#self.delete("test", ['111307e4c86541529c2076fa26762051'])
 	#self.delete("test_instance", ['01270b83f1af49c79f16c500262e9c9a','a11b6786318d4546922f85dedf8c3491'])
-       self.create_fake_models(62)
+        #self.create_fake_models(62)
        
-
+        self.replace_collab_storage_files()
 
 
 

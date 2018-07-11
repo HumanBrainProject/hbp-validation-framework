@@ -700,7 +700,50 @@ class ModelInstances (APIView):
                 list_id.append(model_instance.id)
 
         return Response({'uuid': list_id}, status=status.HTTP_202_ACCEPTED) 
+    
+    # def delete(self, request, format=None):
 
+    #     if not is_authorised(request, settings.ADMIN_COLLAB_ID):
+    #             return HttpResponseForbidden()
+        
+    #     serializer_context = {'request': request,}
+    #     print(request.data)
+    #     DATA = _reformat_request_data(request.data)
+    #     print(DATA)
+    #     for instance in DATA :
+    #         if 'id' in instance:
+    #             print('id')
+    #             try: 
+    #                 instance = ScientificModelInstance.objects.get(id= instance['id'])
+    #             except:
+    #                 return Response("The given id ",instance['id']," does not exists. Please give a new id, or a model_id with a version_name, or a model_alias with a version_name. ", status=status.HTTP_400_BAD_REQUEST)
+    #         else:
+    #             if 'version' in instance:
+    #                 print('version')
+    #                 if 'model_id' in instance:
+    #                     print("model_id")
+    #                     try: 
+    #                         instance = ScientificModelInstance.objects.get(model_id= instance['model_id'], version=instance['version'])
+    #                     except:
+    #                         return Response("There is no model instance with this version name for this model_id. Please give a new model_id or a new version name. ", status=status.HTTP_400_BAD_REQUEST)
+                        
+    #                 if 'model_alias' in instance:
+    #                     print('model_alias')
+    #                     try: 
+    #                         model = ScientificModel.objects.get(alias = instance['model_alias'])
+    #                     except:
+    #                         return Response('There is no model with this alias. Please give a new alias or try with the model_id directly.', status=status.HTTP_400_BAD_REQUEST)
+    #                     instance['model_id'] = model.id
+    #                     try: 
+    #                         instance = ScientificModelInstance.objects.get(model_id= instance['model_id'], version=instance['version'])
+    #                     except:
+    #                         return Response("There is no model instance with this version name for this model_alias. Please give a new model_id or a new version name. ", status=status.HTTP_400_BAD_REQUEST) 
+                        
+                        
+    #             else:
+    #                 return Response("To delete a model instance, you need to give an id, or a model_id with a version, or a model_alias with a version ", status=status.HTTP_400_BAD_REQUEST)    
+    #         instance.delete()
+    #         return Response("Instance ", instance.id,"have been correctly deleted")    
 
 
 class Images (APIView):
@@ -1128,9 +1171,10 @@ class Models(APIView):
                     'models': model_serializer.data,
                 })
             else :
-                return Response({
-                    'models':[],
-                })
+                return HttpResponse('Not found', status=404)
+                # return Response({
+                #     'models':[],
+                # })
 
     def post(self, request, format=None): 
         """
