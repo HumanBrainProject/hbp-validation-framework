@@ -8,45 +8,64 @@
 
     <nav>
         <table>
-            <tr>
-                <td>
-                    <multiselect ng-model="selected_species" placeholder="Select species" options="collab_species"></multiselect>
-                </td>
-                <td>
-                    <multiselect ng-model="selected_brain_region" placeholder="Select brain region" options="collab_brain_region"></multiselect>
-                </td>
-                <td>
-                    <multiselect ng-model="selected_cell_type" placeholder="Select cell type" options="collab_cell_type"></multiselect>
-                </td>
-                <td>
-                    <multiselect ng-model="selected_model_type" placeholder="Select model type" options="collab_model_type"></multiselect>
-                </td>
-                <td>
-                    <multiselect ng-model="selected_organization" placeholder="Select organization" options="collab_organization"></multiselect>
-                </td>
-                <td>
-                    <multiselect ng-model="selected_privacy" placeholder="Select privacy" options="model_privacy" id-prop="value" display-prop="name"></multiselect>
-                </td>
-                <td>
-                    <multiselect ng-model="selected_collab" placeholder="Select collab" options="collab_ids_to_select"></multiselect>
-                </td>
-                <td>
-                    <select id="sorting_option" placeholder="Sorting options" class="form-control" ng-model="selected_sorting_option">
+            <colgroup>
+                <col style="width: 10%" />
+                <col style="width: 10%" />
+                <col style="width: 10%" />
+                <col style="width: 10%" />
+                <col style="width: 10%" />
+                <col style="width: 10%" />
+                <col style="width: 10%" />
+                <col style="width: 10%" />
+                <col style="width: 10%" />
+            </colgroup>
+            <tbody>
+                <tr>
+                    <td>
+                        <multiselect ng-model="selected_species" placeholder="Select species" options="collab_species"></multiselect>
+                    </td>
+                    <td>
+                        <multiselect ng-model="selected_brain_region" placeholder="Select brain region" options="collab_brain_region"></multiselect>
+                    </td>
+                    <td>
+                        <multiselect ng-model="selected_cell_type" placeholder="Select cell type" options="collab_cell_type"></multiselect>
+                    </td>
+                    <td>
+                        <multiselect ng-model="selected_model_scope" placeholder="Select model scope" options="collab_model_scope"></multiselect>
+                    </td>
+                    <td>
+                        <multiselect ng-model="selected_abstraction_level" placeholder="Select abstraction level" options="collab_abstraction_level"></multiselect>
+                    </td>
+                    <td>
+                        <multiselect ng-model="selected_organization" placeholder="Select organization" options="collab_organization"></multiselect>
+                    </td>
+                    <td>
+                        <multiselect ng-model="selected_privacy" placeholder="Select privacy" options="model_privacy" id-prop="value" display-prop="name"></multiselect>
+                    </td>
+                    <td>
+                        <multiselect ng-model="selected_collab" placeholder="Select collab" options="collab_ids_to_select"></multiselect>
+                    </td>
+                    <td>
+                        <select id="sorting_option" placeholder="Sorting options" class="form-control" ng-model="selected_sorting_option">
                         <option value="">Sorting options</option>
                         <option value="-creation_date ">Sorting: Newest first</option>
                         <option value="creation_date ">Sorting: Oldest first</option>
                     </select>
-                </td>
-                </td>
-                <td><a class="button-MC " ng-href="#/model-catalog/create " ng-if="is_collab_member==true " class="btn btn-primary ">New model </a></td>
-            </tr>
+                    </td>
+                    </td>
 
+                </tr>
+            </tbody>
         </table>
         <table>
-            <tr>
-                <td width="90%">
-                    <label> Search :  <input id="search_model"  ng-model='search.$' size=30> </label>
-            </tr>
+            <tbody>
+                <tr>
+                    <td width="90%">
+                        <label> Search :  <input id="search_model"  ng-model='search.$' size=30> </label>
+                    </td>
+                    <td><a class="button-MC " ng-href="#/model-catalog/create " ng-if="is_collab_member==true " class="btn btn-primary ">New model </a></td>
+                </tr>
+            </tbody>
         </table>
         <div class="pull-right text-warning" ng-if="isloading()"> ...data still loading...</div>
         <br>
@@ -59,7 +78,8 @@
                 <th>Species</th>
                 <th>Brain region</th>
                 <th>Cell type</th>
-                <th>Model type</th>
+                <th>Model scope</th>
+                <th>Abstraction level</th>
                 <th>Author(s)</th>
                 <th>Organization</th>
                 <th>Collab ID</th>
@@ -67,7 +87,7 @@
             </tr>
         </thead>
         <tbody>
-            <tr ng-mousedown="Context.goToModelDetailView($event, model.id)" oncontextmenu="return false" class="tr-clickable " dir-paginate="model in models.models | filter:search | filterMultiple:{ organization:selected_organization, species:selected_species, brain_region:selected_brain_region , cell_type:selected_cell_type, model_type:selected_model_type, private: selected_privacy, collab_id: selected_collab}
+            <tr ng-mousedown="Context.goToModelDetailView($event, model.id)" oncontextmenu="return false" class="tr-clickable " dir-paginate="model in models.models | filter:search | filterMultiple:{ organization:selected_organization, species:selected_species, brain_region:selected_brain_region , cell_type:selected_cell_type, model_scope:selected_model_scope, abstraction_level:selected_abstraction_level, private: selected_privacy, collab_id: selected_collab}
                         | orderBy: selected_sorting_option | itemsPerPage: itemsPerPages" pagination-id="models">
 
                 <td>{{ model.name}}</td>
@@ -75,7 +95,8 @@
                 <td ng-text-truncate=model.species ng-tt-chars-threshold="50 " ng-tt-no-toggling>{{ model.species }}</td>
                 <td ng-text-truncate=model.brain_region ng-tt-chars-threshold="50 " ng-tt-no-toggling>{{ model.brain_region }}</td>
                 <td ng-text-truncate=model.cell_type ng-tt-chars-threshold="50 " ng-tt-no-toggling>{{ model.cell_type }}</td>
-                <td ng-text-truncate=model.model_type ng-tt-chars-threshold="50 " ng-tt-no-toggling>{{ model.model_type }}</td>
+                <td ng-text-truncate=model.model_scope ng-tt-chars-threshold="50 " ng-tt-no-toggling>{{ model.model_scope }}</td>
+                <td ng-text-truncate=model.abstraction_level ng-tt-chars-threshold="50 " ng-tt-no-toggling>{{ model.abstraction_level }}</td>
                 <td ng-text-truncate=model.author ng-tt-chars-threshold="50 " ng-tt-no-toggling>{{ model.author }}</td>
                 <td ng-text-truncate=model.organization ng-tt-chars-threshold="50 " ng-tt-no-toggling>{{ model.organization }}</td>
                 <td>{{ model.app.collab_id }}</td>

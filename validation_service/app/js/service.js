@@ -601,7 +601,7 @@ ParametersConfigurationServices.service('CollabParameters', ['$rootScope', 'Coll
 
         var getParametersOrDefaultByType = function(type) {
             var param = getParametersByType(type);
-
+            console.log("type ", type, "dafault params =", default_parameters[type], "param", param)
             if (param.length > 0) {
                 param = _move_element_at_the_end_of_array("Other", param)
                 return param;
@@ -629,11 +629,11 @@ ParametersConfigurationServices.service('CollabParameters', ['$rootScope', 'Coll
                     data.$promise.then(function() {
 
                         var data_to_return = {}
-
                         data_to_return.brain_region = format_parameter_data(data.brain_region);
                         data_to_return.cell_type = format_parameter_data(data.cell_type);
                         data_to_return.data_modalities = format_parameter_data(data.data_modalities);
-                        data_to_return.model_type = format_parameter_data(data.model_type);
+                        data_to_return.model_scope = format_parameter_data(data.model_scope);
+                        data_to_return.abstraction_level = format_parameter_data(data.abstraction_level);
                         data_to_return.organization = format_parameter_data(data.organization);
                         data_to_return.score_type = format_parameter_data(data.score_type);
                         data_to_return.species = format_parameter_data(data.species);
@@ -698,7 +698,8 @@ ParametersConfigurationServices.service('CollabParameters', ['$rootScope', 'Coll
                 parameters.param[0]['species'],
                 parameters.param[0]['brain_region'],
                 parameters.param[0]['cell_type'],
-                parameters.param[0]['model_type'],
+                parameters.param[0]['model_scope'],
+                parameters.param[0]['abstraction_level'],
                 parameters.param[0]['test_type'],
                 parameters.param[0]['organization'],
             ];
@@ -711,15 +712,18 @@ ParametersConfigurationServices.service('CollabParameters', ['$rootScope', 'Coll
             parameters.param[0]['species'] = string_tab[1];
             parameters.param[0]['brain_region'] = string_tab[2];
             parameters.param[0]['cell_type'] = string_tab[3];
-            parameters.param[0]['model_type'] = string_tab[4];
-            parameters.param[0]['test_type'] = string_tab[5];
-            parameters.param[0]['organization'] = string_tab[6];
+            parameters.param[0]['model_scope'] = string_tab[4];
+            parameters.param[0]['abstraction_level'] = string_tab[5];
+            parameters.param[0]['test_type'] = string_tab[6];
+            parameters.param[0]['organization'] = string_tab[7];
         };
 
         var _move_element_at_the_end_of_array = function(elem, array) {
-            if (array.indexOf(elem) > 0) {
-                array.splice(array.indexOf(elem), 1)
-                array.push(elem)
+            if (array) {
+                if (array.indexOf(elem) > 0) {
+                    array.splice(array.indexOf(elem), 1)
+                    array.push(elem)
+                }
             }
             return array;
         }
@@ -793,7 +797,8 @@ ParametersConfigurationServices.service('CollabParameters', ['$rootScope', 'Coll
                 'species': String(parameters.param[0]['species']),
                 'brain_region': String(parameters.param[0]['brain_region']),
                 'cell_type': String(parameters.param[0]['cell_type']),
-                'model_type': String(parameters.param[0]['model_type']),
+                'model_scope': String(parameters.param[0]['model_scope']),
+                'abstraction_level': String(parameters.param[0]['abstraction_level']),
                 'organization': String(parameters.param[0]['organization']),
                 'app_type': String(parameters.param[0]['app_type']),
                 'collab_id': Context.getCollabID(),
@@ -811,7 +816,8 @@ ParametersConfigurationServices.service('CollabParameters', ['$rootScope', 'Coll
                 'species': String(parameters.param[0]['species']),
                 'brain_region': String(parameters.param[0]['brain_region']),
                 'cell_type': String(parameters.param[0]['cell_type']),
-                'model_type': String(parameters.param[0]['model_type']),
+                'model_scope': String(parameters.param[0]['model_scope']),
+                'abstraction_level': String(parameters.param[0]['abstraction_level']),
                 'organization': String(parameters.param[0]['organization']),
                 'app_type': String(parameters.param[0]['app_type']),
                 'collab_id': Context.getCollabID(),
@@ -830,7 +836,8 @@ ParametersConfigurationServices.service('CollabParameters', ['$rootScope', 'Coll
                         'species': [],
                         'brain_region': [],
                         'cell_type': [],
-                        'model_type': [],
+                        'model_scope': [],
+                        'abstraction_level': [],
                         'organization': [],
                         'app_type': [],
                         'collab_id': 0,
@@ -859,7 +866,8 @@ ParametersConfigurationServices.service('CollabParameters', ['$rootScope', 'Coll
                     'species': [],
                     'brain_region': [],
                     'cell_type': [],
-                    'model_type': [],
+                    'model_scope': [],
+                    'abstraction_level': [],
                     'organization': [],
                     'app_type': [],
                     'collab_id': 0,
@@ -1648,9 +1656,6 @@ HelpServices.factory('Help', ['$rootScope', 'Context', 'AuthorizedCollabParamete
                     } else if (parameter == 'test_type') {
                         res = _get_values_only(authorized_params.test_type);
                         resolve(res);
-                    } else if (parameter == 'model_type') {
-                        res = _get_values_only(authorized_params.model_type);
-                        resolve(res);
                     } else if (parameter == 'score_type') {
                         res = _get_values_only(authorized_params.score_type);
                         resolve(res);
@@ -1664,7 +1669,6 @@ HelpServices.factory('Help', ['$rootScope', 'Context', 'AuthorizedCollabParamete
                             'brain_region': _get_values_only(authorized_params.brain_region),
                             'cell_type': _get_values_only(authorized_params.cell_type),
                             'test_type': _get_values_only(authorized_params.test_type),
-                            'model_type': _get_values_only(authorized_params.model_type),
                             'score_type': _get_values_only(authorized_params.score_type),
                             'data_modalities': _get_values_only(authorized_params.data_modalities),
                         };

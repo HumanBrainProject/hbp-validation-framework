@@ -15,7 +15,8 @@ from ..models import (ValidationTestDefinition,
                     Param_Species,
                     Param_BrainRegion,
                     Param_CellType,
-                    Param_ModelType,
+                    Param_ModelScope,
+                    Param_AbstractionLevel,
                     Param_ScoreType,
                     Param_organizations,
                     )
@@ -29,7 +30,7 @@ class CollabParametersSerializer(serializers.HyperlinkedModelSerializer):
      class Meta:
         model = CollabParameters
         fields = ('id', 'data_modalities', 'test_type', 'species', 'brain_region', 
-                    'cell_type', 'model_type', 'organization', 'app_type','collab_id')
+                    'cell_type', 'model_scope','abstraction_level', 'organization', 'app_type','collab_id')
 
 class CollabParametersReadOnlyForHomeSerializer(serializers.HyperlinkedModelSerializer):
      class Meta:
@@ -73,7 +74,7 @@ class ScientificModelImageSerializer(serializers.HyperlinkedModelSerializer):
 class ScientificModelSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = ScientificModel
-        fields = ('id', 'name','alias', 'author','owner','app_id','organization','project','private','license', 'cell_type', 'model_type', 'brain_region', 'species', 'description')
+        fields = ('id', 'name','alias', 'author','owner','app_id','organization','project','private','license', 'cell_type', 'model_scope','abstraction_level', 'brain_region', 'species', 'description')
 
 
 ###########################
@@ -166,9 +167,14 @@ class Param_CellTypeSerializer(serializers.HyperlinkedModelSerializer):
         model = Param_CellType
         fields = ('id', 'authorized_value')
 
-class Param_ModelTypeSerializer(serializers.HyperlinkedModelSerializer):
+class Param_ModelScopeSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
-        model = Param_ModelType
+        model = Param_ModelScope
+        fields = ('id', 'authorized_value')
+
+class Param_AbstractionLevelSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = Param_AbstractionLevel
         fields = ('id', 'authorized_value')
 
 class Param_ScoreTypeSerializer(serializers.HyperlinkedModelSerializer):

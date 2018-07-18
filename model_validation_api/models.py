@@ -18,7 +18,9 @@ class CollabParameters(models.Model):
     species = models.CharField(max_length=500,blank=True, help_text="species")
     brain_region = models.CharField(max_length=500, blank=True, help_text="brain region, if applicable")
     cell_type = models.CharField(max_length=500, blank=True, help_text="cell type, for single-cell models")
-    model_type = models.CharField(max_length=500, blank=True, help_text="model type: single cell, network or mean field region")
+    model_type = models.CharField(max_length=500, blank=True, help_text="model_type...will be deleted after (split into model scope and abstraction level)")
+    abstraction_level = models.CharField(max_length=500, blank=True, help_text="abstraction level: single cell, network or mean field region")
+    model_scope = models.CharField(max_length=500, blank=True, help_text="model scope: subcellular model, single cell, network...")
     organization = models.CharField(max_length=500, blank=True, help_text="organization: HBP-SP1, HBP-SP2... ")
     collab_id = models.IntegerField( help_text="ID of the collab")
     # app_id = models.IntegerField( help_text="ID of the app")
@@ -106,15 +108,17 @@ class ScientificModel(models.Model):
     brain_region = models.CharField(max_length=100, blank=True, help_text="brain region, if applicable")
     cell_type = models.CharField(max_length=100, blank=True, help_text="cell type, for single-cell models")
     author = models.TextField(help_text="Author(s) of this model")  # do we need a separate "owner" field?
-    model_type = models.CharField(max_length=100, blank=True, help_text="model type: single cell, network or mean field region")
+    model_type = models.CharField(max_length=100, blank=True, help_text="model_type...will be deleted after (split into model scope and abstraction level)")
+    model_scope = models.CharField(max_length=100, blank=True, help_text="model scope: subcellular model, single cell, network...")
+    abstraction_level = models.CharField(max_length=100, blank=True, help_text="model type: protein sturcture, system biology, spiking neurons...")
     private = models.BooleanField ( default= False ,help_text="privacy of the model: can be private (if true) or public (if false)")
     app = models.ForeignKey(CollabParameters, related_name="collab_params")
-    code_format = models.CharField(max_length=100 ,blank=True, help_text=".py, .c, etc...")
+    code_format = models.CharField(max_length=100 ,blank=True, help_text=".py, .c, etc...") ###to remove
     alias = models.CharField(max_length=200, unique=True, blank=True, null=True, default=None,  help_text="alias of the model")
     creation_date = models.DateTimeField(auto_now_add=True, help_text="creation date of the model")
     organization = models.CharField(max_length=100 , blank=False, default="<<empty>>")
     owner = models.TextField(max_length=100, blank=True, null = True)
-    project = models.TextField(max_length=100, blank=True, null = True)
+    project = models.TextField(max_length=100, blank=True, null = True) ##will be removed in KG
     license = models.TextField(max_length=200, blank=True, null = True)
     # todo: 
     # spiking vs rate?
@@ -235,6 +239,14 @@ class Param_CellType (models.Model):
     authorized_value = models.CharField(max_length=200, unique=True, default="")
 
 class Param_ModelType (models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, )
+    authorized_value = models.CharField(max_length=200, unique=True, default="")
+
+class Param_ModelScope (models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, )
+    authorized_value = models.CharField(max_length=200, unique=True, default="")
+
+class Param_AbstractionLevel (models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, )
     authorized_value = models.CharField(max_length=200, unique=True, default="")
 

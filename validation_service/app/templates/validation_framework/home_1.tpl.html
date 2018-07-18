@@ -24,7 +24,10 @@
                         <multiselect ng-model="selected_cell_type" placeholder="Select cell type" options="collab_cell_type" show-search="true" show-select-all="true" show-unselect-all="true"></multiselect>
                     </td>
                     <td>
-                        <multiselect ng-model="selected_model_type" placeholder="Select model type" options="collab_model_type" show-search="true" show-select-all="true" show-unselect-all="true"></multiselect>
+                        <multiselect ng-model="selected_model_scope" placeholder="Select model scope" options="collab_model_scope" show-search="true" show-select-all="true" show-unselect-all="true"></multiselect>
+                    </td>
+                    <td>
+                        <multiselect ng-model="selected_abstraction_level" placeholder="Select abstraction level" options="collab_abstraction_level" show-search="true" show-select-all="true" show-unselect-all="true"></multiselect>
                     </td>
                     <td>
                         <multiselect ng-model="selected_data_modalities" placeholder="Select data modality" options="collab_data_modalities" show-search="true" show-select-all="true" show-unselect-all="true"></multiselect>
@@ -75,7 +78,7 @@
                         <th>Author</th>
                     </thead>
                     <br>
-                    <tr class=tr-clickable id="test1" dir-paginate="model in models.models | filter: search | filterMultiple:{organization:selected_organization, species:selected_species, brain_region:selected_brain_region, cell_type:selected_cell_type, model_type:selected_model_type, collab_id: selected_collab} | orderBy: selected_sorting_option | itemsPerPage: itemsPerPages"
+                    <tr class=tr-clickable id="test1" dir-paginate="model in models.models | filter: search | filterMultiple:{organization:selected_organization, species:selected_species, brain_region:selected_brain_region, cell_type:selected_cell_type, model_scope:selected_model_scope, abstraction_level:selected_abstraction_level, collab_id: selected_collab} | orderBy: selected_sorting_option | itemsPerPage: itemsPerPages"
                         pagination-id="models-pagination" ng-mousedown="Context.goToValidationModelView($event, model)">
                         <td ng-if=!(model.alias) ng-text-truncate=model.name ng-tt-chars-threshold="20" ng-tt-no-toggling> {{model.name}} </td>
                         <td ng-if=model.alias ng-text-truncate=model.alias ng-tt-chars-threshold="20" ng-tt-no-toggling> {{model.alias}} </td>
@@ -100,7 +103,7 @@
                     </thead>
                     <br>
 
-                    <tr class="tr-clickable" ng-mousedown="Context.goToTestDetailView($event, test.id)" dir-paginate="test in tests.tests | filter:search | filterMultiple:{species:selected_species, brain_region:selected_brain_region, cell_type:selected_cell_type, model_type:selected_model_type} | orderBy: selected_sorting_option | itemsPerPage: itemsPerPages"
+                    <tr class="tr-clickable" ng-mousedown="Context.goToTestDetailView($event, test.id)" dir-paginate="test in tests.tests | filter:search | filterMultiple:{species:selected_species, brain_region:selected_brain_region, cell_type:selected_cell_type, model_scope:selected_model_scope, abstraction_level:selected_abstraction_level} | orderBy: selected_sorting_option | itemsPerPage: itemsPerPages"
                         pagination-id="tests-pagination">
 
                         <td ng-if=!(test.alias) ng-text-truncate=test.name ng-tt-chars-threshold="20" ng-tt-no-toggling> {{test.name}} </td>

@@ -5,10 +5,12 @@ from ...models import (
                     Param_TestType, 
                     Param_BrainRegion, 
                     Param_CellType, 
+                    Param_organizations,
                     Param_ModelType,
-                    Param_organizations, 
+                    Param_ModelScope,
+                    Param_AbstractionLevel,
                     CollabParameters,
-		    Param_ScoreType,
+		            Param_ScoreType,
 
                     ScientificModel,
                     ScientificModelInstance,
@@ -379,39 +381,10 @@ class Command(BaseCommand):
         # app_id = CollabParameters.objects.filter(collab_id = collab_id, app_type='model_catalog')
         models_to_update = ScientificModel.objects.all()
         for model in models_to_update:
-                if model.organization == '':
-                        model.organization = "<<empty>>"
-                        model.save()
+            if model.organization == '':
+                model.organization = "<<empty>>"
+                model.save()
 
-    def add_results_to_test_code_heli(self, test_code_id, model_version_id):
-        import time
-        import datetime
-        time = time.time()
-        result = ValidationTestResult(id=uuid.uuid4())
-        result.model_version_id = model_version_id
-        result.test_code_id = test_code_id
-        result.results_storage ="azerty"
-        result.score= 0.3
-        result.normalized_score= 0.3
-        result.passed = None
-        time += 100
-        result.timestamp = datetime.datetime.fromtimestamp(time).strftime('%Y-%m-%d %H:%M:%S')
-        result.platform = "azerty"
-        result.project = "azerty"
-        result.save()
-
-        result = ValidationTestResult(id=uuid.uuid4())
-        result.model_version_id = model_version_id
-        result.test_code_id = test_code_id
-        result.results_storage ="azerty"
-        result.score= 0.8
-        result.normalized_score= 0.8
-        result.passed = None
-        time += 1000
-        result.timestamp = datetime.datetime.fromtimestamp(time).strftime('%Y-%m-%d %H:%M:%S')
-        result.platform = "azerty"
-        result.project = "azerty"
-        result.save()
 
     def delete_specific_organization(self, organization):
         organization_to_delete = Param_organizations.objects.filter(authorized_value = organization)
@@ -421,47 +394,122 @@ class Command(BaseCommand):
         collab_param = CollabParameters.objects.all()
         
         for i in collab_param :
-                if i.organization == "":
-                        i.organization = i.organization + "<<empty>>" 
+            if i.organization == "":
+                i.organization = i.organization + "<<empty>>" 
                 
-                elif i.organization == None:
-                        pass
-                else :
-                        i.organization = i.organization + ",<<empty>>" 
+            elif i.organization == None:
+                pass
+            else :
+                i.organization = i.organization + ",<<empty>>" 
 
-                i.save()
+            i.save()
 
     def delete(self,table_type, list_uuid, *args, **options):
-        
+
         if table_type == 'model':	 
         	elements_to_delete = ScientificModel.objects.filter(id__in=list_uuid)
         	for model in elements_to_delete:
-                	model.delete()
-
-	if table_type == 'model_instance':	 
+                 model.delete()
+        elif table_type == 'model_instance':	 
         	elements_to_delete = ScientificModelInstance.objects.filter(id__in=list_uuid)
         	for model_instance in elements_to_delete:
-                	model_instance.delete()
-
-
-	if table_type == 'test':	 
+                 model_instance.delete()
+        elif table_type == 'test':	 
         	elements_to_delete = ValidationTestDefinition.objects.filter(id__in=list_uuid)
         	for test in elements_to_delete:
-                	test.delete()
-
-	if table_type == 'test_instance':	 
+                 test.delete()
+        elif table_type == 'test_instance':	 
         	elements_to_delete = ValidationTestCode.objects.filter(id__in=list_uuid)
         	for test_instance in elements_to_delete:
-                	test_instance.delete()
+                 test_instance.delete()
 	
     def add_element(self, table_type, list_elements, *args, **options):
-	    if table_type == 'species':
-		    for elem in list_elements:
-			    Param_Species(id=uuid.uuid4(),authorized_value=elem).save()
-	    if table_type == 'data_modalities':
-		    for elem in list_elements:
-			    Param_DataModalities(id=uuid.uuid4(),authorized_value=elem).save()
+        if table_type == 'abstraction_level':
+            for elem in list_elements :
+                Param_AbstractionLevel(id=uuid.uuid4(),authorized_value=elem).save()
+        elif table_type == 'model_scope':
+            for elem in list_elements:
+                Param_ModelScope(id=uuid.uuid4(),authorized_value=elem).save()
+        elif table_type == 'species':
+            for elem in list_elements:
+                Param_Species(id=uuid.uuid4(),authorized_value=elem).save()
+        elif table_type == 'data_modalities':
+            for elem in list_elements:
+                Param_DataModalities(id=uuid.uuid4(),authorized_value=elem).save()
+
+        
+    def move_modelType_to_modelScope_or_abstractionLevel(self, *args, **options):
+
+        models = ScientificModel.objects.all()
+        print("model type in model is", models.iterator())
+        for model in models.iterator():
+            print("model type in model is", model)
+            if model.model_type == 'Firing rate model':
+                model.abstraction_level = 'rate neuron'
+                model.save()
+            if model.model_type == 'Intracellular signalling':
+                model.model_scope = 'Subcellular model -- signalling model'
+                model.save()    
+            if model.model_type == 'Mean Field':
+                model.abstraction_level = 'Population modelling -- neural field'
+                model.save()     
+              
+            if model.model_type == 'Modelcular Model':
+                model.model_scope = 'Subcellular model -- molecular model'
+                model.save()
+            if model.model_type == 'Neuron mass model':
+                model.abstraction_level = 'Population modelling -- neural mass'
+                model.save()
+            if model.model_type == 'Single Cell':
+                model.model_scope = 'Single cell model'
+                model.save()  
+            # if model.model_type == 'Multi-area model':
+            if model.model_type == 'Network':
+                model.model_scope = 'Network model'
+                model.save()   
+            if model.model_type == 'Spiking model':
+                model.abstraction_level = 'Spiking model'
+                model.save()  
+            if model.model_type == 'Subcellular model':
+                model.model_scope = 'Subcellular model'
+                model.save()  
+            # if model.model_type == 'Model Collection':
+              
     
+    def move_modelType_to_modelScope_or_abstractionLevel_for_configuration_table(self, *args, **options):
+
+        elements = CollabParameters.objects.all()
+        for element in elements.iterator():
+            print("model type in model is", element.model_type)
+            liste = [x.strip() for x in element.model_type.split(',')]
+            new_liste_abst_level = []
+            new_liste_model_scope = []
+            print('liste',liste)
+            for param in liste:
+                if param == 'Firing rate model':
+                    new_liste_abst_level.append('rate neuron')
+                if param == 'Intracellular signalling':
+                    new_liste_model_scope.append('Subcellular model -- signalling model')   
+                if param == 'Mean Field':
+                    new_liste_abst_level.append('Population modelling -- mean field')    
+                if param == 'Molecular model':
+                    new_liste_model_scope.append('Subcellular model -- molecular model')
+                if param == 'Neuron mass model':
+                    new_liste_abst_level.append('Population modelling -- neural mass')
+                if param == 'Single Cell':
+                    new_liste_model_scope.append('Single cell model')
+                if param == 'Network':
+                    new_liste_model_scope.append('Network model')
+                if param == 'Spiking model':
+                    new_liste_abst_level.append('Spiking model') 
+                if param == 'Subcellular model':
+                    new_liste_model_scope.append('Subcellular model')    
+            print('new liste model scope', new_liste_model_scope)
+            print('new liste model scope', new_liste_abst_level)
+            element.model_scope = ",".join(new_liste_model_scope)
+            element.abstraction_level = ",".join(new_liste_abst_level)
+            element.save()           
+
     def create_fake_models(self, number_models,*args, **options):
         import uuid
         for i in range(0,number_models):
@@ -499,15 +547,28 @@ class Command(BaseCommand):
         #create_organizations()
 	# self.create_fake_collab(id='1')
         #create_models_test_results(param_app_id=37928, result_storage = "collab:///2169/folder_test")
-	
+        
 
-	#self.delete("model", ['2b160a50e2a445c69d908773a8d81f9b'])
+        #self.delete("model", ['2b160a50e2a445c69d908773a8d81f9b'])
 	#self.delete("model_instance", ['2b160a50e2a445c69d908773a8d81f9b'])
 	#self.delete("test", ['111307e4c86541529c2076fa26762051'])
 	#self.delete("test_instance", ['01270b83f1af49c79f16c500262e9c9a','a11b6786318d4546922f85dedf8c3491'])
         #self.create_fake_models(62)
        
-        self.replace_collab_storage_files()
+        # self.replace_collab_storage_files()
+
+        ################ For database migration: split model type in model scope and abstraction level
+        ####fill database
+        # self.add_element("model_scope", ["Subcellular model -- spine model","Subcellular model -- ion channel model", "Subcellular model -- signalling model", "Subcellular model -- molecular model", "Single cell model", "Network model -- microcircuit model", "Network model -- brain region model", "Network model -- whole brain model" ])
+        # self.add_element("abstraction_level", ["protein structure","Systems biology -- continuous", "Systems biology -- discrete", "Systems biology -- flux balance", "Spiking neurons -- biophysical", "Spiking neurons -- point neuron", "rate neuron", "Population modelling -- neural field", "Population modelling -- neural mass", "Cognitive modelling" ])
+        # self.add_element("abstraction_level", ['Other', "Systems biology", "Spiking neurons", "Population modelling"])
+        # self.add_element("model_scope", ['Other', "Network model", "Subcellular model"])
+        #### move data from model_type to to abstraction level or model scope 
+        self.move_modelType_to_modelScope_or_abstractionLevel()
+
+        #### move data for the configuration app 
+        self.move_modelType_to_modelScope_or_abstractionLevel_for_configuration_table()
+        
 
 
 

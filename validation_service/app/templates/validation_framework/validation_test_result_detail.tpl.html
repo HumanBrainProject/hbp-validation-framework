@@ -81,8 +81,11 @@
                     <td style="width: 10%">
                         <table class="table-create">
                             <tbody>
-                                <tr style="width: 15%" ng-if="test_result.model_version.model.model_type!=''">
-                                    <td><b> Model type: </b> {{test_result.model_version.model.model_type }} </td>
+                                <tr style="width: 15%" ng-if="test_result.model_version.model.model_scope!=''">
+                                    <td><b> Model scope: </b> {{test_result.model_version.model.model_scope }} </td>
+                                </tr>
+                                <tr style="width: 15%" ng-if="test_result.model_version.model.abstraction_level!=''">
+                                    <td><b> Abstraction level: </b> {{test_result.model_version.model.abstraction_level}} </td>
                                 </tr>
                                 <tr style="width: 15%" ng-if="test_result.model_version.model.cell_type!=''">
                                     <td> <b> Cell type: </b> {{test_result.model_version.model.cell_type }}</td>

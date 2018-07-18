@@ -49,7 +49,8 @@ testApp.controller('HomeCtrl', ['$scope', '$rootScope', '$http', '$location', "S
 
                     $scope.collab_brain_region = CollabParameters.getParametersOrDefaultByType("brain_region");
                     $scope.collab_cell_type = CollabParameters.getParametersOrDefaultByType("cell_type");
-                    $scope.collab_model_type = CollabParameters.getParametersOrDefaultByType("model_type");
+                    $scope.collab_model_scope = CollabParameters.getParametersOrDefaultByType("model_scope");
+                    $scope.collab_abstraction_level = CollabParameters.getParametersOrDefaultByType("abstraction_level");
                     $scope.collab_test_type = CollabParameters.getParametersOrDefaultByType("test_type");
                     $scope.collab_data_modalities = CollabParameters.getParametersOrDefaultByType("data_modalities");
                     $scope.collab_organization = CollabParameters.getParametersOrDefaultByType("organization");
@@ -132,7 +133,8 @@ testApp.controller('ValTestCtrl', ['$scope', '$rootScope', '$http', '$location',
                 $scope.collab_species = CollabParameters.getParametersOrDefaultByType("species");
                 $scope.collab_brain_region = CollabParameters.getParametersOrDefaultByType("brain_region");
                 $scope.collab_cell_type = CollabParameters.getParametersOrDefaultByType("cell_type");
-                $scope.collab_model_type = CollabParameters.getParametersOrDefaultByType("model_type");
+                $scope.collab_model_scope = CollabParameters.getParametersOrDefaultByType("model_scope");
+                $scope.collab_abstraction_level = CollabParameters.getParametersOrDefaultByType("abstraction_level");
                 $scope.collab_test_type = CollabParameters.getParametersOrDefaultByType("test_type");
                 $scope.collab_data_modalities = CollabParameters.getParametersOrDefaultByType("data_modalities");
                 // $scope.collab_organization = CollabParameters.getParametersByType("organization");
@@ -672,7 +674,8 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
                 $scope.species = CollabParameters.getParametersOrDefaultByType("species");
                 $scope.brain_region = CollabParameters.getParametersOrDefaultByType("brain_region");
                 $scope.cell_type = CollabParameters.getParametersOrDefaultByType("cell_type");
-                $scope.model_type = CollabParameters.getParametersOrDefaultByType("model_type");
+                $scope.model_scope = CollabParameters.getParametersOrDefaultByType("model_scope");
+                $scope.abstraction_level = CollabParameters.getParametersOrDefaultByType("abstraction_level");
                 $scope.test_type = CollabParameters.getParametersOrDefaultByType("test_type");
                 $scope.data_modalities = CollabParameters.getParametersOrDefaultByType("data_modalities");
 
@@ -1268,7 +1271,8 @@ ModelCatalogApp.controller('ModelCatalogCtrl', [
                     $scope.collab_species = CollabParameters.getParametersOrDefaultByType("species");
                     $scope.collab_brain_region = CollabParameters.getParametersOrDefaultByType("brain_region");
                     $scope.collab_cell_type = CollabParameters.getParametersOrDefaultByType("cell_type");
-                    $scope.collab_model_type = CollabParameters.getParametersOrDefaultByType("model_type");
+                    $scope.collab_model_scope = CollabParameters.getParametersOrDefaultByType("model_scope");
+                    $scope.collab_abstraction_level = CollabParameters.getParametersOrDefaultByType("abstraction_level");
                     $scope.collab_organization = CollabParameters.getParametersOrDefaultByType("organization");
                     $scope.collab_ids_to_select = new Array();
                     $scope._get_collab_and_app_ids_from_models();
@@ -1307,7 +1311,8 @@ ModelCatalogApp.controller('ModelCatalogCreateCtrl', ['$scope', '$rootScope', '$
         $scope.species = undefined;
         $scope.brain_region = undefined;
         $scope.cell_type = undefined;
-        $scope.model_type = undefined;
+        $scope.model_scope = undefined;
+        $scope.abstraction_level = undefined;
         $scope.organization = undefined;
 
         //functions
@@ -1426,7 +1431,8 @@ ModelCatalogApp.controller('ModelCatalogCreateCtrl', ['$scope', '$rootScope', '$
                 $scope.species = CollabParameters.getParametersOrDefaultByType("species");
                 $scope.brain_region = CollabParameters.getParametersOrDefaultByType("brain_region");
                 $scope.cell_type = CollabParameters.getParametersOrDefaultByType("cell_type");
-                $scope.model_type = CollabParameters.getParametersOrDefaultByType("model_type");
+                $scope.model_scope = CollabParameters.getParametersOrDefaultByType("model_scope");
+                $scope.abstraction_level = CollabParameters.getParametersOrDefaultByType("abstraction_level");
                 $scope.organization = CollabParameters.getParametersOrDefaultByType("organization");
             });
         });
@@ -1641,7 +1647,8 @@ ModelCatalogApp.controller('ModelCatalogEditCtrl', ['$scope', '$rootScope', '$ht
                 $scope.species = CollabParameters.getParametersOrDefaultByType("species");
                 $scope.brain_region = CollabParameters.getParametersOrDefaultByType("brain_region");
                 $scope.cell_type = CollabParameters.getParametersOrDefaultByType("cell_type");
-                $scope.model_type = CollabParameters.getParametersOrDefaultByType("model_type");
+                $scope.model_scope = CollabParameters.getParametersOrDefaultByType("model_scope");
+                $scope.abstraction_level = CollabParameters.getParametersOrDefaultByType("abstraction_level");
                 $scope.organization = CollabParameters.getParametersOrDefaultByType("organization");
 
                 $scope.version_is_editable = [];
@@ -1735,8 +1742,12 @@ ParametersConfigurationApp.controller('ParametersConfigurationCtrl', ['$scope', 
                 CollabParameters.addParameter("test_type", value.authorized_value);
             });
 
-            $scope.selected_data.selected_model_type.forEach(function(value, i) {
-                CollabParameters.addParameter("model_type", value.authorized_value);
+            $scope.selected_data.selected_model_scope.forEach(function(value, i) {
+                CollabParameters.addParameter("model_scope", value.authorized_value);
+            });
+
+            $scope.selected_data.selected_abstraction_level.forEach(function(value, i) {
+                CollabParameters.addParameter("abstraction_level", value.authorized_value);
             });
 
             $scope.selected_data.selected_species.forEach(function(value, i) {
@@ -1778,7 +1789,8 @@ ParametersConfigurationApp.controller('ParametersConfigurationCtrl', ['$scope', 
             $scope.list_param.$promise.then(function() {
                 $scope.data_modalities = $scope.list_param.data_modalities;
                 $scope.test_type = $scope.list_param.test_type;
-                $scope.model_type = $scope.list_param.model_type;
+                $scope.model_scope = $scope.list_param.model_scope;
+                $scope.abstraction_level = $scope.list_param.abstraction_level;
                 $scope.species = $scope.list_param.species;
                 $scope.brain_region = $scope.list_param.brain_region;
                 $scope.cell_type = $scope.list_param.cell_type;
@@ -1790,7 +1802,8 @@ ParametersConfigurationApp.controller('ParametersConfigurationCtrl', ['$scope', 
                 $scope.selected_data = {};
                 $scope.selected_data.selected_data_modalities = CollabParameters.getParameters_authorized_value_formated("data_modalities");
                 $scope.selected_data.selected_test_type = CollabParameters.getParameters_authorized_value_formated("test_type");
-                $scope.selected_data.selected_model_type = CollabParameters.getParameters_authorized_value_formated("model_type");
+                $scope.selected_data.selected_model_scope = CollabParameters.getParameters_authorized_value_formated("model_scope");
+                $scope.selected_data.selected_abstraction_level = CollabParameters.getParameters_authorized_value_formated("abstraction_level");
                 $scope.selected_data.selected_species = CollabParameters.getParameters_authorized_value_formated("species");
                 $scope.selected_data.selected_brain_region = CollabParameters.getParameters_authorized_value_formated("brain_region");
                 $scope.selected_data.selected_cell_type = CollabParameters.getParameters_authorized_value_formated("cell_type");

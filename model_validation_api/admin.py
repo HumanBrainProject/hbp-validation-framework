@@ -3,7 +3,7 @@ from .models import (ValidationTestDefinition, ValidationTestCode, ValidationTes
                      ScientificModel, ScientificModelInstance, ScientificModelImage,
                      CollabParameters,
                      Param_DataModalities, Param_TestType, Param_Species,
-                     Param_BrainRegion, Param_CellType, Param_ModelType, Param_ScoreType,Param_organizations,
+                     Param_BrainRegion, Param_CellType, Param_ModelScope, Param_AbstractionLevel, Param_ScoreType,Param_organizations,
                      Tickets, Comments)
 
 admin.site.site_header = "HBP Validation Service administration"
@@ -37,9 +37,9 @@ class ValidationTestResultAdmin(admin.ModelAdmin):
 
 @admin.register(ScientificModel)
 class ScientificModelAdmin(admin.ModelAdmin):
-    list_display = ('id','name', 'alias', 'author', 'owner', 'description', 'species', 'brain_region', 'cell_type',  'model_type', 'private', 'app', 'code_format',  'creation_date', 'organization',  'project', 'license')
-    search_fields = ('id','name', 'alias', 'author', 'owner', 'description', 'species', 'brain_region', 'cell_type',  'model_type', 'private', 'app', 'code_format',  'creation_date', 'organization',  'project', 'license')
-    list_filter = ('species', 'brain_region', 'cell_type',  'model_type', 'private', 'code_format', 'organization')
+    list_display = ('id','name', 'alias', 'author', 'owner', 'description', 'species', 'brain_region', 'cell_type',  'model_scope','abstraction_level', 'private', 'app', 'code_format',  'creation_date', 'organization',  'project', 'license')
+    search_fields = ('id','name', 'alias', 'author', 'owner', 'description', 'species', 'brain_region', 'cell_type', 'model_scope','abstraction_level', 'private', 'app', 'code_format',  'creation_date', 'organization',  'project', 'license')
+    list_filter = ('species', 'brain_region', 'cell_type',  'model_scope','abstraction_level', 'private', 'code_format', 'organization')
 
 @admin.register(ScientificModelInstance)
 class ScientificModelInstanceAdmin(admin.ModelAdmin):
@@ -53,8 +53,8 @@ class ScientificModelImageAdmin(admin.ModelAdmin):
 
 @admin.register(CollabParameters)
 class CollabParametersAdmin(admin.ModelAdmin):
-    list_display = ('id', 'app_type', 'data_modalities', 'test_type', 'species', 'brain_region', 'cell_type', 'model_type', 'organization', 'collab_id')
-    search_fields = ('id', 'app_type', 'data_modalities', 'test_type', 'species', 'brain_region', 'cell_type', 'model_type', 'organization', 'collab_id')
+    list_display = ('id', 'app_type', 'data_modalities', 'test_type', 'species', 'brain_region', 'cell_type', 'model_scope','abstraction_level', 'organization', 'collab_id')
+    search_fields = ('id', 'app_type', 'data_modalities', 'test_type', 'species', 'brain_region', 'cell_type', 'model_scope','abstraction_level', 'organization', 'collab_id')
 
 @admin.register(Param_DataModalities)
 class Param_DataModalitiesAdmin(admin.ModelAdmin):
@@ -81,8 +81,13 @@ class Param_CellTypeAdmin(admin.ModelAdmin):
     list_display = ('id', 'authorized_value')
     search_fields = ('id', 'authorized_value')    
 
-@admin.register(Param_ModelType)
-class Param_ModelTypeAdmin(admin.ModelAdmin):
+@admin.register(Param_ModelScope)
+class Param_ModelScopeAdmin(admin.ModelAdmin):
+    list_display = ('id', 'authorized_value')
+    search_fields = ('id', 'authorized_value')    
+
+@admin.register(Param_AbstractionLevel)
+class Param_AbstractionLevelAdmin(admin.ModelAdmin):
     list_display = ('id', 'authorized_value')
     search_fields = ('id', 'authorized_value')    
 

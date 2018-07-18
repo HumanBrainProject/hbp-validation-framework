@@ -89,8 +89,11 @@
                 <tr style="width: 15%" ng-if="model.models[0].brain_region!=''">
                     <td> <b> Brain region: </b> {{ model.models[0].brain_region }}</td>
                 </tr>
-                <tr style="width: 15%" ng-if="model.models[0].model_type!=''">
-                    <td><b> Model type: </b> {{ model.models[0].model_type }} </td>
+                <tr style="width: 15%" ng-if="model.models[0].model_scope!=''">
+                    <td><b> Model scope: </b> {{ model.models[0].model_scope }} </td>
+                </tr>
+                <tr style="width: 15%" ng-if="model.models[0].abstraction_level!=''">
+                    <td><b> Abstraction level: </b> {{ model.models[0].abstraction_level }} </td>
                 </tr>
                 <tr style="width: 15%" ng-if="model.models[0].cell_type!=''">
                     <td> <b> Cell type: </b> {{ model.models[0].cell_type }}</td>
