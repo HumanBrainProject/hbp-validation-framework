@@ -13,15 +13,21 @@
 
         <table id="tableTest" class="table table-bordered">
             <colgroup>
-                <col style="width: 45%" />
-                <col style="width: 45%" />
+                <col style="width: 33%" />
+                <col style="width: 33%" />
+                <col style="width: 33%" />
             </colgroup>
 
             <thead>
                 <tr>
                     <th id="tab_title">
                         <center>
-                            <h4>Model type</h4>
+                            <h4>Model scope</h4>
+                        </center>
+                    </th>
+                    <th id="tab_title">
+                        <center>
+                            <h4>Abstraction level</h4>
                         </center>
                     </th>
                     <th id="tab_title">
@@ -34,13 +40,26 @@
             </thead>
             <tbody>
                 <td>
-                    <multiselect placeholder="select" ng-model="selected_data.selected_model_type" options="model_type" display-prop="authorized_value" id-prop="id" show-search="true" show-select-all="true" show-unselect-all="true">
+                    <multiselect placeholder="select" ng-model="selected_data.selected_model_scope" options="model_scope" display-prop="authorized_value" id-prop="id" show-search="true" show-select-all="true" show-unselect-all="true">
                     </multiselect>
                     <table class="table">
                         <thead></thead>
 
                         <tbody>
-                            <tr ng-model="selected_data.selected_model_type" ng-repeat="(key, value) in selected_data.selected_model_type">
+                            <tr ng-model="selected_data.selected_model_scope" ng-repeat="(key, value) in selected_data.selected_model_scope">
+                                <td>{{value.authorized_value}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </td>
+                <td>
+                    <multiselect placeholder="select" ng-model="selected_data.selected_abstraction_level" options="abstraction_level" display-prop="authorized_value" id-prop="id" show-search="true" show-select-all="true" show-unselect-all="true">
+                    </multiselect>
+                    <table class="table">
+                        <thead></thead>
+
+                        <tbody>
+                            <tr ng-model="selected_data.selected_abstraction_level" ng-repeat="(key, value) in selected_data.selected_abstraction_level">
                                 <td>{{value.authorized_value}}</td>
                             </tr>
                         </tbody>

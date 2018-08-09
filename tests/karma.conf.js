@@ -180,6 +180,7 @@ module.exports = function(config) {
             '../validation_service/app/static/palette.js-master/palette.js',
 
             '../validation_service/app/static/angularUtils-pagination/dirPagination.js',
+            '../validation_service/app/static/angular-ui-tree/dist/angular-ui-tree.js',
             //.js | files
             './environment.js',
             '../validation_service/app/js/*.js',

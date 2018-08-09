@@ -113,11 +113,21 @@
                                     </tr>
                                     <tr>
                                         <td>
-                                            <b>Model type:</b>
+                                            <b>Model scope:</b>
                                         </td>
                                         <td>
-                                            <select id="select-model-type" data-style="btn-primary" ng-model="model.model_type" required>
-                                         <option ng-repeat="mt in model_type" value="{{mt}}">{{mt}}</option>
+                                            <select id="select-model-scope" data-style="btn-primary" ng-model="model.model_scope" required>
+                                         <option ng-repeat="mt in model_scope" value="{{mt}}">{{mt}}</option>
+                                    </select>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <b>Abstraction level:</b>
+                                        </td>
+                                        <td>
+                                            <select id="select-abstraction-level" data-style="btn-primary" ng-model="model.abstraction_level" required>
+                                         <option ng-repeat="mt in abstraction_level" value="{{mt}}">{{mt}}</option>
                                     </select>
                                         </td>
                                     </tr>

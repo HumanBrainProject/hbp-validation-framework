@@ -38,7 +38,7 @@ describe('Testing controller: ValTestResultDetailCtrl', function() {
 
     it('should split result storage string', function() {
         $httpBackend.flush();
-        var storage_string = "collab:///2169/folder_test";
+        var storage_string = "collab://2169/folder_test";
         var res = $scope.split_result_storage_string(storage_string);
 
         expect(res).toEqual(Object({ collab: '2169', folder_path: 'folder_test' }))

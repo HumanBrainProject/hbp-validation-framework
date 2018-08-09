@@ -47,7 +47,8 @@ from .models import (ValidationTestDefinition,
                         Param_Species,
                         Param_BrainRegion,
                         Param_CellType,
-                        Param_ModelType,
+                        Param_ModelScope,
+                        Param_AbstractionLevel,
                         CollabParameters,
                         Param_ScoreType,
                         Param_organizations,
@@ -80,7 +81,8 @@ from .serializer.serializer import (ValidationTestDefinitionSerializer,
                             Param_SpeciesSerializer,
                             Param_BrainRegionSerializer,
                             Param_CellTypeSerializer,
-                            Param_ModelTypeSerializer,
+                            Param_ModelScopeSerializer,
+                            Param_AbstractionLevelSerializer,
                             Param_ScoreTypeSerializer,
                             Param_OrganizationsSerializer,
   
@@ -179,10 +181,10 @@ class AuthorizedCollabParameterRest(APIView):
     '''Get Authorized Collab Parameter'''
     def get(self, request,  format=None, **kwargs):
         """
-        get the authorized values for the collab parameters: data_modalities, test_type, species, brain_region, cell_type, model_type, score_type, organization. 
+        get the authorized values for the collab parameters: data_modalities, test_type, species, brain_region, cell_type, model_scope, abstraction_level score_type, organization. 
         :param python_client: 
         :type python_client: boolean
-        :returns: list of the autorized values for each parameter: data_modalities, test_type, species, brain_region, cell_type, model_type, score_type, organization
+        :returns: list of the autorized values for each parameter: data_modalities, test_type, species, brain_region, cell_type, model_scope, abstraction_level, score_type, organization
         :rtype: string list: 
         """
         try:
@@ -207,8 +209,11 @@ class AuthorizedCollabParameterRest(APIView):
         cell_type = Param_CellType.objects.all().order_by('authorized_value')
         cell_type_serializer = Param_CellTypeSerializer(cell_type, context=serializer_context, many=True)
         
-        model_type = Param_ModelType.objects.all().order_by('authorized_value')
-        model_type_serializer = Param_ModelTypeSerializer(model_type, context=serializer_context, many=True)  
+        model_scope = Param_ModelScope.objects.all().order_by('authorized_value')
+        model_scope_serializer = Param_ModelScopeSerializer(model_scope, context=serializer_context, many=True) 
+
+        abstraction_level = Param_AbstractionLevel.objects.all().order_by('authorized_value')
+        abstraction_level_serializer = Param_AbstractionLevelSerializer(abstraction_level, context=serializer_context, many=True)   
 
         score_type = Param_ScoreType.objects.all().order_by('authorized_value')
         score_type_serializer = Param_ScoreTypeSerializer(score_type, context=serializer_context, many=True)     
@@ -230,7 +235,8 @@ class AuthorizedCollabParameterRest(APIView):
                     'species' : species.values_list('authorized_value', flat=True),
                     'brain_region' : brain_region.values_list('authorized_value', flat=True),
                     'cell_type' : cell_type.values_list('authorized_value', flat=True),
-                    'model_type' : model_type.values_list('authorized_value', flat=True),
+                    'model_scope' : model_scope.values_list('authorized_value', flat=True),
+                    'abstraction_level' : abstraction_level.values_list('authorized_value', flat=True),
                     'score_type': score_type.values_list('authorized_value', flat=True),
                     'organization': organization.values_list('authorized_value', flat=True),
                 } 
@@ -250,8 +256,10 @@ class AuthorizedCollabParameterRest(APIView):
                         res['brain_region'] = brain_region.values_list('authorized_value', flat=True)
                     if (param == 'cell_type'):
                         res['cell_type'] = cell_type.values_list('authorized_value', flat=True)
-                    if (param == 'model_type'):
-                        res['model_type'] = model_type.values_list('authorized_value', flat=True)
+                    if (param == 'model_scope'):
+                        res['model_scope'] = model_scope.values_list('authorized_value', flat=True)
+                    if (param == 'abstraction_level'):
+                        res['abstraction_level'] = abstraction_level.values_list('authorized_value', flat=True)
                     if (param == 'score_type'):
                         res['score_type'] = score_type.values_list('authorized_value', flat=True)
                     if (param == 'organization'):
@@ -268,7 +276,8 @@ class AuthorizedCollabParameterRest(APIView):
             'species' : species_serializer.data,
             'brain_region' : brain_region_serializer.data,
             'cell_type' : cell_type_serializer.data,
-            'model_type' : model_type_serializer.data,
+            'model_scope' : model_scope_serializer.data,
+            'abstraction_level' : abstraction_level_serializer.data,
             'score_type': score_type_serializer.data,
             'organization': organization_serializer.data,
         })
@@ -700,7 +709,50 @@ class ModelInstances (APIView):
                 list_id.append(model_instance.id)
 
         return Response({'uuid': list_id}, status=status.HTTP_202_ACCEPTED) 
+    
+    # def delete(self, request, format=None):
 
+    #     if not is_authorised(request, settings.ADMIN_COLLAB_ID):
+    #             return HttpResponseForbidden()
+        
+    #     serializer_context = {'request': request,}
+    #     print(request.data)
+    #     DATA = _reformat_request_data(request.data)
+    #     print(DATA)
+    #     for instance in DATA :
+    #         if 'id' in instance:
+    #             print('id')
+    #             try: 
+    #                 instance = ScientificModelInstance.objects.get(id= instance['id'])
+    #             except:
+    #                 return Response("The given id ",instance['id']," does not exists. Please give a new id, or a model_id with a version_name, or a model_alias with a version_name. ", status=status.HTTP_400_BAD_REQUEST)
+    #         else:
+    #             if 'version' in instance:
+    #                 print('version')
+    #                 if 'model_id' in instance:
+    #                     print("model_id")
+    #                     try: 
+    #                         instance = ScientificModelInstance.objects.get(model_id= instance['model_id'], version=instance['version'])
+    #                     except:
+    #                         return Response("There is no model instance with this version name for this model_id. Please give a new model_id or a new version name. ", status=status.HTTP_400_BAD_REQUEST)
+                        
+    #                 if 'model_alias' in instance:
+    #                     print('model_alias')
+    #                     try: 
+    #                         model = ScientificModel.objects.get(alias = instance['model_alias'])
+    #                     except:
+    #                         return Response('There is no model with this alias. Please give a new alias or try with the model_id directly.', status=status.HTTP_400_BAD_REQUEST)
+    #                     instance['model_id'] = model.id
+    #                     try: 
+    #                         instance = ScientificModelInstance.objects.get(model_id= instance['model_id'], version=instance['version'])
+    #                     except:
+    #                         return Response("There is no model instance with this version name for this model_alias. Please give a new model_id or a new version name. ", status=status.HTTP_400_BAD_REQUEST) 
+                        
+                        
+    #             else:
+    #                 return Response("To delete a model instance, you need to give an id, or a model_id with a version, or a model_alias with a version ", status=status.HTTP_400_BAD_REQUEST)    
+    #         instance.delete()
+    #         return Response("Instance ", instance.id,"have been correctly deleted")    
 
 
 class Images (APIView):
@@ -901,8 +953,10 @@ class Models(APIView):
         :type cell_type: str
         :param author: author(s) of the model
         :type author: str
-        :param model_type: model type parameter
-        :type model_type: str
+        :param model_scope: model scope parameter
+        :type model_scope: str
+        :param abstraction_level: abstraction level parameter
+        :type abstraction_level: str
         :param private: privacy of the model
         :type private: boolean
         :param code_format: format used in the code
@@ -964,12 +1018,18 @@ class Models(APIView):
                 else: 
                     cell_type_filter += [u'']
 
-                model_type_filter = collab_params.model_type.split(",")
-                if model_type_filter==[u'']:
-                    model_type_filter = list(Param_ModelType.objects.all().values_list('authorized_value', flat=True))+[u'']    
+                model_scope_filter = collab_params.model_scope.split(",")
+                if model_scope_filter==[u'']:
+                    model_scope_filter = list(Param_ModelScope.objects.all().values_list('authorized_value', flat=True))+[u'']    
                 else: 
-                    model_type_filter += [u'']
-
+                    model_scope_filter += [u'']
+              
+                abstraction_level_filter = collab_params.abstraction_level.split(",")
+                if abstraction_level_filter==[u'']:
+                    abstraction_level_filter = list(Param_AbstractionLevel.objects.all().values_list('authorized_value', flat=True))+[u'']    
+                else: 
+                    abstraction_level_filter += [u'']
+               
                 organization_filter = collab_params.organization.split(",")
                 if organization_filter==[u'']:
                     organization_filter = list(Param_organizations.objects.all().values_list('authorized_value', flat=True)) #+[u'']
@@ -980,9 +1040,10 @@ class Models(APIView):
                         species__in=species_filter, 
                         brain_region__in=brain_region_filter, 
                         cell_type__in=cell_type_filter, 
-                        model_type__in=model_type_filter,
+                        abstraction_level__in=abstraction_level_filter,
+                        model_scope__in=model_scope_filter,
                         organization__in=organization_filter).prefetch_related()
-                
+      
                 ##check permissions for Collabs
                 collab_ids = list(rq1.prefetch_related().values_list('app__collab_id', flat=True).distinct())
                 collab_ids_new = []
@@ -999,9 +1060,10 @@ class Models(APIView):
                     species__in=species_filter, 
                     brain_region__in=brain_region_filter, 
                     cell_type__in=cell_type_filter,
-                    model_type__in=model_type_filter,
+                    abstraction_level__in=abstraction_level_filter,
+                    model_scope__in=model_scope_filter,
                     organization__in=organization_filter).prefetch_related()
-
+        
                 if len(rq1) >0:
                     models  = (rq1 | rq2).distinct().order_by('-creation_date')
                 else:
@@ -1041,7 +1103,8 @@ class Models(APIView):
                 brain_region =request.GET.getlist('brain_region')
                 cell_type =request.GET.getlist('cell_type')
                 author =request.GET.getlist('author')
-                model_type =request.GET.getlist('model_type')
+                model_scope =request.GET.getlist('model_scope')
+                abstraction_level =request.GET.getlist('abstraction_level')
                 private =request.GET.getlist('private')
                 code_format =request.GET.getlist('code_format')
                 alias =request.GET.getlist('alias')
@@ -1067,8 +1130,10 @@ class Models(APIView):
                     q = q.filter(cell_type__in = cell_type )
                 if len(author) > 0 :
                     q = q.filter(author__in = author)   
-                if len(model_type) > 0 :
-                    q = q.filter(model_type__in = model_type)
+                if len(model_scope) > 0 :
+                    q = q.filter(model_scope__in = model_scope)
+                if len(abstraction_level) > 0 :
+                    q = q.filter(abstraction_level__in = abstraction_level)
                 if len(code_format) > 0 :
                     q = q.filter(code_format__in = code_format)    
                 if len(app_id) > 0 :
@@ -1128,9 +1193,10 @@ class Models(APIView):
                     'models': model_serializer.data,
                 })
             else :
-                return Response({
-                    'models':[],
-                })
+                return HttpResponse('Not found', status=404)
+                # return Response({
+                #     'models':[],
+                # })
 
     def post(self, request, format=None): 
         """

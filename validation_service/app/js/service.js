@@ -101,7 +101,6 @@ ContextServices.service('Context', ['$rootScope', '$location', 'AppIDRest', 'Col
             });
         }
         var goToTestDetailView = function(evt, test_id) {
-            console.log("test_id", test_id)
             switch (evt.which) {
                 case 1:
                     validation_goToTestDetailView(test_id)
@@ -278,7 +277,6 @@ ContextServices.service('Context', ['$rootScope', '$location', 'AppIDRest', 'Col
                     var app_id = collabAppID.get({ collab_id: collabID });
                     app_id.$promise.then(function() {
                         appID = app_id.app_id;
-                        console.log('app_id', app_id)
                         resolve({ collab_id: collabID, app_id: appID })
                     })
                 } else {
@@ -601,7 +599,6 @@ ParametersConfigurationServices.service('CollabParameters', ['$rootScope', 'Coll
 
         var getParametersOrDefaultByType = function(type) {
             var param = getParametersByType(type);
-
             if (param.length > 0) {
                 param = _move_element_at_the_end_of_array("Other", param)
                 return param;
@@ -629,11 +626,11 @@ ParametersConfigurationServices.service('CollabParameters', ['$rootScope', 'Coll
                     data.$promise.then(function() {
 
                         var data_to_return = {}
-
                         data_to_return.brain_region = format_parameter_data(data.brain_region);
                         data_to_return.cell_type = format_parameter_data(data.cell_type);
                         data_to_return.data_modalities = format_parameter_data(data.data_modalities);
-                        data_to_return.model_type = format_parameter_data(data.model_type);
+                        data_to_return.model_scope = format_parameter_data(data.model_scope);
+                        data_to_return.abstraction_level = format_parameter_data(data.abstraction_level);
                         data_to_return.organization = format_parameter_data(data.organization);
                         data_to_return.score_type = format_parameter_data(data.score_type);
                         data_to_return.species = format_parameter_data(data.species);
@@ -698,7 +695,8 @@ ParametersConfigurationServices.service('CollabParameters', ['$rootScope', 'Coll
                 parameters.param[0]['species'],
                 parameters.param[0]['brain_region'],
                 parameters.param[0]['cell_type'],
-                parameters.param[0]['model_type'],
+                parameters.param[0]['model_scope'],
+                parameters.param[0]['abstraction_level'],
                 parameters.param[0]['test_type'],
                 parameters.param[0]['organization'],
             ];
@@ -711,15 +709,18 @@ ParametersConfigurationServices.service('CollabParameters', ['$rootScope', 'Coll
             parameters.param[0]['species'] = string_tab[1];
             parameters.param[0]['brain_region'] = string_tab[2];
             parameters.param[0]['cell_type'] = string_tab[3];
-            parameters.param[0]['model_type'] = string_tab[4];
-            parameters.param[0]['test_type'] = string_tab[5];
-            parameters.param[0]['organization'] = string_tab[6];
+            parameters.param[0]['model_scope'] = string_tab[4];
+            parameters.param[0]['abstraction_level'] = string_tab[5];
+            parameters.param[0]['test_type'] = string_tab[6];
+            parameters.param[0]['organization'] = string_tab[7];
         };
 
         var _move_element_at_the_end_of_array = function(elem, array) {
-            if (array.indexOf(elem) > 0) {
-                array.splice(array.indexOf(elem), 1)
-                array.push(elem)
+            if (array) {
+                if (array.indexOf(elem) > 0) {
+                    array.splice(array.indexOf(elem), 1)
+                    array.push(elem)
+                }
             }
             return array;
         }
@@ -793,7 +794,8 @@ ParametersConfigurationServices.service('CollabParameters', ['$rootScope', 'Coll
                 'species': String(parameters.param[0]['species']),
                 'brain_region': String(parameters.param[0]['brain_region']),
                 'cell_type': String(parameters.param[0]['cell_type']),
-                'model_type': String(parameters.param[0]['model_type']),
+                'model_scope': String(parameters.param[0]['model_scope']),
+                'abstraction_level': String(parameters.param[0]['abstraction_level']),
                 'organization': String(parameters.param[0]['organization']),
                 'app_type': String(parameters.param[0]['app_type']),
                 'collab_id': Context.getCollabID(),
@@ -811,7 +813,8 @@ ParametersConfigurationServices.service('CollabParameters', ['$rootScope', 'Coll
                 'species': String(parameters.param[0]['species']),
                 'brain_region': String(parameters.param[0]['brain_region']),
                 'cell_type': String(parameters.param[0]['cell_type']),
-                'model_type': String(parameters.param[0]['model_type']),
+                'model_scope': String(parameters.param[0]['model_scope']),
+                'abstraction_level': String(parameters.param[0]['abstraction_level']),
                 'organization': String(parameters.param[0]['organization']),
                 'app_type': String(parameters.param[0]['app_type']),
                 'collab_id': Context.getCollabID(),
@@ -830,7 +833,8 @@ ParametersConfigurationServices.service('CollabParameters', ['$rootScope', 'Coll
                         'species': [],
                         'brain_region': [],
                         'cell_type': [],
-                        'model_type': [],
+                        'model_scope': [],
+                        'abstraction_level': [],
                         'organization': [],
                         'app_type': [],
                         'collab_id': 0,
@@ -859,7 +863,8 @@ ParametersConfigurationServices.service('CollabParameters', ['$rootScope', 'Coll
                     'species': [],
                     'brain_region': [],
                     'cell_type': [],
-                    'model_type': [],
+                    'model_scope': [],
+                    'abstraction_level': [],
                     'organization': [],
                     'app_type': [],
                     'collab_id': 0,
@@ -1648,9 +1653,6 @@ HelpServices.factory('Help', ['$rootScope', 'Context', 'AuthorizedCollabParamete
                     } else if (parameter == 'test_type') {
                         res = _get_values_only(authorized_params.test_type);
                         resolve(res);
-                    } else if (parameter == 'model_type') {
-                        res = _get_values_only(authorized_params.model_type);
-                        resolve(res);
                     } else if (parameter == 'score_type') {
                         res = _get_values_only(authorized_params.score_type);
                         resolve(res);
@@ -1664,7 +1666,6 @@ HelpServices.factory('Help', ['$rootScope', 'Context', 'AuthorizedCollabParamete
                             'brain_region': _get_values_only(authorized_params.brain_region),
                             'cell_type': _get_values_only(authorized_params.cell_type),
                             'test_type': _get_values_only(authorized_params.test_type),
-                            'model_type': _get_values_only(authorized_params.model_type),
                             'score_type': _get_values_only(authorized_params.score_type),
                             'data_modalities': _get_values_only(authorized_params.data_modalities),
                         };
@@ -1688,6 +1689,114 @@ HelpServices.factory('Help', ['$rootScope', 'Context', 'AuthorizedCollabParamete
 
         return {
             getAuthorizedValues: getAuthorizedValues,
+        };
+
+    }
+]);
+
+HelpServices.factory('MarkdownConverter', ['$rootScope', '$q', 'clbStorage',
+
+    function($rootScope, $q, clbStorage) {
+
+        var _add_mathjax_extensions = function(name, regex_input, output_format) {
+            showdown.extension(name, function() {
+                var matches = [];
+                return [{
+                    type: 'lang',
+                    regex: regex_input,
+                    replace: function(s, match) {
+                        matches.push(match);
+                        var n = matches.length - 1;
+                        return '%PLACEHOLDER' + n + '%';
+                    }
+                }, {
+                    type: 'output',
+                    filter: function(text) {
+                        for (var i = 0; i < matches.length; ++i) {
+                            var pat = '%PLACEHOLDER' + i + '%';
+                            console.log(matches[i])
+                            text = text.replace(new RegExp(pat, 'gi'), output_format + matches[i] + output_format);
+                        }
+                        //reset array
+                        matches = [];
+                        return text;
+                    }
+                }]
+            })
+        }
+
+
+        var change_collab_images_url_to_real_url = function(text) {
+            return new Promise(function(resolve, reject) {
+                var pats = /!\[([^]+?)\]\(([^]+?)\)/gi;
+                var matchs = text.match(pats)
+                var promises = [];
+                var new_text = text;
+                matchs.forEach(function(match, i) {
+                    var format = match.match(/!\[([^]+?)\]/gi)[0];
+                    var url = match.match(/\(([^]+?)\)/gi)[0].slice(1, -1);
+                    var substring = url.substring(0, 35);
+                    if (substring == "https://collab.humanbrainproject.eu") {
+                        var index_uuid = url.indexOf("%3D");
+                        var image_uuid = url.slice(index_uuid + 3);
+                        var promise = clbStorage.downloadUrl({ uuid: image_uuid }).then(function(fileURL) {
+                            new_text = new_text.replace(match, format + '(' + fileURL + ')');
+                        });
+                        promises.push(promise)
+                    }
+                })
+                $q.all(promises).then(function() {
+                    resolve(new_text);
+                })
+            })
+        }
+
+        var _add_image_url_extension = function() {
+
+            showdown.extension('image-url', function() {
+                var matchs = [];
+                return [{
+                    type: 'lang',
+                    regex: /!\[([^]+?)\]\(([^]+?)\)/gi,
+                    replace: function(s, match, match2) {
+                        matchs.push([match, match2]);
+                        var n = matchs.length - 1;
+                        return '%PLACEHOLDERLINK' + n + '%';
+                    }
+                }, {
+                    type: 'output',
+                    filter: function(text) {
+                        for (var i = 0; i < matchs.length; ++i) {
+                            var pats = '%PLACEHOLDERLINK' + i + '%';
+                            var link_name = matchs[i][0]
+                            var link_path = matchs[i][1]
+                            text = text.replace(new RegExp(pats, 'gi'), '<figure><img class=image src=' + link_path + ' ></img><figcaption >' + link_name + '</figcaption> <figure>');
+                        }
+                        matchs = [];
+                        return text
+                    }
+                }]
+            })
+        }
+
+        var getConverter = function(text) {
+
+            var converter = new showdown.Converter();
+
+            _add_mathjax_extensions('math-inline', /<math-inline>([^]+?)<math-inline>/gi, "$");
+            _add_mathjax_extensions('mathjax-displayMath', /<math>([^]+?)<math>/gi, "$$$");
+            _add_image_url_extension()
+            converter.useExtension("math-inline")
+            converter.useExtension("mathjax-displayMath")
+            converter.useExtension("image-url")
+            var conversion = converter.makeHtml(text)
+            return conversion;
+        }
+
+        return {
+            getConverter: getConverter,
+            change_collab_images_url_to_real_url: change_collab_images_url_to_real_url,
+            _add_mathjax_extensions: _add_mathjax_extensions,
         };
 
     }

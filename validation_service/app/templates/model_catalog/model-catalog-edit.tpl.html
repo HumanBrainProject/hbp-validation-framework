@@ -139,11 +139,21 @@
                                     </select>
                                 </td>
                                 <td>
-                                    <b>Model type:</b>
+                                    <b>Model scope:</b>
                                 </td>
                                 <td>
-                                    <select id="select-model-type" data-style="btn-primary" ng-model="model.models[0].model_type" required>
-                                         <option ng-repeat="mt in model_type" value="{{mt}}">{{mt}}</option>
+                                    <select id="select-model-scope" data-style="btn-primary" ng-model="model.models[0].model_scope" required>
+                                         <option ng-repeat="mt in model_scope" value="{{mt}}">{{mt}}</option>
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <b>Abstraction level:</b>
+                                </td>
+                                <td>
+                                    <select id="select-abstraction-level" data-style="btn-primary" ng-model="model.models[0].abstraction_level" required>
+                                         <option ng-repeat="mt in abstraction_level" value="{{mt}}">{{mt}}</option>
                                     </select>
                                 </td>
 
@@ -229,8 +239,9 @@
                             <td><input type="text" ng-model=model_instance.source required/></td>
                             <td><input type="text" ng-model=model_instance.code_format /></td>
                             <td><button ng-if="isInArray(model_instance.id, version_is_editable)" type="submit" class="btn btn-primary" ng-click=saveModelInstance(model_instance)>Save changes</button>
-                                <button ng-if="!isInArray(model_instance.id, version_is_editable)" type="" class="btn btn-danger">Not editable</button></td>
-                            <td><button ng-if="isSuperUser.is_superuser" type="submit" class="btn btn-primary" ng-click=saveModelInstance(model_instance)>SuperUser Edit</button></td>
+                                <button ng-if="!isInArray(model_instance.id, version_is_editable) && !isSuperUser.is_superuser" type="" class="btn btn-danger">Not editable</button></td>
+                            <td><button ng-if="!isInArray(model_instance.id, version_is_editable) && isSuperUser.is_superuser" type="submit" class="glyphicon glyphicon-pencil superuser-button" ng-click=saveModelInstance(model_instance)></button></td>
+                            <!--<td><button ng-if="isSuperUser.is_superuser" type="submit" class="glyphicon glyphicon-remove superuser-button" ng-click=deleteModelInstance(model_instance)></button></td>-->
                         </tr>
                     </tbody>
                 </table>

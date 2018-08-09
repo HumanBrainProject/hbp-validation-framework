@@ -49,7 +49,8 @@ testApp.controller('HomeCtrl', ['$scope', '$rootScope', '$http', '$location', "S
 
                     $scope.collab_brain_region = CollabParameters.getParametersOrDefaultByType("brain_region");
                     $scope.collab_cell_type = CollabParameters.getParametersOrDefaultByType("cell_type");
-                    $scope.collab_model_type = CollabParameters.getParametersOrDefaultByType("model_type");
+                    $scope.collab_model_scope = CollabParameters.getParametersOrDefaultByType("model_scope");
+                    $scope.collab_abstraction_level = CollabParameters.getParametersOrDefaultByType("abstraction_level");
                     $scope.collab_test_type = CollabParameters.getParametersOrDefaultByType("test_type");
                     $scope.collab_data_modalities = CollabParameters.getParametersOrDefaultByType("data_modalities");
                     $scope.collab_organization = CollabParameters.getParametersOrDefaultByType("organization");
@@ -72,7 +73,6 @@ testApp.controller('HomeCtrl', ['$scope', '$rootScope', '$http', '$location', "S
 
                         var status = DataHandler.getCurrentStatus();
                         if (status != "up_to_date") {
-                            console.log("status")
                             DataHandler.loadModelsByPage($scope.app_id, $scope.nb_pages);
                         }
                     });
@@ -132,7 +132,8 @@ testApp.controller('ValTestCtrl', ['$scope', '$rootScope', '$http', '$location',
                 $scope.collab_species = CollabParameters.getParametersOrDefaultByType("species");
                 $scope.collab_brain_region = CollabParameters.getParametersOrDefaultByType("brain_region");
                 $scope.collab_cell_type = CollabParameters.getParametersOrDefaultByType("cell_type");
-                $scope.collab_model_type = CollabParameters.getParametersOrDefaultByType("model_type");
+                $scope.collab_model_scope = CollabParameters.getParametersOrDefaultByType("model_scope");
+                $scope.collab_abstraction_level = CollabParameters.getParametersOrDefaultByType("abstraction_level");
                 $scope.collab_test_type = CollabParameters.getParametersOrDefaultByType("test_type");
                 $scope.collab_data_modalities = CollabParameters.getParametersOrDefaultByType("data_modalities");
                 // $scope.collab_organization = CollabParameters.getParametersByType("organization");
@@ -150,9 +151,10 @@ testApp.controller('ValTestCtrl', ['$scope', '$rootScope', '$http', '$location',
 ]);
 
 
-testApp.controller('ValModelDetailCtrl', ['$scope', '$rootScope', '$http', '$location', '$stateParams', 'ScientificModelRest', 'ScientificModelInstanceRest', 'CollabParameters', 'IsCollabMemberRest', 'AppIDRest', 'Graphics', 'Context', 'AuthorizedCollabParameterRest', 'DataHandler',
+testApp.controller('ValModelDetailCtrl', ['$scope', '$rootScope', '$http', '$location', '$stateParams', 'MarkdownConverter', 'ScientificModelRest', 'ScientificModelInstanceRest', 'CollabParameters', 'IsCollabMemberRest', 'AppIDRest', 'Graphics', 'Context', 'AuthorizedCollabParameterRest', 'DataHandler',
 
-    function($scope, $rootScope, $http, $location, $stateParams, ScientificModelRest, ScientificModelInstanceRest, CollabParameters, IsCollabMemberRest, AppIDRest, Graphics, Context, AuthorizedCollabParameterRest, DataHandler) {
+    function($scope, $rootScope, $http, $location, $stateParams, MarkdownConverter, ScientificModelRest, ScientificModelInstanceRest, CollabParameters, IsCollabMemberRest, AppIDRest, Graphics, Context, AuthorizedCollabParameterRest, DataHandler) {
+
 
         $scope.validation_goToModelCatalog = function(model) {
             Context.validation_goToModelCatalog(model = model);
@@ -218,6 +220,12 @@ testApp.controller('ValModelDetailCtrl', ['$scope', '$rootScope', '$http', '$loc
                 $scope.model = ScientificModelRest.get({ app_id: $scope.app_id, id: $stateParams.uuid });
                 $scope.model_instances = ScientificModelInstanceRest.get({ app_id: $scope.app_id, model_id: $stateParams.uuid })
                 $scope.model.$promise.then(function() {
+
+                    var new_description_promise = MarkdownConverter.change_collab_images_url_to_real_url($scope.model.models[0].description);
+                    new_description_promise.then(function(new_description) {
+                        $scope.model.models[0].description = new_description;
+                        // $scope.$apply();
+                    });
 
                     $scope.model_instances.$promise.then(function() {
 
@@ -285,36 +293,29 @@ testApp.controller('ValModelDetailCtrl', ['$scope', '$rootScope', '$http', '$loc
     }
 ]);
 
-testApp.provider('markdownConverter', function() {
-    var opts = {};
-    return {
-        config: function(newOpts) {
-            opts = newOpts;
-        },
-        $get: function() {
-            return new Showdown.converter(opts);
-        }
-    };
-})
-
-testApp.directive("markdown", function(markdownConverter) {
+testApp.directive("markdown", function(MarkdownConverter) {
     return {
         restrict: "A",
         controller: ["$scope", "$element", "$attrs", function($scope, $element, $attrs) {
             $scope.$watch($attrs.markdown, function(value) {
+
                 $element.text(value == undefined ? "" : value);
-                var html = markdownConverter.makeHtml($element.text());
+                var html = MarkdownConverter.getConverter($element.text());
                 $element.html(html);
                 MathJax.Hub.Queue(["Typeset", MathJax.Hub, $element[0]]);
+
             });
+            $scope.$apply();
         }]
-    };
+    }
 });
+
 
 testApp.directive("precision", function() {
     return {
         restrict: "A",
         controller: ["$scope", "$element", "$attrs", function($scope, $element, $attrs) {
+
             $scope.$watch($attrs.precision, function(value) {
                 $element.text(value == undefined ? "" : value.toPrecision(5));
             });
@@ -672,7 +673,8 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
                 $scope.species = CollabParameters.getParametersOrDefaultByType("species");
                 $scope.brain_region = CollabParameters.getParametersOrDefaultByType("brain_region");
                 $scope.cell_type = CollabParameters.getParametersOrDefaultByType("cell_type");
-                $scope.model_type = CollabParameters.getParametersOrDefaultByType("model_type");
+                $scope.model_scope = CollabParameters.getParametersOrDefaultByType("model_scope");
+                $scope.abstraction_level = CollabParameters.getParametersOrDefaultByType("abstraction_level");
                 $scope.test_type = CollabParameters.getParametersOrDefaultByType("test_type");
                 $scope.data_modalities = CollabParameters.getParametersOrDefaultByType("data_modalities");
 
@@ -792,10 +794,10 @@ testApp.controller('ValTestResultDetailCtrl', ['$window', '$scope', '$rootScope'
             ////ui tree
 
         $scope.split_result_storage_string = function(storage_string) {
-            storage_string = storage_string.slice(10, storage_string.length)
-
+            storage_string = storage_string.slice(9, storage_string.length)
+            console.log("storage string", storage_string)
             storage_string = storage_string.split(/\/(.+)/)
-
+            console.log("storage string", storage_string)
             var dict_to_return = { collab: storage_string[0], folder_path: storage_string[1] }
 
             return (dict_to_return);
@@ -1085,30 +1087,20 @@ testApp.filter('filterMultiple', ['$parse', '$filter', function($parse, $filter)
 //Model catalog
 //directives and filters 
 var ModelCatalogApp = angular.module('ModelCatalogApp');
-ModelCatalogApp.provider('markdownConverter', function() {
-    var opts = {};
-    return {
-        config: function(newOpts) {
-            opts = newOpts;
-        },
-        $get: function() {
-            return new Showdown.converter(opts);
-        }
-    };
-})
 
-ModelCatalogApp.directive("markdown", function(markdownConverter) {
+ModelCatalogApp.directive("markdown", function(MarkdownConverter) {
     return {
         restrict: "A",
         controller: ["$scope", "$element", "$attrs", function($scope, $element, $attrs) {
             $scope.$watch($attrs.markdown, function(value) {
                 $element.text(value == undefined ? "" : value);
-                var html = markdownConverter.makeHtml($element.text());
+                var html = MarkdownConverter.getConverter($element.text());
                 $element.html(html);
                 MathJax.Hub.Queue(["Typeset", MathJax.Hub, $element[0]]);
+                $scope.$apply();
             });
         }]
-    };
+    }
 });
 
 
@@ -1268,7 +1260,8 @@ ModelCatalogApp.controller('ModelCatalogCtrl', [
                     $scope.collab_species = CollabParameters.getParametersOrDefaultByType("species");
                     $scope.collab_brain_region = CollabParameters.getParametersOrDefaultByType("brain_region");
                     $scope.collab_cell_type = CollabParameters.getParametersOrDefaultByType("cell_type");
-                    $scope.collab_model_type = CollabParameters.getParametersOrDefaultByType("model_type");
+                    $scope.collab_model_scope = CollabParameters.getParametersOrDefaultByType("model_scope");
+                    $scope.collab_abstraction_level = CollabParameters.getParametersOrDefaultByType("abstraction_level");
                     $scope.collab_organization = CollabParameters.getParametersOrDefaultByType("organization");
                     $scope.collab_ids_to_select = new Array();
                     $scope._get_collab_and_app_ids_from_models();
@@ -1307,7 +1300,8 @@ ModelCatalogApp.controller('ModelCatalogCreateCtrl', ['$scope', '$rootScope', '$
         $scope.species = undefined;
         $scope.brain_region = undefined;
         $scope.cell_type = undefined;
-        $scope.model_type = undefined;
+        $scope.model_scope = undefined;
+        $scope.abstraction_level = undefined;
         $scope.organization = undefined;
 
         //functions
@@ -1426,16 +1420,17 @@ ModelCatalogApp.controller('ModelCatalogCreateCtrl', ['$scope', '$rootScope', '$
                 $scope.species = CollabParameters.getParametersOrDefaultByType("species");
                 $scope.brain_region = CollabParameters.getParametersOrDefaultByType("brain_region");
                 $scope.cell_type = CollabParameters.getParametersOrDefaultByType("cell_type");
-                $scope.model_type = CollabParameters.getParametersOrDefaultByType("model_type");
+                $scope.model_scope = CollabParameters.getParametersOrDefaultByType("model_scope");
+                $scope.abstraction_level = CollabParameters.getParametersOrDefaultByType("abstraction_level");
                 $scope.organization = CollabParameters.getParametersOrDefaultByType("organization");
             });
         });
     }
 ]);
 
-ModelCatalogApp.controller('ModelCatalogDetailCtrl', ['$scope', '$rootScope', '$http', '$location', '$state', '$stateParams', 'ScientificModelRest', 'CollabParameters', 'IsCollabMemberRest', 'Context', 'DataHandler', 'clbStorage',
+ModelCatalogApp.controller('ModelCatalogDetailCtrl', ['$scope', '$rootScope', '$http', '$location', '$state', '$stateParams', 'MarkdownConverter', 'ScientificModelRest', 'CollabParameters', 'IsCollabMemberRest', 'Context', 'DataHandler', 'clbStorage',
 
-    function($scope, $rootScope, $http, $location, $state, $stateParams, ScientificModelRest, CollabParameters, IsCollabMemberRest, Context, DataHandler, clbStorage) {
+    function($scope, $rootScope, $http, $location, $state, $stateParams, MarkdownConverter, ScientificModelRest, CollabParameters, IsCollabMemberRest, Context, DataHandler, clbStorage) {
 
         $scope.change_collab_url_to_real_url = function() {
             for (var i in $scope.model.models[0].images) {
@@ -1484,6 +1479,21 @@ ModelCatalogApp.controller('ModelCatalogDetailCtrl', ['$scope', '$rootScope', '$
                     $scope.model = ScientificModelRest.get({ app_id: $scope.app_id, id: $stateParams.uuid, web_app: "True" });
                     $scope.model.$promise.then(function(model) {
                         $scope.change_collab_url_to_real_url()
+
+                        var new_description_promise = MarkdownConverter.change_collab_images_url_to_real_url($scope.model.models[0].description);
+                        new_description_promise.then(function(new_description) {
+                            $scope.model.models[0].description = new_description;
+                            // $scope.$apply();
+                            console.log($scope.model)
+                        });
+
+                        $scope.model.models[0].instances.forEach(function(instance) {
+                            var new_descr_promise = MarkdownConverter.change_collab_images_url_to_real_url(instance.description);
+                            new_descr_promise.then(function(new_descr) {
+                                instance.description = new_descr;
+                                // $scope.$apply();
+                            });
+                        })
                     });
 
                     $scope.is_collab_member = false;
@@ -1607,6 +1617,13 @@ ModelCatalogApp.controller('ModelCatalogEditCtrl', ['$scope', '$rootScope', '$ht
                 alert(e.data);
             });
         };
+        $scope.deleteModelInstance = function(model_instance) {
+            var parameters = JSON.stringify([model_instance]);
+            var a = ScientificModelInstanceRest.delete({ app_id: $scope.app_id }, parameters).$promise.then(function(data) { alert('model instances correctly edited') }).catch(function(e) {
+                alert(e.data);
+            });
+        }
+
         $scope.checkAliasValidity = function() {
             $scope.alias_is_valid = ScientificModelAliasRest.get({ app_id: $scope.app_id, model_id: $scope.model.models[0].id, alias: $scope.model.models[0].alias });
         };
@@ -1634,7 +1651,8 @@ ModelCatalogApp.controller('ModelCatalogEditCtrl', ['$scope', '$rootScope', '$ht
                 $scope.species = CollabParameters.getParametersOrDefaultByType("species");
                 $scope.brain_region = CollabParameters.getParametersOrDefaultByType("brain_region");
                 $scope.cell_type = CollabParameters.getParametersOrDefaultByType("cell_type");
-                $scope.model_type = CollabParameters.getParametersOrDefaultByType("model_type");
+                $scope.model_scope = CollabParameters.getParametersOrDefaultByType("model_scope");
+                $scope.abstraction_level = CollabParameters.getParametersOrDefaultByType("abstraction_level");
                 $scope.organization = CollabParameters.getParametersOrDefaultByType("organization");
 
                 $scope.version_is_editable = [];
@@ -1728,8 +1746,12 @@ ParametersConfigurationApp.controller('ParametersConfigurationCtrl', ['$scope', 
                 CollabParameters.addParameter("test_type", value.authorized_value);
             });
 
-            $scope.selected_data.selected_model_type.forEach(function(value, i) {
-                CollabParameters.addParameter("model_type", value.authorized_value);
+            $scope.selected_data.selected_model_scope.forEach(function(value, i) {
+                CollabParameters.addParameter("model_scope", value.authorized_value);
+            });
+
+            $scope.selected_data.selected_abstraction_level.forEach(function(value, i) {
+                CollabParameters.addParameter("abstraction_level", value.authorized_value);
             });
 
             $scope.selected_data.selected_species.forEach(function(value, i) {
@@ -1771,7 +1793,8 @@ ParametersConfigurationApp.controller('ParametersConfigurationCtrl', ['$scope', 
             $scope.list_param.$promise.then(function() {
                 $scope.data_modalities = $scope.list_param.data_modalities;
                 $scope.test_type = $scope.list_param.test_type;
-                $scope.model_type = $scope.list_param.model_type;
+                $scope.model_scope = $scope.list_param.model_scope;
+                $scope.abstraction_level = $scope.list_param.abstraction_level;
                 $scope.species = $scope.list_param.species;
                 $scope.brain_region = $scope.list_param.brain_region;
                 $scope.cell_type = $scope.list_param.cell_type;
@@ -1783,7 +1806,8 @@ ParametersConfigurationApp.controller('ParametersConfigurationCtrl', ['$scope', 
                 $scope.selected_data = {};
                 $scope.selected_data.selected_data_modalities = CollabParameters.getParameters_authorized_value_formated("data_modalities");
                 $scope.selected_data.selected_test_type = CollabParameters.getParameters_authorized_value_formated("test_type");
-                $scope.selected_data.selected_model_type = CollabParameters.getParameters_authorized_value_formated("model_type");
+                $scope.selected_data.selected_model_scope = CollabParameters.getParameters_authorized_value_formated("model_scope");
+                $scope.selected_data.selected_abstraction_level = CollabParameters.getParameters_authorized_value_formated("abstraction_level");
                 $scope.selected_data.selected_species = CollabParameters.getParameters_authorized_value_formated("species");
                 $scope.selected_data.selected_brain_region = CollabParameters.getParameters_authorized_value_formated("brain_region");
                 $scope.selected_data.selected_cell_type = CollabParameters.getParameters_authorized_value_formated("cell_type");
