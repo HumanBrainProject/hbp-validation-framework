@@ -30,7 +30,7 @@ describe('Testing controller: ParametersConfigurationCtrl', function() {
     })
 
     it('should make post', function() {
-        $scope.selected_data = { selected_data_modalities: [{ id: 1, authorized_value: "electrophysiology" }, { id: 2, authorized_value: "fMRI" }], selected_test_type: [{ id: 1, authorized_value: "behaviour" }], selected_model_type: [{ id: 1, authorized_value: "single cell" }], selected_species: [{ id: 1, authorized_value: "mouse" }], selected_brain_region: [{ id: 1, authorized_value: "hipocampus" }], selected_cell_type: [{ id: 1, authorized_value: "pyramidal cell" }], selected_organization: [{ id: 1, authorized_value: "Neuroinformatic Team" }] }
+        $scope.selected_data = { selected_data_modalities: [{ id: 1, authorized_value: "electrophysiology" }, { id: 2, authorized_value: "fMRI" }], selected_test_type: [{ id: 1, authorized_value: "behaviour" }], selected_model_scope: [{ id: 1, authorized_value: "Single cell model" }], selected_abstraction_level: [{ id: 1, authorized_value: "Cognitive modelling" }], selected_species: [{ id: 1, authorized_value: "mouse" }], selected_brain_region: [{ id: 1, authorized_value: "hipocampus" }], selected_cell_type: [{ id: 1, authorized_value: "pyramidal cell" }], selected_organization: [{ id: 1, authorized_value: "Neuroinformatic Team" }] }
 
         var app_element = '<div id=app value=model_catalog></div>'
         $('body').append(app_element);
@@ -51,13 +51,14 @@ describe('Testing controller: ParametersConfigurationCtrl', function() {
         expect(spy_addParameters).not.toHaveBeenCalledWith('data_modalities', "fakeshouldnotwork");
 
         expect(spy_addParameters).toHaveBeenCalledWith('test_type', "behaviour");
-        expect(spy_addParameters).toHaveBeenCalledWith('model_type', "single cell");
+        expect(spy_addParameters).toHaveBeenCalledWith('model_scope', "Single cell model");
+        expect(spy_addParameters).toHaveBeenCalledWith('abstraction_level', "Cognitive modelling");
         expect(spy_addParameters).toHaveBeenCalledWith('species', "mouse");
         expect(spy_addParameters).toHaveBeenCalledWith('brain_region', "hipocampus");
         expect(spy_addParameters).toHaveBeenCalledWith('cell_type', "pyramidal cell");
         expect(spy_addParameters).toHaveBeenCalledWith('organization', "Neuroinformatic Team");
 
-        expect(spy_addParameters).toHaveBeenCalledTimes(9);
+        expect(spy_addParameters).toHaveBeenCalledTimes(10);
 
         expect(spy_initConfiguration).toHaveBeenCalledTimes(1);
 

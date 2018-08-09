@@ -21,9 +21,13 @@ describe('Testing service: Collab Parameters', function() {
             "id": "f6a73a0d-9ebc-4785-b124-aa37f625b7bd",
             "authorized_value": "Basal Ganglia"
         }],
-        "model_type": [{
+        "model_scope": [{
             "id": "d7c0bd4d-2b77-44ca-b190-1cbcc699e0a9",
-            "authorized_value": "Single Cell"
+            "authorized_value": "Single cell model"
+        }],
+        "abstraction_level": [{
+            "id": "72c7ce38-d47f-401b-8386-dc86e536b439",
+            "authorized_value": "Cognitive modelling"
         }],
         "organization": [{
             "id": "c6d1439f-29b8-4526-8449-c718c335058b",
@@ -46,9 +50,9 @@ describe('Testing service: Collab Parameters', function() {
             "authorized_value": "Mouse (Mus musculus)"
         }]
     }
-    var authorizedParametersGetAnswer_end = Object({ brain_region: ['Basal Ganglia'], cell_type: ['Granule Cell'], data_modalities: ['electrophysiology'], model_type: ['Single Cell'], organization: ['HBP-SP4'], score_type: ['p-value'], species: ['Mouse (Mus musculus)'], test_type: ['single cell activity'] });
-    var collabParametersGetAnswer = { "param": [{ "id": "37928", "data_modalities": "", "test_type": "", "species": "", "brain_region": "", "cell_type": "", "model_type": "", "organization": "", "app_type": "validation_app", "collab_id": 2180 }] }
-    var collabParametersGetAnswer_end = Object({ "id": "37928", "data_modalities": [], "test_type": [], "species": [], "brain_region": [], "cell_type": [], "model_type": [], "organization": [], "app_type": "validation_app", "collab_id": 2180 });
+    var authorizedParametersGetAnswer_end = Object({ brain_region: ['Basal Ganglia'], cell_type: ['Granule Cell'], data_modalities: ['electrophysiology'], model_scope: ['Single cell model'], abstraction_level: ['Cognitive modelling'], organization: ['HBP-SP4'], score_type: ['p-value'], species: ['Mouse (Mus musculus)'], test_type: ['single cell activity'] });
+    var collabParametersGetAnswer = { "param": [{ "id": "37928", "data_modalities": "", "test_type": "", "species": "", "brain_region": "", "cell_type": "", "model_scope": "", "abstraction_level": "", "organization": "", "app_type": "validation_app", "collab_id": 2180 }] }
+    var collabParametersGetAnswer_end = Object({ "id": "37928", "data_modalities": [], "test_type": [], "species": [], "brain_region": [], "cell_type": [], "model_scope": [], "abstraction_level": [], "organization": [], "app_type": "validation_app", "collab_id": 2180 });
 
 
     beforeEach(inject(function(_CollabParameters_, _$window_, _$httpBackend_, _$rootScope_, _$location_, _Context_, _AuthorizedCollabParameterRest_, _CollabParameterRest_) {
@@ -126,7 +130,7 @@ describe('Testing service: Collab Parameters', function() {
             "authorized_value": "electrophysiology"
         })
 
-        var expected_answer = Object({ param: [Object({ data_modalities: [Object({ id: '4631f734-1661-4e16-94f6-5aeeec8ce5c3', authorized_value: 'electrophysiology' })], test_type: [], species: [], brain_region: [], cell_type: [], model_type: [], organization: [], app_type: [], collab_id: 0 })], $promise: true })
+        var expected_answer = Object({ param: [Object({ data_modalities: [Object({ id: '4631f734-1661-4e16-94f6-5aeeec8ce5c3', authorized_value: 'electrophysiology' })], test_type: [], species: [], brain_region: [], cell_type: [], model_scope: [], abstraction_level: [], organization: [], app_type: [], collab_id: 0 })], $promise: true })
 
         expect(CollabParameters._get_parameters()).toEqual(expected_answer);
     });
@@ -137,14 +141,14 @@ describe('Testing service: Collab Parameters', function() {
             "id": "4631f734-1661-4e16-94f6-5aeeec8ce5c3",
             "authorized_value": "electrophysiology"
         })
-        var expected_answer = Object({ param: [Object({ data_modalities: [Object({ id: '4631f734-1661-4e16-94f6-5aeeec8ce5c3', authorized_value: 'electrophysiology' })], test_type: [], species: [], brain_region: [], cell_type: [], model_type: [], organization: [], app_type: [], collab_id: 0 })], $promise: true })
+        var expected_answer = Object({ param: [Object({ data_modalities: [Object({ id: '4631f734-1661-4e16-94f6-5aeeec8ce5c3', authorized_value: 'electrophysiology' })], test_type: [], species: [], brain_region: [], cell_type: [], model_scope: [], abstraction_level: [], organization: [], app_type: [], collab_id: 0 })], $promise: true })
         expect(CollabParameters._get_parameters()).toEqual(expected_answer);
 
         CollabParameters.supprParameter('data_modalities', {
             "id": "4631f734-1661-4e16-94f6-5aeeec8ce5c3",
             "authorized_value": "electrophysiology"
         });
-        var expected_answer = Object({ param: [Object({ data_modalities: [], test_type: [], species: [], brain_region: [], cell_type: [], model_type: [], organization: [], app_type: [], collab_id: 0 })], $promise: true })
+        var expected_answer = Object({ param: [Object({ data_modalities: [], test_type: [], species: [], brain_region: [], cell_type: [], model_scope: [], abstraction_level: [], organization: [], app_type: [], collab_id: 0 })], $promise: true })
         expect(CollabParameters._get_parameters()).toEqual(expected_answer);
     });
 
@@ -156,7 +160,7 @@ describe('Testing service: Collab Parameters', function() {
         })
         var expected_answer = [Object({ id: '4631f734-1661-4e16-94f6-5aeeec8ce5c3', authorized_value: 'electrophysiology' })];
         expect(CollabParameters.getParametersByType('data_modalities')).toEqual(expected_answer);
-        expect(CollabParameters.getParametersByType('model_type')).toEqual([]);
+        expect(CollabParameters.getParametersByType('model_scope')).toEqual([]);
     });
 
     it('should move an element at the end of an array', function() {
@@ -169,6 +173,7 @@ describe('Testing service: Collab Parameters', function() {
         spyOn(CollabParameters, '_move_element_at_the_end_of_array').and.returnValue(["fMRI", 'electrophysiology', 'Other'])
 
         CollabParameters.initConfiguration();
+
         CollabParameters.addParameter('data_modalities', "fMRI")
         CollabParameters.addParameter('data_modalities', "Other")
         CollabParameters.addParameter('data_modalities', "electrophysiology")
@@ -176,6 +181,7 @@ describe('Testing service: Collab Parameters', function() {
         var res = CollabParameters.getParametersOrDefaultByType('data_modalities');
         var expected_answer = ['fMRI', 'electrophysiology', 'Other'];
         expect(res).toEqual(expected_answer)
+
     });
 
     it('should format the parameters data', function() {
@@ -192,7 +198,7 @@ describe('Testing service: Collab Parameters', function() {
 
         build_default_params.then(function() {
             var res = CollabParameters._get_default_parameters();
-            var expected_answer = Object({ brain_region: ['Basal Ganglia'], cell_type: ['Granule Cell'], data_modalities: ['electrophysiology'], model_type: ['Single Cell'], organization: ['HBP-SP4'], score_type: ['p-value'], species: ['Mouse (Mus musculus)'], test_type: ['single cell activity'] });
+            var expected_answer = Object({ brain_region: ['Basal Ganglia'], cell_type: ['Granule Cell'], data_modalities: ['electrophysiology'], model_scope: ['Single cell model'], abstraction_level: ['Cognitive modelling'], organization: ['HBP-SP4'], score_type: ['p-value'], species: ['Mouse (Mus musculus)'], test_type: ['single cell activity'] });
             expect(res).toEqual(expected_answer);
         })
     });
@@ -229,7 +235,7 @@ describe('Testing service: Collab Parameters', function() {
 
         var res = CollabParameters._get_parameters();
 
-        var expected_answer = [Object({ id: '37928', data_modalities: '', test_type: '', species: '', brain_region: '', cell_type: '', model_type: '', organization: '', app_type: 'validation_app', collab_id: 2180 })];
+        var expected_answer = [Object({ id: '37928', data_modalities: '', test_type: '', species: '', brain_region: '', cell_type: '', model_scope: '', abstraction_level: '', organization: '', app_type: 'validation_app', collab_id: 2180 })];
         expect(res.param).toEqual(expected_answer);
     });
 
@@ -240,7 +246,7 @@ describe('Testing service: Collab Parameters', function() {
             "authorized_value": "electrophysiology"
         });
         var res = CollabParameters.getAllParameters();
-        var expected_answer = Object({ data_modalities: [Object({ id: '4631f734-1661-4e16-94f6-5aeeec8ce5c3', authorized_value: 'electrophysiology' })], test_type: [], species: [], brain_region: [], cell_type: [], model_type: [], organization: [], app_type: [], collab_id: 0 });
+        var expected_answer = Object({ data_modalities: [Object({ id: '4631f734-1661-4e16-94f6-5aeeec8ce5c3', authorized_value: 'electrophysiology' })], test_type: [], species: [], brain_region: [], cell_type: [], model_scope: [], abstraction_level: [], organization: [], app_type: [], collab_id: 0 });
         expect(res).toEqual(expected_answer);
     });
 
@@ -292,7 +298,7 @@ describe('Testing service: Collab Parameters', function() {
         $httpBackend.flush();
 
         res.then(function(data) {
-            var data_expected = [Object({ id: '37928', data_modalities: [], test_type: [], species: [], brain_region: [], cell_type: [], model_type: [], organization: [], app_type: 'validation_app', collab_id: 2180 })]
+            var data_expected = [Object({ id: '37928', data_modalities: [], test_type: [], species: [], brain_region: [], cell_type: [], model_scope: [], abstraction_level: [], organization: [], app_type: 'validation_app', collab_id: 2180 })]
             expect(data.param).toEqual(data_expected);
         })
     });
@@ -307,7 +313,7 @@ describe('Testing service: Collab Parameters', function() {
         var res = CollabParameters.set_parameters();
 
         res.then(function(data) {
-            var data_expected = Object({ param: [Object({ data_modalities: [Object({ id: '4631f734-1661-4e16-94f6-5aeeec8ce5c3', authorized_value: 'electrophysiology' })], test_type: [], species: [], brain_region: [], cell_type: [], model_type: [], organization: [], app_type: [], collab_id: 0 })], $promise: true })
+            var data_expected = Object({ param: [Object({ data_modalities: [Object({ id: '4631f734-1661-4e16-94f6-5aeeec8ce5c3', authorized_value: 'electrophysiology' })], test_type: [], species: [], brain_region: [], cell_type: [], model_scope: [], abstraction_level: [], organization: [], app_type: [], collab_id: 0 })], $promise: true })
             expect(data).toEqual(data_expected);
         })
     });
@@ -316,6 +322,7 @@ describe('Testing service: Collab Parameters', function() {
         CollabParameters.initConfiguration();
         var res = CollabParameters._getParamTabValues();
         expect(res).toEqual([
+            [],
             [],
             [],
             [],
@@ -336,9 +343,10 @@ describe('Testing service: Collab Parameters', function() {
             [{ 5: 5 }],
             [{ 6: 6 }],
             [{ 7: 7 }],
+            [{ 8: 8 }]
         ]
         CollabParameters._setParametersNewValues(tab_to_set);
-        var params_expected = Object({ param: [Object({ data_modalities: [Object({ 1: 1 })], test_type: [Object({ 6: 6 })], species: [Object({ 2: 2 })], brain_region: [Object({ 3: 3 })], cell_type: [Object({ 4: 4 })], model_type: [Object({ 5: 5 })], organization: [Object({ 7: 7 })], app_type: [], collab_id: 0 })], $promise: true });
+        var params_expected = Object({ param: [Object({ data_modalities: [Object({ 1: 1 })], test_type: [Object({ 7: 7 })], species: [Object({ 2: 2 })], brain_region: [Object({ 3: 3 })], cell_type: [Object({ 4: 4 })], model_scope: [Object({ 5: 5 })], abstraction_level: [Object({ 6: 6 })], organization: [Object({ 8: 8 })], app_type: [], collab_id: 0 })], $promise: true });
         expect(CollabParameters._get_parameters()).toEqual(params_expected)
     })
 });
