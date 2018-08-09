@@ -101,7 +101,6 @@ ContextServices.service('Context', ['$rootScope', '$location', 'AppIDRest', 'Col
             });
         }
         var goToTestDetailView = function(evt, test_id) {
-            console.log("test_id", test_id)
             switch (evt.which) {
                 case 1:
                     validation_goToTestDetailView(test_id)
@@ -278,7 +277,6 @@ ContextServices.service('Context', ['$rootScope', '$location', 'AppIDRest', 'Col
                     var app_id = collabAppID.get({ collab_id: collabID });
                     app_id.$promise.then(function() {
                         appID = app_id.app_id;
-                        console.log('app_id', app_id)
                         resolve({ collab_id: collabID, app_id: appID })
                     })
                 } else {
@@ -601,7 +599,6 @@ ParametersConfigurationServices.service('CollabParameters', ['$rootScope', 'Coll
 
         var getParametersOrDefaultByType = function(type) {
             var param = getParametersByType(type);
-            console.log("type ", type, "dafault params =", default_parameters[type], "param", param)
             if (param.length > 0) {
                 param = _move_element_at_the_end_of_array("Other", param)
                 return param;
@@ -1692,6 +1689,114 @@ HelpServices.factory('Help', ['$rootScope', 'Context', 'AuthorizedCollabParamete
 
         return {
             getAuthorizedValues: getAuthorizedValues,
+        };
+
+    }
+]);
+
+HelpServices.factory('MarkdownConverter', ['$rootScope', '$q', 'clbStorage',
+
+    function($rootScope, $q, clbStorage) {
+
+        var _add_mathjax_extensions = function(name, regex_input, output_format) {
+            showdown.extension(name, function() {
+                var matches = [];
+                return [{
+                    type: 'lang',
+                    regex: regex_input,
+                    replace: function(s, match) {
+                        matches.push(match);
+                        var n = matches.length - 1;
+                        return '%PLACEHOLDER' + n + '%';
+                    }
+                }, {
+                    type: 'output',
+                    filter: function(text) {
+                        for (var i = 0; i < matches.length; ++i) {
+                            var pat = '%PLACEHOLDER' + i + '%';
+                            console.log(matches[i])
+                            text = text.replace(new RegExp(pat, 'gi'), output_format + matches[i] + output_format);
+                        }
+                        //reset array
+                        matches = [];
+                        return text;
+                    }
+                }]
+            })
+        }
+
+
+        var change_collab_images_url_to_real_url = function(text) {
+            return new Promise(function(resolve, reject) {
+                var pats = /!\[([^]+?)\]\(([^]+?)\)/gi;
+                var matchs = text.match(pats)
+                var promises = [];
+                var new_text = text;
+                matchs.forEach(function(match, i) {
+                    var format = match.match(/!\[([^]+?)\]/gi)[0];
+                    var url = match.match(/\(([^]+?)\)/gi)[0].slice(1, -1);
+                    var substring = url.substring(0, 35);
+                    if (substring == "https://collab.humanbrainproject.eu") {
+                        var index_uuid = url.indexOf("%3D");
+                        var image_uuid = url.slice(index_uuid + 3);
+                        var promise = clbStorage.downloadUrl({ uuid: image_uuid }).then(function(fileURL) {
+                            new_text = new_text.replace(match, format + '(' + fileURL + ')');
+                        });
+                        promises.push(promise)
+                    }
+                })
+                $q.all(promises).then(function() {
+                    resolve(new_text);
+                })
+            })
+        }
+
+        var _add_image_url_extension = function() {
+
+            showdown.extension('image-url', function() {
+                var matchs = [];
+                return [{
+                    type: 'lang',
+                    regex: /!\[([^]+?)\]\(([^]+?)\)/gi,
+                    replace: function(s, match, match2) {
+                        matchs.push([match, match2]);
+                        var n = matchs.length - 1;
+                        return '%PLACEHOLDERLINK' + n + '%';
+                    }
+                }, {
+                    type: 'output',
+                    filter: function(text) {
+                        for (var i = 0; i < matchs.length; ++i) {
+                            var pats = '%PLACEHOLDERLINK' + i + '%';
+                            var link_name = matchs[i][0]
+                            var link_path = matchs[i][1]
+                            text = text.replace(new RegExp(pats, 'gi'), '<figure><img class=image src=' + link_path + ' ></img><figcaption >' + link_name + '</figcaption> <figure>');
+                        }
+                        matchs = [];
+                        return text
+                    }
+                }]
+            })
+        }
+
+        var getConverter = function(text) {
+
+            var converter = new showdown.Converter();
+
+            _add_mathjax_extensions('math-inline', /<math-inline>([^]+?)<math-inline>/gi, "$");
+            _add_mathjax_extensions('mathjax-displayMath', /<math>([^]+?)<math>/gi, "$$$");
+            _add_image_url_extension()
+            converter.useExtension("math-inline")
+            converter.useExtension("mathjax-displayMath")
+            converter.useExtension("image-url")
+            var conversion = converter.makeHtml(text)
+            return conversion;
+        }
+
+        return {
+            getConverter: getConverter,
+            change_collab_images_url_to_real_url: change_collab_images_url_to_real_url,
+            _add_mathjax_extensions: _add_mathjax_extensions,
         };
 
     }

@@ -73,7 +73,6 @@ testApp.controller('HomeCtrl', ['$scope', '$rootScope', '$http', '$location', "S
 
                         var status = DataHandler.getCurrentStatus();
                         if (status != "up_to_date") {
-                            console.log("status")
                             DataHandler.loadModelsByPage($scope.app_id, $scope.nb_pages);
                         }
                     });
@@ -152,9 +151,10 @@ testApp.controller('ValTestCtrl', ['$scope', '$rootScope', '$http', '$location',
 ]);
 
 
-testApp.controller('ValModelDetailCtrl', ['$scope', '$rootScope', '$http', '$location', '$stateParams', 'ScientificModelRest', 'ScientificModelInstanceRest', 'CollabParameters', 'IsCollabMemberRest', 'AppIDRest', 'Graphics', 'Context', 'AuthorizedCollabParameterRest', 'DataHandler',
+testApp.controller('ValModelDetailCtrl', ['$scope', '$rootScope', '$http', '$location', '$stateParams', 'MarkdownConverter', 'ScientificModelRest', 'ScientificModelInstanceRest', 'CollabParameters', 'IsCollabMemberRest', 'AppIDRest', 'Graphics', 'Context', 'AuthorizedCollabParameterRest', 'DataHandler',
 
-    function($scope, $rootScope, $http, $location, $stateParams, ScientificModelRest, ScientificModelInstanceRest, CollabParameters, IsCollabMemberRest, AppIDRest, Graphics, Context, AuthorizedCollabParameterRest, DataHandler) {
+    function($scope, $rootScope, $http, $location, $stateParams, MarkdownConverter, ScientificModelRest, ScientificModelInstanceRest, CollabParameters, IsCollabMemberRest, AppIDRest, Graphics, Context, AuthorizedCollabParameterRest, DataHandler) {
+
 
         $scope.validation_goToModelCatalog = function(model) {
             Context.validation_goToModelCatalog(model = model);
@@ -220,6 +220,12 @@ testApp.controller('ValModelDetailCtrl', ['$scope', '$rootScope', '$http', '$loc
                 $scope.model = ScientificModelRest.get({ app_id: $scope.app_id, id: $stateParams.uuid });
                 $scope.model_instances = ScientificModelInstanceRest.get({ app_id: $scope.app_id, model_id: $stateParams.uuid })
                 $scope.model.$promise.then(function() {
+
+                    var new_description_promise = MarkdownConverter.change_collab_images_url_to_real_url($scope.model.models[0].description);
+                    new_description_promise.then(function(new_description) {
+                        $scope.model.models[0].description = new_description;
+                        // $scope.$apply();
+                    });
 
                     $scope.model_instances.$promise.then(function() {
 
@@ -287,36 +293,29 @@ testApp.controller('ValModelDetailCtrl', ['$scope', '$rootScope', '$http', '$loc
     }
 ]);
 
-testApp.provider('markdownConverter', function() {
-    var opts = {};
-    return {
-        config: function(newOpts) {
-            opts = newOpts;
-        },
-        $get: function() {
-            return new Showdown.converter(opts);
-        }
-    };
-})
-
-testApp.directive("markdown", function(markdownConverter) {
+testApp.directive("markdown", function(MarkdownConverter) {
     return {
         restrict: "A",
         controller: ["$scope", "$element", "$attrs", function($scope, $element, $attrs) {
             $scope.$watch($attrs.markdown, function(value) {
+
                 $element.text(value == undefined ? "" : value);
-                var html = markdownConverter.makeHtml($element.text());
+                var html = MarkdownConverter.getConverter($element.text());
                 $element.html(html);
                 MathJax.Hub.Queue(["Typeset", MathJax.Hub, $element[0]]);
+
             });
+            $scope.$apply();
         }]
-    };
+    }
 });
+
 
 testApp.directive("precision", function() {
     return {
         restrict: "A",
         controller: ["$scope", "$element", "$attrs", function($scope, $element, $attrs) {
+
             $scope.$watch($attrs.precision, function(value) {
                 $element.text(value == undefined ? "" : value.toPrecision(5));
             });
@@ -1088,30 +1087,20 @@ testApp.filter('filterMultiple', ['$parse', '$filter', function($parse, $filter)
 //Model catalog
 //directives and filters 
 var ModelCatalogApp = angular.module('ModelCatalogApp');
-ModelCatalogApp.provider('markdownConverter', function() {
-    var opts = {};
-    return {
-        config: function(newOpts) {
-            opts = newOpts;
-        },
-        $get: function() {
-            return new Showdown.converter(opts);
-        }
-    };
-})
 
-ModelCatalogApp.directive("markdown", function(markdownConverter) {
+ModelCatalogApp.directive("markdown", function(MarkdownConverter) {
     return {
         restrict: "A",
         controller: ["$scope", "$element", "$attrs", function($scope, $element, $attrs) {
             $scope.$watch($attrs.markdown, function(value) {
                 $element.text(value == undefined ? "" : value);
-                var html = markdownConverter.makeHtml($element.text());
+                var html = MarkdownConverter.getConverter($element.text());
                 $element.html(html);
                 MathJax.Hub.Queue(["Typeset", MathJax.Hub, $element[0]]);
+                $scope.$apply();
             });
         }]
-    };
+    }
 });
 
 
@@ -1439,9 +1428,9 @@ ModelCatalogApp.controller('ModelCatalogCreateCtrl', ['$scope', '$rootScope', '$
     }
 ]);
 
-ModelCatalogApp.controller('ModelCatalogDetailCtrl', ['$scope', '$rootScope', '$http', '$location', '$state', '$stateParams', 'ScientificModelRest', 'CollabParameters', 'IsCollabMemberRest', 'Context', 'DataHandler', 'clbStorage',
+ModelCatalogApp.controller('ModelCatalogDetailCtrl', ['$scope', '$rootScope', '$http', '$location', '$state', '$stateParams', 'MarkdownConverter', 'ScientificModelRest', 'CollabParameters', 'IsCollabMemberRest', 'Context', 'DataHandler', 'clbStorage',
 
-    function($scope, $rootScope, $http, $location, $state, $stateParams, ScientificModelRest, CollabParameters, IsCollabMemberRest, Context, DataHandler, clbStorage) {
+    function($scope, $rootScope, $http, $location, $state, $stateParams, MarkdownConverter, ScientificModelRest, CollabParameters, IsCollabMemberRest, Context, DataHandler, clbStorage) {
 
         $scope.change_collab_url_to_real_url = function() {
             for (var i in $scope.model.models[0].images) {
@@ -1490,6 +1479,21 @@ ModelCatalogApp.controller('ModelCatalogDetailCtrl', ['$scope', '$rootScope', '$
                     $scope.model = ScientificModelRest.get({ app_id: $scope.app_id, id: $stateParams.uuid, web_app: "True" });
                     $scope.model.$promise.then(function(model) {
                         $scope.change_collab_url_to_real_url()
+
+                        var new_description_promise = MarkdownConverter.change_collab_images_url_to_real_url($scope.model.models[0].description);
+                        new_description_promise.then(function(new_description) {
+                            $scope.model.models[0].description = new_description;
+                            // $scope.$apply();
+                            console.log($scope.model)
+                        });
+
+                        $scope.model.models[0].instances.forEach(function(instance) {
+                            var new_descr_promise = MarkdownConverter.change_collab_images_url_to_real_url(instance.description);
+                            new_descr_promise.then(function(new_descr) {
+                                instance.description = new_descr;
+                                // $scope.$apply();
+                            });
+                        })
                     });
 
                     $scope.is_collab_member = false;

@@ -16,16 +16,16 @@
 
     <script src="{% static 'static/MathJax-master/unpacked/MathJax.js' %}">
         MathJax.Hub.Config({
-            extensions: ["tex2jax.js"],
+            extensions: ["tex2jax.js", "TeX/AMSmath.js", "TeX/AMSsymbols.js", "TeX/AMScd.js"],
             jax: ["input/TeX", "output/HTML-CSS"],
             tex2jax: {
                 inlineMath: [
                     ['$', '$'],
-                    ["\\(", "\\)"]
+                    ["\\(", "\\)"],
                 ],
                 displayMath: [
                     ['$$', '$$'],
-                    ["\\[", "\\]"]
+                    ["\\[", "\\]"],
                 ],
             },
             "HTML-CSS": {
@@ -34,9 +34,6 @@
         });
     </script>
 
-</head>
-
-<body>
     {% hbp_oidc_session_handler request.user %}
 
 
@@ -189,7 +186,8 @@
     <script type="text/javascript" src="{% static 'js/model.js' %}"></script>
     <script type="text/javascript" src="{% static 'js/service.js' %}"></script>
     <script type="text/javascript" src="{% static 'js/controller.js' %}"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/showdown/0.3.1/showdown.min.js"></script>
+    <script type="text/javascript" src="{% static 'static/showdownjs-showdown-ce5e16b/dist/showdown.min.js' %}"></script>
+
     <!--to change to not use cdn anymore!!!-->
 
     <script type="text/javascript" src="{% static 'static/angular-bootstrap-multiselect/dist/angular-bootstrap-multiselect.min.js' %}"></script>
@@ -204,6 +202,6 @@
         </div>
     </div>
 
-</body>
+</head>
 
 </html>
