@@ -304,9 +304,9 @@ testApp.directive("markdown", function(MarkdownConverter) {
                 var html = MarkdownConverter.getConverter($element.text());
                 $element.html(html);
                 MathJax.Hub.Queue(["Typeset", MathJax.Hub, $element[0]]);
-
+                $scope.$apply();
             });
-            $scope.$apply();
+
         }]
     }
 });
@@ -324,9 +324,9 @@ testApp.directive("precision", function() {
     };
 });
 
-testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$location', '$stateParams', '$state', 'ValidationTestDefinitionRest', 'ValidationTestCodeRest', 'CollabParameters', 'TestCommentRest', "IsCollabMemberOrAdminRest", "Graphics", "Context", 'TestTicketRest', 'AuthorizedCollabParameterRest', 'ValidationTestAliasRest', 'NotificationRest', 'AreVersionsEditableRest', 'DataHandler', 'IsSuperUserRest',
+testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$location', '$stateParams', '$state', 'ValidationTestDefinitionRest', 'ValidationTestCodeRest', 'CollabParameters', 'TestCommentRest', "IsCollabMemberOrAdminRest", "Graphics", "Context", 'TestTicketRest', 'AuthorizedCollabParameterRest', 'ValidationTestAliasRest', 'NotificationRest', 'AreVersionsEditableRest', 'DataHandler', 'IsSuperUserRest', 'MarkdownConverter',
 
-    function($scope, $rootScope, $http, $location, $stateParams, $state, ValidationTestDefinitionRest, ValidationTestCodeRest, CollabParameters, TestCommentRest, IsCollabMemberOrAdminRest, Graphics, Context, TestTicketRest, AuthorizedCollabParameterRest, ValidationTestAliasRest, NotificationRest, AreVersionsEditableRest, DataHandler, IsSuperUserRest) {
+    function($scope, $rootScope, $http, $location, $stateParams, $state, ValidationTestDefinitionRest, ValidationTestCodeRest, CollabParameters, TestCommentRest, IsCollabMemberOrAdminRest, Graphics, Context, TestTicketRest, AuthorizedCollabParameterRest, ValidationTestAliasRest, NotificationRest, AreVersionsEditableRest, DataHandler, IsSuperUserRest, MarkdownConverter) {
 
         $scope.init_graph, $scope.graphic_data, $scope.init_checkbox, $scope.graphic_options;
         $scope.data_for_table;
@@ -683,7 +683,22 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
                 //TODO: take detail_test and detail_version_test in one get
 
                 $scope.detail_test.$promise.then(function() {
+                    var new_protocol_promise = MarkdownConverter.change_collab_images_url_to_real_url($scope.detail_test.tests[0].protocol);
+                    new_protocol_promise.then(function(new_protocol) {
+                        $scope.detail_test.tests[0].protocol = new_protocol;
+                        $scope.$apply();
+                    });
+
+
                     $scope.detail_version_test.$promise.then(function() {
+                        console.log("detail version test", $scope.detail_version_test)
+                        $scope.detail_version_test.test_codes.forEach(function(instance) {
+                            var new_descr_promise = MarkdownConverter.change_collab_images_url_to_real_url(instance.description);
+                            new_descr_promise.then(function(new_descr) {
+                                instance.description = new_descr;
+                                $scope.$apply();
+                            });
+                        })
 
                         var get_raw_data = Graphics.TestGraph_getRawData($scope.detail_version_test)
 

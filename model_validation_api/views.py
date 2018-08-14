@@ -1603,7 +1603,7 @@ class TestInstances(APIView):
                serializer.save() 
                list_updated.append(serializer.data)
 
-        return Response({'uuid':list_updated.id}, status=status.HTTP_202_ACCEPTED)
+        return Response({'uuid':list_updated}, status=status.HTTP_202_ACCEPTED)
         
 
     def get_serializer_class(self): #############not used???? TO delete?
