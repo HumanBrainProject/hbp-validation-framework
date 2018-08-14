@@ -368,7 +368,7 @@ def user_has_acces_to_model (request, model):
 
     app_id = model.app_id
     collab_id = get_collab_id_from_app_id(app_id)
-    if is_authorised(request, collab_id) :
+    if is_authorised_or_admin(request, collab_id) :
         return True
     else :
         return False

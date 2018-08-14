@@ -862,41 +862,44 @@ describe('TestTicketRest factory', function() {
         $httpBackend.verifyNoOutstandingRequest();
     });
 });
-
 //////////////////Test Is Collab Member Rest/////////////////////////////////////
-describe('IsCollabMemberRest factory', function() {
+///TODO///
+
+
+//////////////////Test Is Collab Member Or Admin Rest/////////////////////////////////////
+describe('IsCollabMemberOrAdmin Rest factory', function() {
     // var authentificationToken = ;
-    var IsCollabMemberRest;
+    var IsCollabMemberOrAdminRest;
     var $httpBackend;
 
 
     beforeEach(angular.mock.module('ApiCommunicationServices'));
 
-    beforeEach(inject(function(_IsCollabMemberRest_, _$httpBackend_) {
-        IsCollabMemberRest = _IsCollabMemberRest_;
+    beforeEach(inject(function(_IsCollabMemberOrAdminRest_, _$httpBackend_) {
+        IsCollabMemberOrAdminRest = _IsCollabMemberOrAdminRest_;
         $httpBackend = _$httpBackend_;
     }));
 
     beforeEach(function() {
         // Spy and force the return value when UsersFactory.all() is called
-        spyOn(IsCollabMemberRest, 'get').and.callThrough();
+        spyOn(IsCollabMemberOrAdminRest, 'get').and.callThrough();
     });
 
     //test if factory and methods exists
-    it('should exist IsCollabMemberRest Factory', function() {
-        expect(IsCollabMemberRest).toBeDefined();
+    it('should exist IsCollabMemberOrAdminRest Factory', function() {
+        expect(IsCollabMemberOrAdminRest).toBeDefined();
     });
 
-    it('should exist IsCollabMemberRest.get', function() {
-        expect(IsCollabMemberRest.get).toBeDefined();
+    it('should exist IsCollabMemberOrAdminRest.get', function() {
+        expect(IsCollabMemberOrAdminRest.get).toBeDefined();
     });
 
     // test funcions get, post, ...
-    it('should get answer from IsCollabMemberRest', function() {
+    it('should get answer from IsCollabMemberOrAdminRest', function() {
 
-        $httpBackend.expectGET('iscollabmemberrest?app_id=app_id&format=json').respond(200);
+        $httpBackend.expectGET('IsCollabMemberOrAdminRest?app_id=app_id&format=json').respond(200);
         var rs1;
-        rs1 = IsCollabMemberRest.get();
+        rs1 = IsCollabMemberOrAdminRest.get();
 
         $httpBackend.flush();
         expect(rs1).not.toBe(null);

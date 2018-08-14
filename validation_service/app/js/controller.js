@@ -3,8 +3,8 @@
 /* Controllers */
 var testApp = angular.module('testApp');
 
-testApp.controller('HomeCtrl', ['$scope', '$rootScope', '$http', '$location', "ScientificModelRest", "ValidationTestDefinitionRest", 'CollabParameters', 'IsCollabMemberRest', 'Context', 'ScientificModelInstanceRest', 'ValidationTestCodeRest', 'DataHandler',
-    function($scope, $rootScope, $http, $location, ScientificModelRest, ValidationTestDefinitionRest, CollabParameters, IsCollabMemberRest, Context, ScientificModelInstanceRest, ValidationTestCodeRest, DataHandler) {
+testApp.controller('HomeCtrl', ['$scope', '$rootScope', '$http', '$location', "ScientificModelRest", "ValidationTestDefinitionRest", 'CollabParameters', 'IsCollabMemberOrAdminRest', 'Context', 'ScientificModelInstanceRest', 'ValidationTestCodeRest', 'DataHandler',
+    function($scope, $rootScope, $http, $location, ScientificModelRest, ValidationTestDefinitionRest, CollabParameters, IsCollabMemberOrAdminRest, Context, ScientificModelInstanceRest, ValidationTestCodeRest, DataHandler) {
         $scope.itemsPerPages = 20;
         $scope.models = [];
         $scope.tests = [];
@@ -13,6 +13,7 @@ testApp.controller('HomeCtrl', ['$scope', '$rootScope', '$http', '$location', "S
         $scope.$on('models_updated', function(event, models) {
             $scope.models = models;
             $scope.collab_ids_to_select = $scope._get_collab_and_app_ids_from_models();
+            $scope.$apply();
         });
 
         $scope.isloading = function() {
@@ -108,8 +109,8 @@ testApp.controller('HomeCtrl', ['$scope', '$rootScope', '$http', '$location', "S
     }
 ]);
 
-testApp.controller('ValTestCtrl', ['$scope', '$rootScope', '$http', '$location', 'ValidationTestDefinitionRest', 'CollabParameters', 'IsCollabMemberRest', 'Context', 'DataHandler',
-    function($scope, $rootScope, $http, $location, ValidationTestDefinitionRest, CollabParameters, IsCollabMemberRest, Context, DataHandler) {
+testApp.controller('ValTestCtrl', ['$scope', '$rootScope', '$http', '$location', 'ValidationTestDefinitionRest', 'CollabParameters', 'IsCollabMemberOrAdminRest', 'Context', 'DataHandler',
+    function($scope, $rootScope, $http, $location, ValidationTestDefinitionRest, CollabParameters, IsCollabMemberOrAdminRest, Context, DataHandler) {
 
         Context.setService().then(function() {
 
@@ -139,7 +140,7 @@ testApp.controller('ValTestCtrl', ['$scope', '$rootScope', '$http', '$location',
                 // $scope.collab_organization = CollabParameters.getParametersByType("organization");
 
                 $scope.is_collab_member = false;
-                $scope.is_collab_member = IsCollabMemberRest.get({ app_id: app_id, });
+                $scope.is_collab_member = IsCollabMemberOrAdminRest.get({ app_id: app_id, });
                 $scope.is_collab_member.$promise.then(function() {
                     $scope.is_collab_member = $scope.is_collab_member.is_member;
                 });
@@ -151,9 +152,9 @@ testApp.controller('ValTestCtrl', ['$scope', '$rootScope', '$http', '$location',
 ]);
 
 
-testApp.controller('ValModelDetailCtrl', ['$scope', '$rootScope', '$http', '$location', '$stateParams', 'MarkdownConverter', 'ScientificModelRest', 'ScientificModelInstanceRest', 'CollabParameters', 'IsCollabMemberRest', 'AppIDRest', 'Graphics', 'Context', 'AuthorizedCollabParameterRest', 'DataHandler',
+testApp.controller('ValModelDetailCtrl', ['$scope', '$rootScope', '$http', '$location', '$stateParams', 'MarkdownConverter', 'ScientificModelRest', 'ScientificModelInstanceRest', 'CollabParameters', 'IsCollabMemberOrAdminRest', 'AppIDRest', 'Graphics', 'Context', 'AuthorizedCollabParameterRest', 'DataHandler',
 
-    function($scope, $rootScope, $http, $location, $stateParams, MarkdownConverter, ScientificModelRest, ScientificModelInstanceRest, CollabParameters, IsCollabMemberRest, AppIDRest, Graphics, Context, AuthorizedCollabParameterRest, DataHandler) {
+    function($scope, $rootScope, $http, $location, $stateParams, MarkdownConverter, ScientificModelRest, ScientificModelInstanceRest, CollabParameters, IsCollabMemberOrAdminRest, AppIDRest, Graphics, Context, AuthorizedCollabParameterRest, DataHandler) {
 
 
         $scope.validation_goToModelCatalog = function(model) {
@@ -224,7 +225,7 @@ testApp.controller('ValModelDetailCtrl', ['$scope', '$rootScope', '$http', '$loc
                     var new_description_promise = MarkdownConverter.change_collab_images_url_to_real_url($scope.model.models[0].description);
                     new_description_promise.then(function(new_description) {
                         $scope.model.models[0].description = new_description;
-                        // $scope.$apply();
+                        $scope.$apply();
                     });
 
                     $scope.model_instances.$promise.then(function() {
@@ -323,9 +324,9 @@ testApp.directive("precision", function() {
     };
 });
 
-testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$location', '$stateParams', '$state', 'ValidationTestDefinitionRest', 'ValidationTestCodeRest', 'CollabParameters', 'TestCommentRest', "IsCollabMemberRest", "Graphics", "Context", 'TestTicketRest', 'AuthorizedCollabParameterRest', 'ValidationTestAliasRest', 'NotificationRest', 'AreVersionsEditableRest', 'DataHandler', 'IsSuperUserRest',
+testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$location', '$stateParams', '$state', 'ValidationTestDefinitionRest', 'ValidationTestCodeRest', 'CollabParameters', 'TestCommentRest', "IsCollabMemberOrAdminRest", "Graphics", "Context", 'TestTicketRest', 'AuthorizedCollabParameterRest', 'ValidationTestAliasRest', 'NotificationRest', 'AreVersionsEditableRest', 'DataHandler', 'IsSuperUserRest',
 
-    function($scope, $rootScope, $http, $location, $stateParams, $state, ValidationTestDefinitionRest, ValidationTestCodeRest, CollabParameters, TestCommentRest, IsCollabMemberRest, Graphics, Context, TestTicketRest, AuthorizedCollabParameterRest, ValidationTestAliasRest, NotificationRest, AreVersionsEditableRest, DataHandler, IsSuperUserRest) {
+    function($scope, $rootScope, $http, $location, $stateParams, $state, ValidationTestDefinitionRest, ValidationTestCodeRest, CollabParameters, TestCommentRest, IsCollabMemberOrAdminRest, Graphics, Context, TestTicketRest, AuthorizedCollabParameterRest, ValidationTestAliasRest, NotificationRest, AreVersionsEditableRest, DataHandler, IsSuperUserRest) {
 
         $scope.init_graph, $scope.graphic_data, $scope.init_checkbox, $scope.graphic_options;
         $scope.data_for_table;
@@ -737,8 +738,8 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
     }
 ]);
 
-testApp.controller('ValTestResultDetailCtrl', ['$window', '$scope', '$rootScope', '$http', '$sce', '$location', '$stateParams', 'IsCollabMemberRest', 'AppIDRest', 'ValidationResultRest', 'CollabParameters', 'ScientificModelRest', 'ValidationTestDefinitionRest', "Context", "clbStorage", "clbAuth", 'DataHandler', 'clbCollabNav',
-    function($window, $scope, $rootScope, $http, $sce, $location, $stateParams, IsCollabMemberRest, AppIDRest, ValidationResultRest, CollabParameters, ScientificModelRest, ValidationTestDefinitionRest, Context, clbStorage, clbAuth, DataHandler, clbCollabNav) {
+testApp.controller('ValTestResultDetailCtrl', ['$window', '$scope', '$rootScope', '$http', '$sce', '$location', '$stateParams', 'IsCollabMemberOrAdminRest', 'AppIDRest', 'ValidationResultRest', 'CollabParameters', 'ScientificModelRest', 'ValidationTestDefinitionRest', "Context", "clbStorage", "clbAuth", 'DataHandler', 'clbCollabNav',
+    function($window, $scope, $rootScope, $http, $sce, $location, $stateParams, IsCollabMemberOrAdminRest, AppIDRest, ValidationResultRest, CollabParameters, ScientificModelRest, ValidationTestDefinitionRest, Context, clbStorage, clbAuth, DataHandler, clbCollabNav) {
 
         //ui-tree
 
@@ -1174,12 +1175,12 @@ ModelCatalogApp.controller('ModelCatalogCtrl', [
     '$location',
     'ScientificModelRest',
     'CollabParameters',
-    'IsCollabMemberRest',
+    'IsCollabMemberOrAdminRest',
     'Context',
     'Help',
     'DataHandler',
 
-    function($scope, $rootScope, $http, $location, ScientificModelRest, CollabParameters, IsCollabMemberRest, Context, Help, DataHandler) {
+    function($scope, $rootScope, $http, $location, ScientificModelRest, CollabParameters, IsCollabMemberOrAdminRest, Context, Help, DataHandler) {
 
         //pagination parameters
         $scope.itemsPerPages = 20;
@@ -1269,7 +1270,7 @@ ModelCatalogApp.controller('ModelCatalogCtrl', [
 
 
                     $scope.is_collab_member = false;
-                    $scope.is_collab_member = IsCollabMemberRest.get({ app_id: $scope.app_id, });
+                    $scope.is_collab_member = IsCollabMemberOrAdminRest.get({ app_id: $scope.app_id, });
                     $scope.is_collab_member.$promise.then(function() {
                         $scope.is_collab_member = $scope.is_collab_member.is_member;
                     });
@@ -1428,9 +1429,9 @@ ModelCatalogApp.controller('ModelCatalogCreateCtrl', ['$scope', '$rootScope', '$
     }
 ]);
 
-ModelCatalogApp.controller('ModelCatalogDetailCtrl', ['$scope', '$rootScope', '$http', '$location', '$state', '$stateParams', 'MarkdownConverter', 'ScientificModelRest', 'CollabParameters', 'IsCollabMemberRest', 'Context', 'DataHandler', 'clbStorage',
+ModelCatalogApp.controller('ModelCatalogDetailCtrl', ['$scope', '$rootScope', '$http', '$location', '$state', '$stateParams', 'MarkdownConverter', 'ScientificModelRest', 'CollabParameters', 'IsCollabMemberOrAdminRest', 'Context', 'DataHandler', 'clbStorage',
 
-    function($scope, $rootScope, $http, $location, $state, $stateParams, MarkdownConverter, ScientificModelRest, CollabParameters, IsCollabMemberRest, Context, DataHandler, clbStorage) {
+    function($scope, $rootScope, $http, $location, $state, $stateParams, MarkdownConverter, ScientificModelRest, CollabParameters, IsCollabMemberOrAdminRest, Context, DataHandler, clbStorage) {
 
         $scope.change_collab_url_to_real_url = function() {
             for (var i in $scope.model.models[0].images) {
@@ -1483,22 +1484,21 @@ ModelCatalogApp.controller('ModelCatalogDetailCtrl', ['$scope', '$rootScope', '$
                         var new_description_promise = MarkdownConverter.change_collab_images_url_to_real_url($scope.model.models[0].description);
                         new_description_promise.then(function(new_description) {
                             $scope.model.models[0].description = new_description;
-                            // $scope.$apply();
-                            console.log($scope.model)
+                            $scope.$apply();
                         });
 
                         $scope.model.models[0].instances.forEach(function(instance) {
                             var new_descr_promise = MarkdownConverter.change_collab_images_url_to_real_url(instance.description);
                             new_descr_promise.then(function(new_descr) {
                                 instance.description = new_descr;
-                                // $scope.$apply();
+                                $scope.$apply();
                             });
                         })
                     });
 
                     $scope.is_collab_member = false;
                     $scope.model.$promise.then(function() {
-                        $scope.is_collab_member = IsCollabMemberRest.get({
+                        $scope.is_collab_member = IsCollabMemberOrAdminRest.get({
                             app_id: $scope.model.models[0].app.id,
                         })
                         $scope.is_collab_member.$promise.then(function() {

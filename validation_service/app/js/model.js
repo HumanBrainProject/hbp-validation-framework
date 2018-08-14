@@ -147,14 +147,21 @@ ApiCommunicationServices.factory('AuthorizedScoreTypeRest', ['$resource',
     }
 ]);
 
-ApiCommunicationServices.factory('IsCollabMemberRest', ['$resource',
+ApiCommunicationServices.factory('IsCollabMemberOrAdminRest', ['$resource',
     function($resource) {
-        return $resource('iscollabmemberrest/', {}, {
+        return $resource('IsCollabMemberOrAdminRest/', {}, {
             get: { method: 'GET', params: { format: 'json', app_id: 'app_id' }, isArray: false },
         });
     }
 ]);
 
+ApiCommunicationServices.factory('IsCollabMemberRest', ['$resource',
+    function($resource) {
+        return $resource('IsCollabMemberRest/', {}, {
+            get: { method: 'GET', params: { format: 'json', app_id: 'app_id' }, isArray: false },
+        });
+    }
+]);
 
 
 

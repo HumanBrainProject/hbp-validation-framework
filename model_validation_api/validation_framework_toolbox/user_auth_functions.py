@@ -166,7 +166,6 @@ def _is_collaborator(request, collab_id):
         
     url = '%scollab/%s/permissions/' % (svc_url, collab_id)
     res = requests.get(url, headers=headers)
-
     if res.status_code != 200:
         return False
 
@@ -196,13 +195,12 @@ def _is_collaborator_token(request, collab_id):
         headers = {'Authorization': "Bearer "+request.META.get("HTTP_AUTHORIZATION", None)}
 
     res = requests.get(url, headers=headers)
-
     if res.status_code != 200:
         return False
 
     return res.json().get('UPDATE', False)
 
-def is_authorised(request, collab_id):
+def is_authorised_or_admin(request, collab_id):
     """
     Check authorisation depending on context
     :param request: request 
@@ -228,6 +226,29 @@ def is_authorised(request, collab_id):
         else: 
             return True 
 
+def is_authorised(request, collab_id):
+    """
+    Check authorisation depending on context
+    :param request: request 
+    :type request: str
+    :param collab_id: int 
+    :type collab_id: int
+    :returns: response
+    :rtype: boolean
+    """
+    if str(request.user) == "AnonymousUser" :
+         
+        if request.META.get("HTTP_AUTHORIZATION", None) == None :
+            return False
+        else: 
+            auth = _is_collaborator_token(request, collab_id)
+            return auth 
+
+    else :       
+        if not _is_collaborator(request, collab_id) :
+            return False
+        else: 
+            return True 
 
 def get_user_info(request):
     """
