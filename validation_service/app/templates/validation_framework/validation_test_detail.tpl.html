@@ -1,4 +1,8 @@
-<div>
+<header>
+
+</header>
+
+<body>
 
     <head>
         <nav class="navbar">
@@ -6,131 +10,132 @@
             <button class="button-MC" ng-click="Context.validation_goToHomeView();">Home</button>&ensp;
         </nav>
     </head>
-    <header>
 
-        <nav class="navbar ">
-            <h2 align=center> {{ detail_test.tests[0].name}}</h2>
-            <h3 style="font-size:1.2em" align=center><b>Author(s): </b> {{ detail_test.tests[0].author }}</h3>
+
+    <nav class="navbar ">
+        <h2 align=center> {{ detail_test.tests[0].name}}</h2>
+        <h3 style="font-size:1.2em" align=center><b>Author(s): </b> {{ detail_test.tests[0].author }}</h3>
+        <br>
+
+        <ul class="nav nav-perso">
+            <li id="li_tab_description" class="active"><a class="nav-link tab-perso" ng-click="toogleTabs('tab_description')" data-toggle="tab">Description</a></li>
+            <li id="li_tab_version"><a class="nav-link tab-perso" ng-click="toogleTabs('tab_version')" data-toggle="tab">Version</a></li>
+            <li id="li_tab_results"><a class="nav-link tab-perso" ng-click="toogleTabs('tab_results')" data-toggle="tab">Results</a></li>
+            <li id="li_tab_comments"><a class="nav-link tab-perso" ng-click="toogleTabs('tab_comments')" data-toggle="tab">Comments</a></li>
+        </ul>
+    </nav>
+
+
+
+
+    <div class="control-group tab-pane" id="tab_description" style="display:block;" aria-expanded="true">
+        <br>
+        <h3 style="font-size:1.5em" align=center><b>Description of the test</b></h3>
+        <br>
+        <div><a ng-click="toogleTabs( 'tab_edit_test')" class="button-MC button-left">Edit</a></div>
+
+        <panel class="caracteristics-panel-test-validation ">
+            <h4 align=center> <b>  Test information </b></h4>
             <br>
-
-            <ul class="nav nav-perso">
-                <li id="li_tab_description" class="active"><a class="nav-link tab-perso" ng-click="toogleTabs('tab_description')" data-toggle="tab">Description</a></li>
-                <li id="li_tab_version"><a class="nav-link tab-perso" ng-click="toogleTabs('tab_version')" data-toggle="tab">Version</a></li>
-                <li id="li_tab_results"><a class="nav-link tab-perso" ng-click="toogleTabs('tab_results')" data-toggle="tab">Results</a></li>
-                <li id="li_tab_comments"><a class="nav-link tab-perso" ng-click="toogleTabs('tab_comments')" data-toggle="tab">Comments</a></li>
-            </ul>
-        </nav>
-    </header>
-
-    <body>
-
-        <div class="control-group tab-pane" id="tab_description" style="display:block;" aria-expanded="true">
+            <table class="table-create">
+                <tbody>
+                    <tr style="width: 15%">
+                        <td> <b> ID: </b> {{ detail_test.tests[0].id }} </td>
+                    </tr>
+                    <tr style="width: 15%" ng-if="detail_test.tests[0].alias && detail_test.tests[0].alias!=''">
+                        <td> <b>Alias: </b> {{ detail_test.tests[0].alias}}</td>
+                    </tr>
+                </tbody>
+            </table>
             <br>
-            <h3 style="font-size:1.5em" align=center><b>Description of the test</b></h3>
+            <table class="table-create">
+                <tbody>
+                    <tr style="width: 15%" ng-if="detail_test.tests[0].species!=''">
+                        <td><b> Species: </b> {{ detail_test.tests[0].species }} </tr>
+                    <tr style="width: 15%" ng-if="detail_test.tests[0].age!=''">
+                        <td><b> Age: </b> {{detail_test.tests[0].age }} </tr>
+                    <tr style="width: 15%" ng-if="detail_test.tests[0].brain_region!=''">
+                        <td> <b> Brain region: </b> {{ detail_test.tests[0].brain_region }}</td>
+                    </tr>
+                    <tr style="width: 15%" ng-if="detail_test.tests[0].cell_type!=''">
+                        <td> <b> Cell type: </b> {{detail_test.tests[0].cell_type }}</td>
+                    </tr>
+                </tbody>
+            </table>
             <br>
-            <div><a ng-click="toogleTabs( 'tab_edit_test')" class="button-MC button-left">Edit</a></div>
-
-            <panel class="caracteristics-panel-test-validation ">
-                <h4 align=center> <b>  Test information </b></h4>
-                <br>
-                <table class="table-create">
-                    <tbody>
-                        <tr style="width: 15%">
-                            <td> <b> ID: </b> {{ detail_test.tests[0].id }} </td>
-                        </tr>
-                        <tr style="width: 15%" ng-if="detail_test.tests[0].alias && detail_test.tests[0].alias!=''">
-                            <td> <b>Alias: </b> {{ detail_test.tests[0].alias}}</td>
-                        </tr>
-                    </tbody>
-                </table>
-                <br>
-                <table class="table-create">
-                    <tbody>
-                        <tr style="width: 15%" ng-if="detail_test.tests[0].species!=''">
-                            <td><b> Species: </b> {{ detail_test.tests[0].species }} </tr>
-                        <tr style="width: 15%" ng-if="detail_test.tests[0].age!=''">
-                            <td><b> Age: </b> {{detail_test.tests[0].age }} </tr>
-                        <tr style="width: 15%" ng-if="detail_test.tests[0].brain_region!=''">
-                            <td> <b> Brain region: </b> {{ detail_test.tests[0].brain_region }}</td>
-                        </tr>
-                        <tr style="width: 15%" ng-if="detail_test.tests[0].cell_type!=''">
-                            <td> <b> Cell type: </b> {{detail_test.tests[0].cell_type }}</td>
-                        </tr>
-                    </tbody>
-                </table>
-                <br>
-                <table class="table-create">
-                    <tbody>
-                        <tr style="width: 15%">
-                            <td><b>Test type: </b> {{ detail_test.tests[0].test_type }} </tr>
-                        <tr style="width: 15%">
-                            <td><b>Score type: </b> {{ detail_test.tests[0].score_type }} </tr>
-                    </tbody>
-                </table>
-            </panel>
-            <br> <br>
+            <table class="table-create">
+                <tbody>
+                    <tr style="width: 15%">
+                        <td><b>Test type: </b> {{ detail_test.tests[0].test_type }} </tr>
+                    <tr style="width: 15%">
+                        <td><b>Score type: </b> {{ detail_test.tests[0].score_type }} </tr>
+                </tbody>
+            </table>
+        </panel>
+        <br> <br>
+        <br>
+        <panel class=description-panel-validation>
             <br>
-            <panel class=description-panel-validation>
-                <br>
-                <table>
-                    <tbody>
-                        <!--<tr>
+            <table>
+                <tbody>
+                    <!--<tr>
                             <td style="width: 20%" ng-if="detail_test.tests[0].data_type!=''"> <b> Data type: </b> {{detail_test.tests[0].data_type}}</td>
                             <td style="width: 20%" ng-if="detail_test.tests[0].data_modality!=''"><b> Data modality: </b> {{ detail_test.tests[0].data_modality }} </td>
                             <td style="width: 20%"> <b> Data location: </b> <a href="{{detail_test.tests[0].data_location}}">{{ detail_test.tests[0].data_location }}</a></td>
                         </tr>-->
-                        <tr style="width: 20%" ng-if="detail_test.tests[0].data_type!=''">
-                            <td> <b> Data type: </b> {{detail_test.tests[0].data_type}}</td>
-                        </tr>
-                        <tr style="width: 15%" ng-if="detail_test.tests[0].data_modality!=''">
-                            <td><b> Data modality: </b> {{ detail_test.tests[0].data_modality }} </td>
-                        </tr>
-                        <tr style="width: 15%">
-                            <td> <b> Data location: </b> <a href="{{detail_test.tests[0].data_location}}">{{ detail_test.tests[0].data_location }}</a></td>
-                        </tr>
-                    </tbody>
-                </table>
-
-                <br>
-                <table class="table-create">
-                    <thead>
-                        <h4 align=center><b> Protocol </b> </h4>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <br>
-                            <div markdown="detail_test.tests[0].protocol"></div>
-                            <br>
-                        </tr>
-                        <tr>
-                            <div class="group" ng-repeat="img in model.model_images track by $index">
-                                <figure>
-                                    <button ng-click='toggleSize($index, img)'><img id="image-$index"  ng-src="{{img.url}}" width="304" height="228"> </button>
-                                    <figcaption id=figcaptionDetail>{{img.caption}}</figcaption> <br>
-                                </figure>
-                            </div> &ensp;
-
-                        </tr>
-                    </tbody>
-                </table>
-
-
-                <h4 ng-if="detail_test.tests[0].publication && detail_test.tests[0].publication != ''" style="font-size:1em" align=left><b>Publication: </b> {{ detail_test.tests[0].publication }}</h4>
-            </panel>
+                    <tr style="width: 20%" ng-if="detail_test.tests[0].data_type!=''">
+                        <td> <b> Data type: </b> {{detail_test.tests[0].data_type}}</td>
+                    </tr>
+                    <tr style="width: 15%" ng-if="detail_test.tests[0].data_modality!=''">
+                        <td><b> Data modality: </b> {{ detail_test.tests[0].data_modality }} </td>
+                    </tr>
+                    <tr style="width: 15%">
+                        <td> <b> Data location: </b> <a href="{{detail_test.tests[0].data_location}}">{{ detail_test.tests[0].data_location }}</a></td>
+                    </tr>
+                </tbody>
+            </table>
 
             <br>
+            <table class="table-create">
+                <thead>
+                    <h4 align=center><b> Protocol </b> </h4>
+                </thead>
+                <tbody>
+                    <tr>
+                        <br>
+                        <div markdown="detail_test.tests[0].protocol"></div>
+                        <br>
+                    </tr>
+                    <tr>
+                        <div class="group" ng-repeat="img in model.model_images track by $index">
+                            <figure>
+                                <button ng-click='toggleSize($index, img)'><img id="image-$index"  ng-src="{{img.url}}" width="304" height="228"> </button>
+                                <figcaption id=figcaptionDetail>{{img.caption}}</figcaption> <br>
+                            </figure>
+                        </div> &ensp;
 
-        </div>
-    </body>
+                    </tr>
+                </tbody>
+            </table>
+
+
+            <h4 ng-if="detail_test.tests[0].publication && detail_test.tests[0].publication != ''" style="font-size:1em" align=left><b>Publication: </b> {{ detail_test.tests[0].publication }}</h4>
+        </panel>
+
+        <br>
+
+    </div>
+
 
 
 
     <div class="control-group" id="tab_version" style="display:none;" aria-expanded="true">
         <br>
-        <h3 style="font-size:1.5em" align=center><b>Code versions</b></h3><br>
-        <div><a ng-click="toogleTabs( 'tab_new_version')" class="button-MC button-right">New version</a></div>
-        </br>
-        </br>
+        <h3 style="font-size:1.5em" align=center><b>Code versions</b></h3>
+        <br>
+        <div><a ng-click="toogleTabs('tab_new_version')" class="button-MC button-right">New version</a></div>
+        <br>
+        <br>
         <div>
             <table class="table-create">
                 <thead>
@@ -769,5 +774,4 @@
         </div>
 
     </div>
-
-</div>
+</body>

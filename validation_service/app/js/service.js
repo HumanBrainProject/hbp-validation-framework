@@ -1694,9 +1694,9 @@ HelpServices.factory('Help', ['$rootScope', 'Context', 'AuthorizedCollabParamete
     }
 ]);
 
-HelpServices.factory('MarkdownConverter', ['$rootScope', '$q', 'clbStorage',
+HelpServices.factory('MarkdownConverter', ['$rootScope', '$q', 'clbStorage', 'IsCollabMemberRest',
 
-    function($rootScope, $q, clbStorage) {
+    function($rootScope, $q, clbStorage, IsCollabMemberRest) {
 
         var _add_mathjax_extensions = function(name, regex_input, output_format) {
             showdown.extension(name, function() {
@@ -1725,29 +1725,69 @@ HelpServices.factory('MarkdownConverter', ['$rootScope', '$q', 'clbStorage',
             })
         }
 
+        var _get_collabs_from_url = function(matchs) {
+            var collabs = [];
+            matchs.forEach(function(match, i) {
+                var url = match.match(/\(([^]+?)\)/gi)[0].slice(1, -1);
+                var substring = url.substring(0, 35);
+                if (substring == "https://collab.humanbrainproject.eu") {
+                    var collab = parseInt(url.match(/\/collab\/([^]+?)\//gi)[0].slice(8, -1))
+                    if (!(collabs.includes(collab))) {
+                        collabs.push(collab);
+                    }
+                }
+            });
+            return collabs;
+        }
 
         var change_collab_images_url_to_real_url = function(text) {
             return new Promise(function(resolve, reject) {
-                var pats = /!\[([^]+?)\]\(([^]+?)\)/gi;
-                var matchs = text.match(pats)
-                var promises = [];
-                var new_text = text;
-                matchs.forEach(function(match, i) {
-                    var format = match.match(/!\[([^]+?)\]/gi)[0];
-                    var url = match.match(/\(([^]+?)\)/gi)[0].slice(1, -1);
-                    var substring = url.substring(0, 35);
-                    if (substring == "https://collab.humanbrainproject.eu") {
-                        var index_uuid = url.indexOf("%3D");
-                        var image_uuid = url.slice(index_uuid + 3);
-                        var promise = clbStorage.downloadUrl({ uuid: image_uuid }).then(function(fileURL) {
-                            new_text = new_text.replace(match, format + '(' + fileURL + ')');
+                if (text == null) {
+                    resolve(text)
+                } else {
+
+                    var pats = /!\[([^]+?)\]\(([^]+?)\)/gi;
+                    var matchs = text.match(pats)
+
+                    if (matchs == null) {
+                        resolve(text)
+                    } else {
+                        var collabs = _get_collabs_from_url(matchs);
+                        var authorized_collabs = IsCollabMemberRest.get({ collab_id: collabs })
+                        var new_text = text;
+
+                        authorized_collabs.$promise.then(function(collabs) {
+                            var c = collabs.is_authorized;
+                            var promises = [];
+
+                            matchs.forEach(function(match, i) {
+
+                                var format = match.match(/!\[([^]+?)\]/gi)[0];
+                                var url = match.match(/\(([^]+?)\)/gi)[0].slice(1, -1);
+                                var substring = url.substring(0, 35);
+                                if (substring == "https://collab.humanbrainproject.eu") {
+                                    var index_uuid = url.indexOf("%3D");
+                                    var image_uuid = url.slice(index_uuid + 3);
+                                    var collab = parseInt(url.match(/\/collab\/([^]+?)\//gi)[0].slice(8, -1))
+
+                                    if (c.includes(String(collab))) {
+                                        var promise = clbStorage.downloadUrl({ uuid: image_uuid }).then(function(fileURL) {
+                                            new_text = new_text.replace(match, format + '(' + fileURL + ')');
+                                        });
+                                        promises.push(promise)
+                                    }
+
+                                }
+                            });
+
+                            $q.all(promises).then(function() {
+                                resolve(new_text);
+                            })
                         });
-                        promises.push(promise)
+
                     }
-                })
-                $q.all(promises).then(function() {
-                    resolve(new_text);
-                })
+                }
+
             })
         }
 

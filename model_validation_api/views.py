@@ -108,7 +108,8 @@ from django.views.decorators.csrf import csrf_exempt, csrf_protect, ensure_csrf_
 
 from .validation_framework_toolbox.user_auth_functions import (
     _is_collaborator, 
-    is_authorised, 
+    is_authorised_or_admin, 
+    is_authorised,
     get_user_info, 
     is_hbp_member,
     get_storage_file_by_id,
@@ -411,7 +412,7 @@ class ParametersConfigurationRest( APIView): #LoginRequiredMixin,
             collab_id = collab_id[0]
 
 
-        if not is_authorised(request, collab_id):
+        if not is_authorised_or_admin(request, collab_id):
             return HttpResponseForbidden() 
 
         serializer_context = {'request': request,}
@@ -444,13 +445,13 @@ class ParametersConfigurationRest( APIView): #LoginRequiredMixin,
                 app_id = app_id[0]
 
         collab_id = get_collab_id_from_app_id(app_id)
-        if not is_authorised(request, collab_id):
+        if not is_authorised_or_admin(request, collab_id):
             return HttpResponseForbidden()
         
 
         if 'collab_id' in request.data :
             collab_id = request.data['collab_id']
-            if not is_authorised(request, collab_id):
+            if not is_authorised_or_admin(request, collab_id):
                 return HttpResponseForbidden()
         
         serializer_context = {'request': request,}
@@ -590,7 +591,7 @@ class ModelInstances (APIView):
                 #security
                 app_id = ScientificModel.objects.get(id=instance['model_id']).app_id
                 collab_id = get_collab_id_from_app_id(app_id)
-                if not is_authorised(request, collab_id):
+                if not is_authorised_or_admin(request, collab_id):
                     return HttpResponseForbidden()
                 
                 #check if versions are unique
@@ -638,7 +639,7 @@ class ModelInstances (APIView):
             if param_web_app==True:
                 original_instance = ScientificModelInstance.objects.get(id=instance.get('id'))
                 #check if version is editable - only if you are not super user
-                if not is_authorised(request,settings.ADMIN_COLLAB_ID):
+                if not is_authorised_or_admin(request,settings.ADMIN_COLLAB_ID):
                     if not _are_model_instance_editable(instance):
                         return Response("This version is no longer editable as there is at least one result associated with it.", status=status.HTTP_400_BAD_REQUEST)
                 
@@ -686,11 +687,11 @@ class ModelInstances (APIView):
             #security
             app_id =ScientificModel.objects.get(id=original_instance.model_id).app_id
             collab_id = get_collab_id_from_app_id(app_id)
-            if not is_authorised(request, collab_id):
+            if not is_authorised_or_admin(request, collab_id):
                 return HttpResponseForbidden()
     
             #check if version is editable
-            if not is_authorised(request, settings.ADMIN_COLLAB_ID):
+            if not is_authorised_or_admin(request, settings.ADMIN_COLLAB_ID):
                 if not _are_model_instance_editable(instance):
                     return Response("This version is no longer editable as there is at least one result associated with it.", status=status.HTTP_400_BAD_REQUEST)
                 
@@ -712,7 +713,7 @@ class ModelInstances (APIView):
     
     # def delete(self, request, format=None):
 
-    #     if not is_authorised(request, settings.ADMIN_COLLAB_ID):
+    #     if not is_authorised_or_admin(request, settings.ADMIN_COLLAB_ID):
     #             return HttpResponseForbidden()
         
     #     serializer_context = {'request': request,}
@@ -837,7 +838,7 @@ class Images (APIView):
                 except:
                     app_id = ScientificModel.objects.get(alias=image['model_alias']).app_id
                 collab_id = get_collab_id_from_app_id(app_id)
-                if not is_authorised(request, collab_id):
+                if not is_authorised_or_admin(request, collab_id):
                     return HttpResponseForbidden()
             else :
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -883,7 +884,7 @@ class Images (APIView):
             #security
             app_id = ScientificModel.objects.get(id=model_image.model_id).app_id
             collab_id = get_collab_id_from_app_id(app_id)
-            if not is_authorised(request, collab_id):
+            if not is_authorised_or_admin(request, collab_id):
                 return HttpResponseForbidden()
             
             # check if data is ok else return error
@@ -920,7 +921,7 @@ class Images (APIView):
         image = ScientificModelImage.objects.get(id=image_id)
         app_id = ScientificModel.objects.get(id= image.model_id).app_id
         collab_id = get_collab_id_from_app_id(app_id)
-        if not is_authorised(request, collab_id):
+        if not is_authorised_or_admin(request, collab_id):
             return HttpResponseForbidden()
 
         image = image.delete()
@@ -1048,7 +1049,7 @@ class Models(APIView):
                 collab_ids = list(rq1.prefetch_related().values_list('app__collab_id', flat=True).distinct())
                 collab_ids_new = []
                 for collab in collab_ids:
-                    if is_authorised(request, collab):
+                    if is_authorised_or_admin(request, collab):
                         collab_ids_new.append(collab)
            
                 all_ctx_from_collab = CollabParameters.objects.filter(collab_id__in=collab_ids_new).distinct()
@@ -1153,7 +1154,7 @@ class Models(APIView):
                     app_id = app_id['app']
                     collab_id = get_collab_id_from_app_id(app_id)
                     #TODO... keep all data and make only one request to HBP
-                    if not is_authorised(request, collab_id) :
+                    if not is_authorised_or_admin(request, collab_id) :
                         q = q.exclude(app=app_id, private=1)
                 
 
@@ -1181,7 +1182,7 @@ class Models(APIView):
                     app_id = models.values("app")[0]['app']
                     collab_id = get_collab_id_from_app_id(app_id)
                  
-                    if not is_authorised(request, collab_id) :
+                    if not is_authorised_or_admin(request, collab_id) :
                         return HttpResponse('Unauthorized', status=401)
                         return HttpResponseForbidden()
                 if len(web_app) > 0 and web_app[0] == 'True' :
@@ -1214,7 +1215,7 @@ class Models(APIView):
             app_id = app_id[0]
             
         collab_id = get_collab_id_from_app_id(app_id)
-        if not is_authorised(request, collab_id):
+        if not is_authorised_or_admin(request, collab_id):
             return HttpResponse('Unauthorized', status=401)
             return HttpResponseForbidden()
 
@@ -1311,14 +1312,14 @@ class Models(APIView):
         #security
         app_id = model.app_id
         collab_id = get_collab_id_from_app_id(app_id)
-        if not is_authorised(request, collab_id):
+        if not is_authorised_or_admin(request, collab_id):
             return HttpResponse('Unauthorized', status=401)
             return HttpResponseForbidden()
 
         app_id = value['app']['id']
         
         collab_id = get_collab_id_from_app_id(app_id)
-        if not is_authorised(request, collab_id):
+        if not is_authorised_or_admin(request, collab_id):
             return HttpResponseForbidden()
 
 
@@ -1584,7 +1585,7 @@ class TestInstances(APIView):
                     return Response("To edit a test instance, you need to give an id, or a test_definition_id with a version, or a test_definition_alias with a version ", status=status.HTTP_400_BAD_REQUEST)    
 
             #check if version is editable
-            if not is_authorised(request,settings.ADMIN_COLLAB_ID):
+            if not is_authorised_or_admin(request,settings.ADMIN_COLLAB_ID):
                 if not _are_test_code_editable(test_code):
                     return Response("This version is no longer editable as there is at least one result associated with it", status=status.HTTP_400_BAD_REQUEST)
 
@@ -1602,7 +1603,7 @@ class TestInstances(APIView):
                serializer.save() 
                list_updated.append(serializer.data)
 
-        return Response({'uuid':list_updated.id}, status=status.HTTP_202_ACCEPTED)
+        return Response({'uuid':list_updated}, status=status.HTTP_202_ACCEPTED)
         
 
     def get_serializer_class(self): #############not used???? TO delete?
@@ -1805,7 +1806,7 @@ class Tests(APIView):
 
         # app_id = request.GET.getlist('app_id')[0]
         # collab_id = get_collab_id_from_app_id(app_id)
-        # if not is_authorised(request, collab_id):
+        # if not is_authorised_or_admin(request, collab_id):
         #     return HttpResponseForbidden()
 
         serializer_context = {'request': request,}
@@ -1856,7 +1857,7 @@ class Tests(APIView):
 
         # app_id = request.GET.getlist('app_id')[0]
         # collab_id = get_collab_id_from_app_id(app_id)
-        # if not is_authorised(request, collab_id):
+        # if not is_authorised_or_admin(request, collab_id):
         #     return HttpResponseForbidden()
 
         value = request.data
@@ -2042,6 +2043,38 @@ class ModelCatalogView(View):
 
 
 
+
+
+class IsCollabMemberOrAdminRest (APIView):
+    """
+    Class to check if user is a valid collab member
+    """
+    def get(self, request, format=None, **kwargs):
+        """
+        :param app_id: id of the application
+        :type app_id: int
+        :return: bool: is_member
+        """
+        app_id = request.GET.getlist('app_id')
+        try: 
+            collab_id = request.GET.getlist('collab_id')[0]
+        except: 
+            collab_id = request.GET.getlist('collab_id')
+
+
+        if len(collab_id) == 0:
+            if len(app_id) == 0 :
+                return Response(status=status.HTTP_400_BAD_REQUEST)
+            else :
+                app_id = app_id[0]
+
+            collab_id = get_collab_id_from_app_id(app_id)
+
+        is_member = is_authorised_or_admin(request, str(collab_id))
+        return Response({
+            'is_member':  is_member,
+        })
+
 class IsCollabMemberRest (APIView):
     """
     Class to check if user is a valid collab member
@@ -2053,18 +2086,38 @@ class IsCollabMemberRest (APIView):
         :return: bool: is_member
         """
         app_id = request.GET.getlist('app_id')
+        collab_id = request.GET.getlist('collab_id')
 
-        if len(app_id) == 0 :
-            return Response(status=status.HTTP_400_BAD_REQUEST)
-        else :
-            app_id = app_id[0]
+        if len(collab_id) == 0:
+            if len(app_id) == 0 :
+                return Response(status=status.HTTP_400_BAD_REQUEST)
+            else :
+                app_id = app_id[0]
 
-        collab_id = get_collab_id_from_app_id(app_id)
-        
-        is_member = is_authorised(request, collab_id)
+            collab_id = get_collab_id_from_app_id(app_id)
+        else:
+            if len(collab_id) >1:
+                res_is_member = []
+                res_authorized_collabs = []
+
+                for ids in collab_id:
+                    is_member = is_authorised(request, str(ids))
+
+                    if is_member == True:
+                        res_authorized_collabs.append(ids)
+                    res_is_member.append({"collab_id":ids,"is_member":is_member})
+         
+                return Response({
+                    'is_member':  res_is_member,
+                    'is_authorized': res_authorized_collabs
+                })
+            else:
+                collab_id = collab_id[0]
+
+        is_member = is_authorised(request, str(collab_id))
         return Response({
-            'is_member':  is_member,
-        })
+                'is_member':  is_member,
+            })
 
 
 class IsSuperUserRest (APIView):
@@ -2078,7 +2131,7 @@ class IsSuperUserRest (APIView):
         :return: bool: is_member
         """
     
-        is_superuser = is_authorised(request, settings.ADMIN_COLLAB_ID)
+        is_superuser = is_authorised_or_admin(request, settings.ADMIN_COLLAB_ID)
         return Response({
             'is_superuser':  is_superuser,
         })
@@ -2488,7 +2541,7 @@ class  AreVersionsEditableRest(APIView):
 #     def post (self, request, format=None, **kwargs):
 #         request.GET.getlist('app_id')[0]
 #         # collab_id = get_collab_id_from_app_id(app_id)
-#         # if not is_authorised(request, collab_id):
+#         # if not is_authorised_or_admin(request, collab_id):
 #         #     return HttpResponseForbidden()
 #         model_id = request.data['model_id']
 #         print(get_user_info(request))

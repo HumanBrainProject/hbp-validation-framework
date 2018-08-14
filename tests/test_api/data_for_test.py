@@ -62,7 +62,7 @@ from model_validation_api.views import (
                     ParametersConfigurationModelView,
                     ParametersConfigurationValidationView,
                     TestTicketRest,
-                    IsCollabMemberRest,
+                    IsCollabMemberOrAdminRest,
                     Results,
                     CollabAppID,
 
