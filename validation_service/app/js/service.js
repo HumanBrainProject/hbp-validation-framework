@@ -1769,7 +1769,6 @@ HelpServices.factory('MarkdownConverter', ['$rootScope', '$q', 'clbStorage', 'Is
                                     var index_uuid = url.indexOf("%3D");
                                     var image_uuid = url.slice(index_uuid + 3);
                                     var collab = parseInt(url.match(/\/collab\/([^]+?)\//gi)[0].slice(8, -1))
-
                                     if (c.includes(String(collab))) {
                                         var promise = clbStorage.downloadUrl({ uuid: image_uuid }).then(function(fileURL) {
                                             new_text = new_text.replace(match, format + '(' + fileURL + ')');
@@ -1837,6 +1836,7 @@ HelpServices.factory('MarkdownConverter', ['$rootScope', '$q', 'clbStorage', 'Is
             getConverter: getConverter,
             change_collab_images_url_to_real_url: change_collab_images_url_to_real_url,
             _add_mathjax_extensions: _add_mathjax_extensions,
+            _get_collabs_from_url: _get_collabs_from_url,
         };
 
     }

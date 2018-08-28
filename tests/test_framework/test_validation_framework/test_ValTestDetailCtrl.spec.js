@@ -70,7 +70,7 @@ describe('Testing controller: ValTestDetailCtrl', function() {
     var Graphics, ValidationTestCodeRest, ValidationTestDefinitionRest, ValidationTestAliasRest, TestTicketRest, TestCommentRest;
 
     //load modules
-    beforeEach(angular.mock.module('testApp', 'DataHandlerServices', 'ApiCommunicationServices', 'ParametersConfigurationServices', 'GraphicsServices'));
+    beforeEach(angular.mock.module('testApp', 'DataHandlerServices', 'ApiCommunicationServices', 'ParametersConfigurationServices', 'GraphicsServices', 'HelpServices', 'clb-storage'));
 
     // inject app elements into variables
     beforeEach(inject(angular.mock.inject(function(_$rootScope_, _$location_, _$controller_, _$httpBackend_, _Graphics_, _ValidationTestCodeRest_, _ValidationTestDefinitionRest_, _ValidationTestAliasRest_, _TestTicketRest_, _TestCommentRest_) {

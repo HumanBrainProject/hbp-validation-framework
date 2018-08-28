@@ -85,7 +85,7 @@ describe('Testing controller: ValModelDetailCtrl', function() {
     var $location, $scope, $rootScope, $httpBackend, $http, $controller;
     var Graphics;
     //load modules
-    beforeEach(angular.mock.module('testApp', 'DataHandlerServices', 'ApiCommunicationServices', 'ParametersConfigurationServices', 'GraphicsServices'));
+    beforeEach(angular.mock.module('testApp', 'DataHandlerServices', 'ApiCommunicationServices', 'ParametersConfigurationServices', 'GraphicsServices', 'clb-storage'));
 
     // inject app elements into variables
     beforeEach(inject(angular.mock.inject(function(_$rootScope_, _$location_, _$controller_, _$httpBackend_, _Graphics_) {
