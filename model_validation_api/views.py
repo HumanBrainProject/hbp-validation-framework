@@ -2114,9 +2114,14 @@ class IsCollabMemberRest (APIView):
             else:
                 collab_id = collab_id[0]
 
+        res_authorized_collabs = []
         is_member = is_authorised(request, str(collab_id))
+        if is_member:
+            res_authorized_collabs.append(collab_id)
+
         return Response({
                 'is_member':  is_member,
+                'is_authorized': res_authorized_collabs
             })
 
 

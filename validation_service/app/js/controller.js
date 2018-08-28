@@ -300,8 +300,14 @@ testApp.directive("markdown", function(MarkdownConverter) {
         controller: ["$scope", "$element", "$attrs", function($scope, $element, $attrs) {
             $scope.$watch($attrs.markdown, function(value) {
 
+                if ($attrs.texttruncate) {
+                    value = value.slice(0, 1000) + '...';
+                }
+
                 $element.text(value == undefined ? "" : value);
+
                 var html = MarkdownConverter.getConverter($element.text());
+
                 $element.html(html);
                 MathJax.Hub.Queue(["Typeset", MathJax.Hub, $element[0]]);
                 $scope.$apply();

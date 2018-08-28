@@ -64,6 +64,9 @@
                 <tr style="width: 15%">
                     <td> <b> ID: </b> {{model.models[0].id}} </td>
                 </tr>
+                <tr style="width: 15%">
+                    <td> <b> Collab ID: </b> {{model.models[0].app.collab_id}} </td>
+                </tr>
                 <tr style="width: 15%" ng-if="model.models[0].alias && model.models[0].alias!=''  ">
                     <td> <b>Alias: </b> {{ model.models[0].alias}}</td>
                 </tr>
