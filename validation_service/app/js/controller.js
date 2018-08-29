@@ -972,27 +972,56 @@ testApp.controller('ValTestCreateCtrl', ['$scope', '$rootScope', '$http', '$loca
     function($scope, $rootScope, $http, $location, ValidationTestDefinitionRest, ValidationTestCodeRest, CollabParameters, Context, AuthorizedCollabParameterRest, ValidationTestAliasRest, DataHandler) {
 
         $scope.saveTest = function() {
-            if ($scope.test.alias != '' && $scope.test.alias != undefined) {
-                $scope.alias_is_valid = ValidationTestAliasRest.get({ app_id: $scope.app_id, alias: $scope.test.alias });
-                $scope.alias_is_valid.$promise.then(function() {
-                    if ($scope.alias_is_valid.is_valid) {
-                        var parameters = JSON.stringify({ test_data: $scope.test, code_data: $scope.code });
-                        ValidationTestDefinitionRest.save({ app_id: $scope.app_id }, parameters).$promise.then(function(data) {
-                            DataHandler.setStoredTestsAsOutdated();
-                            Context.validation_goToTestDetailView(data.uuid);
-                        });
-                    } else {
-                        alert('Cannot update the test. Please check the alias.');
-                    };
-                });
-            } else {
-                $scope.test.alias = null;
-                var parameters = JSON.stringify({ test_data: $scope.test, code_data: $scope.code });
+            var check_alias_promise = $scope._test_alias_validity();
+            var check_test_code = $scope._check_testcode_is_filled();
+            check_alias_promise.then(function() {
+                if (check_test_code) {
+                    var parameters = JSON.stringify({ test_data: $scope.test, code_data: $scope.code });
+                } else {
+                    var parameters = JSON.stringify({ test_data: $scope.test });
+                }
+
                 ValidationTestDefinitionRest.save({ app_id: $scope.app_id }, parameters).$promise.then(function(data) {
                     DataHandler.setStoredTestsAsOutdated();
                     Context.validation_goToTestDetailView(data.uuid);
                 });
-            };
+            })
+        };
+
+        $scope._check_testcode_is_filled = function() {
+            if (!$scope.code) {
+                return false
+            }
+            //elements are undefined or empty
+            if ((!$scope.code.path || $scope.code.path == "") && (!$scope.code.repository || $scope.code.repository == "") && (!$scope.code.version || $scope.code.version == "")) {
+                return false
+            }
+
+            if ($scope.code.path && $scope.code.repository && $scope.code.version) {
+                return true
+            } else {
+                alert('Please check test code fields are correctly filled. The version name, the path and the repository are mandatory.')
+                return true
+            }
+        }
+
+        $scope._test_alias_validity = function() {
+            return new Promise(function(resolve, reject) {
+                if ($scope.test.alias != '' && $scope.test.alias != undefined) {
+                    $scope.alias_is_valid = ValidationTestAliasRest.get({ app_id: $scope.app_id, alias: $scope.test.alias });
+                    $scope.alias_is_valid.$promise.then(function() {
+                        if ($scope.alias_is_valid.is_valid) {
+                            resolve(true)
+                        } else {
+                            alert('Cannot update the test. Please check the alias.');
+                            reject('Cannot update the test. Please check the alias.')
+                        }
+                    })
+                } else {
+                    $scope.test.alias = null;
+                    resolve(true)
+                }
+            })
         };
 
         $scope.checkAliasValidity = function() {
