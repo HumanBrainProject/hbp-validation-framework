@@ -1824,25 +1824,26 @@ class Tests(APIView):
             DATA = DATA[0]
 
         test_serializer = ValidationTestDefinitionSerializer(data=DATA['test_data'], context=serializer_context)
-        code_serializer = ValidationTestCodeSerializer(data=DATA['code_data'], context=serializer_context)
-
-        if test_serializer.is_valid():
-            if code_serializer.is_valid():
-                       
-                check_param = check_param_of_test_json(DATA['test_data'])
-                if check_param is not True :
-                    return Response(check_param, status=status.HTTP_400_BAD_REQUEST)
-
-                test = test_serializer.save() 
-                code_serializer.save(test_definition_id=test.id)
-                return Response({'uuid':test.id}, status=status.HTTP_201_CREATED)
-                      
-            else :       
-                return Response(code_serializer.errors, status=status.HTTP_400_BAD_REQUEST)   
-        else :
-            return Response(test_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
 
+        if test_serializer.is_valid():
+            if 'code_data' in DATA:
+                code_serializer = ValidationTestCodeSerializer(data=DATA['code_data'], context=serializer_context)
+                if code_serializer.is_valid():      
+                    check_param = check_param_of_test_json(DATA['test_data'])
+                    if check_param is not True :
+                        return Response(check_param, status=status.HTTP_400_BAD_REQUEST)
+                else :       
+                    return Response(code_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+            test = test_serializer.save()
+
+            if 'code_data' in DATA:
+                code_serializer.save(test_definition_id=test.id)
+            return Response({'uuid':test.id}, status=status.HTTP_201_CREATED)
+
+        else :
+            return Response(test_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
 
     def put(self, request, format=None):
