@@ -1672,6 +1672,7 @@ class Tests(APIView):
         param_author = request.GET.getlist('author')
         param_publication = request.GET.getlist('publication')
         param_score_type = request.GET.getlist('score_type')
+        param_status = request.GET.getlist('status')
         param_alias = request.GET.getlist('alias')
         param_web_app = request.GET.getlist('web_app')
         param_app_id = request.GET.getlist('app_id')
@@ -1774,6 +1775,8 @@ class Tests(APIView):
                     q = q.filter(publication__in = param_publication)
                 if len(param_score_type) > 0 :
                     q = q.filter(score_type__in = param_score_type)
+                if len(param_status) > 0 :
+                    q = q.filter(status__in = param_status)
                         
                 tests = q.order_by('-creation_date')
                 #serializer : ValidationTestDefinition

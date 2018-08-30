@@ -676,7 +676,7 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
                 $scope.detail_test = ValidationTestDefinitionRest.get({ app_id: $scope.app_id, id: $stateParams.uuid });
 
                 $scope.auhtorized_params = AuthorizedCollabParameterRest.get();
-
+                $scope.status = [{ value: "proposal", name: "Proposal" }, { value: "development", name: "Development" }, { value: "published", name: "Published" }]
                 $scope.species = CollabParameters.getParametersOrDefaultByType("species");
                 $scope.brain_region = CollabParameters.getParametersOrDefaultByType("brain_region");
                 $scope.cell_type = CollabParameters.getParametersOrDefaultByType("cell_type");
@@ -1041,6 +1041,7 @@ testApp.controller('ValTestCreateCtrl', ['$scope', '$rootScope', '$http', '$loca
                 $scope.alias_is_valid = "";
                 $scope.auhtorized_params = AuthorizedCollabParameterRest.get();
 
+                $scope.status = [{ value: "proposal", name: "Proposal" }, { value: "development", name: "Development" }, { value: "published", name: "Published" }]
                 $scope.species = CollabParameters.getParametersOrDefaultByType("species");
                 $scope.brain_region = CollabParameters.getParametersOrDefaultByType("brain_region");
                 $scope.cell_type = CollabParameters.getParametersOrDefaultByType("cell_type");

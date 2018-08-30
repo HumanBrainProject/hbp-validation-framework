@@ -57,6 +57,16 @@
                                     </tr>
                                     <tr>
                                         <td>
+                                            <b>Status:</b>
+                                        </td>
+                                        <td>
+                                            <select id="select-status" data-style="btn-primary" ng-model="test.status">
+                                         <option ng-repeat="st in status" value="{{st.value}}">{{st.name}}</option>
+                                    </select>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
                                             <b>Publication:</b>
                                         </td>
                                         <td>
