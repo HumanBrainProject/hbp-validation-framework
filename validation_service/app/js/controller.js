@@ -490,6 +490,24 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
                 });
             }
         };
+
+        $scope.deleteTest = function() {
+            switch (prompt("Are you sure you want to delete this test? (Yes/No)", "No")) {
+                case "No":
+                    alert("this test won't be deleted.");
+                    break;
+                case "Yes":
+                    var del = ValidationTestDefinitionRest.delete({ id: $scope.detail_test.tests[0].id }).$promise.then(function() {
+                        alert('this test has been deleted')
+                        Context.validation_goToHomeView();
+                    });
+                    break;
+                default:
+                    alert("Please answer Yes or No")
+                    $scope.deleteTest();
+            }
+        }
+
         $scope.editVersion = function(index) {
             angular.element(document.querySelector("#editable-repository-" + index)).attr('contenteditable', "true");
             angular.element(document.querySelector("#editable-repository-" + index)).attr('bgcolor', 'ghostwhite');
@@ -504,6 +522,25 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
             $scope.version_in_edition.push(index);
 
         };
+
+        $scope.deleteTestVersion = function(test_code_id) {
+
+            switch (prompt("Are you sure you want to delete this test instance? (Yes/No)", "No")) {
+                case "No":
+                    alert("this test instance won't be deleted.");
+                    break;
+                case "Yes":
+                    var del = ValidationTestCodeRest.delete({ id: test_code_id }).$promise.then(function() {
+                        alert('this test has been deleted')
+                        $state.reload();
+                    });
+                    break;
+                default:
+                    alert("Please answer Yes or No")
+                    $scope.deleteTestVersion();
+            };
+        };
+
         $scope.save_edited_version = function(index) {
             var repository = $("#editable-repository-" + index).text();
             var code_description = $("#editable-code-description-" + index).text();
@@ -1634,6 +1671,22 @@ ModelCatalogApp.controller('ModelCatalogEditCtrl', ['$scope', '$rootScope', '$ht
                 alert(e.data);
             });
         };
+        $scope.deleteModel = function() {
+            switch (prompt("Are you sure you want to delete this model? (Yes/No)", "No")) {
+                case "No":
+                    alert("this model won't be deleted.");
+                    break;
+                case "Yes":
+                    ScientificModelRest.delete({ app_id: $scope.app_id, id: $scope.model.models[0].id }).$promise.then(function() {
+                        alert("this model has been deleted");
+
+                    })
+                    break;
+                default:
+                    alert("Please answer Yes or No")
+                    $scope.deleteModel();
+            }
+        }
         $scope.saveModel = function() {
             if ($scope.model.models[0].alias != '' && $scope.model.models[0].alias != null) {
                 $scope.alias_is_valid = ScientificModelAliasRest.get({ app_id: $scope.app_id, model_id: $scope.model.models[0].id, alias: $scope.model.models[0].alias });
@@ -1669,10 +1722,21 @@ ModelCatalogApp.controller('ModelCatalogEditCtrl', ['$scope', '$rootScope', '$ht
             });
         };
         $scope.deleteModelInstance = function(model_instance) {
-            var parameters = JSON.stringify([model_instance]);
-            var a = ScientificModelInstanceRest.delete({ app_id: $scope.app_id }, parameters).$promise.then(function(data) { alert('model instances correctly edited') }).catch(function(e) {
-                alert(e.data);
-            });
+            // var parameters = JSON.stringify([model_instance]);
+            switch (prompt("Are you sure you want to delete this model instance? (Yes/No)", "No")) {
+                case "No":
+                    alert("this model instance won't be deleted.");
+                    break;
+                case "Yes":
+                    ScientificModelInstanceRest.delete({ app_id: $scope.app_id, id: model_instance.id }).$promise.then(function() {
+                        alert('this model_instance has been deleted')
+                        Context.modelCatalog_goToModelDetailView($scope.model.models[0].id)
+                    });
+                    break;
+                default:
+                    alert("Please answer Yes or No")
+                    $scope.deleteModelInstance();
+            }
         }
 
         $scope.checkAliasValidity = function() {
@@ -1693,7 +1757,6 @@ ModelCatalogApp.controller('ModelCatalogEditCtrl', ['$scope', '$rootScope', '$ht
             //     $scope.$apply()
             // });
             $scope.isSuperUser = IsSuperUserRest.get({ app_id: $scope.app_id })
-
 
             CollabParameters.setService($scope.ctx).then(function() {
 

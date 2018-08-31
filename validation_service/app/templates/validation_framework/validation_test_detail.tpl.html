@@ -171,13 +171,15 @@
                             <button ng-if="isInArray(code_version.id, version_is_editable)" ng-click="editVersion(code_version.id)" class="button-MC glyphicon glyphicon-pencil">
                                 </button>
                             <button ng-if="!isInArray(code_version.id, version_is_editable) && isSuperUser.is_superuser" ng-click="editVersion(code_version.id)" class="glyphicon glyphicon-pencil superuser-button">
-                                </button>
+                        </button>
                         </td>
 
                         <td>
                             <button id="save_edited_version-{{code_version.id}}" ng-if="isInArray(code_version.id, version_in_edition)" ng-click="save_edited_version(code_version.id)" class="button-MC">Save
                                     </button>
                         </td>
+                        <td>
+                            <button ng-if="isSuperUser.is_superuser" type="submit" class="glyphicon glyphicon-remove superuser-button" ng-click="deleteTestVersion(code_version.id)"></button></td>
                     </tr>
                 </tbody>
             </table>
@@ -263,6 +265,7 @@
         <br>
         <h3 style="font-size:1.5em" align=center><b>Edit Test</b></h3><br>
         <br>
+        <td><button ng-if="isSuperUser.is_superuser" type="submit" class="superuser-button" ng-click=deleteTest()>Delete Test</button></td>
         <form>
             <table>
                 <tbody>

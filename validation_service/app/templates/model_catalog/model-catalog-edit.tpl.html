@@ -18,6 +18,7 @@
         <br>
         <br>
         <!--table to edit model informations-->
+        <td><button ng-if="isSuperUser.is_superuser" type="submit" class="superuser-button" ng-click=deleteModel()>Delete Model</button></td>
         <table>
             <header>
                 <h2> Model information:
@@ -241,7 +242,7 @@
                             <td><button ng-if="isInArray(model_instance.id, version_is_editable)" type="submit" class="btn btn-primary" ng-click=saveModelInstance(model_instance)>Save changes</button>
                                 <button ng-if="!isInArray(model_instance.id, version_is_editable) && !isSuperUser.is_superuser" type="" class="btn btn-danger">Not editable</button></td>
                             <td><button ng-if="!isInArray(model_instance.id, version_is_editable) && isSuperUser.is_superuser" type="submit" class="glyphicon glyphicon-pencil superuser-button" ng-click=saveModelInstance(model_instance)></button></td>
-                            <!--<td><button ng-if="isSuperUser.is_superuser" type="submit" class="glyphicon glyphicon-remove superuser-button" ng-click=deleteModelInstance(model_instance)></button></td>-->
+                            <td><button ng-if="isSuperUser.is_superuser" type="submit" class="glyphicon glyphicon-remove superuser-button" ng-click=deleteModelInstance(model_instance)></button></td>
                         </tr>
                     </tbody>
                 </table>
