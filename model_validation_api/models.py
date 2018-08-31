@@ -47,7 +47,7 @@ class ValidationTestDefinition(models.Model):
     score_type = models.CharField(help_text="Type of score: p-value, r square ..", max_length=20)
     alias = models.CharField(max_length=200, unique=True, null=True, blank=True, default=None, help_text="alias of the test") 
     creation_date = models.DateTimeField(auto_now_add=True, help_text="creation date of the test")
-    
+    status = models.CharField(max_length=100,blank=True, default='',help_text="status fo the test: Proposal, Published or on Development")
     # missing fields wrt Lungsi's spreadsheet
     # L - file format  - infer from file suffix?
     # N - registered with NIP?

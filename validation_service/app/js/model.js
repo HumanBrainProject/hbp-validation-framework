@@ -5,7 +5,8 @@ ApiCommunicationServices.factory('ScientificModelRest', ['$resource',
         return $resource('models/:uuid', { id: '@eUuid' }, {
             get: { method: 'GET', params: { format: 'json', app_id: 'app_id', web_app: 'True' }, isArray: false },
             post: { method: 'POST', params: { format: 'json', app_id: 'app_id', web_app: 'True' }, headers: { 'Content-Type': 'application/json' } },
-            put: { method: 'PUT', params: { format: 'json', app_id: 'app_id', web_app: 'True' }, headers: { 'Content-Type': 'application/json' } }
+            put: { method: 'PUT', params: { format: 'json', app_id: 'app_id', web_app: 'True' }, headers: { 'Content-Type': 'application/json' } },
+            delete: { method: 'DELETE', params: { format: 'json', app_id: 'app_id', web_app: 'True' }, headers: { 'Content-Type': 'application/json' } }
         });
     }
 ]);
@@ -30,8 +31,8 @@ ApiCommunicationServices.factory('ScientificModelInstanceRest', ['$resource',
         return $resource('model-instances/:uuid', { id: '@eUuid' }, {
             get: { method: 'GET', params: { format: 'json', app_id: 'app_id', web_app: 'True' }, isArray: false },
             post: { method: 'POST', params: { format: 'json', app_id: 'app_id', web_app: 'True' }, headers: { 'Content-Type': 'application/json' } },
-            put: { method: 'PUT', params: { format: 'json', app_id: 'app_id', web_app: 'True' }, headers: { 'Content-Type': 'application/json' } }
-            // delete: { method: 'DELETE', params: { format: 'json', app_id: 'app_id', web_app: 'True' }, headers: { 'Content-Type': 'application/json' } }
+            put: { method: 'PUT', params: { format: 'json', app_id: 'app_id', web_app: 'True' }, headers: { 'Content-Type': 'application/json' } },
+            delete: { method: 'DELETE', params: { format: 'json', app_id: 'app_id', web_app: 'True' }, headers: { 'Content-Type': 'application/json' } }
         });
     }
 ]);
@@ -54,7 +55,8 @@ ApiCommunicationServices.factory('ValidationTestDefinitionRest', ['$resource',
         return $resource('tests/:uuid', { id: '@eUuid' }, {
             get: { method: 'GET', params: { format: 'json', app_id: 'app_id', web_app: 'True' }, isArray: false },
             put: { method: 'PUT', params: { format: 'json', web_app: 'True' }, headers: { 'Content-Type': 'application/json' } },
-            post: { method: 'POST', params: { format: 'json', web_app: 'True' }, headers: { 'Content-Type': 'application/json' } }
+            post: { method: 'POST', params: { format: 'json', web_app: 'True' }, headers: { 'Content-Type': 'application/json' } },
+            delete: { method: 'DELETE', params: { format: 'json', web_app: 'True' }, headers: { 'Content-Type': 'application/json' } }
         });
     }
 ]);
@@ -64,7 +66,8 @@ ApiCommunicationServices.factory('ValidationTestCodeRest', ['$resource',
         return $resource('test-instances/:uuid', { id: '@eUuid' }, {
             get: { method: 'GET', params: { format: 'json', app_id: 'app_id', web_app: 'True' }, isArray: false },
             put: { method: 'PUT', params: { format: 'json', app_id: 'app_id', web_app: 'True' }, headers: { 'Content-Type': 'application/json' } },
-            post: { method: 'POST', params: { format: 'json', app_id: 'app_id', web_app: 'True' }, headers: { 'Content-Type': 'application/json' } }
+            post: { method: 'POST', params: { format: 'json', app_id: 'app_id', web_app: 'True' }, headers: { 'Content-Type': 'application/json' } },
+            delete: { method: 'DELETE', params: { format: 'json', app_id: 'app_id', web_app: 'True' }, headers: { 'Content-Type': 'application/json' } }
         });
     }
 ]);

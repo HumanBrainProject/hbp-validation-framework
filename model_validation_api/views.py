@@ -711,49 +711,18 @@ class ModelInstances (APIView):
 
         return Response({'uuid': list_id}, status=status.HTTP_202_ACCEPTED) 
     
-    # def delete(self, request, format=None):
+    def delete(self, request, format=None):
 
-    #     if not is_authorised_or_admin(request, settings.ADMIN_COLLAB_ID):
-    #             return HttpResponseForbidden()
+        if not is_authorised_or_admin(request, settings.ADMIN_COLLAB_ID):
+            return HttpResponseForbidden()
         
-    #     serializer_context = {'request': request,}
-    #     print(request.data)
-    #     DATA = _reformat_request_data(request.data)
-    #     print(DATA)
-    #     for instance in DATA :
-    #         if 'id' in instance:
-    #             print('id')
-    #             try: 
-    #                 instance = ScientificModelInstance.objects.get(id= instance['id'])
-    #             except:
-    #                 return Response("The given id ",instance['id']," does not exists. Please give a new id, or a model_id with a version_name, or a model_alias with a version_name. ", status=status.HTTP_400_BAD_REQUEST)
-    #         else:
-    #             if 'version' in instance:
-    #                 print('version')
-    #                 if 'model_id' in instance:
-    #                     print("model_id")
-    #                     try: 
-    #                         instance = ScientificModelInstance.objects.get(model_id= instance['model_id'], version=instance['version'])
-    #                     except:
-    #                         return Response("There is no model instance with this version name for this model_id. Please give a new model_id or a new version name. ", status=status.HTTP_400_BAD_REQUEST)
-                        
-    #                 if 'model_alias' in instance:
-    #                     print('model_alias')
-    #                     try: 
-    #                         model = ScientificModel.objects.get(alias = instance['model_alias'])
-    #                     except:
-    #                         return Response('There is no model with this alias. Please give a new alias or try with the model_id directly.', status=status.HTTP_400_BAD_REQUEST)
-    #                     instance['model_id'] = model.id
-    #                     try: 
-    #                         instance = ScientificModelInstance.objects.get(model_id= instance['model_id'], version=instance['version'])
-    #                     except:
-    #                         return Response("There is no model instance with this version name for this model_alias. Please give a new model_id or a new version name. ", status=status.HTTP_400_BAD_REQUEST) 
-                        
-                        
-    #             else:
-    #                 return Response("To delete a model instance, you need to give an id, or a model_id with a version, or a model_alias with a version ", status=status.HTTP_400_BAD_REQUEST)    
-    #         instance.delete()
-    #         return Response("Instance ", instance.id,"have been correctly deleted")    
+        list_ids = request.GET.getlist('id')
+
+        elements_to_delete = ScientificModelInstance.objects.filter(id__in=list_ids)
+        for model_instance in elements_to_delete:
+            model_instance.delete()
+     
+        return Response( status=status.HTTP_200_OK)    
 
 
 class Images (APIView):
@@ -1346,6 +1315,25 @@ class Models(APIView):
             return Response(model_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         return Response({'uuid':model.id}, status=status.HTTP_202_ACCEPTED) 
 
+
+    def delete(self, request, format=None):
+        """
+        delete model from table
+        :param image_id: image id
+        :type image_id: uuid
+        :return: int status response of request
+        """
+
+        if not is_authorised_or_admin(request, settings.ADMIN_COLLAB_ID):
+            return HttpResponseForbidden()
+        
+        list_ids = request.GET.getlist('id')
+
+        elements_to_delete = ScientificModel.objects.filter(id__in=list_ids)
+        for model in elements_to_delete:
+            model.delete()
+     
+        return Response( status=status.HTTP_200_OK) 
         
 class ModelAliases(APIView):
     """
@@ -1605,6 +1593,18 @@ class TestInstances(APIView):
 
         return Response({'uuid':list_updated}, status=status.HTTP_202_ACCEPTED)
         
+    def delete(self, request, format=None):
+
+        if not is_authorised_or_admin(request, settings.ADMIN_COLLAB_ID):
+            return HttpResponseForbidden()
+        
+        list_ids = request.GET.getlist('id')
+
+        elements_to_delete = ValidationTestCode.objects.filter(id__in=list_ids)
+        for test_code in elements_to_delete:
+            test_code.delete()
+     
+        return Response( status=status.HTTP_200_OK) 
 
     def get_serializer_class(self): #############not used???? TO delete?
         #  if self.request.method in ('GET', )
@@ -1672,6 +1672,7 @@ class Tests(APIView):
         param_author = request.GET.getlist('author')
         param_publication = request.GET.getlist('publication')
         param_score_type = request.GET.getlist('score_type')
+        param_status = request.GET.getlist('status')
         param_alias = request.GET.getlist('alias')
         param_web_app = request.GET.getlist('web_app')
         param_app_id = request.GET.getlist('app_id')
@@ -1774,6 +1775,8 @@ class Tests(APIView):
                     q = q.filter(publication__in = param_publication)
                 if len(param_score_type) > 0 :
                     q = q.filter(score_type__in = param_score_type)
+                if len(param_status) > 0 :
+                    q = q.filter(status__in = param_status)
                         
                 tests = q.order_by('-creation_date')
                 #serializer : ValidationTestDefinition
@@ -1875,6 +1878,20 @@ class Tests(APIView):
         else: 
             return Response(test_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         return Response({'uuid':test.id}, status=status.HTTP_202_ACCEPTED)
+
+    def delete(self, request, format=None):
+
+        if not is_authorised_or_admin(request, settings.ADMIN_COLLAB_ID):
+            return HttpResponseForbidden()
+        
+        list_ids = request.GET.getlist('id')
+
+        elements_to_delete = ValidationTestDefinition.objects.filter(id__in=list_ids)
+        for test in elements_to_delete:
+            test.delete()
+     
+        return Response( status=status.HTTP_200_OK) 
+
 
 class TestTicketRest(APIView):
     """
@@ -2445,7 +2462,18 @@ class Results (APIView):
 
     #     return Response( status=status.HTTP_202_ACCEPTED) 
 
+    def delete(self, request, format=None):
 
+        if not is_authorised_or_admin(request, settings.ADMIN_COLLAB_ID):
+            return HttpResponseForbidden()
+        
+        list_ids = request.GET.getlist('id')
+
+        elements_to_delete = ValidationTestResult.objects.filter(id__in=list_ids)
+        for result in elements_to_delete:
+            result.delete()
+     
+        return Response( status=status.HTTP_200_OK) 
 
 
 
