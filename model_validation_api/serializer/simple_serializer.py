@@ -19,6 +19,7 @@ from ..models import (ValidationTestDefinition,
                     Param_AbstractionLevel,
                     Param_ScoreType,
                     Param_organizations,
+                    Persons
                     )
 
 from rest_framework import serializers
@@ -187,3 +188,7 @@ class Param_OrganizationsSerializer(serializers.HyperlinkedModelSerializer):
         model = Param_organizations
         fields = ('id', 'authorized_value')
     
+class PersonSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = Persons
+        fields = ('id','pattern','first_name', 'last_name', 'email')

@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'jsonify',
     'social.apps.django_app.default',
     'hbp_app_python_auth',
+    'nar',
     'markdown_deux',
 
     'corsheaders',
