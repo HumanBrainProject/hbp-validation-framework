@@ -728,7 +728,7 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
                 $scope.detail_test.$promise.then(function() {
                     var new_protocol_promise = MarkdownConverter.change_collab_images_url_to_real_url($scope.detail_test.tests[0].protocol);
                     new_protocol_promise.then(function(new_protocol) {
-                        $scope.detail_test.tests[0].protocol = new_protocol;
+                        $scope.detail_test.tests[0].new_protocol = new_protocol;
                         $scope.$apply();
                     });
 
