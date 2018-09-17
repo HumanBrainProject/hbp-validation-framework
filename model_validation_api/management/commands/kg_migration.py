@@ -22,7 +22,8 @@ from ...models import (
 from ...serializer.simple_serializer import PersonSerializer
 from tabulate  import tabulate
 from nar.brainsimulation import ModelProject
-from nar.core import Person
+from nar.core import Person, Organization
+from nar.commons import Address
 from nar.client import NARClient
 from hbp_app_python_auth.auth import get_access_token, get_auth_header
 import uuid
@@ -92,7 +93,7 @@ class Command(BaseCommand):
         person = Person(family_name=last_name, given_name =first_name, email=email, affiliation='')
         if not person.exists(NAR_client):
             person.save(NAR_client)
-            print('saved in KG')
+            print('saved in KG', person)
         else:
             print('already exists in KG') 
 
@@ -210,9 +211,9 @@ class Command(BaseCommand):
             # if parameter_value == "Medium spiny neuron (D1 type)":
             #     new_parameter = "Medium spiny neuron (D1 type)"
             if parameter_value == "Pyramidal Cell":
-                new_parameter = "Pyramidal Cell"
+                new_parameter = "Pyramidal cell"
             if parameter_value == "Granule Cell":
-                new_parameter = "Granule Cell"
+                new_parameter = "Granule cell"
             # if parameter_value == "Cholinergic interneuron":
             #     new_parameter = "Cholinergic interneuron"
             # if parameter_value == "L1 Neurogliaform cell":
@@ -222,6 +223,65 @@ class Command(BaseCommand):
 
         return new_parameter
 
+    def add_organizations_in_KG_database(self):
+        address1 = Address(locality='HBP', country='Europe')
+        sp1 = Organization("HBP-SP1",address1 , None ) 
+        sp1.save(NAR_client)
+
+        address2 = Address(locality='HBP', country='Europe')
+        sp2 = Organization("HBP-SP2",address2 , None ) 
+        sp2.save(NAR_client)
+
+        address3 = Address(locality='HBP', country='Europe')
+        sp3 = Organization("HBP-SP3",address3 , None ) 
+        sp3.save(NAR_client)
+
+        address4 = Address(locality='HBP', country='Europe')
+        sp4 = Organization("HBP-SP4",address4 , None ) 
+        sp4.save(NAR_client)
+        print(sp1)
+
+        address5 = Address(locality='HBP', country='Europe')
+        sp5 = Organization("HBP-SP5",address5 , None ) 
+        sp5.save(NAR_client)
+
+        address6 = Address(locality='HBP', country='Europe')
+        sp6 = Organization("HBP-SP6",address6 , None ) 
+        sp6.save(NAR_client)
+
+        address7 = Address(locality='HBP', country='Europe')
+        sp7 = Organization("HBP-SP7",address7 , None ) 
+        sp7.save(NAR_client)
+
+        address8 = Address(locality='HBP', country='Europe')
+        sp8 = Organization("HBP-SP8",address8 , None ) 
+        sp8.save(NAR_client)
+
+        address9 = Address(locality='HBP', country='Europe')
+        sp9 = Organization("HBP-SP9",address9 , None ) 
+        sp9.save(NAR_client)
+
+        address10 = Address(locality='HBP', country='Europe')
+        sp10 = Organization("HBP-SP10",address10 , None ) 
+        sp10.save(NAR_client)
+
+        address11 = Address(locality='HBP', country='Europe')
+        sp11 = Organization("HBP-SP11",address11 , None ) 
+        sp11.save(NAR_client)
+
+        address12 = Address(locality='HBP', country='Europe')
+        sp12 = Organization("HBP-SP12",address12 , None ) 
+        sp12.save(NAR_client)
+
+        addressBBP = Address(locality='Geneva', country='Switzerland')
+        BBP = Organization("Blue Brain Project",addressBBP , None ) 
+        BBP.save(NAR_client)
+           
+        addressAllen = Address(locality='Seattle', country='United States')
+        spAllen = Organization("Allen Institute",addressAllen , None ) 
+        spAllen.save(NAR_client)
+
+        return ''
 
     def migrate_model_instances(self):
         return ''
@@ -232,4 +292,6 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
          
         # self.migrate_models()
-        self._getPersons_and_migrate()
+        #self._getPersons_and_migrate()
+        #self.add_organizations_in_KG_database()
+        self.add_cell_types_in_KG_database()
