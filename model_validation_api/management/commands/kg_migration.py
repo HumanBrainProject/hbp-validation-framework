@@ -34,7 +34,6 @@ nexus_endpoint = "https://nexus-int.humanbrainproject.org/v0"
 NAR_client = NARClient(token, nexus_endpoint)
 
 
-
 class Command(BaseCommand):
     
     def migrate_models(self):
@@ -42,14 +41,44 @@ class Command(BaseCommand):
         models = ScientificModel.objects.all()
 
         for model in models:
-
-            name = self._reorder_model_parameters(model)
-
-            # var model_project = new ModelProject(model.name, model.alias, model.author, model.owner, model.organization, model.pla_components, model.private, model.collab_id, model.brain_region, model.species, model.cell_type, model.abstraction_level, model.description, model.date_created, model.model_of)
-
-            # model_project.save()
+            print ("model", model)
+            print ()
+            author = self._get_person_from_Persons_table(model.author)
+            owner = self._get_person_from_Persons_table(model.owner)
+            
+            model_project = ModelProject(model.name, model.alias, author, owner, [model.organization], [model.pla_components], model.private, model.app.collab_id, [model.brain_region], [model.species], [model.cell_type], [model.abstraction_level], model.description, model.creation_date, [model.model_scope])
+            model_project.save(NAR_client)
 
         return ''
+
+    def _get_person_from_Persons_table(self, patterns):
+
+            persons = []
+            if patterns and patterns != None:
+                patterns[0].replace(';',',')
+                patterns[0].replace('&',',')
+                patterns[0].replace('and',',') ##not working??? why??
+                patterns = patterns[0].split(',')
+
+                for pattern in patterns:
+                    try:
+                        if str(pattern)[0] == ' ':
+                            pattern = str(pattern)[1:]
+                    except:
+                        print('auth ', pattern)
+                    try:
+                        p = Persons.objects.get(pattern = pattern)
+                        person = Person(family_name=p.last_name, given_name =p.first_name, email=p.email, affiliation='')
+                        print('person :', person)
+                    except:
+                        print('person ', pattern ,' has not been found. please enter it by hand')
+                        family_name = raw_input('  give the family_name : ')
+                        given_name = raw_input('  give the first_name : ')
+                        email = raw_input('  give the email adress : ')
+                        person = Person(family_name=family_name, given_name =given_name, email=email, affiliation='')
+                    persons.append(person)
+            return persons
+
     def _getPersons_and_migrate(self):
 
         authors_list = ScientificModel.objects.all().values_list('author').distinct()
@@ -61,8 +90,11 @@ class Command(BaseCommand):
             authors = authors[0].split(',')
 
             for auth in authors:
-                if str(auth)[0] == ' ':
-                    auth = str(auth)[1:]
+                try:
+                    if str(auth)[0] == ' ':
+                        auth = str(auth)[1:]
+                except:
+                    print('auth ', auth)
                 print('Searching for the author:', auth)
                 ###check if pattern already exists
                 person_object = Persons.objects.all().filter(pattern = auth)
@@ -137,8 +169,6 @@ class Command(BaseCommand):
         model.model_scope = get_parameter("data_modalities", model.model_scope)
         model.model_type = get_parameter("model_type", model.model_type)
         model.organization = get_parameter("organization", model.organization)
-
-        print('new_model',name)
         return model
 
     def get_parameters(self, parameter_type, parameter_value):
@@ -291,7 +321,8 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
          
-        # self.migrate_models()
-        #self._getPersons_and_migrate()
-        #self.add_organizations_in_KG_database()
-        self.add_cell_types_in_KG_database()
+        self._getPersons_and_migrate()
+        self.add_organizations_in_KG_database()
+        #self.add_cell_types_in_KG_database()
+
+        self.migrate_models()

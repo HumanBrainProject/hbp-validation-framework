@@ -520,7 +520,6 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
             angular.element(document.querySelector("#editable-path-" + index)).attr('contenteditable', "true");
             angular.element(document.querySelector("#editable-path-" + index)).attr('bgcolor', 'ghostwhite');
             $scope.version_in_edition.push(index);
-
         };
 
         $scope.deleteTestVersion = function(test_code_id) {

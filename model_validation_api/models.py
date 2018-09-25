@@ -120,6 +120,7 @@ class ScientificModel(models.Model):
     owner = models.TextField(max_length=100, blank=True, null = True)
     project = models.TextField(max_length=100, blank=True, null = True) ##will be removed in KG
     license = models.TextField(max_length=200, blank=True, null = True)
+    pla_components = models.CharField(max_length=100 , blank=False, null=True)
     # todo: 
     # spiking vs rate?
 
