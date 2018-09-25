@@ -233,7 +233,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr ng-repeat="model_instance in model.models[0].instances">
+                        <tr ng-repeat-start="model_instance in model.models[0].instances">
                             <td> <input type="text" ng-model=model_instance.version required/></td>
                             <td><textarea ng-model="model_instance.description" rows="3" cols="30"> </textarea></td>
                             <td><textarea ng-model="model_instance.parameters" rows="3" cols="30"> </textarea></td>
@@ -243,6 +243,9 @@
                                 <button ng-if="!isInArray(model_instance.id, version_is_editable) && !isSuperUser.is_superuser" type="" class="btn btn-danger">Not editable</button></td>
                             <td><button ng-if="!isInArray(model_instance.id, version_is_editable) && isSuperUser.is_superuser" type="submit" class="glyphicon glyphicon-pencil superuser-button" ng-click=saveModelInstance(model_instance)></button></td>
                             <td><button ng-if="isSuperUser.is_superuser" type="submit" class="glyphicon glyphicon-remove superuser-button" ng-click=deleteModelInstance(model_instance)></button></td>
+                        </tr>
+                        <tr ng-repeat-end="model_instance in model.models[0].instances">
+                            <td> <textarea ng-model="model_instance.morphology" rows="3" cols="30"> </textarea></td>
                         </tr>
                     </tbody>
                 </table>

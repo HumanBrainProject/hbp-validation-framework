@@ -142,6 +142,8 @@
                     <th style="width: 15%">Parameters</th>
                     <th style="width: 15%">Code format</th>
                     <th style="width: 15%">Download location</th>
+                    <thstyle="width: 10%">
+                        </th>
                 </tr>
             </thead>
             <tbody>
@@ -154,6 +156,9 @@
 
                     <td style="width: 15%">
                         <a target=_blank href={{model_instance.source}}>{{ model_instance.source }}</a>
+                    </td>
+                    <td style="width: 10%">
+                        <button ng-if="model_instance.morphology && model_instance.morphology != ''" type="submit" class="btn btn-primary" ng-click=Context.newTab_goToMorphologyViewer(model_instance)>View morphology</button>
                     </td>
             </tbody>
         </table>

@@ -164,6 +164,10 @@ ContextServices.service('Context', ['$rootScope', '$location', 'AppIDRest', 'Col
             $location.path('/home/validation_test_result/' + result_id);
         };
 
+        var newTab_goToMorphologyViewer = function(model_instance) {
+            var url = "https://neuroinformatics.nl/HBP/morphology-viewer-dev/?hbp-model-instance-id=" + model_instance.id;
+            window.open(url, '_blank')
+        }
 
         var getCurrentLocationSearch = function() {
             return window.location.search;
@@ -407,6 +411,7 @@ ContextServices.service('Context', ['$rootScope', '$location', 'AppIDRest', 'Col
             validation_goToTestCatalogView: validation_goToTestCatalogView,
             validation_goToHelpView: validation_goToHelpView,
             modelCatalog_goToHelpView: modelCatalog_goToHelpView,
+            newTab_goToMorphologyViewer: newTab_goToMorphologyViewer,
         }
     }
 ]);
