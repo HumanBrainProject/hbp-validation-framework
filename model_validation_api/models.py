@@ -147,6 +147,7 @@ class ScientificModelInstance(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True, help_text="Timestamp of when the version was created")
     code_format = models.CharField(max_length=100 , blank=True, null=True, default=None, help_text = "format of the code (PyNN, Brian, Neuron...)")
     hash = models.CharField(max_length=100 , blank=True, null=True, default=None, help_text = "")
+    morphology = models.TextField(max_length=1000, blank=True, null=True, help_text="Json containing the morphology urls corresponding to the instances")
     def __str__(self):
         return "Model: {} @ version {}".format(self.model.name, self.version)
 

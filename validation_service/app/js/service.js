@@ -86,7 +86,6 @@ ContextServices.service('Context', ['$rootScope', '$location', 'AppIDRest', 'Col
             $location.path('/model-catalog/detail/' + model_id); // this is left click
             setTimeout(function() {}, 0);
         };
-
         var validation_goToModelCatalog = function(model, collab_id) {
 
             collab_id = typeof collab_id !== 'undefined' ? collab_id : this.collabID;
@@ -164,6 +163,13 @@ ContextServices.service('Context', ['$rootScope', '$location', 'AppIDRest', 'Col
             $location.path('/home/validation_test_result/' + result_id);
         };
 
+        var newTab_goToMorphologyViewer = function(model_instance, model_id) {
+            _getCollabIDAndAppIDFromUrl("model_catalog").then(function(ids) {
+                var url_collab = encodeURIComponent("https://collab.humanbrainproject.eu/#/collab/" + ids.collab_id + "/nav/" + ids.app_id + "?state=model." + model_id + ",external")
+                var url = "https://neuroinformatics.nl/HBP/morphology-viewer-dev/?hbp-model-instance-id=" + model_instance.id + "&referrer=" + url_collab;
+                window.open(url, '_blank')
+            })
+        }
 
         var getCurrentLocationSearch = function() {
             return window.location.search;
