@@ -149,7 +149,7 @@
                     <tr class="tr-clickable" title="Click to toggle collapse/expand an instance." data-ng-click="selectInstanceRow($index, model_instance.id)">
                         <td>{{model_instance.version}}</td>
                         <td>{{model_instance.id}}</td>
-                        <td>{{model_instance.timestamp | date:'dd/MM/yyyy' : 'UTC'}}</td>
+                        <td>{{model_instance.timestamp | date:'dd/MM/yyyy, hh:mm' : 'UTC'}}</td>
                     </tr>
                     <tr data-ng-switch-when="true">
                         <td colspan="9">
