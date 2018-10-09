@@ -1550,6 +1550,41 @@ ModelCatalogApp.controller('ModelCatalogDetailCtrl', ['$scope', '$rootScope', '$
             $("#ImagePopupDetail").hide();
         };
 
+        $scope.DataCollapseFn = function() {
+            $scope.DataCollapse = [];
+            for (var i = 0; i < $scope.model.models[0].instances.length; i += 1) {
+                $scope.DataCollapse.push(false);
+            }
+        };
+
+        $scope.selectInstanceRow = function(index, storeId) {
+            if (typeof $scope.DataCollapse === 'undefined') {
+                $scope.DataCollapseFn();
+            }
+
+            if ($scope.tableRowExpanded === false && $scope.tableRowIndexExpandedCurr === "" && $scope.storeIdExpanded === "") {
+                $scope.tableRowIndexExpandedPrev = "";
+                $scope.tableRowExpanded = true;
+                $scope.tableRowIndexExpandedCurr = index;
+                $scope.storeIdExpanded = storeId;
+                $scope.DataCollapse[index] = true;
+            } else if ($scope.tableRowExpanded === true) {
+                if ($scope.tableRowIndexExpandedCurr === index && $scope.storeIdExpanded === storeId) {
+                    $scope.tableRowExpanded = false;
+                    $scope.tableRowIndexExpandedCurr = "";
+                    $scope.storeIdExpanded = "";
+                    $scope.DataCollapse[index] = false;
+                } else {
+                    $scope.tableRowIndexExpandedPrev = $scope.tableRowIndexExpandedCurr;
+                    $scope.tableRowIndexExpandedCurr = index;
+                    $scope.storeIdExpanded = storeId;
+                    $scope.DataCollapse[$scope.tableRowIndexExpandedPrev] = false;
+                    $scope.DataCollapse[$scope.tableRowIndexExpandedCurr] = true;
+                }
+            }
+
+        };
+
 
         Context.setService().then(function() {
 
@@ -1558,6 +1593,11 @@ ModelCatalogApp.controller('ModelCatalogDetailCtrl', ['$scope', '$rootScope', '$
             $scope.collab_id = Context.getCollabID();
             $scope.app_id = Context.getAppID();
 
+            //for instance table
+            $scope.tableRowExpanded = false;
+            $scope.tableRowIndexExpandedCurr = "";
+            $scope.tableRowIndexExpandedPrev = "";
+            $scope.storeIdExpanded = "";
 
             if (Context.getState() == "" || Context.getState() == undefined) {
                 $location.path('/model-catalog/');
@@ -1583,7 +1623,7 @@ ModelCatalogApp.controller('ModelCatalogDetailCtrl', ['$scope', '$rootScope', '$
                             });
                         })
                     });
-
+                    console.log("models", $scope.model)
                     $scope.is_collab_member = false;
                     $scope.model.$promise.then(function() {
                         $scope.is_collab_member = IsCollabMemberOrAdminRest.get({

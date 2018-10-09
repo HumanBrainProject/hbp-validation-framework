@@ -116,6 +116,34 @@
         padding: 10px;
     }
     
+    .panel-instance {
+        width: 85vw;
+        border: 2px solid #dfe7ef;
+        border-radius: 4px;
+        background-color: white;
+        margin-top: 10px;
+        margin-bottom: 10px;
+        margin-right: 10px;
+        margin-left: 10px;
+        padding-top: 10px;
+        padding-bottom: 10px;
+        padding-right: 20px;
+        padding-left: 20px;
+    }
+    
+    .div-no-overflow {
+        overflow: auto;
+        width: 70vw;
+    }
+    
+    .table-version>tr {
+        border-color: white;
+    }
+    
+    textarea {
+        max-width: 95%;
+    }
+    
     .glyphicon-question-sign {
         color: #bad1db;
     }
@@ -306,4 +334,8 @@
     
     .text-centered {
         text-align: center;
+    }
+    
+    .clickableRow {
+        cursor: pointer;
     }

@@ -164,9 +164,12 @@ ContextServices.service('Context', ['$rootScope', '$location', 'AppIDRest', 'Col
             $location.path('/home/validation_test_result/' + result_id);
         };
 
-        var newTab_goToMorphologyViewer = function(model_instance) {
-            var url = "https://neuroinformatics.nl/HBP/morphology-viewer-dev/?hbp-model-instance-id=" + model_instance.id;
-            window.open(url, '_blank')
+        var newTab_goToMorphologyViewer = function(model_instance, model_id) {
+            _getCollabIDAndAppIDFromUrl("model_catalog").then(function(ids) {
+                var url_collab = encodeURIComponent("https://collab.humanbrainproject.eu/#/collab/" + ids.collab_id + "/nav/" + ids.app_id + "?state=model." + model_id + ",external")
+                var url = "https://neuroinformatics.nl/HBP/morphology-viewer-dev/?hbp-model-instance-id=" + model_instance.id + "&referrer=" + url_collab;
+                window.open(url, '_blank')
+            })
         }
 
         var getCurrentLocationSearch = function() {
