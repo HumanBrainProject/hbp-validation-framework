@@ -131,50 +131,99 @@
     </panel>
     <br>
     <br>
+
+
     <panel class="panel-full-size">
-        <h2>Model versions</h2>
-        <table class="table">
-            <thead>
-                <tr>
-                    <th style="width: 15%">Version</th>
-                    <th style="width: 15%">ID</th>
-                    <th style="width: 15%">Description</th>
-                    <th style="width: 15%">Parameters</th>
-                    <th style="width: 15%">Code format</th>
-                    <th style="width: 15%">Download location</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr ng-repeat="model_instance in model.models[0].instances">
-                    <td style="width: 15%">{{ model_instance.version }}</td>
-                    <td style="width: 15%">{{ model_instance.id }}</td>
-                    <td style="width: 15%"><pre> <div markdown=model_instance.description></div></pre></td>
-                    <td style="width: 15%"><pre "width: 15%"> {{model_instance.parameters}}</div></pre></td>
-                    <td style="width: 15%">{{ model_instance.code_format }}</td>
+        <br>
+        <h4 style="margin-left:40%"> <b>Model Versions</b> </h4>
+        <br>
 
-                    <td style="width: 15%">
-                        <a target=_blank href={{model_instance.source}}>{{ model_instance.source }}</a>
-                    </td>
-            </tbody>
-        </table>
-    </panel>
-    <div class=" w3-card-4  w3-hover-shadow ng-cloak" id="ImagePopupDetail">
-        <style>
-            .ng-cloak {
-                display: none !important;
-            }
-        </style>
-        <div class="panel-heading"> <button id="close-button" type="button" class="glyphicon glyphicon-remove" ng-click="closeImagePanel()"></button></div>
-        <div class="panel-body" class="imgwrapper">
-            <figure id="ImagePopupDetailfig">
-                <img class="img-fluid img-responsive" id=ImagePopupIm ng-src={{bigImage.src}}>
-                <br>
-                <figcaption markdown="bigImage.caption"></figcaption>
-                <br>
-            </figure>
+        <div>
+            <table class="table">
+                <thead>
+                    <th>name</th>
+                    <th>ID</th>
+                    <th>Created on</th>
+                </thead>
+                <tbody data-ng-repeat="(index,model_instance) in model.models[0].instances" data-ng-switch on="DataCollapse[$index]">
+                    <tr class="tr-clickable hover" title="Click to toggle collapse/expand an instance." data-ng-click="selectInstanceRow($index, model_instance.id)" ng-style="{'background-color':DataCollapse[$index] == true ?  '#f4f4f4': 'white'}">
+                        <td>{{model_instance.version}}</td>
+                        <td>{{model_instance.id}}</td>
+                        <td>{{model_instance.timestamp | date:'dd/MM/yyyy, hh:mm' : 'UTC'}}</td>
+                    </tr>
+                    <tr class="expanded-tr" data-ng-switch-when="true">
+                        <td colspan="9">
+                            <div>
+                                <div>
+                                    <table class="table-version expanded-table">
+                                        <tbody>
+                                            <tr>
+                                                <td>Description</td>
+                                                <td><pre style="width: 100%; overflow:hidden;"> <div class=div-no-overflow markdown=model_instance.description></div></pre></td>
+
+                                            </tr>
+                                            <tr>
+                                                <td>Parameters</td>
+                                                <td><pre style="width:100%; overflow:hidden;"> <div class=div-no-overflow >{{model_instance.parameters}}</div></pre></td>
+
+                                            </tr>
+                                            <tr>
+
+                                                <td>Morphology</td>
+                                                <td>
+                                                    <table>
+                                                        <tbody>
+                                                            <tr>
+                                                                <td><pre style="width: 60vw; overflow:hidden;"> <div class=div-no-overflow > {{model_instance.morphology}}</div></pre></td>
+                                                                <td style="width:5%"></td>
+                                                                <td> <button ng-if="model_instance.morphology && model_instance.morphology != ''" type="submit" class="btn btn-primary" ng-click="Context.newTab_goToMorphologyViewer(model_instance, model.models[0].id)">View morphology</button></td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </td>
+
+                                            </tr>
+                                            <tr>
+                                                <td>Code format</td>
+                                                <td>{{ model_instance.code_format }}</td>
+
+                                            </tr>
+                                            <tr>
+                                                <td>Download location</td>
+                                                <td style="width: 15%">
+                                                    <a target=_blank href={{model_instance.source}}>{{ model_instance.source }}</a>
+                                                </td>
+
+                                            </tr>
+
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
-    </div>
+        </br>
+        </br>
 
+        <div class=" w3-card-4  w3-hover-shadow ng-cloak" id="ImagePopupDetail">
+            <style>
+                .ng-cloak {
+                    display: none !important;
+                }
+            </style>
+            <div class="panel-heading"> <button id="close-button" type="button" class="glyphicon glyphicon-remove" ng-click="closeImagePanel()"></button></div>
+            <div class="panel-body" class="imgwrapper">
+                <figure id="ImagePopupDetailfig">
+                    <img class="img-fluid img-responsive" id=ImagePopupIm ng-src={{bigImage.src}}>
+                    <br>
+                    <figcaption markdown="bigImage.caption"></figcaption>
+                    <br>
+                </figure>
+            </div>
+        </div>
 </body>
 
 </html>
