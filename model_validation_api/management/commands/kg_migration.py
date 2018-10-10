@@ -29,6 +29,8 @@ from hbp_app_python_auth.auth import get_access_token, get_auth_header
 import uuid
 import requests
 import os
+import json
+import datetime
 token = os.environ.get('HBP_token', 'none')
 nexus_endpoint = "https://nexus-int.humanbrainproject.org/v0"
 NAR_client = NARClient(token, nexus_endpoint)
@@ -51,10 +53,18 @@ class Command(BaseCommand):
             cell_type = self.get_parameters("cell_type", model.cell_type)
             abstraction_level = self.get_parameters("abstraction_level", model.abstraction_level)
             model_scope = self.get_parameters("model_scope", model.model_scope)
-            model_project = ModelProject(model.name, owner, authors,  model.description, model.creation_date, model.private, model.app.collab_id, model.alias,  [organization], model.pla_components, brain_region, species, cell_type, abstraction_level, [model_scope])
 
+            model_project = ModelProject(name=model.name, owner=owner, authors=authors, description=model.description, date_created=model.creation_date, private=model.private, collab_id=model.app.collab_id, alias=model.alias,  organization=organization, pla_components=model.pla_components, brain_region=brain_region, species=species, celltype=cell_type, abstraction_level=abstraction_level, model_of=model_scope)
+               
+            print ("model_project",model_project)
+            print ("--authors",model_project.authors)
+            print ("--organization",model_project.organization)
+            print ("--brain_region",model_project.brain_region)
+            print ("--species",model_project.species)
+         
             model_project.save(NAR_client)
 
+            print("model_project saved :", model_project)
         return ''
 
     def get_organization (self, pattern):
@@ -119,6 +129,7 @@ class Command(BaseCommand):
         return organization
 
     def _get_person_from_Persons_table(self, pattern):
+        print("getting person")
         try:
             if str(pattern)[0] == ' ':
                 pattern = str(pattern)[1:]
@@ -126,25 +137,27 @@ class Command(BaseCommand):
             print('auth ', pattern)
         try:
             p = Persons.objects.get(pattern = pattern)
-            person = Person(family_name=p.last_name, given_name =p.first_name, email=p.email, affiliation='')
+            person = Person(family_name=str(p.last_name), given_name =str(p.first_name), email=str(p.email), affiliation='')
             print('person :', person)
         except:
-            print('person ', pattern ,' has not been found. please enter it by hand')
-            family_name = raw_input('  give the family_name : ')
-            given_name = raw_input('  give the first_name : ')
-            email = raw_input('  give the email adress : ')
-            person = Person(family_name=family_name, given_name =given_name, email=email, affiliation='')
+            if pattern != None:
+                print('person ', pattern ,' has not been found. please enter it by hand')
+                family_name = raw_input('  give the family_name : ')
+                given_name = raw_input('  give the first_name : ')
+                email = raw_input('  give the email adress : ')
+                person = Person(family_name=str(family_name), given_name =str(given_name), email=str(email), affiliation='')
+            else:
+                person = None
         return person
     
     def _get_authors_from_Persons_table(self, patterns):
-
             persons = []
             if patterns and patterns != None:
-                patterns[0].replace(';',',')
-                patterns[0].replace('&',',')
-                patterns[0].replace('and',',') ##not working??? why??
-                patterns = patterns[0].split(',')
-
+                patterns.replace(';',',')
+                patterns.replace('&',',')
+                patterns.replace('and',',') ##not working??? why??
+                patterns = patterns.split(',')
+                print("new pattern and len",patterns,len(patterns))
                 for pattern in patterns:
                     person = self._get_person_from_Persons_table(pattern)
                     persons.append(person)
@@ -153,12 +166,19 @@ class Command(BaseCommand):
     def _getPersons_and_migrate(self):
 
         authors_list = ScientificModel.objects.all().values_list('author').distinct()
-        
+        owners_list = ScientificModel.objects.all().values_list('owner').distinct()
+
         for authors in authors_list:
-            authors[0].replace(';',',')
-            authors[0].replace('&',',')
-            authors[0].replace('and',',') ##not working??? why??
-            authors = authors[0].split(',')
+            if isinstance(authors, tuple):
+                authors[0].replace(';',',')
+                authors[0].replace('&',',')
+                authors[0].replace('and',',') ##not working??? why??
+                authors = authors[0].split(',')
+            else:
+                authors.replace(';',',')
+                authors.replace('&',',')
+                authors.replace('and',',') ##not working??? why??
+                authors = authors.split(',')
 
             for auth in authors:
                 try:
@@ -191,6 +211,39 @@ class Command(BaseCommand):
                         print('checking next person')
                     else:
                         print('checking next person')
+        for owner in owners_list:
+            
+            try:
+                if str(owner)[0] == ' ':
+                    owner = str(owner)[1:]
+            except:
+                print('owner ', owner)
+            print('Searching for the owner:', owner)
+            ###check if pattern already exists
+            person_object = Persons.objects.all().filter(pattern = owner)
+            if(len(person_object)>0):
+                print('already in database', person_object[0].first_name)
+                self._save_person_in_KG(person_object[0].first_name,person_object[0].last_name, person_object[0].email)
+            else:
+                print('This person is not in the database yet.')
+                answer = raw_input('do you want to add it?')
+                if(answer == 'y'):
+                    print('You need to enter a new person for: ', owner)
+                    first_name = raw_input('please enter the first_name:')
+                    last_name = raw_input('please enter the last name:')
+                    email = self._get_email(first_name, last_name)
+                    data = {'pattern':str(owner),'first_name':first_name,'last_name':last_name, 'email':email}
+                    Person_serializer = PersonSerializer(data=data)
+                    if Person_serializer.is_valid():
+                        p = Person_serializer.save()
+                        print("person saved in postgress:", p)
+                        self._save_person_in_KG(first_name = first_name, last_name=last_name, email=email)
+                    else:
+                        print(Person_serializer.errors)
+                    print('checking next person')
+                else:
+                    print('checking next person')
+            
     
     def _save_person_in_KG(self,first_name, last_name, email):
         person = Person(family_name=last_name, given_name =first_name, email=email, affiliation='')
@@ -464,11 +517,43 @@ class Command(BaseCommand):
 
     # def _search_for_person_or_create():
 
+    def save_model_project(self):
+        models = ScientificModel.objects.all()
+        model = models[0]
+
+        organization = self.get_organization(model.organization) ##checked ok 
+        owner =self._get_person_from_Persons_table(model.owner) ##checked ok
+        people = self._get_authors_from_Persons_table(model.author) ## checked working only if already saved
+        for p in people:
+                p.save(NAR_client) 
+        celltype = self.get_parameters("cell_type", model.cell_type) ##checked ok
+        abstraction = self.get_parameters("abstraction_level", model.abstraction_level)
+        brainregion = self.get_parameters("brain_region", model.brain_region)
+        species = self.get_parameters("species", model.species)
+        description = model.description
+        model_of = self.get_parameters("model_scope", model.model_scope)
+        pla_components = model.pla_components         #self._get_person_from_Persons_table(model.owner) #self._get_authors_from_Persons_table(model.author)
+        collab_id = model.app.collab_id
+        date_created = model.creation_date 
+        private = model.private
+        alias = model.alias
+        name = model.name
+        print("model is ",model)
+        # print("authors are:",people)
+         # self._get_person_from_Persons_table("heli")
+        # p1 = Person("onur", "ates", "ates.onur@outlook.com", None)
+        # p1.save(NAR_client)
+
+        d = ModelProject(name=name, description=description, date_created=date_created, collab_id=collab_id, owner=owner, authors=people, private=private, organization=organization, pla_components=pla_components, alias=alias, model_of=model_of, brain_region=brainregion, species=species, celltype=celltype, abstraction_level=abstraction)
+
+        d.save(NAR_client)
+
+        print (d)
 
     def handle(self, *args, **options):
          
         self._getPersons_and_migrate()
         self.add_organizations_in_KG_database()
-        #self.add_cell_types_in_KG_database()
 
         self.migrate_models()
+        #self.save_model_project()

@@ -40,7 +40,6 @@ class CollabParametersReadOnlyForHomeSerializer(serializers.HyperlinkedModelSeri
 
 
 
-
 #############################
 ## ScientificModelInstance ##
 #############################
