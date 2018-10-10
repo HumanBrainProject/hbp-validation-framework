@@ -146,16 +146,16 @@
                     <th>Created on</th>
                 </thead>
                 <tbody data-ng-repeat="(index,model_instance) in model.models[0].instances" data-ng-switch on="DataCollapse[$index]">
-                    <tr class="tr-clickable" title="Click to toggle collapse/expand an instance." data-ng-click="selectInstanceRow($index, model_instance.id)">
+                    <tr class="tr-clickable hover" title="Click to toggle collapse/expand an instance." data-ng-click="selectInstanceRow($index, model_instance.id)" ng-style="{'background-color':DataCollapse[$index] == true ?  '#f4f4f4': 'white'}">
                         <td>{{model_instance.version}}</td>
                         <td>{{model_instance.id}}</td>
                         <td>{{model_instance.timestamp | date:'dd/MM/yyyy, hh:mm' : 'UTC'}}</td>
                     </tr>
-                    <tr data-ng-switch-when="true">
+                    <tr class="expanded-tr" data-ng-switch-when="true">
                         <td colspan="9">
-                            <div class="span9">
-                                <div class="pull-right">
-                                    <table class="table-version">
+                            <div>
+                                <div>
+                                    <table class="table-version expanded-table">
                                         <tbody>
                                             <tr>
                                                 <td>Description</td>
@@ -224,7 +224,6 @@
                 </figure>
             </div>
         </div>
-
 </body>
 
 </html>
