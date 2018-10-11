@@ -1327,6 +1327,7 @@ ModelCatalogApp.controller('ModelCatalogCtrl', [
                 if ($scope.models.models[i].app != null) {
                     if ($scope.collab_ids_to_select.indexOf($scope.models.models[i].app.collab_id.toString()) == -1) {
                         $scope.collab_ids_to_select.push($scope.models.models[i].app.collab_id.toString());
+                        $scope.collab_ids_to_select = $scope.collab_ids_to_select.sort();
                     }
                 }
             }
