@@ -1737,8 +1737,8 @@ HelpServices.factory('MarkdownConverter', ['$rootScope', '$q', 'clbStorage', 'Is
             var collabs = [];
             matchs.forEach(function(match, i) {
                 var url = match.match(/\(([^]+?)\)/gi)[0].slice(1, -1);
-                var substring = url.substring(0, 35);
-                if (substring == "https://collab.humanbrainproject.eu") {
+                var substring = url.substring(0, 44);
+                if (substring == "https://collab.humanbrainproject.eu/#/collab") {
                     var collab = parseInt(url.match(/\/collab\/([^]+?)\//gi)[0].slice(8, -1))
                     if (!(collabs.includes(collab))) {
                         collabs.push(collab);
@@ -1753,7 +1753,6 @@ HelpServices.factory('MarkdownConverter', ['$rootScope', '$q', 'clbStorage', 'Is
                 if (text == null) {
                     resolve(text)
                 } else {
-
                     var pats = /!\[([^]+?)\]\(([^]+?)\)/gi;
                     var matchs = text.match(pats)
 
@@ -1761,37 +1760,39 @@ HelpServices.factory('MarkdownConverter', ['$rootScope', '$q', 'clbStorage', 'Is
                         resolve(text)
                     } else {
                         var collabs = _get_collabs_from_url(matchs);
-                        var authorized_collabs = IsCollabMemberRest.get({ collab_id: collabs })
-                        var new_text = text;
+                        if (collabs.length != 0) {
+                            var authorized_collabs = IsCollabMemberRest.get({ collab_id: collabs })
+                            var new_text = text;
+                            authorized_collabs.$promise.then(function(collabs) {
+                                var c = collabs.is_authorized;
+                                var promises = [];
 
-                        authorized_collabs.$promise.then(function(collabs) {
-                            var c = collabs.is_authorized;
-                            var promises = [];
+                                matchs.forEach(function(match, i) {
 
-                            matchs.forEach(function(match, i) {
+                                    var format = match.match(/!\[([^]+?)\]/gi)[0];
+                                    var url = match.match(/\(([^]+?)\)/gi)[0].slice(1, -1);
+                                    var substring = url.substring(0, 44);
+                                    if (substring == "https://collab.humanbrainproject.eu/#/collab") {
+                                        var index_uuid = url.indexOf("%3D");
+                                        var image_uuid = url.slice(index_uuid + 3);
+                                        var collab = parseInt(url.match(/\/collab\/([^]+?)\//gi)[0].slice(8, -1))
+                                        if (c.includes(String(collab))) {
+                                            var promise = clbStorage.downloadUrl({ uuid: image_uuid }).then(function(fileURL) {
+                                                new_text = new_text.replace(match, format + '(' + fileURL + ')');
+                                            });
+                                            promises.push(promise)
+                                        }
 
-                                var format = match.match(/!\[([^]+?)\]/gi)[0];
-                                var url = match.match(/\(([^]+?)\)/gi)[0].slice(1, -1);
-                                var substring = url.substring(0, 35);
-                                if (substring == "https://collab.humanbrainproject.eu") {
-                                    var index_uuid = url.indexOf("%3D");
-                                    var image_uuid = url.slice(index_uuid + 3);
-                                    var collab = parseInt(url.match(/\/collab\/([^]+?)\//gi)[0].slice(8, -1))
-                                    if (c.includes(String(collab))) {
-                                        var promise = clbStorage.downloadUrl({ uuid: image_uuid }).then(function(fileURL) {
-                                            new_text = new_text.replace(match, format + '(' + fileURL + ')');
-                                        });
-                                        promises.push(promise)
                                     }
+                                });
 
-                                }
+                                $q.all(promises).then(function() {
+                                    resolve(new_text);
+                                })
                             });
-
-                            $q.all(promises).then(function() {
-                                resolve(new_text);
-                            })
-                        });
-
+                        } else {
+                            resolve(text)
+                        }
                     }
                 }
 
