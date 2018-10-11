@@ -214,7 +214,12 @@ class Comments(models.Model):
 #     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, )
 #     test = models.ForeignKey(ValidationTestDefinition)
 #     user_id = models.IntegerField(help_text="user id of the follower")
-
+class Persons(models.Model):
+     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, )
+     pattern = models.CharField(max_length=200, default="")
+     first_name = models.CharField(max_length=200, default="")
+     last_name = models.CharField(max_length=200, default="")
+     email = models.CharField(max_length=200, default="")
 class  Param_organizations (models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, )
     authorized_value = models.CharField(max_length=200, unique=True, default="")
