@@ -221,8 +221,8 @@
 
         <div>
             <table class="table">
-                <tbody ng-repeat="model_instance in model.models[0].instances">
-                    <tr>
+                <tbody>
+                    <tr ng-repeat="model_instance in model.models[0].instances">
                         <td colspan="9">
                             <div class="span9">
                                 <table class="table-version">
@@ -254,12 +254,12 @@
                                         </tr>
                                         <tr>
                                             <td>Download location</td>
-                                            <td><input size="100" type="text" ng-model=model_instance.source/></td>
+                                            <td><input size="100" type="text" ng-model="model_instance.source" /></td>
                                             <td></td>
                                         </tr>
                                         <tr>
                                             <td>Code format</td>
-                                            <td><input size="20" type="text" ng-model=model_instance.code_format /></td>
+                                            <td><input size="20" type="text" ng-model="model_instance.code_format" /></td>
                                             <td></td>
                                         </tr>
                                     </tbody>
@@ -270,10 +270,10 @@
                 </tbody>
             </table>
         </div>
-        <br>
+        </br>
 
         <div ng-show=addImage class="w3-card-4  w3-hover-shadow ng-cloak" id="ImagePopup">
-            </style>
+
             <div id=ImagePopupHead class="panel-heading"> <b>Add an image to the model description </b> <button id="close-button" type="button" class="glyphicon glyphicon-remove" ng-click="closeImagePanel()"></button></div>
             <div class="panel-body">
                 <table>
@@ -298,7 +298,8 @@
                         </tr>
                     </tbody>
                 </table>
-                <br> <br>
+                </br>
+                </br>
                 <div>
                     <button id=save-button type="button" class="btn btn-primary" ng-click="saveImage()">Save changes</button>
                 </div>
