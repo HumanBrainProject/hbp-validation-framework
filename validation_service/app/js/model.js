@@ -165,7 +165,13 @@ ApiCommunicationServices.factory('IsCollabMemberRest', ['$resource',
         });
     }
 ]);
-
+ApiCommunicationServices.factory('IsCollabReaderRest', ['$resource',
+    function($resource) {
+        return $resource('IsCollabReaderRest/', {}, {
+            get: { method: 'GET', params: { format: 'json', app_id: 'app_id' }, isArray: false },
+        });
+    }
+]);
 
 
 ApiCommunicationServices.factory('ValidationResultRest', ['$resource',

@@ -171,6 +171,26 @@ def _is_collaborator(request, collab_id):
 
     return res.json().get('UPDATE', False)
 
+def _is_collaborator_read_permission(request, collab_id):
+    """
+    Check access depending on context
+    :param request: request 
+    :type request: str
+    :param collab_id: int 
+    :type collab_id: int
+    :returns: admins
+    :rtype: boolean
+    """
+
+    svc_url = settings.HBP_COLLAB_SERVICE_URL
+
+    headers = {'Authorization': get_auth_header(request.user.social_auth.get())}
+        
+    url = '%scollab/%s/permissions/' % (svc_url, collab_id)
+    res = requests.get(url, headers=headers)
+    if res.status_code != 200:
+        return False
+    return res.json().get('VIEW', False)
 
 def _is_collaborator_token(request, collab_id):
     """
@@ -199,6 +219,36 @@ def _is_collaborator_token(request, collab_id):
         return False
 
     return res.json().get('UPDATE', False)
+
+def _is_collaborator_token_read_permission(request, collab_id):
+    """
+    Check access depending on token
+    :param request: request 
+    :type request: str
+    :param collab_id: int 
+    :type collab_id: int
+    :returns: response
+    :rtype: boolean
+    """
+    # user = get_user_from_token(request)
+    # request.user = user
+
+    svc_url = settings.HBP_COLLAB_SERVICE_URL
+
+    url = '%scollab/%s/permissions/' % (svc_url, collab_id)
+    if request.META.get("HTTP_AUTHORIZATION", None).split(" ")[0].lower() == "bearer" :
+        headers = {'Authorization': request.META.get("HTTP_AUTHORIZATION", None)}
+
+    else :   
+        headers = {'Authorization': "Bearer "+request.META.get("HTTP_AUTHORIZATION", None)}
+
+    res = requests.get(url, headers=headers)
+    if res.status_code != 200:
+        return False
+
+    return res.json().get('VIEW', False)
+
+
 
 def is_authorised_or_admin(request, collab_id):
     """
@@ -248,7 +298,31 @@ def is_authorised(request, collab_id):
         if not _is_collaborator(request, collab_id) :
             return False
         else: 
-            return True 
+            return True
+
+def is_authorised_read_permission(request, collab_id):
+    """
+    Check authorisation depending on context used for public collabs
+    :param request: request 
+    :type request: str
+    :param collab_id: int 
+    :type collab_id: int
+    :returns: response
+    :rtype: boolean
+    """
+    if str(request.user) == "AnonymousUser" :
+         
+        if request.META.get("HTTP_AUTHORIZATION", None) == None :
+            return False
+        else: 
+            auth = _is_collaborator_token_read_permission(request, collab_id)
+            return auth 
+
+    else :       
+        if not _is_collaborator_read_permission(request, collab_id) :
+            return False
+        else: 
+            return True
 
 def get_user_info(request):
     """

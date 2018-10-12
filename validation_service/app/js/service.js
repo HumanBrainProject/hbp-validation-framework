@@ -1702,9 +1702,9 @@ HelpServices.factory('Help', ['$rootScope', 'Context', 'AuthorizedCollabParamete
     }
 ]);
 
-HelpServices.factory('MarkdownConverter', ['$rootScope', '$q', 'clbStorage', 'IsCollabMemberRest',
+HelpServices.factory('MarkdownConverter', ['$rootScope', '$q', 'clbStorage', 'IsCollabMemberRest', 'IsCollabReaderRest',
 
-    function($rootScope, $q, clbStorage, IsCollabMemberRest) {
+    function($rootScope, $q, clbStorage, IsCollabMemberRest, IsCollabReaderRest) {
 
         var _add_mathjax_extensions = function(name, regex_input, output_format) {
             showdown.extension(name, function() {
@@ -1761,7 +1761,8 @@ HelpServices.factory('MarkdownConverter', ['$rootScope', '$q', 'clbStorage', 'Is
                     } else {
                         var collabs = _get_collabs_from_url(matchs);
                         if (collabs.length != 0) {
-                            var authorized_collabs = IsCollabMemberRest.get({ collab_id: collabs })
+                            var authorized_collabs = IsCollabReaderRest.get({ collab_id: collabs })
+                            console.log("authorized collabs", authorized_collabs)
                             var new_text = text;
                             authorized_collabs.$promise.then(function(collabs) {
                                 var c = collabs.is_authorized;
