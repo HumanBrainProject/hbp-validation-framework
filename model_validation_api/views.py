@@ -110,7 +110,8 @@ from .validation_framework_toolbox.user_auth_functions import (
     _is_collaborator, 
     is_authorised_or_admin, 
     is_authorised,
-    get_user_info, 
+    get_user_info,
+    is_authorised_read_permission, 
     is_hbp_member,
     get_storage_file_by_id,
 )
@@ -2134,6 +2135,56 @@ class IsCollabMemberRest (APIView):
 
         res_authorized_collabs = []
         is_member = is_authorised(request, str(collab_id))
+        if is_member:
+            res_authorized_collabs.append(collab_id)
+
+        return Response({
+                'is_member':  is_member,
+                'is_authorized': res_authorized_collabs
+            })
+
+class IsCollabReaderRest (APIView):
+    """
+    Class to check if user is a valid collab member
+    """
+    def get(self, request, format=None, **kwargs):
+        """
+        :param app_id: id of the application
+        :type app_id: int
+        :return: bool: is_member
+        """
+        app_id = request.GET.getlist('app_id')
+        collab_id = request.GET.getlist('collab_id')
+
+        if len(collab_id) == 0:
+            if len(app_id) == 0 :
+                return Response(status=status.HTTP_400_BAD_REQUEST)
+            else :
+                app_id = app_id[0]
+
+            collab_id = get_collab_id_from_app_id(app_id)
+        else:
+            if len(collab_id) >1:
+                res_is_member = []
+                res_authorized_collabs = []
+
+                for ids in collab_id:
+                    is_member = is_authorised_read_permission(request, str(ids))
+                    print(is_member)
+                    if is_member == True:
+                        res_authorized_collabs.append(ids)
+                    res_is_member.append({"collab_id":ids,"is_member":is_member})
+         
+                return Response({
+                    'is_member':  res_is_member,
+                    'is_authorized': res_authorized_collabs
+                })
+            else:
+                collab_id = collab_id[0]
+
+        res_authorized_collabs = []
+        is_member = is_authorised_read_permission(request, str(collab_id))
+        
         if is_member:
             res_authorized_collabs.append(collab_id)
 

@@ -1596,6 +1596,11 @@ ModelCatalogApp.controller('ModelCatalogDetailCtrl', ['$scope', '$rootScope', '$
             }
         };
 
+        $scope.isCscsContainer = function(url) {
+            var pattern = /https:\/\/object\.cscs\.ch\/v1\/AUTH_([^]+?)\?bluenaas=true/gi;
+            return url.match(pattern).length > 0
+        };
+
         $scope.selectInstanceRow = function(index, storeId) {
             if (typeof $scope.DataCollapse === 'undefined') {
                 $scope.DataCollapseFn();

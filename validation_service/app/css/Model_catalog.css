@@ -136,6 +136,11 @@
         width: 70vw;
     }
     
+    .div-no-overflow-scroll {
+        overflow: auto;
+        width: 99%;
+    }
+    
     .table-version>tr {
         border-color: white;
     }

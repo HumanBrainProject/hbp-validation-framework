@@ -171,6 +171,19 @@ ContextServices.service('Context', ['$rootScope', '$location', 'AppIDRest', 'Col
                 window.open(url, '_blank')
             })
         }
+        var newTab_goToBlueNaaSViewer = function(model_instance) {
+
+            var base = "https://blue-naas.humanbrainproject.eu/#/url/"
+
+            var url = model_instance.source
+            var match = model_instance.source.match(/https:\/\/object\.cscs\.ch\/v1\/AUTH_([^]+?)\//gi)
+            url = url.replace(match, '')
+            match = model_instance.source.match(/\?bluenaas=true/gi)
+            url = url.replace(match, '')
+            url = base + url;
+
+            window.open(url, '_blank')
+        }
 
         var getCurrentLocationSearch = function() {
             return window.location.search;
@@ -415,6 +428,7 @@ ContextServices.service('Context', ['$rootScope', '$location', 'AppIDRest', 'Col
             validation_goToHelpView: validation_goToHelpView,
             modelCatalog_goToHelpView: modelCatalog_goToHelpView,
             newTab_goToMorphologyViewer: newTab_goToMorphologyViewer,
+            newTab_goToBlueNaaSViewer: newTab_goToBlueNaaSViewer,
         }
     }
 ]);
@@ -1702,9 +1716,9 @@ HelpServices.factory('Help', ['$rootScope', 'Context', 'AuthorizedCollabParamete
     }
 ]);
 
-HelpServices.factory('MarkdownConverter', ['$rootScope', '$q', 'clbStorage', 'IsCollabMemberRest',
+HelpServices.factory('MarkdownConverter', ['$rootScope', '$q', 'clbStorage', 'IsCollabMemberRest', 'IsCollabReaderRest',
 
-    function($rootScope, $q, clbStorage, IsCollabMemberRest) {
+    function($rootScope, $q, clbStorage, IsCollabMemberRest, IsCollabReaderRest) {
 
         var _add_mathjax_extensions = function(name, regex_input, output_format) {
             showdown.extension(name, function() {
@@ -1761,7 +1775,8 @@ HelpServices.factory('MarkdownConverter', ['$rootScope', '$q', 'clbStorage', 'Is
                     } else {
                         var collabs = _get_collabs_from_url(matchs);
                         if (collabs.length != 0) {
-                            var authorized_collabs = IsCollabMemberRest.get({ collab_id: collabs })
+                            var authorized_collabs = IsCollabReaderRest.get({ collab_id: collabs })
+                            console.log("authorized collabs", authorized_collabs)
                             var new_text = text;
                             authorized_collabs.$promise.then(function(collabs) {
                                 var c = collabs.is_authorized;
