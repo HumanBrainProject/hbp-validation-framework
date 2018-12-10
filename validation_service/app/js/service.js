@@ -171,6 +171,19 @@ ContextServices.service('Context', ['$rootScope', '$location', 'AppIDRest', 'Col
                 window.open(url, '_blank')
             })
         }
+        var newTab_goToBlueNaaSViewer = function(model_instance) {
+
+            var base = "https://blue-naas.humanbrainproject.eu/#/url/"
+
+            var url = model_instance.source
+            var match = model_instance.source.match(/https:\/\/object\.cscs\.ch\/v1\/AUTH_([^]+?)\//gi)
+            url = url.replace(match, '')
+            match = model_instance.source.match(/\?bluenaas=true/gi)
+            url = url.replace(match, '')
+            url = base + url;
+
+            window.open(url, '_blank')
+        }
 
         var getCurrentLocationSearch = function() {
             return window.location.search;
@@ -415,6 +428,7 @@ ContextServices.service('Context', ['$rootScope', '$location', 'AppIDRest', 'Col
             validation_goToHelpView: validation_goToHelpView,
             modelCatalog_goToHelpView: modelCatalog_goToHelpView,
             newTab_goToMorphologyViewer: newTab_goToMorphologyViewer,
+            newTab_goToBlueNaaSViewer: newTab_goToBlueNaaSViewer,
         }
     }
 ]);

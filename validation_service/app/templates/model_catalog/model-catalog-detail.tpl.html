@@ -174,7 +174,7 @@
                                                     <table>
                                                         <tbody>
                                                             <tr>
-                                                                <td><pre style="width: 60vw; overflow:hidden;"> <div class=div-no-overflow > {{model_instance.morphology}}</div></pre></td>
+                                                                <td><pre style="width: 60vw; overflow:hidden;"> <div class=div-no-overflow-scroll > {{model_instance.morphology}}</div></pre></td>
                                                                 <td style="width:5%"></td>
                                                                 <td> <button ng-if="model_instance.morphology && model_instance.morphology != ''" type="submit" class="btn btn-primary" ng-click="Context.newTab_goToMorphologyViewer(model_instance, model.models[0].id)">View morphology</button></td>
                                                             </tr>
@@ -190,8 +190,18 @@
                                             </tr>
                                             <tr>
                                                 <td>Download location:</td>
+
                                                 <td style="width: 15%">
-                                                    <a target=_blank href={{model_instance.source}}>{{ model_instance.source }}</a>
+                                                    <table>
+                                                        <tbody>
+                                                            <tr>
+                                                                <td><a target=_blank href={{model_instance.source}}>{{ model_instance.source }}</a></td>
+                                                                <td></td>
+                                                                <td> <button ng-if="model_instance.source && isCscsContainer(model_instance.source)" type="submit" class="btn btn-primary" ng-click="Context.newTab_goToBlueNaaSViewer(model_instance)">Launch in BlueNaaS</button></td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+
                                                 </td>
 
                                             </tr>
