@@ -108,7 +108,7 @@ class ValidationModelResultReadOnlySerializer (serializers.HyperlinkedModelSeria
     test_code = ValidationTestCodeSerializer(read_only=True)
     class Meta:
         model = ValidationTestResult
-        fields = ('id',  'results_storage', 'score', 'passed', 'timestamp', 'platform',   'project', 'model_version', 'test_code', 'normalized_score')
+        fields = ('id','hash',  'results_storage', 'score', 'passed', 'timestamp', 'platform',   'project', 'model_version', 'test_code', 'normalized_score','runtime')
 
 
 
@@ -147,7 +147,7 @@ class ValidationTestResultReadOnlySerializer (serializers.HyperlinkedModelSerial
     test_code = ValidationTestCodeReadOnlySerializer(read_only=True)
     class Meta:
         model = ValidationTestResult
-        fields = ('id', 'model_version',  'test_code', 'results_storage', 'score', 'passed', 'timestamp', 'platform',   'project',  'normalized_score')
+        fields = ('id','hash', 'model_version',  'test_code', 'results_storage', 'score', 'passed', 'timestamp', 'platform',   'project',  'normalized_score','runtime')
 
 
 
