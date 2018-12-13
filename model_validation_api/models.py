@@ -179,6 +179,10 @@ class ValidationTestResult(models.Model):
                                max_length=200,
                                blank=True)  # project==collab_id for HBP ??rename o collab_id?
     normalized_score = models.FloatField(help_text="A normalized numerical measure of the difference between model and experiment") 
+    hash = models.CharField(max_length=100, blank=True, null=True, default=None, help_text = "hash of the result")
+    runtime = models.CharField(max_length=100, blank=True, null=True, default=None, help_text = "runtime of the simulation")
+
+
 
     class Meta:
         get_latest_by = "timestamp"

@@ -929,7 +929,7 @@ testApp.controller('ValTestResultDetailCtrl', ['$window', '$scope', '$rootScope'
         };
 
 
-
+        //main code
         Context.setService().then(function() {
             $scope.Context = Context;
 
@@ -943,7 +943,7 @@ testApp.controller('ValTestResultDetailCtrl', ['$window', '$scope', '$rootScope'
                 test_result.$promise.then(function() {
 
                     $scope.test_result = test_result.results[0];
-
+                    console.log("results ----", $scope.test_result)
                     var result_storage = $scope.test_result.results_storage;
                     var result_storage_dict = $scope.split_result_storage_string(result_storage);
                     var collab = result_storage_dict.collab;

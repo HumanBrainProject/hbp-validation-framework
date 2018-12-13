@@ -2275,7 +2275,8 @@ class Results (APIView):
         param_test_alias = request.GET.getlist('test_alias')
         param_test_score_type = request.GET.getlist('score_type')
         param_order = request.GET.getlist('order')
-
+        param_hash = request.GET.getlist('hash')
+        param_runtime = request.GET.getlist('runtime')
         param_detailed_view = request.GET.getlist('detailed_view')
 
         if len(param_detailed_view) > 0 :  
@@ -2328,6 +2329,10 @@ class Results (APIView):
                 q = q.filter(test_code_id__in = param_test_code_id)
             if len(param_normalized_score) > 0 :
                 q = q.filter(normalized_score__in = param_normalized_score)
+            if len(param_hash) > 0 :
+                q = q.filter(hash__in = param_hash)
+            if len(param_runtime) > 0 :
+                q = q.filter(runtime__in = param_runtime)
 
             #add filter to order correctly the data in time depending on the param_order
             if  len(param_order)>0:
