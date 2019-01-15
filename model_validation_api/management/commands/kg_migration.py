@@ -54,7 +54,13 @@ class Command(BaseCommand):
             abstraction_level = self.get_parameters("abstraction_level", model.abstraction_level)
             model_scope = self.get_parameters("model_scope", model.model_scope)
 
-            model_project = ModelProject(name=model.name, owner=owner, authors=authors, description=model.description, date_created=model.creation_date, private=model.private, collab_id=model.app.collab_id, alias=model.alias,  organization=organization, pla_components=model.pla_components, brain_region=brain_region, species=species, celltype=cell_type, abstraction_level=abstraction_level, model_of=model_scope)
+            model_project = ModelProject(
+                name=model.name, owner=owner, authors=authors, description=model.description, 
+                date_created=model.creation_date, private=model.private, 
+                collab_id=model.app.collab_id, alias=model.alias,  organization=organization, 
+                pla_components=model.pla_components, brain_region=brain_region, species=species, 
+                celltype=cell_type, abstraction_level=abstraction_level, model_of=model_scope,
+                old_uuid=str(model.id))
                
             print ("model_project",model_project)
             print ("--authors",model_project.authors)
