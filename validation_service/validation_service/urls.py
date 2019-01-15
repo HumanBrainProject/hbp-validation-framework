@@ -13,7 +13,7 @@ for working with a database of validation tests for neuroscience models.
 from django.conf.urls import include, url
 from django.contrib import admin
 
-from views import config, home
+from .views import config, home
 
 #from views import edit_select_models
 

@@ -10,7 +10,10 @@ import math
 import json
 import logging
 import time
-from urlparse import urlparse, parse_qs
+try:
+    from urlparse import urlparse, parse_qs  # py2
+except ImportError:
+    from urllib.parse import urlparse, parse_qs
 from datetime import date
 from django.shortcuts import render
 from django.core.urlresolvers import reverse
