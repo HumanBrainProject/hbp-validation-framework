@@ -31,9 +31,118 @@ import requests
 import os
 import json
 import datetime
+try:
+    raw_input
+except NameError:
+    raw_input = input
+
 token = os.environ.get('HBP_token', 'none')
 nexus_endpoint = "https://nexus-int.humanbrainproject.org/v0"
 NAR_client = NARClient(token, nexus_endpoint)
+
+
+species_map = {
+    'Mouse (Mus musculus)': 'Mus musculus',
+    'Rat (Rattus rattus)': 'Rattus norvegicus',
+    'Marmoset (callithrix jacchus)': 'Callithrix jacchus',
+    'Human (Homo sapiens)': 'Homo sapiens',
+    'Paxinos Rhesus Monkey (Macaca mulatta)': 'Macaca mulatta',
+    'Opossum (Monodelphis domestica)': 'Monodelphis domestica',
+    'Rodent (non specific)': 'Rodentia'
+}
+
+brain_region_map = {
+    'Somatosensory Cortex': 'somatosensory cortex',
+    'Thalamus': 'thalamus',
+    'Thalamocortical': 'Thalamocortical',
+    'Brain Stem': 'brainstem',
+    'Spinal Cord': 'spinal cord',
+    'Hippocampus': 'hippocampus',
+    'Basal Ganglia': 'basal ganglia',
+    'Cortex': 'cortex',
+    'Cerebellum': 'cerebellum',
+    'Whole-brain': 'whole brain',
+    'Striatum': 'striatum'
+}
+
+cell_type_map = {
+    "L2/3 Chandelier cell": "L2/3 Chandelier cell",
+    "Fast spiking interneuron": "fast spiking interneuron",
+    "Purkinje Cell": "Purkinje cell",
+    "Spiny stellate neuron": "spiny stellate neuron",
+    "Medium spiny neuron": "medium spiny neuron",
+    "L5 Tufted pyramidal cell": "L5 tufted pyramidal cell",
+    "Interneuron": "interneuron",
+    "L2/3 Pyramidal cell": "L2/3 Pyramidal cell",
+    "Golgi Cell": "Golgi cell",
+    "Medium spiny neuron (D2 type)": "medium spiny neuron (D2 type)",
+    "L6 Inverted pyramidal cell": "L6 Inverted pyramidal cell",
+    "L4 Martinotti cell": "L4 Martinotti cell",
+    "Medium spiny neuron (D1 type)": "medium spiny neuron (D1 type)",
+    "Pyramidal Cell": "pyramidal cell",
+    "Granule Cell": "granule cell",
+    "Cholinergic interneuron": "cholinergic interneuron",
+    "L1 Neurogliaform cell": "L1 neurogliaform cell",
+    "L2 Inverted pyramidal cell": "L2 inverted pyramidal cell"
+}
+
+abstraction_level_map = {
+    "rate neuron": "rate neuron",
+    "protein structure": "protein structure",
+    "Systems biology -- flux balance": "systems biology: flux balance",
+    "Systems biology -- discrete": "systems biology: discrete",
+    "Systems biology -- continuous": "systems biology: continuous",
+    "Systems biology": "systems biology",
+    "Spiking neurons -- point neuron": "spiking neurons: point neuron",
+    "Spiking neurons -- biophysical": "spiking neurons: biophysical",
+    "Spiking neurons": "spiking neurons",
+    "Population modelling -- neural mass": "population modelling: neural mass",
+    "Population modelling -- neural field": "population modelling: neural field",
+    "Population modelling": "population modelling",
+    "Cognitive modelling": "cognitive modelling"
+}
+
+author_special_cases = {
+    "Jeanette Hellgren Kotaleski": ("Jeanette", "Hellgren Kotaleski"),
+    "João Pedro Santos": ("João Pedro", "Santos"),
+    "Yi Ming Lai": ("Yi Ming", "Lai"),
+    "Luis Georg Romundstad": ("Luis Georg", "Romundstad"),
+    "Johanna Frost Nylen": ("Johanna", "Frost Nylen"),
+    "Pål Gunnar Larsson": ("Pål Gunnar", "Larsson"),
+    "André Sevenius Nilsen": ("André Sevenius", "Nilsen"),
+    "Gabriel Andrés Fonseca Guerra": ("Gabriel Andrés", "Fonseca Guerra"),
+    "Pier Stanislao Paolucci": ("Pier Stanislao", "Paolucci"),
+}
+
+model_scope_map = {
+    "Subcellular model -- spine model": "subcellular model: spine model",
+    "Subcellular model -- ion channel model": "subcellular model: ion channel model",
+    "Subcellular model -- signalling model": "subcellular model: signalling model",
+    "Subcellular model -- molecular model": "subcellular model: molecular model",
+    "Single cell model": "single cell model",
+    "Network model -- microcircuit model": "network model: microcircuit model",
+    "Network model -- brain region model": "network model: brain region model",
+    "Network model -- whole brain model": "network model: whole brain model",
+    "Network model": "network model",
+    "Subcellular model": "Subcellular model"  
+}
+
+def resolve_name(full_name):
+    if full_name in author_special_cases:
+        first_name, last_name = special_cases[full_name]
+    else:
+        parts = full_name.split(" ")
+        if len(parts) == 2:
+            first_name, last_name = parts
+        elif len(parts) == 3 and ("." in parts[1] or len(parts[1]) == 1 or parts[1] in ("van", "de", "di", "Del", "De")):
+            first_name = " ".join(parts[0:2])
+            last_name = parts[2]
+        else:
+            first_name, last_name = None, None
+            print("ERR: {}".format(full_name))
+    if last_name:
+        print("{}, {}".format(last_name, first_name))
+    return first_name, last_name
 
 
 class Command(BaseCommand):
@@ -75,62 +184,17 @@ class Command(BaseCommand):
 
     def get_organization (self, pattern):
         organization = None
-
-        if pattern == "HBP-SP1":
+        if "HBP-SP" in pattern:
             address = Address(locality='HBP', country='Europe')
-            organization = Organization("HBP-SP1",address, None ) 
-                
-        if pattern == "HBP-SP2":
-            address = Address(locality='HBP', country='Europe')
-            organization = Organization("HBP-SP2",address, None )
-
-        if pattern == "HBP-SP3":
-            address = Address(locality='HBP', country='Europe')
-            organization = Organization("HBP-SP3",address, None ) 
-       
-        if pattern == "HBP-SP4":
-            address = Address(locality='HBP', country='Europe')
-            organization = Organization("HBP-SP4",address, None ) 
-    
-        if pattern == "HBP-SP5":
-            address = Address(locality='HBP', country='Europe')
-            organization = Organization("HBP-SP5",address, None ) 
-       
-        if pattern == "HBP-SP6":
-            address = Address(locality='HBP', country='Europe')
-            organization = Organization("HBP-SP6",address, None ) 
-        
-        if pattern == "HBP-SP7":
-            address = Address(locality='HBP', country='Europe')
-            organization = Organization("HBP-SP7",address, None ) 
-            
-        if pattern == "HBP-SP8":
-            address = Address(locality='HBP', country='Europe')
-            organization = Organization("HBP-SP8",address, None ) 
-           
-        if pattern == "HBP-SP9":
-            address = Address(locality='HBP', country='Europe')
-            organization = Organization("HBP-SP9",address, None ) 
-                
-        if pattern == "HBP-SP10":
-            address = Address(locality='HBP', country='Europe')
-            sp10 = Organization("HBP-SP10",address , None ) 
-        
-        if pattern == "HBP-SP11":
-            address = Address(locality='HBP', country='Europe')
-            organization = Organization("HBP-SP11",address , None ) 
-       
-        if pattern == "HBP-SP12":
-            address = Address(locality='HBP', country='Europe')
-            organization = Organization("HBP-SP12",address , None ) 
-       
-        if pattern == "Blue Brain Porject":
+            organization = Organization(pattern, address, None)
+        elif pattern == "Blue Brain Porject":
             address = Address(locality='Geneva', country='Switzerland')
-            organization = Organization("Blue Brain Project",address , None ) 
-    
-        if pattern == "Allen Institute":
+            organization = Organization("Blue Brain Project", address, None) 
+        elif pattern == "Allen Institute":
             address = Address(locality='Seattle', country='United States')
-            organization = Organization("Allen Institute",address , None ) 
+            organization = Organization("Allen Institute", address, None)
+        else:
+            raise ValueError("Can't handle this pattern")
     
         return organization
 
@@ -196,15 +260,18 @@ class Command(BaseCommand):
                 ###check if pattern already exists
                 person_object = Persons.objects.all().filter(pattern = auth)
                 if(len(person_object)>0):
-                    print('already in database', person_object[0].first_name)
+                    print('already in database', person_object[0].last_name, )
                     self._save_person_in_KG(person_object[0].first_name,person_object[0].last_name, person_object[0].email)
                 else:
                     print('This person is not in the database yet.')
                     answer = raw_input('do you want to add it?')
                     if(answer == 'y'):
                         print('You need to enter a new person for: ', auth)
-                        first_name = raw_input('please enter the first_name:')
-                        last_name = raw_input('please enter the last name:')
+                        try:
+                            first_name, last_name = resolve_name(auth)
+                        except ValueError:
+                            first_name = raw_input('please enter the first_name:')
+                            last_name = raw_input('please enter the last name:')
                         email = self._get_email(first_name, last_name)
                         data = {'pattern':auth,'first_name':first_name,'last_name':last_name, 'email':email}
                         Person_serializer = PersonSerializer(data=data)
@@ -235,8 +302,15 @@ class Command(BaseCommand):
                 answer = raw_input('do you want to add it?')
                 if(answer == 'y'):
                     print('You need to enter a new person for: ', owner)
-                    first_name = raw_input('please enter the first_name:')
-                    last_name = raw_input('please enter the last name:')
+                    try:
+                        first_name, last_name = resolve_name(owner)
+                        answer = raw_input("first_name='{}' last_name='{}'. Is this correct?".format(first_name, last_name))
+                        if answer not in ('y', 'yes', 'Y', 'YES'):
+                            first_name = raw_input('please enter the first_name:')
+                            last_name = raw_input('please enter the last name:')
+                    except ValueError:
+                        first_name = raw_input('please enter the first_name:')
+                        last_name = raw_input('please enter the last name:')
                     email = self._get_email(first_name, last_name)
                     data = {'pattern':str(owner),'first_name':first_name,'last_name':last_name, 'email':email}
                     Person_serializer = PersonSerializer(data=data)
@@ -268,7 +342,8 @@ class Command(BaseCommand):
         res = requests.get(url, headers=headers)
         if res.status_code != 200:
             print('cannot find the email from collab')
-            email = raw_input('please enter e-mail by hand')
+            ##email = raw_input('please enter e-mail by hand')
+            email = "unknown@example.com"
         else:
             res = res.json()['_embedded']['users']
             print('user list found is:')
@@ -283,7 +358,8 @@ class Command(BaseCommand):
                 else:
                     email = raw_input('then, please enter e-mail by hand')
             else:
-                    email = raw_input('then, please enter e-mail by hand')
+                    ###email = raw_input('then, please enter e-mail by hand')
+                    email = "unknown@example.com"
         return email
 
 
@@ -304,226 +380,94 @@ class Command(BaseCommand):
     def get_parameters(self, parameter_type, parameter_value):
         parameter = None
         if parameter_type == 'species':
-            if parameter_value == 'Mouse (Mus musculus)':
-                new_parameter = 'Mus musculus'
-            elif parameter_value == 'Rat (Rattus rattus)':
-                new_parameter = 'Rattus norvegicus'
-            elif parameter_value == 'Marmoset (callithrix jacchus)':
-                new_parameter = 'Callithrix jacchus'
-            elif parameter_value == 'Human (Homo sapiens)':
-                new_parameter = 'Homo sapiens'
-            elif parameter_value == 'Paxinos Rhesus Monkey (Macaca mulatta)':
-                new_parameter = 'Macaca mulatta'
-            elif parameter_value == 'Opossum (Monodelphis domestica)':
-                new_parameter = 'Monodelphis domestica'
-            elif parameter_value == 'Rodent (non specific)':
-                new_parameter = 'Rodentia'
-            else:
-                new_parameter = None
-
+            new_parameter = species_map.get(parameter_value)
             if new_parameter != None:
                 parameter = Species(new_parameter)
 
         if parameter_type == 'brain_region':
-            if parameter_value == 'Somatosensory Cortex':
-                new_parameter = 'somatosensory cortex'
-            elif parameter_value == 'Thalamus':
-                new_parameter = 'thalamus'
-            elif parameter_value == 'Thalamocortical':
-                new_parameter = 'Thalamocortical'
-            elif parameter_value == 'Brain Stem':
-                new_parameter = 'brainstem'
-            elif parameter_value == 'Spinal Cord':
-                new_parameter = 'spinal cord'
-            elif parameter_value == 'Hippocampus':
-                new_parameter = 'hippocampus'
-            elif parameter_value == 'Basal Ganglia':
-                new_parameter = 'basal ganglia'
-            elif parameter_value == 'Cortex':
-                new_parameter = 'cortex'
-            elif parameter_value == 'Cerebellum':
-                new_parameter = 'cerebellum'
-            elif parameter_value == 'Whole-brain':
-                new_parameter = 'whole brain'
-            elif parameter_value == 'Striatum':
-                new_parameter = 'striatum'
-            else:
-                new_parameter = None
-
+            new_parameter = brain_region_map.get(parameter_value)
             if new_parameter != None:
                 parameter = BrainRegion(new_parameter)
 
         if parameter_type == 'cell_type':
-            if parameter_value == "L2/3 Chandelier cell":
-                new_parameter = "L2/3 Chandelier cell"
-            elif parameter_value == "Fast spiking interneuron":
-                new_parameter = "fast spiking interneuron"
-            elif parameter_value == "Purkinje Cell":
-                new_parameter = "Purkinje cell"
-            elif parameter_value == "Spiny stellate neuron":
-                new_parameter = "spiny stellate neuron"
-            elif parameter_value == "Medium spiny neuron":
-                new_parameter = "medium spiny neuron"
-            elif parameter_value == "L5 Tufted pyramidal cell":
-                new_parameter = "L5 tufted pyramidal cell"
-            elif parameter_value == "Interneuron":
-                new_parameter = "interneuron"
-            elif parameter_value == "L2/3 Pyramidal cell":
-                new_parameter = "L2/3 Pyramidal cell"
-            elif parameter_value == "Golgi Cell":
-                new_parameter = "Golgi cell"
-            elif parameter_value == "Medium spiny neuron (D2 type)":
-                new_parameter = "medium spiny neuron (D2 type)"
-            elif parameter_value == "L6 Inverted pyramidal cell":
-                new_parameter = "L6 Inverted pyramidal cell"
-            elif parameter_value == "L4 Martinotti cell":
-                new_parameter = "L4 Martinotti cell"
-            elif parameter_value == "Medium spiny neuron (D1 type)":
-                new_parameter = "medium spiny neuron (D1 type)"
-            elif parameter_value == "Pyramidal Cell":
-                new_parameter = "pyramidal cell"
-            elif parameter_value == "Granule Cell":
-                new_parameter = "granule cell"
-            elif parameter_value == "Cholinergic interneuron":
-                new_parameter = "cholinergic interneuron"
-            elif parameter_value == "L1 Neurogliaform cell":
-                new_parameter = "L1 neurogliaform cell"
-            elif parameter_value == "L2 Inverted pyramidal cell":
-                new_parameter = "L2 inverted pyramidal cell"
-            else:
-                new_parameter = None
-
+            new_parameter = cell_type_map.get(parameter_value)
             if new_parameter != None:
                 parameter = CellType(new_parameter)
 
-        if parameter_type == "abstracion_level":
-            if parameter_value == "rate neuron":
-                new_parameter = "rate neuron"
-            elif parameter_value == "protein structure":
-                new_parameter = "protein structure"
-            elif parameter_value == "Systems biology -- flux balance":
-                new_parameter = "systems biology: flux balance"
-            elif parameter_value == "Systems biology -- discrete":
-                new_parameter = "systems biology: discrete"
-            elif parameter_value == "Systems biology -- continuous":
-                new_parameter = "systems biology: continuous"
-            elif parameter_value == "Systems biology":
-                new_parameter = "systems biology"
-            elif parameter_value == "Spiking neurons -- point neuron":
-                new_parameter = "spiking neurons: point neuron"
-            elif parameter_value == "Spiking neurons -- biophysical":
-                new_parameter = "spiking neurons: biophysical"
-            elif parameter_value == "Spiking neurons":
-                new_parameter = "spiking neurons"
-            elif parameter_value == "Population modelling -- neural mass":
-                new_parameter = "population modelling: neural mass"
-            elif parameter_value == "Population modelling -- neural field":
-                new_parameter = "population modelling: neural field"
-            elif parameter_value == "Population modelling":
-                new_parameter = "population modelling"
-            elif parameter_value == "Cognitive modelling":
-                new_parameter = "cognitive modelling"
-            else:
-                new_parameter = None
-
+        if parameter_type == "abstraction_level":
+            new_parameter = abstraction_level_map.get(parameter_value)
             if new_parameter != None:
                 parameter = AbstractionLevel(new_parameter)
 
         if parameter_type == "model_scope":
-            if parameter_value == "Subcellular model -- spine model":
-                new_parameter = "subcellular model: spine model"
-            elif parameter_value == "Subcellular model -- ion channel model":
-                new_parameter = "subcellular model: ion channel model"
-            elif parameter_value == "Subcellular model -- signalling model":
-                new_parameter = "subcellular model: signalling model"  
-            elif parameter_value == "Subcellular model -- molecular model":
-                new_parameter = "subcellular model: molecular model"  
-            elif parameter_value == "Single cell model":
-                new_parameter = "single cell model"       
-            elif parameter_value == "Network model -- microcircuit model":
-                new_parameter = "network model: microcircuit model" 
-            elif parameter_value == "Network model -- brain region model":
-                new_parameter = "network model: brain region model" 
-            elif parameter_value == "Network model -- whole brain model":
-                new_parameter = "network model: whole brain model" 
-            elif parameter_value == "Network model":
-                new_parameter = "network model"
-            elif parameter_value == "Subcellular model":
-                new_parameter = "Subcellular model"  
-            else:
-                new_parameter = None
-
+            new_parameter = model_scope_map.get(parameter_value)
             if new_parameter != None:
                 parameter = new_parameter
 
         return parameter
 
     def add_organizations_in_KG_database(self):
-        address1 = Address(locality='HBP', country='Europe')
-        sp1 = Organization("HBP-SP1",address1 , None ) 
-        sp1.save(NAR_client)
-
-        address2 = Address(locality='HBP', country='Europe')
-        sp2 = Organization("HBP-SP2",address2 , None ) 
-        sp2.save(NAR_client)
-
-        address3 = Address(locality='HBP', country='Europe')
-        sp3 = Organization("HBP-SP3",address3 , None ) 
-        sp3.save(NAR_client)
-
-        address4 = Address(locality='HBP', country='Europe')
-        sp4 = Organization("HBP-SP4",address4 , None ) 
-        sp4.save(NAR_client)
-        print(sp1)
-
-        address5 = Address(locality='HBP', country='Europe')
-        sp5 = Organization("HBP-SP5",address5 , None ) 
-        sp5.save(NAR_client)
-
-        address6 = Address(locality='HBP', country='Europe')
-        sp6 = Organization("HBP-SP6",address6 , None ) 
-        sp6.save(NAR_client)
-
-        address7 = Address(locality='HBP', country='Europe')
-        sp7 = Organization("HBP-SP7",address7 , None ) 
-        sp7.save(NAR_client)
-
-        address8 = Address(locality='HBP', country='Europe')
-        sp8 = Organization("HBP-SP8",address8 , None ) 
-        sp8.save(NAR_client)
-
-        address9 = Address(locality='HBP', country='Europe')
-        sp9 = Organization("HBP-SP9",address9 , None ) 
-        sp9.save(NAR_client)
-
-        address10 = Address(locality='HBP', country='Europe')
-        sp10 = Organization("HBP-SP10",address10 , None ) 
-        sp10.save(NAR_client)
-
-        address11 = Address(locality='HBP', country='Europe')
-        sp11 = Organization("HBP-SP11",address11 , None ) 
-        sp11.save(NAR_client)
-
-        address12 = Address(locality='HBP', country='Europe')
-        sp12 = Organization("HBP-SP12",address12 , None ) 
-        sp12.save(NAR_client)
-
+        address = Address(locality='HBP', country='Europe')
+        for sp_num in range(1, 13):
+            org = Organization("HBP-SP{}".format(sp_num), address, None) 
+            org.save(NAR_client)
         addressBBP = Address(locality='Geneva', country='Switzerland')
-        BBP = Organization("Blue Brain Project",addressBBP , None ) 
+        BBP = Organization("Blue Brain Project", addressBBP, None) 
         BBP.save(NAR_client)
            
         addressAllen = Address(locality='Seattle', country='United States')
-        spAllen = Organization("Allen Institute",addressAllen , None ) 
+        spAllen = Organization("Allen Institute", addressAllen , None ) 
         spAllen.save(NAR_client)
 
         return ''
 
     def migrate_model_instances(self):
+        """ """
+        # mapping is based on abstraction_level and on model_scope
+        for model in ScientificModel.objects.all():
+            brain_region = self.get_parameters("brain_region", model.brain_region)
+            species = self.get_parameters("species", model.species)
+            cell_type = self.get_parameters("cell_type", model.cell_type)
+            model_project = lookup_model_project(model.id, client)
+            for model_instance in model.instances.all():
+                if model.model_scope == "Single cell model":
+    
+                    # MEModel - mostly this is what we want; there are a few single cell models from the literature that are not MEModels
+                    e_model = EModel(name="EModel for {} @ {}".format(model.name, model_instance.version), 
+                                     brain_region=brain_region, 
+                                     species=species, 
+                                     #model_of, 
+                                     #main_script,
+                                     release=None)  # ModelCatalog doesn't contain any information about releases, I don't think? Maybe create from 'version' attribute
+                    e_model.save(client)
+                    morphology = Morphology(name, cell_type)  # todo: how to find the location of the morphology file if there is one?
+                    morphology.save(client)
+                    script = ModelScript(name, 
+                                         code_format=model_instance.code_format,
+                                         code_location=model_instance.source)
+                    script.save(client)
+                    memodel = MEModel(name="MEModel for {} @ {}".format(model.name, model_instance.version), 
+                                      description=model_instance.description,
+                                      brain_region=brain_region, 
+                                      species=species, 
+                                      model_of=cell_type, 
+                                      e_model=e_model, 
+                                      morphology=morphology, 
+                                      main_script=script,
+                                      part_of=model_project,
+                                      version=model_instance.version,
+                                      parameters=model_instance.parameters,
+                                      timestamp=model_instance.timestamp,
+                                      release=None)  # see comment above about release
+                else:
+                    # Use plain ModelInstance where no more-specific sub-type exists
+                    print("{} - Not handled yet".format(model.model_scope))
         return ''
 
     # def _search_for_person_or_create():
 
     def save_model_project(self):
+        # used for testing/development. Can be deleted once everything is working.
         models = ScientificModel.objects.all()
         model = models[0]
 
@@ -531,7 +475,7 @@ class Command(BaseCommand):
         owner =self._get_person_from_Persons_table(model.owner) ##checked ok
         people = self._get_authors_from_Persons_table(model.author) ## checked working only if already saved
         for p in people:
-                p.save(NAR_client) 
+            p.save(NAR_client) 
         celltype = self.get_parameters("cell_type", model.cell_type) ##checked ok
         abstraction = self.get_parameters("abstraction_level", model.abstraction_level)
         brainregion = self.get_parameters("brain_region", model.brain_region)
@@ -550,7 +494,11 @@ class Command(BaseCommand):
         # p1 = Person("onur", "ates", "ates.onur@outlook.com", None)
         # p1.save(NAR_client)
 
-        d = ModelProject(name=name, description=description, date_created=date_created, collab_id=collab_id, owner=owner, authors=people, private=private, organization=organization, pla_components=pla_components, alias=alias, model_of=model_of, brain_region=brainregion, species=species, celltype=celltype, abstraction_level=abstraction)
+        d = ModelProject(name=name, description=description, date_created=date_created, 
+                         collab_id=collab_id, owner=owner, authors=people, private=private, 
+                         organization=organization, pla_components=pla_components, alias=alias,
+                         model_of=model_of, brain_region=brainregion, species=species, 
+                         celltype=celltype, abstraction_level=abstraction)
 
         d.save(NAR_client)
 
@@ -562,4 +510,5 @@ class Command(BaseCommand):
         self.add_organizations_in_KG_database()
 
         self.migrate_models()
+        self.migrate_model_instances()
         #self.save_model_project()

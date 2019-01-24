@@ -87,3 +87,5 @@ model_validation_api/migrations/
 ##########
 db.sqlite3
 
+# Files with secrets, should not go under version control
+env_local.sh
