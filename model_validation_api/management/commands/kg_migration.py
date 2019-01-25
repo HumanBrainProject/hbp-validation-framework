@@ -112,6 +112,7 @@ author_special_cases = {
     "André Sevenius Nilsen": ("André Sevenius", "Nilsen"),
     "Gabriel Andrés Fonseca Guerra": ("Gabriel Andrés", "Fonseca Guerra"),
     "Pier Stanislao Paolucci": ("Pier Stanislao", "Paolucci"),
+    "BBP-team": ("BBP", "team")
 }
 
 model_scope_map = {
@@ -129,9 +130,9 @@ model_scope_map = {
 
 def resolve_name(full_name):
     if full_name in author_special_cases:
-        first_name, last_name = special_cases[full_name]
+        first_name, last_name = author_special_cases[full_name]
     else:
-        parts = full_name.split(" ")
+        parts = full_name.strip().split(" ")
         if len(parts) == 2:
             first_name, last_name = parts
         elif len(parts) == 3 and ("." in parts[1] or len(parts[1]) == 1 or parts[1] in ("van", "de", "di", "Del", "De")):
@@ -139,7 +140,8 @@ def resolve_name(full_name):
             last_name = parts[2]
         else:
             first_name, last_name = None, None
-            print("ERR: {}".format(full_name))
+            #print("ERR: {}".format(full_name))
+            raise Exception(str(parts))
     if last_name:
         print("{}, {}".format(last_name, first_name))
     return first_name, last_name
@@ -152,10 +154,12 @@ class Command(BaseCommand):
         models = ScientificModel.objects.all()
 
         for model in models:
-            authors = self._get_authors_from_Persons_table(model.author)
+            authors = self._get_people_from_Persons_table(model.author)
             for author in authors:
                 author.save(NAR_client)
-            owner = self._get_person_from_Persons_table(model.owner)
+            owners = self._get_people_from_Persons_table(model.owner)
+            for owner in owners:
+                owner.save(NAR_client)
             organization = self.get_organization(model.organization)
             brain_region = self.get_parameters("brain_region", model.brain_region)
             species = self.get_parameters("species", model.species)
@@ -164,7 +168,7 @@ class Command(BaseCommand):
             model_scope = self.get_parameters("model_scope", model.model_scope)
 
             model_project = ModelProject(
-                name=model.name, owner=owner, authors=authors, description=model.description, 
+                name=model.name, owners=owners, authors=authors, description=model.description, 
                 date_created=model.creation_date, private=model.private, 
                 collab_id=model.app.collab_id, alias=model.alias,  organization=organization, 
                 pla_components=model.pla_components, brain_region=brain_region, species=species, 
@@ -187,14 +191,19 @@ class Command(BaseCommand):
         if "HBP-SP" in pattern:
             address = Address(locality='HBP', country='Europe')
             organization = Organization(pattern, address, None)
-        elif pattern == "Blue Brain Porject":
+        elif pattern == "Blue Brain Project":
             address = Address(locality='Geneva', country='Switzerland')
             organization = Organization("Blue Brain Project", address, None) 
         elif pattern == "Allen Institute":
             address = Address(locality='Seattle', country='United States')
             organization = Organization("Allen Institute", address, None)
+        elif pattern in ("KTH-UNIC", "KOKI-UNIC"):
+            address = Address(locality='HBP', country='Europe')
+            organization = Organization("HBP-SP6", address, None)
+        elif pattern == "<<empty>>":
+            organization = None
         else:
-            raise ValueError("Can't handle this pattern")
+            raise ValueError("Can't handle this pattern: {}".format(pattern))
     
         return organization
 
@@ -211,6 +220,7 @@ class Command(BaseCommand):
             print('person :', person)
         except:
             if pattern != None:
+                raise Exception(pattern)
                 print('person ', pattern ,' has not been found. please enter it by hand')
                 family_name = raw_input('  give the family_name : ')
                 given_name = raw_input('  give the first_name : ')
@@ -220,18 +230,50 @@ class Command(BaseCommand):
                 person = None
         return person
     
-    def _get_authors_from_Persons_table(self, patterns):
+    def _get_people_from_Persons_table(self, patterns):
             persons = []
             if patterns and patterns != None:
-                patterns.replace(';',',')
-                patterns.replace('&',',')
-                patterns.replace('and',',') ##not working??? why??
-                patterns = patterns.split(',')
-                print("new pattern and len",patterns,len(patterns))
+                patterns = patterns.replace(';',',')
+                patterns = patterns.replace('&',',')
+                patterns = patterns.replace(' and ',',')
+                patterns = [p.strip() for p in patterns.split(',')]
+                print("new pattern and len", patterns, len(patterns))
                 for pattern in patterns:
                     person = self._get_person_from_Persons_table(pattern)
                     persons.append(person)
             return persons
+
+    def _create_person_in_kg(self, person):
+        print('Searching for the person:', person)
+        if " and " in person:
+            raise Exception(person)
+        ###check if pattern already exists
+        person_object = Persons.objects.filter(pattern=person)
+        if len(person_object ) >0:
+            print('already in database', person_object[0].last_name,)
+            self._save_person_in_KG(person_object[0].first_name,person_object[0].last_name, person_object[0].email)
+        else:
+            print('This person is not in the database yet.')
+            answer = raw_input('do you want to add it?')
+            if(answer == 'y'):
+                print('You need to enter a new person for: ', person)
+                try:
+                    first_name, last_name = resolve_name(person)
+                except ValueError:
+                    first_name = raw_input('please enter the first_name:')
+                    last_name = raw_input('please enter the last name:')
+                email = self._get_email(first_name, last_name)
+                data = {'pattern':person,'first_name':first_name,'last_name':last_name, 'email':email}
+                Person_serializer = PersonSerializer(data=data)
+                if Person_serializer.is_valid():
+                    p = Person_serializer.save()
+                    print("person saved in postgress:", p)
+                    self._save_person_in_KG(first_name = first_name, last_name=last_name, email=email)
+                else:
+                    print(Person_serializer.errors)
+                print('checking next person')
+            else:
+                print('checking next person')
 
     def _getPersons_and_migrate(self):
 
@@ -240,89 +282,26 @@ class Command(BaseCommand):
 
         for authors in authors_list:
             if isinstance(authors, tuple):
-                authors[0].replace(';',',')
-                authors[0].replace('&',',')
-                authors[0].replace('and',',') ##not working??? why??
-                authors = authors[0].split(',')
-            else:
-                authors.replace(';',',')
-                authors.replace('&',',')
-                authors.replace('and',',') ##not working??? why??
-                authors = authors.split(',')
+                authors = authors[0]
+            authors = authors.replace(';',',')
+            authors = authors.replace('&',',')
+            authors = authors.replace(' and ',',')
+            authors = [a.strip() for a in authors.split(',')]
 
             for auth in authors:
-                try:
-                    if str(auth)[0] == ' ':
-                        auth = str(auth)[1:]
-                except:
-                    print('auth ', auth)
-                print('Searching for the author:', auth)
-                ###check if pattern already exists
-                person_object = Persons.objects.all().filter(pattern = auth)
-                if(len(person_object)>0):
-                    print('already in database', person_object[0].last_name, )
-                    self._save_person_in_KG(person_object[0].first_name,person_object[0].last_name, person_object[0].email)
-                else:
-                    print('This person is not in the database yet.')
-                    answer = raw_input('do you want to add it?')
-                    if(answer == 'y'):
-                        print('You need to enter a new person for: ', auth)
-                        try:
-                            first_name, last_name = resolve_name(auth)
-                        except ValueError:
-                            first_name = raw_input('please enter the first_name:')
-                            last_name = raw_input('please enter the last name:')
-                        email = self._get_email(first_name, last_name)
-                        data = {'pattern':auth,'first_name':first_name,'last_name':last_name, 'email':email}
-                        Person_serializer = PersonSerializer(data=data)
-                        if Person_serializer.is_valid():
-                            p = Person_serializer.save()
-                            print("person saved in postgress:", p)
-                            self._save_person_in_KG(first_name = first_name, last_name=last_name, email=email)
-                        else:
-                            print(Person_serializer.errors)
-                        print('checking next person')
-                    else:
-                        print('checking next person')
-        for owner in owners_list:
-            
-            try:
-                if str(owner)[0] == ' ':
-                    owner = str(owner)[1:]
-            except:
-                print('owner ', owner)
-            print('Searching for the owner:', owner)
-            ###check if pattern already exists
-            person_object = Persons.objects.all().filter(pattern = owner)
-            if(len(person_object)>0):
-                print('already in database', person_object[0].first_name)
-                self._save_person_in_KG(person_object[0].first_name,person_object[0].last_name, person_object[0].email)
-            else:
-                print('This person is not in the database yet.')
-                answer = raw_input('do you want to add it?')
-                if(answer == 'y'):
-                    print('You need to enter a new person for: ', owner)
-                    try:
-                        first_name, last_name = resolve_name(owner)
-                        answer = raw_input("first_name='{}' last_name='{}'. Is this correct?".format(first_name, last_name))
-                        if answer not in ('y', 'yes', 'Y', 'YES'):
-                            first_name = raw_input('please enter the first_name:')
-                            last_name = raw_input('please enter the last name:')
-                    except ValueError:
-                        first_name = raw_input('please enter the first_name:')
-                        last_name = raw_input('please enter the last name:')
-                    email = self._get_email(first_name, last_name)
-                    data = {'pattern':str(owner),'first_name':first_name,'last_name':last_name, 'email':email}
-                    Person_serializer = PersonSerializer(data=data)
-                    if Person_serializer.is_valid():
-                        p = Person_serializer.save()
-                        print("person saved in postgress:", p)
-                        self._save_person_in_KG(first_name = first_name, last_name=last_name, email=email)
-                    else:
-                        print(Person_serializer.errors)
-                    print('checking next person')
-                else:
-                    print('checking next person')
+                self._create_person_in_kg(auth)
+                
+        for owners in owners_list:
+            if isinstance(owners, tuple):
+                owners = owners[0]
+            if owners is None:
+                continue
+            owners = owners.replace(';',',')
+            owners = owners.replace('&',',')
+            owners = owners.replace(' and ',',')
+            owners = [a.strip() for a in owners.split(',')]
+            for owner in owners:
+                self._create_person_in_kg(auth)
             
     
     def _save_person_in_KG(self,first_name, last_name, email):
@@ -440,7 +419,7 @@ class Command(BaseCommand):
                                      #main_script,
                                      release=None)  # ModelCatalog doesn't contain any information about releases, I don't think? Maybe create from 'version' attribute
                     e_model.save(client)
-                    morphology = Morphology(name, cell_type)  # todo: how to find the location of the morphology file if there is one?
+                    morphology = Morphology(name, cell_type, model_instance.morphology)
                     morphology.save(client)
                     script = ModelScript(name, 
                                          code_format=model_instance.code_format,
@@ -473,7 +452,7 @@ class Command(BaseCommand):
 
         organization = self.get_organization(model.organization) ##checked ok 
         owner =self._get_person_from_Persons_table(model.owner) ##checked ok
-        people = self._get_authors_from_Persons_table(model.author) ## checked working only if already saved
+        people = self._get_people_from_Persons_table(model.author) ## checked working only if already saved
         for p in people:
             p.save(NAR_client) 
         celltype = self.get_parameters("cell_type", model.cell_type) ##checked ok
@@ -482,7 +461,7 @@ class Command(BaseCommand):
         species = self.get_parameters("species", model.species)
         description = model.description
         model_of = self.get_parameters("model_scope", model.model_scope)
-        pla_components = model.pla_components         #self._get_person_from_Persons_table(model.owner) #self._get_authors_from_Persons_table(model.author)
+        pla_components = model.pla_components         #self._get_person_from_Persons_table(model.owner) #self._get_people_from_Persons_table(model.author)
         collab_id = model.app.collab_id
         date_created = model.creation_date 
         private = model.private
@@ -506,9 +485,10 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
          
-        self._getPersons_and_migrate()
-        self.add_organizations_in_KG_database()
+        #self._getPersons_and_migrate()
+        #self.add_organizations_in_KG_database()
 
         self.migrate_models()
-        self.migrate_model_instances()
-        #self.save_model_project()
+        #self.migrate_model_instances()
+        ###self.save_model_project()
+

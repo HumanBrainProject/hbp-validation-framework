@@ -202,6 +202,10 @@ LOGGING = {
         'model_validation_api': {
             'handlers': ['file'],
             'level': 'DEBUG',
+        },
+        'openid_http_client.http_client': {
+            'handlers': ['file'],
+            'level': 'DEBUG',
         }
     },
     'formatters': {
