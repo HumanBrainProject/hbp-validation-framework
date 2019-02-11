@@ -1,10 +1,10 @@
 from django.core.management.base import BaseCommand
 from ...models import (
-                    Param_Species, 
-                    Param_DataModalities, 
-                    Param_TestType, 
-                    Param_BrainRegion, 
-                    Param_CellType, 
+                    Param_Species,
+                    Param_DataModalities,
+                    Param_TestType,
+                    Param_BrainRegion,
+                    Param_CellType,
                     Param_organizations,
                     Param_ModelType,
                     Param_ModelScope,
@@ -21,20 +21,24 @@ from ...models import (
                     )
 from ...serializer.simple_serializer import PersonSerializer
 from tabulate  import tabulate
-from nar.brainsimulation import ModelProject
+from nar.brainsimulation import ModelProject, MEModel, EModel, Morphology, ModelScript
 from nar.core import Person, Organization
 from nar.commons import Address, BrainRegion, Species, AbstractionLevel, CellType
 from nar.client import NARClient
+from nar.base import KGQuery
 from hbp_app_python_auth.auth import get_access_token, get_auth_header
 import uuid
 import requests
 import os
 import json
 import datetime
+import logging
 try:
     raw_input
 except NameError:
     raw_input = input
+
+logger = logging.getLogger("kg_migration")
 
 token = os.environ.get('HBP_token', 'none')
 nexus_endpoint = "https://nexus-int.humanbrainproject.org/v0"
@@ -125,7 +129,7 @@ model_scope_map = {
     "Network model -- brain region model": "network model: brain region model",
     "Network model -- whole brain model": "network model: whole brain model",
     "Network model": "network model",
-    "Subcellular model": "Subcellular model"  
+    "Subcellular model": "Subcellular model"
 }
 
 def resolve_name(full_name):
@@ -143,12 +147,27 @@ def resolve_name(full_name):
             #print("ERR: {}".format(full_name))
             raise Exception(str(parts))
     if last_name:
-        print("{}, {}".format(last_name, first_name))
+        logger.debug("Resolved {} to {}, {}".format(full_name, last_name, first_name))
     return first_name, last_name
 
 
+def lookup_model_project(model_name, client):
+    context = {"schema": "http://schema.org/"}
+    query_filter = {
+        "path": "schema:name",
+        "op": "eq",
+        "value": model_name
+    }
+    query = KGQuery(ModelProject, query_filter, context)
+    try:
+        return query.resolve(client)
+    except Exception as err:
+        logger.error("Error in lookup_model_project:\n{}".format(err))
+        return None
+
+
 class Command(BaseCommand):
-    
+
     def migrate_models(self):
 
         models = ScientificModel.objects.all()
@@ -168,56 +187,57 @@ class Command(BaseCommand):
             model_scope = self.get_parameters("model_scope", model.model_scope)
 
             model_project = ModelProject(
-                name=model.name, owners=owners, authors=authors, description=model.description, 
-                date_created=model.creation_date, private=model.private, 
-                collab_id=model.app.collab_id, alias=model.alias,  organization=organization, 
-                pla_components=model.pla_components, brain_region=brain_region, species=species, 
-                celltype=cell_type, abstraction_level=abstraction_level, model_of=model_scope,
+                name=model.name, owners=owners, authors=authors, description=model.description,
+                date_created=model.creation_date, private=model.private,
+                collab_id=model.app.collab_id, alias=model.alias,  organization=organization,
+                pla_components=model.pla_components, brain_region=brain_region, species=species,
+                celltype=cell_type, abstraction_level=abstraction_level,
+                model_of=model_scope,  # to fix
                 old_uuid=str(model.id))
-               
-            print ("model_project",model_project)
-            print ("--authors",model_project.authors)
-            print ("--organization",model_project.organization)
-            print ("--brain_region",model_project.brain_region)
-            print ("--species",model_project.species)
-         
-            model_project.save(NAR_client)
 
-            print("model_project saved :", model_project)
+            #print ("--authors",model_project.authors)
+            #print ("--organization",model_project.organization)
+            #print ("--brain_region",model_project.brain_region)
+            #print ("--species",model_project.species)
+
+            try:
+                model_project.save(NAR_client)
+            except Exception as err:
+                logger.error(err)
+            else:
+                logger.info("ModelProject saved: %s", model_project)
+            print (model_project)
         return ''
 
-    def get_organization (self, pattern):
+    def get_organization(self, pattern):
         organization = None
-        if "HBP-SP" in pattern:
-            address = Address(locality='HBP', country='Europe')
-            organization = Organization(pattern, address, None)
-        elif pattern == "Blue Brain Project":
-            address = Address(locality='Geneva', country='Switzerland')
-            organization = Organization("Blue Brain Project", address, None) 
-        elif pattern == "Allen Institute":
-            address = Address(locality='Seattle', country='United States')
-            organization = Organization("Allen Institute", address, None)
-        elif pattern in ("KTH-UNIC", "KOKI-UNIC"):
-            address = Address(locality='HBP', country='Europe')
-            organization = Organization("HBP-SP6", address, None)
-        elif pattern == "<<empty>>":
-            organization = None
-        else:
-            raise ValueError("Can't handle this pattern: {}".format(pattern))
-    
+        if pattern is not None:
+            if "HBP-SP" in pattern:
+                address = Address(locality='HBP', country='Europe')
+                organization = Organization(pattern, address, None)
+            elif pattern == "Blue Brain Project":
+                address = Address(locality='Geneva', country='Switzerland')
+                organization = Organization("Blue Brain Project", address, None)
+            elif pattern == "Allen Institute":
+                address = Address(locality='Seattle', country='United States')
+                organization = Organization("Allen Institute", address, None)
+            elif pattern in ("KTH-UNIC", "KOKI-UNIC"):
+                address = Address(locality='HBP', country='Europe')
+                organization = Organization("HBP-SP6", address, None)
+            elif pattern == "<<empty>>":
+                organization = None
+            else:
+                raise ValueError("Can't handle this pattern: {}".format(pattern))
+
         return organization
 
     def _get_person_from_Persons_table(self, pattern):
-        print("getting person")
+        logger.debug("getting person %s", pattern)
+        pattern = pattern.strip()
         try:
-            if str(pattern)[0] == ' ':
-                pattern = str(pattern)[1:]
-        except:
-            print('auth ', pattern)
-        try:
-            p = Persons.objects.get(pattern = pattern)
+            p = Persons.objects.get(pattern=pattern)
             person = Person(family_name=str(p.last_name), given_name =str(p.first_name), email=str(p.email), affiliation='')
-            print('person :', person)
+            logger.debug('person : %s', person)
         except:
             if pattern != None:
                 raise Exception(pattern)
@@ -229,7 +249,7 @@ class Command(BaseCommand):
             else:
                 person = None
         return person
-    
+
     def _get_people_from_Persons_table(self, patterns):
             persons = []
             if patterns and patterns != None:
@@ -237,26 +257,25 @@ class Command(BaseCommand):
                 patterns = patterns.replace('&',',')
                 patterns = patterns.replace(' and ',',')
                 patterns = [p.strip() for p in patterns.split(',')]
-                print("new pattern and len", patterns, len(patterns))
+                logger.debug("new pattern %s and len %s", patterns, len(patterns))
                 for pattern in patterns:
                     person = self._get_person_from_Persons_table(pattern)
                     persons.append(person)
             return persons
 
     def _create_person_in_kg(self, person):
-        print('Searching for the person:', person)
+        logger.debug('Searching KG for the person: %s', person)
         if " and " in person:
             raise Exception(person)
         ###check if pattern already exists
         person_object = Persons.objects.filter(pattern=person)
         if len(person_object ) >0:
-            print('already in database', person_object[0].last_name,)
+            logger.debug('already in database %s', person_object[0].last_name)
             self._save_person_in_KG(person_object[0].first_name,person_object[0].last_name, person_object[0].email)
         else:
-            print('This person is not in the database yet.')
+            print('This person is not in the database yet: {}'.format(person))
             answer = raw_input('do you want to add it?')
-            if(answer == 'y'):
-                print('You need to enter a new person for: ', person)
+            if (answer == 'y'):
                 try:
                     first_name, last_name = resolve_name(person)
                 except ValueError:
@@ -290,7 +309,7 @@ class Command(BaseCommand):
 
             for auth in authors:
                 self._create_person_in_kg(auth)
-                
+
         for owners in owners_list:
             if isinstance(owners, tuple):
                 owners = owners[0]
@@ -302,35 +321,34 @@ class Command(BaseCommand):
             owners = [a.strip() for a in owners.split(',')]
             for owner in owners:
                 self._create_person_in_kg(auth)
-            
-    
+
+
     def _save_person_in_KG(self,first_name, last_name, email):
         person = Person(family_name=last_name, given_name =first_name, email=email, affiliation='')
         if not person.exists(NAR_client):
             person.save(NAR_client)
-            print('saved in KG', person)
+            logger.debug('saved in KG: %s', person)
         else:
-            print('already exists in KG') 
+            logger.debug('already exists in KG: %s', person)
 
     def _get_email(self,first_name, last_name):
-         
+
         url = 'https://services.humanbrainproject.eu/idm/v1/api/user/search?displayName=*'+first_name+' '+last_name+'*'
-        print('url', url)
         headers={"authorization":"Bearer "+ token }
-        
+
         res = requests.get(url, headers=headers)
         if res.status_code != 200:
-            print('cannot find the email from collab')
+            logger.debug('cannot find the email from collab')
             ##email = raw_input('please enter e-mail by hand')
             email = "unknown@example.com"
         else:
             res = res.json()['_embedded']['users']
-            print('user list found is:')
+            logger.debug('user list found is:')
             for u in res:
-                print (u)
+                logger.debug(u)
             if len(res) >0:
                 res = res[0]
-                print('email found is: ',res['emails'][0]['value'])
+                logger.debug('email found is: ',res['emails'][0]['value'])
                 check = raw_input('is this ok?')
                 if(check == 'y'):
                     email =res['emails'][0]['value']
@@ -343,7 +361,7 @@ class Command(BaseCommand):
 
 
     def _change_model_parameters(self, model):
-        
+
         model.author = get_person(model.author)
         model.owner = get_person(model.owner)
         model.species = get_parameter("species",model.species)
@@ -388,14 +406,14 @@ class Command(BaseCommand):
     def add_organizations_in_KG_database(self):
         address = Address(locality='HBP', country='Europe')
         for sp_num in range(1, 13):
-            org = Organization("HBP-SP{}".format(sp_num), address, None) 
+            org = Organization("HBP-SP{}".format(sp_num), address, None)
             org.save(NAR_client)
         addressBBP = Address(locality='Geneva', country='Switzerland')
-        BBP = Organization("Blue Brain Project", addressBBP, None) 
+        BBP = Organization("Blue Brain Project", addressBBP, None)
         BBP.save(NAR_client)
-           
+
         addressAllen = Address(locality='Seattle', country='United States')
-        spAllen = Organization("Allen Institute", addressAllen , None ) 
+        spAllen = Organization("Allen Institute", addressAllen , None )
         spAllen.save(NAR_client)
 
         return ''
@@ -407,40 +425,64 @@ class Command(BaseCommand):
             brain_region = self.get_parameters("brain_region", model.brain_region)
             species = self.get_parameters("species", model.species)
             cell_type = self.get_parameters("cell_type", model.cell_type)
-            model_project = lookup_model_project(model.id, client)
-            for model_instance in model.instances.all():
-                if model.model_scope == "Single cell model":
-    
-                    # MEModel - mostly this is what we want; there are a few single cell models from the literature that are not MEModels
-                    e_model = EModel(name="EModel for {} @ {}".format(model.name, model_instance.version), 
-                                     brain_region=brain_region, 
-                                     species=species, 
-                                     #model_of, 
-                                     #main_script,
-                                     release=None)  # ModelCatalog doesn't contain any information about releases, I don't think? Maybe create from 'version' attribute
-                    e_model.save(client)
-                    morphology = Morphology(name, cell_type, model_instance.morphology)
-                    morphology.save(client)
-                    script = ModelScript(name, 
-                                         code_format=model_instance.code_format,
-                                         code_location=model_instance.source)
-                    script.save(client)
-                    memodel = MEModel(name="MEModel for {} @ {}".format(model.name, model_instance.version), 
-                                      description=model_instance.description,
-                                      brain_region=brain_region, 
-                                      species=species, 
-                                      model_of=cell_type, 
-                                      e_model=e_model, 
-                                      morphology=morphology, 
-                                      main_script=script,
-                                      part_of=model_project,
-                                      version=model_instance.version,
-                                      parameters=model_instance.parameters,
-                                      timestamp=model_instance.timestamp,
-                                      release=None)  # see comment above about release
-                else:
-                    # Use plain ModelInstance where no more-specific sub-type exists
-                    print("{} - Not handled yet".format(model.model_scope))
+            model_project = lookup_model_project(model.name, NAR_client)
+            if model_project:
+                for model_instance in model.instances.all():
+                    if model.model_scope == "Single cell model":
+
+                        # MEModel - mostly this is what we want; there are a few single cell models from the literature that are not MEModels
+                        e_model = EModel(name="EModel for {} @ {}".format(model.name, model_instance.version),
+                                        brain_region=brain_region,
+                                        species=species,
+                                        model_of=None,
+                                        main_script=None,
+                                        release=None)  # ModelCatalog doesn't contain any information about releases, I don't think? Maybe create from 'version' attribute
+                        try:
+                            e_model.save(NAR_client)
+                        except Exception as err:
+                            logger.error("Error saving EModel:\n{}".format(err))
+                            continue
+                        morphology = Morphology(name="EModel for {} @ {}".format(model.name, model_instance.version),
+                                                cell_type=cell_type,
+                                                morphology_file=model_instance.morphology)
+                        try:
+                            morphology.save(NAR_client)
+                        except Exception as err:
+                            logger.error("Error saving Morphology:\n{}".format(err))
+                            continue
+                        script = ModelScript(name="ModelScript for {} @ {}".format(model.name, model_instance.version),
+                                            code_format=model_instance.code_format,
+                                            code_location=model_instance.source)
+                        try:
+                            script.save(NAR_client)
+                        except Exception as err:
+                            logger.error("Error saving Script:\n{}".format(err))
+                            continue
+                        memodel = MEModel(name="MEModel for {} @ {}".format(model.name, model_instance.version),
+                                        description=model_instance.description,
+                                        brain_region=brain_region,
+                                        species=species,
+                                        model_of=cell_type,
+                                        e_model=e_model,
+                                        morphology=morphology,
+                                        main_script=script,
+                                        project=model_project,
+                                        version=model_instance.version,
+                                        #parameters=model_instance.parameters,  # todo
+                                        timestamp=model_instance.timestamp,
+                                        release=None)  # see comment above about release
+                        try:
+                            memodel.save(NAR_client)
+                        except Exception as err:
+                            logger.error("Error saving MEModel:\n{}".format(err))
+                            continue
+                        print("SUCCESS for instance in '{}'".format(model.name))
+                    else:
+                        # Use plain ModelInstance where no more-specific sub-type exists
+                        logger.warning("Skipping '{}', scope '{}' not handled yet".format(model.name, model.model_scope))
+                        print("Skipping '{}', scope '{}' not handled yet".format(model.name, model.model_scope))
+            else:
+                logger.warning("Skipping {}, couldn't find model project".format(model.name))
         return ''
 
     # def _search_for_person_or_create():
@@ -450,11 +492,11 @@ class Command(BaseCommand):
         models = ScientificModel.objects.all()
         model = models[0]
 
-        organization = self.get_organization(model.organization) ##checked ok 
+        organization = self.get_organization(model.organization) ##checked ok
         owner =self._get_person_from_Persons_table(model.owner) ##checked ok
         people = self._get_people_from_Persons_table(model.author) ## checked working only if already saved
         for p in people:
-            p.save(NAR_client) 
+            p.save(NAR_client)
         celltype = self.get_parameters("cell_type", model.cell_type) ##checked ok
         abstraction = self.get_parameters("abstraction_level", model.abstraction_level)
         brainregion = self.get_parameters("brain_region", model.brain_region)
@@ -463,7 +505,7 @@ class Command(BaseCommand):
         model_of = self.get_parameters("model_scope", model.model_scope)
         pla_components = model.pla_components         #self._get_person_from_Persons_table(model.owner) #self._get_people_from_Persons_table(model.author)
         collab_id = model.app.collab_id
-        date_created = model.creation_date 
+        date_created = model.creation_date
         private = model.private
         alias = model.alias
         name = model.name
@@ -473,10 +515,10 @@ class Command(BaseCommand):
         # p1 = Person("onur", "ates", "ates.onur@outlook.com", None)
         # p1.save(NAR_client)
 
-        d = ModelProject(name=name, description=description, date_created=date_created, 
-                         collab_id=collab_id, owner=owner, authors=people, private=private, 
+        d = ModelProject(name=name, description=description, date_created=date_created,
+                         collab_id=collab_id, owner=owner, authors=people, private=private,
                          organization=organization, pla_components=pla_components, alias=alias,
-                         model_of=model_of, brain_region=brainregion, species=species, 
+                         model_of=model_of, brain_region=brainregion, species=species,
                          celltype=celltype, abstraction_level=abstraction)
 
         d.save(NAR_client)
@@ -484,11 +526,38 @@ class Command(BaseCommand):
         print (d)
 
     def handle(self, *args, **options):
-         
+
         #self._getPersons_and_migrate()
         #self.add_organizations_in_KG_database()
-
         self.migrate_models()
-        #self.migrate_model_instances()
+        self.migrate_model_instances()
         ###self.save_model_project()
 
+{
+    '@context':
+        {'name': 'schema:name', 'alias': 'nsg:alias', 'author': 'schema:author', 'owner': 'nsg:owner', 'organization': 'nsg:organization', 'PLAComponents': 'nsg:PLAComponents', 'private': 'nsg:private', 'collabID': 'nsg:collabID', 'brainRegion': 'nsg:brainRegion', 'species': 'nsg:species', 'celltype': 'nsg:celltype', 'abstractionLevel': 'nsg:abstractionLevel', 'modelOf': 'nsg:modelOf', 'description': 'schema:description', 'nsg': 'https://bbp-nexus.epfl.ch/vocabs/bbp/neurosciencegraph/core/v0.1.0/', 'prov': 'http://www.w3.org/ns/prov#', 'schema': 'http://schema.org/', 'dateCreated': 'schema:dateCreated'},
+    '@type': ['prov:Entity', 'nsg:ModelProject'],
+    'author': [
+        {
+            '@type': ['nsg:Person', 'prov:Agent'],
+            '@id': 'https://nexus-int.humanbrainproject.org/v0/data/neuralactivity/core/person/v0.1.0/11d1d326-0c94-4edb-b664-294be9840847'
+        }
+    ],
+    'name': 'CA1_int_bAC_011127HP1_20170511120536',
+    'collabID': 2270,
+    'description': 'This model is being used to demonstrate use of the Validation Service',
+    'private': False,
+    'dateCreated': '18/12/17, 01:41',
+    'organization': {'@type': 'nsg:Organization', '@id': None},
+    'modelOf': 'single cell model',
+    'brainRegion': {
+        '@id': 'http://purl.obolibrary.org/obo/UBERON_0001954', 'label': 'hippocampus'
+    },
+    'species': {
+        '@id': 'http://purl.obolibrary.org/obo/NCBITaxon_10116', 'label': 'Rattus norvegicus'
+    },
+    'celltype': {
+        '@id': 'http://purl.obolibrary.org/obo/CL_0000598', 'label': 'pyramidal cell'
+    },
+    'oldUUID': '8eba68ab-ee07-4c9b-baa7-353626cc335a'
+}

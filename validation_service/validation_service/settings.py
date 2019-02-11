@@ -206,7 +206,11 @@ LOGGING = {
         'openid_http_client.http_client': {
             'handlers': ['file'],
             'level': 'DEBUG',
-        }
+        },
+        'kg_migration': {
+            'handlers': ['file'],
+            'level': 'DEBUG',
+        },
     },
     'formatters': {
         'verbose': {
