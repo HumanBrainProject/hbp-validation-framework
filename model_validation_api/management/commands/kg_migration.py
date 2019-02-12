@@ -469,7 +469,7 @@ class Command(BaseCommand):
                                           main_script=script,
                                           project=model_project,
                                           version=model_instance.version,
-                                          #parameters=model_instance.parameters,  # todo
+                                          parameters=model_instance.parameters,
                                           timestamp=model_instance.timestamp,
                                           release=None)  # see comment above about release
                         try:
@@ -496,7 +496,7 @@ class Command(BaseCommand):
                                               model_of=None,
                                               main_script=script,
                                               version=model_instance.version,
-                                              #parameters=model_instance.parameters,  # todo
+                                              parameters=model_instance.parameters,
                                               timestamp=model_instance.timestamp,
                                               release=None)  # see comment above about release
                         try:

@@ -69,7 +69,7 @@ class ScientificModelInstanceKGSerializer(object):
                     #"old_uuid": instance.old_uuid
                     "version": instance.version,
                     "description": instance.description,
-                    #"parameters":  # todo
+                    "parameters":  instance.parameters,
                     "code_format": script.code_format,
                     "source": script.code_location,
                     "hash": None
