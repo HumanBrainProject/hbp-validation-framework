@@ -21,7 +21,7 @@ from ...models import (
                     )
 from ...serializer.simple_serializer import PersonSerializer
 from tabulate  import tabulate
-from nar.brainsimulation import ModelProject, MEModel, EModel, Morphology, ModelScript
+from nar.brainsimulation import ModelProject, MEModel, EModel, Morphology, ModelScript, ModelInstance
 from nar.core import Person, Organization
 from nar.commons import Address, BrainRegion, Species, AbstractionLevel, CellType
 from nar.client import NARClient
@@ -427,6 +427,7 @@ class Command(BaseCommand):
             cell_type = self.get_parameters("cell_type", model.cell_type)
             model_project = lookup_model_project(model.name, NAR_client)
             if model_project:
+                instances = []
                 for model_instance in model.instances.all():
                     if model.model_scope == "Single cell model":
 
@@ -451,36 +452,61 @@ class Command(BaseCommand):
                             logger.error("Error saving Morphology:\n{}".format(err))
                             continue
                         script = ModelScript(name="ModelScript for {} @ {}".format(model.name, model_instance.version),
-                                            code_format=model_instance.code_format,
-                                            code_location=model_instance.source)
+                                             code_format=model_instance.code_format,
+                                             code_location=model_instance.source)
                         try:
                             script.save(NAR_client)
                         except Exception as err:
                             logger.error("Error saving Script:\n{}".format(err))
                             continue
                         memodel = MEModel(name="MEModel for {} @ {}".format(model.name, model_instance.version),
-                                        description=model_instance.description,
-                                        brain_region=brain_region,
-                                        species=species,
-                                        model_of=cell_type,
-                                        e_model=e_model,
-                                        morphology=morphology,
-                                        main_script=script,
-                                        project=model_project,
-                                        version=model_instance.version,
-                                        #parameters=model_instance.parameters,  # todo
-                                        timestamp=model_instance.timestamp,
-                                        release=None)  # see comment above about release
+                                          description=model_instance.description,
+                                          brain_region=brain_region,
+                                          species=species,
+                                          model_of=cell_type,
+                                          e_model=e_model,
+                                          morphology=morphology,
+                                          main_script=script,
+                                          project=model_project,
+                                          version=model_instance.version,
+                                          #parameters=model_instance.parameters,  # todo
+                                          timestamp=model_instance.timestamp,
+                                          release=None)  # see comment above about release
                         try:
                             memodel.save(NAR_client)
+                            instances.append(memodel)
                         except Exception as err:
                             logger.error("Error saving MEModel:\n{}".format(err))
                             continue
                         print("SUCCESS for instance in '{}'".format(model.name))
                     else:
                         # Use plain ModelInstance where no more-specific sub-type exists
-                        logger.warning("Skipping '{}', scope '{}' not handled yet".format(model.name, model.model_scope))
-                        print("Skipping '{}', scope '{}' not handled yet".format(model.name, model.model_scope))
+                        script = ModelScript(name="ModelScript for {} @ {}".format(model.name, model_instance.version),
+                                             code_format=model_instance.code_format,
+                                             code_location=model_instance.source)
+                        try:
+                            script.save(NAR_client)
+                        except Exception as err:
+                            logger.error("Error saving Script:\n{}".format(err))
+                            continue
+                        minst = ModelInstance(name="MEModel for {} @ {}".format(model.name, model_instance.version),
+                                              description=model_instance.description,
+                                              brain_region=brain_region,
+                                              species=species,
+                                              main_script=script,
+                                              version=model_instance.version,
+                                              #parameters=model_instance.parameters,  # todo
+                                              timestamp=model_instance.timestamp,
+                                              release=None)  # see comment above about release
+                        try:
+                            minst.save(NAR_client)
+                            instances.append(minst)
+                        except Exception as err:
+                            logger.error("Error saving ModelInstance:\n{}".format(err))
+                            continue
+                        print("SUCCESS for instance in '{}'".format(model.name))
+                model_project.instances = instances
+                model_project.save(NAR_client)
             else:
                 logger.warning("Skipping {}, couldn't find model project".format(model.name))
         return ''
@@ -502,7 +528,7 @@ class Command(BaseCommand):
         brainregion = self.get_parameters("brain_region", model.brain_region)
         species = self.get_parameters("species", model.species)
         description = model.description
-        model_of = self.get_parameters("model_scope", model.model_scope)
+        model_of = self.get_parameters("model_scope", model.model_scope)  # temporary, to fix
         pla_components = model.pla_components         #self._get_person_from_Persons_table(model.owner) #self._get_people_from_Persons_table(model.author)
         collab_id = model.app.collab_id
         date_created = model.creation_date
@@ -514,6 +540,8 @@ class Command(BaseCommand):
          # self._get_person_from_Persons_table("heli")
         # p1 = Person("onur", "ates", "ates.onur@outlook.com", None)
         # p1.save(NAR_client)
+
+        # todo: license
 
         d = ModelProject(name=name, description=description, date_created=date_created,
                          collab_id=collab_id, owner=owner, authors=people, private=private,
