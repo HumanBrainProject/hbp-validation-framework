@@ -489,10 +489,11 @@ class Command(BaseCommand):
                         except Exception as err:
                             logger.error("Error saving Script:\n{}".format(err))
                             continue
-                        minst = ModelInstance(name="MEModel for {} @ {}".format(model.name, model_instance.version),
+                        minst = ModelInstance(name="ModelInstance for {} @ {}".format(model.name, model_instance.version),
                                               description=model_instance.description,
                                               brain_region=brain_region,
                                               species=species,
+                                              model_of=None,
                                               main_script=script,
                                               version=model_instance.version,
                                               #parameters=model_instance.parameters,  # todo

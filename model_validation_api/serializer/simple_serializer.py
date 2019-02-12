@@ -1,6 +1,6 @@
 from django.core.serializers.json import DjangoJSONEncoder
 
-from ..models import (ValidationTestDefinition, 
+from ..models import (ValidationTestDefinition,
                     ValidationTestCode,
                     ValidationTestResult,
                     ScientificModel,
@@ -30,7 +30,7 @@ from rest_framework import serializers
 class CollabParametersSerializer(serializers.HyperlinkedModelSerializer):
      class Meta:
         model = CollabParameters
-        fields = ('id', 'data_modalities', 'test_type', 'species', 'brain_region', 
+        fields = ('id', 'data_modalities', 'test_type', 'species', 'brain_region',
                     'cell_type', 'model_scope','abstraction_level', 'organization', 'app_type','collab_id')
 
 class CollabParametersReadOnlyForHomeSerializer(serializers.HyperlinkedModelSerializer):
@@ -47,6 +47,35 @@ class ScientificModelInstanceSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = ScientificModelInstance
         fields = ('id', 'version', 'description', 'parameters', 'code_format', 'source', 'model_id', 'hash')
+
+
+class ScientificModelInstanceKGSerializer(object):
+    def __init__(self, instances, client, many=False):
+        self.client = client
+        if many:
+            self.data = [
+                self.serialize(instance) for instance in instances
+            ]
+        else:
+            instance = instances
+            self.data = self.serialize(instance)
+
+    def serialize(self, instance):
+        # todo: rewrite all this using KG Query API, to avoid doing all the individual resolves.
+        script = instance.main_script.resolve(self.client)
+        data = {
+                    "id": instance.id,
+                    "model_id": instance.project.id,
+                    #"old_uuid": instance.old_uuid
+                    "version": instance.version,
+                    "description": instance.description,
+                    #"parameters":  # todo
+                    "code_format": script.code_format,
+                    "source": script.code_location,
+                    "hash": None
+                }
+
+        return data
 
 class ScientificModelInstanceForModelReadOnlySerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
@@ -89,9 +118,9 @@ class ScientificModelSerializer(serializers.HyperlinkedModelSerializer):
 class ValidationTestDefinitionSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = ValidationTestDefinition
-        fields = ('id', 'name', 'alias', 'status', 'species', 'brain_region', 
-                    'cell_type', 'age', 'data_location', 
-                    'data_type', 'data_modality', 'test_type', 
+        fields = ('id', 'name', 'alias', 'status', 'species', 'brain_region',
+                    'cell_type', 'age', 'data_location',
+                    'data_type', 'data_modality', 'test_type',
                     'protocol', 'creation_date', 'author', 'publication', 'score_type')
 
 
@@ -114,7 +143,7 @@ class ValidationTestResultSerializer (serializers.HyperlinkedModelSerializer):
         model = ValidationTestResult
         fields = ('id', 'model_version_id', 'test_code_id', 'results_storage', 'score', 'passed', 'timestamp', 'platform',   'project',  'normalized_score')
 
- 
+
 
 #############
 ## Tickets ##
@@ -145,13 +174,13 @@ class TicketSerializer(serializers.HyperlinkedModelSerializer):
 class Param_DataModalitiesSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Param_DataModalities
-        fields = ('id', 'authorized_value') 
+        fields = ('id', 'authorized_value')
 
 class Param_TestTypeSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Param_TestType
         fields = ('id', 'authorized_value')
-    
+
 class Param_SpeciesSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Param_Species
@@ -181,12 +210,12 @@ class Param_ScoreTypeSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Param_ScoreType
         fields = ('id', 'authorized_value')
-    
+
 class Param_OrganizationsSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Param_organizations
         fields = ('id', 'authorized_value')
-    
+
 class PersonSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Persons

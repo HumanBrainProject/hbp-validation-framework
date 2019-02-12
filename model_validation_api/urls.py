@@ -26,7 +26,8 @@ from .views import (
                     CollabAppID,
                     IsSuperUserRest,
 
-                    Models_KG
+                    Models_KG,
+                    ModelInstances_KG
                     )
 
 # from django.contrib.auth.decorators import login_required
@@ -112,6 +113,9 @@ urlpatterns = (
     url(r'^model-instances/$',
         ModelInstances.as_view(),
         name="scientific-model-instance"),
+    url(r'^model-instances-kg/$',
+        ModelInstances_KG.as_view(),
+        name="scientific-model-instance-kg"),
     url(r'^images/$',
         Images.as_view(),
         name="scientific-model-image"),

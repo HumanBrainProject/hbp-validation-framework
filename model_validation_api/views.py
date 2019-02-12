@@ -37,8 +37,8 @@ import requests
 from hbp_app_python_auth.auth import get_access_token, get_auth_header
 
 from nar.client import NARClient
-from nar.base import KGQuery
-from nar.brainsimulation import ModelProject
+from nar.base import KGQuery, as_list
+from nar.brainsimulation import ModelProject, ModelInstance, MEModel
 
 from .models import (ValidationTestDefinition,
                         ValidationTestCode,
@@ -93,7 +93,8 @@ from .serializer.serializer import (ValidationTestDefinitionSerializer,
                             Param_ScoreTypeSerializer,
                             Param_OrganizationsSerializer,
 
-                            ScientificModelReadOnlyKGSerializer
+                            ScientificModelReadOnlyKGSerializer,
+                            ScientificModelInstanceKGSerializer
                             )
 
 
@@ -731,6 +732,85 @@ class ModelInstances (APIView):
             model_instance.delete()
 
         return Response( status=status.HTTP_200_OK)
+
+
+
+class ModelInstances_KG(APIView):
+    """
+    Model instances, taking data from KnowledgeGraph
+    """
+    def get(self, request, format=None, **kwargs):
+        """
+        get Instance of model_validation_api_scientificmodelinstance
+        :param id: instance id
+        :type id: UUID
+        :param model_id: model id
+        :type model_id: UUID
+        :param version: instance version
+        :type version: str
+        :param model_alias: alias of the model name
+        :type model_alias: str
+        :return: list of instances
+        :rtype: dictionnary
+        """
+        serializer_context = {'request': request,}
+
+        param_id = request.GET.getlist('id')
+        param_model_id = request.GET.getlist('model_id')
+        param_model_alias = request.GET.getlist('model_alias')
+        param_version = request.GET.getlist('version')
+
+        if check_list_uuid_validity(param_id) is False :
+            return Response("Badly formed uuid in : id", status=status.HTTP_400_BAD_REQUEST)
+        if check_list_uuid_validity(param_model_id) is False :
+            return Response("Badly formed uuid in : model_id", status=status.HTTP_400_BAD_REQUEST)
+
+        token = get_access_token(request.user.social_auth.get())
+        client = NARClient(token,
+                           nexus_endpoint=settings.NEXUS_ENDPOINT)
+
+        # instance_id or (model_id, version) or (alias, version)
+        instances = []
+        if len(param_id) > 0:
+            # Get instances by individual uuids
+            for instance_id in param_id:
+                inst = ModelInstance.from_uuid(instance_id)
+                if inst is None:
+                    inst = MEModel.from_uuid(instance_id)
+                if inst is not None:
+                    instances.append(inst)
+            # todo: add project field for linked model project
+        else:
+            # Get instances belonging to a specific model project
+            if len(param_model_id) > 0:
+                assert len(param_model_id) == 1  # todo: return error response
+                model_project = ModelProject.from_uuid(param_model_id[0], client)
+            elif len(param_model_alias) > 0:
+                assert len(param_model_alias) == 1  # todo: return error response
+                context = {
+                    "nsg": "https://bbp-nexus.epfl.ch/vocabs/bbp/neurosciencegraph/core/v0.1.0/",
+                    "schema": "http://schema.org/"
+                }
+                filter_query = {
+                    "path": "nsg:alias",
+                    "op": "in",
+                    "value": alias
+                }
+                model_project = KGQuery(ModelProject, filter_query, context).resolve(client)
+            if model_project:
+                instances = [inst.resolve(client) for inst in as_list(model_project.instances)]
+                if len(param_version) > 0:
+                    instances = [inst for inst in instances if inst.version in param_version]
+            else:
+                instances = []
+            for inst in instances:
+                inst.project = model_project
+
+        # todo: check access permissions
+
+        instance_serializer = ScientificModelInstanceKGSerializer(instances, client, many=True)
+
+        return Response({'instances': instance_serializer.data})
 
 
 class Images (APIView):
@@ -1408,10 +1488,8 @@ class Models_KG(APIView):
 
             web_app = request.GET.getlist('web_app')
 
-
             #if the request comes from the webapp : uses collab_parameters
             if len(web_app) > 0 and web_app[0] == 'True' :
-
 
                 # app_id = request.GET.getlist('app_id')[0]
 
@@ -1517,18 +1595,18 @@ class Models_KG(APIView):
 
 
             else :
-                app_id =request.GET.getlist('app_id')
-                name =request.GET.getlist('name')
-                description =request.GET.getlist('description')
-                species =request.GET.getlist('species')
-                brain_region =request.GET.getlist('brain_region')
-                cell_type =request.GET.getlist('cell_type')
-                author =request.GET.getlist('author')
-                model_scope =request.GET.getlist('model_scope')
-                abstraction_level =request.GET.getlist('abstraction_level')
-                private =request.GET.getlist('private')
-                code_format =request.GET.getlist('code_format')
-                alias =request.GET.getlist('alias')
+                app_id = request.GET.getlist('app_id')
+                name = request.GET.getlist('name')
+                description = request.GET.getlist('description')
+                species = request.GET.getlist('species')
+                brain_region = request.GET.getlist('brain_region')
+                cell_type = request.GET.getlist('cell_type')
+                author = request.GET.getlist('author')
+                model_scope = request.GET.getlist('model_scope')
+                abstraction_level = request.GET.getlist('abstraction_level')
+                private = request.GET.getlist('private')
+                code_format = request.GET.getlist('code_format')
+                alias = request.GET.getlist('alias')
                 organization = request.GET.getlist('organization')
                 owner = request.GET.getlist('owner')
                 license_param = request.GET.getlist('license')
@@ -1543,66 +1621,56 @@ class Models_KG(APIView):
                     "op": "and",
                     "value": []
                 }
-                #q = ScientificModel.objects.all()
 
                 if len(alias) > 0 :
-                    #q = q.filter(alias__in = alias)
                     filter_query["value"].append({
                         "path": "nsg:alias",
                         "op": "in",
                         "value": alias
                     })
                 if len(name) > 0 :
-                    #q = q.filter(name__in = name)
                     filter_query["value"].append({
                         "path": "schema:name",
                         "op": "in",
                         "value": name
                     })
                 if len(description) > 0 :
-                    #q = q.filter(description__in = description)
                     filter_query["value"].append({
                         "path": "schema:description",
                         "op": "in",
                         "value": description
                     })
                 if len(species) > 0 :
-                    #q = q.filter(species__in = species)
                     filter_query["value"].append({
                         "path": "nsg:species / rdfs:label",  # todo: map search term to URIs, rather than searching by label
                         "op": "in",
                         "value": species
                     })
                 if len(brain_region) > 0 :
-                   #q = q.filter(brain_region__in = brain_region)
                    filter_query["value"].append({
                         "path": "nsg:brainRegion / rdfs:label",
                         "op": "in",
                         "value": brain_region
                     })
                 if len(cell_type) > 0 :
-                    #q = q.filter(cell_type__in = cell_type )
                     filter_query["value"].append({
                         "path": "nsg:celltype / rdfs:label",
                         "op": "in",
                         "value": cell_type
                     })
                 if len(author) > 0 :
-                    #q = q.filter(author__in = author)
                     filter_query["value"].append({
                         "path": "schema:author",
                         "op": "in",
                         "value": author
                     })
                 if len(model_scope) > 0 :
-                    #q = q.filter(model_scope__in = model_scope)
                     filter_query["value"].append({
                         "path": "nsg:modelOf",
                         "op": "in",
                         "value": model_scope  # temporary, to fix
                     })
                 if len(abstraction_level) > 0 :
-                    #q = q.filter(abstraction_level__in = abstraction_level)
                     filter_query["value"].append({
                         "path": "nsg:abstractionLevel",
                         "op": "in",
@@ -1631,19 +1699,17 @@ class Models_KG(APIView):
                 # if len(license_param) > 0 :
                 #     q = q.filter(license__in = license_param)
 
-
-                # #For each models, check if collab member, if not then just return the publics.... TODO for KG
-                # list_app_id = q.values("app").distinct()
-                # for app_id in list_app_id :
-                #     app_id = app_id['app']
-                #     collab_id = get_collab_id_from_app_id(app_id)
-                #     #TODO... keep all data and make only one request to HBP
-                #     if not is_authorised_or_admin(request, collab_id) :
-                #         q = q.exclude(app=app_id, private=1)
-
-                #models = q
                 models = KGQuery(ModelProject, filter_query, context).resolve(client)
-                model_serializer = ScientificModelReadOnlyKGSerializer(models, client, many=True)
+
+                authorized_collabs = []
+                for collab_id in set(model.collab_id for model in models if model.private):
+                    if is_authorised_or_admin(request, collab_id):
+                        authorized_collabs.append(collab_id)
+
+                authorized_models = [model for model in models
+                                     if (not model.private) or (model.collab_id in authorized_collabs)]
+
+                model_serializer = ScientificModelReadOnlyKGSerializer(authorized_models, client, many=True)
 
                 return Response({
                     'models': model_serializer.data,
@@ -1666,7 +1732,7 @@ class Models_KG(APIView):
                         return HttpResponse('Unauthorized', status=401)
 
                 if len(web_app) > 0 and web_app[0] == 'True' :
-                    model_serializer = ScientificModelFullReadOnlyKGSerializer(model)
+                    model_serializer = ScientificModelFullReadOnlyKGSerializer(model)  # todo
                 else:
                     model_serializer = ScientificModelReadOnlyKGSerializer(model, client)
 
@@ -1679,8 +1745,9 @@ class Models_KG(APIView):
 
 class ModelAliases(APIView):
     """
-    Tes valididy of model Alias
+    Test validity of model Alias
     """
+
     def get(self, request, format=None, **kwargs):
         """
         Check if the alias entered is valid (not already used)
@@ -1712,6 +1779,7 @@ class ModelAliases(APIView):
         except:
             pass
         return Response({ 'is_valid':is_valid})
+
 
 class TestAliases(APIView):
     """
@@ -1748,6 +1816,7 @@ class TestAliases(APIView):
         except:
             pass
         return Response({ 'is_valid':is_valid})
+
 
 class TestInstances(APIView):
     """

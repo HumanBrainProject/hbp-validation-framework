@@ -46,6 +46,7 @@ from .simple_serializer import (
     Param_AbstractionLevelSerializer,
     Param_ScoreTypeSerializer,
     Param_OrganizationsSerializer,
+    ScientificModelInstanceKGSerializer
 )
 
 from nar.base import as_list
@@ -116,7 +117,7 @@ class ScientificModelReadOnlyKGSerializer(object):
             #'license': model.,  # todo: get from instances?
             'cell_type': model.celltype.label if model.celltype else None,  # map names?
             'model_scope': model.model_of,  # to fix   # map names?
-            'abstraction_level': model.abstraction_level,
+            'abstraction_level': model.abstraction_level.label if model.abstraction_level else None,
             'brain_region': model.brain_region.label,  # map names?
             'species': model.species.label if model.species else None,  # map names?  # 'Unknown' instead of None?
             'description': model.description,
