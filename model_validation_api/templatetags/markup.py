@@ -15,7 +15,10 @@ import warnings
 
 from django import template
 from django.conf import settings
-from django.utils.encoding import smart_str, force_unicode
+try:
+    from django.utils.encoding import smart_str, force_unicode
+except ImportError:
+    from django.utils.encoding import smart_bytes as smart_str, force_text as force_unicode
 from django.utils.safestring import mark_safe
 
 register = template.Library()
@@ -97,7 +100,7 @@ def restructuredtext(value):
         return force_unicode(value)
     else:
         roles.register_generic_role('file', nodes.literal)
-        roles.register_generic_role('func', nodes.literal)        
+        roles.register_generic_role('func', nodes.literal)
         docutils_settings = getattr(settings, "RESTRUCTUREDTEXT_FILTER_SETTINGS", {})
         parts = publish_parts(source=smart_str(value), writer_name="html4css1", settings_overrides=docutils_settings)
         return mark_safe(force_unicode(parts["fragment"]))
