@@ -36,12 +36,16 @@ from django.db import connection
 import requests
 from hbp_app_python_auth.auth import get_access_token, get_auth_header
 
-from .models import (ValidationTestDefinition, 
+from nar.client import NARClient
+from nar.base import KGQuery
+from nar.brainsimulation import ModelProject
+
+from .models import (ValidationTestDefinition,
                         ValidationTestCode,
-                        ValidationTestResult, 
-                        ScientificModel, 
+                        ValidationTestResult,
+                        ScientificModel,
                         ScientificModelInstance,
-                        ScientificModelImage,   
+                        ScientificModelImage,
                         Comments,
                         Tickets,
                         # FollowModel,
@@ -58,9 +62,9 @@ from .models import (ValidationTestDefinition,
                         )
 
 
-from .serializer.serializer import (ValidationTestDefinitionSerializer, 
+from .serializer.serializer import (ValidationTestDefinitionSerializer,
                             ScientificModelSerializer,
-                            ScientificModelReadOnlySerializer, 
+                            ScientificModelReadOnlySerializer,
                             ScientificModelFullReadOnlySerializer,
                             ScientificModelInstanceSerializer,
                             ScientificModelInstanceReadOnlySerializer,
@@ -88,7 +92,8 @@ from .serializer.serializer import (ValidationTestDefinitionSerializer,
                             Param_AbstractionLevelSerializer,
                             Param_ScoreTypeSerializer,
                             Param_OrganizationsSerializer,
-  
+
+                            ScientificModelReadOnlyKGSerializer
                             )
 
 
@@ -110,10 +115,10 @@ from django.views.decorators.csrf import csrf_exempt, csrf_protect, ensure_csrf_
 
 
 from .validation_framework_toolbox.user_auth_functions import (
-    _is_collaborator, 
-    is_authorised_or_admin, 
+    _is_collaborator,
+    is_authorised_or_admin,
     is_authorised,
-    get_user_info, 
+    get_user_info,
     is_hbp_member,
     get_storage_file_by_id,
 )
@@ -169,7 +174,7 @@ CROSSREF_URL = "http://api.crossref.org/works/"
 #     template_name = "welcome.html"
 #     # login_url='/login/hbp/'
 
-#     def get(self, request, *args, **kwargs): 
+#     def get(self, request, *args, **kwargs):
 
 #         return render(request, self.template_name, {})
 
@@ -178,52 +183,52 @@ class HomeValidationView(View):
     template_name = "validation_framework/validation_home.html"
     login_url='/login/hbp/'
 
-    def get(self, request, *args, **kwargs): 
+    def get(self, request, *args, **kwargs):
         return render(request, self.template_name, {})
 
 class AuthorizedCollabParameterRest(APIView):
     '''Get Authorized Collab Parameter'''
     def get(self, request,  format=None, **kwargs):
         """
-        get the authorized values for the collab parameters: data_modalities, test_type, species, brain_region, cell_type, model_scope, abstraction_level score_type, organization. 
-        :param python_client: 
+        get the authorized values for the collab parameters: data_modalities, test_type, species, brain_region, cell_type, model_scope, abstraction_level score_type, organization.
+        :param python_client:
         :type python_client: boolean
         :returns: list of the autorized values for each parameter: data_modalities, test_type, species, brain_region, cell_type, model_scope, abstraction_level, score_type, organization
-        :rtype: string list: 
+        :rtype: string list:
         """
         try:
             python_client = request.GET.getlist('python_client')[0]
-        except: 
+        except:
             python_client = 'false'
-            
+
         serializer_context = {'request': request,}
 
         data_modalities = Param_DataModalities.objects.all().order_by('authorized_value')
         data_modalities_serializer = Param_DataModalitiesSerializer(data_modalities, context=serializer_context, many=True)
-        
+
         test_type = Param_TestType.objects.all().order_by('authorized_value')
         test_type_serializer = Param_TestTypeSerializer(test_type, context=serializer_context, many=True)
-        
+
         species = Param_Species.objects.all().order_by('authorized_value')
         species_serializer = Param_SpeciesSerializer(species, context=serializer_context, many=True)
-        
+
         brain_region = Param_BrainRegion.objects.all().order_by('authorized_value')
         brain_region_serializer = Param_BrainRegionSerializer(brain_region, context=serializer_context, many=True)
-        
+
         cell_type = Param_CellType.objects.all().order_by('authorized_value')
         cell_type_serializer = Param_CellTypeSerializer(cell_type, context=serializer_context, many=True)
-        
+
         model_scope = Param_ModelScope.objects.all().order_by('authorized_value')
-        model_scope_serializer = Param_ModelScopeSerializer(model_scope, context=serializer_context, many=True) 
+        model_scope_serializer = Param_ModelScopeSerializer(model_scope, context=serializer_context, many=True)
 
         abstraction_level = Param_AbstractionLevel.objects.all().order_by('authorized_value')
-        abstraction_level_serializer = Param_AbstractionLevelSerializer(abstraction_level, context=serializer_context, many=True)   
+        abstraction_level_serializer = Param_AbstractionLevelSerializer(abstraction_level, context=serializer_context, many=True)
 
         score_type = Param_ScoreType.objects.all().order_by('authorized_value')
-        score_type_serializer = Param_ScoreTypeSerializer(score_type, context=serializer_context, many=True)     
-        
+        score_type_serializer = Param_ScoreTypeSerializer(score_type, context=serializer_context, many=True)
+
         organization = Param_organizations.objects.all().order_by('authorized_value')
-        organization_serializer = Param_OrganizationsSerializer(organization, context=serializer_context, many=True)  
+        organization_serializer = Param_OrganizationsSerializer(organization, context=serializer_context, many=True)
 
         ##for python client #'python_client=True' 'parameters= list()'
         if python_client == 'true':
@@ -243,9 +248,9 @@ class AuthorizedCollabParameterRest(APIView):
                     'abstraction_level' : abstraction_level.values_list('authorized_value', flat=True),
                     'score_type': score_type.values_list('authorized_value', flat=True),
                     'organization': organization.values_list('authorized_value', flat=True),
-                } 
+                }
                 return Response(res)
-            else: 
+            else:
                 # print "not in the IF"
                 # print params_asked
                 res = {}
@@ -267,11 +272,11 @@ class AuthorizedCollabParameterRest(APIView):
                     if (param == 'score_type'):
                         res['score_type'] = score_type.values_list('authorized_value', flat=True)
                     if (param == 'organization'):
-                        res['organization'] = organization.values_list('authorized_value', flat=True)   
+                        res['organization'] = organization.values_list('authorized_value', flat=True)
 
                 # print "final res"
-                # print res    
-                return Response(res)   
+                # print res
+                return Response(res)
 
 
         return Response({
@@ -286,7 +291,7 @@ class AuthorizedCollabParameterRest(APIView):
             'organization': organization_serializer.data,
         })
 
-class CollabIDRest(APIView): 
+class CollabIDRest(APIView):
     """
     Get collab ID
     """
@@ -300,7 +305,7 @@ class CollabIDRest(APIView):
         """
         if self.request.user == "AnonymousUser" :
             collab_id = 0
-        else :         
+        else :
             collab_id = _get_collab_id(request)
 
         return Response({
@@ -308,7 +313,7 @@ class CollabIDRest(APIView):
         })
 
 
-class AppIDRest(APIView): 
+class AppIDRest(APIView):
     """
     Get app ID
     """
@@ -317,19 +322,19 @@ class AppIDRest(APIView):
         Get app ID
         :param user: user name
         :type user: string
-        :return: id or the application <app_id> 
+        :return: id or the application <app_id>
         r_type: int:
         """
         if self.request.user == "AnonymousUser" :
             app_id = 0
-        else :         
+        else :
             app_id = _get_app_id(request)
 
         return Response({
             'app_id': app_id,
         })
 
-class CollabAppID(APIView): 
+class CollabAppID(APIView):
     """
     Get app id with collab_id and app_type
     """
@@ -354,7 +359,7 @@ class CollabAppID(APIView):
 
             if len(collab_param)> 0 :
                 app_id = collab_param[0].id
-            else : 
+            else :
                 app_id = ""
             return Response({
                 'app_id': app_id,
@@ -365,12 +370,12 @@ class CollabAppID(APIView):
 
 
 
-class ParametersConfigurationRest( APIView): #LoginRequiredMixin, 
+class ParametersConfigurationRest( APIView): #LoginRequiredMixin,
     ''' Manage app configuration '''
     def get(self, request, format=None, **kwargs):
         """
-        Get app configuration. 
-        :param app_id: id of application 
+        Get app configuration.
+        :param app_id: id of application
         :type app_id: string
         :returns: configuration array
         :rtype: json:
@@ -380,7 +385,7 @@ class ParametersConfigurationRest( APIView): #LoginRequiredMixin,
         app_id = request.GET.getlist('app_id')
         if len(app_id) == 0 :
             return Response( status=status.HTTP_400_BAD_REQUEST)
-        else : 
+        else :
             app_id = app_id[0]
 
 
@@ -390,14 +395,14 @@ class ParametersConfigurationRest( APIView): #LoginRequiredMixin,
         return Response({
             'param': param_serializer.data,
         })
- 
+
 
     def post(self, request, format=None):
         """
         Post app configuration.
         :param collab_id: id of collab
         :type collab_id: int
-        :return: :param uuid: app id 
+        :return: :param uuid: app id
                 :type uuid: int
         """
         # ctx = request.GET.getlist('ctx')[0]
@@ -411,28 +416,28 @@ class ParametersConfigurationRest( APIView): #LoginRequiredMixin,
 
         if len(collab_id) == 0 :
             return Response( status=status.HTTP_400_BAD_REQUEST)
-        else : 
+        else :
             collab_id = collab_id[0]
 
 
         if not is_authorised_or_admin(request, collab_id):
-            return HttpResponseForbidden() 
+            return HttpResponseForbidden()
 
         serializer_context = {'request': request,}
         param_serializer = CollabParametersSerializer(data=request.data, context=serializer_context)
         if param_serializer.is_valid():
-            param = param_serializer.save(id =request.data['id'] ) 
+            param = param_serializer.save(id =request.data['id'] )
             return Response({'uuid': param.id}, status=status.HTTP_201_CREATED)
         else:
             return Response(param_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-         
+
 
     def put(self, request, format=None):
         """
         Edit app configuration
         :param collab_id: id of collaboratory
         :type collab_id: int
-         :return: :param uuid: app id 
+         :return: :param uuid: app id
                 :type uuid: int
         """
         # ctx = request.GET.getlist('ctx')[0]
@@ -444,25 +449,25 @@ class ParametersConfigurationRest( APIView): #LoginRequiredMixin,
             app_id = request.GET.getlist('app_id')
             if len(app_id) == 0 :
                 return Response( status=status.HTTP_400_BAD_REQUEST)
-            else : 
+            else :
                 app_id = app_id[0]
 
         collab_id = get_collab_id_from_app_id(app_id)
         if not is_authorised_or_admin(request, collab_id):
             return HttpResponseForbidden()
-        
+
 
         if 'collab_id' in request.data :
             collab_id = request.data['collab_id']
             if not is_authorised_or_admin(request, collab_id):
                 return HttpResponseForbidden()
-        
+
         serializer_context = {'request': request,}
-  
+
         param = CollabParameters.objects.get(id = app_id )
         param_serializer = CollabParametersSerializer(param, data=request.data, context=serializer_context )
 
-        if param_serializer.is_valid():         
+        if param_serializer.is_valid():
             param_serializer.save()
             return Response({'uuid': param.id},status=status.HTTP_202_ACCEPTED)
         return Response(param_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -510,7 +515,7 @@ class ModelInstances (APIView):
         :type code_format: str
         :param hash: hash
         :type hash: str
-        :return: list of instances 
+        :return: list of instances
         :rtype: dictionnary
         """
         serializer_context = {'request': request,}
@@ -530,16 +535,16 @@ class ModelInstances (APIView):
         if check_list_uuid_validity(param_model_id) is False :
             return Response("Badly formed uuid in : model_id", status=status.HTTP_400_BAD_REQUEST)
 
-        q = ScientificModelInstance.objects.all()  
+        q = ScientificModelInstance.objects.all()
 
         if len(param_id) > 0 :
-            q = q.filter(id__in = param_id )  
+            q = q.filter(id__in = param_id )
         if len(param_model_id) > 0 :
             q = q.filter(model_id__in = param_model_id )
-        
+
         else :
             if  len(param_model_alias) > 0 :
-                q = q.prefetch_related().filter(model__alias__in = param_model_alias)         
+                q = q.prefetch_related().filter(model__alias__in = param_model_alias)
         if len(param_version) > 0 :
             q = q.filter(version__in = param_version )
         if len(param_parameters) > 0 :
@@ -552,7 +557,7 @@ class ModelInstances (APIView):
             q = q.filter(code_format__in = param_code_format )
         if len(param_hash) > 0 :
             q = q.filter(hash__in = param_hash )
-            
+
         instances = q
 
         instance_serializer = ScientificModelInstanceSerializer(data=instances, context=serializer_context, many=True)
@@ -569,34 +574,34 @@ class ModelInstances (APIView):
         :type data: object array
         :returns: uuid list of the created objects
         :rtype: uuid list
-        """    
+        """
         serializer_context = {'request': request,}
 
         DATA = _reformat_request_data(request.data)
 
-        for i in DATA : 
+        for i in DATA :
             if len(i) == 0 :
                 return Response(status=status.HTTP_400_BAD_REQUEST)
-                
-                
+
+
 
         #check if valid + security
         for instance in DATA :
             if not instance['model_id']:
-                try: 
+                try:
                     model = ScientificModel.objects.filter(alias=instance['model_alias'])
                     instance['model_id']=model.id
                 except:
                     Response(status=status.HTTP_400_BAD_REQUEST)
             serializer = ScientificModelInstanceSerializer(data=instance, context=serializer_context)
-            if serializer.is_valid():   
+            if serializer.is_valid():
 
                 #security
                 app_id = ScientificModel.objects.get(id=instance['model_id']).app_id
                 collab_id = get_collab_id_from_app_id(app_id)
                 if not is_authorised_or_admin(request, collab_id):
                     return HttpResponseForbidden()
-                
+
                 #check if versions are unique
                 if not _are_model_instance_version_unique(instance) :
                     return Response("Oh no... The specified version name already exists for this model. Please, give me a new name", status=status.HTTP_400_BAD_REQUEST)
@@ -607,14 +612,14 @@ class ModelInstances (APIView):
         for instance in DATA :
             serializer = ScientificModelInstanceSerializer(data=instance, context=serializer_context)
 
-            if serializer.is_valid(): 
+            if serializer.is_valid():
                 obj = serializer.save(model_id=instance['model_id'])
                 list_id.append(obj.id)
 
         return Response({'uuid':list_id}, status=status.HTTP_201_CREATED)
 
-            
-    
+
+
     def put(self, request, format=None):
         """
         Update model instance
@@ -627,50 +632,50 @@ class ModelInstances (APIView):
         serializer_context = {'request': request,}
 
         DATA = _reformat_request_data(request.data)
-        for i in DATA : 
+        for i in DATA :
             if len(i) == 0 :
                 return Response(status=status.HTTP_400_BAD_REQUEST)
-        
+
         #check if valid
         try:
             param_web_app = request.GET.getlist('web_app')[0]
-        except: 
+        except:
             param_web_app = False
 
         for instance in DATA:
-             
+
             if param_web_app==True:
                 original_instance = ScientificModelInstance.objects.get(id=instance.get('id'))
                 #check if version is editable - only if you are not super user
                 if not is_authorised_or_admin(request,settings.ADMIN_COLLAB_ID):
                     if not _are_model_instance_editable(instance):
                         return Response("This version is no longer editable as there is at least one result associated with it.", status=status.HTTP_400_BAD_REQUEST)
-                
-                
+
+
                 #check if versions are unique
                 if not _are_model_instance_version_unique(instance) :
                     return Response("Oh no... The specified version name already exists for this model. Please, give me a new name", status=status.HTTP_400_BAD_REQUEST)
-            
+
                 model_serializer = ScientificModelInstanceSerializer(original_instance, data=instance, context=serializer_context)
                 if  model_serializer.is_valid():
                     model_instance = model_serializer.save()
-                    return  Response(status=status.HTTP_202_ACCEPTED) 
+                    return  Response(status=status.HTTP_202_ACCEPTED)
                 else:
                     return Response(status=status.HTTP_400_BAD_REQUEST)
 
             if 'id' in instance:
-                try: 
+                try:
                     original_instance = ScientificModelInstance.objects.get(id= instance['id'])
                 except:
                     return Response("The given id "+instance['id']+" does not exists. Please give a new id, or a model_id with a version_name, or a model_alias with a version_name. ", status=status.HTTP_400_BAD_REQUEST)
-                instance['model_id'] = original_instance.model_id   
+                instance['model_id'] = original_instance.model_id
                 serializer = ScientificModelInstanceSerializer(original_instance, data=instance, context=serializer_context)
                 if not serializer.is_valid():
                     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
             else:
                 if 'version' in instance:
                     if 'model_id' in instance:
-                        try: 
+                        try:
                             original_instance = ScientificModelInstance.objects.get(model_id= instance['model_id'], version=instance['version'])
                         except:
                             return Response("There is no model instance with this version name for this model_id. Please give a new model_id or a new version name. ", status=status.HTTP_400_BAD_REQUEST)
@@ -679,32 +684,32 @@ class ModelInstances (APIView):
                         if not serializer.is_valid():
                             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
                     if 'model_alias' in instance:
-                        try: 
+                        try:
                             model = ScientificModel.objects.get(alias = instance['model_alias'])
                         except:
                             return Response('There is no model with this alias. Please give a new alias or try with the model_id directly.', status=status.HTTP_400_BAD_REQUEST)
-                        instance['model_id'] = model.id 
+                        instance['model_id'] = model.id
                 else:
-                    return Response("To edit a model instance, you need to give an id, or a model_id with a version, or a model_alias with a version ", status=status.HTTP_400_BAD_REQUEST)    
+                    return Response("To edit a model instance, you need to give an id, or a model_id with a version, or a model_alias with a version ", status=status.HTTP_400_BAD_REQUEST)
 
             #security
             app_id =ScientificModel.objects.get(id=original_instance.model_id).app_id
             collab_id = get_collab_id_from_app_id(app_id)
             if not is_authorised_or_admin(request, collab_id):
                 return HttpResponseForbidden()
-    
+
             #check if version is editable
             if not is_authorised_or_admin(request, settings.ADMIN_COLLAB_ID):
                 if not _are_model_instance_editable(instance):
                     return Response("This version is no longer editable as there is at least one result associated with it.", status=status.HTTP_400_BAD_REQUEST)
-                
+
             #check if versions are unique
             if not _are_model_instance_version_unique(instance) :
                 return Response("Oh no... The specified version name already exists for this model. Please, give me a new name", status=status.HTTP_400_BAD_REQUEST)
 
         list_id = []
         #is valid + authorized : save it
-        for instance in DATA: 
+        for instance in DATA:
             model_instance = ScientificModelInstance.objects.get(id=instance['id'])
             model_serializer = ScientificModelInstanceSerializer(model_instance, data=instance, context=serializer_context)
 
@@ -712,20 +717,20 @@ class ModelInstances (APIView):
                 model_instance = model_serializer.save()
                 list_id.append(model_instance.id)
 
-        return Response({'uuid': list_id}, status=status.HTTP_202_ACCEPTED) 
-    
+        return Response({'uuid': list_id}, status=status.HTTP_202_ACCEPTED)
+
     def delete(self, request, format=None):
 
         if not is_authorised_or_admin(request, settings.ADMIN_COLLAB_ID):
             return HttpResponseForbidden()
-        
+
         list_ids = request.GET.getlist('id')
 
         elements_to_delete = ScientificModelInstance.objects.filter(id__in=list_ids)
         for model_instance in elements_to_delete:
             model_instance.delete()
-     
-        return Response( status=status.HTTP_200_OK)    
+
+        return Response( status=status.HTTP_200_OK)
 
 
 class Images (APIView):
@@ -746,7 +751,7 @@ class Images (APIView):
         :param caption: description of the image
         :type caption: str
         :return: updated list of model images
-        :rtype: dictionnary 
+        :rtype: dictionnary
         """
         serializer_context = {'request': request,}
 
@@ -761,24 +766,24 @@ class Images (APIView):
         if check_list_uuid_validity(param_model_id) is False :
             return Response("Badly formed uuid in : model_id", status=status.HTTP_400_BAD_REQUEST)
 
-        q = ScientificModelImage.objects.all()  
+        q = ScientificModelImage.objects.all()
 
         if len(param_id) > 0 :
-            q = q.filter(id__in = param_id )        
+            q = q.filter(id__in = param_id )
 
         if len(param_model_id) > 0 :
             q = q.filter(model_id__in = param_model_id )
-        
+
         else :
             if  len(param_model_alias) > 0 :
-                q = q.prefetch_related().filter(model__alias__in = param_model_alias)  
+                q = q.prefetch_related().filter(model__alias__in = param_model_alias)
         if len(param_model_id) > 0 :
             q = q.filter(model_id__in = param_model_id )
         if len(param_url) > 0 :
             q = q.filter(url__in = param_url )
         if len(param_caption) > 0 :
             q = q.filter(caption__in = param_caption )
-            
+
         images = q
 
         image_serializer = ScientificModelImageSerializer(data=images, context=serializer_context, many=True)
@@ -803,7 +808,7 @@ class Images (APIView):
         #check if valid + security
         for image in DATA :
             serializer = ScientificModelImageSerializer(data=image, context=serializer_context)
-            if serializer.is_valid():   
+            if serializer.is_valid():
                 #security
                 try:
                     app_id = ScientificModel.objects.get(id=image['model_id']).app_id
@@ -819,7 +824,7 @@ class Images (APIView):
         for image in DATA :
             serializer = ScientificModelImageSerializer(data=image, context=serializer_context)
 
-            if serializer.is_valid(): 
+            if serializer.is_valid():
                 if image['model_id']:
                     im = serializer.save(model_id=image['model_id'])
                 else:
@@ -846,7 +851,7 @@ class Images (APIView):
             return HttpResponseForbidden()
 
         DATA = _reformat_request_data(request.data)
-        for i in DATA : 
+        for i in DATA :
             if len(i) == 0 :
                 return Response(status=status.HTTP_400_BAD_REQUEST)
 
@@ -858,12 +863,12 @@ class Images (APIView):
             collab_id = get_collab_id_from_app_id(app_id)
             if not is_authorised_or_admin(request, collab_id):
                 return HttpResponseForbidden()
-            
+
             # check if data is ok else return error
             model_serializer = ScientificModelImageSerializer(model_image, data=image, context=serializer_context)
             if not model_serializer.is_valid() :
                 Response(model_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
+
         list_id = []
         for image in DATA:
             model_image = ScientificModelImage.objects.get(id=image['id'])
@@ -873,8 +878,8 @@ class Images (APIView):
                 model_image = model_serializer.save()
                 list_id.append(model_image.id)
 
-        return Response({'uuid':list_id}, status=status.HTTP_202_ACCEPTED) 
-        
+        return Response({'uuid':list_id}, status=status.HTTP_202_ACCEPTED)
+
 
     def delete(self, request, format=None):
         """
@@ -886,9 +891,9 @@ class Images (APIView):
 
         if not is_hbp_member(request):
             return HttpResponseForbidden()
-        
+
         image_id = request.GET.getlist('id')[0]
-        
+
         #security
         image = ScientificModelImage.objects.get(id=image_id)
         app_id = ScientificModel.objects.get(id= image.model_id).app_id
@@ -897,7 +902,7 @@ class Images (APIView):
             return HttpResponseForbidden()
 
         image = image.delete()
-        return Response( status=status.HTTP_200_OK) 
+        return Response( status=status.HTTP_200_OK)
 
 
 
@@ -954,89 +959,89 @@ class Models(APIView):
         id = request.GET.getlist('id')
         if check_list_uuid_validity(id) is False :
             return Response("Badly formed uuid in : id", status=status.HTTP_400_BAD_REQUEST)
-            
 
-        #if model id not specifiedorresponding to this alias. 
+
+        #if model id not specifiedorresponding to this alias.
         if(len(id) == 0):
-         
-            web_app = request.GET.getlist('web_app')    
+
+            web_app = request.GET.getlist('web_app')
 
 
             #if the request comes from the webapp : uses collab_parameters
-            if len(web_app) > 0 and web_app[0] == 'True' :  
-               
-            
+            if len(web_app) > 0 and web_app[0] == 'True' :
+
+
                 app_id = request.GET.getlist('app_id')[0]
-              
+
                 collab_id = get_collab_id_from_app_id(app_id)
-             
+
                 collab_params = CollabParameters.objects.get(id = app_id )
 
-               
+
                 species_filter = collab_params.species.split(",")
                 if species_filter==[u'']:
                     species_filter = list(Param_Species.objects.all().values_list('authorized_value', flat=True))+[u'']
-                else: 
+                else:
                     species_filter += [u'']
 
                 brain_region_filter = collab_params.brain_region.split(",")
                 if brain_region_filter==[u'']:
                     brain_region_filter = list(Param_BrainRegion.objects.all().values_list('authorized_value', flat=True))+[u'']
-                else: 
+                else:
                     brain_region_filter += [u'']
 
                 cell_type_filter = collab_params.cell_type.split(",")
                 if cell_type_filter==[u'']:
                     cell_type_filter = list(Param_CellType.objects.all().values_list('authorized_value', flat=True))+[u'']
-                else: 
+                else:
                     cell_type_filter += [u'']
 
                 model_scope_filter = collab_params.model_scope.split(",")
                 if model_scope_filter==[u'']:
-                    model_scope_filter = list(Param_ModelScope.objects.all().values_list('authorized_value', flat=True))+[u'']    
-                else: 
+                    model_scope_filter = list(Param_ModelScope.objects.all().values_list('authorized_value', flat=True))+[u'']
+                else:
                     model_scope_filter += [u'']
-              
+
                 abstraction_level_filter = collab_params.abstraction_level.split(",")
                 if abstraction_level_filter==[u'']:
-                    abstraction_level_filter = list(Param_AbstractionLevel.objects.all().values_list('authorized_value', flat=True))+[u'']    
-                else: 
+                    abstraction_level_filter = list(Param_AbstractionLevel.objects.all().values_list('authorized_value', flat=True))+[u'']
+                else:
                     abstraction_level_filter += [u'']
-               
+
                 organization_filter = collab_params.organization.split(",")
                 if organization_filter==[u'']:
                     organization_filter = list(Param_organizations.objects.all().values_list('authorized_value', flat=True)) #+[u'']
 
-         
+
                 rq1 = ScientificModel.objects.filter(
-                        private=1, 
-                        species__in=species_filter, 
-                        brain_region__in=brain_region_filter, 
-                        cell_type__in=cell_type_filter, 
+                        private=1,
+                        species__in=species_filter,
+                        brain_region__in=brain_region_filter,
+                        cell_type__in=cell_type_filter,
                         abstraction_level__in=abstraction_level_filter,
                         model_scope__in=model_scope_filter,
                         organization__in=organization_filter).prefetch_related()
-      
+
                 ##check permissions for Collabs
                 collab_ids = list(rq1.prefetch_related().values_list('app__collab_id', flat=True).distinct())
                 collab_ids_new = []
                 for collab in collab_ids:
                     if is_authorised_or_admin(request, collab):
                         collab_ids_new.append(collab)
-           
+
                 all_ctx_from_collab = CollabParameters.objects.filter(collab_id__in=collab_ids_new).distinct()
                 rq1 = rq1.filter(app__in = all_ctx_from_collab.values("id"))
-              
+
 
                 rq2 = ScientificModel.objects.filter (
-                    private=0, 
-                    species__in=species_filter, 
-                    brain_region__in=brain_region_filter, 
+                    private=0,
+                    species__in=species_filter,
+                    brain_region__in=brain_region_filter,
                     cell_type__in=cell_type_filter,
                     abstraction_level__in=abstraction_level_filter,
                     model_scope__in=model_scope_filter,
                     organization__in=organization_filter).prefetch_related()
-        
+
                 if len(rq1) >0:
                     models  = (rq1 | rq2).distinct().order_by('-creation_date')
                 else:
@@ -1057,19 +1062,19 @@ class Models(APIView):
                         init = (int(page)-1)*(pagination_number)
                         end = (int(page)-1)*(pagination_number)+pagination_number-1
                         model_serializer = ScientificModelReadOnlyForHomeSerializer(models[init:end], context=serializer_context, many=True )
-                else: 
+                else:
                     model_serializer = ScientificModelReadOnlyForHomeSerializer(models, context=serializer_context, many=True )
-             
+
                 return Response({
                 'models': model_serializer.data,
                 'page':page,
                 'total_nb_pages': _get_nb_pages(len(models), pagination_number),
                 'total_models':len(models)
                 })
-            
 
-            else :  
-                app_id =request.GET.getlist('app_id')   
+
+            else :
+                app_id =request.GET.getlist('app_id')
                 name =request.GET.getlist('name')
                 description =request.GET.getlist('description')
                 species =request.GET.getlist('species')
@@ -1094,21 +1099,21 @@ class Models(APIView):
                 if len(name) > 0 :
                     q = q.filter(name__in = name)
                 if len(description) > 0 :
-                    q = q.filter(description__in = description)  
+                    q = q.filter(description__in = description)
                 if len(species) > 0 :
-                    q = q.filter(species__in = species)   
+                    q = q.filter(species__in = species)
                 if len(brain_region) > 0 :
-                   q = q.filter(brain_region__in = brain_region)   
+                   q = q.filter(brain_region__in = brain_region)
                 if len(cell_type ) > 0 :
                     q = q.filter(cell_type__in = cell_type )
                 if len(author) > 0 :
-                    q = q.filter(author__in = author)   
+                    q = q.filter(author__in = author)
                 if len(model_scope) > 0 :
                     q = q.filter(model_scope__in = model_scope)
                 if len(abstraction_level) > 0 :
                     q = q.filter(abstraction_level__in = abstraction_level)
                 if len(code_format) > 0 :
-                    q = q.filter(code_format__in = code_format)    
+                    q = q.filter(code_format__in = code_format)
                 if len(app_id) > 0 :
                     q = q.filter(app__in = app_id)
                 if len(organization) > 0 :
@@ -1128,7 +1133,7 @@ class Models(APIView):
                     #TODO... keep all data and make only one request to HBP
                     if not is_authorised_or_admin(request, collab_id) :
                         q = q.exclude(app=app_id, private=1)
-                
+
 
                 models = q
                 model_serializer = ScientificModelReadOnlySerializer(models, context=serializer_context, many=True )
@@ -1137,23 +1142,23 @@ class Models(APIView):
                 'models': model_serializer.data,
                 })
 
-        # a model ID has been specified 
+        # a model ID has been specified
         else:
             try:
                 web_app = request.GET.getlist('web_app')
             except:
-                web_app = False  
+                web_app = False
             id =id[0]
             models = ScientificModel.objects.filter(id=id)
 
             if len(models) > 0 :
-         
-                #check if private 
+
+                #check if private
                 if models.values("private")[0]["private"] == 1 :
                     #if private check if collab member
                     app_id = models.values("app")[0]['app']
                     collab_id = get_collab_id_from_app_id(app_id)
-                 
+
                     if not is_authorised_or_admin(request, collab_id) :
                         return HttpResponse('Unauthorized', status=401)
                         return HttpResponseForbidden()
@@ -1171,21 +1176,21 @@ class Models(APIView):
                 #     'models':[],
                 # })
 
-    def post(self, request, format=None): 
+    def post(self, request, format=None):
         """
         Save a new model in model_validation_api_scientificmodel table - if the model contains images and a version, it saves it also.
         :param app_id: application id
         :type app_id: int
         :return: uuid of the created object
         :rtype: uuid:
-        """  
+        """
         app_id = request.GET.getlist('app_id')
 
         if len(app_id) == 0 :
             return Response("You need to specify the app_id argument", status=status.HTTP_400_BAD_REQUEST)
-        else : 
+        else :
             app_id = app_id[0]
-            
+
         collab_id = get_collab_id_from_app_id(app_id)
         if not is_authorised_or_admin(request, collab_id):
             return HttpResponse('Unauthorized', status=401)
@@ -1196,7 +1201,7 @@ class Models(APIView):
 
         DATA = _reformat_request_data(request.data)
         DATA = DATA[0]
-        
+
         #make sure organisation is not empty :
         try :
             if DATA['model']["organization"] == "" :
@@ -1213,57 +1218,57 @@ class Models(APIView):
             check_param = check_param_of_model_json(DATA['model'])
             if check_param is not True :
                 return Response(check_param, status=status.HTTP_400_BAD_REQUEST)
-                
-               
+
+
         if len(DATA['model_instance']) >  0 :
             list_version_names = []
             for i in DATA['model_instance']:
                 list_version_names.append(i["version"])
                 model_instance_serializer = ScientificModelInstanceSerializer(data=i, context=serializer_context)
-                if model_instance_serializer.is_valid() is not True:    
+                if model_instance_serializer.is_valid() is not True:
                     return Response(model_instance_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-            
-            if not len(list_version_names) == len(set(list_version_names)) :    
-                return Response("You are sending a version name which are not unique", status=status.HTTP_400_BAD_REQUEST)    
+
+            if not len(list_version_names) == len(set(list_version_names)) :
+                return Response("You are sending a version name which are not unique", status=status.HTTP_400_BAD_REQUEST)
 
         if len(DATA['model_image']) >  0 :
             for i in DATA['model_image']:
-                model_image_serializer = ScientificModelImageSerializer(data=i, context=serializer_context)  
+                model_image_serializer = ScientificModelImageSerializer(data=i, context=serializer_context)
                 if model_image_serializer.is_valid()  is not True:
                     return Response(model_image_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        
 
-        
-        # no error then save all 
+
+
+        # no error then save all
         model = model_serializer.save(app_id=app_id)
 
         if len(DATA['model_instance']) >  0 :
             for i in DATA['model_instance'] :
                 model_instance_serializer = ScientificModelInstanceSerializer(data=i, context=serializer_context)
                 if model_instance_serializer.is_valid():
-                    model_instance_serializer.save(model_id=model.id) 
+                    model_instance_serializer.save(model_id=model.id)
 
         if len(DATA['model_image']) >  0 :
-            for i in DATA['model_image']: 
-                model_image_serializer = ScientificModelImageSerializer(data=i, context=serializer_context) 
-                if model_image_serializer.is_valid()   :     
+            for i in DATA['model_image']:
+                model_image_serializer = ScientificModelImageSerializer(data=i, context=serializer_context)
+                if model_image_serializer.is_valid()   :
                     model_image_serializer.save(model_id=model.id)
 
         return Response({'uuid':model.id}, status=status.HTTP_201_CREATED)
 
     def put(self, request, format=None):
         """
-        Update model  
+        Update model
         :param app_id: application id
         :type app_id: int
-        :param id: model id 
+        :param id: model id
         :type id: uuid
-        :returns: model id of the updated model 
+        :returns: model id of the updated model
         :rtype: uuid:
         """
 
-        ## save only modifications on model. if you want to modify images or instances, do separate put.  
-        ##get objects 
+        ## save only modifications on model. if you want to modify images or instances, do separate put.
+        ##get objects
         value = request.data['models'][0]
 
         app_id = request.GET.getlist('app_id')
@@ -1275,11 +1280,11 @@ class Models(APIView):
             model = ScientificModel.objects.get(id=value['id'])
         else:
             if 'alias' in value and value['alias'] != '':
-                try: 
+                try:
                     model = ScientificModel.objects.get(alias=value['alias'])
                 except:
-                    return Response('There is not model corresponding to this alias. Please give a new alias or use the id of the model', status=status.HTTP_400_BAD_REQUEST )  
-            else: 
+                    return Response('There is not model corresponding to this alias. Please give a new alias or use the id of the model', status=status.HTTP_400_BAD_REQUEST )
+            else:
                 return Response('We cannot update the model. Please give the id or the alias of the model.', status=status.HTTP_400_BAD_REQUEST )
         #security
         app_id = model.app_id
@@ -1289,7 +1294,7 @@ class Models(APIView):
             return HttpResponseForbidden()
 
         app_id = value['app']['id']
-        
+
         collab_id = get_collab_id_from_app_id(app_id)
         if not is_authorised_or_admin(request, collab_id):
             return HttpResponseForbidden()
@@ -1307,16 +1312,16 @@ class Models(APIView):
 
         # check if data is ok else return error
         model_serializer = ScientificModelSerializer(model, data=value, context=serializer_context)
-        if model_serializer.is_valid() :        
+        if model_serializer.is_valid() :
             check_param = check_param_of_model_json(value)
             if check_param is True :
                 model = model_serializer.save(app_id=app_id)
             else :
                 return Response(check_param, status=status.HTTP_400_BAD_REQUEST)
-                
-        else: 
+
+        else:
             return Response(model_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        return Response({'uuid':model.id}, status=status.HTTP_202_ACCEPTED) 
+        return Response({'uuid':model.id}, status=status.HTTP_202_ACCEPTED)
 
 
     def delete(self, request, format=None):
@@ -1329,18 +1334,352 @@ class Models(APIView):
 
         if not is_authorised_or_admin(request, settings.ADMIN_COLLAB_ID):
             return HttpResponseForbidden()
-        
+
         list_ids = request.GET.getlist('id')
 
         elements_to_delete = ScientificModel.objects.filter(id__in=list_ids)
         for model in elements_to_delete:
             model.delete()
-     
-        return Response( status=status.HTTP_200_OK) 
-        
+
+        return Response( status=status.HTTP_200_OK)
+
+
+
+class Models_KG(APIView):
+    """
+    Model projects (like Models, but taking data from KnowledgeGraph)
+    """
+    def get(self, request, format=None, **kwargs):
+        """
+        get models
+        :param id: list of model ids
+        :type id: uuid list
+        :param web_app: true if the request comes from the web application, false if not.
+        :type web_app: boolean
+        :param app_id: app id
+        :type app_id: int
+        :param name: model name
+        :type name: str
+        :param description: model description
+        :type description: str
+        :param species: species parameter
+        :type species: str
+        :param brain_region: brain region parameter
+        :type brain_region: str
+        :param cell_type: cell type parameter
+        :type cell_type: str
+        :param author: author(s) of the model
+        :type author: str
+        :param model_scope: model scope parameter
+        :type model_scope: str
+        :param abstraction_level: abstraction level parameter
+        :type abstraction_level: str
+        :param private: privacy of the model
+        :type private: boolean
+        :param code_format: format used in the code
+        :type code_format: str
+        :param alias: alias of the model
+        :type alias: str
+        :param organization: organization parameter
+        :type organization: str
+        :param owner: owner of the model, for contact
+        :type owner: str
+        :param project: project parameter
+        :type project: str
+        :param license: license
+        :type license: str
+        :returns: list of serialized Models
+        :rtype: object list
+        """
+        serializer_context = {
+            'request': request,
+        }
+        # time_spent=time.time()
+        id = request.GET.getlist('id')
+        if check_list_uuid_validity(id) is False :
+            return Response("Badly formed uuid in : id", status=status.HTTP_400_BAD_REQUEST)
+
+        token = get_access_token(request.user.social_auth.get())
+        client = NARClient(token,
+                           nexus_endpoint=settings.NEXUS_ENDPOINT)
+
+        #if model id not specifiedorresponding to this alias.
+        if(len(id) == 0):
+
+            web_app = request.GET.getlist('web_app')
+
+
+            #if the request comes from the webapp : uses collab_parameters
+            if len(web_app) > 0 and web_app[0] == 'True' :
+
+
+                # app_id = request.GET.getlist('app_id')[0]
+
+                # collab_id = get_collab_id_from_app_id(app_id)
+
+                # collab_params = CollabParameters.objects.get(id = app_id )
+
+
+                # species_filter = collab_params.species.split(",")
+                # if species_filter==[u'']:
+                #     species_filter = list(Param_Species.objects.all().values_list('authorized_value', flat=True))+[u'']
+                # else:
+                #     species_filter += [u'']
+
+                # brain_region_filter = collab_params.brain_region.split(",")
+                # if brain_region_filter==[u'']:
+                #     brain_region_filter = list(Param_BrainRegion.objects.all().values_list('authorized_value', flat=True))+[u'']
+                # else:
+                #     brain_region_filter += [u'']
+
+                # cell_type_filter = collab_params.cell_type.split(",")
+                # if cell_type_filter==[u'']:
+                #     cell_type_filter = list(Param_CellType.objects.all().values_list('authorized_value', flat=True))+[u'']
+                # else:
+                #     cell_type_filter += [u'']
+
+                # model_scope_filter = collab_params.model_scope.split(",")
+                # if model_scope_filter==[u'']:
+                #     model_scope_filter = list(Param_ModelScope.objects.all().values_list('authorized_value', flat=True))+[u'']
+                # else:
+                #     model_scope_filter += [u'']
+
+                # abstraction_level_filter = collab_params.abstraction_level.split(",")
+                # if abstraction_level_filter==[u'']:
+                #     abstraction_level_filter = list(Param_AbstractionLevel.objects.all().values_list('authorized_value', flat=True))+[u'']
+                # else:
+                #     abstraction_level_filter += [u'']
+
+                # organization_filter = collab_params.organization.split(",")
+                # if organization_filter==[u'']:
+                #     organization_filter = list(Param_organizations.objects.all().values_list('authorized_value', flat=True)) #+[u'']
+
+
+                # rq1 = ScientificModel.objects.filter(
+                #         private=1,
+                #         species__in=species_filter,
+                #         brain_region__in=brain_region_filter,
+                #         cell_type__in=cell_type_filter,
+                #         abstraction_level__in=abstraction_level_filter,
+                #         model_scope__in=model_scope_filter,
+                #         organization__in=organization_filter).prefetch_related()
+
+                # ##check permissions for Collabs
+                # collab_ids = list(rq1.prefetch_related().values_list('app__collab_id', flat=True).distinct())
+                # collab_ids_new = []
+                # for collab in collab_ids:
+                #     if is_authorised_or_admin(request, collab):
+                #         collab_ids_new.append(collab)
+
+                # all_ctx_from_collab = CollabParameters.objects.filter(collab_id__in=collab_ids_new).distinct()
+                # rq1 = rq1.filter(app__in = all_ctx_from_collab.values("id"))
+
+
+                # rq2 = ScientificModel.objects.filter (
+                #     private=0,
+                #     species__in=species_filter,
+                #     brain_region__in=brain_region_filter,
+                #     cell_type__in=cell_type_filter,
+                #     abstraction_level__in=abstraction_level_filter,
+                #     model_scope__in=model_scope_filter,
+                #     organization__in=organization_filter).prefetch_related()
+
+                # if len(rq1) >0:
+                #     models  = (rq1 | rq2).distinct().order_by('-creation_date')
+                # else:
+                #     models = rq2.distinct().order_by('-creation_date')
+
+
+                # ####check for pages###
+                # try:
+                #     page = request.GET.getlist('page')[0]
+                # except:
+                #     page=0
+                # pagination_number = 50
+
+                # if(page != 0):
+                #     if page == '1':
+                #         model_serializer = ScientificModelReadOnlyForHomeSerializer(models[0:pagination_number], context=serializer_context, many=True )
+                #     else:
+                #         init = (int(page)-1)*(pagination_number)
+                #         end = (int(page)-1)*(pagination_number)+pagination_number-1
+                #         model_serializer = ScientificModelReadOnlyForHomeSerializer(models[init:end], context=serializer_context, many=True )
+                # else:
+                #     model_serializer = ScientificModelReadOnlyForHomeSerializer(models, context=serializer_context, many=True )
+
+                # return Response({
+                # 'models': model_serializer.data,
+                # 'page':page,
+                # 'total_nb_pages': _get_nb_pages(len(models), pagination_number),
+                # 'total_models':len(models)
+                # })
+                raise NotImplementedError()
+
+
+            else :
+                app_id =request.GET.getlist('app_id')
+                name =request.GET.getlist('name')
+                description =request.GET.getlist('description')
+                species =request.GET.getlist('species')
+                brain_region =request.GET.getlist('brain_region')
+                cell_type =request.GET.getlist('cell_type')
+                author =request.GET.getlist('author')
+                model_scope =request.GET.getlist('model_scope')
+                abstraction_level =request.GET.getlist('abstraction_level')
+                private =request.GET.getlist('private')
+                code_format =request.GET.getlist('code_format')
+                alias =request.GET.getlist('alias')
+                organization = request.GET.getlist('organization')
+                owner = request.GET.getlist('owner')
+                license_param = request.GET.getlist('license')
+                owner = request.GET.getlist('owner')
+                project = request.GET.getlist('project')
+
+                context = {
+                    "nsg": "https://bbp-nexus.epfl.ch/vocabs/bbp/neurosciencegraph/core/v0.1.0/",
+                    "schema": "http://schema.org/"
+                }
+                filter_query = {
+                    "op": "and",
+                    "value": []
+                }
+                #q = ScientificModel.objects.all()
+
+                if len(alias) > 0 :
+                    #q = q.filter(alias__in = alias)
+                    filter_query["value"].append({
+                        "path": "nsg:alias",
+                        "op": "in",
+                        "value": alias
+                    })
+                if len(name) > 0 :
+                    #q = q.filter(name__in = name)
+                    filter_query["value"].append({
+                        "path": "schema:name",
+                        "op": "in",
+                        "value": name
+                    })
+                if len(description) > 0 :
+                    #q = q.filter(description__in = description)
+                    filter_query["value"].append({
+                        "path": "schema:description",
+                        "op": "in",
+                        "value": description
+                    })
+                if len(species) > 0 :
+                    #q = q.filter(species__in = species)
+                    filter_query["value"].append({
+                        "path": "nsg:species / rdfs:label",  # todo: map search term to URIs, rather than searching by label
+                        "op": "in",
+                        "value": species
+                    })
+                if len(brain_region) > 0 :
+                   #q = q.filter(brain_region__in = brain_region)
+                   filter_query["value"].append({
+                        "path": "nsg:brainRegion / rdfs:label",
+                        "op": "in",
+                        "value": brain_region
+                    })
+                if len(cell_type) > 0 :
+                    #q = q.filter(cell_type__in = cell_type )
+                    filter_query["value"].append({
+                        "path": "nsg:celltype / rdfs:label",
+                        "op": "in",
+                        "value": cell_type
+                    })
+                if len(author) > 0 :
+                    #q = q.filter(author__in = author)
+                    filter_query["value"].append({
+                        "path": "schema:author",
+                        "op": "in",
+                        "value": author
+                    })
+                if len(model_scope) > 0 :
+                    #q = q.filter(model_scope__in = model_scope)
+                    filter_query["value"].append({
+                        "path": "nsg:modelOf",
+                        "op": "in",
+                        "value": model_scope  # temporary, to fix
+                    })
+                if len(abstraction_level) > 0 :
+                    #q = q.filter(abstraction_level__in = abstraction_level)
+                    filter_query["value"].append({
+                        "path": "nsg:abstractionLevel",
+                        "op": "in",
+                        "value": abstraction_level
+                    })
+                # if len(code_format) > 0 :
+                #     q = q.filter(code_format__in = code_format)
+                # if len(app_id) > 0 :
+                #     q = q.filter(app__in = app_id)
+                if len(organization) > 0 :
+                    #q = q.filter(organization__in = organization)
+                    filter_query["value"].append({
+                        "path": "nsg:organization",
+                        "op": "in",
+                        "value": organization
+                    })
+                if len(owner) > 0 :
+                    #q = q.filter(owner__in = owner)
+                    filter_query["value"].append({
+                        "path": "nsg:owner",
+                        "op": "in",
+                        "value": author
+                    })
+                # if len(project) > 0 :
+                #     q = q.filter(project__in = project)
+                # if len(license_param) > 0 :
+                #     q = q.filter(license__in = license_param)
+
+
+                # #For each models, check if collab member, if not then just return the publics.... TODO for KG
+                # list_app_id = q.values("app").distinct()
+                # for app_id in list_app_id :
+                #     app_id = app_id['app']
+                #     collab_id = get_collab_id_from_app_id(app_id)
+                #     #TODO... keep all data and make only one request to HBP
+                #     if not is_authorised_or_admin(request, collab_id) :
+                #         q = q.exclude(app=app_id, private=1)
+
+                #models = q
+                models = KGQuery(ModelProject, filter_query, context).resolve(client)
+                model_serializer = ScientificModelReadOnlyKGSerializer(models, client, many=True)
+
+                return Response({
+                    'models': model_serializer.data,
+                })
+
+        # a model ID has been specified
+        else:
+            try:
+                web_app = request.GET.getlist('web_app')
+            except:
+                web_app = False
+            id = id[0]
+
+            model = ModelProject.from_uuid(id, client)
+            if model is not None:
+                #check if private
+                if model.private:
+                    #if private check if collab member
+                    if not is_authorised_or_admin(request, model.collab_id) :
+                        return HttpResponse('Unauthorized', status=401)
+
+                if len(web_app) > 0 and web_app[0] == 'True' :
+                    model_serializer = ScientificModelFullReadOnlyKGSerializer(model)
+                else:
+                    model_serializer = ScientificModelReadOnlyKGSerializer(model, client)
+
+                return Response({
+                    'models': model_serializer.data,
+                })
+            else :
+                return HttpResponse('Not found', status=404)
+
+
 class ModelAliases(APIView):
     """
-    Tes valididy of model Alias 
+    Tes valididy of model Alias
     """
     def get(self, request, format=None, **kwargs):
         """
@@ -1362,7 +1701,7 @@ class ModelAliases(APIView):
         all_alias_in_model = ScientificModel.objects.filter().values_list('alias', flat=True)
         if alias[0] in all_alias_in_model:
             is_valid = False
-        else: 
+        else:
             is_valid = True
 
         try:
@@ -1370,7 +1709,7 @@ class ModelAliases(APIView):
             old_alias = ScientificModel.objects.filter(id = model_id[0]).values_list('alias', flat=True)
             if alias[0] == old_alias[0]:
                 is_valid = True
-        except: 
+        except:
             pass
         return Response({ 'is_valid':is_valid})
 
@@ -1393,12 +1732,12 @@ class TestAliases(APIView):
 
         if len(alias) == 0 :
             return Response(status=status.HTTP_400_BAD_REQUEST)
-            
+
 
         all_alias_in_test = ValidationTestDefinition.objects.filter().values_list('alias', flat=True)
         if alias[0] in all_alias_in_test:
             is_valid= False
-        else: 
+        else:
             is_valid = True
 
         try:
@@ -1406,7 +1745,7 @@ class TestAliases(APIView):
             old_alias = ValidationTestDefinition.objects.filter(id = test_id[0]).values_list('alias', flat=True)
             if alias[0] == old_alias[0]:
                 is_valid = True
-        except: 
+        except:
             pass
         return Response({ 'is_valid':is_valid})
 
@@ -1449,19 +1788,19 @@ class TestInstances(APIView):
 
         q = ValidationTestCode.objects.all().prefetch_related()
         if len(param_id) > 0 :
-            q = q.filter(id__in = param_id) 
+            q = q.filter(id__in = param_id)
         if len(param_test_definition_id) > 0 :
             q = q.filter(test_definition_id__in = param_test_definition_id)
         if len(param_test_alias) > 0 :
-            q = q.filter(test_definition__alias__in = param_test_alias)     
+            q = q.filter(test_definition__alias__in = param_test_alias)
         if len(param_repository) > 0 :
-            q = q.filter(repository__in = param_repository)           
+            q = q.filter(repository__in = param_repository)
         if len(param_version) > 0 :
-            q = q.filter(version__in = param_version) 
+            q = q.filter(version__in = param_version)
         if len(param_path) > 0 :
-            q = q.filter(path__in = param_path) 
+            q = q.filter(path__in = param_path)
         if len(param_timestamp) > 0 :
-            q = q.filter(timestamp__in = param_timestamp) 
+            q = q.filter(timestamp__in = param_timestamp)
 
 
         # nb_id = str(len(request.GET.getlist('id')))
@@ -1479,9 +1818,9 @@ class TestInstances(APIView):
         test_codes = q.order_by('timestamp')
         test_code_serializer = ValidationTestCodeSerializer(test_codes, context=serializer_context, many=True)
         return Response({
-            'test_codes': test_code_serializer.data, 
+            'test_codes': test_code_serializer.data,
         })
-        
+
 
     def post(self, request, format=None):
         """
@@ -1491,7 +1830,7 @@ class TestInstances(APIView):
         """
 
         serializer_context = {'request': request,}
-         
+
         if not is_hbp_member(request):
             return HttpResponseForbidden()
 
@@ -1506,65 +1845,65 @@ class TestInstances(APIView):
             if 'test_definition_id' in test_code:
                 try:
                     test = ValidationTestDefinition.objects.get(id = test_code["test_definition_id"])
-                except: 
+                except:
                     return('There is no test matching this test_definition_id.')
             serializer = ValidationTestCodeSerializer(data=test_code, context=serializer_context)
             if not serializer.is_valid():
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-            
+
             #check if versions are unique
             if not _are_test_code_version_unique(test_code) :
                 return Response("Oh no... The specified version name already exists for this test. Please, give me a new name", status=status.HTTP_400_BAD_REQUEST)
 
         list_id = []
         for test_code in DATA :
-           
+
             serializer = ValidationTestCodeSerializer(data=test_code, context=serializer_context)
             if serializer.is_valid():
-                saved_test_code = serializer.save(test_definition_id=test_code['test_definition_id']) 
-                list_id.append(saved_test_code.id)          
+                saved_test_code = serializer.save(test_definition_id=test_code['test_definition_id'])
+                list_id.append(saved_test_code.id)
         return Response({'uuid':list_id}, status=status.HTTP_201_CREATED)
 
     def put(self, request, format=None):
         """
         :param data: test instance
-        :type data: object    
+        :type data: object
         :returns: uuid list of the updated objects
         :rtype: uuid list
         """
 
-        serializer_context = {'request': request,}        
-         
+        serializer_context = {'request': request,}
+
         if not is_hbp_member(request):
             return HttpResponseForbidden()
 
         DATA = _reformat_request_data(request.data)
-        for i in DATA : 
+        for i in DATA :
             if len(i) == 0 :
                 return Response(status=status.HTTP_400_BAD_REQUEST)
 
-        ##check if request is valid 
-        for test_code in DATA:   
+        ##check if request is valid
+        for test_code in DATA:
             ##get the test code
             if 'id' in test_code:
-                try: 
+                try:
                     original_test_code = ValidationTestCode.objects.get(id= test_code['id'])
                 except:
                     return Response("The given id "+test_code['id']+" does not exists. Please give a new id, or a test_definition_id with a version, or a test_definition_alias with a version. ", status=status.HTTP_400_BAD_REQUEST)
-                test_code['test_definition_id'] = original_test_code.test_definition_id   
+                test_code['test_definition_id'] = original_test_code.test_definition_id
                 serializer = ValidationTestCodeSerializer(original_test_code, data=test_code, context=serializer_context)
                 if not serializer.is_valid():
                     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
             else:
                 if 'version' in test_code:
                     if 'test_alias' in test_code:
-                        try: 
+                        try:
                             test_definition = ValidationTestDefinition.objects.get(alias = test_code['test_alias'])
                         except:
                             return Response('There is no test with this alias. Please give a new alias or try with the test_definition_id directly.', status=status.HTTP_400_BAD_REQUEST)
                         test_code['test_definition_id'] = test_definition.id
                     if 'test_definition_id' in test_code:
-                        try: 
+                        try:
                             original_test_code = ValidationTestCode.objects.get(test_definition_id= test_code['test_definition_id'], version=test_code['version'])
                         except:
                             return Response("There is no test instance with this version name for this test_definition_id. Please give a new test_definition_id or a new version name. ", status=status.HTTP_400_BAD_REQUEST)
@@ -1573,7 +1912,7 @@ class TestInstances(APIView):
                         if not serializer.is_valid():
                             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
                 else:
-                    return Response("To edit a test instance, you need to give an id, or a test_definition_id with a version, or a test_definition_alias with a version ", status=status.HTTP_400_BAD_REQUEST)    
+                    return Response("To edit a test instance, you need to give an id, or a test_definition_id with a version, or a test_definition_alias with a version ", status=status.HTTP_400_BAD_REQUEST)
 
             #check if version is editable
             if not is_authorised_or_admin(request,settings.ADMIN_COLLAB_ID):
@@ -1589,25 +1928,25 @@ class TestInstances(APIView):
         for test_code in DATA:
             original_test_code = ValidationTestCode.objects.get(id= test_code['id'])
             serializer = ValidationTestCodeSerializer(original_test_code, data=test_code, context=serializer_context)
-        
+
             if serializer.is_valid() :
-               serializer.save() 
+               serializer.save()
                list_updated.append(serializer.data)
 
         return Response({'uuid':list_updated}, status=status.HTTP_202_ACCEPTED)
-        
+
     def delete(self, request, format=None):
 
         if not is_authorised_or_admin(request, settings.ADMIN_COLLAB_ID):
             return HttpResponseForbidden()
-        
+
         list_ids = request.GET.getlist('id')
 
         elements_to_delete = ValidationTestCode.objects.filter(id__in=list_ids)
         for test_code in elements_to_delete:
             test_code.delete()
-     
-        return Response( status=status.HTTP_200_OK) 
+
+        return Response( status=status.HTTP_200_OK)
 
     def get_serializer_class(self): #############not used???? TO delete?
         #  if self.request.method in ('GET', )
@@ -1686,7 +2025,7 @@ class Tests(APIView):
         # app_id = request.query_params['app_id']
         # collab_id = get_collab_id_from_app_id(app_id)
 
-        if len(param_web_app) > 0 and param_web_app[0] == 'True' : 
+        if len(param_web_app) > 0 and param_web_app[0] == 'True' :
 
             if(len(param_id) == 0):
 
@@ -1694,40 +2033,40 @@ class Tests(APIView):
                 param_app_id = param_app_id[0]
                 collab_params = CollabParameters.objects.get(id = param_app_id )
 
-                 #if one of the collab_param is empty, don't filter on it. 
+                 #if one of the collab_param is empty, don't filter on it.
                 species_filter = collab_params.species.split(",")
                 if species_filter==[u'']:
                     species_filter = list(Param_Species.objects.all().values_list('authorized_value', flat=True))+[u'']
-                else: 
+                else:
                     species_filter += [u'']
 
                 brain_region_filter = collab_params.brain_region.split(",")
                 if brain_region_filter==[u'']:
                     brain_region_filter = list(Param_BrainRegion.objects.all().values_list('authorized_value', flat=True))+[u'']
-                else: 
+                else:
                     brain_region_filter += [u'']
 
                 cell_type_filter = collab_params.cell_type.split(",")
                 if cell_type_filter==[u'']:
                     cell_type_filter = list(Param_CellType.objects.all().values_list('authorized_value', flat=True))+[u'']
-                else: 
+                else:
                     cell_type_filter += [u'']
 
                 test_type_filter = collab_params.test_type.split(",")
                 if test_type_filter==[u'']:
-                    test_type_filter = list(Param_TestType.objects.all().values_list('authorized_value', flat=True))+[u'']    
-                else: 
+                    test_type_filter = list(Param_TestType.objects.all().values_list('authorized_value', flat=True))+[u'']
+                else:
                     test_type_filter += [u'']
 
                 data_modality_filter = collab_params.data_modalities.split(",")
                 if data_modality_filter==[u'']:
                     data_modality_filter = list(Param_DataModalities.objects.all().values_list('authorized_value', flat=True))+[u'']
-                else: 
+                else:
                     data_modality_filter += [u'']
 
                 tests= ValidationTestDefinition.objects.filter (
-                    species__in=species_filter, 
-                    brain_region__in=brain_region_filter, 
+                    species__in=species_filter,
+                    brain_region__in=brain_region_filter,
                     cell_type__in=cell_type_filter,
                     data_modality__in=data_modality_filter,
                     test_type__in=test_type_filter).prefetch_related().distinct()
@@ -1737,14 +2076,14 @@ class Tests(APIView):
                 test_serializer = ValidationTestDefinitionSerializer(tests, context=serializer_context, many=True)
 
 
-            else:   
+            else:
                 tests = ValidationTestDefinition.objects.filter(id__in = param_id)
                 # TODO serializer : ValidationTestDefinitionFull
                 test_serializer = ValidationTestDefinitionSerializer(tests, context=serializer_context, many=True)
-                     
-                
-                                             
-        else :         
+
+
+
+        else :
             if (len(request.GET.getlist('id')) == 0):
                 q = ValidationTestDefinition.objects.all()
 
@@ -1780,14 +2119,14 @@ class Tests(APIView):
                     q = q.filter(score_type__in = param_score_type)
                 if len(param_status) > 0 :
                     q = q.filter(status__in = param_status)
-                        
+
                 tests = q.order_by('-creation_date')
                 #serializer : ValidationTestDefinition
                 test_serializer = ValidationTestDefinitionFullSerializer(tests, context=serializer_context, many=True)
 
-                
 
-            else :               
+
+            else :
                 tests = ValidationTestDefinition.objects.filter(id__in = param_id)
                 # TODO serializer : ValidationTestDefinitionFull
                 # test_serializer = ValidationTestDefinitionSerializer(tests, context=serializer_context, many=True)
@@ -1806,7 +2145,7 @@ class Tests(APIView):
         :returns:  list of test id
         :rtype: uuid list:
         """
-        # ctx = request.GET.getlist('ctx')[0]    
+        # ctx = request.GET.getlist('ctx')[0]
         if not is_hbp_member(request):
             return HttpResponseForbidden()
 
@@ -1819,27 +2158,27 @@ class Tests(APIView):
 
         DATA = _reformat_request_data(request.data)
 
-        for i in DATA :  
+        for i in DATA :
             if len(i) == 0 :
-                return Response( "You gave an empty dictionary",status=status.HTTP_400_BAD_REQUEST)   
+                return Response( "You gave an empty dictionary",status=status.HTTP_400_BAD_REQUEST)
 
         if len(DATA) > 1 :
-            return Response( "Posting more than 1 test is not supported yet",status=status.HTTP_400_BAD_REQUEST)   
-               
-        else : 
+            return Response( "Posting more than 1 test is not supported yet",status=status.HTTP_400_BAD_REQUEST)
+
+        else :
             DATA = DATA[0]
 
         test_serializer = ValidationTestDefinitionSerializer(data=DATA['test_data'], context=serializer_context)
-        
+
 
         if test_serializer.is_valid():
             if 'code_data' in DATA:
                 code_serializer = ValidationTestCodeSerializer(data=DATA['code_data'], context=serializer_context)
-                if code_serializer.is_valid():      
+                if code_serializer.is_valid():
                     check_param = check_param_of_test_json(DATA['test_data'])
                     if check_param is not True :
                         return Response(check_param, status=status.HTTP_400_BAD_REQUEST)
-                else :       
+                else :
                     return Response(code_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
             test = test_serializer.save()
@@ -1850,11 +2189,11 @@ class Tests(APIView):
 
         else :
             return Response(test_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        
+
 
     def put(self, request, format=None):
         """
-        Update a test in the database 
+        Update a test in the database
         :param data: test obeject
         :returns: test id
         :rtype: uuid
@@ -1878,7 +2217,7 @@ class Tests(APIView):
             if check_param is not True :
                 return Response(check_param, status=status.HTTP_400_BAD_REQUEST)
             test = test_serializer.save()
-        else: 
+        else:
             return Response(test_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         return Response({'uuid':test.id}, status=status.HTTP_202_ACCEPTED)
 
@@ -1886,14 +2225,14 @@ class Tests(APIView):
 
         if not is_authorised_or_admin(request, settings.ADMIN_COLLAB_ID):
             return HttpResponseForbidden()
-        
+
         list_ids = request.GET.getlist('id')
 
         elements_to_delete = ValidationTestDefinition.objects.filter(id__in=list_ids)
         for test in elements_to_delete:
             test.delete()
-     
-        return Response( status=status.HTTP_200_OK) 
+
+        return Response( status=status.HTTP_200_OK)
 
 
 class TestTicketRest(APIView):
@@ -1906,7 +2245,7 @@ class TestTicketRest(APIView):
         :param test_id: test id
         :type test_id: uuid
         :returns: tickets objects related to the test
-        :rtype: tickets objects 
+        :rtype: tickets objects
         """
         serializer_context = {'request': request,}
         # nb_test_id = request.query_params['test_id']
@@ -1924,14 +2263,14 @@ class TestTicketRest(APIView):
             'tickets': ticket_serializer.data,
             'user_connected':str(request.user)###should not be there. TO CHANGE
         })
-  
+
     def post(self, request, format=None):
         """
         Save a ticket
         :param data: ticket object
         :type data: json object
         :returns: the created ticket
-        :rtype: json object 
+        :rtype: json object
         """
         serializer_context = {'request': request,}
 
@@ -1955,17 +2294,17 @@ class TestTicketRest(APIView):
         :param data: ticket object
          :type data: json object
         :returns: the updated ticket id
-        :rtype: uuid 
+        :rtype: uuid
         """
         if not is_hbp_member(request):
             return HttpResponseForbidden()
-        
+
         serializer_context = {'request': request,}
         ticket_id = request.data['id']
         ticket = Tickets.objects.get(id=ticket_id)
         param_serializer = TicketSerializer(ticket, data=request.data, context=serializer_context )
 
-        if param_serializer.is_valid():         
+        if param_serializer.is_valid():
             param_serializer.save()
             return Response({'uuid':ticket.id}, status=status.HTTP_202_ACCEPTED)
         return Response(param_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -2005,7 +2344,7 @@ class TestCommentRest(APIView):
         return Response({
             'comments': comments_serializer.data,
         })
-  
+
     def post(self, request, format=None):
         """
         Save a comment
@@ -2027,7 +2366,7 @@ class TestCommentRest(APIView):
             return Response(param_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         new_comment = Comments.objects.filter(id=param.id)
         new_comment_serializer = CommentSerializer (new_comment, context=serializer_context, many=True)
-        
+
         return Response({'uuid':param.id, 'new_comment': new_comment_serializer.data },status=status.HTTP_201_CREATED) ##id should be inside new_comment ##TO CHANGE
 
     def put(self, request, format=None):
@@ -2039,17 +2378,17 @@ class TestCommentRest(APIView):
         """
         if not is_hbp_member(request):
             return HttpResponseForbidden()
-        
+
         serializer_context = {'request': request,}
         comment_id = request.data['id']
         comment = Comments.objects.get(id=comment_id)
         param_serializer = CommentSerializer(comment, data=request.data, context=serializer_context )
 
-        if param_serializer.is_valid():         
+        if param_serializer.is_valid():
             param_serializer.save()
             return Response({'uuid':comment_id}, status=status.HTTP_202_ACCEPTED)
         return Response(param_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        
+
 
 @method_decorator(login_required(login_url='/login/hbp/'), name='dispatch' )
 class ModelCatalogView(View):
@@ -2077,9 +2416,9 @@ class IsCollabMemberOrAdminRest (APIView):
         :return: bool: is_member
         """
         app_id = request.GET.getlist('app_id')
-        try: 
+        try:
             collab_id = request.GET.getlist('collab_id')[0]
-        except: 
+        except:
             collab_id = request.GET.getlist('collab_id')
 
 
@@ -2127,7 +2466,7 @@ class IsCollabMemberRest (APIView):
                     if is_member == True:
                         res_authorized_collabs.append(ids)
                     res_is_member.append({"collab_id":ids,"is_member":is_member})
-         
+
                 return Response({
                     'is_member':  res_is_member,
                     'is_authorized': res_authorized_collabs
@@ -2156,7 +2495,7 @@ class IsSuperUserRest (APIView):
         :type app_id: int
         :return: bool: is_member
         """
-    
+
         is_superuser = is_authorised_or_admin(request, settings.ADMIN_COLLAB_ID)
         return Response({
             'is_superuser':  is_superuser,
@@ -2174,11 +2513,11 @@ class Results (APIView):
         get Instance of model_validation_api_validationtestresult
         :param id: result id
         :type id: uuid
-        :param results_storage: 
+        :param results_storage:
         :type results_storage: str
         :param score: core of the result
         :type score: int
-        :param passed: true if the result passed, false else. 
+        :param passed: true if the result passed, false else.
         :type passed: boolean
         :param timestamp: creation date of the result
         :type timestamp: datetime
@@ -2205,7 +2544,7 @@ class Results (APIView):
         :param order: order to get the results (test_code, model_instance, score_type)
         :type order: str
         :param detailed_view: to say results are for the detail view
-        :type detailed_view: boolean 
+        :type detailed_view: boolean
         :returns: organized dictionnary in function of the order param
         :rtype: dictionnary
         """
@@ -2230,11 +2569,11 @@ class Results (APIView):
 
         param_detailed_view = request.GET.getlist('detailed_view')
 
-        if len(param_detailed_view) > 0 :  
-            detailed_view =  param_detailed_view[0] 
+        if len(param_detailed_view) > 0 :
+            detailed_view =  param_detailed_view[0]
         else :
             detailed_view = False
-            
+
 
         if len(param_order) > 0 and (param_order[0] == 'test' or param_order[0] == 'model' or param_order[0] == '' or param_order[0] == 'model_instance' or param_order[0] == 'test_code' or param_order[0] == 'score_type') :
             param_order = param_order[0]
@@ -2247,19 +2586,19 @@ class Results (APIView):
         if check_list_uuid_validity(param_model_version_id) is False :
             return Response("Badly formed uuid in : model_version_id", status=status.HTTP_400_BAD_REQUEST)
         if check_list_uuid_validity(param_test_code_id) is False :
-            return Response("Badly formed uuid in : test_code_id", status=status.HTTP_400_BAD_REQUEST)  
+            return Response("Badly formed uuid in : test_code_id", status=status.HTTP_400_BAD_REQUEST)
         if check_list_uuid_validity(param_model_id) is False :
-            return Response("Badly formed uuid in : model_id", status=status.HTTP_400_BAD_REQUEST)   
+            return Response("Badly formed uuid in : model_id", status=status.HTTP_400_BAD_REQUEST)
         if check_list_uuid_validity(param_test_id) is False :
-            return Response("Badly formed uuid in : test_id", status=status.HTTP_400_BAD_REQUEST)                   
+            return Response("Badly formed uuid in : test_id", status=status.HTTP_400_BAD_REQUEST)
 
 
-        
+
         serializer_context = {'request': request,}
 
         #if ID result
         if (len(param_id) == 0):
-            
+
             #make the first sorting using the params
             q = ValidationTestResult.objects.all()
             if len(param_results_storage) > 0 :
@@ -2288,7 +2627,7 @@ class Results (APIView):
                 if param_order == "model_instance":
                     q= q.prefetch_related().order_by('test_code__timestamp', 'timestamp')
                 if param_order == "score_type": #if order=score_type, it has to be ordered by test_code also
-                    q = q.prefetch_related().order_by('model_version__timestamp','timestamp')    
+                    q = q.prefetch_related().order_by('model_version__timestamp','timestamp')
             results = q
             #add filter using param_test_id >> filter by tests
             if len(param_test_code_id) == 0 :
@@ -2297,10 +2636,10 @@ class Results (APIView):
                         param_test_id = ValidationTestDefinition.objects.filter(alias__in=param_test_alias).values_list('id', flat=True)
                     testcodes = ValidationTestCode.objects.filter(test_definition_id__in = param_test_id )
                     results = results.filter(test_code_id__in = testcodes.values("id"))
-           
+
             #add filter using param_model_id >> filter by models
             if len(param_model_version_id) == 0 :
-                if len(param_model_id) > 0 or len(param_model_alias) > 0 : 
+                if len(param_model_id) > 0 or len(param_model_alias) > 0 :
                     if len(param_model_id) == 0 :
                         param_model_id = ScientificModel.objects.filter(alias__in=param_model_alias).values_list('id', flat=True)
                     model_instance = ScientificModelInstance.objects.filter(model_id__in = param_model_id )
@@ -2319,7 +2658,7 @@ class Results (APIView):
                     temp_results.exclude(id = result.id )
             results = temp_results
 
-                       
+
         else :
             results =  ValidationTestResult.objects.filter(id__in = param_id)
 
@@ -2327,8 +2666,8 @@ class Results (APIView):
             for result in results :
                 if user_has_acces_to_result(request, result) is False :
                     return Response("You do not access to result : {}".format(result.id), status=status.HTTP_403_FORBIDDEN)
-       
-        #####quick fix to get out nan and infinity numbers --will need to change it by allowing the json    
+
+        #####quick fix to get out nan and infinity numbers --will need to change it by allowing the json
         new_results = []
         for result in results:
             if not math.isnan(float(result.score)) and not math.isnan(float(result.normalized_score)) and not math.isinf(float(result.score)) and not math.isinf(float(result.normalized_score)):
@@ -2358,17 +2697,17 @@ class Results (APIView):
 
         elif type(request.data) == dict :
             DATA = [request.data]
-        else : 
+        else :
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
         #check if the user can acces the models, and if data are valids
-        for result in DATA : 
+        for result in DATA :
             value = self.check_data(request, serializer_context, result)
-            if value is not True : 
+            if value is not True :
                 return value
 
         list_id = []
-        for result in DATA : 
+        for result in DATA :
             value = self.save_data(request, serializer_context, result, list_id)
             if type(value) is list :
                 list_id = value
@@ -2376,8 +2715,8 @@ class Results (APIView):
                 return value
 
         if len(list_id) > 0 :
-            return Response({'uuid':list_id}, status=status.HTTP_201_CREATED) 
-        else : 
+            return Response({'uuid':list_id}, status=status.HTTP_201_CREATED)
+        else :
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -2393,13 +2732,13 @@ class Results (APIView):
         :rtype: boolean
         """
         serializer = ValidationTestResultSerializer (data=result, context=serializer_context)
-        if serializer.is_valid():  
+        if serializer.is_valid():
             instance_id = result['model_version_id']
             instance = ScientificModelInstance.objects.get(id=instance_id)
             model = ScientificModel.objects.get(id=instance.model_id)
             if user_has_acces_to_model(request, model) :
                 return True
-            else : 
+            else :
                 return HttpResponseForbidden()
         else :
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -2419,14 +2758,14 @@ class Results (APIView):
         :type list_id: uuid list
         """
         serializer = ValidationTestResultSerializer(data=result, context=serializer_context)
-        if serializer.is_valid(): 
-            res = serializer.save(model_version_id = result['model_version_id'], test_code_id = result['test_code_id'] )    
-            list_id.append(res.id)  
+        if serializer.is_valid():
+            res = serializer.save(model_version_id = result['model_version_id'], test_code_id = result['test_code_id'] )
+            list_id.append(res.id)
             return list_id
         else :
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        
+
 
 
 
@@ -2435,9 +2774,9 @@ class Results (APIView):
     #     serializer_context = {'request': request,}
 
     #     #check if data are valids and if the user can modify the model-instance given
-    #     for result in request.data : 
+    #     for result in request.data :
     #         serializer = ValidationTestResultSerializer (data=result, context=serializer_context)
-    #         if serializer.is_valid():  
+    #         if serializer.is_valid():
     #             instance_id = result.model_version_id
     #             model = ScientificModel.objects.get(id=instance_id)
     #             if not user_has_acces_to_model(request, model) :
@@ -2455,32 +2794,32 @@ class Results (APIView):
 
 
     #     for result in request.data :
-            
+
     #         original_result = ValidationTestResult.get(id= result.id)
 
     #         serializer = ValidationTestResultSerializer(data=request.data, context=serializer_context)
 
-    #         if serializer.is_valid():         
+    #         if serializer.is_valid():
     #             serializer.save()
 
-    #     return Response( status=status.HTTP_202_ACCEPTED) 
+    #     return Response( status=status.HTTP_202_ACCEPTED)
 
     def delete(self, request, format=None):
 
         if not is_authorised_or_admin(request, settings.ADMIN_COLLAB_ID):
             return HttpResponseForbidden()
-        
+
         list_ids = request.GET.getlist('id')
 
         elements_to_delete = ValidationTestResult.objects.filter(id__in=list_ids)
         for result in elements_to_delete:
             result.delete()
-     
-        return Response( status=status.HTTP_200_OK) 
+
+        return Response( status=status.HTTP_200_OK)
 
 
 
-        
+
 class ParametersConfigurationValidationView(View):
     """
     Get template for configuration of the validation_app
@@ -2490,13 +2829,13 @@ class ParametersConfigurationValidationView(View):
 
     def get(self, request, *args, **kwargs):
        return render(request, self.template_name, {'app_type': "validation_app"})
-    
+
     @method_decorator(login_required(login_url='/login/hbp/'))
     def dispatch(self, *args, **kwargs):
         return super(ParametersConfigurationValidationView, self).dispatch(*args, **kwargs)
 
-      
-            
+
+
 
 class ParametersConfigurationModelView(View):
     """
@@ -2512,7 +2851,7 @@ class ParametersConfigurationModelView(View):
     def dispatch(self, *args, **kwargs):
         return super(ParametersConfigurationModelView, self).dispatch(*args, **kwargs)
 
-     
+
 
 
 
@@ -2526,8 +2865,8 @@ class  AreVersionsEditableRest(APIView):
         :type test_id: uuid
         :param model_id: id of the model
         :type model_id: uuid
-        :returns: list of editable result ids 
-        :rtype: uuid list 
+        :returns: list of editable result ids
+        :rtype: uuid list
         """
         test_id = request.GET.getlist('test_id')
         model_id = request.GET.getlist('model_id')
@@ -2536,16 +2875,16 @@ class  AreVersionsEditableRest(APIView):
 
         if len(test_id)>0:
             test_codes =  ValidationTestCode.objects.filter(test_definition_id__in=test_id)
-            for test_code in list(test_codes): 
+            for test_code in list(test_codes):
                 if _are_test_code_editable(test_code):
                     list_ids_editable.append(test_code.id)
-        
+
         if len(model_id)>0:
             model_instances = ScientificModelInstance.objects.filter(model_id__in=model_id)
-            for model_instance in model_instances: 
+            for model_instance in model_instances:
                 if _are_model_instance_editable(model_instance):
-                    list_ids_editable.append(model_instance.id)    
-        
+                    list_ids_editable.append(model_instance.id)
+
         return Response({"are_editable":list_ids_editable})
 
 
@@ -2553,7 +2892,7 @@ class  AreVersionsEditableRest(APIView):
 ###### To keep for later ######
 ###############################
 
-# class NotificationRest(APIView): 
+# class NotificationRest(APIView):
 #     def post(self, request, format=None, **kwargs):
 #         # social_auth = request.user.social_auth.get()
 #         # headers = {
@@ -2585,15 +2924,15 @@ class  AreVersionsEditableRest(APIView):
 #         request.data['user_id'] = get_user_info(request)['sub']
 #         print(request.data)
 #         serializer_context = {'request': request,}
-        
+
 #         follow_serializer = FollowModelSerializer(data=request.data, context=serializer_context)
 #         # ModelFollowing.save()
 #         if follow_serializer.is_valid() :
 #             follow = follow_serializer.save(model_id=model_id)
-#         else: 
+#         else:
 #             return Response(follow_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-#         return Response( status=status.HTTP_201_CREATED) 
- 
+#         return Response( status=status.HTTP_201_CREATED)
+
 #############################
 #### can still be useful ####
 #############################
@@ -2617,10 +2956,3 @@ class  AreVersionsEditableRest(APIView):
 #         logger.error("Unable to notify coordinators. {}: {}".format(res.status_code, res.content))
 #         return False
 #     return True
-
-
-
-
-
-
-

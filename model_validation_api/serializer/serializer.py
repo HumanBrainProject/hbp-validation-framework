@@ -1,7 +1,7 @@
 
 from django.core.serializers.json import DjangoJSONEncoder
 
-from ..models import (ValidationTestDefinition, 
+from ..models import (ValidationTestDefinition,
                     ValidationTestCode,
                     ValidationTestResult,
                     ScientificModel,
@@ -48,6 +48,7 @@ from .simple_serializer import (
     Param_OrganizationsSerializer,
 )
 
+from nar.base import as_list
 
 #### rest framework serializers ####
 
@@ -81,9 +82,64 @@ class ScientificModelReadOnlySerializer(serializers.HyperlinkedModelSerializer):
     instances = ScientificModelInstanceForModelReadOnlySerializer (read_only=True, many=True )
     images = ScientificModelImageForModelReadOnlySerializer (read_only=True , many=True )
     app = CollabParametersReadOnlyForHomeSerializer(read_only=True)
-    class Meta:        
+    class Meta:
         model = ScientificModel
         fields = ('id', 'name', 'alias', 'author','owner', 'app','organization','project','private','license', 'cell_type', 'model_scope','abstraction_level', 'brain_region', 'species','description', 'instances', 'images')
+
+
+class ScientificModelReadOnlyKGSerializer(object):
+
+    def __init__(self, models, client, many=False):
+        self.client = client
+        if many:
+            self.data = [
+                self.serialize(model) for model in models
+            ]
+        else:
+            model = models
+            self.data = self.serialize(model)
+
+    def serialize(self, model):
+        # todo: rewrite all this using KG Query API, to avoid doing all the individual resolves.
+        data = {
+            'id': model.id,  # extract uuid from uri?
+            'name': model.name,
+            'alias': model.alias,
+            'author': ", ".join([au.resolve(self.client).full_name for au in as_list(model.authors)]),
+            'owner': ", ".join([ow.resolve(self.client).full_name for ow in as_list(model.owners)]),
+            'app': {
+                'collab_id': model.collab_id
+            },
+            'organization': model.organization.resolve(self.client).name,
+            #'project': model.PLAComponents,
+            'private': model.private,
+            #'license': model.,  # todo: get from instances?
+            'cell_type': model.celltype.label if model.celltype else None,  # map names?
+            'model_scope': model.model_of,  # to fix   # map names?
+            'abstraction_level': model.abstraction_level,
+            'brain_region': model.brain_region.label,  # map names?
+            'species': model.species.label if model.species else None,  # map names?  # 'Unknown' instead of None?
+            'description': model.description,
+            #'images': model.  # todo
+            'old_uuid': model.old_uuid,
+            'instances': []
+        }
+        for instance in as_list(model.instances):
+            instance = instance.resolve(self.client)
+            main_script = instance.main_script.resolve(self.client)
+            data['instances'].append(
+                {
+                    "id": instance.id,
+                    #"old_uuid": instance.old_uuid
+                    "version": instance.version,
+                    "description": instance.description,
+                    #"parameters":  # todo
+                    "code_format": main_script.code_format,
+                    "source": main_script.code_location,
+                    "hash": None
+                }
+            )
+        return data
 
 class ScientificModelFullReadOnlySerializer(serializers.HyperlinkedModelSerializer):
     app = CollabParametersSerializer( read_only=True)
@@ -121,8 +177,8 @@ class ValidationTestDefinitionFullSerializer(serializers.HyperlinkedModelSeriali
     codes = ValidationTestCodeSerializer(many=True , read_only=True)
     class Meta:
         model = ValidationTestDefinition
-        fields = ('id', 'name', 'alias', 'status', 'species', 'brain_region', 
-                    'cell_type', 'age', 'data_location', 
+        fields = ('id', 'name', 'alias', 'status', 'species', 'brain_region',
+                    'cell_type', 'age', 'data_location',
                     'data_type', 'data_modality', 'test_type', 'score_type',
                     'protocol', 'author', 'creation_date', 'publication', 'codes')
 
@@ -174,14 +230,14 @@ class TicketReadOnlySerializer(serializers.HyperlinkedModelSerializer):
 
 #     class Meta:
 #         model = CollabParameters
-#         # fields = ('id', 'data_modalities', 'test_type', 'species', 'brain_region', 
+#         # fields = ('id', 'data_modalities', 'test_type', 'species', 'brain_region',
 #         #             'cell_type', 'model_type')
 
 #         fields = ('id', 'param')
 
 
 #class configviewSerializer(object):
-    
+
 #    @staticmethod
 #    def _to_dict(model):
 #        data = {
