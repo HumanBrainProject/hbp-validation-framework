@@ -8,7 +8,7 @@
 #-e packages/bbp-services-0.0.15
 #-e packages/bbp-client-0.4.4
 -e packages/hbp-app-python-auth-0.1.5
--e packages/neural-activity-resource-master
+#-e packages/neural-activity-resource-master
 
 
 appdirs==1.4.0            # via setuptools
@@ -33,7 +33,7 @@ requests-oauthlib==0.7.0  # via python-social-auth, social-auth-core
 requests==2.13.0          # via python-social-auth, requests-oauthlib, social-auth-core
 six==1.10.0               # via packaging, python-dateutil, python-social-auth, setuptools, social-auth-core
 social-auth-core==1.1.0
-
+pathlib2
 
 
 django-bower==5.2.0

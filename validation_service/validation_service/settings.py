@@ -19,7 +19,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True#os.environ.get('DEBUG') in ['True', '1']
-LOCAL_DB = True  ## only applies when ENV='dev'
+LOCAL_DB = False  ## only applies when ENV='dev'
 
 ALLOWED_HOSTS = ["*"]
 
@@ -61,28 +61,28 @@ MIDDLEWARE_CLASSES = (
 
     'app.middleware.personal_middleware.DisableCsrfCheck',
 
-    
+
     # 'django.middleware.common.CommonMiddleware',
 
     'django.middleware.csrf.CsrfViewMiddleware',
 
-    
+
 
     'django.contrib.sessions.middleware.SessionMiddleware',
 
     'corsheaders.middleware.CorsMiddleware',
-    
+
     'django.middleware.common.CommonMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.security.SecurityMiddleware',
-    
+
     'social.apps.django_app.middleware.SocialAuthExceptionMiddleware',
     # 'social_django.middleware.SocialAuthExceptionMiddleware', ####
 
- 
-  
+
+
 )
 
 AUTHENTICATION_BACKENDS = (
@@ -129,7 +129,7 @@ else:
             'USER': 'validations_admin',
             'PASSWORD': os.environ.get("VALIDATION_SERVICE_PASSWORD"),
             'HOST': os.environ.get("VALIDATION_SERVICE_HOST"),
-            'PORT': os.environ.get("VALIDATION_SERVICE_PORT", "5432"),  
+            'PORT': os.environ.get("VALIDATION_SERVICE_PORT", "5432"),
 
 
         },
@@ -160,7 +160,7 @@ STATICFILES_DIRS = [
     # os.path.join(BASE_DIR, "lib"),
     os.path.join(BASE_DIR, "app"),
     # os.path.join(BASE_DIR, "app/static"),
-    # os.path.join(BASE_DIR, "app/scripts"),  
+    # os.path.join(BASE_DIR, "app/scripts"),
     # os.path.join(BASE_DIR, "app/js"),
     # os.path.join(BASE_DIR, "app/css"),
 
@@ -172,7 +172,7 @@ HBP_ENV_URL = 'https://collab.humanbrainproject.eu/config.json'
 HBP_IDENTITY_SERVICE_URL = 'https://services.humanbrainproject.eu/idm/v1/api'
 HBP_STORAGE_SERVICE_URL = 'https://services.humanbrainproject.eu/storage/v1/api/entity/'
 ADMIN_COLLAB_ID = "13947"
-
+NEXUS_ENDPOINT = "https://nexus-int.humanbrainproject.org/v0"
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'none')
@@ -181,7 +181,7 @@ auth_settings.SOCIAL_AUTH_HBP_KEY = os.environ.get('HBP_OIDC_CLIENT_ID')
 SOCIAL_AUTH_HBP_KEY = auth_settings.SOCIAL_AUTH_HBP_KEY
 
 auth_settings.SOCIAL_AUTH_HBP_SECRET = os.environ.get('HBP_OIDC_CLIENT_SECRET')
-SOCIAL_AUTH_HBP_SECRET = auth_settings.SOCIAL_AUTH_HBP_SECRET 
+SOCIAL_AUTH_HBP_SECRET = auth_settings.SOCIAL_AUTH_HBP_SECRET
 
 LOGGING = {
     'version': 1,
@@ -232,22 +232,22 @@ else:
 # https://github.com/ottoyiu/django-cors-headers
 # CORS_ORIGIN_ALLOW_ALL = True
 
-CSRF_TRUSTED_ORIGINS = [    
+CSRF_TRUSTED_ORIGINS = [
     'localhost:8000',
     '127.0.0.1:9000',
     # 'https://localhost:8000/app/'
-    
+
     ]
 
 CORS_ORIGIN_WHITELIST = (
     'localhost:8000',
     '127.0.0.1:9000',
     'https://localhost:8000/app/',
-    
+
 )
 CORS_ALLOW_CREDENTIALS = True
 
-# CORS_ORIGIN_ALLOW_ALL = True  
+# CORS_ORIGIN_ALLOW_ALL = True
 # ACCESS_CONTROL_ALLOW_ORIGIN = 'Access-Control-Allow-Origin'
 
 CSRF_COOKIE_DOMAIN = (
