@@ -34,7 +34,6 @@ from django.conf import settings
 from django.template import loader
 from django.db import connection
 import requests
-from hbp_app_python_auth.auth import get_access_token, get_auth_header
 
 from nar.client import NARClient
 from nar.base import KGQuery, as_list
@@ -122,6 +121,7 @@ from .validation_framework_toolbox.user_auth_functions import (
     get_user_info,
     is_hbp_member,
     get_storage_file_by_id,
+    get_authorization_header
 )
 
 from .validation_framework_toolbox.validation_framework_functions import (
@@ -765,7 +765,8 @@ class ModelInstances_KG(APIView):
         if check_list_uuid_validity(param_model_id) is False :
             return Response("Badly formed uuid in : model_id", status=status.HTTP_400_BAD_REQUEST)
 
-        token = get_access_token(request.user.social_auth.get())
+        method, token = get_authorization_header(request)["Authorization"].split(" ")
+        assert method == "Bearer"
         client = NARClient(token,
                            nexus_endpoint=settings.NEXUS_ENDPOINT)
 
@@ -1479,7 +1480,8 @@ class Models_KG(APIView):
         if check_list_uuid_validity(id) is False :
             return Response("Badly formed uuid in : id", status=status.HTTP_400_BAD_REQUEST)
 
-        token = get_access_token(request.user.social_auth.get())
+        method, token = get_authorization_header(request)["Authorization"].split(" ")
+        assert method == "Bearer"
         client = NARClient(token,
                            nexus_endpoint=settings.NEXUS_ENDPOINT)
 
