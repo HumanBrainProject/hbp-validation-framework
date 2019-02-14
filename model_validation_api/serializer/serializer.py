@@ -111,7 +111,7 @@ class ScientificModelReadOnlyKGSerializer(object):
             'app': {
                 'collab_id': model.collab_id
             },
-            'organization': model.organization.resolve(self.client).name,
+            'organization': model.organization.resolve(self.client).name if model.organization else None,
             #'project': model.PLAComponents,
             'private': model.private,
             #'license': model.,  # todo: get from instances?

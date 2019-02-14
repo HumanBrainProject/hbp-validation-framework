@@ -1702,11 +1702,11 @@ class Models_KG(APIView):
                 models = KGQuery(ModelProject, filter_query, context).resolve(client)
 
                 authorized_collabs = []
-                for collab_id in set(model.collab_id for model in models if model.private):
+                for collab_id in set(model.collab_id for model in as_list(models) if model.private):
                     if is_authorised_or_admin(request, collab_id):
                         authorized_collabs.append(collab_id)
 
-                authorized_models = [model for model in models
+                authorized_models = [model for model in as_list(models)
                                      if (not model.private) or (model.collab_id in authorized_collabs)]
 
                 model_serializer = ScientificModelReadOnlyKGSerializer(authorized_models, client, many=True)
