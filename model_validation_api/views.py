@@ -774,9 +774,9 @@ class ModelInstances_KG(APIView):
         if len(param_id) > 0:
             # Get instances by individual uuids
             for instance_id in param_id:
-                inst = ModelInstance.from_uuid(instance_id)
+                inst = ModelInstance.from_uuid(instance_id, client)
                 if inst is None:
-                    inst = MEModel.from_uuid(instance_id)
+                    inst = MEModel.from_uuid(instance_id, client)
                 if inst is not None:
                     instances.append(inst)
             # todo: add project field for linked model project

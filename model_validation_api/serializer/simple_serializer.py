@@ -63,9 +63,10 @@ class ScientificModelInstanceKGSerializer(object):
     def serialize(self, instance):
         # todo: rewrite all this using KG Query API, to avoid doing all the individual resolves.
         script = instance.main_script.resolve(self.client)
+        proj = instance.project
         data = {
                     "id": instance.id,
-                    "model_id": instance.project.id,
+                    "model_id": instance.project.id if instance.project else None,  # to fix: should always get the project
                     #"old_uuid": instance.old_uuid
                     "version": instance.version,
                     "description": instance.description,
