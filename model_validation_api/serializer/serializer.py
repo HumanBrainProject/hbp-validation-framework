@@ -1,4 +1,6 @@
 
+from datetime import datetime
+from itertools import chain
 from django.core.serializers.json import DjangoJSONEncoder
 
 from ..models import (ValidationTestDefinition,
@@ -49,7 +51,10 @@ from .simple_serializer import (
     ScientificModelInstanceKGSerializer
 )
 
-from nar.base import as_list
+from nar.base import as_list, KGProxy
+from nar.core import Person, Organization
+from nar.commons import CellType, BrainRegion, AbstractionLevel, Species
+from nar.brainsimulation import ModelProject
 
 #### rest framework serializers ####
 
@@ -88,17 +93,101 @@ class ScientificModelReadOnlySerializer(serializers.HyperlinkedModelSerializer):
         fields = ('id', 'name', 'alias', 'author','owner', 'app','organization','project','private','license', 'cell_type', 'model_scope','abstraction_level', 'brain_region', 'species','description', 'instances', 'images')
 
 
-class ScientificModelReadOnlyKGSerializer(object):
+class ScientificModelKGSerializer(object):
 
-    def __init__(self, models, client, many=False):
+    def __init__(self, models, client, data=None, many=False, context=None):
         self.client = client
         if many:
-            self.data = [
-                self.serialize(model) for model in models
-            ]
+            self.models = models
+            if data:
+                self.data = data
+            else:
+                self.data = [
+                    self.serialize(model) for model in models
+                ]
         else:
-            model = models
-            self.data = self.serialize(model)
+            self.model = models
+            if data:
+                self.data = data
+            else:
+                self.data = self.serialize(self.model)
+        self.context = context
+
+    def is_valid(self):
+        return True  # todo
+
+    def _get_ontology_obj(self, cls, key):
+        label = self.data.get(key)
+        if label:
+            return cls(label)
+        else:
+            return None
+
+    def save(self):
+
+        if self.model is None:  # create
+            self.model = ModelProject(
+                self.data["name"],
+                [Person(p["family_name"], p["given_name"], p.get("email", None))
+                                      for p in self.data["owner"]],
+                [Person(p["family_name"], p["given_name"], p.get("email", None))
+                 for p in self.data["author"]],  # need to update person representation in clients,
+                self.data.get("description"),
+                datetime.now(),
+                self.data.get("private", True),
+                self.context["collab_id"],
+                self.data.get("alias"),
+                Organization(self.data["organization"]) if "organization" in self.data else None,
+                pla_components=None,
+                brain_region=self._get_ontology_obj(BrainRegion, "brain_region"),
+                species=self._get_ontology_obj(Species, "species"),
+                celltype=self._get_ontology_obj(CellType, "cell_type"),
+                abstraction_level=self._get_ontology_obj(AbstractionLevel, "abstraction_level"),
+                model_of=self.data.get("model_scope"),
+                old_uuid=self.data.get("old_uuid")
+            )
+        else:                   # update
+            if "name" in self.data:
+                self.model.name = self.data["name"]
+            if "alias" in self.data:
+                self.model.alias = self.data["alias"]
+            if "author" in self.data:
+                self.model.authors = [Person(p["family_name"], p["given_name"], p.get("email", None))
+                                      for p in self.data["author"]]  # need to update person representation in clients
+            if "owner" in self.data:
+                self.model.owners = [Person(p["family_name"], p["given_name"], p.get("email", None))
+                                     for p in self.data["owner"]]  # need to update person representation in clients
+            if "app" in self.data:
+                self.model.collab_id = self.data["app"]["collab_id"]
+            if "organization" in self.data:
+                self.model.organization = Organization(self.data["organization"])
+            if "private" in self.data:
+                self.model.private = self.data["private"]
+            if "cell_type" in self.data:
+                self.model.celltype = CellType(self.data["cell_type"])  # map names?  # todo, handle KeyError from iri_map
+            if "model_scope" in self.data:
+                self.model.model_of = self.data["model_scope"]
+            if "abstraction_level" in self.data:
+                self.model.abstraction_level = AbstractionLevel(self.data["abstraction_level"])
+            if "brain_region" in self.data:
+                self.model.brain_region = BrainRegion(self.data["brain_region"])
+            if "species" in self.data:
+                self.model.species = Species(self.data["species"])
+            if "description" in self.data:
+                self.model.description = self.data["description"]
+            if "old_uuid" in self.data:
+                self.model.old_uuid = self.data["old_uuid"]
+
+        # now save people, organization, model. No easy way to make this atomic, I don't think.
+        for person in chain(as_list(self.model.authors), as_list(self.model.owners)):
+            if not isinstance(person, KGProxy):
+                # no need to save if we have a proxy object, as
+                # that means the person hasn't been updated
+                person.save(self.client)
+        if self.model.organization and not isinstance(self.model.organization, KGProxy):
+            self.model.organization.save(self.client)
+        self.model.save(self.client)
+        return self.model
 
     def serialize(self, model):
         # todo: rewrite all this using KG Query API, to avoid doing all the individual resolves.

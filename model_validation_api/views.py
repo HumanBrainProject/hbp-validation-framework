@@ -92,7 +92,7 @@ from .serializer.serializer import (ValidationTestDefinitionSerializer,
                             Param_ScoreTypeSerializer,
                             Param_OrganizationsSerializer,
 
-                            ScientificModelReadOnlyKGSerializer,
+                            ScientificModelKGSerializer,
                             ScientificModelInstanceKGSerializer
                             )
 
@@ -1480,7 +1480,13 @@ class Models_KG(APIView):
         if check_list_uuid_validity(id) is False :
             return Response("Badly formed uuid in : id", status=status.HTTP_400_BAD_REQUEST)
 
-        method, token = get_authorization_header(request)["Authorization"].split(" ")
+        auth = get_authorization_header(request).get("Authorization")
+        if auth:
+            method, token = auth.split(" ")
+            logger.debug(token)
+        else:
+            return Response("No authorization token provided", status=status.HTTP_401_UNAUTHORIZED)
+
         assert method == "Bearer"
         client = NARClient(token,
                            nexus_endpoint=settings.NEXUS_ENDPOINT)
@@ -1711,7 +1717,7 @@ class Models_KG(APIView):
                 authorized_models = [model for model in as_list(models)
                                      if (not model.private) or (model.collab_id in authorized_collabs)]
 
-                model_serializer = ScientificModelReadOnlyKGSerializer(authorized_models, client, many=True)
+                model_serializer = ScientificModelKGSerializer(authorized_models, client, many=True)
 
                 return Response({
                     'models': model_serializer.data,
@@ -1736,13 +1742,150 @@ class Models_KG(APIView):
                 if len(web_app) > 0 and web_app[0] == 'True' :
                     model_serializer = ScientificModelFullReadOnlyKGSerializer(model)  # todo
                 else:
-                    model_serializer = ScientificModelReadOnlyKGSerializer(model, client)
+                    model_serializer = ScientificModelKGSerializer(model, client)
 
                 return Response({
                     'models': model_serializer.data,
                 })
             else :
                 return HttpResponse('Not found', status=404)
+
+
+
+    def post(self, request, format=None):
+        """
+        Save a new model in model_validation_api_scientificmodel table - if the model contains images and a version, it saves it also.
+        :param app_id: application id
+        :type app_id: int
+        :return: uuid of the created object
+        :rtype: uuid:
+        """
+
+        method, token = get_authorization_header(request)["Authorization"].split(" ")
+        assert method == "Bearer"
+        client = NARClient(token,
+                           nexus_endpoint=settings.NEXUS_ENDPOINT)
+
+        app_id = request.GET.getlist('app_id')
+
+        if len(app_id) == 0 :
+            return Response("You need to specify the app_id argument", status=status.HTTP_400_BAD_REQUEST)
+        else :
+            app_id = app_id[0]
+
+        collab_id = get_collab_id_from_app_id(app_id)
+        if not is_authorised_or_admin(request, collab_id):
+            return HttpResponse('Unauthorized for collab {}'.format(collab_id), status=401)
+
+        data = _reformat_request_data(request.data)[0]
+
+        # #make sure organisation is not empty :
+        # try :
+        #     if data['model']["organization"] == "" :
+        #         data['model']["organization"] = "<<empty>>"
+        # except :
+        #     data['model']["organization"] = "<<empty>>"
+
+        # check if data is ok else return error
+        model_serializer = ScientificModelKGSerializer(None, client, data=data['model'], context={"collab_id": collab_id})
+        if not model_serializer.is_valid():
+            return Response(model_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        # if len(data['model_instance']) >  0 :
+        #     list_version_names = []
+        #     for i in data['model_instance']:
+        #         list_version_names.append(i["version"])
+        #         model_instance_serializer = ScientificModelInstanceSerializer(data=i, context=serializer_context)
+        #         if model_instance_serializer.is_valid() is not True:
+        #             return Response(model_instance_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        #     if not len(list_version_names) == len(set(list_version_names)) :
+        #         return Response("You are sending a version name which are not unique", status=status.HTTP_400_BAD_REQUEST)
+
+        # if len(data['model_image']) >  0 :
+        #     for i in data['model_image']:
+        #         model_image_serializer = ScientificModelImageSerializer(data=i, context=serializer_context)
+        #         if model_image_serializer.is_valid()  is not True:
+        #             return Response(model_image_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+        # no error then save all
+        model = model_serializer.save()
+
+        # if len(data['model_instance']) >  0 :
+        #     for i in data['model_instance'] :
+        #         model_instance_serializer = ScientificModelInstanceSerializer(data=i, context=serializer_context)
+        #         if model_instance_serializer.is_valid():
+        #             model_instance_serializer.save(model_id=model.id)
+
+        # if len(data['model_image']) >  0 :
+        #     for i in data['model_image']:
+        #         model_image_serializer = ScientificModelImageSerializer(data=i, context=serializer_context)
+        #         if model_image_serializer.is_valid()   :
+        #             model_image_serializer.save(model_id=model.id)
+
+        return Response({'uuid': model.uuid}, status=status.HTTP_201_CREATED)
+
+
+    def put(self, request, format=None):
+        """
+        Update model
+        :param app_id: application id
+        :type app_id: int
+        :param id: model id
+        :type id: uuid
+        :returns: model id of the updated model
+        :rtype: uuid:
+        """
+
+        method, token = get_authorization_header(request)["Authorization"].split(" ")
+        assert method == "Bearer"
+        client = NARClient(token,
+                           nexus_endpoint=settings.NEXUS_ENDPOINT)
+
+        ## save only modifications on model. if you want to modify images or instances, do separate put.
+        # get objects
+        model_data = request.data['models'][0]
+
+        if 'id' in model_data and model_data['id'] != '':
+            model = ModelProject.from_uuid(model_data['id'], client)
+        else:
+            if 'alias' in model_data and model_data['alias'] != '':
+                context = {
+                    "nsg": "https://bbp-nexus.epfl.ch/vocabs/bbp/neurosciencegraph/core/v0.1.0/",
+                    #"schema": "http://schema.org/"
+                }
+                query = {
+                    "path": "nsg:alias",
+                    "op": "eq",
+                    "model_data": model_data['alias']
+                }
+                model = KGQuery(ModelProject, query, context).resolve(client)
+                if not model:
+                    return Response('There is no model corresponding to this alias. Please give a new alias or use the id of the model', status=status.HTTP_400_BAD_REQUEST )
+            else:
+                return Response('We cannot update the model. Please give the id or the alias of the model.', status=status.HTTP_400_BAD_REQUEST )
+
+        # security
+        if not is_authorised_or_admin(request, model.collab_id):
+            return HttpResponse('Unauthorized', status=401)
+
+        # #make sure organisation is not empty :
+        # try :
+        #     if model_data["organization"] == "" :
+        #         model_data["organization"] = "<<empty>>"
+        # except :
+        #     model_data["organization"] = "<<empty>>"
+
+        # # check if data is ok else return error
+
+        model_serializer = ScientificModelKGSerializer(model, client, data=model_data)
+        if model_serializer.is_valid() :
+            model = model_serializer.save()
+            return Response({'uuid': model.id}, status=status.HTTP_202_ACCEPTED)
+        else:
+            return Response(model_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class ModelAliases(APIView):
