@@ -170,7 +170,10 @@ class ScientificModelKGSerializer(object):
             if "private" in self.data:
                 self.model.private = self.data["private"]
             if "cell_type" in self.data:
-                self.model.celltype = CellType(self.data["cell_type"])  # todo, handle KeyError from iri_map
+                if self.data["cell_type"] == "Not applicable":
+                    self.model.celltype = None
+                else:
+                    self.model.celltype = CellType(self.data["cell_type"])  # todo, handle KeyError from iri_map
             if "model_scope" in self.data:
                 self.model.model_of = self.data["model_scope"]
             if "abstraction_level" in self.data:
@@ -199,19 +202,25 @@ class ScientificModelKGSerializer(object):
 
     def serialize(self, model):
         # todo: rewrite all this using KG Query API, to avoid doing all the individual resolves.
+        def serialize_person(p):
+            if isinstance(p, KGProxy):
+                pr = p.resolve(self.client)
+            else:
+                pr = p
+            return {"given_name": pr.given_name, "family_name": pr.family_name}
         data = {
             'id': model.id,  # extract uuid from uri?
             'name': model.name,
             'alias': model.alias,
-            'author': ", ".join([au.resolve(self.client).full_name for au in as_list(model.authors)]),
-            'owner': ", ".join([ow.resolve(self.client).full_name for ow in as_list(model.owners)]),
+            'author': [serialize_person(au) for au in as_list(model.authors)],
+            'owner': [serialize_person(ow) for ow in as_list(model.owners)],
             'app': {
                 'collab_id': model.collab_id
             },
             'organization': model.organization.resolve(self.client).name if model.organization else None,
             'private': model.private,
-            'cell_type': model.celltype.label if model.celltype else None,  # map names?
-            'model_scope': model.model_of,  # to fix
+            'cell_type': model.celltype.label if model.celltype else 'Not applicable',
+            'model_scope': model.model_of or "other",  # to fix
             'abstraction_level': model.abstraction_level.label if model.abstraction_level else None,
             'brain_region': model.brain_region.label if model.brain_region else None,
             'species': model.species.label if model.species else None,  # 'Unknown' instead of None?
