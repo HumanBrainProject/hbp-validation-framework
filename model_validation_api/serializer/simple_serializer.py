@@ -1,3 +1,4 @@
+from datetime import datetime
 from django.core.serializers.json import DjangoJSONEncoder
 
 from ..models import (ValidationTestDefinition,
@@ -24,7 +25,7 @@ from ..models import (ValidationTestDefinition,
 
 from rest_framework import serializers
 
-
+from nar.brainsimulation import ModelInstance, ModelProject, ModelScript, MEModel, EModel, Morphology
 
 
 class CollabParametersSerializer(serializers.HyperlinkedModelSerializer):
@@ -50,15 +51,27 @@ class ScientificModelInstanceSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class ScientificModelInstanceKGSerializer(object):
-    def __init__(self, instances, client, many=False):
+
+    def __init__(self, instances, client, data=None, many=False, context=None):
         self.client = client
         if many:
-            self.data = [
-                self.serialize(instance) for instance in instances
-            ]
+            self.instances = instances
+            if data:
+                self.data = data
+            else:
+                self.data = [
+                    self.serialize(instance) for instance in instances
+                ]
         else:
-            instance = instances
-            self.data = self.serialize(instance)
+            self.instance = instances
+            if data:
+                self.data = data
+            else:
+                self.data = self.serialize(self.instance)
+        self.context = context
+
+    def is_valid(self):
+        return True  # todo
 
     def serialize(self, instance):
         # todo: rewrite all this using KG Query API, to avoid doing all the individual resolves.
@@ -75,8 +88,56 @@ class ScientificModelInstanceKGSerializer(object):
                     "source": script.code_location,
                     "hash": None
                 }
-
         return data
+
+    def save(self):
+        # todo: Create/update EModel, MEModel and Morphology where model_scope is "single cell"
+        if self.instance is None:  # create
+            model_project = ModelProject.from_uuid(self.data["model_id"], self.client)
+            script = ModelScript(name="ModelScript for {} @ {}".format(model_project.name, self.data["version"]),
+                                 code_format=self.data["code_format"],
+                                 code_location=self.data["source"]
+                                )
+                                 #license=model_project.license)
+            script.save(self.client)
+
+            minst = ModelInstance(name="ModelInstance for {} @ {}".format(model_project.name, self.data["version"]),
+                                  description=self.data["description"],
+                                  brain_region=model_project.brain_region,
+                                  species=model_project.species,
+                                  model_of=None,
+                                  main_script=script,
+                                  version=self.data["version"],
+                                  parameters=self.data["parameters"],
+                                  timestamp=datetime.now(),
+                                  release=None)
+            minst.save(self.client)
+            self.instance = minst
+            if model_project.instances:
+                if not isinstance(model_project.instances, list):
+                    model_project.instances = [model_project.instances]
+                model_project.instances.append(minst)
+            else:
+                model_project.instances = [minst]
+            model_project.save(self.client)
+
+        else:                   # update
+            if "name" in self.data:
+                self.instance.name = self.data["name"]
+            if "description" in self.data:
+                self.instance.description = self.data["description"]
+            if "version" in self.data:
+                self.instance.version = self.data["version"]
+            if "parameters" in self.data:
+                self.instance.parameters = self.data["parameters"]
+            if "code_format" in self.data:
+                self.instance.main_script.code_format = self.data["code_format"]
+            if "source" in self.data:
+                self.instance.main_script.source = self.data["source"]
+            self.instance.save(self.client)
+
+        return self.instance
+
 
 class ScientificModelInstanceForModelReadOnlySerializer(serializers.HyperlinkedModelSerializer):
     class Meta:

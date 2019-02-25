@@ -29,10 +29,10 @@ class ValidationTestCodeAdmin(admin.ModelAdmin):
 @admin.register(ValidationTestResult)
 class ValidationTestResultAdmin(admin.ModelAdmin):
     list_display = ('id','model_version', 'test_code',
-                    'score', 'passed', 'timestamp', 
+                    'score', 'passed', 'timestamp',
                     'normalized_score', 'platform', 'project')
     search_fields = ('id','model_version', 'test_code',
-                    'score', 'passed', 'timestamp', 
+                    'score', 'passed', 'timestamp',
                     'normalized_score', 'platform', 'project')
 
 @admin.register(ScientificModel)
@@ -68,43 +68,43 @@ class Param_TestTypeAdmin(admin.ModelAdmin):
 
 @admin.register(Param_Species)
 class Param_SpeciesAdmin(admin.ModelAdmin):
-    list_display = ('id', 'authorized_value')
+    list_display = ('id', 'authorized_value', 'iri')
     search_fields = ('id', 'authorized_value')
 
 @admin.register(Param_BrainRegion)
 class Param_BrainRegionAdmin(admin.ModelAdmin):
-    list_display = ('id', 'authorized_value')
+    list_display = ('id', 'authorized_value', 'iri')
     search_fields = ('id', 'authorized_value')
 
 @admin.register(Param_CellType)
 class Param_CellTypeAdmin(admin.ModelAdmin):
-    list_display = ('id', 'authorized_value')
-    search_fields = ('id', 'authorized_value')    
+    list_display = ('id', 'authorized_value', 'iri')
+    search_fields = ('id', 'authorized_value')
 
 @admin.register(Param_ModelScope)
 class Param_ModelScopeAdmin(admin.ModelAdmin):
     list_display = ('id', 'authorized_value')
-    search_fields = ('id', 'authorized_value')    
+    search_fields = ('id', 'authorized_value')
 
 @admin.register(Param_AbstractionLevel)
 class Param_AbstractionLevelAdmin(admin.ModelAdmin):
     list_display = ('id', 'authorized_value')
-    search_fields = ('id', 'authorized_value')    
+    search_fields = ('id', 'authorized_value')
 
 @admin.register(Param_ScoreType)
 class Param_ScoreTypeAdmin(admin.ModelAdmin):
     list_display = ('id', 'authorized_value')
-    search_fields = ('id', 'authorized_value')    
+    search_fields = ('id', 'authorized_value')
 
 @admin.register(Param_organizations)
 class Param_organizationsAdmin(admin.ModelAdmin):
     list_display = ('id', 'authorized_value')
-    search_fields = ('id', 'authorized_value')    
+    search_fields = ('id', 'authorized_value')
 
 @admin.register(Comments)
 class CommentsAdmin(admin.ModelAdmin):
     list_display = ('id', 'Ticket', 'author', 'text', 'creation_date')
-    search_fields = ('id', 'Ticket', 'author', 'text', 'creation_date')    
+    search_fields = ('id', 'Ticket', 'author', 'text', 'creation_date')
 
 @admin.register(Tickets)
 class TicketsAdmin(admin.ModelAdmin):

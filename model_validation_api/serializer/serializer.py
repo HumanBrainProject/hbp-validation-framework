@@ -1,4 +1,4 @@
-
+import logging
 from datetime import datetime
 from itertools import chain
 from django.core.serializers.json import DjangoJSONEncoder
@@ -57,6 +57,7 @@ from nar.commons import CellType, BrainRegion, AbstractionLevel, Species
 from nar.brainsimulation import ModelProject
 
 #### rest framework serializers ####
+logger = logging.getLogger("model_validation_api")
 
 
 class ScientificModelReadOnlySerializer2(serializers.HyperlinkedModelSerializer):
@@ -114,18 +115,22 @@ class ScientificModelKGSerializer(object):
         self.context = context
 
     def is_valid(self):
+
         return True  # todo
 
     def _get_ontology_obj(self, cls, key):
         label = self.data.get(key)
-        if label:
+        if label and label not in ("Not applicable"):
             return cls(label)
         else:
             return None
 
     def save(self):
-
+        # todo: handle licence
         if self.model is None:  # create
+            for key in ("author", "owner"):
+                if isinstance(self.data[key], dict):
+                    self.data[key] = [self.data[key]]
             self.model = ModelProject(
                 self.data["name"],
                 [Person(p["family_name"], p["given_name"], p.get("email", None))
@@ -144,7 +149,8 @@ class ScientificModelKGSerializer(object):
                 celltype=self._get_ontology_obj(CellType, "cell_type"),
                 abstraction_level=self._get_ontology_obj(AbstractionLevel, "abstraction_level"),
                 model_of=self.data.get("model_scope"),
-                old_uuid=self.data.get("old_uuid")
+                old_uuid=self.data.get("old_uuid"),
+                images=self.data.get("images")
             )
         else:                   # update
             if "name" in self.data:
@@ -164,7 +170,7 @@ class ScientificModelKGSerializer(object):
             if "private" in self.data:
                 self.model.private = self.data["private"]
             if "cell_type" in self.data:
-                self.model.celltype = CellType(self.data["cell_type"])  # map names?  # todo, handle KeyError from iri_map
+                self.model.celltype = CellType(self.data["cell_type"])  # todo, handle KeyError from iri_map
             if "model_scope" in self.data:
                 self.model.model_of = self.data["model_scope"]
             if "abstraction_level" in self.data:
@@ -177,6 +183,8 @@ class ScientificModelKGSerializer(object):
                 self.model.description = self.data["description"]
             if "old_uuid" in self.data:
                 self.model.old_uuid = self.data["old_uuid"]
+            if "images" in self.data:
+                self.model.images = self.data["images"]
 
         # now save people, organization, model. No easy way to make this atomic, I don't think.
         for person in chain(as_list(self.model.authors), as_list(self.model.owners)):
@@ -201,35 +209,35 @@ class ScientificModelKGSerializer(object):
                 'collab_id': model.collab_id
             },
             'organization': model.organization.resolve(self.client).name if model.organization else None,
-            #'project': model.PLAComponents,
             'private': model.private,
-            #'license': model.,  # todo: get from instances?
             'cell_type': model.celltype.label if model.celltype else None,  # map names?
-            'model_scope': model.model_of,  # to fix   # map names?
+            'model_scope': model.model_of,  # to fix
             'abstraction_level': model.abstraction_level.label if model.abstraction_level else None,
-            'brain_region': model.brain_region.label,  # map names?
-            'species': model.species.label if model.species else None,  # map names?  # 'Unknown' instead of None?
+            'brain_region': model.brain_region.label if model.brain_region else None,
+            'species': model.species.label if model.species else None,  # 'Unknown' instead of None?
             'description': model.description,
-            #'images': model.  # todo
+            'images': model.images,
             'old_uuid': model.old_uuid,
             'instances': []
         }
         for instance in as_list(model.instances):
             instance = instance.resolve(self.client)
             main_script = instance.main_script.resolve(self.client)
+            data['license'] = main_script.license   # assumes all instances have same license, todo: take license from most recent instance
             data['instances'].append(
                 {
                     "id": instance.id,
                     #"old_uuid": instance.old_uuid
                     "version": instance.version,
                     "description": instance.description,
-                    #"parameters":  # todo
+                    "parameters":  instance.parameters,
                     "code_format": main_script.code_format,
                     "source": main_script.code_location,
                     "hash": None
                 }
             )
         return data
+
 
 class ScientificModelFullReadOnlySerializer(serializers.HyperlinkedModelSerializer):
     app = CollabParametersSerializer( read_only=True)

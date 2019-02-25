@@ -33,6 +33,7 @@ import os
 import json
 import datetime
 import logging
+from time import sleep
 try:
     raw_input
 except NameError:
@@ -44,30 +45,6 @@ token = os.environ.get('HBP_token', 'none')
 nexus_endpoint = "https://nexus-int.humanbrainproject.org/v0"
 NAR_client = NARClient(token, nexus_endpoint)
 
-
-species_map = {
-    'Mouse (Mus musculus)': 'Mus musculus',
-    'Rat (Rattus rattus)': 'Rattus norvegicus',
-    'Marmoset (callithrix jacchus)': 'Callithrix jacchus',
-    'Human (Homo sapiens)': 'Homo sapiens',
-    'Paxinos Rhesus Monkey (Macaca mulatta)': 'Macaca mulatta',
-    'Opossum (Monodelphis domestica)': 'Monodelphis domestica',
-    'Rodent (non specific)': 'Rodentia'
-}
-
-brain_region_map = {
-    'Somatosensory Cortex': 'somatosensory cortex',
-    'Thalamus': 'thalamus',
-    'Thalamocortical': 'Thalamocortical',
-    'Brain Stem': 'brainstem',
-    'Spinal Cord': 'spinal cord',
-    'Hippocampus': 'hippocampus',
-    'Basal Ganglia': 'basal ganglia',
-    'Cortex': 'cortex',
-    'Cerebellum': 'cerebellum',
-    'Whole-brain': 'whole brain',
-    'Striatum': 'striatum'
-}
 
 cell_type_map = {
     "L2/3 Chandelier cell": "L2/3 Chandelier cell",
@@ -90,22 +67,6 @@ cell_type_map = {
     "L2 Inverted pyramidal cell": "L2 inverted pyramidal cell"
 }
 
-abstraction_level_map = {
-    "rate neuron": "rate neuron",
-    "protein structure": "protein structure",
-    "Systems biology -- flux balance": "systems biology: flux balance",
-    "Systems biology -- discrete": "systems biology: discrete",
-    "Systems biology -- continuous": "systems biology: continuous",
-    "Systems biology": "systems biology",
-    "Spiking neurons -- point neuron": "spiking neurons: point neuron",
-    "Spiking neurons -- biophysical": "spiking neurons: biophysical",
-    "Spiking neurons": "spiking neurons",
-    "Population modelling -- neural mass": "population modelling: neural mass",
-    "Population modelling -- neural field": "population modelling: neural field",
-    "Population modelling": "population modelling",
-    "Cognitive modelling": "cognitive modelling"
-}
-
 author_special_cases = {
     "Jeanette Hellgren Kotaleski": ("Jeanette", "Hellgren Kotaleski"),
     "João Pedro Santos": ("João Pedro", "Santos"),
@@ -119,18 +80,6 @@ author_special_cases = {
     "BBP-team": ("BBP", "team")
 }
 
-model_scope_map = {
-    "Subcellular model -- spine model": "subcellular model: spine model",
-    "Subcellular model -- ion channel model": "subcellular model: ion channel model",
-    "Subcellular model -- signalling model": "subcellular model: signalling model",
-    "Subcellular model -- molecular model": "subcellular model: molecular model",
-    "Single cell model": "single cell model",
-    "Network model -- microcircuit model": "network model: microcircuit model",
-    "Network model -- brain region model": "network model: brain region model",
-    "Network model -- whole brain model": "network model: whole brain model",
-    "Network model": "network model",
-    "Subcellular model": "Subcellular model"
-}
 
 def resolve_name(full_name):
     if full_name in author_special_cases:
@@ -193,6 +142,7 @@ class Command(BaseCommand):
                 pla_components=model.pla_components, brain_region=brain_region, species=species,
                 celltype=cell_type, abstraction_level=abstraction_level,
                 model_of=model_scope,  # to fix
+                images=[{"url": im.url, "caption": im.caption} for im in model.images.all()],
                 old_uuid=str(model.id))
 
             #print ("--authors",model_project.authors)
@@ -377,14 +327,12 @@ class Command(BaseCommand):
     def get_parameters(self, parameter_type, parameter_value):
         parameter = None
         if parameter_type == 'species':
-            new_parameter = species_map.get(parameter_value)
-            if new_parameter != None:
-                parameter = Species(new_parameter)
+            if parameter_value != None:
+                parameter = Species(parameter_value)
 
         if parameter_type == 'brain_region':
-            new_parameter = brain_region_map.get(parameter_value)
-            if new_parameter != None:
-                parameter = BrainRegion(new_parameter)
+            if parameter_value != None:
+                parameter = BrainRegion(parameter_value)
 
         if parameter_type == 'cell_type':
             new_parameter = cell_type_map.get(parameter_value)
@@ -392,14 +340,12 @@ class Command(BaseCommand):
                 parameter = CellType(new_parameter)
 
         if parameter_type == "abstraction_level":
-            new_parameter = abstraction_level_map.get(parameter_value)
-            if new_parameter != None:
-                parameter = AbstractionLevel(new_parameter)
+            if parameter_value != None and parameter_value != '':
+                parameter = AbstractionLevel(parameter_value)
 
         if parameter_type == "model_scope":
-            new_parameter = model_scope_map.get(parameter_value)
-            if new_parameter != None:
-                parameter = new_parameter
+            if parameter_value != None:
+                parameter = parameter_value
 
         return parameter
 
@@ -429,7 +375,7 @@ class Command(BaseCommand):
             if model_project:
                 instances = []
                 for model_instance in model.instances.all():
-                    if model.model_scope == "Single cell model":
+                    if model.model_scope == "single cell":
 
                         # MEModel - mostly this is what we want; there are a few single cell models from the literature that are not MEModels
                         e_model = EModel(name="EModel for {} @ {}".format(model.name, model_instance.version),
@@ -483,7 +429,8 @@ class Command(BaseCommand):
                         # Use plain ModelInstance where no more-specific sub-type exists
                         script = ModelScript(name="ModelScript for {} @ {}".format(model.name, model_instance.version),
                                              code_format=model_instance.code_format,
-                                             code_location=model_instance.source)
+                                             code_location=model_instance.source,
+                                             license=model.license)
                         try:
                             script.save(NAR_client)
                         except Exception as err:
@@ -507,86 +454,23 @@ class Command(BaseCommand):
                             continue
                         print("SUCCESS for instance in '{}'".format(model.name))
                 model_project.instances = instances
-                model_project.save(NAR_client)
+                logger.info("Updating model project {} with {} instances".format(model_project.id, len(instances)))
+                print("Updating model project {} with {} instances".format(model_project.id, len(instances)))
+                try:
+                    model_project.save(NAR_client)
+                except Exception as err:
+                    logger.error("Error updating model project:\n{}".format(err))
+                    continue
             else:
                 logger.warning("Skipping {}, couldn't find model project".format(model.name))
         return ''
 
     # def _search_for_person_or_create():
 
-    def save_model_project(self):
-        # used for testing/development. Can be deleted once everything is working.
-        models = ScientificModel.objects.all()
-        model = models[0]
-
-        organization = self.get_organization(model.organization) ##checked ok
-        owner =self._get_person_from_Persons_table(model.owner) ##checked ok
-        people = self._get_people_from_Persons_table(model.author) ## checked working only if already saved
-        for p in people:
-            p.save(NAR_client)
-        celltype = self.get_parameters("cell_type", model.cell_type) ##checked ok
-        abstraction = self.get_parameters("abstraction_level", model.abstraction_level)
-        brainregion = self.get_parameters("brain_region", model.brain_region)
-        species = self.get_parameters("species", model.species)
-        description = model.description
-        model_of = self.get_parameters("model_scope", model.model_scope)  # temporary, to fix
-        pla_components = model.pla_components         #self._get_person_from_Persons_table(model.owner) #self._get_people_from_Persons_table(model.author)
-        collab_id = model.app.collab_id
-        date_created = model.creation_date
-        private = model.private
-        alias = model.alias
-        name = model.name
-        print("model is ",model)
-        # print("authors are:",people)
-         # self._get_person_from_Persons_table("heli")
-        # p1 = Person("onur", "ates", "ates.onur@outlook.com", None)
-        # p1.save(NAR_client)
-
-        # todo: license
-
-        d = ModelProject(name=name, description=description, date_created=date_created,
-                         collab_id=collab_id, owner=owner, authors=people, private=private,
-                         organization=organization, pla_components=pla_components, alias=alias,
-                         model_of=model_of, brain_region=brainregion, species=species,
-                         celltype=celltype, abstraction_level=abstraction)
-
-        d.save(NAR_client)
-
-        print (d)
 
     def handle(self, *args, **options):
-
         #self._getPersons_and_migrate()
         #self.add_organizations_in_KG_database()
         self.migrate_models()
+        #sleep(10)
         self.migrate_model_instances()
-        ###self.save_model_project()
-
-{
-    '@context':
-        {'name': 'schema:name', 'alias': 'nsg:alias', 'author': 'schema:author', 'owner': 'nsg:owner', 'organization': 'nsg:organization', 'PLAComponents': 'nsg:PLAComponents', 'private': 'nsg:private', 'collabID': 'nsg:collabID', 'brainRegion': 'nsg:brainRegion', 'species': 'nsg:species', 'celltype': 'nsg:celltype', 'abstractionLevel': 'nsg:abstractionLevel', 'modelOf': 'nsg:modelOf', 'description': 'schema:description', 'nsg': 'https://bbp-nexus.epfl.ch/vocabs/bbp/neurosciencegraph/core/v0.1.0/', 'prov': 'http://www.w3.org/ns/prov#', 'schema': 'http://schema.org/', 'dateCreated': 'schema:dateCreated'},
-    '@type': ['prov:Entity', 'nsg:ModelProject'],
-    'author': [
-        {
-            '@type': ['nsg:Person', 'prov:Agent'],
-            '@id': 'https://nexus-int.humanbrainproject.org/v0/data/neuralactivity/core/person/v0.1.0/11d1d326-0c94-4edb-b664-294be9840847'
-        }
-    ],
-    'name': 'CA1_int_bAC_011127HP1_20170511120536',
-    'collabID': 2270,
-    'description': 'This model is being used to demonstrate use of the Validation Service',
-    'private': False,
-    'dateCreated': '18/12/17, 01:41',
-    'organization': {'@type': 'nsg:Organization', '@id': None},
-    'modelOf': 'single cell model',
-    'brainRegion': {
-        '@id': 'http://purl.obolibrary.org/obo/UBERON_0001954', 'label': 'hippocampus'
-    },
-    'species': {
-        '@id': 'http://purl.obolibrary.org/obo/NCBITaxon_10116', 'label': 'Rattus norvegicus'
-    },
-    'celltype': {
-        '@id': 'http://purl.obolibrary.org/obo/CL_0000598', 'label': 'pyramidal cell'
-    },
-    'oldUUID': '8eba68ab-ee07-4c9b-baa7-353626cc335a'
-}
