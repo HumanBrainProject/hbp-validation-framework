@@ -113,9 +113,16 @@ class ScientificModelKGSerializer(object):
             else:
                 self.data = self.serialize(self.model)
         self.context = context
+        self.errors = []
 
     def is_valid(self):
-
+        # check alias is unique
+        if "alias" in self.data:
+            model_with_same_alias = ModelProject.from_alias(self.data["alias"])
+            if model_with_same_alias is not None:
+                self.errors.append("Another model exists with this alias")
+                return False
+        # ...
         return True  # todo
 
     def _get_ontology_obj(self, cls, key):
@@ -126,7 +133,6 @@ class ScientificModelKGSerializer(object):
             return None
 
     def save(self):
-        # todo: handle licence
         if self.model is None:  # create
             for key in ("author", "owner"):
                 if isinstance(self.data[key], dict):
@@ -220,7 +226,7 @@ class ScientificModelKGSerializer(object):
             'organization': model.organization.resolve(self.client).name if model.organization else None,
             'private': model.private,
             'cell_type': model.celltype.label if model.celltype else 'Not applicable',
-            'model_scope': model.model_of or "other",  # to fix
+            'model_scope': model.model_of.label if model.model_of else "other",  # to fix
             'abstraction_level': model.abstraction_level.label if model.abstraction_level else None,
             'brain_region': model.brain_region.label if model.brain_region else None,
             'species': model.species.label if model.species else None,  # 'Unknown' instead of None?
@@ -232,7 +238,6 @@ class ScientificModelKGSerializer(object):
         for instance in as_list(model.instances):
             instance = instance.resolve(self.client)
             main_script = instance.main_script.resolve(self.client)
-            data['license'] = main_script.license   # assumes all instances have same license, todo: take license from most recent instance
             data['instances'].append(
                 {
                     "id": instance.id,
@@ -242,6 +247,7 @@ class ScientificModelKGSerializer(object):
                     "parameters":  instance.parameters,
                     "code_format": main_script.code_format,
                     "source": main_script.code_location,
+                    "license": main_script.license,
                     "hash": None
                 }
             )

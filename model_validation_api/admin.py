@@ -43,8 +43,8 @@ class ScientificModelAdmin(admin.ModelAdmin):
 
 @admin.register(ScientificModelInstance)
 class ScientificModelInstanceAdmin(admin.ModelAdmin):
-    list_display = ('id','version', 'model', 'description', 'parameters', 'code_format', 'source',  'timestamp', 'hash')
-    search_fields = ('id','version', 'model', 'description', 'parameters', 'code_format', 'source',  'timestamp', 'hash')
+    list_display = ('id','version', 'model', 'description', 'parameters', 'code_format', 'source',  'timestamp', 'hash', 'license')
+    search_fields = ('id','version', 'model', 'description', 'parameters', 'code_format', 'source',  'timestamp', 'hash', 'license')
 
 @admin.register(ScientificModelImage)
 class ScientificModelImageAdmin(admin.ModelAdmin):

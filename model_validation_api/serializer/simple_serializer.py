@@ -51,6 +51,7 @@ class ScientificModelInstanceSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class ScientificModelInstanceKGSerializer(object):
+    # need to update for PUT - where we have both an instance and data
 
     def __init__(self, instances, client, data=None, many=False, context=None):
         self.client = client
@@ -76,16 +77,17 @@ class ScientificModelInstanceKGSerializer(object):
     def serialize(self, instance):
         # todo: rewrite all this using KG Query API, to avoid doing all the individual resolves.
         script = instance.main_script.resolve(self.client)
-        proj = instance.project
+        proj = instance.project.resolve(self.client)
         data = {
                     "id": instance.id,
-                    "model_id": instance.project.id if instance.project else None,  # to fix: should always get the project
+                    "model_id": proj.id,
                     #"old_uuid": instance.old_uuid
                     "version": instance.version,
                     "description": instance.description,
                     "parameters":  instance.parameters,
                     "code_format": script.code_format,
                     "source": script.code_location,
+                    "license": script.license,
                     "hash": None
                 }
         return data
@@ -96,9 +98,8 @@ class ScientificModelInstanceKGSerializer(object):
             model_project = ModelProject.from_uuid(self.data["model_id"], self.client)
             script = ModelScript(name="ModelScript for {} @ {}".format(model_project.name, self.data["version"]),
                                  code_format=self.data["code_format"],
-                                 code_location=self.data["source"]
-                                )
-                                 #license=model_project.license)
+                                 code_location=self.data["source"],
+                                 license=self.data["license"])
             script.save(self.client)
 
             minst = ModelInstance(name="ModelInstance for {} @ {}".format(model_project.name, self.data["version"]),
@@ -134,6 +135,8 @@ class ScientificModelInstanceKGSerializer(object):
                 self.instance.main_script.code_format = self.data["code_format"]
             if "source" in self.data:
                 self.instance.main_script.source = self.data["source"]
+            if "license" in self.data:
+                self.instance.main_script.license = self.data["license"]
             self.instance.save(self.client)
 
         return self.instance

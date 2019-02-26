@@ -620,8 +620,6 @@ class ModelInstances (APIView):
 
         return Response({'uuid':list_id}, status=status.HTTP_201_CREATED)
 
-
-
     def put(self, request, format=None):
         """
         Update model instance
@@ -797,7 +795,7 @@ class ModelInstances_KG(APIView):
                 filter_query = {
                     "path": "nsg:alias",
                     "op": "in",
-                    "value": alias
+                    "value": param_model_alias[0]
                 }
                 model_project = KGQuery(ModelProject, filter_query, context).resolve(client)
             if model_project:
@@ -806,8 +804,8 @@ class ModelInstances_KG(APIView):
                     instances = [inst for inst in instances if inst.version in param_version]
             else:
                 instances = []
-            for inst in instances:
-                inst.project = model_project
+            #for inst in instances:
+            #    inst.project = model_project
 
         # todo: check access permissions
 
@@ -871,6 +869,121 @@ class ModelInstances_KG(APIView):
             list_id.append(obj.uuid)
 
         return Response({'uuid': list_id}, status=status.HTTP_201_CREATED)
+
+
+    def put(self, request, format=None):
+        """
+        Update model instance
+        :param web_app: true if the request comes from the web application, false if not.
+        :type web_app: boolean
+        :returns: uuid list of the updated objects
+        :rtype: uuid list:
+        """
+
+        serializer_context = {'request': request,}
+
+        DATA = _reformat_request_data(request.data)
+        for instance in DATA :
+            if len(instance) == 0 :
+                return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        #check if valid
+        try:
+            param_web_app = request.GET.getlist('web_app')[0]
+        except:
+            param_web_app = False
+
+        method, token = get_authorization_header(request)["Authorization"].split(" ")
+        assert method == "Bearer"
+        client = NARClient(token,
+                           nexus_endpoint=settings.NEXUS_ENDPOINT)
+
+        for instance in DATA:
+            if param_web_app:
+                # need to check if single cell (MEModel) or not
+                original_instance = ModelInstance.from_uuid(instance['id'])
+                #check if version is editable - only if you are not super user
+                # TODO once ValidationResult migrated to KG
+                # if not is_authorised_or_admin(request, settings.ADMIN_COLLAB_ID):
+                #     if not _are_model_instance_editable(instance):
+                #         return Response("This version is no longer editable as there is at least one result associated with it.", status=status.HTTP_400_BAD_REQUEST)
+
+                #check if versions are unique
+                if not _are_model_instance_version_unique_kg(instance) :
+                    return Response("The specified version name already exists for this model. Please provide a new name", status=status.HTTP_400_BAD_REQUEST)
+
+                model_serializer = ScientificModelInstanceKGSerializer(original_instance, client, data=instance)
+                if  model_serializer.is_valid():
+                    model_instance = model_serializer.save()
+                    return  Response(status=status.HTTP_202_ACCEPTED)
+                else:
+                    return Response(status=status.HTTP_400_BAD_REQUEST)
+
+            if 'id' in instance:
+                original_instance = ModelInstance.from_uuid(instance['id'], client)
+                if original_instance is None:
+                    return Response("The given id "+instance['id']+" does not exist. Please give a new id, or a model_id with a version_name, or a model_alias with a version_name. ",
+                                    status=status.HTTP_400_BAD_REQUEST)
+                model_project = original_instance.project.resolve(client)
+                instance['model_id'] = model_project.uuid
+                serializer = ScientificModelInstanceKGSerializer(original_instance, client, data=instance)
+                if not serializer.is_valid():
+                    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            else:
+                if 'version' in instance:
+                    if 'model_id' in instance and len(instance['model_id']) > 0:
+                        model_project = ModelProject.from_uuid(instance['model_id'], client)
+                    elif 'model_alias' in instance and len(instance['model_alias']) > 0:
+                        model_project = ModelProject.from_alias(instance['model_alias'], client)
+                    else:
+                        return Response("Must provide either model id or alias",
+                                            status=status.HTTP_400_BAD_REQUEST)
+
+                    if model_project is None:
+                        return Response("No such model", status=status.HTTP_400_BAD_REQUEST)
+                    else:
+                        original_instance = None
+                        for inst in model_project.instances:
+                            inst = inst.resolve(self)
+                            if inst.version == instance['version']:
+                                original_instance = inst
+                                break
+                        if original_instance is None:
+                            return Response("There is no model instance with this version name for this model_id. Please give a new model_id or a new version name. ",
+                                            status=status.HTTP_400_BAD_REQUEST)
+                        instance['id'] = original_instance.id
+                        serializer = ScientificModelInstanceKGSerializer(original_instance, client, data=instance)
+                        if not serializer.is_valid():
+                            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+                else:
+                    return Response("To edit a model instance, you need to give an id, or a model_id with a version, or a model_alias with a version ",
+                                    status=status.HTTP_400_BAD_REQUEST)
+
+            #security
+            collab_id = model_project.collab_id
+            if not is_authorised_or_admin(request, collab_id):
+                return HttpResponseForbidden()
+
+            # #check if version is editable - TODO reimplement once ValidationResult migrated to KG
+            # if not is_authorised_or_admin(request, settings.ADMIN_COLLAB_ID):
+            #     if not _are_model_instance_editable(instance):
+            #         return Response("This version is no longer editable as there is at least one result associated with it.", status=status.HTTP_400_BAD_REQUEST)
+
+            # if the version has changed, check if versions are unique
+            if "version" in instance and original_instance.version != instance["version"]:
+                if not _are_model_instance_version_unique_kg(instance, client):
+                    return Response("The specified version name already exists for this model. Please provide a new name", status=status.HTTP_400_BAD_REQUEST)
+
+        list_id = []
+        #is valid + authorized : save it
+        for instance in DATA:
+            model_serializer = ScientificModelInstanceKGSerializer(original_instance, client, data=instance)
+
+            if  model_serializer.is_valid() :
+                model_instance = model_serializer.save()
+                list_id.append(model_instance.id)
+
+        return Response({'uuid': list_id}, status=status.HTTP_202_ACCEPTED)
 
 
 class Images (APIView):
@@ -1908,16 +2021,17 @@ class Models_KG(APIView):
             model = ModelProject.from_uuid(model_data['id'], client)
         else:
             if 'alias' in model_data and model_data['alias'] != '':
-                context = {
-                    "nsg": "https://bbp-nexus.epfl.ch/vocabs/bbp/neurosciencegraph/core/v0.1.0/",
-                    #"schema": "http://schema.org/"
-                }
-                query = {
-                    "path": "nsg:alias",
-                    "op": "eq",
-                    "model_data": model_data['alias']
-                }
-                model = KGQuery(ModelProject, query, context).resolve(client)
+                # context = {
+                #     "nsg": "https://bbp-nexus.epfl.ch/vocabs/bbp/neurosciencegraph/core/v0.1.0/",
+                #     #"schema": "http://schema.org/"
+                # }
+                # query = {
+                #     "path": "nsg:alias",
+                #     "op": "eq",
+                #     "model_data": model_data['alias']
+                # }
+                # model = KGQuery(ModelProject, query, context).resolve(client)
+                model = ModelProject.from_alias(model_data['alias'])
                 if not model:
                     return Response('There is no model corresponding to this alias. Please give a new alias or use the id of the model', status=status.HTTP_400_BAD_REQUEST )
             else:
@@ -1962,13 +2076,16 @@ class Models_KG(APIView):
                            nexus_endpoint=settings.NEXUS_ENDPOINT)
 
         elements_to_delete = [
-            ModelProject.by_uuid(id, client)
+            ModelProject.from_uuid(id, client)
             for id in list_ids
         ]
         for model in elements_to_delete:
+            if model.instances:
+                for instance in model.instances:
+                    instance.delete(client)
             model.delete(client)
 
-        return Response( status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_200_OK)
 
 
 class ModelAliases(APIView):

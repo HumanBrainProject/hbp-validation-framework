@@ -309,21 +309,6 @@ class Command(BaseCommand):
                     email = "unknown@example.com"
         return email
 
-
-    def _change_model_parameters(self, model):
-
-        model.author = get_person(model.author)
-        model.owner = get_person(model.owner)
-        model.species = get_parameter("species",model.species)
-        model.brain_region = get_parameter("brain_region", model.brain_region)
-        model.cell_type = get_parameter("cell_type", model.cell_type)
-        model.abstraction_level = get_parameter("abstraction_level", model.abstraction_level)
-        model.data_modalities = get_parameter("data_modalities", model.data_modalities)
-        model.model_scope = get_parameter("data_modalities", model.model_scope)
-        model.model_type = get_parameter("model_type", model.model_type)
-        model.organization = get_parameter("organization", model.organization)
-        return model
-
     def get_parameters(self, parameter_type, parameter_value):
         parameter = None
         if parameter_type == 'species':
@@ -430,7 +415,7 @@ class Command(BaseCommand):
                         script = ModelScript(name="ModelScript for {} @ {}".format(model.name, model_instance.version),
                                              code_format=model_instance.code_format,
                                              code_location=model_instance.source,
-                                             license=model.license)
+                                             license=model_instance.license)
                         try:
                             script.save(NAR_client)
                         except Exception as err:
@@ -465,12 +450,9 @@ class Command(BaseCommand):
                 logger.warning("Skipping {}, couldn't find model project".format(model.name))
         return ''
 
-    # def _search_for_person_or_create():
-
-
     def handle(self, *args, **options):
-        #self._getPersons_and_migrate()
-        #self.add_organizations_in_KG_database()
+        self._getPersons_and_migrate()
+        self.add_organizations_in_KG_database()
         self.migrate_models()
-        #sleep(10)
+        sleep(10)
         self.migrate_model_instances()
