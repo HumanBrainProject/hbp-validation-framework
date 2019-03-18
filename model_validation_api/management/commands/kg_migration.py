@@ -23,7 +23,7 @@ from ...serializer.simple_serializer import PersonSerializer
 from tabulate  import tabulate
 from nar.brainsimulation import ModelProject, MEModel, EModel, Morphology, ModelScript, ModelInstance
 from nar.core import Person, Organization
-from nar.commons import Address, BrainRegion, Species, AbstractionLevel, CellType
+from nar.commons import Address, BrainRegion, Species, AbstractionLevel, CellType, ModelScope
 from nar.client import NARClient
 from nar.base import KGQuery
 from hbp_app_python_auth.auth import get_access_token, get_auth_header
@@ -108,11 +108,11 @@ def lookup_model_project(model_name, client):
         "value": model_name
     }
     query = KGQuery(ModelProject, query_filter, context)
-    try:
-        return query.resolve(client)
-    except Exception as err:
-        logger.error("Error in lookup_model_project:\n{}".format(err))
-        return None
+    #try:
+    return query.resolve(client)
+    #except Exception as err:
+    #    logger.error("Error in lookup_model_project:\n{}".format(err))
+    #    return None
 
 
 class Command(BaseCommand):
@@ -153,10 +153,13 @@ class Command(BaseCommand):
             try:
                 model_project.save(NAR_client)
             except Exception as err:
-                logger.error(err)
+                if "internal server error" in err.response.text:
+                    logger.error(err)
+                else:
+                    raise
             else:
                 logger.info("ModelProject saved: %s", model_project)
-            print (model_project)
+                print(model_project)
         return ''
 
     def get_organization(self, pattern):
@@ -223,9 +226,10 @@ class Command(BaseCommand):
             logger.debug('already in database %s', person_object[0].last_name)
             self._save_person_in_KG(person_object[0].first_name,person_object[0].last_name, person_object[0].email)
         else:
+            #raise Exception(person)
             print('This person is not in the database yet: {}'.format(person))
             answer = raw_input('do you want to add it?')
-            if (answer == 'y'):
+            if (answer in ('y', 'yes', 'Y')):
                 try:
                     first_name, last_name = resolve_name(person)
                 except ValueError:
@@ -300,7 +304,7 @@ class Command(BaseCommand):
                 res = res[0]
                 logger.debug('email found is: ',res['emails'][0]['value'])
                 check = raw_input('is this ok?')
-                if(check == 'y'):
+                if check in ('y', 'Y', 'yes'):
                     email =res['emails'][0]['value']
                 else:
                     email = raw_input('then, please enter e-mail by hand')
@@ -312,25 +316,25 @@ class Command(BaseCommand):
     def get_parameters(self, parameter_type, parameter_value):
         parameter = None
         if parameter_type == 'species':
-            if parameter_value != None:
-                parameter = Species(parameter_value)
+            if parameter_value not in (None, '', "Undefined", "Other"):
+                parameter = Species(parameter_value, strict=True)
 
         if parameter_type == 'brain_region':
-            if parameter_value != None:
-                parameter = BrainRegion(parameter_value)
+            if parameter_value not in (None, '', 'other'):
+                parameter = BrainRegion(parameter_value, strict=True)
 
         if parameter_type == 'cell_type':
             new_parameter = cell_type_map.get(parameter_value)
             if new_parameter != None:
-                parameter = CellType(new_parameter)
+                parameter = CellType(new_parameter, strict=True)
 
         if parameter_type == "abstraction_level":
-            if parameter_value != None and parameter_value != '':
-                parameter = AbstractionLevel(parameter_value)
+            if parameter_value not in (None, '', "other"):
+                parameter = AbstractionLevel(parameter_value, strict=True)
 
         if parameter_type == "model_scope":
-            if parameter_value != None:
-                parameter = parameter_value
+            if parameter_value != None and parameter_value != '':
+                parameter = ModelScope(parameter_value, strict=True)
 
         return parameter
 
@@ -356,7 +360,14 @@ class Command(BaseCommand):
             brain_region = self.get_parameters("brain_region", model.brain_region)
             species = self.get_parameters("species", model.species)
             cell_type = self.get_parameters("cell_type", model.cell_type)
-            model_project = lookup_model_project(model.name, NAR_client)
+            try:
+                model_project = lookup_model_project(model.name, NAR_client)
+            except Exception as err:
+                if "internal server error" in err.response.text:
+                    logger.error("Lookup failed for model {}".format(model.name))
+                    continue
+                else:
+                    raise
             if model_project:
                 instances = []
                 for model_instance in model.instances.all():
@@ -451,8 +462,8 @@ class Command(BaseCommand):
         return ''
 
     def handle(self, *args, **options):
-        self._getPersons_and_migrate()
-        self.add_organizations_in_KG_database()
-        self.migrate_models()
-        sleep(10)
+        #self._getPersons_and_migrate()
+        #self.add_organizations_in_KG_database()
+        #self.migrate_models()
+        #sleep(10)
         self.migrate_model_instances()
