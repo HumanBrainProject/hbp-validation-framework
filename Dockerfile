@@ -41,6 +41,7 @@ WORKDIR $SITEDIR
 RUN if [ -f $SITEDIR/db.sqlite3 ]; then rm $SITEDIR/db.sqlite3; fi
 RUN python manage.py check
 RUN python manage.py collectstatic --noinput
+RUN cd $SITEDIR/static; tar xf static.tar
 
 RUN echo "daemon off;" >> /etc/nginx/nginx.conf
 RUN rm /etc/nginx/sites-enabled/default
