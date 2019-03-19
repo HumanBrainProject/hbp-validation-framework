@@ -27,7 +27,8 @@ from .views import (
                     IsSuperUserRest,
 
                     Models_KG,
-                    ModelInstances_KG
+                    ModelInstances_KG,
+                    ModelAliases_KG
                     )
 
 # from django.contrib.auth.decorators import login_required
@@ -121,6 +122,9 @@ urlpatterns = (
         name="scientific-model-image"),
     url(r'^model-aliases/$',
         ModelAliases.as_view(),
+        name="scientific-model-alias"),
+    url(r'^model-aliases-kg/$',
+        ModelAliases_KG.as_view(),
         name="scientific-model-alias"),
     # url(r'^modelfollowrest/$',
     #     ModelFollowRest.as_view(),

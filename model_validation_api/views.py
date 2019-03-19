@@ -2088,6 +2088,53 @@ class Models_KG(APIView):
         return Response(status=status.HTTP_200_OK)
 
 
+class ModelAliases_KG(APIView):
+    """
+    Test validity of model Alias using Knowledge Graph
+    """
+
+    def get(self, request, format=None, **kwargs):
+        """
+        Check if the alias entered is valid (not already used)
+        :param alias: model alias
+        :type alias: str
+        :param model_id: model id
+        :type model_id: int
+        :return: bool -- is_valid
+        """
+
+        serializer_context = {
+            'request': request,
+        }
+        alias = request.GET.get('alias')
+        if alias is None:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        method, token = get_authorization_header(request)["Authorization"].split(" ")
+        assert method == "Bearer"
+        client = NARClient(token,
+                           nexus_endpoint=settings.NEXUS_ENDPOINT)
+
+        # if a model_id is provided, first check if the requested alias matches that
+        # of the model
+        is_valid = False
+        model_id = request.GET.get('model_id')
+        if model_id:
+            model = ModelProject.from_uuid(model_id, client)
+            if model:
+                is_valid = (model.alias == alias)
+            else:
+                return Response(status=status.HTTP_404_NOT_FOUND)
+        # if no model_id provided, or the alias doesn't match the model
+        # check if the alias exists
+        if not is_valid:
+            filter = {"path": "nsg:alias", "op": "eq", "value": alias}
+            context = {'nsg': 'https://bbp-nexus.epfl.ch/vocabs/bbp/neurosciencegraph/core/v0.1.0/'}
+            models = KGQuery(ModelProject, filter, context).resolve(client)
+            is_valid = (models is None)
+        return Response({'is_valid': is_valid})
+
+
 class ModelAliases(APIView):
     """
     Test validity of model Alias
