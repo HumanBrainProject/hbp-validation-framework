@@ -1714,118 +1714,118 @@ class Models_KG(APIView):
                 owner_filter = request.GET.getlist('owner')
                 project_filter = request.GET.getlist('project')
 
-                context = {
-                    "nsg": "https://bbp-nexus.epfl.ch/vocabs/bbp/neurosciencegraph/core/v0.1.0/",
-                    "schema": "http://schema.org/"
-                }
-                filter_query = {
-                    "op": "and",
-                    "value": []
-                }
+            context = {
+                "nsg": "https://bbp-nexus.epfl.ch/vocabs/bbp/neurosciencegraph/core/v0.1.0/",
+                "schema": "http://schema.org/"
+            }
+            filter_query = {
+                "op": "and",
+                "value": []
+            }
 
-                if len(alias_filter) > 0 :
-                    filter_query["value"].append({
-                        "path": "nsg:alias",
-                        "op": "in",
-                        "value": alias_filter
-                    })
-                if len(name_filter) > 0 :
-                    filter_query["value"].append({
-                        "path": "schema:name",
-                        "op": "in",
-                        "value": name_filter
-                    })
-                if len(description_filter) > 0 :
-                    filter_query["value"].append({
-                        "path": "schema:description",
-                        "op": "in",
-                        "value": description_filter
-                    })
-                if len(species_filter) > 0 :
-                    filter_query["value"].append({
-                        "path": "nsg:species / rdfs:label",  # todo: map search term to URIs, rather than searching by label
-                        "op": "in",
-                        "value": species_filter
-                    })
-                if len(brain_region_filter) > 0 :
-                   filter_query["value"].append({
-                        "path": "nsg:brainRegion / rdfs:label",
-                        "op": "in",
-                        "value": brain_region_filter
-                    })
-                if len(cell_type_filter) > 0 :
-                    filter_query["value"].append({
-                        "path": "nsg:celltype / rdfs:label",
-                        "op": "in",
-                        "value": cell_type_filter
-                    })
-                if len(author_filter) > 0 :
-                    filter_query["value"].append({
-                        "path": "schema:author / schema:familyName",
-                        "op": "in",
-                        "value": author_filter
-                    })
-                if len(model_scope_filter) > 0 :
-                    filter_query["value"].append({
-                        "path": "nsg:modelOf / rdfs:label",
-                        "op": "in",
-                        "value": model_scope_filter  # temporary, to fix
-                    })
-                if len(abstraction_level_filter) > 0 :
-                    filter_query["value"].append({
-                        "path": "nsg:abstractionLevel / rdfs:label",
-                        "op": "in",
-                        "value": abstraction_level_filter
-                    })
-                # if len(code_format) > 0 :
-                #     q = q.filter(code_format__in = code_format)
-                # if len(app_id) > 0 :
-                #     q = q.filter(app__in = app_id)
-                if len(organization_filter) > 0 :
-                    filter_query["value"].append({
-                        "path": "nsg:organization / schema:name",
-                        "op": "in",
-                        "value": organization_filter
-                    })
-                if len(owner_filter) > 0 :
-                    filter_query["value"].append({
-                        "path": "nsg:owner / schema:familyName",
-                        "op": "in",
-                        "value": owner_filter
-                    })
-                # if len(project) > 0 :
-                #     q = q.filter(project__in = project)
-                # if len(license_param) > 0 :
-                #     q = q.filter(license__in = license_param)
+            if len(alias_filter) > 0 :
+                filter_query["value"].append({
+                    "path": "nsg:alias",
+                    "op": "in",
+                    "value": alias_filter
+                })
+            if len(name_filter) > 0 :
+                filter_query["value"].append({
+                    "path": "schema:name",
+                    "op": "in",
+                    "value": name_filter
+                })
+            if len(description_filter) > 0 :
+                filter_query["value"].append({
+                    "path": "schema:description",
+                    "op": "in",
+                    "value": description_filter
+                })
+            if len(species_filter) > 0 :
+                filter_query["value"].append({
+                    "path": "nsg:species / rdfs:label",  # todo: map search term to URIs, rather than searching by label
+                    "op": "in",
+                    "value": species_filter
+                })
+            if len(brain_region_filter) > 0 :
+                filter_query["value"].append({
+                    "path": "nsg:brainRegion / rdfs:label",
+                    "op": "in",
+                    "value": brain_region_filter
+                })
+            if len(cell_type_filter) > 0 :
+                filter_query["value"].append({
+                    "path": "nsg:celltype / rdfs:label",
+                    "op": "in",
+                    "value": cell_type_filter
+                })
+            if len(author_filter) > 0 :
+                filter_query["value"].append({
+                    "path": "schema:author / schema:familyName",
+                    "op": "in",
+                    "value": author_filter
+                })
+            if len(model_scope_filter) > 0 :
+                filter_query["value"].append({
+                    "path": "nsg:modelOf / rdfs:label",
+                    "op": "in",
+                    "value": model_scope_filter  # temporary, to fix
+                })
+            if len(abstraction_level_filter) > 0 :
+                filter_query["value"].append({
+                    "path": "nsg:abstractionLevel / rdfs:label",
+                    "op": "in",
+                    "value": abstraction_level_filter
+                })
+            # if len(code_format) > 0 :
+            #     q = q.filter(code_format__in = code_format)
+            # if len(app_id) > 0 :
+            #     q = q.filter(app__in = app_id)
+            if len(organization_filter) > 0 :
+                filter_query["value"].append({
+                    "path": "nsg:organization / schema:name",
+                    "op": "in",
+                    "value": organization_filter
+                })
+            if len(owner_filter) > 0 :
+                filter_query["value"].append({
+                    "path": "nsg:owner / schema:familyName",
+                    "op": "in",
+                    "value": owner_filter
+                })
+            # if len(project) > 0 :
+            #     q = q.filter(project__in = project)
+            # if len(license_param) > 0 :
+            #     q = q.filter(license__in = license_param)
 
-                if len(filter_query["value"]) > 0:
-                    models = KGQuery(ModelProject, filter_query, context).resolve(client)
-                else:
-                    models = ModelProject.list(client)
+            if len(filter_query["value"]) > 0:
+                models = KGQuery(ModelProject, filter_query, context).resolve(client)
+            else:
+                models = ModelProject.list(client)
 
-                authorized_collabs = []
-                for collab_id in set(model.collab_id for model in as_list(models) if model.private):
-                    if is_authorised_or_admin(request, collab_id):
-                        authorized_collabs.append(collab_id)
+            authorized_collabs = []
+            for collab_id in set(model.collab_id for model in as_list(models) if model.private):
+                if is_authorised_or_admin(request, collab_id):
+                    authorized_collabs.append(collab_id)
 
-                authorized_models = [model for model in as_list(models)
-                                     if (not model.private) or (model.collab_id in authorized_collabs)]
+            authorized_models = [model for model in as_list(models)
+                                    if (not model.private) or (model.collab_id in authorized_collabs)]
 
+            model_serializer = ScientificModelKGSerializer(authorized_models, client, many=True)
+
+            if page != 0:
+                init = (page - 1) * pagination_number
+                end = init + pagination_number
+                model_serializer = ScientificModelKGSerializer(authorized_models[init : end], client, many=True)
+            else:
                 model_serializer = ScientificModelKGSerializer(authorized_models, client, many=True)
 
-                if page != 0:
-                    init = (page - 1) * pagination_number
-                    end = init + pagination_number
-                    model_serializer = ScientificModelKGSerializer(authorized_models[init : end], client, many=True)
-                else:
-                    model_serializer = ScientificModelKGSerializer(authorized_models, client, many=True)
-
-                return Response({
-                    'models': model_serializer.data,
-                    'page': page,
-                    'total_nb_pages': _get_nb_pages(len(models), pagination_number),
-                    'total_models': len(models)
-                })
+            return Response({
+                'models': model_serializer.data,
+                'page': page,
+                'total_nb_pages': _get_nb_pages(len(models), pagination_number),
+                'total_models': len(models)
+            })
 
         # a model ID has been specified
         else:
