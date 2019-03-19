@@ -61,7 +61,21 @@ ContextServices.service('Context', ['$rootScope', '$location', 'AppIDRest', 'Col
                 window.open(url, '_blank')
             })
         }
+
+        var getUUID = function(id) {
+            if (id.startsWith("http")) {
+                // return the last part of the URI
+                console.log("UUID from URI");
+                var parts = id.split("/");
+                return parts[parts.length - 1];
+            } else {
+                console.log("Alreasdy have UUID");
+                return id;
+            }
+        }
+
         var goToModelDetailView = function(evt, model_id, app_type) {
+            model_id = getUUID(model_id);
             switch (evt.which) {
                 case 1:
                     if (app_type == 'validation') {
@@ -80,6 +94,7 @@ ContextServices.service('Context', ['$rootScope', '$location', 'AppIDRest', 'Col
         }
 
         var modelCatalog_goToModelDetailView = function(model_id) {
+            model_id = getUUID(model_id);
             sendState("model", model_id);
             setState(model_id);
 
@@ -425,9 +440,9 @@ DataHandlerServices.service('DataHandler', ['$rootScope', 'ScientificModelRest',
         var models = { date_last_load: undefined, status: undefined, data: undefined };
         var tests = { date_last_load: undefined, status: undefined, data: undefined };
         var results = { date_last_load: undefined, status: undefined, data: undefined };
-        //possible states status : 
+        //possible states status :
         //- up to date
-        //- outdated 
+        //- outdated
         //- undefined
         //- loading //loading the pages
 
@@ -915,7 +930,7 @@ var GraphicsServices = angular.module('GraphicsServices', ['ngResource', 'btorfs
 GraphicsServices.factory('Graphics', ['$rootScope', 'Context', 'ValidationResultRest',
     function($rootScope, Context, ValidationResultRest) {
 
-        //graphs functions 
+        //graphs functions
         var get_lines_options = function(title, subtitle, Yaxislabel, caption, results_data, type, graph_key, abscissa_value) {
 
             var yminymax = _get_min_max_yvalues(results_data);
@@ -1231,7 +1246,7 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'Context', 'ValidationResult
 
                     code.results = [];
                     for (var result in model_instances[model_instance].test_codes[test_instance].results) {
-                        //only keep the first five significant score figures 
+                        //only keep the first five significant score figures
                         var res = model_instances[model_instance].test_codes[test_instance].results[result];
                         res.score = res.score; //.toPrecision(5);
                         code.results.push(res);
@@ -1478,7 +1493,7 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'Context', 'ValidationResult
 
                         instance.results = [];
                         for (var result in raw_data.score_type[score_type].test_codes[test_code].model_instances[model_instance].results) {
-                            //only keep the first five significant score figures 
+                            //only keep the first five significant score figures
                             var res = raw_data.score_type[score_type].test_codes[test_code].model_instances[model_instance].results[result];
                             res.score = res.score; //.toPrecision(5);
                             instance.results.push(res);
