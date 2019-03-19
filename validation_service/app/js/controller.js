@@ -1557,6 +1557,13 @@ ModelCatalogApp.controller('ModelCatalogDetailCtrl', ['$scope', '$rootScope', '$
             $("#ImagePopupDetail").hide();
         };
 
+        $scope.formatAuthors = function(authors) {
+            var full_names = [];
+            authors.forEach(function(auth) {
+                full_names.push(auth.given_name + " " + auth.family_name)
+            });
+            return full_names.join(", ")
+        }
 
         Context.setService().then(function() {
 

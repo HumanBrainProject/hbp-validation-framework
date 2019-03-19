@@ -1823,8 +1823,8 @@ class Models_KG(APIView):
             return Response({
                 'models': model_serializer.data,
                 'page': page,
-                'total_nb_pages': _get_nb_pages(len(models), pagination_number),
-                'total_models': len(models)
+                'total_nb_pages': _get_nb_pages(len(authorized_models), pagination_number),
+                'total_models': len(authorized_models)
             })
 
         # a model ID has been specified
