@@ -870,7 +870,6 @@ class ModelInstances_KG(APIView):
 
         return Response({'uuid': list_id}, status=status.HTTP_201_CREATED)
 
-
     def put(self, request, format=None):
         """
         Update model instance
@@ -1668,131 +1667,52 @@ class Models_KG(APIView):
 
             web_app = request.GET.getlist('web_app')
 
+            ####check for pages###
+            page = int(request.GET.get('page', 0))
+            pagination_number = 50
+
             #if the request comes from the webapp : uses collab_parameters
-            if len(web_app) > 0 and web_app[0] == 'True' :
-                # todo: update for KG
+            if len(web_app) > 0 and web_app[0] == 'True':
 
-                # app_id = request.GET.getlist('app_id')[0]
+                app_id = request.GET.getlist('app_id')[0]
+                collab_id = get_collab_id_from_app_id(app_id)
+                collab_params = CollabParameters.objects.get(id=app_id)
 
-                # collab_id = get_collab_id_from_app_id(app_id)
-
-                # collab_params = CollabParameters.objects.get(id = app_id )
-
-
-                # species_filter = collab_params.species.split(",")
-                # if species_filter==[u'']:
-                #     species_filter = list(Param_Species.objects.all().values_list('authorized_value', flat=True))+[u'']
-                # else:
-                #     species_filter += [u'']
-
-                # brain_region_filter = collab_params.brain_region.split(",")
-                # if brain_region_filter==[u'']:
-                #     brain_region_filter = list(Param_BrainRegion.objects.all().values_list('authorized_value', flat=True))+[u'']
-                # else:
-                #     brain_region_filter += [u'']
-
-                # cell_type_filter = collab_params.cell_type.split(",")
-                # if cell_type_filter==[u'']:
-                #     cell_type_filter = list(Param_CellType.objects.all().values_list('authorized_value', flat=True))+[u'']
-                # else:
-                #     cell_type_filter += [u'']
-
-                # model_scope_filter = collab_params.model_scope.split(",")
-                # if model_scope_filter==[u'']:
-                #     model_scope_filter = list(Param_ModelScope.objects.all().values_list('authorized_value', flat=True))+[u'']
-                # else:
-                #     model_scope_filter += [u'']
-
-                # abstraction_level_filter = collab_params.abstraction_level.split(",")
-                # if abstraction_level_filter==[u'']:
-                #     abstraction_level_filter = list(Param_AbstractionLevel.objects.all().values_list('authorized_value', flat=True))+[u'']
-                # else:
-                #     abstraction_level_filter += [u'']
-
-                # organization_filter = collab_params.organization.split(",")
-                # if organization_filter==[u'']:
-                #     organization_filter = list(Param_organizations.objects.all().values_list('authorized_value', flat=True)) #+[u'']
-
-
-                # rq1 = ScientificModel.objects.filter(
-                #         private=1,
-                #         species__in=species_filter,
-                #         brain_region__in=brain_region_filter,
-                #         cell_type__in=cell_type_filter,
-                #         abstraction_level__in=abstraction_level_filter,
-                #         model_scope__in=model_scope_filter,
-                #         organization__in=organization_filter).prefetch_related()
-
-                # ##check permissions for Collabs
-                # collab_ids = list(rq1.prefetch_related().values_list('app__collab_id', flat=True).distinct())
-                # collab_ids_new = []
-                # for collab in collab_ids:
-                #     if is_authorised_or_admin(request, collab):
-                #         collab_ids_new.append(collab)
-
-                # all_ctx_from_collab = CollabParameters.objects.filter(collab_id__in=collab_ids_new).distinct()
-                # rq1 = rq1.filter(app__in = all_ctx_from_collab.values("id"))
-
-
-                # rq2 = ScientificModel.objects.filter (
-                #     private=0,
-                #     species__in=species_filter,
-                #     brain_region__in=brain_region_filter,
-                #     cell_type__in=cell_type_filter,
-                #     abstraction_level__in=abstraction_level_filter,
-                #     model_scope__in=model_scope_filter,
-                #     organization__in=organization_filter).prefetch_related()
-
-                # if len(rq1) >0:
-                #     models  = (rq1 | rq2).distinct().order_by('-creation_date')
-                # else:
-                #     models = rq2.distinct().order_by('-creation_date')
-
-
-                # ####check for pages###
-                # try:
-                #     page = request.GET.getlist('page')[0]
-                # except:
-                #     page=0
-                # pagination_number = 50
-
-                # if(page != 0):
-                #     if page == '1':
-                #         model_serializer = ScientificModelReadOnlyForHomeSerializer(models[0:pagination_number], context=serializer_context, many=True )
-                #     else:
-                #         init = (int(page)-1)*(pagination_number)
-                #         end = (int(page)-1)*(pagination_number)+pagination_number-1
-                #         model_serializer = ScientificModelReadOnlyForHomeSerializer(models[init:end], context=serializer_context, many=True )
-                # else:
-                #     model_serializer = ScientificModelReadOnlyForHomeSerializer(models, context=serializer_context, many=True )
-
-                # return Response({
-                # 'models': model_serializer.data,
-                # 'page':page,
-                # 'total_nb_pages': _get_nb_pages(len(models), pagination_number),
-                # 'total_models':len(models)
-                # })
-                raise NotImplementedError()
-
+                name_filter = []
+                description_filter = []
+                species_filter = collab_params.species.split(",") if collab_params.species else []
+                brain_region_filter = collab_params.brain_region.split(",") if collab_params.brain_region else []
+                cell_type_filter = collab_params.cell_type.split(",") if collab_params.cell_type else []
+                author_filter = []
+                model_scope_filter = collab_params.model_scope.split(",") if collab_params.model_scope else []
+                abstraction_level_filter = collab_params.abstraction_level.split(",") if collab_params.abstraction_level else []
+                private_status_filter = []
+                code_format_filter = []
+                alias_filter = []
+                organization_filter = collab_params.organization.split(",") if collab_params.organization else []
+                owner_filter = []
+                license_param_filter = []
+                owner_filter = []
+                project_filter = []
 
             else :
                 app_id = request.GET.getlist('app_id')
-                name = request.GET.getlist('name')
-                description = request.GET.getlist('description')
-                species = request.GET.getlist('species')
-                brain_region = request.GET.getlist('brain_region')
-                cell_type = request.GET.getlist('cell_type')
-                author = request.GET.getlist('author')
-                model_scope = request.GET.getlist('model_scope')
-                abstraction_level = request.GET.getlist('abstraction_level')
-                private = request.GET.getlist('private')
-                code_format = request.GET.getlist('code_format')
-                alias = request.GET.getlist('alias')
-                organization = request.GET.getlist('organization')
-                owner = request.GET.getlist('owner')
-                license_param = request.GET.getlist('license')
-                owner = request.GET.getlist('owner')
-                project = request.GET.getlist('project')
+                name_filter = request.GET.getlist('name')
+                description_filter = request.GET.getlist('description')
+                species_filter = request.GET.getlist('species')
+                brain_region_filter = request.GET.getlist('brain_region')
+                cell_type_filter = request.GET.getlist('cell_type')
+                author_filter = request.GET.getlist('author')
+                model_scope_filter = request.GET.getlist('model_scope')
+                abstraction_level_filter = request.GET.getlist('abstraction_level')
+                private_status_filter = request.GET.getlist('private')
+                code_format_filter = request.GET.getlist('code_format')
+                alias_filter = request.GET.getlist('alias')
+                organization_filter = request.GET.getlist('organization')
+                owner_filter = request.GET.getlist('owner')
+                license_param_filter = request.GET.getlist('license')
+                owner_filter = request.GET.getlist('owner')
+                project_filter = request.GET.getlist('project')
 
                 context = {
                     "nsg": "https://bbp-nexus.epfl.ch/vocabs/bbp/neurosciencegraph/core/v0.1.0/",
@@ -1803,84 +1723,85 @@ class Models_KG(APIView):
                     "value": []
                 }
 
-                if len(alias) > 0 :
+                if len(alias_filter) > 0 :
                     filter_query["value"].append({
                         "path": "nsg:alias",
                         "op": "in",
-                        "value": alias
+                        "value": alias_filter
                     })
-                if len(name) > 0 :
+                if len(name_filter) > 0 :
                     filter_query["value"].append({
                         "path": "schema:name",
                         "op": "in",
-                        "value": name
+                        "value": name_filter
                     })
-                if len(description) > 0 :
+                if len(description_filter) > 0 :
                     filter_query["value"].append({
                         "path": "schema:description",
                         "op": "in",
-                        "value": description
+                        "value": description_filter
                     })
-                if len(species) > 0 :
+                if len(species_filter) > 0 :
                     filter_query["value"].append({
                         "path": "nsg:species / rdfs:label",  # todo: map search term to URIs, rather than searching by label
                         "op": "in",
-                        "value": species
+                        "value": species_filter
                     })
-                if len(brain_region) > 0 :
+                if len(brain_region_filter) > 0 :
                    filter_query["value"].append({
                         "path": "nsg:brainRegion / rdfs:label",
                         "op": "in",
-                        "value": brain_region
+                        "value": brain_region_filter
                     })
-                if len(cell_type) > 0 :
+                if len(cell_type_filter) > 0 :
                     filter_query["value"].append({
                         "path": "nsg:celltype / rdfs:label",
                         "op": "in",
-                        "value": cell_type
+                        "value": cell_type_filter
                     })
-                if len(author) > 0 :
+                if len(author_filter) > 0 :
                     filter_query["value"].append({
-                        "path": "schema:author",
+                        "path": "schema:author / schema:familyName",
                         "op": "in",
-                        "value": author
+                        "value": author_filter
                     })
-                if len(model_scope) > 0 :
+                if len(model_scope_filter) > 0 :
                     filter_query["value"].append({
-                        "path": "nsg:modelOf",
+                        "path": "nsg:modelOf / rdfs:label",
                         "op": "in",
-                        "value": model_scope  # temporary, to fix
+                        "value": model_scope_filter  # temporary, to fix
                     })
-                if len(abstraction_level) > 0 :
+                if len(abstraction_level_filter) > 0 :
                     filter_query["value"].append({
-                        "path": "nsg:abstractionLevel",
+                        "path": "nsg:abstractionLevel / rdfs:label",
                         "op": "in",
-                        "value": abstraction_level
+                        "value": abstraction_level_filter
                     })
                 # if len(code_format) > 0 :
                 #     q = q.filter(code_format__in = code_format)
                 # if len(app_id) > 0 :
                 #     q = q.filter(app__in = app_id)
-                if len(organization) > 0 :
-                    #q = q.filter(organization__in = organization)
+                if len(organization_filter) > 0 :
                     filter_query["value"].append({
-                        "path": "nsg:organization",
+                        "path": "nsg:organization / schema:name",
                         "op": "in",
-                        "value": organization
+                        "value": organization_filter
                     })
-                if len(owner) > 0 :
-                    #q = q.filter(owner__in = owner)
+                if len(owner_filter) > 0 :
                     filter_query["value"].append({
-                        "path": "nsg:owner",
+                        "path": "nsg:owner / schema:familyName",
                         "op": "in",
-                        "value": author
+                        "value": owner_filter
                     })
                 # if len(project) > 0 :
                 #     q = q.filter(project__in = project)
                 # if len(license_param) > 0 :
                 #     q = q.filter(license__in = license_param)
 
-                models = KGQuery(ModelProject, filter_query, context).resolve(client)
+                if len(filter_query["value"]) > 0:
+                    models = KGQuery(ModelProject, filter_query, context).resolve(client)
+                else:
+                    models = ModelProject.list(client)
 
                 authorized_collabs = []
                 for collab_id in set(model.collab_id for model in as_list(models) if model.private):
@@ -1892,8 +1813,18 @@ class Models_KG(APIView):
 
                 model_serializer = ScientificModelKGSerializer(authorized_models, client, many=True)
 
+                if page != 0:
+                    init = (page - 1) * pagination_number
+                    end = init + pagination_number
+                    model_serializer = ScientificModelKGSerializer(authorized_models[init : end], client, many=True)
+                else:
+                    model_serializer = ScientificModelKGSerializer(authorized_models, client, many=True)
+
                 return Response({
                     'models': model_serializer.data,
+                    'page': page,
+                    'total_nb_pages': _get_nb_pages(len(models), pagination_number),
+                    'total_models': len(models)
                 })
 
         # a model ID has been specified
@@ -1912,10 +1843,7 @@ class Models_KG(APIView):
                     if not is_authorised_or_admin(request, model.collab_id) :
                         return HttpResponse('Unauthorized', status=401)
 
-                if len(web_app) > 0 and web_app[0] == 'True' :
-                    model_serializer = ScientificModelFullReadOnlyKGSerializer(model)  # todo
-                else:
-                    model_serializer = ScientificModelKGSerializer(model, client)
+                model_serializer = ScientificModelKGSerializer(model, client)
 
                 return Response({
                     'models': [model_serializer.data],
