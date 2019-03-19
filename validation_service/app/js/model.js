@@ -2,7 +2,7 @@ var ApiCommunicationServices = angular.module('ApiCommunicationServices', ['ngRe
 
 ApiCommunicationServices.factory('ScientificModelRest', ['$resource',
     function($resource) {
-        return $resource('models/:uuid', { id: '@eUuid' }, {
+        return $resource('models-kg/:uuid', { id: '@eUuid' }, {
             get: { method: 'GET', params: { format: 'json', app_id: 'app_id', web_app: 'True' }, isArray: false },
             post: { method: 'POST', params: { format: 'json', app_id: 'app_id', web_app: 'True' }, headers: { 'Content-Type': 'application/json' } },
             put: { method: 'PUT', params: { format: 'json', app_id: 'app_id', web_app: 'True' }, headers: { 'Content-Type': 'application/json' } },
@@ -12,7 +12,7 @@ ApiCommunicationServices.factory('ScientificModelRest', ['$resource',
 ]);
 ApiCommunicationServices.factory('ScientificModelAliasRest', ['$resource',
     function($resource) {
-        return $resource('model-aliases/:uuid', { id: '@eUuid' }, {
+        return $resource('model-aliases-kg/:uuid', { id: '@eUuid' }, {
             get: { method: 'GET', params: { format: 'json', app_id: 'app_id', web_app: 'True' }, isArray: false },
         });
     }
@@ -20,7 +20,7 @@ ApiCommunicationServices.factory('ScientificModelAliasRest', ['$resource',
 
 ApiCommunicationServices.factory('ValidationTestAliasRest', ['$resource',
     function($resource) {
-        return $resource('test-aliases/:uuid', { id: '@eUuid' }, {
+        return $resource('test-aliases-kg/:uuid', { id: '@eUuid' }, {
             get: { method: 'GET', params: { format: 'json', app_id: 'app_id', web_app: 'True' }, isArray: false },
         });
     }
@@ -28,7 +28,7 @@ ApiCommunicationServices.factory('ValidationTestAliasRest', ['$resource',
 
 ApiCommunicationServices.factory('ScientificModelInstanceRest', ['$resource',
     function($resource) {
-        return $resource('model-instances/:uuid', { id: '@eUuid' }, {
+        return $resource('model-instances-kg/:uuid', { id: '@eUuid' }, {
             get: { method: 'GET', params: { format: 'json', app_id: 'app_id', web_app: 'True' }, isArray: false },
             post: { method: 'POST', params: { format: 'json', app_id: 'app_id', web_app: 'True' }, headers: { 'Content-Type': 'application/json' } },
             put: { method: 'PUT', params: { format: 'json', app_id: 'app_id', web_app: 'True' }, headers: { 'Content-Type': 'application/json' } },
