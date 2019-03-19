@@ -1302,6 +1302,16 @@ ModelCatalogApp.controller('ModelCatalogCtrl', [
             return full_names.join(", ")
         }
 
+        $scope.getUUID = function(id) {
+            if (id.startsWith("http")) {
+                // return the last part of the URI
+                var parts = id.split("/");
+                return parts[parts.length - 1];
+            } else {
+                return id;
+            }
+        }
+
         $scope.isloading = function() {
             var status = DataHandler.getCurrentStatus();
             if (status == "loading") {

@@ -87,7 +87,7 @@
             </tr>
         </thead>
         <tbody>
-            <tr ng-mousedown="Context.goToModelDetailView($event, model.id)" oncontextmenu="return false" class="tr-clickable " dir-paginate="model in models.models | filter:search | filterMultiple:{ organization:selected_organization, species:selected_species, brain_region:selected_brain_region , cell_type:selected_cell_type, model_scope:selected_model_scope, abstraction_level:selected_abstraction_level, private: selected_privacy, collab_id: selected_collab}
+            <tr ng-mousedown="Context.goToModelDetailView($event, getUUID(model.id))" oncontextmenu="return false" class="tr-clickable " dir-paginate="model in models.models | filter:search | filterMultiple:{ organization:selected_organization, species:selected_species, brain_region:selected_brain_region , cell_type:selected_cell_type, model_scope:selected_model_scope, abstraction_level:selected_abstraction_level, private: selected_privacy, collab_id: selected_collab}
                         | orderBy: selected_sorting_option | itemsPerPage: itemsPerPages" pagination-id="models">
 
                 <td>{{ model.name}}</td>
