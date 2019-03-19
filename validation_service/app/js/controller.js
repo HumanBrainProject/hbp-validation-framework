@@ -1558,6 +1558,7 @@ ModelCatalogApp.controller('ModelCatalogDetailCtrl', ['$scope', '$rootScope', '$
         };
 
         $scope.formatAuthors = function(authors) {
+            console.log("Formatting " + authors);
             var full_names = [];
             authors.forEach(function(auth) {
                 full_names.push(auth.given_name + " " + auth.family_name)
@@ -1608,6 +1609,7 @@ ModelCatalogApp.controller('ModelCatalogDetailCtrl', ['$scope', '$rootScope', '$
                         });
                     })
                     DataHandler.loadModels({ app_id: $scope.app_id }).then(function(data) {
+                        console.log(data);
                         $scope.models = data
                         $scope.$apply()
                     });
