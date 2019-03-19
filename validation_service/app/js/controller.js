@@ -1558,7 +1558,7 @@ ModelCatalogApp.controller('ModelCatalogDetailCtrl', ['$scope', '$rootScope', '$
         };
 
         $scope.formatAuthors = function(authors) {
-            console.log("Formatting " + authors);
+            console.log("Formatting " + str(authors));
             var full_names = [];
             authors.forEach(function(auth) {
                 full_names.push(auth.given_name + " " + auth.family_name)
@@ -1582,6 +1582,7 @@ ModelCatalogApp.controller('ModelCatalogDetailCtrl', ['$scope', '$rootScope', '$
                     $("#ImagePopupDetail").hide();
                     $scope.model = ScientificModelRest.get({ app_id: $scope.app_id, id: $stateParams.uuid, web_app: "True" });
                     $scope.model.$promise.then(function(model) {
+                        console.log($scope.model.models[0]);
                         $scope.change_collab_url_to_real_url()
 
                         var new_description_promise = MarkdownConverter.change_collab_images_url_to_real_url($scope.model.models[0].description);
@@ -1609,7 +1610,6 @@ ModelCatalogApp.controller('ModelCatalogDetailCtrl', ['$scope', '$rootScope', '$
                         });
                     })
                     DataHandler.loadModels({ app_id: $scope.app_id }).then(function(data) {
-                        console.log(data);
                         $scope.models = data
                         $scope.$apply()
                     });
