@@ -1294,9 +1294,9 @@ ModelCatalogApp.controller('ModelCatalogCtrl', [
             $scope.$apply();
         }
 
-        $scope.formatAuthors = function(model) {
+        $scope.formatAuthors = function(authors) {
             var full_names = [];
-            model.author.forEach(function(auth) {
+            authors.forEach(function(auth) {
                 full_names.push(auth.given_name + " " + auth.family_name)
             });
             return full_names.join(", ")
@@ -1594,7 +1594,7 @@ ModelCatalogApp.controller('ModelCatalogDetailCtrl', ['$scope', '$rootScope', '$
                     $scope.is_collab_member = false;
                     $scope.model.$promise.then(function() {
                         $scope.is_collab_member = IsCollabMemberOrAdminRest.get({
-                            app_id: $scope.model.models[0].app.id,
+                            collab_id: $scope.model.models[0].app.collab_id,
                         })
                         $scope.is_collab_member.$promise.then(function() {
                             $scope.is_collab_member = $scope.is_collab_member.is_member;
