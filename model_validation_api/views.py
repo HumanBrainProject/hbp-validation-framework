@@ -2060,7 +2060,7 @@ class ModelAliases_KG(APIView):
             context = {'nsg': 'https://bbp-nexus.epfl.ch/vocabs/bbp/neurosciencegraph/core/v0.1.0/'}
             models = KGQuery(ModelProject, filter, context).resolve(client)
             logger.debug("Checking validity of {}. models = {}".format(alias, str(models)))
-            is_valid = (models is None)
+            is_valid = not bool(models)
         return Response({'is_valid': is_valid})
 
 
