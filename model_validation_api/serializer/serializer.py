@@ -119,7 +119,7 @@ class ScientificModelKGSerializer(object):
         # check alias is unique
         if "alias" in self.data:
             model_with_same_alias = ModelProject.from_alias(self.data["alias"], self.client)
-            if model_with_same_alias is not None:
+            if bool(model_with_same_alias):
                 self.errors.append("Another model exists with this alias")
                 return False
         # ...

@@ -1446,6 +1446,9 @@ ModelCatalogApp.controller('ModelCatalogCreateCtrl', ['$scope', '$rootScope', '$
                 var a = ScientificModelRest.save({ app_id: $scope.app_id }, parameters).$promise.then(function(data) {
                     DataHandler.setStoredModelsAsOutdated();
                     Context.modelCatalog_goToModelDetailView(data.uuid);
+                },
+                function(err) {
+                    console.log(err);
                 });
             }
         }
