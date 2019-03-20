@@ -4,7 +4,7 @@
 
     <head>
         <nav class="navbar ">
-            <h1 align=center> Edit Model: {{model.models[0].name}} (ID:{{ model.models[0].id }})</h1>
+            <h1 align=center> Edit Model: {{model.models[0].name}} (ID:{{ getUUID(model.models[0].id) }})</h1>
         </nav>
     </head>
 
@@ -56,25 +56,26 @@
                             </tr>
                             <tr>
                                 <td>
-                                    <b>Author:</b>
+                                    <b>Author(s):</b>
                                 </td>
                                 <td>
-                                    <input type="text" ng-model="model.models[0].author" required/>
+                                    <input type="text" ng-model="allAuthors" ng-model-options="{ getterSetter: true }" required/>
                                 </td>
                                 <td>
-                                    <b>Owner:</b>
+                                    <b>Owner(s):</b>
                                 </td>
                                 <td>
-                                    <input type="text" ng-model="model.models[0].owner" />
+                                    <input type="text" ng-model="allOwners" ng-model-options="{ getterSetter: true }" />
+
                                 </td>
                             </tr>
 
                             <tr>
                                 <td>
-                                    <b>App id:</b>
+                                    <b>Main collab id:</b>
                                 </td>
                                 <td>
-                                    <input type="text" ng-model="model.models[0].app.id" required/>
+                                    <input type="text" ng-model="model.models[0].app.collab_id" required/>
                                 </td>
                                 <td>
                                     <b>License:</b>

@@ -69,7 +69,7 @@ ContextServices.service('Context', ['$rootScope', '$location', 'AppIDRest', 'Col
                 var parts = id.split("/");
                 return parts[parts.length - 1];
             } else {
-                console.log("Alreasdy have UUID");
+                console.log("Already have UUID");
                 return id;
             }
         }

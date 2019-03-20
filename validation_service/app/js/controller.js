@@ -1627,7 +1627,19 @@ ModelCatalogApp.controller('ModelCatalogDetailCtrl', ['$scope', '$rootScope', '$
                 full_names.push(auth.given_name + " " + auth.family_name)
             });
             return full_names.join(", ")
-        }
+        };
+
+        $scope.getUUID = function(id) {
+            if (id.startsWith("http")) {
+                // return the last part of the URI
+                console.log("UUID from URI");
+                var parts = id.split("/");
+                return parts[parts.length - 1];
+            } else {
+                console.log("Already have UUID");
+                return id;
+            }
+        };
 
         Context.setService().then(function() {
 
@@ -1686,6 +1698,8 @@ ModelCatalogApp.controller('ModelCatalogEditCtrl', ['$scope', '$rootScope', '$ht
 
     function($scope, $rootScope, $http, $location, $state, $stateParams, ScientificModelRest, ScientificModelInstanceRest, ScientificModelImageRest, CollabParameters, Context, ScientificModelAliasRest, AreVersionsEditableRest, DataHandler, clbStorage, IsSuperUserRest) {
 
+        $scope.authors_str = [];
+        $scope.owners_str = [];
 
         $scope.change_collab_url_to_real_url = function() {
             //COULD BE IN A SERVICE
@@ -1707,6 +1721,58 @@ ModelCatalogApp.controller('ModelCatalogEditCtrl', ['$scope', '$rootScope', '$ht
                 $scope.model.models[0].images[i].src = fileURL;
             });
         }
+
+        $scope.getUUID = function(id) { // this should probably be a filter
+            if (id.startsWith("http")) {
+                // return the last part of the URI
+                console.log("UUID from URI " + id);
+                var parts = id.split("/");
+                return parts[parts.length - 1];
+            } else {
+                console.log("Already have UUID");
+                return id;
+            }
+        };
+
+        $scope.allAuthors = function(people_string) {
+            if (arguments.length) {
+                // todo: this does not correctly handle multi-part surnames, e.g. "von Neumann"
+                $scope.authors_str = people_string;
+                var full_names = people_string.split(";");
+                $scope.model.author = [];
+                full_names.forEach(function(person_name) {
+                    var parts = person_name.trim().split(" ");
+                    var n_parts = parts.length;
+                    $scope.model.author.push({
+                        given_name: parts.slice(0, n_parts - 1).join(" "),
+                        family_name: parts[n_parts - 1]
+                    });
+                });
+                //console.log("Setting authors");
+                //console.log($scope.model.author);
+            } else {
+                return $scope.authors_str;
+            }
+        };
+
+        $scope.allOwners = function(people_string) {
+            if (arguments.length) {
+                // todo: this does not correctly handle multi-part surnames, e.g. "von Neumann"
+                $scope.owners_str = people_string;
+                var full_names = people_string.split(";");
+                $scope.model.owner = [];
+                full_names.forEach(function(person_name) {
+                    var parts = person_name.trim().split(" ");
+                    var n_parts = parts.length;
+                    $scope.model.owner.push({
+                        given_name: parts.slice(0, n_parts - 1).join(" "),
+                        family_name: parts[n_parts - 1]
+                    });
+                });
+            } else {
+                return $scope.owners_str;
+            }
+        };
 
         $scope.deleteImage = function(img) {
             var image = img
@@ -1768,10 +1834,14 @@ ModelCatalogApp.controller('ModelCatalogEditCtrl', ['$scope', '$rootScope', '$ht
         }
         $scope.saveModel = function() {
             if ($scope.model.models[0].alias != '' && $scope.model.models[0].alias != null) {
-                $scope.alias_is_valid = ScientificModelAliasRest.get({ app_id: $scope.app_id, model_id: $scope.model.models[0].id, alias: $scope.model.models[0].alias });
+                $scope.alias_is_valid = ScientificModelAliasRest.get({
+                    app_id: $scope.app_id,
+                    model_id: $scope.getUUID($scope.model.models[0].id),
+                    alias: $scope.model.models[0].alias });
                 $scope.alias_is_valid.$promise.then(function() {
                     if ($scope.alias_is_valid.is_valid) {
                         var parameters = $scope.model;
+                        parameters.models[0].id = $scope.getUUID(parameters.models[0].id);
                         var a = ScientificModelRest.put({ app_id: $scope.app_id }, parameters).$promise.then(function(data) {
                             DataHandler.setStoredModelsAsOutdated();
                             alert('Model correctly edited');
@@ -1785,6 +1855,7 @@ ModelCatalogApp.controller('ModelCatalogEditCtrl', ['$scope', '$rootScope', '$ht
             } else {
                 $scope.model.models[0].alias = null;
                 var parameters = $scope.model;
+                parameters.id = $scope.getUUID(parameters.id);
                 var a = ScientificModelRest.put({ app_id: $scope.app_id }, parameters).$promise.then(function(data) {
                     DataHandler.setStoredModelsAsOutdated();
 
@@ -1819,7 +1890,10 @@ ModelCatalogApp.controller('ModelCatalogEditCtrl', ['$scope', '$rootScope', '$ht
         }
 
         $scope.checkAliasValidity = function() {
-            $scope.alias_is_valid = ScientificModelAliasRest.get({ app_id: $scope.app_id, model_id: $scope.model.models[0].id, alias: $scope.model.models[0].alias });
+            $scope.alias_is_valid = ScientificModelAliasRest.get({
+                app_id: $scope.app_id,
+                model_id: $scope.getUUID($scope.model.models[0].id),
+                alias: $scope.model.models[0].alias });
         };
         $scope.isInArray = function(value, array) {
             return array.indexOf(value) > -1;
@@ -1853,6 +1927,18 @@ ModelCatalogApp.controller('ModelCatalogEditCtrl', ['$scope', '$rootScope', '$ht
 
                 $scope.model.$promise.then(function(model) {
                     $scope.change_collab_url_to_real_url();
+                    // return author full names as a string
+                    var full_names = [];
+                    $scope.model.models[0].author.forEach(function(person) {
+                        full_names.push(person.given_name + " " + person.family_name)
+                    });
+                    $scope.authors_str = full_names.join("; ")
+                    // same for owners
+                    full_names = [];
+                    $scope.model.models[0].owner.forEach(function(person) {
+                        full_names.push(person.given_name + " " + person.family_name)
+                    });
+                    $scope.owners_str = full_names.join("; ")
                 });
 
                 var version_editable = AreVersionsEditableRest.get({ app_id: $scope.app_id, model_id: $stateParams.uuid });

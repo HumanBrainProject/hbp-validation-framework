@@ -1803,14 +1803,16 @@ class Models_KG(APIView):
             else:
                 models = ModelProject.list(client)
 
+            #logger.debug("{} total models".format(len(models)))
             authorized_collabs = []
             for collab_id in set(model.collab_id for model in as_list(models) if model.private):
                 if is_authorised_or_admin(request, collab_id):
                     authorized_collabs.append(collab_id)
 
+            logger.debug("Authorized collabs: {}".format(authorized_collabs))
             authorized_models = [model for model in as_list(models)
                                     if (not model.private) or (model.collab_id in authorized_collabs)]
-
+            logger.debug("{} authorized models".format(len(authorized_models)))
             model_serializer = ScientificModelKGSerializer(authorized_models, client, many=True)
 
             if page != 0:
