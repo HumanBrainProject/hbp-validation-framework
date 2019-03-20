@@ -233,7 +233,8 @@ class ScientificModelKGSerializer(object):
             'description': model.description,
             'images': model.images,
             'old_uuid': model.old_uuid,
-            'instances': []
+            'instances': [],
+            "raw_data": model.instance.data
         }
         for instance in as_list(model.instances):
             instance = instance.resolve(self.client)
