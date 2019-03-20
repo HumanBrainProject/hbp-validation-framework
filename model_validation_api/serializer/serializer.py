@@ -53,7 +53,7 @@ from .simple_serializer import (
 
 from nar.base import as_list, KGProxy
 from nar.core import Person, Organization
-from nar.commons import CellType, BrainRegion, AbstractionLevel, Species
+from nar.commons import CellType, BrainRegion, AbstractionLevel, Species, ModelScope
 from nar.brainsimulation import ModelProject
 
 #### rest framework serializers ####
@@ -127,8 +127,12 @@ class ScientificModelKGSerializer(object):
 
     def _get_ontology_obj(self, cls, key):
         label = self.data.get(key)
-        if label and label not in ("Not applicable"):
-            return cls(label)
+        if label:
+            try:
+                return cls(label, strict=True)
+            except ValueError as err:
+                logger.warning(str(err))
+                return None
         else:
             return None
 
@@ -154,7 +158,7 @@ class ScientificModelKGSerializer(object):
                 species=self._get_ontology_obj(Species, "species"),
                 celltype=self._get_ontology_obj(CellType, "cell_type"),
                 abstraction_level=self._get_ontology_obj(AbstractionLevel, "abstraction_level"),
-                model_of=self.data.get("model_scope"),
+                model_of=self._get_ontology_obj(ModelScope, "model_scope"),
                 old_uuid=self.data.get("old_uuid"),
                 images=self.data.get("images")
             )
@@ -176,18 +180,15 @@ class ScientificModelKGSerializer(object):
             if "private" in self.data:
                 self.model.private = self.data["private"]
             if "cell_type" in self.data:
-                if self.data["cell_type"] == "Not applicable":
-                    self.model.celltype = None
-                else:
-                    self.model.celltype = CellType(self.data["cell_type"])  # todo, handle KeyError from iri_map
+                self.model.celltype = self._get_ontology_obj(CellType, "cell_type")
             if "model_scope" in self.data:
-                self.model.model_of = self.data["model_scope"]
+                self.model.model_of = self._get_ontology_obj(ModelScope, "model_scope")
             if "abstraction_level" in self.data:
-                self.model.abstraction_level = AbstractionLevel(self.data["abstraction_level"])
+                self.model.abstraction_level = self._get_ontology_obj(AbstractionLevel, "abstraction_level")
             if "brain_region" in self.data:
-                self.model.brain_region = BrainRegion(self.data["brain_region"])
+                self.model.brain_region = self._get_ontology_obj(BrainRegion, "brain_region")
             if "species" in self.data:
-                self.model.species = Species(self.data["species"])
+                self.model.species = self._get_ontology_obj(Species, "species")
             if "description" in self.data:
                 self.model.description = self.data["description"]
             if "old_uuid" in self.data:
