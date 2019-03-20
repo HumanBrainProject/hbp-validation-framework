@@ -1399,6 +1399,27 @@ ModelCatalogApp.controller('ModelCatalogCreateCtrl', ['$scope', '$rootScope', '$
         $scope.model_scope = undefined;
         $scope.abstraction_level = undefined;
         $scope.organization = undefined;
+        $scope.authors_str = "";
+        $scope.owners_str = ""
+
+        $scope.model = {
+            cell_type: null,
+            description: "",
+            author: [],
+            owner: [],
+            model_scope: null,
+            private: true,
+            app_id: null,
+            alias: null,
+            abstraction_level: null,
+            brain_region: null,
+            organization: null,
+            species: null,
+            name: "",
+            model_image: [],
+            model_instance: []
+        };
+
 
         //functions
         $scope.displayAddImage = function() {
@@ -1432,6 +1453,46 @@ ModelCatalogApp.controller('ModelCatalogCreateCtrl', ['$scope', '$rootScope', '$
         $scope.checkAliasValidity = function() {
             $scope.alias_is_valid = ScientificModelAliasRest.get({ app_id: $scope.app_id, model_id: $scope.model.id, alias: $scope.model.alias });
             return $scope.alias_is_valid;
+        };
+
+        $scope.allAuthors = function(people_string) {
+            if (arguments.length) {
+                // todo: this does not correctly handle multi-part surnames, e.g. "von Neumann"
+                $scope.authors_str = people_string;
+                var full_names = people_string.split(";");
+                $scope.model.author = [];
+                full_names.forEach(function(person_name) {
+                    var parts = person_name.trim().split(" ");
+                    var n_parts = parts.length;
+                    $scope.model.author.push({
+                        given_name: parts.slice(0, n_parts - 1).join(" "),
+                        family_name: parts[n_parts - 1]
+                    });
+                });
+                //console.log("Setting authors");
+                //console.log($scope.model.author);
+            } else {
+                return $scope.authors_str;
+            }
+        };
+
+        $scope.allOwners = function(people_string) {
+            if (arguments.length) {
+                // todo: this does not correctly handle multi-part surnames, e.g. "von Neumann"
+                $scope.owners_str = people_string;
+                var full_names = people_string.split(";");
+                $scope.model.owner = [];
+                full_names.forEach(function(person_name) {
+                    var parts = person_name.trim().split(" ");
+                    var n_parts = parts.length;
+                    $scope.model.owner.push({
+                        given_name: parts.slice(0, n_parts - 1).join(" "),
+                        family_name: parts[n_parts - 1]
+                    });
+                });
+            } else {
+                return $scope.owners_str;
+            }
         };
 
         $scope._saveModel_AfterAllChecks = function(withInstance) {
