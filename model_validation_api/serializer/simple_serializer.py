@@ -97,19 +97,19 @@ class ScientificModelInstanceKGSerializer(object):
         if self.instance is None:  # create
             model_project = ModelProject.from_uuid(self.data["model_id"], self.client)
             script = ModelScript(name="ModelScript for {} @ {}".format(model_project.name, self.data["version"]),
-                                 code_format=self.data["code_format"],
+                                 code_format=self.data.get("code_format"),
                                  code_location=self.data["source"],
-                                 license=self.data["license"])
+                                 license=self.data.get("license"))
             script.save(self.client)
 
             minst = ModelInstance(name="ModelInstance for {} @ {}".format(model_project.name, self.data["version"]),
-                                  description=self.data["description"],
+                                  description=self.data.get("description", ""),
                                   brain_region=model_project.brain_region,
                                   species=model_project.species,
                                   model_of=None,
                                   main_script=script,
                                   version=self.data["version"],
-                                  parameters=self.data["parameters"],
+                                  parameters=self.data.get("parameters"),
                                   timestamp=datetime.now(),
                                   release=None)
             minst.save(self.client)
@@ -126,17 +126,17 @@ class ScientificModelInstanceKGSerializer(object):
             if "name" in self.data:
                 self.instance.name = self.data["name"]
             if "description" in self.data:
-                self.instance.description = self.data["description"]
+                self.instance.description = self.data.get("description", "")
             if "version" in self.data:
                 self.instance.version = self.data["version"]
             if "parameters" in self.data:
-                self.instance.parameters = self.data["parameters"]
+                self.instance.parameters = self.data.get("parameters")
             if "code_format" in self.data:
-                self.instance.main_script.code_format = self.data["code_format"]
+                self.instance.main_script.code_format = self.data.get("code_format")
             if "source" in self.data:
                 self.instance.main_script.source = self.data["source"]
             if "license" in self.data:
-                self.instance.main_script.license = self.data["license"]
+                self.instance.main_script.license = self.data.get("license")
             self.instance.save(self.client)
 
         return self.instance

@@ -120,7 +120,7 @@
                 <tr>
                     <div class="group" ng-repeat="img in model.models[0].images track by $index">
                         <figure>
-                            <button ng-click='toggleSize($index, img)'><img class=image id="image-$index"  ng-src="{{img.src}}"> </button>
+                            <button ng-click='toggleSize($index, img)'><img class=image id="image-$index"  ng-src="{{img.url}}"> </button>
                             <figcaption id=figcaptionDetail>{{img.caption}}</figcaption> <br>
                         </figure>
                     </div> &ensp;
