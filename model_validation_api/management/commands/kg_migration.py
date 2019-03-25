@@ -14,18 +14,20 @@ from ...models import (
 
                     ScientificModel,
                     ScientificModelInstance,
-                    Persons
-                    # ValidationTestDefinition,
+                    Persons,
+                    ValidationTestDefinition,
                     # ValidationTestCode,
                     # ValidationTestResult,
                     )
 from ...serializer.simple_serializer import PersonSerializer
 from tabulate  import tabulate
-from nar.brainsimulation import ModelProject, MEModel, EModel, Morphology, ModelScript, ModelInstance
+from nar.brainsimulation import (ModelProject, MEModel, EModel, Morphology, ModelScript, ModelInstance,
+                                 ValidationTestDefinition as ValidationTestDefinitionKG, AnalysisResult)
 from nar.core import Person, Organization
+from nar.electrophysiology import Collection  # will probably move to nar.core
 from nar.commons import Address, BrainRegion, Species, AbstractionLevel, CellType, ModelScope
 from nar.client import NARClient
-from nar.base import KGQuery
+from nar.base import KGQuery, Distribution
 from hbp_app_python_auth.auth import get_access_token, get_auth_header
 import uuid
 import requests
@@ -193,7 +195,7 @@ class Command(BaseCommand):
             logger.debug('person : %s', person)
         except:
             if pattern != None:
-                raise Exception(pattern)
+                #raise Exception(pattern)
                 print('person ', pattern ,' has not been found. please enter it by hand')
                 family_name = raw_input('  give the family_name : ')
                 given_name = raw_input('  give the first_name : ')
@@ -276,6 +278,18 @@ class Command(BaseCommand):
             for owner in owners:
                 self._create_person_in_kg(auth)
 
+        for authors in ValidationTestDefinition.objects.all().values_list('author').distinct():
+            for authors in authors_list:
+                if isinstance(authors, tuple):
+                    authors = authors[0]
+                authors = authors.replace(';',',')
+                authors = authors.replace('&',',')
+                authors = authors.replace(' and ',',')
+                authors = [a.strip() for a in authors.split(',')]
+
+                for auth in authors:
+                    self._create_person_in_kg(auth)
+
 
     def _save_person_in_KG(self,first_name, last_name, email):
         person = Person(family_name=last_name, given_name =first_name, email=email, affiliation='')
@@ -324,9 +338,8 @@ class Command(BaseCommand):
                 parameter = BrainRegion(parameter_value, strict=True)
 
         if parameter_type == 'cell_type':
-            new_parameter = cell_type_map.get(parameter_value)
-            if new_parameter != None:
-                parameter = CellType(new_parameter, strict=True)
+            if parameter_value not in (None, '', 'other'):
+                parameter = CellType(parameter_value, strict=True)
 
         if parameter_type == "abstraction_level":
             if parameter_value not in (None, '', "other"):
@@ -335,6 +348,9 @@ class Command(BaseCommand):
         if parameter_type == "model_scope":
             if parameter_value != None and parameter_value != '':
                 parameter = ModelScope(parameter_value, strict=True)
+
+        if parameter_type == "age":
+            parameter = None  # temporary
 
         return parameter
 
@@ -414,12 +430,12 @@ class Command(BaseCommand):
                                           parameters=model_instance.parameters,
                                           timestamp=model_instance.timestamp,
                                           release=None)  # see comment above about release
-                        try:
-                            memodel.save(NAR_client)
-                            instances.append(memodel)
-                        except Exception as err:
-                            logger.error("Error saving MEModel:\n{}".format(err))
-                            continue
+                        #try:
+                        memodel.save(NAR_client)
+                        instances.append(memodel)
+                        #except Exception as err:
+                        #    logger.error("Error saving MEModel:\n{}".format(err))
+                        #    continue
                         print("SUCCESS for instance in '{}'".format(model.name))
                     else:
                         # Use plain ModelInstance where no more-specific sub-type exists
@@ -455,15 +471,61 @@ class Command(BaseCommand):
                 try:
                     model_project.save(NAR_client)
                 except Exception as err:
-                    logger.error("Error updating model project:\n{}".format(err))
-                    continue
+                    if "internal server error" in err.response.text:
+                        logger.error(err)
+                    else:
+                        raise
             else:
                 logger.warning("Skipping {}, couldn't find model project".format(model.name))
         return ''
 
+    def migrate_validation_definitions(self):
+        tests = ValidationTestDefinition.objects.all()
+
+        for test in tests:
+            authors = self._get_people_from_Persons_table(test.author)
+            for author in authors:
+                author.save(NAR_client)
+            brain_region = self.get_parameters("brain_region", test.brain_region)
+            species = self.get_parameters("species", test.species)
+            cell_type = self.get_parameters("cell_type", test.cell_type)
+            #age = self.get_parameters("age", test.age)
+
+            if test.data_location == "to do":
+                test.data_location = "http://example.com/todo"
+            reference_data = AnalysisResult(name="Reference data for validation test '{}'".format(test.name),
+                                            distribution=Distribution(test.data_location))
+            reference_data.save(NAR_client)
+
+            test_definition = ValidationTestDefinitionKG(
+                name=test.name, authors=authors, description=test.protocol,
+                date_created=test.creation_date,
+                alias=test.alias,
+                brain_region=brain_region, species=species,
+                celltype=cell_type, test_type=test.test_type, age=None,  #age,
+                reference_data=reference_data,
+                data_type=test.data_type,
+                recording_modality=test.data_modality,
+                #test.publication,
+                status="in development", #test.status,
+                old_uuid=str(test.id))
+
+            try:
+                test_definition.save(NAR_client)
+            except Exception as err:
+                if "internal server error" in err.response.text:
+                    logger.error(err)
+                else:
+                    raise
+            else:
+                logger.info("ValidationTestDefinition saved: %s", test_definition)
+                print(test_definition)
+        return ''
+
     def handle(self, *args, **options):
-        #self._getPersons_and_migrate()
+        self._getPersons_and_migrate()
         #self.add_organizations_in_KG_database()
         #self.migrate_models()
         #sleep(10)
-        self.migrate_model_instances()
+        #self.migrate_model_instances()
+        self.migrate_validation_definitions()
