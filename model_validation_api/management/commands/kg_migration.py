@@ -16,13 +16,14 @@ from ...models import (
                     ScientificModelInstance,
                     Persons,
                     ValidationTestDefinition,
-                    # ValidationTestCode,
+                    ValidationTestCode,
                     # ValidationTestResult,
                     )
 from ...serializer.simple_serializer import PersonSerializer
 from tabulate  import tabulate
 from nar.brainsimulation import (ModelProject, MEModel, EModel, Morphology, ModelScript, ModelInstance,
-                                 ValidationTestDefinition as ValidationTestDefinitionKG, AnalysisResult)
+                                 ValidationTestDefinition as ValidationTestDefinitionKG, AnalysisResult,
+                                 ValidationScript)
 from nar.core import Person, Organization
 from nar.electrophysiology import Collection  # will probably move to nar.core
 from nar.commons import Address, BrainRegion, Species, AbstractionLevel, CellType, ModelScope
@@ -379,7 +380,7 @@ class Command(BaseCommand):
             try:
                 model_project = lookup_model_project(model.name, NAR_client)
             except Exception as err:
-                if "internal server error" in err.response.text:
+                if "internal server error" in err.response.text or "unexpected http response" in err.response.text:
                     logger.error("Lookup failed for model {}".format(model.name))
                     continue
                 else:
@@ -522,10 +523,32 @@ class Command(BaseCommand):
                 print(test_definition)
         return ''
 
+    def migrate_validation_code(self):
+        test_code_objects = ValidationTestCode.objects.all()
+        for tco in test_code_objects:
+            test_name = tco.test_definition.name
+            test_definition = ValidationTestDefinitionKG.by_name(test_name, NAR_client)
+            if not test_definition:
+                raise Exception("not found")
+            script_obj = ValidationScript(
+                name="Implementation of {}, version {}".format(test_name, tco.version),
+                date_created=tco.timestamp,
+                repository=tco.repository,
+                version=tco.version,
+                description=tco.description,
+                parameters=tco.parameters,
+                test_class=tco.path,
+                test_definition=test_definition,
+                old_uuid=str(tco.id))
+            script_obj.save(NAR_client)
+            logger.info("ValidationScript saved: %s", script_obj)
+
+
     def handle(self, *args, **options):
-        self._getPersons_and_migrate()
+        #self._getPersons_and_migrate()
         #self.add_organizations_in_KG_database()
         #self.migrate_models()
         #sleep(10)
         #self.migrate_model_instances()
-        self.migrate_validation_definitions()
+        #self.migrate_validation_definitions()
+        self.migrate_validation_code()
