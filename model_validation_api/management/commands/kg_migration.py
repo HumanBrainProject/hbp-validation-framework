@@ -17,19 +17,20 @@ from ...models import (
                     Persons,
                     ValidationTestDefinition,
                     ValidationTestCode,
-                    # ValidationTestResult,
+                    ValidationTestResult
                     )
 from ...serializer.simple_serializer import PersonSerializer
 from tabulate  import tabulate
 from nar.brainsimulation import (ModelProject, MEModel, EModel, Morphology, ModelScript, ModelInstance,
                                  ValidationTestDefinition as ValidationTestDefinitionKG, AnalysisResult,
-                                 ValidationScript)
-from nar.core import Person, Organization
-from nar.electrophysiology import Collection  # will probably move to nar.core
+                                 ValidationScript, ValidationActivity, ValidationResult)
+from nar.core import Person, Organization, Collection
 from nar.commons import Address, BrainRegion, Species, AbstractionLevel, CellType, ModelScope
 from nar.client import NARClient
 from nar.base import KGQuery, Distribution
 from hbp_app_python_auth.auth import get_access_token, get_auth_header
+from hbp_service_client.storage_service.client import Client as StorageClient
+from hbp_service_client.storage_service.exceptions import StorageForbiddenException, StorageNotFoundException
 import uuid
 import requests
 import os
@@ -44,9 +45,11 @@ except NameError:
 
 logger = logging.getLogger("kg_migration")
 
-token = os.environ.get('HBP_token', 'none')
+nexus_token = os.environ['HBP_token']
 nexus_endpoint = "https://nexus-int.humanbrainproject.org/v0"
-NAR_client = NARClient(token, nexus_endpoint)
+NAR_client = NARClient(nexus_token, nexus_endpoint)
+storage_token = os.environ["HBP_STORAGE_TOKEN"]
+storage_client = StorageClient.new(storage_token)
 
 
 cell_type_map = {
@@ -116,6 +119,44 @@ def lookup_model_project(model_name, client):
     #except Exception as err:
     #    logger.error("Error in lookup_model_project:\n{}".format(err))
     #    return None
+
+
+def lookup_model_instance(model_instance_old_uuid, client):
+    query_filter = {"path": "nsg:providerId", "op": "eq", "value": model_instance_old_uuid}
+    context = {"nsg": "https://bbp-nexus.epfl.ch/vocabs/bbp/neurosciencegraph/core/v0.1.0/", "oldUUID": "nsg:providerId"}
+    query = KGQuery(ModelInstance, query_filter, context)
+    result = query.resolve(client)
+    if not(result):
+        query = KGQuery(MEModel, query_filter, context)
+        result = query.resolve(client)
+    return result
+
+
+def lookup_test_script(test_script_old_uuid, client):
+    query_filter = {"path": "nsg:providerId", "op": "eq", "value": test_script_old_uuid}
+    context = {"nsg": "https://bbp-nexus.epfl.ch/vocabs/bbp/neurosciencegraph/core/v0.1.0/", "oldUUID": "nsg:providerId"}
+    query = KGQuery(ValidationScript, query_filter, context)
+    return query.resolve(client)
+
+
+def get_file_list(folder_uri, storage_client):
+    if folder_uri.startswith("collab:"):
+        path = folder_uri[8:]
+        try:
+            filenames = storage_client.list(path)
+        except StorageForbiddenException:
+            logger.error("Unable to access Collab storage for '{}', returning empty list".format(path))
+            filenames = []
+        except StorageNotFoundException:
+            logger.error("Not found in Collab storage for '{}', returning empty list".format(path))
+            filenames = []
+        # todo: check if contents are files or folders
+        return ["https://collab-storage-redirect.brainsimulation.eu{}/{}".format(path, filename).replace(" ", "+")
+                for filename in filenames]
+    elif folder_uri.startswith("http:"):
+        raise NotImplementedError()
+    else:
+        return []
 
 
 class Command(BaseCommand):
@@ -303,7 +344,7 @@ class Command(BaseCommand):
     def _get_email(self,first_name, last_name):
 
         url = 'https://services.humanbrainproject.eu/idm/v1/api/user/search?displayName=*'+first_name+' '+last_name+'*'
-        headers={"authorization":"Bearer "+ token }
+        headers={"authorization":"Bearer "+ nexus_token }
 
         res = requests.get(url, headers=headers)
         if res.status_code != 200:
@@ -373,7 +414,7 @@ class Command(BaseCommand):
     def migrate_model_instances(self):
         """ """
         # mapping is based on abstraction_level and on model_scope
-        for model in ScientificModel.objects.all():
+        for model in ScientificModel.objects.exclude(name__contains="emodel"):
             brain_region = self.get_parameters("brain_region", model.brain_region)
             species = self.get_parameters("species", model.species)
             cell_type = self.get_parameters("cell_type", model.cell_type)
@@ -430,6 +471,7 @@ class Command(BaseCommand):
                                           version=model_instance.version,
                                           parameters=model_instance.parameters,
                                           timestamp=model_instance.timestamp,
+                                          old_uuid=str(model_instance.id),
                                           release=None)  # see comment above about release
                         #try:
                         memodel.save(NAR_client)
@@ -458,6 +500,7 @@ class Command(BaseCommand):
                                               version=model_instance.version,
                                               parameters=model_instance.parameters,
                                               timestamp=model_instance.timestamp,
+                                              old_uuid=str(model_instance.id),
                                               release=None)  # see comment above about release
                         try:
                             minst.save(NAR_client)
@@ -543,12 +586,68 @@ class Command(BaseCommand):
             script_obj.save(NAR_client)
             logger.info("ValidationScript saved: %s", script_obj)
 
+    def migrate_validation_results(self):
+        result_objects = ValidationTestResult.objects.all()
+
+        for ro in result_objects:
+            model_instance = lookup_model_instance(str(ro.model_version.id), NAR_client)  # use oldUUID (stored in nsg:providerId)
+            test_script = lookup_test_script(str(ro.test_code.id), NAR_client)
+            if not model_instance:
+                logger.error("Model instance for {} not found in KG".format(ro.model_version))
+                continue
+            if not test_script:
+                logger.error("Test script for {} not found in KG".format(ro.test_code))
+                continue
+            test_definition = test_script.test_definition.resolve(NAR_client)
+            assert test_definition
+
+            additional_data = [AnalysisResult(name="{} @ {}".format(uri, ro.timestamp.isoformat()),
+                                              distribution=Distribution(uri),
+                                              timestamp=ro.timestamp)
+                               for uri in get_file_list(ro.results_storage, storage_client)]
+            for ad in additional_data:
+                ad.save(NAR_client)
+
+            result_kg = ValidationResult(
+                name="Result of running '{}' on model '{}' at {}".format(test_script.name, model_instance.name, ro.timestamp),
+                generated_by=None,
+                description=ro.platform,  # temporary location pending integration in KG
+                score=ro.score,
+                normalized_score=ro.normalized_score,
+                passed=ro.passed,
+                timestamp=ro.timestamp,
+                additional_data=additional_data,
+                old_uuid=str(ro.id),
+                collab_id=ro.project)
+            result_kg.save(NAR_client)
+            logger.info("ValidationResult saved: %s", result_kg)
+
+            reference_data = Collection("Reference data for {}".format(test_definition.name),
+                                        members=test_definition.reference_data.resolve(NAR_client))
+            reference_data.save(NAR_client)
+
+            validation_activity = ValidationActivity(
+                model_instance=model_instance,
+                test_script=test_script,
+                reference_data=reference_data,
+                timestamp=ro.timestamp,
+                result=result_kg,
+                started_by=None)
+            validation_activity.save(NAR_client)
+            logger.info("ValidationActivity saved: %s", validation_activity)
+
+            result_kg.generated_by = validation_activity
+            result_kg.save(NAR_client)
+
 
     def handle(self, *args, **options):
-        #self._getPersons_and_migrate()
-        #self.add_organizations_in_KG_database()
-        #self.migrate_models()
-        #sleep(10)
-        #self.migrate_model_instances()
-        #self.migrate_validation_definitions()
+        self._getPersons_and_migrate()
+        self.add_organizations_in_KG_database()
+        self.migrate_models()
+        sleep(10)  # allow some time for indexing
+        self.migrate_model_instances()
+        self.migrate_validation_definitions()
+        sleep(10)
         self.migrate_validation_code()
+        sleep(10)
+        self.migrate_validation_results()
