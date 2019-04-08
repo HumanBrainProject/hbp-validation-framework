@@ -98,7 +98,8 @@ from .serializer.serializer import (ValidationTestDefinitionSerializer,
 
                             ScientificModelKGSerializer,
                             ScientificModelInstanceKGSerializer,
-                            ValidationTestDefinitionKGSerializer
+                            ValidationTestDefinitionKGSerializer,
+                            ValidationTestCodeKGSerializer
                             )
 
 
@@ -150,6 +151,7 @@ from .validation_framework_toolbox.validation_framework_functions import (
     user_has_acces_to_result,
     get_result_informations,
     organise_results_dict,
+    organise_results_dict_kg,
     _get_collab_id,
     _get_app_id,
     _get_nb_pages,
@@ -2147,7 +2149,52 @@ class TestAliases(APIView):
 
 
 class TestAliases_KG(APIView):
-    pass
+    """
+    Test validity of test Alias using Knowledge Graph
+    """
+
+    def get(self, request, format=None, **kwargs):
+        """
+        Check if the alias entered is valid (not already used)
+        :param alias: test alias
+        :type alias: str
+        :param test_id: test id
+        :type test_id: int
+        :return: bool -- is_valid
+        """
+
+        serializer_context = {
+            'request': request,
+        }
+        alias = request.GET.get('alias')
+        if alias is None:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        method, token = get_authorization_header(request)["Authorization"].split(" ")
+        assert method == "Bearer"
+        client = NARClient(token,
+                           nexus_endpoint=settings.NEXUS_ENDPOINT)
+
+        # if a test_id is provided, first check if the requested alias matches that
+        # of the test
+        is_valid = False
+        test_id = request.GET.get('test_id')
+        if test_id:
+            test = ValidationTestDefinitionKG.from_uuid(test_id, client)
+            if test:
+                is_valid = (test.alias == alias)
+            else:
+                return Response(status=status.HTTP_404_NOT_FOUND)
+        # if no test_id provided, or the alias doesn't match the test
+        # check if the alias exists
+        if not is_valid:
+            filter = {"path": "nsg:alias", "op": "eq", "value": alias}
+            context = {'nsg': 'https://bbp-nexus.epfl.ch/vocabs/bbp/neurosciencegraph/core/v0.1.0/'}
+            tests = KGQuery(ValidationTestDefinitionKG, filter, context).resolve(client)
+            logger.debug("Checking validity of {}. tests = {}".format(alias, str(tests)))
+            is_valid = not bool(tests)
+        return Response({'is_valid': is_valid})
+
 
 
 class TestInstances(APIView):
@@ -2356,7 +2403,113 @@ class TestInstances(APIView):
 
 
 class TestInstances_KG(APIView):
-    pass
+
+    def get(self, request, format=None, **kwargs):
+        """
+        :param id: test instance id
+        :type id: uuid
+        :param repository: test instance repository
+        :type repository: str
+        :param version: test instance name
+        :type version: str
+        :param path: test instance path
+        :type path: url
+        :param timestamp: creation date of the instance
+        :type timestamp: datetime
+        :param test_definition_id: test id
+        :type test_definition_id: uuid
+        :param test_alias: test alias
+        :type test_alias: str
+        :returns: test_codes: list of test instances
+        :rtype: object list
+        """
+
+        auth = get_authorization_header(request).get("Authorization")
+        if auth:
+            method, token = auth.split(" ")
+            logger.debug(token)
+        else:
+            return Response("No authorization token provided", status=status.HTTP_401_UNAUTHORIZED)
+
+        assert method == "Bearer"
+        client = NARClient(token,
+                           nexus_endpoint=settings.NEXUS_ENDPOINT)
+
+        param_id = request.GET.getlist('id')
+        param_repository = request.GET.getlist('repository')
+        param_version = request.GET.getlist('version')
+        param_path = request.GET.getlist('path')
+        param_timestamp = request.GET.getlist('timestamp')
+        param_test_definition_id = request.GET.getlist('test_definition_id')
+        param_test_alias = request.GET.getlist('test_alias')
+
+        if check_list_uuid_validity(param_id) is False :
+            return Response("Badly formed uuid in : id", status=status.HTTP_400_BAD_REQUEST)
+        if check_list_uuid_validity(param_test_definition_id) is False :
+            return Response("Badly formed uuid in : test_definition_id", status=status.HTTP_400_BAD_REQUEST)
+
+        if len(param_id) > 0:
+            test_scripts = []
+            for script_id in param_id:
+                result = ValidationScript.from_uuid(script_id, client)
+                if result:
+                    test_scripts.append(result)
+        else:
+            context = {
+                "nsg": "https://bbp-nexus.epfl.ch/vocabs/bbp/neurosciencegraph/core/v0.1.0/",
+                "schema": "http://schema.org/"
+            }
+            filter_query = {
+                "op": "and",
+                "value": []
+            }
+            if len(param_test_alias) > 0 :
+                filter_query["value"].append({
+                    "path": "nsg:alias",
+                    "op": "in",
+                    "value": param_test_alias
+                })
+            if len(param_test_definition_id) > 0 :
+                filter_query["value"].append({
+                    "path": "nsg:implements",
+                    "op": "in",
+                    "value": param_test_definition_id  # todo: map UUID to full URI here
+                })
+            if len(param_repository) > 0 :
+                filter_query["value"].append({
+                    "path": "schema:codeRepository",
+                    "op": "in",
+                    "value": param_repository
+                })
+            if len(param_version) > 0 :
+                filter_query["value"].append({
+                    "path": "schema:version",
+                    "op": "in",
+                    "value": param_version
+                })
+            if len(param_path) > 0 :
+                filter_query["value"].append({
+                    "path": "nsg:path",
+                    "op": "in",
+                    "value": param_path
+                })
+            if len(param_timestamp) > 0 :
+                filter_query["value"].append({
+                    "path": "schema:dateCreated",
+                    "op": "in",
+                    "value": param_timestamp
+                })
+
+            if len(filter_query["value"]) > 0:
+                test_scripts = KGQuery(ValidationScript, filter_query, context).resolve(client)
+            else:
+                test_scripts = ValidationScript.list(client)
+
+        test_code_serializer = ValidationTestCodeKGSerializer(test_scripts, client, many=True)
+
+        return Response({
+            'test_codes': test_code_serializer.data,
+        })
 
 
 class Tests(APIView):
@@ -3483,8 +3636,201 @@ class Results (APIView):
         return Response( status=status.HTTP_200_OK)
 
 
+def get_full_uri(kg_types, uuid, client):
+    if not isinstance(kg_types, (list, tuple)):
+        kg_types = [kg_types]
+    uris = [kg_type.uri_from_uuid(uuid, client) for kg_type in kg_types]
+    if len(kg_types) == 1:
+        return uris[0]
+    return uris
+
+
 class Results_KG(APIView):
-    pass
+
+    def get(self, request, format=None, **kwargs):
+        """
+        get Instance of model_validation_api_validationtestresult
+        :param id: result id
+        :type id: uuid
+        :param results_storage:
+        :type results_storage: str
+        :param score: core of the result
+        :type score: int
+        :param passed: true if the result passed, false else.
+        :type passed: boolean
+        :param timestamp: creation date of the result
+        :type timestamp: datetime
+        :param platform: str
+        :type platform: str
+        :param project: str
+        :type project: str
+        :param model_version_id: id of the model instance
+        :type model_version_id: uuid
+        :param test_code_id: id of the test instance
+        :type test_code_id: uuid
+        :param normalized_score: normalized score
+        :type normalized_score: int
+        :param model_id: model id
+        :type model_id: uuid
+        :param test_id: test id
+        :type test_id: uuid
+        :param model_alias: model name alias
+        :type model_alias: str
+        :param test_alias: test name alias
+        :type test_alias: str
+        :param score_type: type of score
+        :type score_type: str
+        :param order: order to get the results (test_code, model_instance, score_type)
+        :type order: str
+        :param detailed_view: to say results are for the detail view
+        :type detailed_view: boolean
+        :returns: organized dictionnary in function of the order param
+        :rtype: dictionnary
+        """
+
+        method, token = get_authorization_header(request)["Authorization"].split(" ")
+        assert method == "Bearer"
+        client = NARClient(token,
+                           nexus_endpoint=settings.NEXUS_ENDPOINT)
+
+        param_id = request.GET.getlist('id')
+        param_passed = request.GET.getlist('passed')
+        param_project = request.GET.getlist('project')
+        param_model_version_id = request.GET.getlist('model_version_id')
+        param_test_code_id = request.GET.getlist('test_code_id')
+
+        param_model_id = request.GET.getlist('model_id')
+        param_test_id = request.GET.getlist('test_id')
+
+        param_model_alias = request.GET.getlist('model_alias')
+        param_test_alias = request.GET.getlist('test_alias')
+        param_test_score_type = request.GET.getlist('score_type')
+        param_order = request.GET.getlist('order')
+
+        param_detailed_view = request.GET.getlist('detailed_view')
+
+        if len(param_detailed_view) > 0 :
+            detailed_view =  param_detailed_view[0]
+        else :
+            detailed_view = False
+
+        if len(param_order) > 0 and param_order[0] in ('test', 'model', '', 'model_instance',
+                                                       'test_code', 'score_type'):
+            param_order = param_order[0]
+        else :
+            return Response("You need to give 'order' argument. Here are the options: "
+                            "'test', 'model', 'model_instance', 'test_code', 'score_type', '' ",
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if check_list_uuid_validity(param_id) is False:
+            return Response("Badly formed uuid in : id", status=status.HTTP_400_BAD_REQUEST)
+        if check_list_uuid_validity(param_model_version_id) is False:
+            return Response("Badly formed uuid in : model_version_id", status=status.HTTP_400_BAD_REQUEST)
+        if check_list_uuid_validity(param_test_code_id) is False:
+            return Response("Badly formed uuid in : test_code_id", status=status.HTTP_400_BAD_REQUEST)
+        if check_list_uuid_validity(param_model_id) is False:
+            return Response("Badly formed uuid in : model_id", status=status.HTTP_400_BAD_REQUEST)
+        if check_list_uuid_validity(param_test_id) is False:
+            return Response("Badly formed uuid in : test_id", status=status.HTTP_400_BAD_REQUEST)
+
+        #if ID result
+        if (len(param_id) == 0):
+
+            # have to first lookup ModelProjects, as we currently have no
+            # forward connection from ModelInstance to ModelProject
+            # update: actually, this may not be neceessary, as we can use
+            # inverse relations in paths: ^ (see https://www.w3.org/TR/sparql11-query/#propertypaths)
+            model_instances = []
+            for uuid in param_model_version_id:
+                model_instances += get_full_uri((ModelInstance, MEModel), uuid, client)
+            for uuid in param_model_id:
+                model_instances += [inst.id for inst in ModelProject.from_uuid(uuid, client).instances]
+            for alias in param_model_alias:
+                model_instances += [inst.id for inst in ModelProject.from_alias(alias, client).instances]
+
+            filter_query = {
+                "op": "and",
+                "value": []
+            }
+            context = {
+                "nsg": "https://bbp-nexus.epfl.ch/vocabs/bbp/neurosciencegraph/core/v0.1.0/",
+                "schema": "http://schema.org/"
+            }
+
+            if len(param_passed) > 0 :
+                filter_query["value"].append({
+                    "path": "nsg:passedValidation",
+                    "op": "in",
+                    "value": param_passed
+                })
+            if len(param_project) > 0 :
+                filter_query["value"].append({
+                    "path": "nsg:collabID",
+                    "op": "in",
+                    "value": param_project
+                })
+            if len(model_instances) > 0 :
+                filter_query["value"].append({
+                    "path": "prov:wasGeneratedBy / prov:used",
+                    "op": "in",
+                    "value": model_instances
+                })
+            if len(param_test_code_id) > 0 :
+                filter_query["value"].append({
+                    "path": "prov:wasGeneratedBy / prov:used",
+                    "op": "in",
+                    "value": [get_full_uri(ValidationScript, uuid, client) for uuid in param_test_code_id]
+                })
+            if len(param_test_id) > 0 :
+                filter_query["value"].append({
+                    "path": "prov:wasGeneratedBy / prov:used / nsg:implements",
+                    "op": "in",
+                    "value": [get_full_uri(ValidationTestDefinition, uuid, client) for uuid in param_test_id]
+                })
+            if len(param_test_alias) > 0 :
+                filter_query["value"].append({
+                    "path": "prov:wasGeneratedBy / prov:used / nsg:implements / nsg:alias",
+                    "op": "in",
+                    "value": param_test_alias
+                })
+            if len(param_test_score_type) > 0:
+                filter_query["value"].append({
+                    "path": "prov:wasGeneratedBy / prov:used / nsg:implements / nsg:scoreType",
+                    "op": "in",
+                    "value": param_test_score_type
+                })
+
+            # todo: implement ordering (will need changes to pyxus)
+            if len(filter_query["value"]) > 0:
+                results = KGQuery(ValidationResultKG, filter_query, context).resolve(client)
+            else:
+                results = ValidationResultKG.list(client)
+
+            # TODO: Exclude the results which the client can't access because the model is private
+
+        else:
+
+            results = [ValidationResultKG.from_uuid(uuid, client)
+                       for uuid in param_id]
+
+        #     #check if user has acces to the model associated to the results
+        #     for result in results :
+        #         if user_has_acces_to_result(request, result) is False :
+        #             return Response("You do not access to result : {}".format(result.id), status=status.HTTP_403_FORBIDDEN)
+
+        #####quick fix to get out nan and infinity numbers --will need to change it by allowing the json
+        new_results = []
+        for result in results:
+            if not math.isnan(float(result.score)) and not math.isnan(float(result.normalized_score)) and not math.isinf(float(result.score)) and not math.isinf(float(result.normalized_score)):
+                new_results.append(result)
+
+        data_to_return = organise_results_dict_kg(detailed_view, param_order, new_results, client)
+
+        # file = get_storage_file_by_id(request)
+        # data_to_return['PDF'] = file
+
+        return Response(data_to_return)
+
 
 
 class ParametersConfigurationValidationView(View):

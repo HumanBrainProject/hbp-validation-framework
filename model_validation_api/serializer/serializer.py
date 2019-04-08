@@ -402,6 +402,47 @@ class ValidationTestCodeReadOnlySerializer(serializers.HyperlinkedModelSerialize
         fields = ('id', 'repository', 'version', 'description', 'parameters', 'path', 'timestamp', 'test_definition')
 
 
+class ValidationTestCodeKGSerializer(object):
+
+    def __init__(self, objects, client, data=None, many=False, context=None):
+        self.client = client
+        if many:
+            self.objects = objects
+            if data:
+                self.data = data
+            else:
+                self.data = [
+                    self.serialize(obj) for obj in as_list(objects)
+                ]
+        else:
+            self.obj = objects
+            if data:
+                self.data = data
+            else:
+                self.data = self.serialize(self.obj)
+        self.context = context
+        self.errors = []
+
+    def is_valid(self):
+        return True  # todo
+
+    def serialize(self, obj):
+        # todo: rewrite all this using KG Query API, to avoid doing all the individual resolves.
+
+        data = {
+            "id": obj.id,
+            "old_uuid": obj.old_uuid,
+            "repository": obj.repository["@id"],
+            "version": obj.version,
+            "description": obj.description,
+            "parameters":  obj.parameters,
+            "path": obj.test_class,
+            "timestamp": obj.date_created,
+            'test_definition_id': obj.test_definition.resolve(self.client).uuid
+        }
+        return data
+
+
 
 ##########################
 ## ValidationTestResult ##
@@ -413,6 +454,48 @@ class ValidationTestResultReadOnlySerializer (serializers.HyperlinkedModelSerial
         model = ValidationTestResult
         fields = ('id', 'model_version',  'test_code', 'results_storage', 'score', 'passed', 'timestamp', 'platform',   'project',  'normalized_score')
 
+
+class ValidationTestResultKGSerializer(object):
+
+    def __init__(self, objects, client, data=None, many=False, context=None):
+        self.client = client
+        if many:
+            self.objects = objects
+            if data:
+                self.data = data
+            else:
+                self.data = [
+                    self.serialize(obj) for obj in as_list(objects)
+                ]
+        else:
+            self.obj = objects
+            if data:
+                self.data = data
+            else:
+                self.data = self.serialize(self.obj)
+        self.context = context
+        self.errors = []
+
+    def is_valid(self):
+        return True  # todo
+
+    def serialize(self, obj):
+        # todo: rewrite all this using KG Query API, to avoid doing all the individual resolves.
+
+        data = {
+            "id": obj.uuid,
+            "old_uuid": obj.old_uuid,
+            "model_version_id": obj.model_version_id,
+            "test_code_id": obj.test_code_id,
+            "results_storage": [item.resolve(self.client).distribution.location
+                                for item in as_list(obj.additional_data)],
+            "score": obj.score,
+            "passed": obj.passed,
+            "timestamp": obj.timestamp,
+            "project": obj.collab_id,
+            "normalized_score": obj.normalized_score
+        }
+        return data
 
 
 #############

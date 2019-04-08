@@ -57,6 +57,7 @@ from ..serializer.serializer import (ValidationTestDefinitionSerializer,
                             Param_ScoreTypeSerializer,
                             Param_OrganizationsSerializer,
 
+                            ValidationTestResultKGSerializer
                             )
 
 
@@ -417,6 +418,7 @@ def user_has_acces_to_result (request, result):
     return acces
 
 
+
 def get_result_informations (result):
     """
     Get information of result
@@ -448,6 +450,45 @@ def get_result_informations (result):
     result_info['model_name'] = str(model.name)
     result_info['model_alias'] = str(model.alias)
     result_info['model_instance_id'] = str(model_instance.id)
+    result_info['model_instance_version'] = str(model_instance.version)
+    result_info['model_instance_timestamp'] = str(model_instance.timestamp)
+
+
+    return (result_info)
+
+
+def get_result_information_kg(result, client):
+    """
+    Get information of result
+    :param result: result
+    :type result: object
+    :returns: list result_info
+    :rtype: list
+    """
+    result_info = {}
+
+    #test info
+    validation_activity = result.generated_by.resolve(client)
+    test_code = validation_activity.test_script.resolve(client)
+    test = test_code.test_definition.resolve(client)
+
+    result_info['test_id'] = str(test.uuid)
+    result_info['test_name'] = str(test.name)
+    result_info['test_alias'] = str(test.alias)
+    result_info['test_score_type'] = str(test.score_type)
+    result_info['test_code_id'] = str(test_code.uuid)
+    result_info['test_code_version'] = str(test_code.version)
+    result_info['test_code_timestamp'] = str(test_code.date_created)
+
+
+    #model info
+    model_instance = validation_activity.model_instance.resolve(client)
+    model = model_instance.project.resolve(client)
+
+    result_info['model_id'] = str(model.uuid)
+    result_info['model_name'] = str(model.name)
+    result_info['model_alias'] = str(model.alias)
+    result_info['model_instance_id'] = str(model_instance.uuid)
     result_info['model_instance_version'] = str(model_instance.version)
     result_info['model_instance_timestamp'] = str(model_instance.timestamp)
 
@@ -591,6 +632,152 @@ def organise_results_dict ( detailed_view, point_of_view, results, serializer_co
         data_to_return = {'results' : result_serializer}
 
     return data_to_return
+
+def organise_results_dict_kg( detailed_view, point_of_view, results, client):
+    """
+    Get result informations and organize it in term of points of view in only one json string
+    :param detailed_view: detailed_view
+    :type detailed_view: boolean
+    :param point_of_view: point_of_view
+    :type point_of_view: str
+    :param results: results
+    :type results: str
+    :param serializer_context: serializer_context
+    :type serializer_context: str
+    :returns: str json data_to_return
+    :rtype: str
+    """
+    data_to_return = {}
+
+    #data_to_return structuraction for test point of view
+    if point_of_view == "test" :
+        # print "test first"
+        data_to_return['tests'] = {}
+        for result in results :
+            result_info = get_result_information_kg(result, client)
+
+            current = data_to_return['tests']
+            if result_info['test_id'] not in current  :
+                 current[result_info['test_id']] = { 'alias': result_info['test_alias'],'score_type':result_info['test_score_type'], 'test_codes' : {} }
+
+            current = current[result_info['test_id']]['test_codes']
+            if result_info['test_code_id'] not in current :
+                current[result_info['test_code_id']] = {'version' : result_info['test_code_version']  , 'models' : {}}
+
+            current = current[result_info['test_code_id']]['models']
+            if result_info['model_id'] not in current :
+                current[result_info['model_id']] = {'alias' : result_info['model_alias'], 'model_instances' : {} }
+
+            current = current[result_info['model_id']]['model_instances']
+            if result_info['model_instance_id'] not in current :
+                result.model_version_id = result_info["model_instance_id"]
+                result.test_code_id = result_info["test_code_id"]
+                result_data = ValidationTestResultKGSerializer(result, client).data
+                current[result_info['model_instance_id']] = {'version' : result_info['model_instance_version'], 'result' : result_data }
+
+
+    #data_to_return structuraction for model point of view
+    elif  point_of_view == "model" :
+        # print "model first"
+
+        data_to_return['models'] = {}
+        for result in results :
+            result_info = get_result_information_kg(result, client)
+
+            current = data_to_return['models']
+            if result_info['model_id'] not in current  :
+                 current[result_info['model_id']] = { 'alias': result_info['model_alias'],  'model_instances' : {} }
+
+            current = current[result_info['model_id']]['model_instances']
+            if result_info['model_instance_id'] not in current :
+                current[result_info['model_instance_id']] = {'version' : result_info['model_instance_version']  , 'tests' : {}}
+
+            current = current[result_info['model_instance_id']]['tests']
+            if result_info['test_id'] not in current :
+                current[result_info['test_id']] = {'alias' : result_info['test_alias'], 'test_codes' : {} }
+
+            current = current[result_info['test_id']]['test_codes']
+            if result_info['test_code_id'] not in current :
+                result.model_version_id = result_info["model_instance_id"]
+                result.test_code_id = result_info["test_code_id"]
+                result_data = ValidationTestResultKGSerializer(result, client).data
+                current[result_info['test_code_id']] = {'version' : result_info['test_code_version'], 'result' : result_data }
+
+    elif  point_of_view == "test_code" :
+
+        data_to_return['test_codes'] = {}
+        for result in results :
+            result_info = get_result_information_kg(result, client)
+
+            current = data_to_return['test_codes']
+            if result_info['test_code_id'] not in current  :
+                 current[result_info['test_code_id']] = { 'version' : result_info['test_code_version'],'test_alias': result_info['test_alias'],'test_id': result_info['test_id'], 'test_name': result_info['test_name'], 'model_instances':{}, 'timestamp': result_info['test_code_timestamp'] }
+
+            current = current[result_info['test_code_id']]['model_instances']
+            if result_info['model_instance_id'] not in current :
+                current[result_info['model_instance_id']] = {'version' : result_info['model_instance_version'], 'model_alias' : result_info['model_alias'],'model_id' : result_info['model_id'], 'timestamp' : result_info['model_instance_timestamp'] , 'results' : {} }
+
+            current = current[result_info['model_instance_id']]['results']
+            result.model_version_id = result_info["model_instance_id"]
+            result.test_code_id = result_info["test_code_id"]
+            result_data = ValidationTestResultKGSerializer(result, client).data
+            current[result_data['id']] = result_data
+
+    elif  point_of_view == "model_instance" :
+
+        data_to_return['model_instances'] = {}
+        for result in results :
+            result_info = get_result_information_kg(result, client)
+            current = data_to_return['model_instances']
+            if result_info['model_instance_id'] not in current  :
+                 current[result_info['model_instance_id']] = { 'version' : result_info['model_instance_version'],'model_alias': result_info['model_alias'],'model_id': result_info['model_id'], 'model_name': result_info['model_name'], 'test_codes':{},  'timestamp': result_info['model_instance_timestamp'] }
+
+            current = current[result_info['model_instance_id']]['test_codes']
+            if result_info['test_code_id'] not in current :
+                current[result_info['test_code_id']] = {'version' : result_info['test_code_version'], 'test_alias' : result_info['test_alias'],'test_id' : result_info['test_id'], 'timestamp' : result_info['test_code_timestamp'], 'results' : {} }
+
+            current = current[result_info['test_code_id']]['results']
+            result.model_version_id = result_info["model_instance_id"]
+            result.test_code_id = result_info["test_code_id"]
+            result_data = ValidationTestResultKGSerializer(result, client).data
+            current[result_data['id']] = result_data
+
+    elif  point_of_view == "score_type" :
+        data_to_return['score_type'] = {}
+
+        for result in results :
+            result_info = get_result_information_kg(result, client)
+            current = data_to_return['score_type']
+            if result_info['test_score_type'] not in current  :
+                 current[result_info['test_score_type']] = {'test_codes':{}}
+
+            current = current[result_info['test_score_type']]['test_codes']
+
+            if result_info['test_code_id'] not in current  :
+                 current[result_info['test_code_id']] = { 'version' : result_info['test_code_version'],'test_alias': result_info['test_alias'],'test_id': result_info['test_id'], 'test_name': result_info['test_name'], 'model_instances':{}, 'timestamp': result_info['test_code_timestamp'] }
+
+            current = current[result_info['test_code_id']]['model_instances']
+
+            if result_info['model_instance_id'] not in current :
+                current[result_info['model_instance_id']] = {'version' : result_info['model_instance_version'], 'model_alias' : result_info['model_alias'],'model_id' : result_info['model_id'], 'timestamp' : result_info['model_instance_timestamp'] , 'results' : {} }
+
+            current = current[result_info['model_instance_id']]['results']
+            result.model_version_id = result_info["model_instance_id"]
+            result.test_code_id = result_info["test_code_id"]
+            result_data = ValidationTestResultKGSerializer(result, client).data
+            current[result_data['id']] = result_data
+
+    #data_to_return no structuraction
+    else :
+        if detailed_view :
+            result_serializer = ValidationTestResultKGSerializer(results, client, many=True).data
+        else :
+            result_serializer = ValidationTestResultKGSerializer(results, client, many=True).data
+
+        data_to_return = {'results' : result_serializer}
+
+    return data_to_return
+
 
 def _get_collab_id(request):
     """
