@@ -28,7 +28,11 @@ from .views import (
 
                     Models_KG,
                     ModelInstances_KG,
-                    ModelAliases_KG
+                    ModelAliases_KG,
+                    Tests_KG,
+                    TestInstances_KG,
+                    TestAliases_KG,
+                    Results_KG
                     )
 
 # from django.contrib.auth.decorators import login_required
@@ -80,13 +84,21 @@ urlpatterns = (
     url(r'^tests/$',
         Tests.as_view(),
         name="validation-test-definition"),
+    url(r'^tests-kg/$',
+        Tests_KG.as_view(),
+        name="validation-test-definition-kg"),
     url(r'^test-instances/$',
         TestInstances.as_view(),
         name="validation-test-code"),
-
+    url(r'^test-instances-kg/$',
+        TestInstances_KG.as_view(),
+        name="validation-test-code-kg"),
 
     url(r'^results/$',
         Results.as_view(),
+        ),
+    url(r'^results-kg/$',
+        Results_KG.as_view(),
         ),
 
     url(r'^testcomment/$',
@@ -98,6 +110,9 @@ urlpatterns = (
     url(r'^test-aliases/$',
         TestAliases.as_view(),
         name="scientific-test-alias"),
+    url(r'^test-aliases-kg/$',
+        TestAliases_KG.as_view(),
+        name="scientific-test-alias-kg"),
     url(r'areversionseditable/$',
         AreVersionsEditableRest.as_view(),
         name='are-versions-editable'),

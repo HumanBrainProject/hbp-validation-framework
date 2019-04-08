@@ -54,7 +54,7 @@ from .simple_serializer import (
 from nar.base import as_list, KGProxy
 from nar.core import Person, Organization
 from nar.commons import CellType, BrainRegion, AbstractionLevel, Species, ModelScope
-from nar.brainsimulation import ModelProject
+from nar.brainsimulation import ModelProject, ValidationTestDefinition as ValidationTestDefinitionKG
 
 #### rest framework serializers ####
 logger = logging.getLogger("model_validation_api")
@@ -298,6 +298,97 @@ class ValidationTestDefinitionFullSerializer(serializers.HyperlinkedModelSeriali
                     'cell_type', 'age', 'data_location',
                     'data_type', 'data_modality', 'test_type', 'score_type',
                     'protocol', 'author', 'creation_date', 'publication', 'codes')
+
+
+class ValidationTestDefinitionKGSerializer(object):
+
+    def __init__(self, tests, client, data=None, many=False, context=None):
+        self.client = client
+        if many:
+            self.tests = tests
+            if data:
+                self.data = data
+            else:
+                self.data = [
+                    self.serialize(test) for test in as_list(tests)
+                ]
+        else:
+            self.test = tests
+            if data:
+                self.data = data
+            else:
+                self.data = self.serialize(self.test)
+        self.context = context
+        self.errors = []
+
+    def is_valid(self):
+        # check alias is unique
+        if "alias" in self.data:
+            if self.test.alias == self.data["alias"]:
+                return True
+            test_with_same_alias = ValidationTestDefinitionKG.from_alias(self.data["alias"], self.client)
+            if bool(test_with_same_alias):
+                self.errors.append("Another test exists with this alias")
+                return False
+        # ...
+        return True  # todo
+
+    def _get_ontology_obj(self, cls, key):
+        label = self.data.get(key)
+        if label:
+            try:
+                return cls(label, strict=True)
+            except ValueError as err:
+                logger.warning(str(err))
+                return None
+        else:
+            return None
+
+    def serialize(self, test):
+        # todo: rewrite all this using KG Query API, to avoid doing all the individual resolves.
+        def serialize_person(p):
+            if isinstance(p, KGProxy):
+                pr = p.resolve(self.client)
+            else:
+                pr = p
+            return {"given_name": pr.given_name, "family_name": pr.family_name}
+
+        data = {
+            'id': test.id,  # extract uuid from uri?
+            'name': test.name,
+            'alias': test.alias,
+            'status': test.status,
+            'species': test.species.label if test.species else None,
+            'brain_region': test.brain_region.label if test.brain_region else None,
+            'cell_type': test.celltype.label if test.celltype else 'Not applicable',
+            #'age': # todo
+            'data_location': test.reference_data.resolve(self.client).distribution.location,
+            'data_type': test.data_type,
+            'data_modality': test.recording_modality,
+            'test_type': test.test_type,
+            'score_type': test.score_type or "Other",
+            'protocol': test.description,
+            'author': [serialize_person(au) for au in as_list(test.authors)],
+            'creation_date': test.date_created,
+            #'publication': test.publication,
+            'old_uuid': test.old_uuid,
+            'codes': [],
+        }
+        for script in as_list(test.scripts.resolve(self.client)):
+            data['codes'].append(
+                {
+                    "id": script.id,
+                    "old_uuid": script.old_uuid,
+                    "repository": script.repository["@id"],
+                    "version": script.version,
+                    "description": script.description,
+                    "parameters":  script.parameters,
+                    "path": script.test_class,
+                    "timestamp": script.date_created
+                }
+            )
+        return data
+
 
 
 

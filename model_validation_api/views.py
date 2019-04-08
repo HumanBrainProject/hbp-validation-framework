@@ -37,7 +37,11 @@ import requests
 
 from nar.client import NARClient
 from nar.base import KGQuery, as_list
-from nar.brainsimulation import ModelProject, ModelInstance, MEModel
+from nar.brainsimulation import (
+    ModelProject, ModelInstance, MEModel,
+    ValidationTestDefinition as ValidationTestDefinitionKG,
+    ValidationScript,
+    ValidationResult as ValidationResultKG)
 
 from .models import (ValidationTestDefinition,
                         ValidationTestCode,
@@ -93,7 +97,8 @@ from .serializer.serializer import (ValidationTestDefinitionSerializer,
                             Param_OrganizationsSerializer,
 
                             ScientificModelKGSerializer,
-                            ScientificModelInstanceKGSerializer
+                            ScientificModelInstanceKGSerializer,
+                            ValidationTestDefinitionKGSerializer
                             )
 
 
@@ -1662,7 +1667,7 @@ class Models_KG(APIView):
         client = NARClient(token,
                            nexus_endpoint=settings.NEXUS_ENDPOINT)
 
-        #if model id not specifiedorresponding to this alias.
+        #if model id not specified
         if(len(id) == 0):
 
             web_app = request.GET.getlist('web_app')
@@ -2141,6 +2146,10 @@ class TestAliases(APIView):
         return Response({ 'is_valid':is_valid})
 
 
+class TestAliases_KG(APIView):
+    pass
+
+
 class TestInstances(APIView):
     """
     Test instances
@@ -2345,6 +2354,9 @@ class TestInstances(APIView):
         #      return ValidationTestDefinitionFullSerializer
          return ValidationTestCodeSerializer
 
+
+class TestInstances_KG(APIView):
+    pass
 
 
 class Tests(APIView):
@@ -2625,6 +2637,267 @@ class Tests(APIView):
             test.delete()
 
         return Response( status=status.HTTP_200_OK)
+
+
+class Tests_KG(APIView):
+
+    def get(self, request, format=None, **kwargs):
+        """
+        Get the tests from the database
+        :param id: test id
+        :type id: uuid
+        :param name: test name
+        :type name: str
+        :param species: species parameter
+        :type species: str
+        :param brain_region: brain_region parameter
+        :type brain_region: str
+        :param cell_type: cell type parameter
+        :type cell_type: str
+        :param age: age parameter
+        :type age: str
+        :param data_location: location of the data
+        :type data_location: str
+        :param data_type: type of data
+        :type data_type: str
+        :param data_modality: data modality parameter
+        :type data_modality: str
+        :param test_type: test type parameter
+        :type test_type: str
+        :param protocol: protocol of the test
+        :type protocol: str
+        :param author: author(s)
+        :type author: str
+        :param publication: plublication related to the test
+        :type publication: str
+        :param score_type: score type
+        :type score_type: str
+        :param alias: test name alias
+        :type alias: str
+        :param web_app: true if the request comes from the web application, false if not.
+        :type web_app: boolean
+
+        :returns: list of the requested Tests
+        :rtype: json
+        """
+
+        auth = get_authorization_header(request).get("Authorization")
+        if auth:
+            method, token = auth.split(" ")
+            logger.debug(token)
+        else:
+            return Response("No authorization token provided", status=status.HTTP_401_UNAUTHORIZED)
+
+        assert method == "Bearer"
+        client = NARClient(token,
+                           nexus_endpoint=settings.NEXUS_ENDPOINT)
+
+        param_id = request.GET.getlist('id')
+        name_filter = request.GET.getlist('name')
+        species_filter = request.GET.getlist('species')
+        brain_region_filter = request.GET.getlist('brain_region')
+        cell_type_filter = request.GET.getlist('cell_type')
+        #param_age = request.GET.getlist('age')
+        #param_data_location = request.GET.getlist('data_location')
+        #param_data_type = request.GET.getlist('data_type')
+        data_modality_filter = request.GET.getlist('data_modality')
+        test_type_filter = request.GET.getlist('test_type')
+        #param_protocol = request.GET.getlist('protocol')
+        author_filter = request.GET.getlist('author')
+        #param_publication = request.GET.getlist('publication')
+        score_type_filter = request.GET.getlist('score_type')
+        status_filter = request.GET.getlist('status')
+        alias_filter = request.GET.getlist('alias')
+        param_web_app = request.GET.getlist('web_app')
+        param_app_id = request.GET.getlist('app_id')
+
+        if check_list_uuid_validity(param_id) is False :
+            return Response("Badly formed uuid in : id", status=status.HTTP_400_BAD_REQUEST)
+
+        if len(param_id) > 0:
+            # test ID(s) specified
+            tests = []
+            for test_id in param_id:
+                test_definition = ValidationTestDefinitionKG.from_uuid(test_id, client)
+                if test_definition is not None:
+                    tests.append(test_definition)
+
+            test_serializer = ValidationTestDefinitionKGSerializer(tests, client, many=True)
+
+        else:
+
+            if len(param_web_app) > 0 and param_web_app[0] == 'True':
+
+                param_app_id = param_app_id[0]
+                collab_params = CollabParameters.objects.get(id=param_app_id)
+
+                raise NotImplementedError()
+    #             #if one of the collab_param is empty, don't filter on it.
+    #             species_filter = collab_params.species.split(",")
+    #             brain_region_filter = collab_params.brain_region.split(",")
+    #             cell_type_filter = collab_params.cell_type.split(",")
+    #             test_type_filter = collab_params.test_type.split(",")
+    #             data_modality_filter = collab_params.data_modalities.split(",")
+
+
+            context = {
+                "nsg": "https://bbp-nexus.epfl.ch/vocabs/bbp/neurosciencegraph/core/v0.1.0/",
+                "schema": "http://schema.org/"
+            }
+            filter_query = {
+                "op": "and",
+                "value": []
+            }
+
+            if len(alias_filter) > 0 :
+                filter_query["value"].append({
+                    "path": "nsg:alias",
+                    "op": "in",
+                    "value": alias_filter
+                })
+            if len(name_filter) > 0 :
+                filter_query["value"].append({
+                    "path": "schema:name",
+                    "op": "in",
+                    "value": name_filter
+                })
+            if len(species_filter) > 0 :
+                filter_query["value"].append({
+                    "path": "nsg:species / rdfs:label",  # todo: map search term to URIs, rather than searching by label
+                    "op": "in",
+                    "value": species_filter
+                })
+            if len(brain_region_filter) > 0 :
+                filter_query["value"].append({
+                    "path": "nsg:brainRegion / rdfs:label",
+                    "op": "in",
+                    "value": brain_region_filter
+                })
+            if len(cell_type_filter) > 0 :
+                filter_query["value"].append({
+                    "path": "nsg:celltype / rdfs:label",
+                    "op": "in",
+                    "value": cell_type_filter
+                })
+            if len(author_filter) > 0 :
+                filter_query["value"].append({
+                    "path": "schema:author / schema:familyName",
+                    "op": "in",
+                    "value": author_filter
+                })
+            # todo:
+            #   test_type
+            #   data_type
+            #   data_modality
+            #   score_type
+
+            if len(filter_query["value"]) > 0:
+                tests = KGQuery(ValidationTestDefinitionKG, filter_query, context).resolve(client)
+            else:
+                tests = ValidationTestDefinitionKG.list(client)
+
+            test_serializer = ValidationTestDefinitionKGSerializer(tests, client, many=True)
+
+        return Response({
+            'tests': test_serializer.data,
+        })
+
+
+    # def post(self, request, format=None):
+    #     """
+    #     Save the tests in the database
+    #     :param data: test object
+    #     :returns:  list of test id
+    #     :rtype: uuid list:
+    #     """
+    #     # ctx = request.GET.getlist('ctx')[0]
+    #     if not is_hbp_member(request):
+    #         return HttpResponseForbidden()
+
+    #     # app_id = request.GET.getlist('app_id')[0]
+    #     # collab_id = get_collab_id_from_app_id(app_id)
+    #     # if not is_authorised_or_admin(request, collab_id):
+    #     #     return HttpResponseForbidden()
+
+    #     serializer_context = {'request': request,}
+
+    #     DATA = _reformat_request_data(request.data)
+
+    #     for i in DATA :
+    #         if len(i) == 0 :
+    #             return Response( "You gave an empty dictionary",status=status.HTTP_400_BAD_REQUEST)
+
+    #     if len(DATA) > 1 :
+    #         return Response( "Posting more than 1 test is not supported yet",status=status.HTTP_400_BAD_REQUEST)
+
+    #     else :
+    #         DATA = DATA[0]
+
+    #     test_serializer = ValidationTestDefinitionSerializer(data=DATA['test_data'], context=serializer_context)
+
+
+    #     if test_serializer.is_valid():
+    #         if 'code_data' in DATA:
+    #             code_serializer = ValidationTestCodeSerializer(data=DATA['code_data'], context=serializer_context)
+    #             if code_serializer.is_valid():
+    #                 check_param = check_param_of_test_json(DATA['test_data'])
+    #                 if check_param is not True :
+    #                     return Response(check_param, status=status.HTTP_400_BAD_REQUEST)
+    #             else :
+    #                 return Response(code_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    #         test = test_serializer.save()
+
+    #         if 'code_data' in DATA:
+    #             code_serializer.save(test_definition_id=test.id)
+    #         return Response({'uuid':test.id}, status=status.HTTP_201_CREATED)
+
+    #     else :
+    #         return Response(test_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+    # def put(self, request, format=None):
+    #     """
+    #     Update a test in the database
+    #     :param data: test obeject
+    #     :returns: test id
+    #     :rtype: uuid
+    #     """
+    #     if not is_hbp_member(request):
+    #         return HttpResponseForbidden()
+
+    #     # app_id = request.GET.getlist('app_id')[0]
+    #     # collab_id = get_collab_id_from_app_id(app_id)
+    #     # if not is_authorised_or_admin(request, collab_id):
+    #     #     return HttpResponseForbidden()
+
+    #     value = request.data
+    #     test = ValidationTestDefinition.objects.get(id=value['id'])
+    #     serializer_context = {'request': request,}
+
+    #     # check if data is ok else return error
+    #     test_serializer = ValidationTestDefinitionSerializer(test, data=value, context=serializer_context)
+    #     if test_serializer.is_valid() :
+    #         check_param = check_param_of_test_json(value)
+    #         if check_param is not True :
+    #             return Response(check_param, status=status.HTTP_400_BAD_REQUEST)
+    #         test = test_serializer.save()
+    #     else:
+    #         return Response(test_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    #     return Response({'uuid':test.id}, status=status.HTTP_202_ACCEPTED)
+
+    # def delete(self, request, format=None):
+
+    #     if not is_authorised_or_admin(request, settings.ADMIN_COLLAB_ID):
+    #         return HttpResponseForbidden()
+
+    #     list_ids = request.GET.getlist('id')
+
+    #     elements_to_delete = ValidationTestDefinition.objects.filter(id__in=list_ids)
+    #     for test in elements_to_delete:
+    #         test.delete()
+
+    #     return Response( status=status.HTTP_200_OK)
 
 
 class TestTicketRest(APIView):
@@ -3210,6 +3483,8 @@ class Results (APIView):
         return Response( status=status.HTTP_200_OK)
 
 
+class Results_KG(APIView):
+    pass
 
 
 class ParametersConfigurationValidationView(View):
