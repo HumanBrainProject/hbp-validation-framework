@@ -10,38 +10,26 @@ from nar.brainsimulation import ModelProject, ValidationTestDefinition as Valida
 logger = logging.getLogger("model_validation_api")
 
 
-class ScientificModelKGSerializer(object):
+class BaseKGSerializer(object):
 
-    def __init__(self, models, client, data=None, many=False, context=None):
+    def __init__(self, objects, client, data=None, many=False, context=None):
         self.client = client
         if many:
-            self.models = models
+            self.objects = objects
             if data:
                 self.data = data
             else:
                 self.data = [
-                    self.serialize(model) for model in models
+                    self.serialize(obj) for obj in as_list(objects)
                 ]
         else:
-            self.model = models
+            self.obj = objects
             if data:
                 self.data = data
             else:
-                self.data = self.serialize(self.model)
+                self.data = self.serialize(self.obj)
         self.context = context
         self.errors = []
-
-    def is_valid(self):
-        # check alias is unique
-        if "alias" in self.data:
-            if self.model.alias == self.data["alias"]:
-                return True
-            model_with_same_alias = ModelProject.from_alias(self.data["alias"], self.client)
-            if bool(model_with_same_alias):
-                self.errors.append("Another model exists with this alias")
-                return False
-        # ...
-        return True  # todo
 
     def _get_ontology_obj(self, cls, key):
         label = self.data.get(key)
@@ -54,12 +42,27 @@ class ScientificModelKGSerializer(object):
         else:
             return None
 
+
+class ScientificModelKGSerializer(BaseKGSerializer):
+
+    def is_valid(self):
+        # check alias is unique
+        if "alias" in self.data:
+            if self.obj.alias == self.data["alias"]:
+                return True
+            model_with_same_alias = ModelProject.from_alias(self.data["alias"], self.client)
+            if bool(model_with_same_alias):
+                self.errors.append("Another model exists with this alias")
+                return False
+        # ...
+        return True  # todo
+
     def save(self):
-        if self.model is None:  # create
+        if self.obj is None:  # create
             for key in ("author", "owner"):
                 if isinstance(self.data[key], dict):
                     self.data[key] = [self.data[key]]
-            self.model = ModelProject(
+            self.obj = ModelProject(
                 self.data["name"],
                 [Person(p["family_name"], p["given_name"], p.get("email", None))
                                       for p in self.data["owner"]],
@@ -82,48 +85,48 @@ class ScientificModelKGSerializer(object):
             )
         else:                   # update
             if "name" in self.data:
-                self.model.name = self.data["name"]
+                self.obj.name = self.data["name"]
             if "alias" in self.data:
-                self.model.alias = self.data["alias"]
+                self.obj.alias = self.data["alias"]
             if "author" in self.data:
-                self.model.authors = [Person(p["family_name"], p["given_name"], p.get("email", None))
+                self.obj.authors = [Person(p["family_name"], p["given_name"], p.get("email", None))
                                       for p in self.data["author"]]  # need to update person representation in clients
             if "owner" in self.data:
-                self.model.owners = [Person(p["family_name"], p["given_name"], p.get("email", None))
+                self.obj.owners = [Person(p["family_name"], p["given_name"], p.get("email", None))
                                      for p in self.data["owner"]]  # need to update person representation in clients
             if "app" in self.data:
-                self.model.collab_id = self.data["app"]["collab_id"]
+                self.obj.collab_id = self.data["app"]["collab_id"]
             if "organization" in self.data:
-                self.model.organization = Organization(self.data["organization"])
+                self.obj.organization = Organization(self.data["organization"])
             if "private" in self.data:
-                self.model.private = self.data["private"]
+                self.obj.private = self.data["private"]
             if "cell_type" in self.data:
-                self.model.celltype = self._get_ontology_obj(CellType, "cell_type")
+                self.obj.celltype = self._get_ontology_obj(CellType, "cell_type")
             if "model_scope" in self.data:
-                self.model.model_of = self._get_ontology_obj(ModelScope, "model_scope")
+                self.obj.model_of = self._get_ontology_obj(ModelScope, "model_scope")
             if "abstraction_level" in self.data:
-                self.model.abstraction_level = self._get_ontology_obj(AbstractionLevel, "abstraction_level")
+                self.obj.abstraction_level = self._get_ontology_obj(AbstractionLevel, "abstraction_level")
             if "brain_region" in self.data:
-                self.model.brain_region = self._get_ontology_obj(BrainRegion, "brain_region")
+                self.obj.brain_region = self._get_ontology_obj(BrainRegion, "brain_region")
             if "species" in self.data:
-                self.model.species = self._get_ontology_obj(Species, "species")
+                self.obj.species = self._get_ontology_obj(Species, "species")
             if "description" in self.data:
-                self.model.description = self.data["description"]
+                self.obj.description = self.data["description"]
             if "old_uuid" in self.data:
-                self.model.old_uuid = self.data["old_uuid"]
+                self.obj.old_uuid = self.data["old_uuid"]
             if "images" in self.data:
-                self.model.images = self.data["images"]
+                self.obj.images = self.data["images"]
 
         # now save people, organization, model. No easy way to make this atomic, I don't think.
-        for person in chain(as_list(self.model.authors), as_list(self.model.owners)):
+        for person in chain(as_list(self.obj.authors), as_list(self.obj.owners)):
             if not isinstance(person, KGProxy):
                 # no need to save if we have a proxy object, as
                 # that means the person hasn't been updated
                 person.save(self.client)
-        if self.model.organization and not isinstance(self.model.organization, KGProxy):
-            self.model.organization.save(self.client)
-        self.model.save(self.client)
-        return self.model
+        if self.obj.organization and not isinstance(self.obj.organization, KGProxy):
+            self.obj.organization.save(self.client)
+        self.obj.save(self.client)
+        return self.obj
 
     def serialize(self, model):
         # todo: rewrite all this using KG Query API, to avoid doing all the individual resolves.
@@ -174,26 +177,8 @@ class ScientificModelKGSerializer(object):
         return data
 
 
-class ScientificModelInstanceKGSerializer(object):
+class ScientificModelInstanceKGSerializer(BaseKGSerializer):
     # need to update for PUT - where we have both an instance and data
-
-    def __init__(self, instances, client, data=None, many=False, context=None):
-        self.client = client
-        if many:
-            self.instances = instances
-            if data:
-                self.data = data
-            else:
-                self.data = [
-                    self.serialize(instance) for instance in instances
-                ]
-        else:
-            self.instance = instances
-            if data:
-                self.data = data
-            else:
-                self.data = self.serialize(self.instance)
-        self.context = context
 
     def is_valid(self):
         return True  # todo
@@ -218,7 +203,7 @@ class ScientificModelInstanceKGSerializer(object):
 
     def save(self):
         # todo: Create/update EModel, MEModel and Morphology where model_scope is "single cell"
-        if self.instance is None:  # create
+        if self.obj is None:  # create
             model_project = ModelProject.from_uuid(self.data["model_id"], self.client)
             script = ModelScript(name="ModelScript for {} @ {}".format(model_project.name, self.data["version"]),
                                  code_format=self.data.get("code_format"),
@@ -237,7 +222,7 @@ class ScientificModelInstanceKGSerializer(object):
                                   timestamp=datetime.now(),
                                   release=None)
             minst.save(self.client)
-            self.instance = minst
+            self.obj = minst
             if model_project.instances:
                 if not isinstance(model_project.instances, list):
                     model_project.instances = [model_project.instances]
@@ -248,49 +233,30 @@ class ScientificModelInstanceKGSerializer(object):
 
         else:                   # update
             if "name" in self.data:
-                self.instance.name = self.data["name"]
+                self.obj.name = self.data["name"]
             if "description" in self.data:
-                self.instance.description = self.data.get("description", "")
+                self.obj.description = self.data.get("description", "")
             if "version" in self.data:
-                self.instance.version = self.data["version"]
+                self.obj.version = self.data["version"]
             if "parameters" in self.data:
-                self.instance.parameters = self.data.get("parameters")
+                self.obj.parameters = self.data.get("parameters")
             if "code_format" in self.data:
-                self.instance.main_script.code_format = self.data.get("code_format")
+                self.obj.main_script.code_format = self.data.get("code_format")
             if "source" in self.data:
-                self.instance.main_script.source = self.data["source"]
+                self.obj.main_script.source = self.data["source"]
             if "license" in self.data:
-                self.instance.main_script.license = self.data.get("license")
-            self.instance.save(self.client)
+                self.obj.main_script.license = self.data.get("license")
+            self.obj.save(self.client)
 
-        return self.instance
+        return self.obj
 
 
-class ValidationTestDefinitionKGSerializer(object):
-
-    def __init__(self, tests, client, data=None, many=False, context=None):
-        self.client = client
-        if many:
-            self.tests = tests
-            if data:
-                self.data = data
-            else:
-                self.data = [
-                    self.serialize(test) for test in as_list(tests)
-                ]
-        else:
-            self.test = tests
-            if data:
-                self.data = data
-            else:
-                self.data = self.serialize(self.test)
-        self.context = context
-        self.errors = []
+class ValidationTestDefinitionKGSerializer(BaseKGSerializer):
 
     def is_valid(self):
         # check alias is unique
         if "alias" in self.data:
-            if self.test.alias == self.data["alias"]:
+            if self.obj.alias == self.data["alias"]:
                 return True
             test_with_same_alias = ValidationTestDefinitionKG.from_alias(self.data["alias"], self.client)
             if bool(test_with_same_alias):
@@ -298,17 +264,6 @@ class ValidationTestDefinitionKGSerializer(object):
                 return False
         # ...
         return True  # todo
-
-    def _get_ontology_obj(self, cls, key):
-        label = self.data.get(key)
-        if label:
-            try:
-                return cls(label, strict=True)
-            except ValueError as err:
-                logger.warning(str(err))
-                return None
-        else:
-            return None
 
     def serialize(self, test):
         # todo: rewrite all this using KG Query API, to avoid doing all the individual resolves.
@@ -356,26 +311,7 @@ class ValidationTestDefinitionKGSerializer(object):
         return data
 
 
-class ValidationTestCodeKGSerializer(object):
-
-    def __init__(self, objects, client, data=None, many=False, context=None):
-        self.client = client
-        if many:
-            self.objects = objects
-            if data:
-                self.data = data
-            else:
-                self.data = [
-                    self.serialize(obj) for obj in as_list(objects)
-                ]
-        else:
-            self.obj = objects
-            if data:
-                self.data = data
-            else:
-                self.data = self.serialize(self.obj)
-        self.context = context
-        self.errors = []
+class ValidationTestCodeKGSerializer(BaseKGSerializer):
 
     def is_valid(self):
         return True  # todo
@@ -397,26 +333,7 @@ class ValidationTestCodeKGSerializer(object):
         return data
 
 
-class ValidationTestResultKGSerializer(object):
-
-    def __init__(self, objects, client, data=None, many=False, context=None):
-        self.client = client
-        if many:
-            self.objects = objects
-            if data:
-                self.data = data
-            else:
-                self.data = [
-                    self.serialize(obj) for obj in as_list(objects)
-                ]
-        else:
-            self.obj = objects
-            if data:
-                self.data = data
-            else:
-                self.data = self.serialize(self.obj)
-        self.context = context
-        self.errors = []
+class ValidationTestResultKGSerializer(BaseKGSerializer):
 
     def is_valid(self):
         return True  # todo
