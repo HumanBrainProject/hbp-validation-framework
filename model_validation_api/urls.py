@@ -24,8 +24,8 @@ from .views import (
                     IsCollabMemberRest,
                     Results,
                     CollabAppID,
-                    IsSuperUserRest,
-
+                    IsSuperUserRest)
+from .views_kg import (
                     Models_KG,
                     ModelInstances_KG,
                     ModelAliases_KG,

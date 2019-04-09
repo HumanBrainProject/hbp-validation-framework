@@ -55,10 +55,9 @@ from ..serializer.serializer import (ValidationTestDefinitionSerializer,
                             Param_ModelScopeSerializer,
                             Param_AbstractionLevelSerializer,
                             Param_ScoreTypeSerializer,
-                            Param_OrganizationsSerializer,
+                            Param_OrganizationsSerializer)
 
-                            ValidationTestResultKGSerializer
-                            )
+from ..serializer.serializer_kg import ValidationTestResultKGSerializer
 
 
 from nar.base import as_list
