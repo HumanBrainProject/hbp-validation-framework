@@ -365,12 +365,12 @@ def check_param_of_test_json (json):
             else :
                 json.pop('test_type', None)
 
-        if 'score_type' in json :
-            if json['score_type'] != "" :
-                if len(Param_ScoreType.objects.filter(authorized_value=json['score_type'])) != 1 :
-                    return ("You gave an invalid score_type parameter")
-            else :
-                json.pop('score_type', None)
+        # if 'score_type' in json :
+        #     if json['score_type'] != "" :
+        #         if len(Param_ScoreType.objects.filter(authorized_value=json['score_type'])) != 1 :
+        #             return ("You gave an invalid score_type parameter")
+        #     else :
+        #         json.pop('score_type', None)
 
         return (True)
     else :

@@ -6,6 +6,7 @@ from django.conf import settings
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework import status
 
 from nar.client import NARClient
 from nar.base import KGQuery, as_list
@@ -22,10 +23,7 @@ from .serializer.serializer_kg import (
     ValidationTestCodeKGSerializer)
 
 from .validation_framework_toolbox.user_auth_functions import (
-    _is_collaborator,
     is_authorised_or_admin,
-    is_authorised,
-    get_user_info,
     is_hbp_member,
     get_storage_file_by_id,
     get_authorization_header
@@ -33,30 +31,17 @@ from .validation_framework_toolbox.user_auth_functions import (
 
 from .validation_framework_toolbox.validation_framework_functions import (
     check_list_uuid_validity,
-    check_uuid_validity,
     get_collab_id_from_app_id,
-    _are_model_instance_version_unique,
     _are_model_instance_version_unique_kg,
-    _are_test_code_version_unique,
-    _are_test_code_editable,
     _are_model_instance_editable,
-    check_versions_unique,
-    extract_all_code_version_from_test_object_id,
-    extract_all_instance_version_from_model_id,
-    extract_versions_and_model_id_from_instance_json,
-    extract_versions_and_test_id_from_list_testcode_json,
-    check_commun_params_json,
-    check_param_of_model_json,
     check_param_of_test_json,
-    user_has_acces_to_model,
     user_has_acces_to_result,
-    get_result_informations,
-    organise_results_dict,
     organise_results_dict_kg,
-    _get_collab_id,
-    _get_app_id,
-    _get_nb_pages,
+    _get_nb_pages
 )
+
+from .views import _reformat_request_data
+
 
 logger = logging.getLogger("model_validation_api")
 
@@ -70,7 +55,23 @@ def get_full_uri(kg_types, uuid, client):
     return uris
 
 
-class Models_KG(APIView):
+class KGAPIView(APIView):
+
+    def initial(self, request, *args, **kwargs):
+        APIView.initial(self, request, *args, **kwargs)
+        auth = get_authorization_header(request).get("Authorization")
+        if auth:
+            method, token = auth.split(" ")
+            logger.debug(token)
+        else:
+            return Response("No authorization token provided", status=status.HTTP_401_UNAUTHORIZED)
+
+        assert method == "Bearer"
+        self.client = NARClient(token,
+                                nexus_endpoint=settings.NEXUS_ENDPOINT)
+
+
+class Models_KG(KGAPIView):
     """
     Model projects (like Models, but taking data from KnowledgeGraph)
     """
@@ -123,17 +124,6 @@ class Models_KG(APIView):
         id = request.GET.getlist('id')
         if check_list_uuid_validity(id) is False :
             return Response("Badly formed uuid in : id", status=status.HTTP_400_BAD_REQUEST)
-
-        auth = get_authorization_header(request).get("Authorization")
-        if auth:
-            method, token = auth.split(" ")
-            logger.debug(token)
-        else:
-            return Response("No authorization token provided", status=status.HTTP_401_UNAUTHORIZED)
-
-        assert method == "Bearer"
-        client = NARClient(token,
-                           nexus_endpoint=settings.NEXUS_ENDPOINT)
 
         #if model id not specified
         if(len(id) == 0):
@@ -272,9 +262,9 @@ class Models_KG(APIView):
             #     q = q.filter(license__in = license_param)
 
             if len(filter_query["value"]) > 0:
-                models = KGQuery(ModelProject, filter_query, context).resolve(client)
+                models = KGQuery(ModelProject, filter_query, context).resolve(self.client)
             else:
-                models = ModelProject.list(client)
+                models = ModelProject.list(self.client)
 
             #logger.debug("{} total models".format(len(models)))
             authorized_collabs = []
@@ -286,14 +276,14 @@ class Models_KG(APIView):
             authorized_models = [model for model in as_list(models)
                                     if (not model.private) or (model.collab_id in authorized_collabs)]
             logger.debug("{} authorized models".format(len(authorized_models)))
-            model_serializer = ScientificModelKGSerializer(authorized_models, client, many=True)
+            model_serializer = ScientificModelKGSerializer(authorized_models, self.client, many=True)
 
             if page != 0:
                 init = (page - 1) * pagination_number
                 end = init + pagination_number
-                model_serializer = ScientificModelKGSerializer(authorized_models[init : end], client, many=True)
+                model_serializer = ScientificModelKGSerializer(authorized_models[init : end], self.client, many=True)
             else:
-                model_serializer = ScientificModelKGSerializer(authorized_models, client, many=True)
+                model_serializer = ScientificModelKGSerializer(authorized_models, self.client, many=True)
 
             return Response({
                 'models': model_serializer.data,
@@ -310,7 +300,7 @@ class Models_KG(APIView):
                 web_app = False
             id = id[0]
 
-            model = ModelProject.from_uuid(id, client)
+            model = ModelProject.from_uuid(id, self.client)
             if model is not None:
                 #check if private
                 if model.private:
@@ -318,7 +308,7 @@ class Models_KG(APIView):
                     if not is_authorised_or_admin(request, model.collab_id) :
                         return HttpResponse('Unauthorized', status=401)
 
-                model_serializer = ScientificModelKGSerializer(model, client)
+                model_serializer = ScientificModelKGSerializer(model, self.client)
 
                 return Response({
                     'models': [model_serializer.data],
@@ -337,11 +327,6 @@ class Models_KG(APIView):
         :rtype: uuid:
         """
         logger.debug("Models_KG POST data " + str(request.data))
-
-        method, token = get_authorization_header(request)["Authorization"].split(" ")
-        assert method == "Bearer"
-        client = NARClient(token,
-                           nexus_endpoint=settings.NEXUS_ENDPOINT)
 
         app_id = request.GET.getlist('app_id')
 
@@ -367,7 +352,7 @@ class Models_KG(APIView):
             data['model'].images = data['model_image']
 
         # check if data is ok else return error
-        model_serializer = ScientificModelKGSerializer(None, client, data=data['model'], context={"collab_id": collab_id})
+        model_serializer = ScientificModelKGSerializer(None, self.client, data=data['model'], context={"collab_id": collab_id})
         if not model_serializer.is_valid():
             return Response(model_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -375,7 +360,7 @@ class Models_KG(APIView):
             list_version_names = []
             for inst in data['model_instance']:
                 list_version_names.append(inst["version"])
-                model_instance_serializer = ScientificModelInstanceKGSerializer(None, client, data=inst)
+                model_instance_serializer = ScientificModelInstanceKGSerializer(None, self.client, data=inst)
                 if not model_instance_serializer.is_valid():
                     return Response(model_instance_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -383,20 +368,21 @@ class Models_KG(APIView):
                 return Response("You are sending non-unique version names", status=status.HTTP_400_BAD_REQUEST)
 
         # no error then save all
+        model = model_serializer.save()
 
         model_instances = []
         if len(data['model_instance']) >  0:
             for inst in data['model_instance']:
-                model_instance_serializer = ScientificModelInstanceKGSerializer(None, client, data=inst)
+                inst["model_id"] = model.uuid
+                model_instance_serializer = ScientificModelInstanceKGSerializer(None, self.client, data=inst)
                 if model_instance_serializer.is_valid():
                     model_instances.append(
-                        model_instance_serializer.save(client)
+                        model_instance_serializer.save()
                     )
 
-        model = model_serializer.save()
         if model_instances:
             model.instances = model_instances
-            model.save(client)
+            model.save(self.client)
 
         return Response({'uuid': model.uuid}, status=status.HTTP_201_CREATED)
 
@@ -411,17 +397,12 @@ class Models_KG(APIView):
         :rtype: uuid:
         """
 
-        method, token = get_authorization_header(request)["Authorization"].split(" ")
-        assert method == "Bearer"
-        client = NARClient(token,
-                           nexus_endpoint=settings.NEXUS_ENDPOINT)
-
         ## save only modifications on model. if you want to modify images or instances, do separate put.
         # get objects
         model_data = request.data['models'][0]
 
         if 'id' in model_data and model_data['id'] != '':
-            model = ModelProject.from_uuid(model_data['id'], client)
+            model = ModelProject.from_uuid(model_data['id'], self.client)
         else:
             if 'alias' in model_data and model_data['alias'] != '':
                 # context = {
@@ -433,7 +414,7 @@ class Models_KG(APIView):
                 #     "op": "eq",
                 #     "model_data": model_data['alias']
                 # }
-                # model = KGQuery(ModelProject, query, context).resolve(client)
+                # model = KGQuery(ModelProject, query, context).resolve(self.client)
                 model = ModelProject.from_alias(model_data['alias'])
                 if not model:
                     return Response('There is no model corresponding to this alias. Please give a new alias or use the id of the model', status=status.HTTP_400_BAD_REQUEST )
@@ -453,7 +434,7 @@ class Models_KG(APIView):
 
         # # check if data is ok else return error
 
-        model_serializer = ScientificModelKGSerializer(model, client, data=model_data)
+        model_serializer = ScientificModelKGSerializer(model, self.client, data=model_data)
         if model_serializer.is_valid() :
             model = model_serializer.save()
             return Response({'uuid': model.id}, status=status.HTTP_202_ACCEPTED)
@@ -473,26 +454,21 @@ class Models_KG(APIView):
 
         list_ids = request.GET.getlist('id')
 
-        method, token = get_authorization_header(request)["Authorization"].split(" ")
-        assert method == "Bearer"
-        client = NARClient(token,
-                           nexus_endpoint=settings.NEXUS_ENDPOINT)
-
         elements_to_delete = [
-            ModelProject.from_uuid(id, client)
+            ModelProject.from_uuid(id, self.client)
             for id in list_ids
         ]
         for model in elements_to_delete:
             if model.instances:
                 for instance in model.instances:
-                    instance.delete(client)
-            model.delete(client)
+                    instance.delete(self.client)
+            model.delete(self.client)
 
         return Response(status=status.HTTP_200_OK)
 
 
 
-class ModelAliases_KG(APIView):
+class ModelAliases_KG(KGAPIView):
     """
     Test validity of model Alias using Knowledge Graph
     """
@@ -514,17 +490,12 @@ class ModelAliases_KG(APIView):
         if alias is None:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
-        method, token = get_authorization_header(request)["Authorization"].split(" ")
-        assert method == "Bearer"
-        client = NARClient(token,
-                           nexus_endpoint=settings.NEXUS_ENDPOINT)
-
         # if a model_id is provided, first check if the requested alias matches that
         # of the model
         is_valid = False
         model_id = request.GET.get('model_id')
         if model_id:
-            model = ModelProject.from_uuid(model_id, client)
+            model = ModelProject.from_uuid(model_id, self.client)
             if model:
                 is_valid = (model.alias == alias)
             else:
@@ -534,13 +505,13 @@ class ModelAliases_KG(APIView):
         if not is_valid:
             filter = {"path": "nsg:alias", "op": "eq", "value": alias}
             context = {'nsg': 'https://bbp-nexus.epfl.ch/vocabs/bbp/neurosciencegraph/core/v0.1.0/'}
-            models = KGQuery(ModelProject, filter, context).resolve(client)
+            models = KGQuery(ModelProject, filter, context).resolve(self.client)
             logger.debug("Checking validity of {}. models = {}".format(alias, str(models)))
             is_valid = not bool(models)
         return Response({'is_valid': is_valid})
 
 
-class ModelInstances_KG(APIView):
+class ModelInstances_KG(KGAPIView):
     """
     Model instances, taking data from KnowledgeGraph
     """
@@ -571,19 +542,14 @@ class ModelInstances_KG(APIView):
         if check_list_uuid_validity(param_model_id) is False :
             return Response("Badly formed uuid in : model_id", status=status.HTTP_400_BAD_REQUEST)
 
-        method, token = get_authorization_header(request)["Authorization"].split(" ")
-        assert method == "Bearer"
-        client = NARClient(token,
-                           nexus_endpoint=settings.NEXUS_ENDPOINT)
-
         # instance_id or (model_id, version) or (alias, version)
         instances = []
         if len(param_id) > 0:
             # Get instances by individual uuids
             for instance_id in param_id:
-                inst = ModelInstance.from_uuid(instance_id, client)
+                inst = ModelInstance.from_uuid(instance_id, self.client)
                 if inst is None:
-                    inst = MEModel.from_uuid(instance_id, client)
+                    inst = MEModel.from_uuid(instance_id, self.client)
                 if inst is not None:
                     instances.append(inst)
             # todo: add project field for linked model project
@@ -591,7 +557,7 @@ class ModelInstances_KG(APIView):
             # Get instances belonging to a specific model project
             if len(param_model_id) > 0:
                 assert len(param_model_id) == 1  # todo: return error response
-                model_project = ModelProject.from_uuid(param_model_id[0], client)
+                model_project = ModelProject.from_uuid(param_model_id[0], self.client)
             elif len(param_model_alias) > 0:
                 assert len(param_model_alias) == 1  # todo: return error response
                 context = {
@@ -603,9 +569,9 @@ class ModelInstances_KG(APIView):
                     "op": "in",
                     "value": param_model_alias[0]
                 }
-                model_project = KGQuery(ModelProject, filter_query, context).resolve(client)
+                model_project = KGQuery(ModelProject, filter_query, context).resolve(self.client)
             if model_project:
-                instances = [inst.resolve(client) for inst in as_list(model_project.instances)]
+                instances = [inst.resolve(self.client) for inst in as_list(model_project.instances)]
                 if len(param_version) > 0:
                     instances = [inst for inst in instances if inst.version in param_version]
             else:
@@ -615,7 +581,7 @@ class ModelInstances_KG(APIView):
 
         # todo: check access permissions
 
-        instance_serializer = ScientificModelInstanceKGSerializer(instances, client, many=True)
+        instance_serializer = ScientificModelInstanceKGSerializer(instances, self.client, many=True)
 
         return Response({'instances': instance_serializer.data})
 
@@ -635,26 +601,21 @@ class ModelInstances_KG(APIView):
             if len(instance) == 0:
                 return Response(status=status.HTTP_400_BAD_REQUEST)
 
-        method, token = get_authorization_header(request)["Authorization"].split(" ")
-        assert method == "Bearer"
-        client = NARClient(token,
-                           nexus_endpoint=settings.NEXUS_ENDPOINT)
-
         # check if valid + security
         for instance in DATA :
             if "model_id" in instance:
-                model_project = ModelProject.from_uuid(instance["model_id"], client)
+                model_project = ModelProject.from_uuid(instance["model_id"], self.client)
                 if model_project is None:
                     return Response("Invalid model id provided", status=status.HTTP_404_NOT_FOUND)
             elif "alias" in instance:
-                model_project = ModelProject.from_alias(instance["alias"], client)
+                model_project = ModelProject.from_alias(instance["alias"], self.client)
                 if model_project is None:
                     return Response("No such alias", status=status.HTTP_404_NOT_FOUND)
                 instance["model_id"] = model_project.uuid
             else:
                 return Response("Must provide either model project id or model project alias", status=status.HTTP_400_BAD_REQUEST)
 
-            serializer = ScientificModelInstanceKGSerializer(None, client, data=instance)
+            serializer = ScientificModelInstanceKGSerializer(None, self.client, data=instance)
             if serializer.is_valid():
 
                 # security
@@ -663,14 +624,14 @@ class ModelInstances_KG(APIView):
                     return HttpResponseForbidden()
 
                 # check if versions are unique
-                if not _are_model_instance_version_unique_kg(instance, client):
+                if not _are_model_instance_version_unique_kg(instance, self.client):
                     return Response("The specified version name already exists for this model. Please provide a new name", status=status.HTTP_400_BAD_REQUEST)
             else :
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         list_id = []
         for instance in DATA:
-            serializer = ScientificModelInstanceKGSerializer(None, client, data=instance)
+            serializer = ScientificModelInstanceKGSerializer(None, self.client, data=instance)
             obj = serializer.save()
             list_id.append(obj.uuid)
 
@@ -698,11 +659,6 @@ class ModelInstances_KG(APIView):
         except:
             param_web_app = False
 
-        method, token = get_authorization_header(request)["Authorization"].split(" ")
-        assert method == "Bearer"
-        client = NARClient(token,
-                           nexus_endpoint=settings.NEXUS_ENDPOINT)
-
         for instance in DATA:
             if param_web_app:
                 # need to check if single cell (MEModel) or not
@@ -717,7 +673,7 @@ class ModelInstances_KG(APIView):
                 if not _are_model_instance_version_unique_kg(instance) :
                     return Response("The specified version name already exists for this model. Please provide a new name", status=status.HTTP_400_BAD_REQUEST)
 
-                model_serializer = ScientificModelInstanceKGSerializer(original_instance, client, data=instance)
+                model_serializer = ScientificModelInstanceKGSerializer(original_instance, self.client, data=instance)
                 if  model_serializer.is_valid():
                     model_instance = model_serializer.save()
                     return  Response(status=status.HTTP_202_ACCEPTED)
@@ -725,21 +681,21 @@ class ModelInstances_KG(APIView):
                     return Response(status=status.HTTP_400_BAD_REQUEST)
 
             if 'id' in instance:
-                original_instance = ModelInstance.from_uuid(instance['id'], client)
+                original_instance = ModelInstance.from_uuid(instance['id'], self.client)
                 if original_instance is None:
                     return Response("The given id "+instance['id']+" does not exist. Please give a new id, or a model_id with a version_name, or a model_alias with a version_name. ",
                                     status=status.HTTP_400_BAD_REQUEST)
-                model_project = original_instance.project.resolve(client)
+                model_project = original_instance.project.resolve(self.client)
                 instance['model_id'] = model_project.uuid
-                serializer = ScientificModelInstanceKGSerializer(original_instance, client, data=instance)
+                serializer = ScientificModelInstanceKGSerializer(original_instance, self.client, data=instance)
                 if not serializer.is_valid():
                     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
             else:
                 if 'version' in instance:
                     if 'model_id' in instance and len(instance['model_id']) > 0:
-                        model_project = ModelProject.from_uuid(instance['model_id'], client)
+                        model_project = ModelProject.from_uuid(instance['model_id'], self.client)
                     elif 'model_alias' in instance and len(instance['model_alias']) > 0:
-                        model_project = ModelProject.from_alias(instance['model_alias'], client)
+                        model_project = ModelProject.from_alias(instance['model_alias'], self.client)
                     else:
                         return Response("Must provide either model id or alias",
                                             status=status.HTTP_400_BAD_REQUEST)
@@ -757,7 +713,7 @@ class ModelInstances_KG(APIView):
                             return Response("There is no model instance with this version name for this model_id. Please give a new model_id or a new version name. ",
                                             status=status.HTTP_400_BAD_REQUEST)
                         instance['id'] = original_instance.id
-                        serializer = ScientificModelInstanceKGSerializer(original_instance, client, data=instance)
+                        serializer = ScientificModelInstanceKGSerializer(original_instance, self.client, data=instance)
                         if not serializer.is_valid():
                             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
                 else:
@@ -776,13 +732,13 @@ class ModelInstances_KG(APIView):
 
             # if the version has changed, check if versions are unique
             if "version" in instance and original_instance.version != instance["version"]:
-                if not _are_model_instance_version_unique_kg(instance, client):
+                if not _are_model_instance_version_unique_kg(instance, self.client):
                     return Response("The specified version name already exists for this model. Please provide a new name", status=status.HTTP_400_BAD_REQUEST)
 
         list_id = []
         #is valid + authorized : save it
         for instance in DATA:
-            model_serializer = ScientificModelInstanceKGSerializer(original_instance, client, data=instance)
+            model_serializer = ScientificModelInstanceKGSerializer(original_instance, self.client, data=instance)
 
             if  model_serializer.is_valid() :
                 model_instance = model_serializer.save()
@@ -792,7 +748,7 @@ class ModelInstances_KG(APIView):
 
 
 
-class Tests_KG(APIView):
+class Tests_KG(KGAPIView):
 
     def get(self, request, format=None, **kwargs):
         """
@@ -834,17 +790,6 @@ class Tests_KG(APIView):
         :rtype: json
         """
 
-        auth = get_authorization_header(request).get("Authorization")
-        if auth:
-            method, token = auth.split(" ")
-            logger.debug(token)
-        else:
-            return Response("No authorization token provided", status=status.HTTP_401_UNAUTHORIZED)
-
-        assert method == "Bearer"
-        client = NARClient(token,
-                           nexus_endpoint=settings.NEXUS_ENDPOINT)
-
         param_id = request.GET.getlist('id')
         name_filter = request.GET.getlist('name')
         species_filter = request.GET.getlist('species')
@@ -871,11 +816,11 @@ class Tests_KG(APIView):
             # test ID(s) specified
             tests = []
             for test_id in param_id:
-                test_definition = ValidationTestDefinitionKG.from_uuid(test_id, client)
+                test_definition = ValidationTestDefinitionKG.from_uuid(test_id, self.client)
                 if test_definition is not None:
                     tests.append(test_definition)
 
-            test_serializer = ValidationTestDefinitionKGSerializer(tests, client, many=True)
+            test_serializer = ValidationTestDefinitionKGSerializer(tests, self.client, many=True)
 
         else:
 
@@ -885,12 +830,12 @@ class Tests_KG(APIView):
                 collab_params = CollabParameters.objects.get(id=param_app_id)
 
                 raise NotImplementedError()
-    #             #if one of the collab_param is empty, don't filter on it.
-    #             species_filter = collab_params.species.split(",")
-    #             brain_region_filter = collab_params.brain_region.split(",")
-    #             cell_type_filter = collab_params.cell_type.split(",")
-    #             test_type_filter = collab_params.test_type.split(",")
-    #             data_modality_filter = collab_params.data_modalities.split(",")
+                # #if one of the collab_param is empty, don't filter on it.
+                # species_filter = collab_params.species.split(",")
+                # brain_region_filter = collab_params.brain_region.split(",")
+                # cell_type_filter = collab_params.cell_type.split(",")
+                # test_type_filter = collab_params.test_type.split(",")
+                # data_modality_filter = collab_params.data_modalities.split(",")
 
 
             context = {
@@ -945,68 +890,62 @@ class Tests_KG(APIView):
             #   score_type
 
             if len(filter_query["value"]) > 0:
-                tests = KGQuery(ValidationTestDefinitionKG, filter_query, context).resolve(client)
+                tests = KGQuery(ValidationTestDefinitionKG, filter_query, context).resolve(self.client)
             else:
-                tests = ValidationTestDefinitionKG.list(client)
+                tests = ValidationTestDefinitionKG.list(self.client)
 
-            test_serializer = ValidationTestDefinitionKGSerializer(tests, client, many=True)
+            test_serializer = ValidationTestDefinitionKGSerializer(tests, self.client, many=True)
 
         return Response({
             'tests': test_serializer.data,
         })
 
+    def post(self, request, format=None):
+        """
+        Save the tests in the database
+        :param data: test object
+        :returns:  list of test id
+        :rtype: uuid list:
+        """
 
-    # def post(self, request, format=None):
-    #     """
-    #     Save the tests in the database
-    #     :param data: test object
-    #     :returns:  list of test id
-    #     :rtype: uuid list:
-    #     """
-    #     # ctx = request.GET.getlist('ctx')[0]
-    #     if not is_hbp_member(request):
-    #         return HttpResponseForbidden()
+        if not is_hbp_member(request):
+            return HttpResponseForbidden()
 
-    #     # app_id = request.GET.getlist('app_id')[0]
-    #     # collab_id = get_collab_id_from_app_id(app_id)
-    #     # if not is_authorised_or_admin(request, collab_id):
-    #     #     return HttpResponseForbidden()
+        DATA = _reformat_request_data(request.data)
 
-    #     serializer_context = {'request': request,}
+        for i in DATA :
+            if len(i) == 0 :
+                return Response( "You gave an empty dictionary", status=status.HTTP_400_BAD_REQUEST)
 
-    #     DATA = _reformat_request_data(request.data)
+        if len(DATA) > 1 :
+            return Response( "Posting more than 1 test is not supported yet", status=status.HTTP_400_BAD_REQUEST)
+        else :
+            DATA = DATA[0]
 
-    #     for i in DATA :
-    #         if len(i) == 0 :
-    #             return Response( "You gave an empty dictionary",status=status.HTTP_400_BAD_REQUEST)
+        test_serializer = ValidationTestDefinitionKGSerializer(None, self.client, data=DATA['test_data'])
 
-    #     if len(DATA) > 1 :
-    #         return Response( "Posting more than 1 test is not supported yet",status=status.HTTP_400_BAD_REQUEST)
+        if test_serializer.is_valid():
+            if 'code_data' in DATA:
+                code_serializer = ValidationTestCodeKGSerializer(None, self.client, data=DATA['code_data'])
+                if code_serializer.is_valid():
+                    check_param = check_param_of_test_json(DATA['test_data'])
+                    if check_param is not True :
+                        return Response(check_param, status=status.HTTP_400_BAD_REQUEST)
+                else :
+                    return Response(code_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    #     else :
-    #         DATA = DATA[0]
+            test = test_serializer.save()
 
-    #     test_serializer = ValidationTestDefinitionSerializer(data=DATA['test_data'], context=serializer_context)
+            if 'code_data' in DATA:
+                code_serializer.data['test_definition'] = test
+                code_serializer.save()
+            return Response({'uuid': test.uuid}, status=status.HTTP_201_CREATED)
+
+        else :
+            return Response(test_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-    #     if test_serializer.is_valid():
-    #         if 'code_data' in DATA:
-    #             code_serializer = ValidationTestCodeSerializer(data=DATA['code_data'], context=serializer_context)
-    #             if code_serializer.is_valid():
-    #                 check_param = check_param_of_test_json(DATA['test_data'])
-    #                 if check_param is not True :
-    #                     return Response(check_param, status=status.HTTP_400_BAD_REQUEST)
-    #             else :
-    #                 return Response(code_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    #         test = test_serializer.save()
-
-    #         if 'code_data' in DATA:
-    #             code_serializer.save(test_definition_id=test.id)
-    #         return Response({'uuid':test.id}, status=status.HTTP_201_CREATED)
-
-    #     else :
-    #         return Response(test_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
     # def put(self, request, format=None):
@@ -1053,7 +992,7 @@ class Tests_KG(APIView):
     #     return Response( status=status.HTTP_200_OK)
 
 
-class TestAliases_KG(APIView):
+class TestAliases_KG(KGAPIView):
     """
     Test validity of test Alias using Knowledge Graph
     """
@@ -1075,17 +1014,12 @@ class TestAliases_KG(APIView):
         if alias is None:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
-        method, token = get_authorization_header(request)["Authorization"].split(" ")
-        assert method == "Bearer"
-        client = NARClient(token,
-                           nexus_endpoint=settings.NEXUS_ENDPOINT)
-
         # if a test_id is provided, first check if the requested alias matches that
         # of the test
         is_valid = False
         test_id = request.GET.get('test_id')
         if test_id:
-            test = ValidationTestDefinitionKG.from_uuid(test_id, client)
+            test = ValidationTestDefinitionKG.from_uuid(test_id, self.client)
             if test:
                 is_valid = (test.alias == alias)
             else:
@@ -1095,13 +1029,13 @@ class TestAliases_KG(APIView):
         if not is_valid:
             filter = {"path": "nsg:alias", "op": "eq", "value": alias}
             context = {'nsg': 'https://bbp-nexus.epfl.ch/vocabs/bbp/neurosciencegraph/core/v0.1.0/'}
-            tests = KGQuery(ValidationTestDefinitionKG, filter, context).resolve(client)
+            tests = KGQuery(ValidationTestDefinitionKG, filter, context).resolve(self.client)
             logger.debug("Checking validity of {}. tests = {}".format(alias, str(tests)))
             is_valid = not bool(tests)
         return Response({'is_valid': is_valid})
 
 
-class TestInstances_KG(APIView):
+class TestInstances_KG(KGAPIView):
 
     def get(self, request, format=None, **kwargs):
         """
@@ -1123,17 +1057,6 @@ class TestInstances_KG(APIView):
         :rtype: object list
         """
 
-        auth = get_authorization_header(request).get("Authorization")
-        if auth:
-            method, token = auth.split(" ")
-            logger.debug(token)
-        else:
-            return Response("No authorization token provided", status=status.HTTP_401_UNAUTHORIZED)
-
-        assert method == "Bearer"
-        client = NARClient(token,
-                           nexus_endpoint=settings.NEXUS_ENDPOINT)
-
         param_id = request.GET.getlist('id')
         param_repository = request.GET.getlist('repository')
         param_version = request.GET.getlist('version')
@@ -1150,7 +1073,7 @@ class TestInstances_KG(APIView):
         if len(param_id) > 0:
             test_scripts = []
             for script_id in param_id:
-                result = ValidationScript.from_uuid(script_id, client)
+                result = ValidationScript.from_uuid(script_id, self.client)
                 if result:
                     test_scripts.append(result)
         else:
@@ -1200,20 +1123,52 @@ class TestInstances_KG(APIView):
                 })
 
             if len(filter_query["value"]) > 0:
-                test_scripts = KGQuery(ValidationScript, filter_query, context).resolve(client)
+                test_scripts = KGQuery(ValidationScript, filter_query, context).resolve(self.client)
             else:
-                test_scripts = ValidationScript.list(client)
+                test_scripts = ValidationScript.list(self.client)
 
-        test_code_serializer = ValidationTestCodeKGSerializer(test_scripts, client, many=True)
+        test_code_serializer = ValidationTestCodeKGSerializer(test_scripts, self.client, many=True)
 
         return Response({
             'test_codes': test_code_serializer.data,
         })
 
+    def post(self, request, format=None):
+        if not is_hbp_member(request):
+            return HttpResponseForbidden()
+
+        DATA = _reformat_request_data(request.data)
+
+        for test_code in DATA :
+            if 'test_alias' in test_code:
+                test = ValidationTestDefinition.from_alias(test_code["test_alias"])
+                if not test:
+                    raise Response("No such alias", status=status.HTTP_404_NOT_FOUND)
+            elif 'test_definition_id' in test_code:
+                test = ValidationTestDefinition.from_uuid(test_code["test_definition_id"])
+                if not test:
+                    raise Response("No such test id", status=status.HTTP_404_NOT_FOUND)
+            test_code['test_definition'] = test
+
+            serializer = ValidationTestCodeKGSerializer(None, self.client, data=test_code)
+            if not serializer.is_valid():
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+            #check if versions are unique
+            if not _are_test_code_version_unique(test_code) :
+                return Response("The specified version name already exists for this test. Please provide a new name",
+                                status=status.HTTP_400_BAD_REQUEST)
+
+        list_id = []
+        for test_code in DATA :
+            serializer = ValidationTestCodeKGSerializer(None, self.client, data=test_code)
+            if serializer.is_valid():
+                saved_test_code = serializer.save()
+                list_id.append(saved_test_code.id)
+        return Response({'uuid':list_id}, status=status.HTTP_201_CREATED)
 
 
-
-class Results_KG(APIView):
+class Results_KG(KGAPIView):
 
     def get(self, request, format=None, **kwargs):
         """
@@ -1255,11 +1210,6 @@ class Results_KG(APIView):
         :returns: organized dictionnary in function of the order param
         :rtype: dictionnary
         """
-
-        method, token = get_authorization_header(request)["Authorization"].split(" ")
-        assert method == "Bearer"
-        client = NARClient(token,
-                           nexus_endpoint=settings.NEXUS_ENDPOINT)
 
         param_id = request.GET.getlist('id')
         param_passed = request.GET.getlist('passed')
@@ -1310,11 +1260,11 @@ class Results_KG(APIView):
             # inverse relations in paths: ^ (see https://www.w3.org/TR/sparql11-query/#propertypaths)
             model_instances = []
             for uuid in param_model_version_id:
-                model_instances += get_full_uri((ModelInstance, MEModel), uuid, client)
+                model_instances += get_full_uri((ModelInstance, MEModel), uuid, self.client)
             for uuid in param_model_id:
-                model_instances += [inst.id for inst in ModelProject.from_uuid(uuid, client).instances]
+                model_instances += [inst.id for inst in ModelProject.from_uuid(uuid, self.client).instances]
             for alias in param_model_alias:
-                model_instances += [inst.id for inst in ModelProject.from_alias(alias, client).instances]
+                model_instances += [inst.id for inst in ModelProject.from_alias(alias, self.client).instances]
 
             filter_query = {
                 "op": "and",
@@ -1347,13 +1297,13 @@ class Results_KG(APIView):
                 filter_query["value"].append({
                     "path": "prov:wasGeneratedBy / prov:used",
                     "op": "in",
-                    "value": [get_full_uri(ValidationScript, uuid, client) for uuid in param_test_code_id]
+                    "value": [get_full_uri(ValidationScript, uuid, self.client) for uuid in param_test_code_id]
                 })
             if len(param_test_id) > 0 :
                 filter_query["value"].append({
                     "path": "prov:wasGeneratedBy / prov:used / nsg:implements",
                     "op": "in",
-                    "value": [get_full_uri(ValidationTestDefinition, uuid, client) for uuid in param_test_id]
+                    "value": [get_full_uri(ValidationTestDefinition, uuid, self.client) for uuid in param_test_id]
                 })
             if len(param_test_alias) > 0 :
                 filter_query["value"].append({
@@ -1370,15 +1320,15 @@ class Results_KG(APIView):
 
             # todo: implement ordering (will need changes to pyxus)
             if len(filter_query["value"]) > 0:
-                results = KGQuery(ValidationResultKG, filter_query, context).resolve(client)
+                results = KGQuery(ValidationResultKG, filter_query, context).resolve(self.client)
             else:
-                results = ValidationResultKG.list(client)
+                results = ValidationResultKG.list(self.client)
 
-            # TODO: Exclude the results which the client can't access because the model is private
+            # TODO: Exclude the results which the self.client can't access because the model is private
 
         else:
 
-            results = [ValidationResultKG.from_uuid(uuid, client)
+            results = [ValidationResultKG.from_uuid(uuid, self.client)
                        for uuid in param_id]
 
         #     #check if user has acces to the model associated to the results
@@ -1392,9 +1342,62 @@ class Results_KG(APIView):
             if not math.isnan(float(result.score)) and not math.isnan(float(result.normalized_score)) and not math.isinf(float(result.score)) and not math.isinf(float(result.normalized_score)):
                 new_results.append(result)
 
-        data_to_return = organise_results_dict_kg(detailed_view, param_order, new_results, client)
+        data_to_return = organise_results_dict_kg(detailed_view, param_order, new_results, self.client)
 
         # file = get_storage_file_by_id(request)
         # data_to_return['PDF'] = file
 
         return Response(data_to_return)
+
+
+    def post(self, request, format=None):
+        """
+        Save a result or a list of results
+        :param data: list of result objects
+        :returns: list of results id
+        :rtype: uuid list
+        """
+        if not is_hbp_member(request):
+            return HttpResponseForbidden()
+
+        if type(request.data) == list :
+            DATA = request.data
+
+        elif type(request.data) == dict :
+            DATA = [request.data]
+        else :
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        # #check if the user can access the models, and if data are valid
+        # for result in DATA :
+        #     value = self.check_data(request, serializer_context, result)
+        #     if value is not True :
+        #         return value
+
+
+
+        list_id = []
+        for result in DATA :
+            model_instance = ModelInstance.from_uuid(result["model_version_id"])
+            if not model_instance:
+                model_instance = MEModel.from_uuid(result["model_version_id"])
+            if not model_instance:
+                return Response("No such model instance", status=status.HTTP_404_NOT_FOUND)
+            result["model_instance"] = model_instance
+
+            test_code = ValidationScript.from_uuid(result["test_code_id"])
+            if not test_code:
+                return Response("No such test implementation", status=status.HTTP_404_NOT_FOUND)
+            result["test_script"] = test_code
+
+            serializer = ValidationTestResultKGSerializer(None, self.client, data=result)
+            if serializer.is_valid():
+                res = serializer.save()
+                list_id.append(res.id)
+            else :
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        if len(list_id) > 0 :
+            return Response({'uuid':list_id}, status=status.HTTP_201_CREATED)
+        else :
+            return Response(status=status.HTTP_400_BAD_REQUEST)

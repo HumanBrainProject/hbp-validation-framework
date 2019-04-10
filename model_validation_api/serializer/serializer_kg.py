@@ -1,11 +1,16 @@
 
 
 import logging
+from datetime import datetime
+from itertools import chain
 
-from nar.base import as_list, KGProxy
+from nar.base import as_list, KGProxy, Distribution
 from nar.core import Person, Organization
 from nar.commons import CellType, BrainRegion, AbstractionLevel, Species, ModelScope
-from nar.brainsimulation import ModelProject, ValidationTestDefinition as ValidationTestDefinitionKG
+from nar.brainsimulation import (ModelProject, ValidationTestDefinition, ValidationScript,
+                                 ValidationActivity, ValidationResult, AnalysisResult,
+                                 ModelScript, ModelInstance, MEModel)
+
 
 logger = logging.getLogger("model_validation_api")
 
@@ -48,7 +53,7 @@ class ScientificModelKGSerializer(BaseKGSerializer):
     def is_valid(self):
         # check alias is unique
         if "alias" in self.data:
-            if self.obj.alias == self.data["alias"]:
+            if self.obj and self.obj.alias == self.data["alias"]:
                 return True
             model_with_same_alias = ModelProject.from_alias(self.data["alias"], self.client)
             if bool(model_with_same_alias):
@@ -256,9 +261,9 @@ class ValidationTestDefinitionKGSerializer(BaseKGSerializer):
     def is_valid(self):
         # check alias is unique
         if "alias" in self.data:
-            if self.obj.alias == self.data["alias"]:
+            if self.obj and self.obj.alias == self.data["alias"]:
                 return True
-            test_with_same_alias = ValidationTestDefinitionKG.from_alias(self.data["alias"], self.client)
+            test_with_same_alias = ValidationTestDefinition.from_alias(self.data["alias"], self.client)
             if bool(test_with_same_alias):
                 self.errors.append("Another test exists with this alias")
                 return False
@@ -283,7 +288,8 @@ class ValidationTestDefinitionKGSerializer(BaseKGSerializer):
             'brain_region': test.brain_region.label if test.brain_region else None,
             'cell_type': test.celltype.label if test.celltype else 'Not applicable',
             #'age': # todo
-            'data_location': test.reference_data.resolve(self.client).distribution.location,
+            'data_location': [item.resolve(self.client).distribution.location
+                              for item in as_list(test.reference_data)],
             'data_type': test.data_type,
             'data_modality': test.recording_modality,
             'test_type': test.test_type,
@@ -296,11 +302,15 @@ class ValidationTestDefinitionKGSerializer(BaseKGSerializer):
             'codes': [],
         }
         for script in as_list(test.scripts.resolve(self.client)):
+            if isinstance(script.repository, dict):
+                repo = script.repository["@id"]
+            else:
+                repo = script.repository
             data['codes'].append(
                 {
                     "id": script.id,
                     "old_uuid": script.old_uuid,
-                    "repository": script.repository["@id"],
+                    "repository": repo,
                     "version": script.version,
                     "description": script.description,
                     "parameters":  script.parameters,
@@ -309,6 +319,39 @@ class ValidationTestDefinitionKGSerializer(BaseKGSerializer):
                 }
             )
         return data
+
+    def save(self):
+        if self.obj is None:  # create
+            reference_data = [AnalysisResult(name="Reference data for validation test '{}'".format(self.data["name"]),
+                                             distribution=Distribution(url))
+                              for url in self.data["data_location"]]
+            for item in reference_data:
+                item.save(self.client)
+            authors = self.data["author"]
+            if not isinstance(authors, list):
+                authors = [authors]
+            self.obj = ValidationTestDefinition(
+                name=self.data["name"],
+                alias=self.data["alias"],
+                status=self.data.get("status", "proposal"),
+                species=self._get_ontology_obj(Species, "species"),
+                brain_region=self._get_ontology_obj(BrainRegion, "brain_region"),
+                celltype=self._get_ontology_obj(CellType, "cell_type"),
+                reference_data=reference_data,
+                data_type=self.data["data_type"],
+                recording_modality=self.data["data_modality"],
+                test_type=self.data["test_type"],
+                score_type=self.data["score_type"],
+                description=self.data["protocol"],
+                authors=[Person(p["family_name"], p["given_name"], p.get("email", None))
+                         for p in authors],
+                # todo: check if authors are saved automatically
+                date_created=datetime.now()
+            )
+        else:                 # update
+            raise NotImplementedError()
+        self.obj.save(self.client)
+        return self.obj
 
 
 class ValidationTestCodeKGSerializer(BaseKGSerializer):
@@ -331,6 +374,25 @@ class ValidationTestCodeKGSerializer(BaseKGSerializer):
             'test_definition_id': obj.test_definition.resolve(self.client).uuid
         }
         return data
+
+    def save(self):
+        if self.obj is None:  # create
+            #test_definition = ValidationTestDefinition.from_uri(self.data["test_definition"], self.client)
+            test_definition = self.data["test_definition"]
+            self.obj = ValidationScript(
+                name="Implementation of {}, version '{}'".format(test_definition.name, self.data["version"]),
+                date_created=datetime.now(),
+                repository=self.data["repository"],
+                version=self.data["version"],
+                description=self.data.get("description", ""),
+                parameters=self.data.get("parameters", None),
+                test_class=self.data["path"],
+                test_definition=test_definition
+            )
+        else:                 # update
+            raise NotImplementedError()
+        self.obj.save(self.client)
+        return self.obj
 
 
 class ValidationTestResultKGSerializer(BaseKGSerializer):
@@ -355,3 +417,47 @@ class ValidationTestResultKGSerializer(BaseKGSerializer):
             "normalized_score": obj.normalized_score
         }
         return data
+
+    def save(self):
+        if self.obj is None:  # create
+            timestamp = datetime.now()
+
+            additional_data = [AnalysisResult(name="{} @ {}".format(uri, timestamp.isoformat()),
+                                              distribution=Distribution(uri),
+                                              timestamp=timestamp)
+                               for uri in self.data["additional_data"]]
+            for ad in additional_data:
+                ad.save(self.client)
+
+            self.obj = ValidationResult(
+                name=self.data["name"],
+                generated_by=None,
+                description=self.data["description"],
+                score=self.data["score"],
+                normalized_score=self.data["normalized_score"],
+                passed=self.data["passed"],
+                timestamp=timestamp,
+                additional_data=additional_data,
+                collab_id=self.data["project"]
+            )
+            self.obj.save(self.client)
+
+            test_definition = self.data["test_script"].test_definition.resolve(self.client)
+            reference_data = Collection("Reference data for {}".format(test_definition.name),
+                                        members=test_definition.reference_data.resolve(self.client))
+            reference_data.save(NAR_client)
+
+            activity = ValidationActivity(
+                model_instance=self.data["model_instance"],
+                test_script=self.data["test_script"],
+                reference_data=reference_data,
+                timestamp=timestamp,
+                result=self.obj
+            )
+            activity.save(self.client)
+            self.obj.generated_by = activity
+            self.obj.save(self.client)
+        else:                 # update
+            raise NotImplementedError()
+
+        return self.obj
