@@ -214,45 +214,64 @@
         <br>
         <br>
 
-        <table>
-            <thead>
-                <h2>Model versions:
-                    <h2>
-            </thead>
-            <tbody>
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Version</th>
-                            <th>Description</th>
-                            <th>Parameters</th>
-                            <th>Download location</th>
-                            <th>Code format</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr ng-repeat="model_instance in model.models[0].instances">
-                            <td> <input type="text" ng-model=model_instance.version required/></td>
-                            <td><textarea ng-model="model_instance.description" rows="3" cols="30"> </textarea></td>
-                            <td><textarea ng-model="model_instance.parameters" rows="3" cols="30"> </textarea></td>
-                            <td><input type="text" ng-model=model_instance.source required/></td>
-                            <td><input type="text" ng-model=model_instance.code_format /></td>
-                            <td><button ng-if="isInArray(model_instance.id, version_is_editable)" type="submit" class="btn btn-primary" ng-click=saveModelInstance(model_instance)>Save changes</button>
-                                <button ng-if="!isInArray(model_instance.id, version_is_editable) && !isSuperUser.is_superuser" type="" class="btn btn-danger">Not editable</button></td>
-                            <td><button ng-if="!isInArray(model_instance.id, version_is_editable) && isSuperUser.is_superuser" type="submit" class="glyphicon glyphicon-pencil superuser-button" ng-click=saveModelInstance(model_instance)></button></td>
-                            <td><button ng-if="isSuperUser.is_superuser" type="submit" class="glyphicon glyphicon-remove superuser-button" ng-click=deleteModelInstance(model_instance)></button></td>
-                        </tr>
-                    </tbody>
-                </table>
-            </tbody>
-        </table>
-        <br>
-        <!--<nav class=navbar>
-            <button type="submit" class="btn btn-primary" ng-click=saveModelInstance()>Save changes</button>
-        </nav>-->
+        <h2>Model versions:
+        </h2>
+
+        <div>
+            <table class="table">
+                <tbody>
+                    <tr ng-repeat="model_instance in model.models[0].instances">
+                        <td colspan="9">
+                            <div class="span9">
+                                <table class="table-version">
+                                    <tbody>
+                                        <tr>
+                                            <td width=15%>Version</td>
+                                            <td width=70%> <input size="20" type="text" ng-model=model_instance.version required/></td>
+                                            <td width=15% rowspan="6">
+                                                <button ng-if="isInArray(model_instance.id, version_is_editable)" type="submit" class="btn btn-primary" ng-click=saveModelInstance(model_instance)>Save changes</button>
+                                                <button ng-if="!isInArray(model_instance.id, version_is_editable) && !isSuperUser.is_superuser" type="" class="btn btn-danger">Not editable</button>
+                                                <button ng-if="!isInArray(model_instance.id, version_is_editable) && isSuperUser.is_superuser" type="submit" class="glyphicon glyphicon-pencil superuser-button" ng-click=saveModelInstance(model_instance)></button>
+                                                <button ng-if="isSuperUser.is_superuser" type="submit" class="glyphicon glyphicon-remove superuser-button" ng-click=deleteModelInstance(model_instance)></button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>Description</td>
+                                            <td><textarea ng-model="model_instance.description" rows="5" cols="100"> </textarea></td>
+                                            <td></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Parameters</td>
+                                            <td><textarea ng-model="model_instance.parameters" rows="5" cols="100"> </textarea></td>
+                                            <td></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Morphology</td>
+                                            <td> <textarea ng-model="model_instance.morphology" rows="5" cols="100"> </textarea></td>
+                                            <td></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Download location</td>
+                                            <td><input size="100" type="text" ng-model="model_instance.source" /></td>
+                                            <td></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Code format</td>
+                                            <td><input size="20" type="text" ng-model="model_instance.code_format" /></td>
+                                            <td></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        </br>
 
         <div ng-show=addImage class="w3-card-4  w3-hover-shadow ng-cloak" id="ImagePopup">
-            </style>
+
             <div id=ImagePopupHead class="panel-heading"> <b>Add an image to the model description </b> <button id="close-button" type="button" class="glyphicon glyphicon-remove" ng-click="closeImagePanel()"></button></div>
             <div class="panel-body">
                 <table>
@@ -277,7 +296,8 @@
                         </tr>
                     </tbody>
                 </table>
-                <br> <br>
+                </br>
+                </br>
                 <div>
                     <button id=save-button type="button" class="btn btn-primary" ng-click="saveImage()">Save changes</button>
                 </div>

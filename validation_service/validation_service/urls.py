@@ -23,5 +23,5 @@ urlpatterns = [
     url('', include('social.apps.django_app.urls', namespace='social')),
     url('', include('hbp_app_python_auth.urls', namespace='hbp-social')),
     url(r'^config.json$', config, name='config'),
-    url(r'^', include('model_validation_api.urls')), 
+    url(r'^', include('model_validation_api.urls')),
 ]

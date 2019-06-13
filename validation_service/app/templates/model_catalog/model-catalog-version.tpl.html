@@ -17,32 +17,29 @@
 
     <form>
 
-        <table>
+        <table class="table">
             <tbody>
-                <td>
-                    <table>
-                        <tbody>
-                            <tr>
-                                <td>
-                                    <font color=red>*</font>
-                                    <b>Version Name:</b>
-                                </td>
-                                <td>
-                                    <input type="text" ng-model="model_instance.version" required />
-                                    <a class="glyphicon glyphicon-question-sign" aria-hidden="true" data-toggle="tooltip" data-placement="right" title="Example: version 1.0"></a>
-                                </td>
+                <tr>
+                    <td>
+                        <font color=red>*</font>
+                        <b>Version Name:</b>
+                    </td>
+                    <td>
+                        <input type="text" ng-model="model_instance.version" required />
+                        <a class="glyphicon glyphicon-question-sign" aria-hidden="true" data-toggle="tooltip" data-placement="right" title="Example: version 1.0"></a>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <b>Description:</b>
+                    </td>
+                    <td>
+                        <textarea class="scrollabletextbox" rows="5" cols="50" ng-model="model_instance.description"> </textarea>
+                        <a class="glyphicon glyphicon-question-sign" aria-hidden="true" data-toggle="tooltip" data-placement="right" title="Example:"></a>
+                    </td>
                             </tr>
                             <tr>
-                                <td>
-                                    <b>Description:</b>
-                                </td>
-                                <td>
-                                    <textarea class="scrollabletextbox" rows="5" cols="50" ng-model="model_instance.description"> </textarea>
-                                    <a class="glyphicon glyphicon-question-sign" aria-hidden="true" data-toggle="tooltip" data-placement="right" title="Example:"></a>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td><b>Licnese:</b></td>
+                                <td><b>License:</b></td>
                                 <td>
                                     <input type="text" ng-model="model_instance.license" />
                                     <a class="glyphicon glyphicon-question-sign" aria-hidden="true" data-toggle="tooltip" data-placement="right" title="Example: BSD"></a>
@@ -65,32 +62,47 @@
                                 </td>
                             </tr>
 
-                            <tr>
-                                <td>
-                                    <b>Parameters:</b>
-                                </td>
-                                <td>
-                                    <textarea class="scrollabletextbox" rows="5" cols="50" ng-model="model_instance.parameters"> </textarea>
-                                    <a class="glyphicon glyphicon-question-sign" aria-hidden="true" data-toggle="tooltip" data-placement="right" title="Example: Vrest = -70 mV"></a>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
+                <tr>
+                    <td>
+                        <b>Parameters:</b>
+                    </td>
+                    <td>
+                        <textarea class="scrollabletextbox" rows="5" cols="50" ng-model="model_instance.parameters"> </textarea>
+                        <a class="glyphicon glyphicon-question-sign" aria-hidden="true" data-toggle="tooltip" data-placement="right" title="Example: Vrest = -70 mV"></a>
+                    </td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>
+                        <b>Morphology:</b>
+                    </td>
+                    <td> <textarea class="scrollabletextbox" ng-model="model_instance.morphology" rows="3" cols="30"> </textarea></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>
+                        <b>Download location:</b>
+                    </td>
+                    <td>
+                        <input type="text" ng-model="model_instance.source" />
+                        <a class="glyphicon glyphicon-question-sign" aria-hidden="true" data-toggle="tooltip" data-placement="right" title="Example: http://github.com"></a>
+                    </td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>
 
-                                    <b>Code format:</b>
-                                </td>
-                                <td>
-                                    <input type="text" ng-model="model_instance.code_format" />
-                                    <a class="glyphicon glyphicon-question-sign" aria-hidden="true" data-toggle="tooltip" data-placement="right" title="Example: PyNN, Brian, Neuron..."></a>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </td>
-
+                        <b>Code format:</b>
+                    </td>
+                    <td>
+                        <input type="text" ng-model="model_instance.code_format" />
+                        <a class="glyphicon glyphicon-question-sign" aria-hidden="true" data-toggle="tooltip" data-placement="right" title="Example: PyNN, Brian, Neuron..."></a>
+                    </td>
+                    <td></td>
+                </tr>
             </tbody>
-
         </table>
+
 
         <br> <br>
         <div class="navbar navbar-form">

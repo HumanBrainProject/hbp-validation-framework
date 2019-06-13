@@ -65,8 +65,8 @@ testApp.controller('HomeCtrl', ['$scope', '$rootScope', '$http', '$location', "S
                         $scope.models = data;
                         $scope.$apply();
 
-                        $('#status').fadeOut(); // will first fade out the loading animation
-                        $('#preloader-models').delay(350).fadeOut('slow'); // will fade out the white DIV that covers the website.
+                        $('#status').fadeOut(); // will first fade out the loading animation 
+                        $('#preloader-models').delay(350).fadeOut('slow'); // will fade out the white DIV that covers the website. 
                         $('#models-panel').delay(350).css({ 'overflow': 'visible' });
 
                         $scope.collab_ids_to_select = new Array();
@@ -82,8 +82,8 @@ testApp.controller('HomeCtrl', ['$scope', '$rootScope', '$http', '$location', "S
                         $scope.tests = data;
                         $scope.$apply()
 
-                        $('#status-tests').fadeOut(); // will first fade out the loading animation
-                        $('#preloader-tests').delay(350).fadeOut('slow'); // will fade out the white DIV that covers the website.
+                        $('#status-tests').fadeOut(); // will first fade out the loading animation 
+                        $('#preloader-tests').delay(350).fadeOut('slow'); // will fade out the white DIV that covers the website. 
                         $('#tests-panel').delay(350).css({ 'overflow': 'visible' });
 
                     });
@@ -521,7 +521,39 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
             angular.element(document.querySelector("#editable-path-" + index)).attr('bgcolor', 'ghostwhite');
             $scope.version_in_edition.push(index);
         };
+        // $scope.DataCollapseFn = function() {
+        //     $scope.DataCollapse = [];
+        //     for (var i = 0; i < $scope.detail_version_test.test_codes.length; i += 1) {
+        //         $scope.DataCollapse.push(false);
+        //     }
+        // };
+        // $scope.selectInstanceRow = function(index, storeId) {
+        //     if (typeof $scope.DataCollapse === 'undefined') {
+        //         $scope.DataCollapseFn();
+        //     }
 
+        //     if ($scope.tableRowExpanded === false && $scope.tableRowIndexExpandedCurr === "" && $scope.storeIdExpanded === "") {
+        //         $scope.tableRowIndexExpandedPrev = "";
+        //         $scope.tableRowExpanded = true;
+        //         $scope.tableRowIndexExpandedCurr = index;
+        //         $scope.storeIdExpanded = storeId;
+        //         $scope.DataCollapse[index] = true;
+        //     } else if ($scope.tableRowExpanded === true) {
+        //         if ($scope.tableRowIndexExpandedCurr === index && $scope.storeIdExpanded === storeId) {
+        //             $scope.tableRowExpanded = false;
+        //             $scope.tableRowIndexExpandedCurr = "";
+        //             $scope.storeIdExpanded = "";
+        //             $scope.DataCollapse[index] = false;
+        //         } else {
+        //             $scope.tableRowIndexExpandedPrev = $scope.tableRowIndexExpandedCurr;
+        //             $scope.tableRowIndexExpandedCurr = index;
+        //             $scope.storeIdExpanded = storeId;
+        //             $scope.DataCollapse[$scope.tableRowIndexExpandedPrev] = false;
+        //             $scope.DataCollapse[$scope.tableRowIndexExpandedCurr] = true;
+        //         }
+        //     }
+
+        // };
         $scope.deleteTestVersion = function(test_code_id) {
 
             switch (prompt("Are you sure you want to delete this test instance? (Yes/No)", "No")) {
@@ -705,6 +737,12 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
             $scope.ctx = Context.getCtx();
             $scope.app_id = Context.getAppID();
 
+            // //for instance table
+            // $scope.tableRowExpanded = false;
+            // $scope.tableRowIndexExpandedCurr = "";
+            // $scope.tableRowIndexExpandedPrev = "";
+            // $scope.storeIdExpanded = "";
+
             $scope.isSuperUser = IsSuperUserRest.get({ app_id: $scope.app_id })
 
             CollabParameters.setService($scope.ctx).then(function() {
@@ -727,7 +765,7 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
                 $scope.detail_test.$promise.then(function() {
                     var new_protocol_promise = MarkdownConverter.change_collab_images_url_to_real_url($scope.detail_test.tests[0].protocol);
                     new_protocol_promise.then(function(new_protocol) {
-                        $scope.detail_test.tests[0].protocol = new_protocol;
+                        $scope.detail_test.tests[0].new_protocol = new_protocol;
                         $scope.$apply();
                     });
 
@@ -890,7 +928,7 @@ testApp.controller('ValTestResultDetailCtrl', ['$window', '$scope', '$rootScope'
         };
 
 
-
+        //main code
         Context.setService().then(function() {
             $scope.Context = Context;
 
@@ -904,7 +942,7 @@ testApp.controller('ValTestResultDetailCtrl', ['$window', '$scope', '$rootScope'
                 test_result.$promise.then(function() {
 
                     $scope.test_result = test_result.results[0];
-
+                    console.log("results ----", $scope.test_result)
                     var result_storage = $scope.test_result.results_storage;
                     var result_storage_dict = $scope.split_result_storage_string(result_storage);
                     var collab = result_storage_dict.collab;
@@ -928,7 +966,7 @@ testApp.controller('ValTestResultDetailCtrl', ['$window', '$scope', '$rootScope'
                                 } else {
                                     $scope.storage_url = "";
                                 }
-                                // $scope.storage_url =
+                                // $scope.storage_url = 
                                 //https://collab.humanbrainproject.eu/#/collab/2169/nav/18935
                             },
                             function(not_working) {})
@@ -1136,7 +1174,7 @@ testApp.filter('filterMultiple', ['$parse', '$filter', function($parse, $filter)
                                     if (angular.isDefined(obj[i]['value'])) {
                                         fObj[key] = obj[i]['value'];
                                     } else {
-                                        if (key == 'collab_id') { //specific for Model Catalog home: to allow filter by collab (deep filter)
+                                        if (key == 'collab_id') { //specific for Model Catalog home: to allow filter by collab (deep filter) 
                                             fObj['app'] = {}
                                             fObj['app'][key] = obj[i];
                                         } else {
@@ -1173,7 +1211,7 @@ testApp.filter('filterMultiple', ['$parse', '$filter', function($parse, $filter)
 
 
 //Model catalog
-//directives and filters
+//directives and filters 
 var ModelCatalogApp = angular.module('ModelCatalogApp');
 
 ModelCatalogApp.directive("markdown", function(MarkdownConverter) {
@@ -1219,7 +1257,7 @@ ModelCatalogApp.filter('filterMultiple', ['$parse', '$filter', function($parse, 
                                     if (angular.isDefined(obj[i]['value'])) {
                                         fObj[key] = obj[i]['value'];
                                     } else {
-                                        if (key == 'collab_id') { //specific for Model Catalog home: to allow filter by collab (deep filter)
+                                        if (key == 'collab_id') { //specific for Model Catalog home: to allow filter by collab (deep filter) 
                                             fObj['app'] = {}
                                             fObj['app'][key] = obj[i];
                                         } else {
@@ -1288,6 +1326,7 @@ ModelCatalogApp.controller('ModelCatalogCtrl', [
                 if ($scope.models.models[i].app != null) {
                     if ($scope.collab_ids_to_select.indexOf($scope.models.models[i].app.collab_id.toString()) == -1) {
                         $scope.collab_ids_to_select.push($scope.models.models[i].app.collab_id.toString());
+                        $scope.collab_ids_to_select = $scope.collab_ids_to_select.sort();
                     }
                 }
             }
@@ -1336,8 +1375,8 @@ ModelCatalogApp.controller('ModelCatalogCtrl', [
 
                     $scope.$apply();
 
-                    $('#status').fadeOut(); // will first fade out the loading animation
-                    $('#preloader').delay(350).fadeOut('slow'); // will fade out the white DIV that covers the website.
+                    $('#status').fadeOut(); // will first fade out the loading animation 
+                    $('#preloader').delay(350).fadeOut('slow'); // will fade out the white DIV that covers the website. 
                     $('body').delay(350).css({ 'overflow': 'visible' });
 
                     var status = DataHandler.getCurrentStatus();
@@ -1361,7 +1400,7 @@ ModelCatalogApp.controller('ModelCatalogCtrl', [
                     $scope.collab_organization = CollabParameters.getParametersOrDefaultByType("organization");
                     $scope.collab_ids_to_select = new Array();
                     $scope._get_collab_and_app_ids_from_models();
-                    // $scope.selected_collab = $scope.collab_ids_to_select //initialize
+                    // $scope.selected_collab = $scope.collab_ids_to_select //initialize 
 
 
                     $scope.is_collab_member = false;
@@ -1531,11 +1570,11 @@ ModelCatalogApp.controller('ModelCatalogCreateCtrl', ['$scope', '$rootScope', '$
                 }
                 //version is defined and not empty
                 else {
-                    //and source is undefined and empty then error
+                    //and source is undefined and empty then error 
                     if ($scope.model_instance.source == undefined || $scope.model_instance.source == "") {
                         alert("If you want to create a new version, please ensure the version name and the code source are correctly filled.")
                     }
-                    //and source is defined then save version
+                    //and source is defined then save version 
                     else {
                         saveInstance = true;
                     }
@@ -1621,25 +1660,46 @@ ModelCatalogApp.controller('ModelCatalogDetailCtrl', ['$scope', '$rootScope', '$
             $("#ImagePopupDetail").hide();
         };
 
-        $scope.formatAuthors = function(authors) {
-            var full_names = [];
-            authors.forEach(function(auth) {
-                full_names.push(auth.given_name + " " + auth.family_name)
-            });
-            return full_names.join(", ")
-        };
-
-        $scope.getUUID = function(id) {
-            if (id.startsWith("http")) {
-                // return the last part of the URI
-                console.log("UUID from URI");
-                var parts = id.split("/");
-                return parts[parts.length - 1];
-            } else {
-                console.log("Already have UUID");
-                return id;
+        $scope.DataCollapseFn = function() {
+            $scope.DataCollapse = [];
+            for (var i = 0; i < $scope.model.models[0].instances.length; i += 1) {
+                $scope.DataCollapse.push(false);
             }
         };
+
+        $scope.isCscsContainer = function(url) {
+            var pattern = /https:\/\/object\.cscs\.ch\/v1\/AUTH_([^]+?)\?bluenaas=true/gi;
+            return url.match(pattern).length > 0
+        };
+
+        $scope.selectInstanceRow = function(index, storeId) {
+            if (typeof $scope.DataCollapse === 'undefined') {
+                $scope.DataCollapseFn();
+            }
+
+            if ($scope.tableRowExpanded === false && $scope.tableRowIndexExpandedCurr === "" && $scope.storeIdExpanded === "") {
+                $scope.tableRowIndexExpandedPrev = "";
+                $scope.tableRowExpanded = true;
+                $scope.tableRowIndexExpandedCurr = index;
+                $scope.storeIdExpanded = storeId;
+                $scope.DataCollapse[index] = true;
+            } else if ($scope.tableRowExpanded === true) {
+                if ($scope.tableRowIndexExpandedCurr === index && $scope.storeIdExpanded === storeId) {
+                    $scope.tableRowExpanded = false;
+                    $scope.tableRowIndexExpandedCurr = "";
+                    $scope.storeIdExpanded = "";
+                    $scope.DataCollapse[index] = false;
+                } else {
+                    $scope.tableRowIndexExpandedPrev = $scope.tableRowIndexExpandedCurr;
+                    $scope.tableRowIndexExpandedCurr = index;
+                    $scope.storeIdExpanded = storeId;
+                    $scope.DataCollapse[$scope.tableRowIndexExpandedPrev] = false;
+                    $scope.DataCollapse[$scope.tableRowIndexExpandedCurr] = true;
+                }
+            }
+
+        };
+
 
         Context.setService().then(function() {
 
@@ -1648,6 +1708,11 @@ ModelCatalogApp.controller('ModelCatalogDetailCtrl', ['$scope', '$rootScope', '$
             $scope.collab_id = Context.getCollabID();
             $scope.app_id = Context.getAppID();
 
+            //for instance table
+            $scope.tableRowExpanded = false;
+            $scope.tableRowIndexExpandedCurr = "";
+            $scope.tableRowIndexExpandedPrev = "";
+            $scope.storeIdExpanded = "";
 
             if (Context.getState() == "" || Context.getState() == undefined) {
                 $location.path('/model-catalog/');
@@ -1674,7 +1739,6 @@ ModelCatalogApp.controller('ModelCatalogDetailCtrl', ['$scope', '$rootScope', '$
                             });
                         })
                     });
-
                     $scope.is_collab_member = false;
                     $scope.model.$promise.then(function() {
                         $scope.is_collab_member = IsCollabMemberOrAdminRest.get({
@@ -1796,7 +1860,7 @@ ModelCatalogApp.controller('ModelCatalogEditCtrl', ['$scope', '$rootScope', '$ht
                     $scope.model.models[0].images.append({
                         'caption': $scope.image.caption,
                         'url': $scope.image.url
-                    });
+                });
                 } else {
                     $scope.model.models[0].images = [{
                         'caption': $scope.image.caption,

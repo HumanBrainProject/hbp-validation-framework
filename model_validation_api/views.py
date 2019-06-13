@@ -112,6 +112,7 @@ from .validation_framework_toolbox.user_auth_functions import (
     is_authorised_or_admin,
     is_authorised,
     get_user_info,
+    is_authorised_read_permission,
     is_hbp_member,
     get_storage_file_by_id,
     get_authorization_header
@@ -961,7 +962,7 @@ class Models(APIView):
             web_app = request.GET.getlist('web_app')
 
 
-            # if the request comes from the webapp : uses collab_parameters
+            #if the request comes from the webapp : uses collab_parameters
             if len(web_app) > 0 and web_app[0] == 'True' :
 
 
@@ -2158,6 +2159,56 @@ class IsCollabMemberRest (APIView):
                 'is_authorized': res_authorized_collabs
             })
 
+class IsCollabReaderRest (APIView):
+    """
+    Class to check if user is a valid collab member
+    """
+    def get(self, request, format=None, **kwargs):
+        """
+        :param app_id: id of the application
+        :type app_id: int
+        :return: bool: is_member
+        """
+        app_id = request.GET.getlist('app_id')
+        collab_id = request.GET.getlist('collab_id')
+
+        if len(collab_id) == 0:
+            if len(app_id) == 0 :
+                return Response(status=status.HTTP_400_BAD_REQUEST)
+            else :
+                app_id = app_id[0]
+
+            collab_id = get_collab_id_from_app_id(app_id)
+        else:
+            if len(collab_id) >1:
+                res_is_member = []
+                res_authorized_collabs = []
+
+                for ids in collab_id:
+                    is_member = is_authorised_read_permission(request, str(ids))
+                    print(is_member)
+                    if is_member == True:
+                        res_authorized_collabs.append(ids)
+                    res_is_member.append({"collab_id":ids,"is_member":is_member})
+
+                return Response({
+                    'is_member':  res_is_member,
+                    'is_authorized': res_authorized_collabs
+                })
+            else:
+                collab_id = collab_id[0]
+
+        res_authorized_collabs = []
+        is_member = is_authorised_read_permission(request, str(collab_id))
+
+        if is_member:
+            res_authorized_collabs.append(collab_id)
+
+        return Response({
+                'is_member':  is_member,
+                'is_authorized': res_authorized_collabs
+            })
+
 
 class IsSuperUserRest (APIView):
     """
@@ -2240,7 +2291,8 @@ class Results (APIView):
         param_test_alias = request.GET.getlist('test_alias')
         param_test_score_type = request.GET.getlist('score_type')
         param_order = request.GET.getlist('order')
-
+        param_hash = request.GET.getlist('hash')
+        param_runtime = request.GET.getlist('runtime')
         param_detailed_view = request.GET.getlist('detailed_view')
 
         if len(param_detailed_view) > 0 :
@@ -2293,6 +2345,10 @@ class Results (APIView):
                 q = q.filter(test_code_id__in = param_test_code_id)
             if len(param_normalized_score) > 0 :
                 q = q.filter(normalized_score__in = param_normalized_score)
+            if len(param_hash) > 0 :
+                q = q.filter(hash__in = param_hash)
+            if len(param_runtime) > 0 :
+                q = q.filter(runtime__in = param_runtime)
 
             #add filter to order correctly the data in time depending on the param_order
             if  len(param_order)>0:

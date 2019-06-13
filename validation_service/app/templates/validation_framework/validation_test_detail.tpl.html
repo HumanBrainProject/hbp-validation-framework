@@ -106,7 +106,7 @@
                 <tbody>
                     <tr>
                         <br>
-                        <div markdown="detail_test.tests[0].protocol"></div>
+                        <div markdown="detail_test.tests[0].new_protocol"></div>
                         <br>
                     </tr>
                     <tr>
@@ -183,6 +183,68 @@
                     </tr>
                 </tbody>
             </table>
+            <!--</table> ///// to change to new design. need to be review to manage editing. TODO//// 
+             <table class="table">
+                <thead>
+                    <th>Version</th>
+                    <th>ID</th>
+                    <th>Created on</th>
+                </thead>
+                <tbody data-ng-repeat="(index, code_version) in detail_version_test.test_codes" data-ng-switch on="DataCollapse[$index]">
+                    <tr class="tr-clickable hover" title="Click to toggle collapse/expand an instance." data-ng-click="selectInstanceRow($index, code_version.id)" ng-style="{'background-color':DataCollapse[$index] == true ?  '#f4f4f4': 'white'}">
+                        <td id="editable-version-{{code_version.id}}" contenteditable=false style="width: 20%">{{ code_version.version }}</td>
+                        <td id="editable-id-{{code_version.id}}" contenteditable=false style="width: 12%">{{ code_version.id }}</td>
+                        <td>{{ code_version.timestamp | date:'d MMMM yyyy, hh:mm' : 'UTC' }}</td>
+                        <td style="width:5%">
+                            <button ng-if="isInArray(code_version.id, version_is_editable)" ng-click="editVersion(code_version.id)" class="button-MC glyphicon glyphicon-pencil">
+                                                    </button>
+                            <button ng-if="!isInArray(code_version.id, version_is_editable) && isSuperUser.is_superuser" ng-click="editVersion(code_version.id)" class="glyphicon glyphicon-pencil superuser-button">
+                                                        </button>
+                        </td>
+
+                        <td>
+                            <button id="save_edited_version-{{code_version.id}}" ng-if="isInArray(code_version.id, version_in_edition)" ng-click="save_edited_version(code_version.id)" class="button-MC">Save
+                                                    </button>
+                        </td>
+                        <td>
+                            <button ng-if="isSuperUser.is_superuser" type="submit" class="glyphicon glyphicon-remove superuser-button" ng-click="deleteTestVersion(code_version.id)"></button></td>
+                    </tr>
+                    <tr class="expanded-tr" data-ng-switch-when="true">
+                        <td colspan="9">
+                            <div>
+                                <div>
+                                    <table class="table-version expanded-table">
+                                        <tbody>
+                                            <tr>
+                                                <td>Description</td>
+                                                <td id="editable-code-description-{{code_version.id}}" contenteditable=false style="width: 20%"> <pre style="width: 100%; overflow:hidden;">
+                                                    <div class=div-no-overflow markdown=code_version.description></div></pre>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>Parameters</td>
+                                                <td id="editable-code-parameters-{{code_version.id}}" contenteditable=false><pre style="width: 100%; overflow:hidden;"><div class=div-no-overflow>
+                                                 {{code_version.parameters}} </div>
+                                                </pre></td>
+
+                                            </tr>
+                                            <tr>
+                                                <td>Test Class</td>
+                                                <td id="editable-path-{{code_version.id}}" contenteditable=false style="width: 20%"><code>{{ code_version.path }}</code></td>
+
+                                            </tr>
+                                            <tr>
+                                                <td>Repository</td>
+                                                <td style="width: 15%" id="editable-repository-{{code_version.id}}" contenteditable=false style="width: 20%"> <a href={{code_version.repository}} target="_blank">{{ code_version.repository }}</a></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>-->
         </div>
     </div>
 

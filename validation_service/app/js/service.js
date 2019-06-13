@@ -185,6 +185,19 @@ ContextServices.service('Context', ['$rootScope', '$location', 'AppIDRest', 'Col
                 window.open(url, '_blank')
             })
         }
+        var newTab_goToBlueNaaSViewer = function(model_instance) {
+
+            var base = "https://blue-naas.humanbrainproject.eu/#/url/"
+
+            var url = model_instance.source
+            var match = model_instance.source.match(/https:\/\/object\.cscs\.ch\/v1\/AUTH_([^]+?)\//gi)
+            url = url.replace(match, '')
+            match = model_instance.source.match(/\?bluenaas=true/gi)
+            url = url.replace(match, '')
+            url = base + url;
+
+            window.open(url, '_blank')
+        }
 
         var getCurrentLocationSearch = function() {
             return window.location.search;
@@ -428,6 +441,8 @@ ContextServices.service('Context', ['$rootScope', '$location', 'AppIDRest', 'Col
             validation_goToTestCatalogView: validation_goToTestCatalogView,
             validation_goToHelpView: validation_goToHelpView,
             modelCatalog_goToHelpView: modelCatalog_goToHelpView,
+            newTab_goToMorphologyViewer: newTab_goToMorphologyViewer,
+            newTab_goToBlueNaaSViewer: newTab_goToBlueNaaSViewer,
         }
     }
 ]);
@@ -440,9 +455,9 @@ DataHandlerServices.service('DataHandler', ['$rootScope', 'ScientificModelRest',
         var models = { date_last_load: undefined, status: undefined, data: undefined };
         var tests = { date_last_load: undefined, status: undefined, data: undefined };
         var results = { date_last_load: undefined, status: undefined, data: undefined };
-        //possible states status :
+        //possible states status : 
         //- up to date
-        //- outdated
+        //- outdated 
         //- undefined
         //- loading //loading the pages
 
@@ -930,7 +945,7 @@ var GraphicsServices = angular.module('GraphicsServices', ['ngResource', 'btorfs
 GraphicsServices.factory('Graphics', ['$rootScope', 'Context', 'ValidationResultRest',
     function($rootScope, Context, ValidationResultRest) {
 
-        //graphs functions
+        //graphs functions 
         var get_lines_options = function(title, subtitle, Yaxislabel, caption, results_data, type, graph_key, abscissa_value) {
 
             var yminymax = _get_min_max_yvalues(results_data);
@@ -1246,7 +1261,7 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'Context', 'ValidationResult
 
                     code.results = [];
                     for (var result in model_instances[model_instance].test_codes[test_instance].results) {
-                        //only keep the first five significant score figures
+                        //only keep the first five significant score figures 
                         var res = model_instances[model_instance].test_codes[test_instance].results[result];
                         res.score = res.score; //.toPrecision(5);
                         code.results.push(res);
@@ -1493,7 +1508,7 @@ GraphicsServices.factory('Graphics', ['$rootScope', 'Context', 'ValidationResult
 
                         instance.results = [];
                         for (var result in raw_data.score_type[score_type].test_codes[test_code].model_instances[model_instance].results) {
-                            //only keep the first five significant score figures
+                            //only keep the first five significant score figures 
                             var res = raw_data.score_type[score_type].test_codes[test_code].model_instances[model_instance].results[result];
                             res.score = res.score; //.toPrecision(5);
                             instance.results.push(res);
@@ -1715,9 +1730,9 @@ HelpServices.factory('Help', ['$rootScope', 'Context', 'AuthorizedCollabParamete
     }
 ]);
 
-HelpServices.factory('MarkdownConverter', ['$rootScope', '$q', 'clbStorage', 'IsCollabMemberRest',
+HelpServices.factory('MarkdownConverter', ['$rootScope', '$q', 'clbStorage', 'IsCollabMemberRest', 'IsCollabReaderRest',
 
-    function($rootScope, $q, clbStorage, IsCollabMemberRest) {
+    function($rootScope, $q, clbStorage, IsCollabMemberRest, IsCollabReaderRest) {
 
         var _add_mathjax_extensions = function(name, regex_input, output_format) {
             showdown.extension(name, function() {
@@ -1750,8 +1765,8 @@ HelpServices.factory('MarkdownConverter', ['$rootScope', '$q', 'clbStorage', 'Is
             var collabs = [];
             matchs.forEach(function(match, i) {
                 var url = match.match(/\(([^]+?)\)/gi)[0].slice(1, -1);
-                var substring = url.substring(0, 35);
-                if (substring == "https://collab.humanbrainproject.eu") {
+                var substring = url.substring(0, 44);
+                if (substring == "https://collab.humanbrainproject.eu/#/collab") {
                     var collab = parseInt(url.match(/\/collab\/([^]+?)\//gi)[0].slice(8, -1))
                     if (!(collabs.includes(collab))) {
                         collabs.push(collab);
@@ -1766,7 +1781,6 @@ HelpServices.factory('MarkdownConverter', ['$rootScope', '$q', 'clbStorage', 'Is
                 if (text == null) {
                     resolve(text)
                 } else {
-
                     var pats = /!\[([^]+?)\]\(([^]+?)\)/gi;
                     var matchs = text.match(pats)
 
@@ -1774,37 +1788,40 @@ HelpServices.factory('MarkdownConverter', ['$rootScope', '$q', 'clbStorage', 'Is
                         resolve(text)
                     } else {
                         var collabs = _get_collabs_from_url(matchs);
-                        var authorized_collabs = IsCollabMemberRest.get({ collab_id: collabs })
-                        var new_text = text;
+                        if (collabs.length != 0) {
+                            var authorized_collabs = IsCollabReaderRest.get({ collab_id: collabs })
+                            console.log("authorized collabs", authorized_collabs)
+                            var new_text = text;
+                            authorized_collabs.$promise.then(function(collabs) {
+                                var c = collabs.is_authorized;
+                                var promises = [];
 
-                        authorized_collabs.$promise.then(function(collabs) {
-                            var c = collabs.is_authorized;
-                            var promises = [];
+                                matchs.forEach(function(match, i) {
 
-                            matchs.forEach(function(match, i) {
+                                    var format = match.match(/!\[([^]+?)\]/gi)[0];
+                                    var url = match.match(/\(([^]+?)\)/gi)[0].slice(1, -1);
+                                    var substring = url.substring(0, 44);
+                                    if (substring == "https://collab.humanbrainproject.eu/#/collab") {
+                                        var index_uuid = url.indexOf("%3D");
+                                        var image_uuid = url.slice(index_uuid + 3);
+                                        var collab = parseInt(url.match(/\/collab\/([^]+?)\//gi)[0].slice(8, -1))
+                                        if (c.includes(String(collab))) {
+                                            var promise = clbStorage.downloadUrl({ uuid: image_uuid }).then(function(fileURL) {
+                                                new_text = new_text.replace(match, format + '(' + fileURL + ')');
+                                            });
+                                            promises.push(promise)
+                                        }
 
-                                var format = match.match(/!\[([^]+?)\]/gi)[0];
-                                var url = match.match(/\(([^]+?)\)/gi)[0].slice(1, -1);
-                                var substring = url.substring(0, 35);
-                                if (substring == "https://collab.humanbrainproject.eu") {
-                                    var index_uuid = url.indexOf("%3D");
-                                    var image_uuid = url.slice(index_uuid + 3);
-                                    var collab = parseInt(url.match(/\/collab\/([^]+?)\//gi)[0].slice(8, -1))
-                                    if (c.includes(String(collab))) {
-                                        var promise = clbStorage.downloadUrl({ uuid: image_uuid }).then(function(fileURL) {
-                                            new_text = new_text.replace(match, format + '(' + fileURL + ')');
-                                        });
-                                        promises.push(promise)
                                     }
+                                });
 
-                                }
+                                $q.all(promises).then(function() {
+                                    resolve(new_text);
+                                })
                             });
-
-                            $q.all(promises).then(function() {
-                                resolve(new_text);
-                            })
-                        });
-
+                        } else {
+                            resolve(text)
+                        }
                     }
                 }
 
