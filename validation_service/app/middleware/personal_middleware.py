@@ -24,12 +24,12 @@ def get_actual_value(request):
 
 class UserData(object):
     def process_request(self, request):
-        print request.__dict__
-        print request.environ
-        
-        print request.environ['USER']
+        print(request.__dict__)
+        print(request.environ)
+
+        print(request.environ['USER'])
         # print request.environ['USER']
-        
+
         request.custom_prop = SimpleLazyObject(lambda: get_actual_value(request))
 
 
