@@ -143,6 +143,7 @@ class ScientificModelKGSerializer(BaseKGSerializer):
             return {"given_name": pr.given_name, "family_name": pr.family_name}
         data = {
             'id': model.id,  # extract uuid from uri?
+            'uuid': model.uuid,
             'name': model.name,
             'alias': model.alias,
             'author': [serialize_person(au) for au in as_list(model.authors)],
@@ -169,6 +170,7 @@ class ScientificModelKGSerializer(BaseKGSerializer):
             data['instances'].append(
                 {
                     "id": instance.id,
+                    "uuid": instance.uuid,
                     #"old_uuid": instance.old_uuid
                     "version": instance.version,
                     "description": instance.description,
@@ -194,7 +196,9 @@ class ScientificModelInstanceKGSerializer(BaseKGSerializer):
         proj = instance.project.resolve(self.client)
         data = {
                     "id": instance.id,
+                    "uuid": instance.uuid,
                     "model_id": proj.id,
+                    "model_uuid": proj.uuid,
                     #"old_uuid": instance.old_uuid
                     "version": instance.version,
                     "description": instance.description,
@@ -281,6 +285,7 @@ class ValidationTestDefinitionKGSerializer(BaseKGSerializer):
 
         data = {
             'id': test.id,  # extract uuid from uri?
+            'uuid': test.uuid,
             'name': test.name,
             'alias': test.alias,
             'status': test.status,
@@ -309,6 +314,7 @@ class ValidationTestDefinitionKGSerializer(BaseKGSerializer):
             data['codes'].append(
                 {
                     "id": script.id,
+                    "uuid": script.uuid,
                     "old_uuid": script.old_uuid,
                     "repository": repo,
                     "version": script.version,
@@ -364,6 +370,7 @@ class ValidationTestCodeKGSerializer(BaseKGSerializer):
 
         data = {
             "id": obj.id,
+            "uuid": obj.uuid,
             "old_uuid": obj.old_uuid,
             "repository": obj.repository["@id"],
             "version": obj.version,
@@ -404,7 +411,8 @@ class ValidationTestResultKGSerializer(BaseKGSerializer):
         # todo: rewrite all this using KG Query API, to avoid doing all the individual resolves.
 
         data = {
-            "id": obj.uuid,
+            "id": obj.id,
+            "uuid": obj.uuid,
             "old_uuid": obj.old_uuid,
             "model_version_id": obj.model_version_id,
             "test_code_id": obj.test_code_id,

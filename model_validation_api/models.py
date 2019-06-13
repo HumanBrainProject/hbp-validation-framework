@@ -110,7 +110,7 @@ class ScientificModel(models.Model):
     author = models.TextField(help_text="Author(s) of this model")
     model_type = models.CharField(max_length=100, blank=True, help_text="model_type...will be deleted after (split into model scope and abstraction level)")
     model_scope = models.CharField(max_length=100, blank=True, help_text="model scope: subcellular model, single cell, network...")
-    abstraction_level = models.CharField(max_length=100, blank=True, help_text="model type: protein sturcture, system biology, spiking neurons...")
+    abstraction_level = models.CharField(max_length=100, blank=True, help_text="model type: protein structure, system biology, spiking neurons...")
     private = models.BooleanField ( default= False ,help_text="privacy of the model: can be private (if true) or public (if false)")
     app = models.ForeignKey(CollabParameters, related_name="collab_params")
     code_format = models.CharField(max_length=100 ,blank=True, help_text=".py, .c, etc...") # to remove, moved to Instance
@@ -121,6 +121,7 @@ class ScientificModel(models.Model):
     project = models.TextField(max_length=100, blank=True, null=True) ##will be removed in KG
     license = models.TextField(max_length=200, blank=True, null=True)  # to remove, moved to Instance
     pla_components = models.CharField(max_length=100 , blank=False, null=True)
+    parents = models.ManyToManyField("ScientificModel", symmetrical=False, related_name="subprojects")
 
     def __str__(self):
         return "Model: {} ({})".format(self.name, self.id)

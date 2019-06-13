@@ -20,7 +20,8 @@ from .serializer.serializer_kg import (
     ScientificModelKGSerializer,
     ScientificModelInstanceKGSerializer,
     ValidationTestDefinitionKGSerializer,
-    ValidationTestCodeKGSerializer)
+    ValidationTestCodeKGSerializer,
+    ValidationTestResultKGSerializer)
 
 from .validation_framework_toolbox.user_auth_functions import (
     is_authorised_or_admin,
@@ -1378,16 +1379,17 @@ class Results_KG(KGAPIView):
 
         list_id = []
         for result in DATA :
-            model_instance = ModelInstance.from_uuid(result["model_version_id"])
+            model_instance = ModelInstance.from_uuid(result["model_version_id"], self.client)
             if not model_instance:
-                model_instance = MEModel.from_uuid(result["model_version_id"])
+                model_instance = MEModel.from_uuid(result["model_version_id"], self.client)
             if not model_instance:
                 return Response("No such model instance", status=status.HTTP_404_NOT_FOUND)
             result["model_instance"] = model_instance
 
-            test_code = ValidationScript.from_uuid(result["test_code_id"])
+            test_code = ValidationScript.from_uuid(result["test_code_id"], self.client)
             if not test_code:
-                return Response("No such test implementation", status=status.HTTP_404_NOT_FOUND)
+                return Response("No such test implementation: '{}'".format(result["test_code_id"]),
+                                status=status.HTTP_404_NOT_FOUND)
             result["test_script"] = test_code
 
             serializer = ValidationTestResultKGSerializer(None, self.client, data=result)

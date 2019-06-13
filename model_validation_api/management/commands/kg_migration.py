@@ -27,7 +27,7 @@ from nar.brainsimulation import (ModelProject, MEModel, EModel, Morphology, Mode
 from nar.core import Person, Organization, Collection
 from nar.commons import Address, BrainRegion, Species, AbstractionLevel, CellType, ModelScope
 from nar.client import NARClient
-from nar.base import KGQuery, Distribution
+from nar.base import KGQuery, Distribution, as_list
 from hbp_app_python_auth.auth import get_access_token, get_auth_header
 from hbp_service_client.storage_service.client import Client as StorageClient
 from hbp_service_client.storage_service.exceptions import StorageForbiddenException, StorageNotFoundException
@@ -47,6 +47,7 @@ logger = logging.getLogger("kg_migration")
 
 nexus_token = os.environ['HBP_token']
 nexus_endpoint = "https://nexus-int.humanbrainproject.org/v0"
+#nexus_endpoint = "https://nexus.humanbrainproject.org/v0"
 NAR_client = NARClient(nexus_token, nexus_endpoint)
 storage_token = os.environ["HBP_STORAGE_TOKEN"]
 storage_client = StorageClient.new(storage_token)
@@ -83,6 +84,11 @@ author_special_cases = {
     "André Sevenius Nilsen": ("André Sevenius", "Nilsen"),
     "Gabriel Andrés Fonseca Guerra": ("Gabriel Andrés", "Fonseca Guerra"),
     "Pier Stanislao Paolucci": ("Pier Stanislao", "Paolucci"),
+    "Werner Van Geit": ("Werner", "Van Geit"),
+    "Sacha van Albada": ("Sacha", "van Albada"),
+    "Paolo Del Giudice": ("Paolo", "Del Giudice"),
+    "Ignazio De Blasi": ("Ignazio", "De Blasi"),
+    "Marc de Kamps": ("Marc", "de Kamps"),
     "BBP-team": ("BBP", "team")
 }
 
@@ -172,6 +178,10 @@ class Command(BaseCommand):
             owners = self._get_people_from_Persons_table(model.owner)
             for owner in owners:
                 owner.save(NAR_client)
+            if len(owners) == 0:
+                owners = authors[-1:]
+            if len(owners) > 1:
+                owners = owners[0]  # temporary, need to fix schema to remove maxCount: 1
             organization = self.get_organization(model.organization)
             brain_region = self.get_parameters("brain_region", model.brain_region)
             species = self.get_parameters("species", model.species)
@@ -204,6 +214,14 @@ class Command(BaseCommand):
             else:
                 logger.info("ModelProject saved: %s", model_project)
                 print(model_project)
+
+        # models_with_parents = ScientificModel.objects.filter(parents__isnull=False)
+        # for model in models_with_parents:
+        #     mp = ModelProject.by_name(model.name, NAR_client)
+        #     for parent_obj in model.parents.all():
+        #         parent_kg = ModelProject.by_name(parent_obj.name, NAR_client)
+        #         mp.parents = as_list(mp.parents) + [parent_kg]
+        #     mp.save(NAR_client)
         return ''
 
     def get_organization(self, pattern):
@@ -443,22 +461,31 @@ class Command(BaseCommand):
                         except Exception as err:
                             logger.error("Error saving EModel:\n{}".format(err))
                             continue
+                        if model_instance.morphology:
+                            if model_instance.morphology.startswith('http'):
+                                morph_file = model_instance.morphology
+                            elif model_instance.morphology.startswith('['):
+                                morph_file = json.loads(model_instance.morphology)
+                            else:
+                                raise ValueError("Invalid morphology data: '{}'".format(model_instance.morphology))
+                        else:
+                            morph_file = None
                         morphology = Morphology(name="EModel for {} @ {}".format(model.name, model_instance.version),
                                                 cell_type=cell_type,
-                                                morphology_file=model_instance.morphology)
-                        try:
-                            morphology.save(NAR_client)
-                        except Exception as err:
-                            logger.error("Error saving Morphology:\n{}".format(err))
-                            continue
+                                                morphology_file=morph_file)
+                        #try:
+                        morphology.save(NAR_client)
+                        #except Exception as err:
+                        #    logger.error("Error saving Morphology:\n{}".format(err))
+                        #    continue
                         script = ModelScript(name="ModelScript for {} @ {}".format(model.name, model_instance.version),
                                              code_format=model_instance.code_format,
                                              code_location=model_instance.source)
-                        try:
-                            script.save(NAR_client)
-                        except Exception as err:
-                            logger.error("Error saving Script:\n{}".format(err))
-                            continue
+                        #try:
+                        script.save(NAR_client)
+                        #except Exception as err:
+                        #    logger.error("Error saving Script:\n{}".format(err))
+                        #    continue
                         memodel = MEModel(name="MEModel for {} @ {}".format(model.name, model_instance.version),
                                           description=model_instance.description,
                                           brain_region=brain_region,
@@ -486,11 +513,11 @@ class Command(BaseCommand):
                                              code_format=model_instance.code_format,
                                              code_location=model_instance.source,
                                              license=model_instance.license)
-                        try:
-                            script.save(NAR_client)
-                        except Exception as err:
-                            logger.error("Error saving Script:\n{}".format(err))
-                            continue
+                        #try:
+                        script.save(NAR_client)
+                        #except Exception as err:
+                        #    logger.error("Error saving Script:\n{}".format(err))
+                        #    continue
                         minst = ModelInstance(name="ModelInstance for {} @ {}".format(model.name, model_instance.version),
                                               description=model_instance.description,
                                               brain_region=brain_region,
@@ -502,12 +529,12 @@ class Command(BaseCommand):
                                               timestamp=model_instance.timestamp,
                                               old_uuid=str(model_instance.id),
                                               release=None)  # see comment above about release
-                        try:
-                            minst.save(NAR_client)
-                            instances.append(minst)
-                        except Exception as err:
-                            logger.error("Error saving ModelInstance:\n{}".format(err))
-                            continue
+                        #try:
+                        minst.save(NAR_client)
+                        instances.append(minst)
+                        #except Exception as err:
+                        #    logger.error("Error saving ModelInstance:\n{}".format(err))
+                        #    continue
                         print("SUCCESS for instance in '{}'".format(model.name))
                 model_project.instances = instances
                 logger.info("Updating model project {} with {} instances".format(model_project.id, len(instances)))
@@ -644,10 +671,10 @@ class Command(BaseCommand):
         self._getPersons_and_migrate()
         self.add_organizations_in_KG_database()
         self.migrate_models()
-        sleep(10)  # allow some time for indexing
-        self.migrate_model_instances()
-        self.migrate_validation_definitions()
-        sleep(10)
-        self.migrate_validation_code()
-        sleep(10)
-        self.migrate_validation_results()
+        # sleep(10)  # allow some time for indexing
+        # self.migrate_model_instances()
+        #self.migrate_validation_definitions()
+        #sleep(10)
+        #self.migrate_validation_code()
+        #sleep(10)
+        #self.migrate_validation_results()
