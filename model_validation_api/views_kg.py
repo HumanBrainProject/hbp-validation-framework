@@ -261,13 +261,14 @@ class Models_KG(KGAPIView):
             #     q = q.filter(project__in = project)
             # if len(license_param) > 0 :
             #     q = q.filter(license__in = license_param)
+            logger.info("Searching for ModelProject with the following query: {}".format(filter_query))
 
             if len(filter_query["value"]) > 0:
                 models = KGQuery(ModelProject, filter_query, context).resolve(self.client)
             else:
                 models = ModelProject.list(self.client)
 
-            #logger.debug("{} total models".format(len(models)))
+            logger.debug("{} total models".format(len(as_list(models))))
             authorized_collabs = []
             for collab_id in set(model.collab_id for model in as_list(models) if model.private):
                 if is_authorised_or_admin(request, collab_id):
@@ -349,8 +350,8 @@ class Models_KG(KGAPIView):
         # except :
         #     data['model']["organization"] = "<<empty>>"
 
-        if len(data['model_image']) >  0 :
-            data['model'].images = data['model_image']
+        if len(data['model_image']) >  0:
+            data['model']['images'] = data['model_image']
 
         # check if data is ok else return error
         model_serializer = ScientificModelKGSerializer(None, self.client, data=data['model'], context={"collab_id": collab_id})
@@ -369,21 +370,15 @@ class Models_KG(KGAPIView):
                 return Response("You are sending non-unique version names", status=status.HTTP_400_BAD_REQUEST)
 
         # no error then save all
+        logger.info("Saving model project")
         model = model_serializer.save()
 
-        model_instances = []
         if len(data['model_instance']) >  0:
             for inst in data['model_instance']:
                 inst["model_id"] = model.uuid
                 model_instance_serializer = ScientificModelInstanceKGSerializer(None, self.client, data=inst)
                 if model_instance_serializer.is_valid():
-                    model_instances.append(
-                        model_instance_serializer.save()
-                    )
-
-        if model_instances:
-            model.instances = model_instances
-            model.save(self.client)
+                    model_instance_serializer.save()
 
         return Response({'uuid': model.uuid}, status=status.HTTP_201_CREATED)
 
@@ -662,7 +657,7 @@ class ModelInstances_KG(KGAPIView):
 
         for instance in DATA:
             if param_web_app:
-                # need to check if single cell (MEModel) or not
+                # todo: need to check if single cell (MEModel) or not
                 original_instance = ModelInstance.from_uuid(instance['id'])
                 #check if version is editable - only if you are not super user
                 # TODO once ValidationResult migrated to KG
@@ -683,6 +678,8 @@ class ModelInstances_KG(KGAPIView):
 
             if 'id' in instance:
                 original_instance = ModelInstance.from_uuid(instance['id'], self.client)
+                if original_instance is None:
+                    original_instance = MEModel.from_uuid(instance['id'], self.client)
                 if original_instance is None:
                     return Response("The given id "+instance['id']+" does not exist. Please give a new id, or a model_id with a version_name, or a model_alias with a version_name. ",
                                     status=status.HTTP_400_BAD_REQUEST)
@@ -743,7 +740,7 @@ class ModelInstances_KG(KGAPIView):
 
             if  model_serializer.is_valid() :
                 model_instance = model_serializer.save()
-                list_id.append(model_instance.id)
+                list_id.append(model_instance.uuid)
 
         return Response({'uuid': list_id}, status=status.HTTP_202_ACCEPTED)
 

@@ -52,17 +52,24 @@ class ScientificModelKGSerializer(BaseKGSerializer):
 
     def is_valid(self):
         # check alias is unique
-        if "alias" in self.data:
+        if "alias" in self.data and self.data["alias"]:
             if self.obj and self.obj.alias == self.data["alias"]:
                 return True
+            logger.debug("Checking for model with same alias")
             model_with_same_alias = ModelProject.from_alias(self.data["alias"], self.client)
             if bool(model_with_same_alias):
-                self.errors.append("Another model exists with this alias")
+                self.errors.append("Another model with this alias already exists.")
                 return False
-        # ...
+        if "private" in self.data:
+            if not isinstance(self.data["private"], bool):
+                self.errors.append("'private' must be a boolean")
+                return False
+        if "author" not in self.data or not self.data["author"]:
+            self.errors.append("This field may not be blank.")
+            return False
         return True  # todo
 
-    def save(self):
+    def save(self, allow_update=True):
         if self.obj is None:  # create
             for key in ("author", "owner"):
                 if isinstance(self.data[key], dict):
@@ -142,8 +149,8 @@ class ScientificModelKGSerializer(BaseKGSerializer):
                 pr = p
             return {"given_name": pr.given_name, "family_name": pr.family_name}
         data = {
-            'id': model.id,  # extract uuid from uri?
-            'uuid': model.uuid,
+            'id': model.uuid,  # extract uuid from uri?
+            'uri': model.id,
             'name': model.name,
             'alias': model.alias,
             'author': [serialize_person(au) for au in as_list(model.authors)],
@@ -169,8 +176,8 @@ class ScientificModelKGSerializer(BaseKGSerializer):
             main_script = instance.main_script.resolve(self.client)
             data['instances'].append(
                 {
-                    "id": instance.id,
-                    "uuid": instance.uuid,
+                    "id": instance.uuid,
+                    "uri": instance.id,
                     #"old_uuid": instance.old_uuid
                     "version": instance.version,
                     "description": instance.description,
@@ -185,7 +192,6 @@ class ScientificModelKGSerializer(BaseKGSerializer):
 
 
 class ScientificModelInstanceKGSerializer(BaseKGSerializer):
-    # need to update for PUT - where we have both an instance and data
 
     def is_valid(self):
         return True  # todo
@@ -195,10 +201,10 @@ class ScientificModelInstanceKGSerializer(BaseKGSerializer):
         script = instance.main_script.resolve(self.client)
         proj = instance.project.resolve(self.client)
         data = {
-                    "id": instance.id,
-                    "uuid": instance.uuid,
-                    "model_id": proj.id,
-                    "model_uuid": proj.uuid,
+                    "id": instance.uuid,
+                    "uri": instance.id,
+                    "model_uri": proj.id,
+                    "model_id": proj.uuid,
                     #"old_uuid": instance.old_uuid
                     "version": instance.version,
                     "description": instance.description,
@@ -208,30 +214,63 @@ class ScientificModelInstanceKGSerializer(BaseKGSerializer):
                     "license": script.license,
                     "hash": None
                 }
+        if hasattr(instance, "morphology"):
+            morph = instance.morphology.resolve(self.client)
+            data["morphology"] = morph.morphology_file
         return data
 
     def save(self):
         # todo: Create/update EModel, MEModel and Morphology where model_scope is "single cell"
         if self.obj is None:  # create
+            logger.info("Saving ModelInstance")
             model_project = ModelProject.from_uuid(self.data["model_id"], self.client)
+            logger.debug("ModelProject to which the instance belongs. {} Data:".format(model_project))
+            logger.debug(str(model_project.instance.data))
             script = ModelScript(name="ModelScript for {} @ {}".format(model_project.name, self.data["version"]),
                                  code_format=self.data.get("code_format"),
                                  code_location=self.data["source"],
                                  license=self.data.get("license"))
             script.save(self.client)
 
-            minst = ModelInstance(name="ModelInstance for {} @ {}".format(model_project.name, self.data["version"]),
-                                  description=self.data.get("description", ""),
-                                  brain_region=model_project.brain_region,
-                                  species=model_project.species,
-                                  model_of=None,
-                                  main_script=script,
-                                  version=self.data["version"],
-                                  parameters=self.data.get("parameters"),
-                                  timestamp=datetime.now(),
-                                  release=None)
+            if model_project.model_of.label == "single cell" and "morphology" in self.data:
+                e_model = EModel(name="EModel for {} @ {}".format(model_project.name, self.data["version"]),
+                                 brain_region=model_project.brain_region,
+                                 species=model_project.species,
+                                 model_of=None,
+                                 main_script=None,
+                                 release=None)
+                e_model.save(self.client)
+                morph = Morphology(name="Morphology for {} @ {}".format(model_project.name, self.data["version"]),
+                                   cell_type=model_project.celltype,
+                                   morphology_file=self.data["morphology"])
+                morph.save(self.client)
+                minst = MEModel(name="ModelInstance for {} @ {}".format(model_project.name, self.data["version"]),
+                                description=self.data.get("description", ""),
+                                brain_region=model_project.brain_region,
+                                species=model_project.species,
+                                model_of=None,
+                                main_script=script,
+                                e_model=e_model,
+                                morphology=morph,
+                                version=self.data["version"],
+                                parameters=self.data.get("parameters"),
+                                timestamp=datetime.now(),
+                                project=None,
+                                release=None)
+            else:
+                minst = ModelInstance(name="ModelInstance for {} @ {}".format(model_project.name, self.data["version"]),
+                                    description=self.data.get("description", ""),
+                                    brain_region=model_project.brain_region,
+                                    species=model_project.species,
+                                    model_of=None,
+                                    main_script=script,
+                                    version=self.data["version"],
+                                    parameters=self.data.get("parameters"),
+                                    timestamp=datetime.now(),
+                                    release=None)
             minst.save(self.client)
             self.obj = minst
+
             if model_project.instances:
                 if not isinstance(model_project.instances, list):
                     model_project.instances = [model_project.instances]
@@ -241,21 +280,40 @@ class ScientificModelInstanceKGSerializer(BaseKGSerializer):
             model_project.save(self.client)
 
         else:                   # update
+            instance_changed = False
+            script_changed = False
+            morphology_changed = False
             if "name" in self.data:
                 self.obj.name = self.data["name"]
+                # todo: also update e_model and morphology
+                instance_changed = True
             if "description" in self.data:
                 self.obj.description = self.data.get("description", "")
+                instance_changed = True
             if "version" in self.data:
                 self.obj.version = self.data["version"]
+                instance_changed = True
             if "parameters" in self.data:
                 self.obj.parameters = self.data.get("parameters")
+                instance_changed = True
             if "code_format" in self.data:
                 self.obj.main_script.code_format = self.data.get("code_format")
+                script_changed = True
             if "source" in self.data:
                 self.obj.main_script.source = self.data["source"]
+                script_changed = True
             if "license" in self.data:
                 self.obj.main_script.license = self.data.get("license")
-            self.obj.save(self.client)
+                script_changed = True
+            if "morphology" in self.data and self.data["morphology"] is not None:
+                self.obj.morphology.morphology_file = self.data["morphology"]
+                morphology_changed = True
+            if morphology_changed:
+                self.obj.morphology.save(self.client)
+            if script_changed:
+                self.obj.main_script.save(self.client)
+            if instance_changed:
+                self.obj.save(self.client)
 
         return self.obj
 
@@ -284,8 +342,8 @@ class ValidationTestDefinitionKGSerializer(BaseKGSerializer):
             return {"given_name": pr.given_name, "family_name": pr.family_name}
 
         data = {
-            'id': test.id,  # extract uuid from uri?
-            'uuid': test.uuid,
+            'id': test.uuid,  # extract uuid from uri?
+            'uri': test.id,
             'name': test.name,
             'alias': test.alias,
             'status': test.status,
@@ -313,8 +371,8 @@ class ValidationTestDefinitionKGSerializer(BaseKGSerializer):
                 repo = script.repository
             data['codes'].append(
                 {
-                    "id": script.id,
-                    "uuid": script.uuid,
+                    "uri": script.id,
+                    "id": script.uuid,
                     "old_uuid": script.old_uuid,
                     "repository": repo,
                     "version": script.version,
@@ -369,8 +427,8 @@ class ValidationTestCodeKGSerializer(BaseKGSerializer):
         # todo: rewrite all this using KG Query API, to avoid doing all the individual resolves.
 
         data = {
-            "id": obj.id,
-            "uuid": obj.uuid,
+            "uri": obj.id,
+            "id": obj.uuid,
             "old_uuid": obj.old_uuid,
             "repository": obj.repository["@id"],
             "version": obj.version,
@@ -411,8 +469,8 @@ class ValidationTestResultKGSerializer(BaseKGSerializer):
         # todo: rewrite all this using KG Query API, to avoid doing all the individual resolves.
 
         data = {
-            "id": obj.id,
-            "uuid": obj.uuid,
+            "uri": obj.id,
+            "id": obj.uuid,
             "old_uuid": obj.old_uuid,
             "model_version_id": obj.model_version_id,
             "test_code_id": obj.test_code_id,

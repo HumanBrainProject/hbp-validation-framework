@@ -470,7 +470,7 @@ class Command(BaseCommand):
                                 raise ValueError("Invalid morphology data: '{}'".format(model_instance.morphology))
                         else:
                             morph_file = None
-                        morphology = Morphology(name="EModel for {} @ {}".format(model.name, model_instance.version),
+                        morphology = Morphology(name="Morphology for {} @ {}".format(model.name, model_instance.version),
                                                 cell_type=cell_type,
                                                 morphology_file=morph_file)
                         #try:
