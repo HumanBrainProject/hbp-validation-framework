@@ -2,12 +2,12 @@
 
 
 import os
-from nar.client import NARClient
-from nar.base import as_list
-from nar.brainsimulation import ModelProject
+from fairgraph.client import KGClient
+from fairgraph.base import as_list
+from fairgraph.brainsimulation import ModelProject
 
 token = os.environ["HBP_token"]
-client = NARClient(token, nexus_endpoint="https://nexus.humanbrainproject.org/v0")
+client = KGClient(token, nexus_endpoint="https://nexus.humanbrainproject.org/v0")
 
 for i, project in enumerate(ModelProject.list(client, size=10000)):
     owner = as_list(project.owners)[0]

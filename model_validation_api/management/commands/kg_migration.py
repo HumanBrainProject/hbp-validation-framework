@@ -21,13 +21,13 @@ from ...models import (
                     )
 from ...serializer.simple_serializer import PersonSerializer
 from tabulate  import tabulate
-from nar.brainsimulation import (ModelProject, MEModel, EModel, Morphology, ModelScript, ModelInstance,
+from fairgraph.brainsimulation import (ModelProject, MEModel, EModel, Morphology, ModelScript, ModelInstance,
                                  ValidationTestDefinition as ValidationTestDefinitionKG, AnalysisResult,
                                  ValidationScript, ValidationActivity, ValidationResult)
-from nar.core import Person, Organization, Collection
-from nar.commons import Address, BrainRegion, Species, AbstractionLevel, CellType, ModelScope
-from nar.client import NARClient
-from nar.base import KGQuery, Distribution, as_list
+from fairgraph.core import Person, Organization, Collection
+from fairgraph.commons import Address, BrainRegion, Species, AbstractionLevel, CellType, ModelScope
+from fairgraph.client import KGClient
+from fairgraph.base import KGQuery, Distribution, as_list
 from hbp_app_python_auth.auth import get_access_token, get_auth_header
 from hbp_service_client.storage_service.client import Client as StorageClient
 from hbp_service_client.storage_service.exceptions import StorageForbiddenException, StorageNotFoundException
@@ -48,7 +48,7 @@ logger = logging.getLogger("kg_migration")
 nexus_token = os.environ['HBP_token']
 nexus_endpoint = "https://nexus-int.humanbrainproject.org/v0"
 #nexus_endpoint = "https://nexus.humanbrainproject.org/v0"
-NAR_client = NARClient(nexus_token, nexus_endpoint)
+NAR_client = KGClient(nexus_token, nexus_endpoint)
 storage_token = os.environ["HBP_STORAGE_TOKEN"]
 storage_client = StorageClient.new(storage_token)
 

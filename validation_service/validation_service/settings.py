@@ -39,7 +39,7 @@ INSTALLED_APPS = [
     'jsonify',
     'social.apps.django_app.default',
     'hbp_app_python_auth',
-    'nar',
+    'fairgraph',
     'markdown_deux',
 
     'corsheaders',
@@ -211,7 +211,7 @@ LOGGING = {
             'handlers': ['file'],
             'level': 'DEBUG',
         },
-        'nar': {
+        'fairgraph': {
             'handlers': ['file'],
             'level': 'DEBUG',
         }

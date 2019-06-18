@@ -4,13 +4,13 @@ Mirror people from neuroshapes core to uniminds
 
 import os
 import hashlib
-from nar.client import NARClient
-from nar.core import Person as CorePerson
-from nar.uniminds import Person as uPerson
+from fairgraph.client import KGClient
+from fairgraph.core import Person as CorePerson
+from fairgraph.uniminds import Person as uPerson
 
 token = os.environ["HBP_token"]
-#int_client = NARClient(token, nexus_endpoint="https://nexus-int.humanbrainproject.org/v0")
-prod_client = NARClient(token, nexus_endpoint="https://nexus.humanbrainproject.org/v0")
+#int_client = KGClient(token, nexus_endpoint="https://nexus-int.humanbrainproject.org/v0")
+prod_client = KGClient(token, nexus_endpoint="https://nexus.humanbrainproject.org/v0")
 
 
 people = CorePerson.list(prod_client, size=10000)

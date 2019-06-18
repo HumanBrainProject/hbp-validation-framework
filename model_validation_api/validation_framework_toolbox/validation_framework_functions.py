@@ -60,8 +60,8 @@ from ..serializer.serializer import (ValidationTestDefinitionSerializer,
 from ..serializer.serializer_kg import ValidationTestResultKGSerializer
 
 
-from nar.base import as_list
-from nar.brainsimulation import ModelProject
+from fairgraph.base import as_list
+from fairgraph.brainsimulation import ModelProject
 
 
 def check_list_uuid_validity (uuid_list) :

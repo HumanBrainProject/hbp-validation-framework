@@ -4,12 +4,12 @@ import logging
 from datetime import datetime
 from itertools import chain
 
-from nar.base import as_list, KGProxy, Distribution
-from nar.core import Person, Organization
-from nar.commons import CellType, BrainRegion, AbstractionLevel, Species, ModelScope
-from nar.brainsimulation import (ModelProject, ValidationTestDefinition, ValidationScript,
+from fairgraph.base import as_list, KGProxy, Distribution
+from fairgraph.core import Person, Organization
+from fairgraph.commons import CellType, BrainRegion, AbstractionLevel, Species, ModelScope
+from fairgraph.brainsimulation import (ModelProject, ValidationTestDefinition, ValidationScript,
                                  ValidationActivity, ValidationResult, AnalysisResult,
-                                 ModelScript, ModelInstance, MEModel)
+                                 ModelScript, ModelInstance, MEModel, EModel, Morphology)
 
 
 logger = logging.getLogger("model_validation_api")

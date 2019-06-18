@@ -25,7 +25,7 @@ from ..models import (ValidationTestDefinition,
 
 from rest_framework import serializers
 
-from nar.brainsimulation import ModelInstance, ModelProject, ModelScript, MEModel, EModel, Morphology
+from fairgraph.brainsimulation import ModelInstance, ModelProject, ModelScript, MEModel, EModel, Morphology
 
 
 class CollabParametersSerializer(serializers.HyperlinkedModelSerializer):

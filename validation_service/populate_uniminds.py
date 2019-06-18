@@ -10,10 +10,10 @@ import logging
 from logging.config import dictConfig
 import hashlib
 
-from nar.client import NARClient
-from nar.base import KGQuery, as_list
-from nar.uniminds import ModelRelease, FileBundle, Person as uPerson
-from nar.brainsimulation import ModelProject, ModelInstance
+from fairgraph.client import KGClient
+from fairgraph.base import KGQuery, as_list
+from fairgraph.uniminds import ModelRelease, FileBundle, Person as uPerson
+from fairgraph.brainsimulation import ModelProject, ModelInstance
 
 
 logging_config = dict(
@@ -26,7 +26,7 @@ logging_config = dict(
         'file': {
             'level': 'DEBUG',
             'class': 'logging.FileHandler',
-            'filename': 'nar.log',
+            'filename': 'fairgraph.log',
             'formatter': 'f'
         }
     },
@@ -39,7 +39,7 @@ logging_config = dict(
             'handlers': ['file'],
             'level': 'DEBUG',
         },
-        'nar': {
+        'fairgraph': {
             'handlers': ['file'],
             'level': 'DEBUG',
         }
@@ -164,7 +164,7 @@ def create_or_update_file_bundle(model_project, model_instance, script, model_re
 
 
 if __name__ == "__main__":
-    client = NARClient(token, nexus_endpoint="https://nexus.humanbrainproject.org/v0")
+    client = KGClient(token, nexus_endpoint="https://nexus.humanbrainproject.org/v0")
 
     projects = ModelProject.list(client, size=10000)
     single_cell_projects = [p for p in projects if p.model_of and p.model_of.label == "single cell" and "emodel" not in p.name]

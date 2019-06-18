@@ -8,9 +8,9 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 
-from nar.client import NARClient
-from nar.base import KGQuery, as_list
-from nar.brainsimulation import (
+from fairgraph.client import KGClient
+from fairgraph.base import KGQuery, as_list
+from fairgraph.brainsimulation import (
     ModelProject, ModelInstance, MEModel,
     ValidationTestDefinition as ValidationTestDefinitionKG,
     ValidationScript,
@@ -68,7 +68,7 @@ class KGAPIView(APIView):
             return Response("No authorization token provided", status=status.HTTP_401_UNAUTHORIZED)
 
         assert method == "Bearer"
-        self.client = NARClient(token,
+        self.client = KGClient(token,
                                 nexus_endpoint=settings.NEXUS_ENDPOINT)
 
 
