@@ -62,7 +62,7 @@
                     </td>
                 </tr>
                 <tr style="width: 15%">
-                    <td> <b> ID: </b> {{getUUID(model.models[0].id)}} </td>
+                    <td> <b> ID: </b> {{model.models[0].id}} </td>
                 </tr>
                 <tr style="width: 15%">
                     <td> <b> Collab ID: </b> {{model.models[0].app.collab_id}} </td>
@@ -72,6 +72,9 @@
                 </tr>
                 <tr style="width: 15%" ng-if="model.models[0].organization && model.models[0].organization!='' &&  model.models[0].organization!='<<empty>>'">
                     <td> <b> Organization: </b> {{ model.models[0].organization }} </td>
+                </tr>
+                <tr style="width: 15%" ng-if="model.models[0].license && model.models[0].license!='' &&  model.models[0].license!='<<empty>>'">
+                    <td> <b> License: </b> {{ model.models[0].license }} </td>
                 </tr>
                 <tr style="width: 15%" ng-if="model.models[0].project && model.models[0].project!=''">
                     <td> <b> Project: </b> {{ model.models[0].project }} </td>
@@ -100,6 +103,9 @@
                 </tr>
                 <tr style="width: 15%" ng-if="model.models[0].cell_type!=''">
                     <td> <b> Cell type: </b> {{ model.models[0].cell_type }}</td>
+                </tr>
+                <tr style="width: 15%" ng-if="model.models[0].old_uuid!=''">
+                    <td> <b> Old ID: </b> {{ model.models[0].old_uuid }}</td>
                 </tr>
             </tbody>
         </table>

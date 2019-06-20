@@ -51,6 +51,7 @@ from .validation_framework_toolbox.validation_framework_functions import (
 )
 
 from .views import _reformat_request_data
+from .models import CollabParameters
 
 
 logger = logging.getLogger("model_validation_api")

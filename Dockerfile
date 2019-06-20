@@ -7,7 +7,7 @@
 # To run the application:
 #   docker run -d -p 443 -v /etc/letsencrypt:/etc/letsencrypt hbp_validation_service
 
-FROM debian:jessie-slim
+FROM debian:stretch-slim
 
 MAINTAINER Andrew Davison <andrew.davison@unic.cnrs-gif.fr>
 
@@ -24,8 +24,8 @@ ENV SITEDIR /home/docker/site
 
 RUN git clone https://github.com/HumanBrainProject/pyxus.git pyxus_src
 RUN pip install -r pyxus_src/pyxus/requirements.txt; pip install pyxus_src/pyxus
-RUN git clone https://github.com/apdavison/neural-activity-resource.git; cd neural-activity-resource; git checkout validation
-RUN pip install neural-activity-resource/client
+RUN git clone https://github.com/apdavison/fairgraph.git;
+RUN pip install fairgraph
 
 COPY packages /home/docker/packages
 COPY validation_service $SITEDIR

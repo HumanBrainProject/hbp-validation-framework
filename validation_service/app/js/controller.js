@@ -65,8 +65,8 @@ testApp.controller('HomeCtrl', ['$scope', '$rootScope', '$http', '$location', "S
                         $scope.models = data;
                         $scope.$apply();
 
-                        $('#status').fadeOut(); // will first fade out the loading animation 
-                        $('#preloader-models').delay(350).fadeOut('slow'); // will fade out the white DIV that covers the website. 
+                        $('#status').fadeOut(); // will first fade out the loading animation
+                        $('#preloader-models').delay(350).fadeOut('slow'); // will fade out the white DIV that covers the website.
                         $('#models-panel').delay(350).css({ 'overflow': 'visible' });
 
                         $scope.collab_ids_to_select = new Array();
@@ -82,8 +82,8 @@ testApp.controller('HomeCtrl', ['$scope', '$rootScope', '$http', '$location', "S
                         $scope.tests = data;
                         $scope.$apply()
 
-                        $('#status-tests').fadeOut(); // will first fade out the loading animation 
-                        $('#preloader-tests').delay(350).fadeOut('slow'); // will fade out the white DIV that covers the website. 
+                        $('#status-tests').fadeOut(); // will first fade out the loading animation
+                        $('#preloader-tests').delay(350).fadeOut('slow'); // will fade out the white DIV that covers the website.
                         $('#tests-panel').delay(350).css({ 'overflow': 'visible' });
 
                     });
@@ -966,7 +966,7 @@ testApp.controller('ValTestResultDetailCtrl', ['$window', '$scope', '$rootScope'
                                 } else {
                                     $scope.storage_url = "";
                                 }
-                                // $scope.storage_url = 
+                                // $scope.storage_url =
                                 //https://collab.humanbrainproject.eu/#/collab/2169/nav/18935
                             },
                             function(not_working) {})
@@ -1174,7 +1174,7 @@ testApp.filter('filterMultiple', ['$parse', '$filter', function($parse, $filter)
                                     if (angular.isDefined(obj[i]['value'])) {
                                         fObj[key] = obj[i]['value'];
                                     } else {
-                                        if (key == 'collab_id') { //specific for Model Catalog home: to allow filter by collab (deep filter) 
+                                        if (key == 'collab_id') { //specific for Model Catalog home: to allow filter by collab (deep filter)
                                             fObj['app'] = {}
                                             fObj['app'][key] = obj[i];
                                         } else {
@@ -1211,7 +1211,7 @@ testApp.filter('filterMultiple', ['$parse', '$filter', function($parse, $filter)
 
 
 //Model catalog
-//directives and filters 
+//directives and filters
 var ModelCatalogApp = angular.module('ModelCatalogApp');
 
 ModelCatalogApp.directive("markdown", function(MarkdownConverter) {
@@ -1257,7 +1257,7 @@ ModelCatalogApp.filter('filterMultiple', ['$parse', '$filter', function($parse, 
                                     if (angular.isDefined(obj[i]['value'])) {
                                         fObj[key] = obj[i]['value'];
                                     } else {
-                                        if (key == 'collab_id') { //specific for Model Catalog home: to allow filter by collab (deep filter) 
+                                        if (key == 'collab_id') { //specific for Model Catalog home: to allow filter by collab (deep filter)
                                             fObj['app'] = {}
                                             fObj['app'][key] = obj[i];
                                         } else {
@@ -1375,8 +1375,8 @@ ModelCatalogApp.controller('ModelCatalogCtrl', [
 
                     $scope.$apply();
 
-                    $('#status').fadeOut(); // will first fade out the loading animation 
-                    $('#preloader').delay(350).fadeOut('slow'); // will fade out the white DIV that covers the website. 
+                    $('#status').fadeOut(); // will first fade out the loading animation
+                    $('#preloader').delay(350).fadeOut('slow'); // will fade out the white DIV that covers the website.
                     $('body').delay(350).css({ 'overflow': 'visible' });
 
                     var status = DataHandler.getCurrentStatus();
@@ -1400,7 +1400,7 @@ ModelCatalogApp.controller('ModelCatalogCtrl', [
                     $scope.collab_organization = CollabParameters.getParametersOrDefaultByType("organization");
                     $scope.collab_ids_to_select = new Array();
                     $scope._get_collab_and_app_ids_from_models();
-                    // $scope.selected_collab = $scope.collab_ids_to_select //initialize 
+                    // $scope.selected_collab = $scope.collab_ids_to_select //initialize
 
 
                     $scope.is_collab_member = false;
@@ -1570,11 +1570,11 @@ ModelCatalogApp.controller('ModelCatalogCreateCtrl', ['$scope', '$rootScope', '$
                 }
                 //version is defined and not empty
                 else {
-                    //and source is undefined and empty then error 
+                    //and source is undefined and empty then error
                     if ($scope.model_instance.source == undefined || $scope.model_instance.source == "") {
                         alert("If you want to create a new version, please ensure the version name and the code source are correctly filled.")
                     }
-                    //and source is defined then save version 
+                    //and source is defined then save version
                     else {
                         saveInstance = true;
                     }
@@ -1700,6 +1700,13 @@ ModelCatalogApp.controller('ModelCatalogDetailCtrl', ['$scope', '$rootScope', '$
 
         };
 
+        $scope.formatAuthors = function(authors) {
+            var full_names = [];
+            authors.forEach(function(auth) {
+                full_names.push(auth.given_name + " " + auth.family_name)
+            });
+            return full_names.join(", ")
+        }
 
         Context.setService().then(function() {
 
