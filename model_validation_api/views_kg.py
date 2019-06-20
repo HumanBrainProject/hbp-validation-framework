@@ -3,6 +3,13 @@ import math
 import logging
 
 from django.conf import settings
+from django.http import (HttpResponse, JsonResponse,
+                         HttpResponseBadRequest,     # 400
+                         HttpResponseForbidden,      # 403
+                         HttpResponseNotFound,       # 404
+                         HttpResponseNotAllowed,     # 405
+                         HttpResponseNotModified,    # 304
+                         HttpResponseRedirect)       # 302
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -34,6 +41,8 @@ from .validation_framework_toolbox.validation_framework_functions import (
     check_list_uuid_validity,
     get_collab_id_from_app_id,
     _are_model_instance_version_unique_kg,
+    _are_test_code_version_unique_kg,
+    _are_test_code_editable_kg,
     _are_model_instance_editable,
     check_param_of_test_json,
     user_has_acces_to_result,
@@ -352,6 +361,8 @@ class Models_KG(KGAPIView):
 
         if len(data['model_image']) >  0:
             data['model']['images'] = data['model_image']
+        # if "private" in data["model"] and data["model"]["private"] in ("True", "False"):
+        #     data["model"]["private"] =
 
         # check if data is ok else return error
         model_serializer = ScientificModelKGSerializer(None, self.client, data=data['model'], context={"collab_id": collab_id})
@@ -744,6 +755,32 @@ class ModelInstances_KG(KGAPIView):
 
         return Response({'uuid': list_id}, status=status.HTTP_202_ACCEPTED)
 
+    def delete(self, request, format=None):
+        """
+
+        """
+
+        if not is_authorised_or_admin(request, settings.ADMIN_COLLAB_ID):
+            return HttpResponseForbidden()
+
+        list_ids = request.GET.getlist('id')
+
+        for id in list_ids:
+            elem = ModelInstance.from_uuid(id, self.client)
+            if not elem:
+                elem = MEModel.from_uuid(id, self.client)
+
+            if elem:
+                project = elem.project.resolve(self.client)
+                logger.debug("???instances = {}".format(project.instances))
+                # todo: delete instance from project.instances
+                elem.main_script.delete(self.client)
+                # not deleting morphologies, as in future they are liable to be shared between models
+                if hasattr(elem, "e_model"):
+                    elem.e_model.delete(self.client)
+                elem.delete(self.client)
+
+        return Response(status=status.HTTP_200_OK)
 
 
 class Tests_KG(KGAPIView):
@@ -811,17 +848,20 @@ class Tests_KG(KGAPIView):
             return Response("Badly formed uuid in : id", status=status.HTTP_400_BAD_REQUEST)
 
         if len(param_id) > 0:
+            logger.info("Retrieving tests with the following IDs: {}".format(param_id))
             # test ID(s) specified
             tests = []
             for test_id in param_id:
                 test_definition = ValidationTestDefinitionKG.from_uuid(test_id, self.client)
                 if test_definition is not None:
+                    logger.debug("Retrieved test with id {}".format(test_id))
                     tests.append(test_definition)
+                else:
+                    logger.debug("Couldn't retrieve test with id {}".format(test_id))
 
             test_serializer = ValidationTestDefinitionKGSerializer(tests, self.client, many=True)
 
         else:
-
             if len(param_web_app) > 0 and param_web_app[0] == 'True':
 
                 param_app_id = param_app_id[0]
@@ -886,14 +926,16 @@ class Tests_KG(KGAPIView):
             #   data_type
             #   data_modality
             #   score_type
+            logger.info("Searching for tests with the following query: {}".format(filter_query))
 
             if len(filter_query["value"]) > 0:
                 tests = KGQuery(ValidationTestDefinitionKG, filter_query, context).resolve(self.client)
             else:
                 tests = ValidationTestDefinitionKG.list(self.client)
-
+            logger.debug("Serializing the following tests: {}".format(str(tests)))
             test_serializer = ValidationTestDefinitionKGSerializer(tests, self.client, many=True)
 
+        logger.debug(">>>>>" + str(test_serializer.data))
         return Response({
             'tests': test_serializer.data,
         })
@@ -942,52 +984,47 @@ class Tests_KG(KGAPIView):
         else :
             return Response(test_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+    def put(self, request, format=None):
+        """
+        Update a test in the database
+        :param data: test obeject
+        :returns: test id
+        :rtype: uuid
+        """
+        if not is_hbp_member(request):
+            return HttpResponseForbidden()
 
+        # app_id = request.GET.getlist('app_id')[0]
+        # collab_id = get_collab_id_from_app_id(app_id)
+        # if not is_authorised_or_admin(request, collab_id):
+        #     return HttpResponseForbidden()
 
+        value = request.data
+        test = ValidationTestDefinitionKG.from_uuid(value['id'], self.client)
 
+        # check if data is ok else return error
+        test_serializer = ValidationTestDefinitionKGSerializer(test, self.client, data=value)
+        if test_serializer.is_valid() :
+            check_param = check_param_of_test_json(value)
+            if check_param is not True :
+                return Response(check_param, status=status.HTTP_400_BAD_REQUEST)
+            test = test_serializer.save()
+        else:
+            return Response(test_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response({'uuid': test.uuid}, status=status.HTTP_202_ACCEPTED)
 
-    # def put(self, request, format=None):
-    #     """
-    #     Update a test in the database
-    #     :param data: test obeject
-    #     :returns: test id
-    #     :rtype: uuid
-    #     """
-    #     if not is_hbp_member(request):
-    #         return HttpResponseForbidden()
+    def delete(self, request, format=None):
 
-    #     # app_id = request.GET.getlist('app_id')[0]
-    #     # collab_id = get_collab_id_from_app_id(app_id)
-    #     # if not is_authorised_or_admin(request, collab_id):
-    #     #     return HttpResponseForbidden()
+        if not is_authorised_or_admin(request, settings.ADMIN_COLLAB_ID):
+            return HttpResponseForbidden()
 
-    #     value = request.data
-    #     test = ValidationTestDefinition.objects.get(id=value['id'])
-    #     serializer_context = {'request': request,}
+        list_ids = request.GET.getlist('id')
 
-    #     # check if data is ok else return error
-    #     test_serializer = ValidationTestDefinitionSerializer(test, data=value, context=serializer_context)
-    #     if test_serializer.is_valid() :
-    #         check_param = check_param_of_test_json(value)
-    #         if check_param is not True :
-    #             return Response(check_param, status=status.HTTP_400_BAD_REQUEST)
-    #         test = test_serializer.save()
-    #     else:
-    #         return Response(test_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    #     return Response({'uuid':test.id}, status=status.HTTP_202_ACCEPTED)
+        elements_to_delete = [ValidationTestDefinitionKG.from_uuid(id, self.client) for id in list_ids]
+        for test in elements_to_delete:
+            test.delete(self.client)
 
-    # def delete(self, request, format=None):
-
-    #     if not is_authorised_or_admin(request, settings.ADMIN_COLLAB_ID):
-    #         return HttpResponseForbidden()
-
-    #     list_ids = request.GET.getlist('id')
-
-    #     elements_to_delete = ValidationTestDefinition.objects.filter(id__in=list_ids)
-    #     for test in elements_to_delete:
-    #         test.delete()
-
-    #     return Response( status=status.HTTP_200_OK)
+        return Response( status=status.HTTP_200_OK)
 
 
 class TestAliases_KG(KGAPIView):
@@ -1085,7 +1122,7 @@ class TestInstances_KG(KGAPIView):
             }
             if len(param_test_alias) > 0 :
                 filter_query["value"].append({
-                    "path": "nsg:alias",
+                    "path": "nsg:implements / nsg:alias",
                     "op": "in",
                     "value": param_test_alias
                 })
@@ -1093,7 +1130,10 @@ class TestInstances_KG(KGAPIView):
                 filter_query["value"].append({
                     "path": "nsg:implements",
                     "op": "in",
-                    "value": param_test_definition_id  # todo: map UUID to full URI here
+                    "value":  [ValidationTestDefinitionKG.uri_from_uuid(pid, self.client)
+                               for pid in param_test_definition_id]
+                    #"op": "eq",
+                    #"value":  ValidationTestDefinitionKG.uri_from_uuid(param_test_definition_id[0], self.client)
                 })
             if len(param_repository) > 0 :
                 filter_query["value"].append({
@@ -1121,12 +1161,14 @@ class TestInstances_KG(KGAPIView):
                 })
 
             if len(filter_query["value"]) > 0:
+                logger.debug("Searching for test instances with query {}".format(filter_query))
                 test_scripts = KGQuery(ValidationScript, filter_query, context).resolve(self.client)
             else:
                 test_scripts = ValidationScript.list(self.client)
 
         test_code_serializer = ValidationTestCodeKGSerializer(test_scripts, self.client, many=True)
 
+        logger.debug("||||||" + str(test_code_serializer.data))
         return Response({
             'test_codes': test_code_serializer.data,
         })
@@ -1139,11 +1181,11 @@ class TestInstances_KG(KGAPIView):
 
         for test_code in DATA :
             if 'test_alias' in test_code:
-                test = ValidationTestDefinition.from_alias(test_code["test_alias"])
+                test = ValidationTestDefinitionKG.from_alias(test_code["test_alias"], self.client)
                 if not test:
                     raise Response("No such alias", status=status.HTTP_404_NOT_FOUND)
             elif 'test_definition_id' in test_code:
-                test = ValidationTestDefinition.from_uuid(test_code["test_definition_id"])
+                test = ValidationTestDefinitionKG.from_uuid(test_code["test_definition_id"], self.client)
                 if not test:
                     raise Response("No such test id", status=status.HTTP_404_NOT_FOUND)
             test_code['test_definition'] = test
@@ -1153,7 +1195,7 @@ class TestInstances_KG(KGAPIView):
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
             #check if versions are unique
-            if not _are_test_code_version_unique(test_code) :
+            if not _are_test_code_version_unique_kg(test_code, self.client):
                 return Response("The specified version name already exists for this test. Please provide a new name",
                                 status=status.HTTP_400_BAD_REQUEST)
 
@@ -1162,8 +1204,110 @@ class TestInstances_KG(KGAPIView):
             serializer = ValidationTestCodeKGSerializer(None, self.client, data=test_code)
             if serializer.is_valid():
                 saved_test_code = serializer.save()
-                list_id.append(saved_test_code.id)
+                list_id.append(saved_test_code.uuid)
         return Response({'uuid':list_id}, status=status.HTTP_201_CREATED)
+
+    def put(self, request, format=None):
+        """
+        :param data: test instance
+        :type data: object
+        :returns: uuid list of the updated objects
+        :rtype: uuid list
+        """
+
+        if not is_hbp_member(request):
+            return HttpResponseForbidden()
+
+        DATA = _reformat_request_data(request.data)
+        for i in DATA :
+            if len(i) == 0 :
+                return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        ##check if request is valid
+        for test_code in DATA:
+            ##get the test code
+            if 'id' in test_code:
+                original_test_code = ValidationScript.from_uuid(test_code['id'], self.client)
+                if not original_test_code:
+                    return Response("The given id "+test_code['id']+" does not exist. Please give a new id, or a test_definition_id with a version, or a test_definition_alias with a version. ", status=status.HTTP_400_BAD_REQUEST)
+                test_code['test_definition_id'] = original_test_code.test_definition.uuid
+                test_code['test_definition'] = original_test_code.test_definition
+                serializer = ValidationTestCodeKGSerializer(original_test_code, self.client, data=test_code)
+                if not serializer.is_valid():
+                    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            else:
+                if 'version' in test_code:
+                    if 'test_alias' in test_code:
+                        test_definition = ValidationTestDefinitionKG.from_alias(test_code['test_alias'], self.client)
+                        if not test_definition:
+                            return Response('There is no test with this alias. Please give a new alias or try with the test_definition_id directly.', status=status.HTTP_400_BAD_REQUEST)
+                        test_code['test_definition_id'] = test_definition.id
+                        test_code['test_definition'] = test_definition
+                    if 'test_definition_id' in test_code:
+                        filter_query = {
+                            "op": "and",
+                            "value": [
+                                {
+                                    "path": "nsg:implements",
+                                    "op": "eq",
+                                    "value": test_code['test_definition_id']
+                                },
+                                {
+                                    "path": "schema:version",
+                                    "op": "eq",
+                                    "value": test_code['version']
+                                }
+                            ]
+                        }
+                        context = {
+                            "nsg": "https://bbp-nexus.epfl.ch/vocabs/bbp/neurosciencegraph/core/v0.1.0/",
+                            "schema": "http://schema.org/"
+                        }
+                        original_test_code = KGQuery(ValidationScript, filter_query, context).resolve(self.client)
+                        if not original_test_code:
+                            return Response("There is no test instance with this version name for this test_definition_id. Please give a new test_definition_id or a new version name. ", status=status.HTTP_400_BAD_REQUEST)
+                        test_code['id'] = original_test_code.uuid
+                        test_code['uri'] = original_test_code.id
+                        serializer = ValidationTestCodeKGSerializer(original_test_code, self.client, data=test_code)
+                        if not serializer.is_valid():
+                            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+                else:
+                    return Response("To edit a test instance, you need to give an id, or a test_definition_id with a version, or a test_definition_alias with a version ", status=status.HTTP_400_BAD_REQUEST)
+
+            #check if version is editable
+            if not is_authorised_or_admin(request,settings.ADMIN_COLLAB_ID):
+                if not _are_test_code_editable_kg(test_code, self.client):
+                    return Response("This version is no longer editable as there is at least one result associated with it", status=status.HTTP_400_BAD_REQUEST)
+
+            #check if versions are unique
+            if test_code["version"] != original_test_code.version and not _are_test_code_version_unique_kg(test_code, self.client):
+                return Response("The specified version name already exists for this test. Please provide a new version.", status=status.HTTP_400_BAD_REQUEST)
+
+        ## check is ok so create the serializer and save
+        list_updated = []
+        for test_code in DATA:
+            original_test_code = ValidationScript.from_uuid(test_code['id'], self.client)
+            serializer = ValidationTestCodeKGSerializer(original_test_code, self.client, data=test_code)
+
+            if serializer.is_valid():
+               updated_test_code = serializer.save()
+               list_updated.append(serializer.serialize(updated_test_code))
+        logger.debug("List updated: {}".format(list_updated))
+        return Response({'uuid': list_updated}, status=status.HTTP_202_ACCEPTED)
+
+    def delete(self, request, format=None):
+
+        if not is_authorised_or_admin(request, settings.ADMIN_COLLAB_ID):
+            return HttpResponseForbidden()
+
+        list_ids = request.GET.getlist('id')
+
+        elements_to_delete = [ValidationScript.from_uuid(id, self.client) for id in list_ids]
+        for test in elements_to_delete:
+            test.delete(self.client)
+        # todo: delete test instance from parent test definition
+
+        return Response( status=status.HTTP_200_OK)
 
 
 class Results_KG(KGAPIView):
@@ -1301,7 +1445,7 @@ class Results_KG(KGAPIView):
                 filter_query["value"].append({
                     "path": "prov:wasGeneratedBy / prov:used / nsg:implements",
                     "op": "in",
-                    "value": [get_full_uri(ValidationTestDefinition, uuid, self.client) for uuid in param_test_id]
+                    "value": [get_full_uri(ValidationTestDefinitionKG, uuid, self.client) for uuid in param_test_id]
                 })
             if len(param_test_alias) > 0 :
                 filter_query["value"].append({
@@ -1337,7 +1481,7 @@ class Results_KG(KGAPIView):
         #####quick fix to get out nan and infinity numbers --will need to change it by allowing the json
         new_results = []
         for result in results:
-            if not math.isnan(float(result.score)) and not math.isnan(float(result.normalized_score)) and not math.isinf(float(result.score)) and not math.isinf(float(result.normalized_score)):
+            if result and not math.isnan(float(result.score)) and not math.isnan(float(result.normalized_score)) and not math.isinf(float(result.score)) and not math.isinf(float(result.normalized_score)):
                 new_results.append(result)
 
         data_to_return = organise_results_dict_kg(detailed_view, param_order, new_results, self.client)
@@ -1372,8 +1516,6 @@ class Results_KG(KGAPIView):
         #     if value is not True :
         #         return value
 
-
-
         list_id = []
         for result in DATA :
             model_instance = ModelInstance.from_uuid(result["model_version_id"], self.client)
@@ -1392,7 +1534,7 @@ class Results_KG(KGAPIView):
             serializer = ValidationTestResultKGSerializer(None, self.client, data=result)
             if serializer.is_valid():
                 res = serializer.save()
-                list_id.append(res.id)
+                list_id.append(res.uuid)
             else :
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -1400,3 +1542,25 @@ class Results_KG(KGAPIView):
             return Response({'uuid':list_id}, status=status.HTTP_201_CREATED)
         else :
             return Response(status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, format=None):
+        """
+
+        """
+
+        if not is_authorised_or_admin(request, settings.ADMIN_COLLAB_ID):
+            return HttpResponseForbidden()
+
+        list_ids = request.GET.getlist('id')
+        logger.info("Trying to delete the following results: {}".format(list_ids))
+
+        elements_to_delete = [
+            ValidationResultKG.from_uuid(id, self.client)  # can probably just use KGProxy here, and in other delete methods where no relations need to be followed
+            for id in list_ids
+        ]
+        for result in elements_to_delete:
+            if result.generated_by:
+                result.generated_by.delete(self.client)
+            result.delete(self.client)
+
+        return Response(status=status.HTTP_200_OK)

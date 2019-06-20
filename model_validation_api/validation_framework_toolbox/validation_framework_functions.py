@@ -1,5 +1,5 @@
 from .user_auth_functions import *
-
+import logging
 from uuid import UUID
 import json
 
@@ -60,8 +60,13 @@ from ..serializer.serializer import (ValidationTestDefinitionSerializer,
 from ..serializer.serializer_kg import ValidationTestResultKGSerializer
 
 
-from fairgraph.base import as_list
-from fairgraph.brainsimulation import ModelProject
+from fairgraph.base import as_list, KGQuery
+from fairgraph.brainsimulation import (ModelProject,
+                                       ValidationTestDefinition as ValidationTestDefinitionKG,
+                                       ValidationActivity)
+
+
+logger = logging.getLogger("model_validation_api")
 
 
 def check_list_uuid_validity (uuid_list) :
@@ -127,7 +132,7 @@ def _are_model_instance_version_unique (instance_json):
         return False
     return True
 
-def _are_model_instance_version_unique_kg(instance_json, nar_client):
+def _are_model_instance_version_unique_kg(instance_json, kg_client):
     """
     Check if versions of model instance are unique
     :param instance_json: datas of instance
@@ -136,14 +141,9 @@ def _are_model_instance_version_unique_kg(instance_json, nar_client):
     :rtype: boolean
     """
     new_version_name = instance_json['version']
-    try :
-        new_instance_id = instance_json["id"]
-    except:
-        new_instance_id = None
-
-    model_project = ModelProject.from_uuid(instance_json['model_id'], nar_client)
+    model_project = ModelProject.from_uuid(instance_json['model_id'], kg_client)
     if model_project.instances:
-        all_instances_versions_name = [inst.resolve(nar_client).version for inst in as_list(model_project.instances)]
+        all_instances_versions_name = [inst.resolve(kg_client).version for inst in as_list(model_project.instances)]
         if new_version_name in all_instances_versions_name:
             return False
     return True
@@ -166,6 +166,23 @@ def _are_test_code_version_unique (testcode_json):
         return False
     return True
 
+
+def _are_test_code_version_unique_kg(testcode_json, kg_client):
+    """
+    Check if versions of test code are unique
+    :param testcode_json: datas of test code
+    :type testcode_json: dict
+    :returns: response
+    :rtype: boolean
+    """
+    new_version_name = testcode_json['version']
+    test_definition = testcode_json['test_definition']
+    all_instances_versions_name = [script.version for script in as_list(test_definition.scripts.resolve(kg_client))]
+    logger.debug("all versions: {} new version: {}".format(all_instances_versions_name, new_version_name))
+    if new_version_name in all_instances_versions_name:
+        return False
+    return True
+
 def _are_test_code_editable(testcode_json):
     """
     Check if tests code are editable
@@ -184,6 +201,23 @@ def _are_test_code_editable(testcode_json):
     if len(results)>0:
         return False
     return True
+
+def _are_test_code_editable_kg(testcode_json, KG_client):
+    """
+    Check if tests code are editable (are not associated with any results)
+    :param testcode_json: datas of test code
+    :type testcode_json: dict
+    :returns: response
+    :rtype: boolean
+    """
+    filter_query = {
+        "path": "prov:used",
+        "op": "eq",
+        "value": testcode_json["uri"]
+    }
+    context = {"prov": "http://www.w3.org/ns/prov#"}
+    return not bool(KGQuery(ValidationActivity, filter_query, context).resolve(KG_client))
+
 
 def _are_model_instance_editable(model_instance_json):
     """

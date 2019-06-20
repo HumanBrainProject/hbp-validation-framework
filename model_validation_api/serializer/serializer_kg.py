@@ -5,7 +5,7 @@ from datetime import datetime
 from itertools import chain
 
 from fairgraph.base import as_list, KGProxy, Distribution
-from fairgraph.core import Person, Organization
+from fairgraph.core import Person, Organization, Collection
 from fairgraph.commons import CellType, BrainRegion, AbstractionLevel, Species, ModelScope
 from fairgraph.brainsimulation import (ModelProject, ValidationTestDefinition, ValidationScript,
                                  ValidationActivity, ValidationResult, AnalysisResult,
@@ -322,13 +322,18 @@ class ValidationTestDefinitionKGSerializer(BaseKGSerializer):
 
     def is_valid(self):
         # check alias is unique
-        if "alias" in self.data:
+        if "alias" in self.data and self.data["alias"]:
             if self.obj and self.obj.alias == self.data["alias"]:
                 return True
+            logger.debug("Checking for tests with alias '{}'".format(self.data["alias"]))
             test_with_same_alias = ValidationTestDefinition.from_alias(self.data["alias"], self.client)
+            logger.debug("Found {}".format(test_with_same_alias))
             if bool(test_with_same_alias):
-                self.errors.append("Another test exists with this alias")
+                self.errors.append("validation test definition with this alias already exists.")
                 return False
+        if not self.data.get("author"):
+            self.errors.append("Error in field 'author'. This field may not be blank.")
+            return False
         # ...
         return True  # todo
 
@@ -352,7 +357,7 @@ class ValidationTestDefinitionKGSerializer(BaseKGSerializer):
             'cell_type': test.celltype.label if test.celltype else 'Not applicable',
             #'age': # todo
             'data_location': [item.resolve(self.client).distribution.location
-                              for item in as_list(test.reference_data)],
+                              for item in as_list(test.reference_data)][0],  # to fix: reference_data should never really be a list
             'data_type': test.data_type,
             'data_modality': test.recording_modality,
             'test_type': test.test_type,
@@ -362,8 +367,9 @@ class ValidationTestDefinitionKGSerializer(BaseKGSerializer):
             'creation_date': test.date_created,
             #'publication': test.publication,
             'old_uuid': test.old_uuid,
-            'codes': [],
+            'codes': [],   # unclear if this should be "codes" or "test_codes"
         }
+        logger.debug("!!! {}".format(test.scripts))
         for script in as_list(test.scripts.resolve(self.client)):
             if isinstance(script.repository, dict):
                 repo = script.repository["@id"]
@@ -382,15 +388,20 @@ class ValidationTestDefinitionKGSerializer(BaseKGSerializer):
                     "timestamp": script.date_created
                 }
             )
+        logger.debug("Serialized {} to {}".format(test, data))
         return data
 
     def save(self):
         if self.obj is None:  # create
-            reference_data = [AnalysisResult(name="Reference data for validation test '{}'".format(self.data["name"]),
+            reference_data = [AnalysisResult(name="Reference data #{} for validation test '{}'".format(i, self.data["name"]),
                                              distribution=Distribution(url))
-                              for url in self.data["data_location"]]
+                              for i, url in enumerate(as_list(self.data["data_location"]))]
             for item in reference_data:
-                item.save(self.client)
+                try:
+                    item.save(self.client)
+                except Exception as err:
+                    logger.error("error saving reference data. name = {}, urls={}".format(self.data["name"], self.data["data_location"]))
+                    raise
             authors = self.data["author"]
             if not isinstance(authors, list):
                 authors = [authors]
@@ -408,12 +419,55 @@ class ValidationTestDefinitionKGSerializer(BaseKGSerializer):
                 score_type=self.data["score_type"],
                 description=self.data["protocol"],
                 authors=[Person(p["family_name"], p["given_name"], p.get("email", None))
-                         for p in authors],
-                # todo: check if authors are saved automatically
+                         for p in as_list(authors)],
+                # note: authors are saved automatically
                 date_created=datetime.now()
             )
         else:                 # update
-            raise NotImplementedError()
+            logger.debug("Updating test {} with data {}".format(self.obj.id, self.data))
+            if "name" in self.data:
+                self.obj.name = self.data["name"]
+            if "alias" in self.data:
+                self.obj.alias = self.data["alias"]
+
+            if "status" in self.data:
+                self.obj.status = self.data["status"]
+            if "species" in self.data:
+                self.obj.species = self._get_ontology_obj(Species, "species")
+            if "brain_region" in self.data:
+                self.obj.brain_region = self._get_ontology_obj(BrainRegion, "brain_region")
+            if "cell_type" in self.data:
+                self.obj.celltype = self._get_ontology_obj(CellType, "cell_type")
+            if "data_type" in self.data:
+                self.obj.data_type = self.data["data_type"]
+            if "data_modality" in self.data:
+                self.obj.recording_modality = self.data["data_modality"]
+            if "test_type" in self.data:
+                self.obj.test_type = self.data["test_type"]
+            if "score_type" in self.data:
+                self.obj.score_type = self.data["score_type"]
+            if "description" in self.data:
+                self.obj.description = self.data["description"]
+            if "data_location" in self.data:
+                self.obj.reference_data = [AnalysisResult(name="Reference data #{} for validation test '{}'".format(i, self.data["name"]),
+                                                          distribution=Distribution(url))
+                                           for i, url in enumerate(as_list(self.data["data_location"]))]
+            if "author" in self.data:
+                self.obj.authors = [Person(p["family_name"], p["given_name"], p.get("email", None))
+                                      for p in as_list(self.data["author"])]
+
+            # now save people, ref data, test. No easy way to make this atomic, I don't think.
+            for person in as_list(self.obj.authors):
+                if not isinstance(person, KGProxy):
+                    # no need to save if we have a proxy object, as
+                    # that means the person hasn't been updated
+                    # although in fact the authors are saved when the test is saved
+                    # need to make this consistent
+                    person.save(self.client)
+            for ref_data in as_list(self.obj.reference_data):
+                if not isinstance(person, KGProxy):
+                    ref_data.save(self.client)
+
         self.obj.save(self.client)
         return self.obj
 
@@ -421,7 +475,13 @@ class ValidationTestDefinitionKGSerializer(BaseKGSerializer):
 class ValidationTestCodeKGSerializer(BaseKGSerializer):
 
     def is_valid(self):
-        return True  # todo
+        if not self.data.get("version"):
+            self.errors.append("Test code implementation version missing")
+            return False
+        if not self.data.get("repository"):
+            self.errors.append("Test code location / repository missing")
+            return False
+        return True  # to finish
 
     def serialize(self, obj):
         # todo: rewrite all this using KG Query API, to avoid doing all the individual resolves.
@@ -430,7 +490,7 @@ class ValidationTestCodeKGSerializer(BaseKGSerializer):
             "uri": obj.id,
             "id": obj.uuid,
             "old_uuid": obj.old_uuid,
-            "repository": obj.repository["@id"],
+            "repository": obj.repository,
             "version": obj.version,
             "description": obj.description,
             "parameters":  obj.parameters,
@@ -455,7 +515,16 @@ class ValidationTestCodeKGSerializer(BaseKGSerializer):
                 test_definition=test_definition
             )
         else:                 # update
-            raise NotImplementedError()
+            if "repository" in self.data:
+                self.obj.repository = self.data["repository"]
+            if "version" in self.data:
+                self.obj.version = self.data["version"]
+            if "description" in self.data:
+                self.obj.description = self.data["description"]
+            if "parameters" in self.data:
+                self.obj.parameters = self.data["parameters"]
+            if "path" in self.data:
+                self.obj.test_class = self.data["path"]
         self.obj.save(self.client)
         return self.obj
 
@@ -467,13 +536,15 @@ class ValidationTestResultKGSerializer(BaseKGSerializer):
 
     def serialize(self, obj):
         # todo: rewrite all this using KG Query API, to avoid doing all the individual resolves.
-
+        validation_activity = obj.generated_by.resolve(self.client)
+        model_version_id = validation_activity.model_instance.uuid
+        test_code_id = validation_activity.test_script.uuid
         data = {
             "uri": obj.id,
             "id": obj.uuid,
             "old_uuid": obj.old_uuid,
-            "model_version_id": obj.model_version_id,
-            "test_code_id": obj.test_code_id,
+            "model_version_id": model_version_id,
+            "test_code_id": test_code_id,
             "results_storage": [item.resolve(self.client).distribution.location
                                 for item in as_list(obj.additional_data)],
             "score": obj.score,
@@ -486,19 +557,23 @@ class ValidationTestResultKGSerializer(BaseKGSerializer):
 
     def save(self):
         if self.obj is None:  # create
+            logger.debug("Saving result with data {}".format(self.data))
             timestamp = datetime.now()
 
             additional_data = [AnalysisResult(name="{} @ {}".format(uri, timestamp.isoformat()),
                                               distribution=Distribution(uri),
                                               timestamp=timestamp)
-                               for uri in self.data["additional_data"]]
+                               for uri in self.data["results_storage"]]
             for ad in additional_data:
                 ad.save(self.client)
 
             self.obj = ValidationResult(
-                name=self.data["name"],
+                name="Validation results for model {} and test {} with timestamp {}".format(
+                    self.data["model_version_id"],
+                    self.data["test_code_id"],
+                    timestamp.isoformat()),
                 generated_by=None,
-                description=self.data["description"],
+                description=None,
                 score=self.data["score"],
                 normalized_score=self.data["normalized_score"],
                 passed=self.data["passed"],
@@ -510,8 +585,9 @@ class ValidationTestResultKGSerializer(BaseKGSerializer):
 
             test_definition = self.data["test_script"].test_definition.resolve(self.client)
             reference_data = Collection("Reference data for {}".format(test_definition.name),
-                                        members=test_definition.reference_data.resolve(self.client))
-            reference_data.save(NAR_client)
+                                        members=[item.resolve(self.client)
+                                                 for item in test_definition.reference_data])
+            reference_data.save(self.client)
 
             activity = ValidationActivity(
                 model_instance=self.data["model_instance"],
