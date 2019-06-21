@@ -77,9 +77,9 @@ class ScientificModelKGSerializer(BaseKGSerializer):
             self.obj = ModelProject(
                 self.data["name"],
                 [Person(p["family_name"], p["given_name"], p.get("email", None))
-                                      for p in self.data["owner"]],
+                 for p in as_list(self.data["owner"])],
                 [Person(p["family_name"], p["given_name"], p.get("email", None))
-                 for p in self.data["author"]],  # need to update person representation in clients,
+                 for p in as_list(self.data["author"])],  # need to update person representation in clients,
                 self.data.get("description"),
                 datetime.now(),
                 self.data.get("private", True),
@@ -102,10 +102,10 @@ class ScientificModelKGSerializer(BaseKGSerializer):
                 self.obj.alias = self.data["alias"]
             if "author" in self.data:
                 self.obj.authors = [Person(p["family_name"], p["given_name"], p.get("email", None))
-                                      for p in self.data["author"]]  # need to update person representation in clients
+                                    for p in as_list(self.data["author"])]  # need to update person representation in clients
             if "owner" in self.data:
                 self.obj.owners = [Person(p["family_name"], p["given_name"], p.get("email", None))
-                                     for p in self.data["owner"]]  # need to update person representation in clients
+                                   for p in as_list(self.data["owner"])]  # need to update person representation in clients
             if "app" in self.data:
                 self.obj.collab_id = self.data["app"]["collab_id"]
             if "organization" in self.data:
@@ -283,6 +283,13 @@ class ScientificModelInstanceKGSerializer(BaseKGSerializer):
             instance_changed = False
             script_changed = False
             morphology_changed = False
+
+            def resolve_obj(obj):
+                if isinstance(obj, KGProxy):
+                    return obj.resolve(self.client)
+                else:
+                    return obj
+
             if "name" in self.data:
                 self.obj.name = self.data["name"]
                 # todo: also update e_model and morphology
@@ -297,15 +304,19 @@ class ScientificModelInstanceKGSerializer(BaseKGSerializer):
                 self.obj.parameters = self.data.get("parameters")
                 instance_changed = True
             if "code_format" in self.data:
+                self.obj.main_script = resolve_obj(self.obj.main_script)
                 self.obj.main_script.code_format = self.data.get("code_format")
                 script_changed = True
             if "source" in self.data:
+                self.obj.main_script = resolve_obj(self.obj.main_script)
                 self.obj.main_script.source = self.data["source"]
                 script_changed = True
             if "license" in self.data:
+                self.obj.main_script = resolve_obj(self.obj.main_script)
                 self.obj.main_script.license = self.data.get("license")
                 script_changed = True
             if "morphology" in self.data and self.data["morphology"] is not None:
+                self.obj.morphology = resolve_obj(self.obj.morphology)
                 self.obj.morphology.morphology_file = self.data["morphology"]
                 morphology_changed = True
             if morphology_changed:
@@ -586,7 +597,7 @@ class ValidationTestResultKGSerializer(BaseKGSerializer):
             test_definition = self.data["test_script"].test_definition.resolve(self.client)
             reference_data = Collection("Reference data for {}".format(test_definition.name),
                                         members=[item.resolve(self.client)
-                                                 for item in test_definition.reference_data])
+                                                 for item in as_list(test_definition.reference_data)])
             reference_data.save(self.client)
 
             activity = ValidationActivity(

@@ -1184,11 +1184,11 @@ class TestInstances_KG(KGAPIView):
             if 'test_alias' in test_code:
                 test = ValidationTestDefinitionKG.from_alias(test_code["test_alias"], self.client)
                 if not test:
-                    raise Response("No such alias", status=status.HTTP_404_NOT_FOUND)
+                    return Response("No such alias", status=status.HTTP_404_NOT_FOUND)
             elif 'test_definition_id' in test_code:
                 test = ValidationTestDefinitionKG.from_uuid(test_code["test_definition_id"], self.client)
                 if not test:
-                    raise Response("No such test id", status=status.HTTP_404_NOT_FOUND)
+                    return Response("No such test id", status=status.HTTP_404_NOT_FOUND)
             test_code['test_definition'] = test
 
             serializer = ValidationTestCodeKGSerializer(None, self.client, data=test_code)
