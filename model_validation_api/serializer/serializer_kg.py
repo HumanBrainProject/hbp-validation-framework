@@ -367,7 +367,7 @@ class ValidationTestDefinitionKGSerializer(BaseKGSerializer):
             'brain_region': test.brain_region.label if test.brain_region else None,
             'cell_type': test.celltype.label if test.celltype else 'Not applicable',
             #'age': # todo
-            'data_location': [item.resolve(self.client).distribution.result_file.location
+            'data_location': [item.resolve(self.client).result_file.location
                               for item in as_list(test.reference_data)][0],  # to fix: reference_data should never really be a list
             'data_type': test.data_type,
             'data_modality': test.recording_modality,
