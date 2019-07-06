@@ -405,7 +405,7 @@ class ValidationTestDefinitionKGSerializer(BaseKGSerializer):
     def save(self):
         if self.obj is None:  # create
             reference_data = [AnalysisResult(name="Reference data #{} for validation test '{}'".format(i, self.data["name"]),
-                                             distribution=Distribution(url))
+                                             result_file=Distribution(url))
                               for i, url in enumerate(as_list(self.data["data_location"]))]
             for item in reference_data:
                 try:
@@ -461,7 +461,7 @@ class ValidationTestDefinitionKGSerializer(BaseKGSerializer):
                 self.obj.description = self.data["description"]
             if "data_location" in self.data:
                 self.obj.reference_data = [AnalysisResult(name="Reference data #{} for validation test '{}'".format(i, self.data["name"]),
-                                                          distribution=Distribution(url))
+                                                          result_file=Distribution(url))
                                            for i, url in enumerate(as_list(self.data["data_location"]))]
             if "author" in self.data:
                 self.obj.authors = [Person(p["family_name"], p["given_name"], p.get("email", None))
@@ -572,7 +572,7 @@ class ValidationTestResultKGSerializer(BaseKGSerializer):
             timestamp = datetime.now()
 
             additional_data = [AnalysisResult(name="{} @ {}".format(uri, timestamp.isoformat()),
-                                              distribution=Distribution(uri),
+                                              result_file=Distribution(uri),
                                               timestamp=timestamp)
                                for uri in self.data["results_storage"]]
             for ad in additional_data:

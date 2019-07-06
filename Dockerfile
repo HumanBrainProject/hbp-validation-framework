@@ -24,8 +24,8 @@ ENV SITEDIR /home/docker/site
 
 RUN git clone https://github.com/HumanBrainProject/pyxus.git pyxus_src
 RUN pip install -r pyxus_src/pyxus/requirements.txt; pip install pyxus_src/pyxus
-RUN git clone https://github.com/apdavison/fairgraph.git;
-RUN pip install fairgraph
+RUN git clone https://github.com/apdavison/fairgraph.git
+RUN pip install ./fairgraph
 
 COPY packages /home/docker/packages
 COPY validation_service $SITEDIR

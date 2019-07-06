@@ -89,6 +89,8 @@ author_special_cases = {
     "Paolo Del Giudice": ("Paolo", "Del Giudice"),
     "Ignazio De Blasi": ("Ignazio", "De Blasi"),
     "Marc de Kamps": ("Marc", "de Kamps"),
+    "José Francisco Gómez González": ("José Francisco", "Gómez González"),
+    "Ivilin Peev Stoianov": ("Ivilin Peev", "Stoianov"),
     "BBP-team": ("BBP", "team")
 }
 
@@ -406,7 +408,7 @@ class Command(BaseCommand):
                 parameter = AbstractionLevel(parameter_value, strict=True)
 
         if parameter_type == "model_scope":
-            if parameter_value != None and parameter_value != '':
+            if parameter_value not in (None, '', 'other'):
                 parameter = ModelScope(parameter_value, strict=True)
 
         if parameter_type == "age":
@@ -565,7 +567,7 @@ class Command(BaseCommand):
             if test.data_location == "to do":
                 test.data_location = "http://example.com/todo"
             reference_data = AnalysisResult(name="Reference data for validation test '{}'".format(test.name),
-                                            distribution=Distribution(test.data_location))
+                                            result_file=Distribution(test.data_location))
             reference_data.save(NAR_client)
 
             test_definition = ValidationTestDefinitionKG(
@@ -616,7 +618,7 @@ class Command(BaseCommand):
     def migrate_validation_results(self):
         result_objects = ValidationTestResult.objects.all()
 
-        for ro in result_objects:
+        for ro in result_objects[800:]:
             model_instance = lookup_model_instance(str(ro.model_version.id), NAR_client)  # use oldUUID (stored in nsg:providerId)
             test_script = lookup_test_script(str(ro.test_code.id), NAR_client)
             if not model_instance:
@@ -629,7 +631,7 @@ class Command(BaseCommand):
             assert test_definition
 
             additional_data = [AnalysisResult(name="{} @ {}".format(uri, ro.timestamp.isoformat()),
-                                              distribution=Distribution(uri),
+                                              result_file=Distribution(uri),
                                               timestamp=ro.timestamp)
                                for uri in get_file_list(ro.results_storage, storage_client)]
             for ad in additional_data:
