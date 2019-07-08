@@ -207,16 +207,16 @@ class ScientificModelInstanceKGSerializer(BaseKGSerializer):
                     "model_id": proj.uuid,
                     #"old_uuid": instance.old_uuid
                     "version": instance.version,
-                    "description": instance.description,
-                    "parameters":  instance.parameters,
-                    "code_format": script.code_format,
+                    "description": instance.description or '',
+                    "parameters":  instance.parameters or '',
+                    "code_format": script.code_format or '',
                     "source": script.code_location,
                     "license": script.license,
-                    "hash": None
+                    "hash": ''
                 }
         if hasattr(instance, "morphology"):
             morph = instance.morphology.resolve(self.client)
-            data["morphology"] = morph.morphology_file
+            data["morphology"] = morph.morphology_file or ''
         return data
 
     def save(self):
