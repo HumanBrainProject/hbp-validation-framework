@@ -180,14 +180,18 @@ class ScientificModelKGSerializer(BaseKGSerializer):
                     "uri": instance.id,
                     #"old_uuid": instance.old_uuid
                     "version": instance.version,
-                    "description": instance.description,
-                    "parameters":  instance.parameters,
-                    "code_format": main_script.code_format,
-                    "source": main_script.code_location,
-                    "license": main_script.license,
-                    "hash": None
+                    "description": instance.description or '',
+                    "parameters":  instance.parameters or '',
+                    "code_format": main_script.code_format or '',
+                    "source": main_script.code_location or '',
+                    "license": main_script.license or '',
+                    "hash": '',
+                    "timestamp": instance.timestamp.isoformat()
                 }
             )
+            if hasattr(instance, "morphology"):
+                morph = instance.morphology.resolve(self.client)
+                data['instances'][-1]["morphology"] = morph.morphology_file
         return data
 
 
@@ -213,7 +217,7 @@ class ScientificModelInstanceKGSerializer(BaseKGSerializer):
                     "source": script.code_location,
                     "license": script.license,
                     "hash": '',
-                    "timestamp": instance.timestamp
+                    "timestamp": instance.timestamp.isoformat()
                 }
         if hasattr(instance, "morphology"):
             morph = instance.morphology.resolve(self.client)
