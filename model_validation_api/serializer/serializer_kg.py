@@ -212,11 +212,12 @@ class ScientificModelInstanceKGSerializer(BaseKGSerializer):
                     "code_format": script.code_format or '',
                     "source": script.code_location,
                     "license": script.license,
-                    "hash": ''
+                    "hash": '',
+                    "timestamp": instance.timestamp
                 }
         if hasattr(instance, "morphology"):
             morph = instance.morphology.resolve(self.client)
-            data["morphology"] = morph.morphology_file or ''
+            data["morphology"] = morph.morphology_file
         return data
 
     def save(self):
