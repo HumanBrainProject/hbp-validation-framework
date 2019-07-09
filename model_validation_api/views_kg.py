@@ -678,7 +678,7 @@ class ModelInstances_KG(KGAPIView):
                 #         return Response("This version is no longer editable as there is at least one result associated with it.", status=status.HTTP_400_BAD_REQUEST)
 
                 #check if versions are unique
-                if not _are_model_instance_version_unique_kg(instance) :
+                if not _are_model_instance_version_unique_kg(instance, self.client) :
                     return Response("The specified version name already exists for this model. Please provide a new name", status=status.HTTP_400_BAD_REQUEST)
 
                 model_serializer = ScientificModelInstanceKGSerializer(original_instance, self.client, data=instance)
