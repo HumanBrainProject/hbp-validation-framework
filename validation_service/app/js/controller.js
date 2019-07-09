@@ -1902,12 +1902,12 @@ ModelCatalogApp.controller('ModelCatalogEditCtrl', ['$scope', '$rootScope', '$ht
             if ($scope.model.models[0].alias != '' && $scope.model.models[0].alias != null) {
                 $scope.alias_is_valid = ScientificModelAliasRest.get({
                     app_id: $scope.app_id,
-                    model_id: $scope.getUUID($scope.model.models[0].id),
+                    model_id: $scope.model.models[0].id,
                     alias: $scope.model.models[0].alias });
                 $scope.alias_is_valid.$promise.then(function() {
                     if ($scope.alias_is_valid.is_valid) {
                         var parameters = $scope.model;
-                        parameters.models[0].id = $scope.getUUID(parameters.models[0].id);
+                        parameters.models[0].id = parameters.models[0].id;
                         var a = ScientificModelRest.put({ app_id: $scope.app_id }, parameters).$promise.then(function(data) {
                             DataHandler.setStoredModelsAsOutdated();
                             alert('Model correctly edited');
@@ -1921,7 +1921,7 @@ ModelCatalogApp.controller('ModelCatalogEditCtrl', ['$scope', '$rootScope', '$ht
             } else {
                 $scope.model.models[0].alias = null;
                 var parameters = $scope.model;
-                parameters.id = $scope.getUUID(parameters.id);
+                parameters.id = parameters.id;
                 var a = ScientificModelRest.put({ app_id: $scope.app_id }, parameters).$promise.then(function(data) {
                     DataHandler.setStoredModelsAsOutdated();
 
@@ -1958,7 +1958,7 @@ ModelCatalogApp.controller('ModelCatalogEditCtrl', ['$scope', '$rootScope', '$ht
         $scope.checkAliasValidity = function() {
             $scope.alias_is_valid = ScientificModelAliasRest.get({
                 app_id: $scope.app_id,
-                model_id: $scope.getUUID($scope.model.models[0].id),
+                model_id: $scope.model.models[0].id,
                 alias: $scope.model.models[0].alias });
         };
         $scope.isInArray = function(value, array) {
