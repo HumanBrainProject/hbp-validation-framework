@@ -669,8 +669,10 @@ class ModelInstances_KG(KGAPIView):
 
         for instance in DATA:
             if param_web_app:
-                # todo: need to check if single cell (MEModel) or not
+
                 original_instance = ModelInstance.from_uuid(instance['id'], self.client)
+                if original_instance is None:
+                    original_instance = MEModel.from_uuid(instance['id'], self.client)
                 #check if version is editable - only if you are not super user
                 # TODO once ValidationResult migrated to KG
                 # if not is_authorised_or_admin(request, settings.ADMIN_COLLAB_ID):
