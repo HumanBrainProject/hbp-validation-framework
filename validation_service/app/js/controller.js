@@ -2033,6 +2033,8 @@ ModelCatalogApp.controller('ModelCatalogVersionCtrl', ['$scope', '$rootScope', '
             ScientificModelInstanceRest.save({ app_id: $scope.app_id }, parameters).$promise.then(function(data) {
                 console.log("Saved version:");
                 console.log(data);
+                $scope.model_instance.id = data["uuid"];
+                $scope.model.models[0].instances.append($scope.model_instance);
                 $location.path('/model-catalog/detail/' + $stateParams.uuid);
             }).catch(function(e) {
                 alert(e.data);
