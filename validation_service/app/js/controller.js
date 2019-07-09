@@ -1932,6 +1932,7 @@ ModelCatalogApp.controller('ModelCatalogEditCtrl', ['$scope', '$rootScope', '$ht
             }
         };
         $scope.saveModelInstance = function(model_instance) {
+            model_instance['model_id'] = $scope.model.models[0].id;
             var parameters = JSON.stringify([model_instance]);
             var a = ScientificModelInstanceRest.put({ app_id: $scope.app_id }, parameters).$promise.then(function(data) { alert('model instances correctly edited') }).catch(function(e) {
                 alert(e.data);
