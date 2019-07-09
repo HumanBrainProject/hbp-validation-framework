@@ -174,24 +174,29 @@ class ScientificModelKGSerializer(BaseKGSerializer):
         for instance in as_list(model.instances):
             instance = instance.resolve(self.client)
             main_script = instance.main_script.resolve(self.client)
-            data['instances'].append(
-                {
-                    "id": instance.uuid,
-                    "uri": instance.id,
-                    #"old_uuid": instance.old_uuid
-                    "version": instance.version,
-                    "description": instance.description or '',
-                    "parameters":  instance.parameters or '',
+            instance_data = {
+                "id": instance.uuid,
+                "uri": instance.id,
+                #"old_uuid": instance.old_uuid
+                "version": instance.version,
+                "description": instance.description or '',
+                "parameters":  instance.parameters or '',
+                "code_format": '',
+                "source": '',
+                "license": '',
+                "hash": '',
+                "timestamp": instance.timestamp.isoformat()
+            }
+            if main_script:
+                instance_data.update({
                     "code_format": main_script.code_format or '',
                     "source": main_script.code_location or '',
                     "license": main_script.license or '',
-                    "hash": '',
-                    "timestamp": instance.timestamp.isoformat()
-                }
-            )
+                })
             if hasattr(instance, "morphology"):
                 morph = instance.morphology.resolve(self.client)
-                data['instances'][-1]["morphology"] = morph.morphology_file
+                instance_data["morphology"] = morph.morphology_file
+            data['instances'].append(instance_data)
         return data
 
 
