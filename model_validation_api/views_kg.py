@@ -774,14 +774,19 @@ class ModelInstances_KG(KGAPIView):
             if not elem:
                 elem = MEModel.from_uuid(id, self.client)
 
+
             if elem:
                 project = elem.project.resolve(self.client)
                 logger.debug("???instances = {}".format(project.instances))
-                # todo: delete instance from project.instances
+                # delete instance from project.instances
+                project.instances = [inst for inst in project.instances if inst.id != elem.id]
+                project.save(self.client)
+                # delete any associated script and emodel
                 elem.main_script.delete(self.client)
                 # not deleting morphologies, as in future they are liable to be shared between models
                 if hasattr(elem, "e_model"):
                     elem.e_model.delete(self.client)
+                # delete the instance itself
                 elem.delete(self.client)
 
         return Response(status=status.HTTP_200_OK)
