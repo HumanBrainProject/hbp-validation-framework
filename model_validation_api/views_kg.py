@@ -782,7 +782,8 @@ class ModelInstances_KG(KGAPIView):
                 project.instances = [inst for inst in project.instances if inst.id != elem.id]
                 project.save(self.client)
                 # delete any associated script and emodel
-                elem.main_script.delete(self.client)
+                if elem.main_script:
+                    elem.main_script.delete(self.client)
                 # not deleting morphologies, as in future they are liable to be shared between models
                 if hasattr(elem, "e_model"):
                     elem.e_model.delete(self.client)
