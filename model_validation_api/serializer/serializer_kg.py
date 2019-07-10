@@ -173,6 +173,8 @@ class ScientificModelKGSerializer(BaseKGSerializer):
         }
         for instance in as_list(model.instances):
             instance = instance.resolve(self.client)
+            if not instance:  # if we have a stale reference to a deprecated instance
+                continue
             main_script = instance.main_script.resolve(self.client)
             instance_data = {
                 "id": instance.uuid,
