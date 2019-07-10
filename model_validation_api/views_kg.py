@@ -777,10 +777,11 @@ class ModelInstances_KG(KGAPIView):
 
             if elem:
                 project = elem.project.resolve(self.client)
-                logger.debug("???instances = {}".format(project.instances))
-                # delete instance from project.instances
-                project.instances = [inst for inst in project.instances if inst.id != elem.id]
-                project.save(self.client)
+                if project:
+                    logger.debug("???instances = {}".format(project.instances))
+                    # delete instance from project.instances
+                    project.instances = [inst for inst in project.instances if inst.id != elem.id]
+                    project.save(self.client)
                 # delete any associated script and emodel
                 if elem.main_script:
                     elem.main_script.delete(self.client)
