@@ -469,8 +469,8 @@ class ValidationTestDefinitionKGSerializer(BaseKGSerializer):
                 self.obj.test_type = self.data["test_type"]
             if "score_type" in self.data:
                 self.obj.score_type = self.data["score_type"]
-            if "description" in self.data:
-                self.obj.description = self.data["description"]
+            if "protocol" in self.data:
+                self.obj.description = self.data["protocol"]
             if "data_location" in self.data:
                 self.obj.reference_data = [AnalysisResult(name="Reference data #{} for validation test '{}'".format(i, self.data["name"]),
                                                           result_file=Distribution(url))

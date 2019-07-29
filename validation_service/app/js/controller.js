@@ -119,7 +119,7 @@ testApp.controller('ValTestCtrl', ['$scope', '$rootScope', '$http', '$location',
             var ctx = Context.getCtx();
             var app_id = Context.getAppID();
 
-            DataHandler.loadModels({ app_id: $scope.app_id }).then(function(data) {
+            DataHandler.loadModels({ app_id: app_id }).then(function(data) {
                 $scope.models = data;
                 $scope.$apply();
             });
@@ -347,6 +347,17 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
         $scope.button_save_ticket = [];
         $scope.button_save_comment = [];
 
+        $scope.formatAuthors = function(authors) {
+            var full_names = [];
+            if (authors) {
+                authors.forEach(function(auth) {
+                    full_names.push(auth.given_name + " " + auth.family_name);
+                });
+                return full_names.join(", ");
+            } else {
+                return "";
+            }
+        }
 
         $scope.init_checkbox_latest_versions = function() {
             var list_ids = [];
@@ -360,7 +371,7 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
 
 
         $scope.is_graph_not_empty = function(data_graph) {
-            if (data_graph.length < 2 && data_graph[0].values.length < 2) {
+            if (data_graph && data_graph.length < 2 && data_graph[0].values.length < 2) {
                 return false;
             }
             return true;

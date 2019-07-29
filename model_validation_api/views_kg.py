@@ -878,13 +878,12 @@ class Tests_KG(KGAPIView):
                 param_app_id = param_app_id[0]
                 collab_params = CollabParameters.objects.get(id=param_app_id)
 
-                raise NotImplementedError()
                 # #if one of the collab_param is empty, don't filter on it.
-                # species_filter = collab_params.species.split(",")
-                # brain_region_filter = collab_params.brain_region.split(",")
-                # cell_type_filter = collab_params.cell_type.split(",")
-                # test_type_filter = collab_params.test_type.split(",")
-                # data_modality_filter = collab_params.data_modalities.split(",")
+                species_filter = collab_params.species.split(",") if collab_params.species else []
+                brain_region_filter = collab_params.brain_region.split(",") if collab_params.brain_region else []
+                cell_type_filter = collab_params.cell_type.split(",") if collab_params.cell_type else []
+                test_type_filter = collab_params.test_type.split(",") if collab_params.test_type else []
+                data_modality_filter = collab_params.data_modalities.split(",") if collab_params.data_modalities else []
 
 
             context = {
@@ -1172,10 +1171,11 @@ class TestInstances_KG(KGAPIView):
                 })
 
             if len(filter_query["value"]) > 0:
-                logger.debug("Searching for test instances with query {}".format(filter_query))
+                logger.debug("Searching for test scripts with query {}".format(filter_query))
                 test_scripts = KGQuery(ValidationScript, filter_query, context).resolve(self.client)
             else:
                 test_scripts = ValidationScript.list(self.client)
+            logger.debug("Found {} scripts".format(len(as_list(test_scripts))))
 
         test_code_serializer = ValidationTestCodeKGSerializer(test_scripts, self.client, many=True)
 
