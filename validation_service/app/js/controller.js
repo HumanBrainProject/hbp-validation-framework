@@ -468,12 +468,19 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
             });
         };
 
+        var cleanAuthors = function(test_obj) {
+            // remove empty authors from list
+            test_obj.author = test_obj.author.filter(au => (au.family_name.length > 0) || (au.given_name.length > 0));
+        };
+
         $scope.editTest = function() {
             if ($scope.detail_test.tests[0].alias != '' && $scope.detail_test.tests[0].alias != null) {
                 $scope.alias_is_valid = ValidationTestAliasRest.get({ app_id: $scope.app_id, test_id: $scope.detail_test.tests[0].id, alias: $scope.detail_test.tests[0].alias });
                 $scope.alias_is_valid.$promise.then(function() {
                     if ($scope.alias_is_valid.is_valid) {
+                        cleanAuthors($scope.detail_test.tests[0]);
                         var parameters = JSON.stringify($scope.detail_test.tests[0]);
+
                         ValidationTestDefinitionRest.put({ app_id: $scope.app_id, id: $scope.detail_test.tests[0].id }, parameters).$promise.then(function() {
                             document.getElementById("tab_description").style.display = "none";
                             document.getElementById("tab_version").style.display = "block";
@@ -489,6 +496,7 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
                 });
             } else {
                 $scope.detail_test.tests[0].alias = null;
+                cleanAuthors($scope.detail_test.tests[0]);
                 var parameters = JSON.stringify($scope.detail_test.tests[0]);
                 ValidationTestDefinitionRest.put({ app_id: $scope.app_id, id: $scope.detail_test.tests[0].id }, parameters).$promise.then(function() {
                     document.getElementById("tab_description").style.display = "none";
@@ -690,6 +698,10 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
             };
         };
 
+        $scope.addAuthor = function() {
+            $scope.detail_test.tests[0].author.push({"given_name": "", "family_name": ""});
+        };
+
         $scope.editTicket = function(ticket_id) {
             angular.element(document.querySelector("#editable-title-" + ticket_id)).attr('contenteditable', "true");
             angular.element(document.querySelector("#editable-title-" + ticket_id)).attr('bgcolor', 'ghostwhite');
@@ -836,6 +848,7 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
                         version_editable.$promise.then(function(versions) {
                             $scope.version_is_editable = versions.are_editable;
                         });
+                        console.log($scope.detail_test.tests[0]);
 
                     });
                 });
