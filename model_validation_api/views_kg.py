@@ -349,14 +349,18 @@ class Models_KG(KGAPIView):
         """
         logger.debug("Models_KG POST data " + str(request.data))
 
-        app_id = request.GET.getlist('app_id')
+        app_id = request.GET.get('app_id')
+        collab_id = request.GET.get('collab_id')
 
-        if len(app_id) == 0 :
+        if app_id:
+            if collab_id:
+                return Response("Specify either app_id or collab_id, not both", status=status.HTTP_400_BAD_REQUEST)
+            collab_id = get_collab_id_from_app_id(app_id)
+        elif collab_id:
+            pass
+        else:
             return Response("You need to specify the app_id argument", status=status.HTTP_400_BAD_REQUEST)
-        else :
-            app_id = app_id[0]
 
-        collab_id = get_collab_id_from_app_id(app_id)
         if not is_authorised_or_admin(request, collab_id):
             return HttpResponse('Unauthorized for collab {}'.format(collab_id), status=401)
 
@@ -406,8 +410,6 @@ class Models_KG(KGAPIView):
     def put(self, request, format=None):
         """
         Update model
-        :param app_id: application id
-        :type app_id: int
         :param id: model id
         :type id: uuid
         :returns: model id of the updated model
