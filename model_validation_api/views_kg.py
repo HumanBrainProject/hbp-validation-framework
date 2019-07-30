@@ -445,7 +445,12 @@ class Models_KG(KGAPIView):
 
         # security
         if not is_authorised_or_admin(request, model.collab_id):
-            return HttpResponse('Unauthorized', status=401)
+            return HttpResponse('Access to original model collab ({}) unauthorized'.format(model.collab_id),
+                                status=401)
+        if ("collab_id" in model_data and model_data["collab_id"] != model.collab_id
+            and not is_authorised_or_admin(request, model_data["collab_id"])):
+            return HttpResponse('Access to requested collab ({}) unauthorized'.format(model_data["collab_id"]),
+                                status=401)
 
         # #make sure organisation is not empty :
         # try :
