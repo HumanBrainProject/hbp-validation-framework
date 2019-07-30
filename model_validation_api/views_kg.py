@@ -407,7 +407,10 @@ class Models_KG(KGAPIView):
 
         ## save only modifications on model. if you want to modify images or instances, do separate put.
         # get objects
-        model_data = request.data['models'][0]
+        if "models" in request.data:
+            model_data = request.data['models'][0]
+        else:
+            return HttpResponseBadRequest("'models' key not provided")
 
         if 'id' in model_data and model_data['id'] != '':
             model = ModelProject.from_uuid(model_data['id'], self.client)
