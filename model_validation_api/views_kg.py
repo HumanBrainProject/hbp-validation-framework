@@ -188,7 +188,7 @@ class Models_KG(KGAPIView):
                 license_param_filter = request.GET.getlist('license')
                 owner_filter = request.GET.getlist('owner')
                 project_filter = request.GET.getlist('project')
-                collab_filter = request.GET.getlist('collab_id')
+                collab_filter = [int(id) for id in request.GET.getlist('collab_id')]
 
             context = {
                 "nsg": "https://bbp-nexus.epfl.ch/vocabs/bbp/neurosciencegraph/core/v0.1.0/",
