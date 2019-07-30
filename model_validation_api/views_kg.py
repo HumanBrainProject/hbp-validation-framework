@@ -168,6 +168,7 @@ class Models_KG(KGAPIView):
                 license_param_filter = []
                 owner_filter = []
                 project_filter = []
+                collab_filter = []
 
             else :
                 app_id = request.GET.getlist('app_id')
@@ -187,6 +188,7 @@ class Models_KG(KGAPIView):
                 license_param_filter = request.GET.getlist('license')
                 owner_filter = request.GET.getlist('owner')
                 project_filter = request.GET.getlist('project')
+                collab_filter = request.GET.getlist('collab_id')
 
             context = {
                 "nsg": "https://bbp-nexus.epfl.ch/vocabs/bbp/neurosciencegraph/core/v0.1.0/",
@@ -255,6 +257,13 @@ class Models_KG(KGAPIView):
             #     q = q.filter(code_format__in = code_format)
             # if len(app_id) > 0 :
             #     q = q.filter(app__in = app_id)
+            if len(collab_filter) > 0: {
+                filter_query["value"].append({
+                    "path": "nsg:collabID",
+                    "op": "in",
+                    "value": collab_filter
+                })
+            }
             if len(organization_filter) > 0 :
                 filter_query["value"].append({
                     "path": "nsg:organization / schema:name",
