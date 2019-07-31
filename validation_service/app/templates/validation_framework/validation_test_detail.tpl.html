@@ -725,7 +725,7 @@
                                         <tbody>
                                             <tr ng-repeat="(key,result) in test_code.results">
 
-                                                <td class="tr-clickable VF-table-result-td-margin-right" ng-mousedown="Context.goToResultDetailView($event, result)">
+                                                <td class="tr-clickable VF-table-result-td-margin-right" ng-mousedown="Context.goToResultDetailView($event, result.id)">
                                                     <div ng-if="key == 0">
                                                         <b precision=result.score>  </b>
 

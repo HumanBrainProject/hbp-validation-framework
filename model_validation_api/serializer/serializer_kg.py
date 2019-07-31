@@ -4,7 +4,7 @@ import logging
 from datetime import datetime
 from itertools import chain
 
-from fairgraph.base import as_list, KGProxy, Distribution
+from fairgraph.base import as_list, KGProxy, KGQuery, Distribution
 from fairgraph.core import Person, Organization, Collection
 from fairgraph.commons import CellType, BrainRegion, AbstractionLevel, Species, ModelScope
 from fairgraph.brainsimulation import (ModelProject, ValidationTestDefinition, ValidationScript,
@@ -19,6 +19,8 @@ class BaseKGSerializer(object):
 
     def __init__(self, objects, client, data=None, many=False, context=None):
         self.client = client
+        if isinstance(objects, (KGProxy, KGQuery)):
+            objects = objects.resolve(self.client)
         if many:
             self.objects = objects
             if data:
@@ -224,7 +226,8 @@ class ScientificModelInstanceKGSerializer(BaseKGSerializer):
                     "source": script.code_location,
                     "license": script.license,
                     "hash": '',
-                    "timestamp": instance.timestamp.isoformat()
+                    "timestamp": instance.timestamp.isoformat(),
+                    "model": ScientificModelKGSerializer(proj, self.client).data
                 }
         if hasattr(instance, "morphology"):
             morph = instance.morphology.resolve(self.client)
@@ -508,7 +511,7 @@ class ValidationTestCodeKGSerializer(BaseKGSerializer):
 
     def serialize(self, obj):
         # todo: rewrite all this using KG Query API, to avoid doing all the individual resolves.
-
+        test_definition = obj.test_definition.resolve(self.client)
         data = {
             "uri": obj.id,
             "id": obj.uuid,
@@ -519,7 +522,8 @@ class ValidationTestCodeKGSerializer(BaseKGSerializer):
             "parameters":  obj.parameters,
             "path": obj.test_class,
             "timestamp": obj.date_created,
-            'test_definition_id': obj.test_definition.resolve(self.client).uuid
+            'test_definition_id': test_definition.uuid,
+            "test_definition": ValidationTestDefinitionKGSerializer(test_definition, self.client).data
         }
         return data
 
@@ -574,7 +578,10 @@ class ValidationTestResultKGSerializer(BaseKGSerializer):
             "passed": obj.passed,
             "timestamp": obj.timestamp,
             "project": obj.collab_id,
-            "normalized_score": obj.normalized_score
+            "normalized_score": obj.normalized_score,
+            # the following are temporary. Ideally the client should do a lookup using the IDs above
+            "model_version": ScientificModelInstanceKGSerializer(validation_activity.model_instance, self.client).data,
+            "test_code": ValidationTestCodeKGSerializer(validation_activity.test_script, self.client).data
         }
         return data
 

@@ -148,7 +148,7 @@
 
                                             <tbody>
                                                 <tr ng-repeat="(key, result) in model_instance.results">
-                                                    <td class="th-td-limited-size tr-clickable VF-table-result-td-margin-right" ng-click=Context.goToResultDetailView($event,result)>
+                                                    <td class="th-td-limited-size tr-clickable VF-table-result-td-margin-right" ng-click=Context.goToResultDetailView($event,result.id)>
                                                         <div ng-if="key == 0">
                                                             <b precision=result.score> </b>
 
