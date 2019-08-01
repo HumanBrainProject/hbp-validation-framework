@@ -58,31 +58,19 @@ from django.utils.functional import SimpleLazyObject
 
 MIDDLEWARE_CLASSES = (
     # 'app.middleware.personal_middleware.UserData',
-
     'app.middleware.personal_middleware.DisableCsrfCheck',
-
-    
     # 'django.middleware.common.CommonMiddleware',
-
     'django.middleware.csrf.CsrfViewMiddleware',
-
-    
-
     'django.contrib.sessions.middleware.SessionMiddleware',
-
     'corsheaders.middleware.CorsMiddleware',
-    
     'django.middleware.common.CommonMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
+    'app.middleware.profile_middleware.CProfileMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.security.SecurityMiddleware',
-    
     'social.apps.django_app.middleware.SocialAuthExceptionMiddleware',
     # 'social_django.middleware.SocialAuthExceptionMiddleware', ####
-
- 
-  
 )
 
 AUTHENTICATION_BACKENDS = (
