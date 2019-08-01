@@ -3,6 +3,11 @@
 import logging
 from datetime import datetime
 from itertools import chain
+try:
+    from urllib.parse import urlparse
+except ImportError:
+    from urlparse import urlparse
+import requests
 
 from fairgraph.base import as_list, KGProxy, KGQuery, Distribution
 from fairgraph.core import Person, Organization, Collection
@@ -556,6 +561,47 @@ class ValidationTestCodeKGSerializer(BaseKGSerializer):
         return self.obj
 
 
+def serialize_additional_data(input_url, kg_client):
+    """If input_url is a 'special' URL, e.g. points to the Collaboratory storage,"""
+
+    # Obtained from GET https://services.humanbrainproject.eu/collab/v0/collab/5165/nav/root/
+    # -> check Storage app_id (name of app can be changed, but app_id will remain same across all Collabs)
+    STORAGE_APP_ID = "31"
+
+    url_parts = urlparse(input_url)
+    if url_parts.netloc != "collab-storage-redirect.brainsimulation.eu":
+        return {"download_url": input_url}
+
+    collab_id = url_parts.path.split("/")[1]
+    request_url = "https://services.humanbrainproject.eu/collab/v0/collab/{}/nav/root/".format(collab_id)
+    headers = kg_client._nexus_client._http_client.auth_client.get_headers()
+
+    data = requests.get(request_url, headers=headers)
+
+    storage_nav_id = None
+    if data.status_code == 200:
+        for item in data.json()["children"]:
+            if item["app_id"] == STORAGE_APP_ID:
+                storage_nav_id = item["id"]
+                break
+
+        entity_path = input_url.split("collab-storage-redirect.brainsimulation.eu")[1]
+        request_url = "https://services.humanbrainproject.eu/storage/v1/api/entity/?path={}".format(entity_path)
+        data = requests.get(request_url, headers=headers)
+        if data.status_code == 200:
+            entity_uuid = data.json()["uuid"]
+            output_url = "https://collab.humanbrainproject.eu/#/collab/{}/nav/{}?state=uuid%3D{}".format(collab_id, storage_nav_id, entity_uuid)
+            return {
+                "download_url": output_url,
+                "collab_storage": {
+                    "uuid": entity_uuid,
+                    "path": entity_path
+                }
+            }
+    # in case of errors, return the original url
+    return {"original_url": input_url}
+
+
 class ValidationTestResultKGSerializer(BaseKGSerializer):
 
     def is_valid(self):
@@ -572,8 +618,11 @@ class ValidationTestResultKGSerializer(BaseKGSerializer):
             "old_uuid": obj.old_uuid,
             "model_version_id": model_version_id,
             "test_code_id": test_code_id,
-            "results_storage": [item.resolve(self.client).result_file.location
-                                for item in as_list(obj.additional_data)],
+            "results_storage": [
+                serialize_additional_data(item.resolve(self.client).result_file.location,
+                                          self.client)
+                for item in as_list(obj.additional_data)
+            ],
             "score": obj.score,
             "passed": obj.passed,
             "timestamp": obj.timestamp,

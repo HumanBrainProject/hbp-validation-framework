@@ -217,9 +217,10 @@
 
 
 
-        <h2 align=center>Storage</h2>
+        <h2 ng-if="storage_files" align=center>Additional files</h2>
         <br>
         <br>
+        <!-- temporarily disabling the fancy formatting of the list
 
         <script type="text/ng-template" id="nodes_renderer.html">
             <div ng-if="node.nodes" ui-tree-handle data-nodrag class="tree-node tree-node-content">
@@ -244,8 +245,6 @@
             </ol>
         </script>
 
-
-        <!--main -->
         <div class="row">
             <div class="col-sm-12">
                 <button class="button-MC" ng-click="expandAll()">Expand all</button>
@@ -253,13 +252,24 @@
             </div>
         </div>
         <br>
+        -->
         <div class="row">
             <div class="col-sm-6">
+                <!--
                 <div ui-tree id="tree-root">
                     <ol ui-tree-nodes ng-model="storage_files">
                         <li ng-repeat="node in storage_files" data-nodrag ui-tree-node ng-include="'nodes_renderer.html'" data-collapsed="true"></li>
                     </ol>
                 </div>
+                -->
+                <ul>
+                    <li ng-repeat="node in storage_files">
+                        <a href="{{ node.download_url }}">
+                            <span ng-if="node.collab_storage">{{node.collab_storage.path}}</span>
+                            <span ng-if="!node.collab_storage">{{node.download_url}}</span>
+                        </a>
+                    </li>
+                </ul>
             </div>
             <br>
             <br>

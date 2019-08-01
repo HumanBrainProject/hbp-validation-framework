@@ -9,7 +9,7 @@
             <button class="button-MC" ng-click="Context.validation_goToHomeView();">Home</button>&ensp;
 
             <h1 align=center>{{ model.models[0].name}}</h1>
-            <h3 align=center> Author(s): {{ model.models[0].author }}</h3>
+            <h3 align=center> Author(s): {{ formatAuthors(model.models[0].author) }}</h3>
         </nav>
     </header>
 

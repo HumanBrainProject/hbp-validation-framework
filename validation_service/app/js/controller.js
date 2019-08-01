@@ -168,6 +168,14 @@ testApp.controller('ValModelDetailCtrl', ['$scope', '$rootScope', '$http', '$loc
             return true;
         }
 
+        $scope.formatAuthors = function(authors) {
+            var full_names = [];
+            authors.forEach(function(auth) {
+                full_names.push(auth.given_name + " " + auth.family_name)
+            });
+            return full_names.join(", ")
+        }
+
         $scope.init_checkbox_latest_versions = function() {
             var list_ids = [];
             for (var i = 0; i < $scope.init_graph_all.length; i++) {
