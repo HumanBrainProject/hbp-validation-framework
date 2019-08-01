@@ -1434,9 +1434,9 @@ class Results_KG(KGAPIView):
             for uuid in param_model_version_id:
                 model_instances += get_full_uri((ModelInstance, MEModel), uuid, self.client)
             for uuid in param_model_id:
-                model_instances += [inst.id for inst in ModelProject.from_uuid(uuid, self.client).instances]
+                model_instances += [inst.id for inst in as_list(ModelProject.from_uuid(uuid, self.client).instances)]
             for alias in param_model_alias:
-                model_instances += [inst.id for inst in ModelProject.from_alias(alias, self.client).instances]
+                model_instances += [inst.id for inst in as_list(ModelProject.from_alias(alias, self.client).instances)]
 
             filter_query = {
                 "op": "and",
