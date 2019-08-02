@@ -518,6 +518,10 @@ def get_result_information_kg(result, client):
     model_instance = validation_activity.model_instance.resolve(client)
     model = model_instance.project.resolve(client)
 
+    if isinstance(model, list):
+        logger.error("Model instance {} belongs to more than one model project".format(model_instance.id))
+        model = model[0]
+
     result_info['model_id'] = str(model.uuid)
     result_info['model_name'] = str(model.name)
     result_info['model_alias'] = str(model.alias)
