@@ -218,6 +218,9 @@ class ScientificModelInstanceKGSerializer(BaseKGSerializer):
         # todo: rewrite all this using KG Query API, to avoid doing all the individual resolves.
         script = instance.main_script.resolve(self.client)
         proj = instance.project.resolve(self.client)
+        if isinstance(proj, list):
+            logger.error("Model instance {} belongs to more than one model project".format(instance.id))
+            proj = proj[0]
         data = {
                     "id": instance.uuid,
                     "uri": instance.id,

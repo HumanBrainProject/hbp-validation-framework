@@ -718,6 +718,10 @@ class ModelInstances_KG(KGAPIView):
                     return Response("The given id "+instance['id']+" does not exist. Please give a new id, or a model_id with a version_name, or a model_alias with a version_name. ",
                                     status=status.HTTP_400_BAD_REQUEST)
                 model_project = original_instance.project.resolve(self.client)
+                if isinstance(model_project, list):
+                    logger.error("Model instance {} belongs to more than one model project".format(original_instance.id))
+                    model_project = model_project[0]
+
                 instance['model_id'] = model_project.uuid
                 serializer = ScientificModelInstanceKGSerializer(original_instance, self.client, data=instance)
                 if not serializer.is_valid():
@@ -797,10 +801,12 @@ class ModelInstances_KG(KGAPIView):
             if elem:
                 project = elem.project.resolve(self.client)
                 if project:
-                    logger.debug("???instances = {}".format(project.instances))
-                    # delete instance from project.instances
-                    project.instances = [inst for inst in project.instances if inst.id != elem.id]
-                    project.save(self.client)
+                    for proj in as_list(project):
+                        # it shouldn't happen, but sometimes an instance belongs to multiple projects
+                        logger.debug("???instances = {}".format(proj.instances))
+                        # delete instance from project.instances
+                        proj.instances = [inst for inst in proj.instances if inst.id != elem.id]
+                        proj.save(self.client)
                 # delete any associated script and emodel
                 if elem.main_script:
                     elem.main_script.delete(self.client)
