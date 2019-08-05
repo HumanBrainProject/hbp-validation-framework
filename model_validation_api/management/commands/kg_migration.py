@@ -49,8 +49,6 @@ nexus_token = os.environ['HBP_token']
 nexus_endpoint = "https://nexus-int.humanbrainproject.org/v0"
 #nexus_endpoint = "https://nexus.humanbrainproject.org/v0"
 NAR_client = KGClient(nexus_token, nexus_endpoint)
-storage_token = os.environ["HBP_STORAGE_TOKEN"]
-storage_client = StorageClient.new(storage_token)
 
 
 cell_type_map = {
@@ -114,12 +112,22 @@ def resolve_name(full_name):
     return first_name, last_name
 
 
-def lookup_model_project(model_name, client):
+def lookup_model_project(model_name, date_created, client):
     context = {"schema": "http://schema.org/"}
     query_filter = {
-        "path": "schema:name",
-        "op": "eq",
-        "value": model_name
+        "op": "and",
+        "value": [
+            {
+                "path": "schema:name",
+                "op": "eq",
+                "value": model_name
+            },
+            {
+                "path": "schema:dateCreated",
+                "op": "eq",
+                "value": date_created.isoformat()
+            }
+        ]
     }
     query = KGQuery(ModelProject, query_filter, context)
     #try:
@@ -439,7 +447,7 @@ class Command(BaseCommand):
             species = self.get_parameters("species", model.species)
             cell_type = self.get_parameters("cell_type", model.cell_type)
             try:
-                model_project = lookup_model_project(model.name, NAR_client)
+                model_project = lookup_model_project(model.name, model.creation_date, NAR_client)
             except Exception as err:
                 if "internal server error" in err.response.text or "unexpected http response" in err.response.text:
                     logger.error("Lookup failed for model {}".format(model.name))
@@ -617,6 +625,8 @@ class Command(BaseCommand):
 
     def migrate_validation_results(self):
         result_objects = ValidationTestResult.objects.all()
+        storage_token = os.environ["HBP_STORAGE_TOKEN"]
+        storage_client = StorageClient.new(storage_token)
 
         for ro in result_objects[800:]:
             model_instance = lookup_model_instance(str(ro.model_version.id), NAR_client)  # use oldUUID (stored in nsg:providerId)

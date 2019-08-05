@@ -109,7 +109,7 @@ def get_uniminds_person_list(neuroshapes_person_list, client):
     return people
 
 
-def create_or_update_model_release(model_project, model_instance, contributors, custodians, script):
+def create_or_update_model_release(model_project, model_instance, contributors, custodians, script, client):
     """
     """
 
@@ -135,7 +135,7 @@ def create_or_update_model_release(model_project, model_instance, contributors, 
     return release
 
 
-def create_or_update_file_bundle(model_project, model_instance, script, model_release):
+def create_or_update_file_bundle(model_project, model_instance, script, model_release, client):
     """
     """
 
@@ -158,7 +158,7 @@ def create_or_update_file_bundle(model_project, model_instance, script, model_re
                             description=model_instance.description,
                             url=script.code_location,
                             #usageNotes,
-                            modelInstance=release)  # check this is showing in KG editor
+                            modelInstance=model_release)  # check this is showing in KG editor
         print(bundle)
         bundle.save(client)
 
@@ -181,5 +181,5 @@ if __name__ == "__main__":
             for model_instance in as_list(model_project.instances):
                 model_instance = model_instance.resolve(client)
                 script = model_instance.main_script.resolve(client)
-                release = create_or_update_model_release(model_project, model_instance, contributors, custodians, script)
-                create_or_update_file_bundle(model_project, model_instance, script, release)
+                release = create_or_update_model_release(model_project, model_instance, contributors, custodians, script, client)
+                create_or_update_file_bundle(model_project, model_instance, script, release, client)
