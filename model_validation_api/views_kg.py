@@ -34,7 +34,8 @@ from .validation_framework_toolbox.user_auth_functions import (
     is_authorised_or_admin,
     is_hbp_member,
     get_storage_file_by_id,
-    get_authorization_header
+    get_authorization_header,
+    get_user_from_token
 )
 
 from .validation_framework_toolbox.validation_framework_functions import (
@@ -79,7 +80,7 @@ class KGAPIView(APIView):
 
         assert method == "Bearer"
         self.client = KGClient(token,
-                                nexus_endpoint=settings.NEXUS_ENDPOINT)
+                               nexus_endpoint=settings.NEXUS_ENDPOINT)
 
 
 class Models_KG(KGAPIView):
@@ -280,9 +281,9 @@ class Models_KG(KGAPIView):
             #     q = q.filter(project__in = project)
             # if len(license_param) > 0 :
             #     q = q.filter(license__in = license_param)
-            logger.info("Searching for ModelProject with the following query: {}".format(filter_query))
 
             if len(filter_query["value"]) > 0:
+                logger.info("Searching for ModelProject with the following query: {}".format(filter_query))
                 models = KGQuery(ModelProject, filter_query, context).resolve(self.client)
             else:
                 models = ModelProject.list(self.client)
@@ -293,7 +294,8 @@ class Models_KG(KGAPIView):
                 if is_authorised_or_admin(request, collab_id):
                     authorized_collabs.append(collab_id)
 
-            logger.debug("Authorized collabs: {}".format(authorized_collabs))
+            user = get_user_from_token(request)
+            logger.debug("Authorized collabs for user '{}': {}".format(user, authorized_collabs))
             authorized_models = [model for model in as_list(models)
                                     if (not model.private) or (model.collab_id in authorized_collabs)]
             logger.debug("{} authorized models".format(len(authorized_models)))

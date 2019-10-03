@@ -12,7 +12,7 @@ token = os.environ["HBP_token"]
 #int_client = KGClient(token, nexus_endpoint="https://nexus-int.humanbrainproject.org/v0")
 prod_client = KGClient(token, nexus_endpoint="https://nexus.humanbrainproject.org/v0")
 
-
+CorePerson.namespace = "modelvalidation"
 people = CorePerson.list(prod_client, size=10000)
 
 
@@ -33,5 +33,5 @@ for person in people:
     else:
         response = input("Add {} to production KG? ".format(uperson))
         if response in ('y', 'Y', 'yes'):
-            #uperson.save(prod_client)
-            print("dryrun - would be Added")
+            uperson.save(prod_client)
+            #print("dryrun - would be Added")

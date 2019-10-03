@@ -46,9 +46,10 @@ except NameError:
 logger = logging.getLogger("kg_migration")
 
 nexus_token = os.environ['HBP_token']
-nexus_endpoint = "https://nexus-int.humanbrainproject.org/v0"
-#nexus_endpoint = "https://nexus.humanbrainproject.org/v0"
+#nexus_endpoint = "https://nexus-int.humanbrainproject.org/v0"
+nexus_endpoint = "https://nexus.humanbrainproject.org/v0"
 NAR_client = KGClient(nexus_token, nexus_endpoint)
+
 
 
 cell_type_map = {
@@ -167,6 +168,7 @@ def get_file_list(folder_uri, storage_client):
             logger.error("Not found in Collab storage for '{}', returning empty list".format(path))
             filenames = []
         # todo: check if contents are files or folders
+        logger.info("Found {} files in Collab storage '{}'".format(len(filenames), path))
         return ["https://collab-storage-redirect.brainsimulation.eu{}/{}".format(path, filename).replace(" ", "+")
                 for filename in filenames]
     elif folder_uri.startswith("http:"):
@@ -180,6 +182,7 @@ class Command(BaseCommand):
     def migrate_models(self):
 
         models = ScientificModel.objects.all()
+        #models = ScientificModel.objects.filter(id="121e8d61-d20b-43c9-b339-bea8fd6975db")
 
         for model in models:
             authors = self._get_people_from_Persons_table(model.author)
@@ -442,7 +445,9 @@ class Command(BaseCommand):
     def migrate_model_instances(self):
         """ """
         # mapping is based on abstraction_level and on model_scope
-        for model in ScientificModel.objects.exclude(name__contains="emodel"):
+        models = ScientificModel.objects.exclude(name__contains="emodel")
+        #models = ScientificModel.objects.filter(id="121e8d61-d20b-43c9-b339-bea8fd6975db")
+        for model in models:
             brain_region = self.get_parameters("brain_region", model.brain_region)
             species = self.get_parameters("species", model.species)
             cell_type = self.get_parameters("cell_type", model.cell_type)
@@ -678,15 +683,14 @@ class Command(BaseCommand):
             result_kg.generated_by = validation_activity
             result_kg.save(NAR_client)
 
-
     def handle(self, *args, **options):
         self._getPersons_and_migrate()
         self.add_organizations_in_KG_database()
         self.migrate_models()
-        # sleep(10)  # allow some time for indexing
-        # self.migrate_model_instances()
+        sleep(30)  # allow some time for indexing
+        self.migrate_model_instances()
         #self.migrate_validation_definitions()
-        #sleep(10)
+        #sleep(30)
         #self.migrate_validation_code()
-        #sleep(10)
+        #sleep(30)
         #self.migrate_validation_results()

@@ -42,6 +42,7 @@ django-jsonify==0.3.0
 django-markdown-deux==1.0.5
 djangorestframework==3.6.3
 
+jsonify
 
 
 

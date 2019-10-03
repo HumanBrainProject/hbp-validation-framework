@@ -118,6 +118,7 @@ testApp.controller('ValTestCtrl', ['$scope', '$rootScope', '$http', '$location',
 
             var ctx = Context.getCtx();
             var app_id = Context.getAppID();
+            console.log("app_id = " + app_id);
 
             DataHandler.loadModels({ app_id: app_id }).then(function(data) {
                 $scope.models = data;
@@ -267,6 +268,8 @@ testApp.controller('ValModelDetailCtrl', ['$scope', '$rootScope', '$http', '$loc
                                 var raw_results_data = init_graph.results_data
 
                                 $scope.data_for_table = Graphics.ModelGraphs_reorganizeRawDataForResultTable($scope.raw_data, $scope.model_instances.instances);
+                                console.log("data_for_table: ");
+                                console.log($scope.data_for_table);
                                 $scope.init_checkbox_latest_versions();
                                 $scope.$on('data_focussed:updated', function(event, data, key) {
                                     $scope.line_result_focussed[key] = data;
@@ -489,6 +492,8 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
                         cleanAuthors($scope.detail_test.tests[0]);
                         var parameters = JSON.stringify($scope.detail_test.tests[0]);
 
+                        console.log("UPDATING TEST 1");
+                        console.log(parameters);
                         ValidationTestDefinitionRest.put({ app_id: $scope.app_id, id: $scope.detail_test.tests[0].id }, parameters).$promise.then(function() {
                             document.getElementById("tab_description").style.display = "none";
                             document.getElementById("tab_version").style.display = "block";
@@ -506,6 +511,8 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
                 $scope.detail_test.tests[0].alias = null;
                 cleanAuthors($scope.detail_test.tests[0]);
                 var parameters = JSON.stringify($scope.detail_test.tests[0]);
+                console.log("UPDATING TEST 2");
+                console.log(parameters);
                 ValidationTestDefinitionRest.put({ app_id: $scope.app_id, id: $scope.detail_test.tests[0].id }, parameters).$promise.then(function() {
                     document.getElementById("tab_description").style.display = "none";
                     document.getElementById("tab_version").style.display = "block";
@@ -820,6 +827,8 @@ testApp.controller('ValTestDetailCtrl', ['$scope', '$rootScope', '$http', '$loca
                             var init_graph = Graphics.TestGraph_initTestGraph($scope.detail_version_test, $scope.raw_data);
 
                             $scope.data_for_table = Graphics.TestGraph_reorganizeRawDataForResultTable($scope.raw_data.model_instances, $scope.detail_version_test.test_codes);
+                            console.log("data_for_table: ");
+                            console.log($scope.data_for_table);
 
                             init_graph.then(function(data_init_graph) {
 
@@ -922,10 +931,11 @@ testApp.controller('ValTestResultDetailCtrl', ['$window', '$scope', '$rootScope'
             ////ui tree
 
         $scope.split_result_storage_string = function(storage_string) {
+            console.log("storage string 1", storage_string)
             storage_string = storage_string.slice(9, storage_string.length)
-            console.log("storage string", storage_string)
+            console.log("storage string 2", storage_string)
             storage_string = storage_string.split(/\/(.+)/)
-            console.log("storage string", storage_string)
+            console.log("storage string 3", storage_string)
             var dict_to_return = { collab: storage_string[0], folder_path: storage_string[1] }
 
             return (dict_to_return);

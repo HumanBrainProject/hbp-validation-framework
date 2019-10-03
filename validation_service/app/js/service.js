@@ -171,6 +171,8 @@ ContextServices.service('Context', ['$rootScope', '$location', 'AppIDRest', 'Col
             $location.path('/home/validation_test/' + test_id);
         };
         var validation_goToResultDetailView = function(result_id) {
+            console.log("result_id = ");
+            console.log(result_id);
             sendState("result", result_id);
             setState(result_id);
             $location.path('/home/validation_test_result/' + result_id);
@@ -468,6 +470,7 @@ DataHandlerServices.service('DataHandler', ['$rootScope', 'ScientificModelRest',
                     reject("this function does not support id of models yet")
                         // throw "this function does not support id of models yet"
                 }
+                console.log(dict_params);
                 if (models.status == undefined) {
                     var temp_models = ScientificModelRest.get(dict_params);
                     temp_models.$promise.then(function() {

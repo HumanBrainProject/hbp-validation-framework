@@ -1264,7 +1264,10 @@ class Models(APIView):
 
         ## save only modifications on model. if you want to modify images or instances, do separate put.
         ##get objects
-        value = request.data['models'][0]
+        if "models" in request.data:
+            value = request.data['models'][0]
+        else:
+            return HttpResponseBadRequest("'models' key not provided")
 
         app_id = request.GET.getlist('app_id')
 
