@@ -295,7 +295,7 @@ class Models_KG(KGAPIView):
                     authorized_collabs.append(collab_id)
 
             user = get_user_from_token(request)
-            logger.debug("Authorized collabs for user '{}': {}".format(user, authorized_collabs))
+            logger.debug("Authorized collabs for user '{}': {}".format(user["username"], authorized_collabs))
             authorized_models = [model for model in as_list(models)
                                     if (not model.private) or (model.collab_id in authorized_collabs)]
             logger.debug("{} authorized models".format(len(authorized_models)))
@@ -321,25 +321,36 @@ class Models_KG(KGAPIView):
                 web_app = request.GET.getlist('web_app')
             except:
                 web_app = False
-            id = id[0]
+            response = {
+                "models": [],
+                "errors": {
+                    "unauthorized": [],
+                    "not found": []
+                }
+            }
 
-            model = ModelProject.from_uuid(id, self.client)
-            if model is not None:
-                #check if private
-                if model.private:
-                    #if private check if collab member
-                    if not is_authorised_or_admin(request, model.collab_id) :
-                        return HttpResponse('Unauthorized', status=401)
+            for model_id in id:
+                model = ModelProject.from_uuid(model_id, self.client)
+                if model:
+                    #check if private
+                    if model.private:
+                        #if private check if collab member
+                        if not is_authorised_or_admin(request, model.collab_id):
+                            response["errors"]["unauthorized"].append(model_id)
+                            continue
+                    model_serializer = ScientificModelKGSerializer(model, self.client)
+                    response["models"].append(model_serializer.data)
+                else:
+                    response["errors"]["not found"].append(model_id)
 
-                model_serializer = ScientificModelKGSerializer(model, self.client)
-
-                return Response({
-                    'models': [model_serializer.data],
-                })
-            else :
-                return HttpResponse('Not found', status=404)
-
-
+            if response["models"]:
+                return Response(response)
+            elif response["unauthorized"]:
+                return Response(response,status=status.HTTP_401_UNAUTHORIZED)
+            elif response["not found"]:
+                return Response(response, status=status.HTTP_404_NOT_FOUND)
+            else:
+                raise Exception("This should never happen")
 
     def post(self, request, format=None):
         """
