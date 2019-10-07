@@ -10,7 +10,7 @@ except ImportError:
 import requests
 
 from fairgraph.base import as_list, KGProxy, KGQuery, Distribution
-from fairgraph.core import Person, Organization, Collection
+from fairgraph.core import Person, Organization, Collection, use_namespace as use_core_namespace
 from fairgraph.commons import CellType, BrainRegion, AbstractionLevel, Species, ModelScope
 from fairgraph.brainsimulation import (ModelProject, ValidationTestDefinition, ValidationScript,
                                  ValidationActivity, ValidationResult, AnalysisResult,
@@ -18,6 +18,7 @@ from fairgraph.brainsimulation import (ModelProject, ValidationTestDefinition, V
 
 
 logger = logging.getLogger("model_validation_api")
+use_core_namespace("modelvalidation")
 
 
 class BaseKGSerializer(object):
