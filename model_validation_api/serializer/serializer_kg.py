@@ -279,7 +279,6 @@ class ScientificModelInstanceKGSerializer(BaseKGSerializer):
                                 version=self.data["version"],
                                 parameters=self.data.get("parameters"),
                                 timestamp=datetime.now(),
-                                project=None,
                                 release=None)
             else:
                 minst = ModelInstance(name="ModelInstance for {} @ {}".format(model_project.name, self.data["version"]),
