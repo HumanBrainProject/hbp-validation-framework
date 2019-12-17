@@ -9,8 +9,8 @@ import json
 import hbp_app_python_auth.settings as auth_settings
 
 
-#ENV = os.environ.get('VALIDATION_SERVICE_ENV', 'production')
-ENV = 'dev'
+ENV = os.environ.get('VALIDATION_SERVICE_ENV', 'production')
+#ENV = 'dev'
 
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
