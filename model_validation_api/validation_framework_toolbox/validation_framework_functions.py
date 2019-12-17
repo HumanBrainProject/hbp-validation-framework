@@ -141,9 +141,9 @@ def _are_model_instance_version_unique_kg(instance_json, kg_client):
     :rtype: boolean
     """
     new_version_name = instance_json['version']
-    model_project = ModelProject.from_uuid(instance_json['model_id'], kg_client)
+    model_project = ModelProject.from_uuid(instance_json['model_id'], kg_client, api="nexus")
     if model_project.instances:
-        all_instances_versions_name = [inst.resolve(kg_client).version for inst in as_list(model_project.instances)]
+        all_instances_versions_name = [inst.resolve(kg_client, api="nexus").version for inst in as_list(model_project.instances)]
         if new_version_name in all_instances_versions_name:
             return False
     return True
@@ -177,7 +177,7 @@ def _are_test_code_version_unique_kg(testcode_json, kg_client):
     """
     new_version_name = testcode_json['version']
     test_definition = testcode_json['test_definition']
-    all_instances_versions_name = [script.version for script in as_list(test_definition.scripts.resolve(kg_client))]
+    all_instances_versions_name = [script.version for script in as_list(test_definition.scripts.resolve(kg_client, api="nexus"))]
     logger.debug("all versions: {} new version: {}".format(all_instances_versions_name, new_version_name))
     if new_version_name in all_instances_versions_name:
         return False

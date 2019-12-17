@@ -26,7 +26,7 @@ class BaseKGSerializer(object):
     def __init__(self, objects, client, data=None, many=False, context=None):
         self.client = client
         if isinstance(objects, (KGProxy, KGQuery)):
-            objects = objects.resolve(self.client)
+            objects = objects.resolve(self.client, api="nexus")
         if many:
             self.objects = objects
             if data:
@@ -64,7 +64,7 @@ class ScientificModelKGSerializer(BaseKGSerializer):
             if self.obj and self.obj.alias == self.data["alias"]:
                 return True
             logger.debug("Checking for model with same alias")
-            model_with_same_alias = ModelProject.from_alias(self.data["alias"], self.client)
+            model_with_same_alias = ModelProject.from_alias(self.data["alias"], self.client, api="nexus")
             if bool(model_with_same_alias):
                 self.errors.append("Another model with this alias already exists.")
                 return False
@@ -152,7 +152,7 @@ class ScientificModelKGSerializer(BaseKGSerializer):
         # todo: rewrite all this using KG Query API, to avoid doing all the individual resolves.
         def serialize_person(p):
             if isinstance(p, KGProxy):
-                pr = p.resolve(self.client)
+                pr = p.resolve(self.client, api="nexus")
             else:
                 pr = p
             return {"given_name": pr.given_name, "family_name": pr.family_name}
@@ -166,7 +166,7 @@ class ScientificModelKGSerializer(BaseKGSerializer):
             'app': {
                 'collab_id': model.collab_id
             },
-            'organization': model.organization.resolve(self.client).name if model.organization else None,
+            'organization': model.organization.resolve(self.client, api="nexus").name if model.organization else None,
             'private': model.private,
             'cell_type': model.celltype.label if model.celltype else 'Not applicable',
             'model_scope': model.model_of.label if model.model_of else "other",  # to fix
@@ -180,10 +180,10 @@ class ScientificModelKGSerializer(BaseKGSerializer):
             "raw_data": model.instance.data
         }
         for instance in as_list(model.instances):
-            instance = instance.resolve(self.client)
+            instance = instance.resolve(self.client, api="nexus")
             if not instance:  # if we have a stale reference to a deprecated instance
                 continue
-            main_script = instance.main_script.resolve(self.client)
+            main_script = instance.main_script.resolve(self.client, api="nexus")
             instance_data = {
                 "id": instance.uuid,
                 "uri": instance.id,
@@ -204,7 +204,7 @@ class ScientificModelKGSerializer(BaseKGSerializer):
                     "license": main_script.license or '',
                 })
             if hasattr(instance, "morphology"):
-                morph = instance.morphology.resolve(self.client)
+                morph = instance.morphology.resolve(self.client, api="nexus")
                 instance_data["morphology"] = morph.morphology_file
             data['instances'].append(instance_data)
         return data
@@ -217,8 +217,8 @@ class ScientificModelInstanceKGSerializer(BaseKGSerializer):
 
     def serialize(self, instance):
         # todo: rewrite all this using KG Query API, to avoid doing all the individual resolves.
-        script = instance.main_script.resolve(self.client)
-        proj = instance.project.resolve(self.client)
+        script = instance.main_script.resolve(self.client, api="nexus")
+        proj = instance.project.resolve(self.client, api="nexus")
         if isinstance(proj, list):
             logger.error("Model instance {} belongs to more than one model project".format(instance.id))
             proj = proj[0]
@@ -239,7 +239,7 @@ class ScientificModelInstanceKGSerializer(BaseKGSerializer):
                     "model": ScientificModelKGSerializer(proj, self.client).data
                 }
         if hasattr(instance, "morphology"):
-            morph = instance.morphology.resolve(self.client)
+            morph = instance.morphology.resolve(self.client, api="nexus")
             data["morphology"] = morph.morphology_file
         return data
 
@@ -247,7 +247,7 @@ class ScientificModelInstanceKGSerializer(BaseKGSerializer):
         # todo: Create/update EModel, MEModel and Morphology where model_scope is "single cell"
         if self.obj is None:  # create
             logger.info("Saving ModelInstance")
-            model_project = ModelProject.from_uuid(self.data["model_id"], self.client)
+            model_project = ModelProject.from_uuid(self.data["model_id"], self.client, api="nexus")
             logger.debug("ModelProject to which the instance belongs. {} Data:".format(model_project))
             logger.debug(str(model_project.instance.data))
             script = ModelScript(name="ModelScript for {} @ {}".format(model_project.name, self.data["version"]),
@@ -310,7 +310,7 @@ class ScientificModelInstanceKGSerializer(BaseKGSerializer):
 
             def resolve_obj(obj):
                 if isinstance(obj, KGProxy):
-                    return obj.resolve(self.client)
+                    return obj.resolve(self.client, api="nexus")
                 else:
                     return obj
 
@@ -361,7 +361,7 @@ class ValidationTestDefinitionKGSerializer(BaseKGSerializer):
             if self.obj and self.obj.alias == self.data["alias"]:
                 return True
             logger.debug("Checking for tests with alias '{}'".format(self.data["alias"]))
-            test_with_same_alias = ValidationTestDefinition.from_alias(self.data["alias"], self.client)
+            test_with_same_alias = ValidationTestDefinition.from_alias(self.data["alias"], self.client, api="nexus")
             logger.debug("Found {}".format(test_with_same_alias))
             if bool(test_with_same_alias):
                 self.errors.append("validation test definition with this alias already exists.")
@@ -376,7 +376,7 @@ class ValidationTestDefinitionKGSerializer(BaseKGSerializer):
         # todo: rewrite all this using KG Query API, to avoid doing all the individual resolves.
         def serialize_person(p):
             if isinstance(p, KGProxy):
-                pr = p.resolve(self.client)
+                pr = p.resolve(self.client, api="nexus")
             else:
                 pr = p
             return {"given_name": pr.given_name, "family_name": pr.family_name}
@@ -391,7 +391,7 @@ class ValidationTestDefinitionKGSerializer(BaseKGSerializer):
             'brain_region': test.brain_region.label if test.brain_region else None,
             'cell_type': test.celltype.label if test.celltype else 'Not applicable',
             #'age': # todo
-            'data_location': [item.resolve(self.client).result_file.location
+            'data_location': [item.resolve(self.client, api="nexus").result_file.location
                               for item in as_list(test.reference_data)][0],  # to fix: reference_data should never really be a list
             'data_type': test.data_type,
             'data_modality': test.recording_modality,
@@ -405,7 +405,7 @@ class ValidationTestDefinitionKGSerializer(BaseKGSerializer):
             'codes': [],   # unclear if this should be "codes" or "test_codes"
         }
         logger.debug("!!! {}".format(test.scripts))
-        for script in as_list(test.scripts.resolve(self.client)):
+        for script in as_list(test.scripts.resolve(self.client, api="nexus")):
             if isinstance(script.repository, dict):
                 repo = script.repository["@id"]
             else:
@@ -520,7 +520,7 @@ class ValidationTestCodeKGSerializer(BaseKGSerializer):
 
     def serialize(self, obj):
         # todo: rewrite all this using KG Query API, to avoid doing all the individual resolves.
-        test_definition = obj.test_definition.resolve(self.client)
+        test_definition = obj.test_definition.resolve(self.client, api="nexus")
         data = {
             "uri": obj.id,
             "id": obj.uuid,
@@ -532,13 +532,13 @@ class ValidationTestCodeKGSerializer(BaseKGSerializer):
             "path": obj.test_class,
             "timestamp": obj.date_created,
             'test_definition_id': test_definition.uuid,
-            "test_definition": ValidationTestDefinitionKGSerializer(test_definition, self.client).data
+            "test_definition": ValidationTestDefinitionKGSerializer(test_definition, self.client, api="nexus").data
         }
         return data
 
     def save(self):
         if self.obj is None:  # create
-            #test_definition = ValidationTestDefinition.from_uri(self.data["test_definition"], self.client)
+            #test_definition = ValidationTestDefinition.from_uri(self.data["test_definition"], self.client, api="nexus")
             test_definition = self.data["test_definition"]
             self.obj = ValidationScript(
                 name="Implementation of {}, version '{}'".format(test_definition.name, self.data["version"]),
@@ -613,7 +613,7 @@ class ValidationTestResultKGSerializer(BaseKGSerializer):
 
     def serialize(self, obj):
         # todo: rewrite all this using KG Query API, to avoid doing all the individual resolves.
-        validation_activity = obj.generated_by.resolve(self.client)
+        validation_activity = obj.generated_by.resolve(self.client, api="nexus")
         model_version_id = validation_activity.model_instance.uuid
         test_code_id = validation_activity.test_script.uuid
         data = {
@@ -666,9 +666,9 @@ class ValidationTestResultKGSerializer(BaseKGSerializer):
             )
             self.obj.save(self.client)
 
-            test_definition = self.data["test_script"].test_definition.resolve(self.client)
+            test_definition = self.data["test_script"].test_definition.resolve(self.client, api="nexus")
             reference_data = Collection("Reference data for {}".format(test_definition.name),
-                                        members=[item.resolve(self.client)
+                                        members=[item.resolve(self.client, api="nexus")
                                                  for item in as_list(test_definition.reference_data)])
             reference_data.save(self.client)
 

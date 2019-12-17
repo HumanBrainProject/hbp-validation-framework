@@ -284,9 +284,9 @@ class Models_KG(KGAPIView):
 
             if len(filter_query["value"]) > 0:
                 logger.info("Searching for ModelProject with the following query: {}".format(filter_query))
-                models = KGQuery(ModelProject, filter_query, context).resolve(self.client)
+                models = KGQuery(ModelProject, {"nexus": filter_query}, context).resolve(self.client, api="nexus")
             else:
-                models = ModelProject.list(self.client)
+                models = ModelProject.list(self.client, api="nexus")
 
             logger.debug("{} total models".format(len(as_list(models))))
             authorized_collabs = []
@@ -330,7 +330,7 @@ class Models_KG(KGAPIView):
             }
 
             for model_id in id:
-                model = ModelProject.from_uuid(model_id, self.client)
+                model = ModelProject.from_uuid(model_id, self.client, api="nexus")
                 if model:
                     #check if private
                     if model.private:
@@ -437,7 +437,7 @@ class Models_KG(KGAPIView):
             return HttpResponseBadRequest("'models' key not provided")
 
         if 'id' in model_data and model_data['id'] != '':
-            model = ModelProject.from_uuid(model_data['id'], self.client)
+            model = ModelProject.from_uuid(model_data['id'], self.client, api="nexus")
         else:
             if 'alias' in model_data and model_data['alias'] != '':
                 # context = {
@@ -449,8 +449,8 @@ class Models_KG(KGAPIView):
                 #     "op": "eq",
                 #     "model_data": model_data['alias']
                 # }
-                # model = KGQuery(ModelProject, query, context).resolve(self.client)
-                model = ModelProject.from_alias(model_data['alias'])
+                # model = KGQuery(ModelProject, query, context).resolve(self.client, api="nexus")
+                model = ModelProject.from_alias(model_data['alias'], self.client, api="nexus")
                 if not model:
                     return Response('There is no model corresponding to this alias. Please give a new alias or use the id of the model', status=status.HTTP_400_BAD_REQUEST )
             else:
@@ -495,7 +495,7 @@ class Models_KG(KGAPIView):
         list_ids = request.GET.getlist('id')
 
         elements_to_delete = [
-            ModelProject.from_uuid(id, self.client)
+            ModelProject.from_uuid(id, self.client, api="nexus")
             for id in list_ids
         ]
         for model in elements_to_delete:
@@ -535,7 +535,7 @@ class ModelAliases_KG(KGAPIView):
         is_valid = False
         model_id = request.GET.get('model_id')
         if model_id:
-            model = ModelProject.from_uuid(model_id, self.client)
+            model = ModelProject.from_uuid(model_id, self.client, api="nexus")
             if model:
                 is_valid = (model.alias == alias)
             else:
@@ -545,7 +545,7 @@ class ModelAliases_KG(KGAPIView):
         if not is_valid:
             filter = {"path": "nsg:alias", "op": "eq", "value": alias}
             context = {'nsg': 'https://bbp-nexus.epfl.ch/vocabs/bbp/neurosciencegraph/core/v0.1.0/'}
-            models = KGQuery(ModelProject, filter, context).resolve(self.client)
+            models = KGQuery(ModelProject, {"nexus": filter}, context).resolve(self.client, api="nexus")
             logger.debug("Checking validity of {}. models = {}".format(alias, str(models)))
             is_valid = not bool(models)
         return Response({'is_valid': is_valid})
@@ -587,9 +587,9 @@ class ModelInstances_KG(KGAPIView):
         if len(param_id) > 0:
             # Get instances by individual uuids
             for instance_id in param_id:
-                inst = ModelInstance.from_uuid(instance_id, self.client)
+                inst = ModelInstance.from_uuid(instance_id, self.client, api="nexus")
                 if inst is None:
-                    inst = MEModel.from_uuid(instance_id, self.client)
+                    inst = MEModel.from_uuid(instance_id, self.client, api="nexus")
                 if inst is not None:
                     instances.append(inst)
             # todo: add project field for linked model project
@@ -597,7 +597,7 @@ class ModelInstances_KG(KGAPIView):
             # Get instances belonging to a specific model project
             if len(param_model_id) > 0:
                 assert len(param_model_id) == 1  # todo: return error response
-                model_project = ModelProject.from_uuid(param_model_id[0], self.client)
+                model_project = ModelProject.from_uuid(param_model_id[0], self.client, api="nexus")
             elif len(param_model_alias) > 0:
                 assert len(param_model_alias) == 1  # todo: return error response
                 context = {
@@ -609,9 +609,9 @@ class ModelInstances_KG(KGAPIView):
                     "op": "in",
                     "value": param_model_alias[0]
                 }
-                model_project = KGQuery(ModelProject, filter_query, context).resolve(self.client)
+                model_project = KGQuery(ModelProject, {"nexus": filter_query}, context).resolve(self.client, api="nexus")
             if model_project:
-                instances = [inst.resolve(self.client) for inst in as_list(model_project.instances)]
+                instances = [inst.resolve(self.client, api="nexus") for inst in as_list(model_project.instances)]
                 if len(param_version) > 0:
                     instances = [inst for inst in instances if inst.version in param_version]
             else:
@@ -644,11 +644,11 @@ class ModelInstances_KG(KGAPIView):
         # check if valid + security
         for instance in DATA :
             if "model_id" in instance:
-                model_project = ModelProject.from_uuid(instance["model_id"], self.client)
+                model_project = ModelProject.from_uuid(instance["model_id"], self.client, api="nexus")
                 if model_project is None:
                     return Response("Invalid model id provided", status=status.HTTP_404_NOT_FOUND)
             elif "alias" in instance:
-                model_project = ModelProject.from_alias(instance["alias"], self.client)
+                model_project = ModelProject.from_alias(instance["alias"], self.client, api="nexus")
                 if model_project is None:
                     return Response("No such alias", status=status.HTTP_404_NOT_FOUND)
                 instance["model_id"] = model_project.uuid
@@ -702,9 +702,9 @@ class ModelInstances_KG(KGAPIView):
         for instance in DATA:
             if param_web_app:
 
-                original_instance = ModelInstance.from_uuid(instance['id'], self.client)
+                original_instance = ModelInstance.from_uuid(instance['id'], self.client, api="nexus")
                 if original_instance is None:
-                    original_instance = MEModel.from_uuid(instance['id'], self.client)
+                    original_instance = MEModel.from_uuid(instance['id'], self.client, api="nexus")
                 #check if version is editable - only if you are not super user
                 # TODO once ValidationResult migrated to KG
                 # if not is_authorised_or_admin(request, settings.ADMIN_COLLAB_ID):
@@ -724,13 +724,13 @@ class ModelInstances_KG(KGAPIView):
                     return Response(status=status.HTTP_400_BAD_REQUEST)
 
             if 'id' in instance:
-                original_instance = ModelInstance.from_uuid(instance['id'], self.client)
+                original_instance = ModelInstance.from_uuid(instance['id'], self.client, api="nexus")
                 if original_instance is None:
-                    original_instance = MEModel.from_uuid(instance['id'], self.client)
+                    original_instance = MEModel.from_uuid(instance['id'], self.client, api="nexus")
                 if original_instance is None:
                     return Response("The given id "+instance['id']+" does not exist. Please give a new id, or a model_id with a version_name, or a model_alias with a version_name. ",
                                     status=status.HTTP_400_BAD_REQUEST)
-                model_project = original_instance.project.resolve(self.client)
+                model_project = original_instance.project.resolve(self.client, api="nexus")
                 if isinstance(model_project, list):
                     logger.error("Model instance {} belongs to more than one model project".format(original_instance.id))
                     model_project = model_project[0]
@@ -742,9 +742,9 @@ class ModelInstances_KG(KGAPIView):
             else:
                 if 'version' in instance:
                     if 'model_id' in instance and len(instance['model_id']) > 0:
-                        model_project = ModelProject.from_uuid(instance['model_id'], self.client)
+                        model_project = ModelProject.from_uuid(instance['model_id'], self.client, api="nexus")
                     elif 'model_alias' in instance and len(instance['model_alias']) > 0:
-                        model_project = ModelProject.from_alias(instance['model_alias'], self.client)
+                        model_project = ModelProject.from_alias(instance['model_alias'], self.client, api="nexus")
                     else:
                         return Response("Must provide either model id or alias",
                                             status=status.HTTP_400_BAD_REQUEST)
@@ -806,13 +806,13 @@ class ModelInstances_KG(KGAPIView):
         list_ids = request.GET.getlist('id')
 
         for id in list_ids:
-            elem = ModelInstance.from_uuid(id, self.client)
+            elem = ModelInstance.from_uuid(id, self.client, api="nexus")
             if not elem:
-                elem = MEModel.from_uuid(id, self.client)
+                elem = MEModel.from_uuid(id, self.client, api="nexus")
 
 
             if elem:
-                project = elem.project.resolve(self.client)
+                project = elem.project.resolve(self.client, api="nexus")
                 if project:
                     for proj in as_list(project):
                         # it shouldn't happen, but sometimes an instance belongs to multiple projects
@@ -901,7 +901,7 @@ class Tests_KG(KGAPIView):
             # test ID(s) specified
             tests = []
             for test_id in param_id:
-                test_definition = ValidationTestDefinitionKG.from_uuid(test_id, self.client)
+                test_definition = ValidationTestDefinitionKG.from_uuid(test_id, self.client, api="nexus")
                 if test_definition is not None:
                     logger.debug("Retrieved test with id {}".format(test_id))
                     tests.append(test_definition)
@@ -977,9 +977,9 @@ class Tests_KG(KGAPIView):
             logger.info("Searching for tests with the following query: {}".format(filter_query))
 
             if len(filter_query["value"]) > 0:
-                tests = KGQuery(ValidationTestDefinitionKG, filter_query, context).resolve(self.client)
+                tests = KGQuery(ValidationTestDefinitionKG, {"nexus": filter_query}, context).resolve(self.client, api="nexus")
             else:
-                tests = ValidationTestDefinitionKG.list(self.client)
+                tests = ValidationTestDefinitionKG.list(self.client, api="nexus")
             logger.debug("Serializing the following tests: {}".format(str(tests)))
             test_serializer = ValidationTestDefinitionKGSerializer(tests, self.client, many=True)
 
@@ -1048,7 +1048,7 @@ class Tests_KG(KGAPIView):
         #     return HttpResponseForbidden()
 
         value = request.data
-        test = ValidationTestDefinitionKG.from_uuid(value['id'], self.client)
+        test = ValidationTestDefinitionKG.from_uuid(value['id'], self.client, api="nexus")
 
         # check if data is ok else return error
         test_serializer = ValidationTestDefinitionKGSerializer(test, self.client, data=value)
@@ -1102,7 +1102,7 @@ class TestAliases_KG(KGAPIView):
         is_valid = False
         test_id = request.GET.get('test_id')
         if test_id:
-            test = ValidationTestDefinitionKG.from_uuid(test_id, self.client)
+            test = ValidationTestDefinitionKG.from_uuid(test_id, self.client, api="nexus")
             if test:
                 is_valid = (test.alias == alias)
             else:
@@ -1112,7 +1112,7 @@ class TestAliases_KG(KGAPIView):
         if not is_valid:
             filter = {"path": "nsg:alias", "op": "eq", "value": alias}
             context = {'nsg': 'https://bbp-nexus.epfl.ch/vocabs/bbp/neurosciencegraph/core/v0.1.0/'}
-            tests = KGQuery(ValidationTestDefinitionKG, filter, context).resolve(self.client)
+            tests = KGQuery(ValidationTestDefinitionKG, {"nexus": filter}, context).resolve(self.client, api="nexus")
             logger.debug("Checking validity of {}. tests = {}".format(alias, str(tests)))
             is_valid = not bool(tests)
         return Response({'is_valid': is_valid})
@@ -1156,7 +1156,7 @@ class TestInstances_KG(KGAPIView):
         if len(param_id) > 0:
             test_scripts = []
             for script_id in param_id:
-                result = ValidationScript.from_uuid(script_id, self.client)
+                result = ValidationScript.from_uuid(script_id, self.client, api="nexus")
                 if result:
                     test_scripts.append(result)
         else:
@@ -1178,10 +1178,10 @@ class TestInstances_KG(KGAPIView):
                 filter_query["value"].append({
                     "path": "nsg:implements",
                     "op": "in",
-                    "value":  [ValidationTestDefinitionKG.uri_from_uuid(pid, self.client)
+                    "value":  [ValidationTestDefinitionKG.uri_from_uuid(pid, self.client, api="nexus")
                                for pid in param_test_definition_id]
                     #"op": "eq",
-                    #"value":  ValidationTestDefinitionKG.uri_from_uuid(param_test_definition_id[0], self.client)
+                    #"value":  ValidationTestDefinitionKG.uri_from_uuid(param_test_definition_id[0], self.client, api="nexus")
                 })
             if len(param_repository) > 0 :
                 filter_query["value"].append({
@@ -1210,9 +1210,9 @@ class TestInstances_KG(KGAPIView):
 
             if len(filter_query["value"]) > 0:
                 logger.debug("Searching for test scripts with query {}".format(filter_query))
-                test_scripts = KGQuery(ValidationScript, filter_query, context).resolve(self.client)
+                test_scripts = KGQuery(ValidationScript, {"nexus": filter_query}, context).resolve(self.client, api="nexus")
             else:
-                test_scripts = ValidationScript.list(self.client)
+                test_scripts = ValidationScript.list(self.client, api="nexus")
             logger.debug("Found {} scripts".format(len(as_list(test_scripts))))
 
         test_code_serializer = ValidationTestCodeKGSerializer(test_scripts, self.client, many=True)
@@ -1230,11 +1230,11 @@ class TestInstances_KG(KGAPIView):
 
         for test_code in DATA :
             if 'test_alias' in test_code:
-                test = ValidationTestDefinitionKG.from_alias(test_code["test_alias"], self.client)
+                test = ValidationTestDefinitionKG.from_alias(test_code["test_alias"], self.client, api="nexus")
                 if not test:
                     return Response("No such alias", status=status.HTTP_404_NOT_FOUND)
             elif 'test_definition_id' in test_code:
-                test = ValidationTestDefinitionKG.from_uuid(test_code["test_definition_id"], self.client)
+                test = ValidationTestDefinitionKG.from_uuid(test_code["test_definition_id"], self.client, api="nexus")
                 if not test:
                     return Response("No such test id", status=status.HTTP_404_NOT_FOUND)
             test_code['test_definition'] = test
@@ -1276,7 +1276,7 @@ class TestInstances_KG(KGAPIView):
         for test_code in DATA:
             ##get the test code
             if 'id' in test_code:
-                original_test_code = ValidationScript.from_uuid(test_code['id'], self.client)
+                original_test_code = ValidationScript.from_uuid(test_code['id'], self.client, api="nexus")
                 if not original_test_code:
                     return Response("The given id "+test_code['id']+" does not exist. Please give a new id, or a test_definition_id with a version, or a test_definition_alias with a version. ", status=status.HTTP_400_BAD_REQUEST)
                 test_code['test_definition_id'] = original_test_code.test_definition.uuid
@@ -1287,7 +1287,7 @@ class TestInstances_KG(KGAPIView):
             else:
                 if 'version' in test_code:
                     if 'test_alias' in test_code:
-                        test_definition = ValidationTestDefinitionKG.from_alias(test_code['test_alias'], self.client)
+                        test_definition = ValidationTestDefinitionKG.from_alias(test_code['test_alias'], self.client, api="nexus")
                         if not test_definition:
                             return Response('There is no test with this alias. Please give a new alias or try with the test_definition_id directly.', status=status.HTTP_400_BAD_REQUEST)
                         test_code['test_definition_id'] = test_definition.id
@@ -1312,7 +1312,7 @@ class TestInstances_KG(KGAPIView):
                             "nsg": "https://bbp-nexus.epfl.ch/vocabs/bbp/neurosciencegraph/core/v0.1.0/",
                             "schema": "http://schema.org/"
                         }
-                        original_test_code = KGQuery(ValidationScript, filter_query, context).resolve(self.client)
+                        original_test_code = KGQuery(ValidationScript, {"nexus": filter_query}, context).resolve(self.client, api="nexus")
                         if not original_test_code:
                             return Response("There is no test instance with this version name for this test_definition_id. Please give a new test_definition_id or a new version name. ", status=status.HTTP_400_BAD_REQUEST)
                         test_code['id'] = original_test_code.uuid
@@ -1335,8 +1335,8 @@ class TestInstances_KG(KGAPIView):
         ## check is ok so create the serializer and save
         list_updated = []
         for test_code in DATA:
-            original_test_code = ValidationScript.from_uuid(test_code['id'], self.client)
             serializer = ValidationTestCodeKGSerializer(original_test_code, self.client, data=test_code)
+            original_test_code = ValidationScript.from_uuid(test_code['id'], self.client, api="nexus")
 
             if serializer.is_valid():
                updated_test_code = serializer.save()
@@ -1451,11 +1451,11 @@ class Results_KG(KGAPIView):
             # inverse relations in paths: ^ (see https://www.w3.org/TR/sparql11-query/#propertypaths)
             model_instances = []
             for uuid in param_model_version_id:
-                model_instances += get_full_uri((ModelInstance, MEModel), uuid, self.client)
+                model_instances += get_full_uri((ModelInstance, MEModel), uuid, self.client, api="nexus")
             for uuid in param_model_id:
-                model_instances += [inst.id for inst in as_list(ModelProject.from_uuid(uuid, self.client).instances)]
+                model_instances += [inst.id for inst in as_list(ModelProject.from_uuid(uuid, self.client, api="nexus").instances)]
             for alias in param_model_alias:
-                model_instances += [inst.id for inst in as_list(ModelProject.from_alias(alias, self.client).instances)]
+                model_instances += [inst.id for inst in as_list(ModelProject.from_alias(alias, self.client, api="nexus").instances)]
 
             filter_query = {
                 "op": "and",
@@ -1511,15 +1511,15 @@ class Results_KG(KGAPIView):
 
             # todo: implement ordering (will need changes to pyxus)
             if len(filter_query["value"]) > 0:
-                results = KGQuery(ValidationResultKG, filter_query, context).resolve(self.client)
+                results = KGQuery(ValidationResultKG, {"nexus": filter_query}, context).resolve(self.client, api="nexus")
             else:
-                results = ValidationResultKG.list(self.client)
+                results = ValidationResultKG.list(self.client, api="nexus")
 
-            # TODO: Exclude the results which the self.client can't access because the model is private
+            # TODO: Exclude the results which the self.client, api="nexus" can't access because the model is private
 
         else:
 
-            results = [ValidationResultKG.from_uuid(uuid, self.client)
+            results = [ValidationResultKG.from_uuid(uuid, self.client, api="nexus")
                        for uuid in param_id]
 
         #     #check if user has acces to the model associated to the results
@@ -1567,14 +1567,14 @@ class Results_KG(KGAPIView):
 
         list_id = []
         for result in DATA :
-            model_instance = ModelInstance.from_uuid(result["model_version_id"], self.client)
+            model_instance = ModelInstance.from_uuid(result["model_version_id"], self.client, api="nexus")
             if not model_instance:
-                model_instance = MEModel.from_uuid(result["model_version_id"], self.client)
+                model_instance = MEModel.from_uuid(result["model_version_id"], self.client, api="nexus")
             if not model_instance:
                 return Response("No such model instance", status=status.HTTP_404_NOT_FOUND)
             result["model_instance"] = model_instance
 
-            test_code = ValidationScript.from_uuid(result["test_code_id"], self.client)
+            test_code = ValidationScript.from_uuid(result["test_code_id"], self.client, api="nexus")
             if not test_code:
                 return Response("No such test implementation: '{}'".format(result["test_code_id"]),
                                 status=status.HTTP_404_NOT_FOUND)
@@ -1604,7 +1604,7 @@ class Results_KG(KGAPIView):
         logger.info("Trying to delete the following results: {}".format(list_ids))
 
         elements_to_delete = [
-            ValidationResultKG.from_uuid(id, self.client)  # can probably just use KGProxy here, and in other delete methods where no relations need to be followed
+            ValidationResultKG.from_uuid(id, self.client, api="nexus")  # can probably just use KGProxy here, and in other delete methods where no relations need to be followed
             for id in list_ids
         ]
         for result in elements_to_delete:
