@@ -5,6 +5,9 @@
   "dependencies": {
     "@material-ui/core": "^4.5.2",
     "@material-ui/icons": "^4.5.1",
+    "json-loader": "^0.5.7",
+    "keycloak-js": "^8.0.1",
+    "markdown-to-jsx": "^6.10.3",
     "material-table": "^1.54.0",
     "react": "^16.11.0",
     "react-dom": "^16.11.0",
@@ -12,7 +15,7 @@
     "recharts": "^1.8.5"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "start": "HTTPS=true react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"

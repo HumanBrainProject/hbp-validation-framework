@@ -1,12 +1,8 @@
 import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import Table from '@material-ui/core/Table';
-import TableBody from '@material-ui/core/TableBody';
-import TableCell from '@material-ui/core/TableCell';
-import TableHead from '@material-ui/core/TableHead';
-import TableRow from '@material-ui/core/TableRow';
-import Paper from '@material-ui/core/Paper';
-import MaterialTable from 'material-table'
+import MaterialTable from 'material-table';
+
+import formatAuthors from "./utils";
 
 const useStyles = makeStyles({
   root: {
@@ -30,18 +26,34 @@ export default function ModelTable(props) {
 
     const handleRowClick = props.handleRowClick;
 
+    // function formatAuthors(authors) {
+    //   if (authors) {
+    //     return authors.map(author => (author.given_name + " " + author.family_name)).join(", ");
+    //   } else {
+    //     return "";
+    //   }
+    // }
+
     return (
       <MaterialTable
           columns={[
             { title: 'Name', field: 'name' },
-            { title: 'Authors', field: 'authors' },
+            {
+              title: 'Authors',
+              field: 'authors',
+              render: rowData => formatAuthors(rowData.author)
+            },
             { title: 'Species', field: 'species' },
-            { title: 'Brain Region', field: 'brainRegion' },
-            { title: 'Cell Type', field: 'cellType' },
-            { title: 'Model Scope', field: 'modelScope' },
-            { title: 'Abstraction Level', field: 'abstractionLevel' },
-            { title: 'Collab ID', field: 'collabID', type: 'numeric' },
-            { title: 'Privacy', field: 'privacy' },
+            { title: 'Brain Region', field: 'brain_region' },
+            { title: 'Cell Type', field: 'cell_type' },
+            { title: 'Model Scope', field: 'model_scope' },
+            { title: 'Abstraction Level', field: 'abstraction_level' },
+            { title: 'Collab ID', field: 'app.collab_id', type: 'numeric' },
+            {
+              title: 'Privacy',
+              field: 'privacy',
+              render: rowData => (rowData.private) ? 'Private' : 'Public'
+            },
           ]}
           data={props.rows}
           title=""
