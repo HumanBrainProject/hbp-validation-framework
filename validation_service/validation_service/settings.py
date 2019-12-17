@@ -161,6 +161,7 @@ HBP_IDENTITY_SERVICE_URL = 'https://services.humanbrainproject.eu/idm/v1/api'
 HBP_STORAGE_SERVICE_URL = 'https://services.humanbrainproject.eu/storage/v1/api/entity/'
 ADMIN_COLLAB_ID = "13947"
 NEXUS_ENDPOINT = "https://nexus.humanbrainproject.org/v0"
+OIDC_ENDPOINT = "https://services.humanbrainproject.eu/oidc/token"
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'none')
@@ -170,6 +171,11 @@ SOCIAL_AUTH_HBP_KEY = auth_settings.SOCIAL_AUTH_HBP_KEY
 
 auth_settings.SOCIAL_AUTH_HBP_SECRET = os.environ.get('HBP_OIDC_CLIENT_SECRET')
 SOCIAL_AUTH_HBP_SECRET = auth_settings.SOCIAL_AUTH_HBP_SECRET
+
+KG_SERVICE_ACCOUNT_REFRESH_TOKEN = os.environ.get('KG_SERVICE_ACCOUNT_REFRESH_TOKEN')
+KG_SERVICE_ACCOUNT_CLIENT_ID = os.environ.get('KG_SERVICE_ACCOUNT_CLIENT_ID')
+KG_SERVICE_ACCOUNT_SECRET = os.environ.get('KG_SERVICE_ACCOUNT_SECRET')
+
 
 LOGGING = {
     'version': 1,

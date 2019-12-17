@@ -35,7 +35,8 @@ from .validation_framework_toolbox.user_auth_functions import (
     is_hbp_member,
     get_storage_file_by_id,
     get_authorization_header,
-    get_user_from_token
+    get_user_from_token,
+    get_kg_token
 )
 
 from .validation_framework_toolbox.validation_framework_functions import (
@@ -78,8 +79,13 @@ class KGAPIView(APIView):
         else:
             return Response("No authorization token provided", status=status.HTTP_401_UNAUTHORIZED)
 
+        # check that the token is valid by getting user info
+        self.user = get_user_from_token(request)
+
+        kg_token = get_kg_token()
+
         assert method == "Bearer"
-        self.client = KGClient(token,
+        self.client = KGClient(kg_token,
                                nexus_endpoint=settings.NEXUS_ENDPOINT)
 
 
@@ -294,8 +300,7 @@ class Models_KG(KGAPIView):
                 if is_authorised_or_admin(request, collab_id):
                     authorized_collabs.append(collab_id)
 
-            user = get_user_from_token(request)
-            logger.debug("Authorized collabs for user '{}': {}".format(user["username"], authorized_collabs))
+            logger.debug("Authorized collabs for user '{}': {}".format(self.user["username"], authorized_collabs))
             authorized_models = [model for model in as_list(models)
                                     if (not model.private) or (model.collab_id in authorized_collabs)]
             logger.debug("{} authorized models".format(len(authorized_models)))

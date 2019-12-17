@@ -380,3 +380,17 @@ def is_hbp_member (request):
 #     assert data['page']['totalPages'] == 1
 #     admins = [user['id'] for user in data['_embedded']['users']]
 #     return admins
+
+def get_kg_token():
+    data = {
+        "grant_type": "refresh_token",
+        "refresh_token": settings.KG_SERVICE_ACCOUNT_REFRESH_TOKEN,
+        "client_id": settings.KG_SERVICE_ACCOUNT_CLIENT_ID,
+        "client_secret": settings.KG_SERVICE_ACCOUNT_SECRET
+    }
+    response = requests.post(settings.OIDC_ENDPOINT, data=data)
+    if response.status_code != 200:
+        raise Exception("Unable to get access token for service account")
+    # todo: cache this in some persistent way on the server, only refresh when necessary,
+    #       rather than on every request
+    return response.json()["access_token"]
