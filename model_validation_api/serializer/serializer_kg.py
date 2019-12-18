@@ -525,7 +525,7 @@ class ValidationTestCodeKGSerializer(BaseKGSerializer):
             "uri": obj.id,
             "id": obj.uuid,
             "old_uuid": obj.old_uuid,
-            "repository": obj.repository,
+            "repository": obj.repository.value,
             "version": obj.version,
             "description": obj.description,
             "parameters":  obj.parameters,
