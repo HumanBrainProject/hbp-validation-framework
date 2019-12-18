@@ -9,7 +9,7 @@ except ImportError:
     from urlparse import urlparse
 import requests
 
-from fairgraph.base import as_list, KGProxy, KGQuery, Distribution
+from fairgraph.base import as_list, KGProxy, KGQuery, Distribution, IRI
 from fairgraph.core import Person, Organization, Collection, use_namespace as use_core_namespace
 from fairgraph.commons import CellType, BrainRegion, AbstractionLevel, Species, ModelScope
 from fairgraph.brainsimulation import (ModelProject, ValidationTestDefinition, ValidationScript,
@@ -407,6 +407,8 @@ class ValidationTestDefinitionKGSerializer(BaseKGSerializer):
         for script in as_list(test.scripts.resolve(self.client, api="nexus")):
             if isinstance(script.repository, dict):
                 repo = script.repository["@id"]
+            elif isinstance(script.repository, IRI):
+                repo = script.repository.value
             else:
                 repo = script.repository
             data['codes'].append(
