@@ -1183,10 +1183,10 @@ class TestInstances_KG(KGAPIView):
                 filter_query["value"].append({
                     "path": "nsg:implements",
                     "op": "in",
-                    "value":  [ValidationTestDefinitionKG.uri_from_uuid(pid, self.client, api="nexus")
+                    "value":  [ValidationTestDefinitionKG.uri_from_uuid(pid, self.client)
                                for pid in param_test_definition_id]
                     #"op": "eq",
-                    #"value":  ValidationTestDefinitionKG.uri_from_uuid(param_test_definition_id[0], self.client, api="nexus")
+                    #"value":  ValidationTestDefinitionKG.uri_from_uuid(param_test_definition_id[0], self.client)
                 })
             if len(param_repository) > 0 :
                 filter_query["value"].append({
