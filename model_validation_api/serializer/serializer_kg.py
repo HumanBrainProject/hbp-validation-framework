@@ -454,9 +454,10 @@ class ValidationTestDefinitionKGSerializer(BaseKGSerializer):
                 description=self.data["protocol"],
                 authors=[Person(p["family_name"], p["given_name"], p.get("email", None))
                          for p in as_list(authors)],
-                # note: authors are saved automatically
                 date_created=datetime.now()
             )
+            for author in self.obj.authors:
+                author.save(self.client)
         else:                 # update
             logger.debug("Updating test {} with data {}".format(self.obj.id, self.data))
             if "name" in self.data:
