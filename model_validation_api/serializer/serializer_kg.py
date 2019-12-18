@@ -534,7 +534,7 @@ class ValidationTestCodeKGSerializer(BaseKGSerializer):
             "path": obj.test_class,
             "timestamp": obj.date_created,
             'test_definition_id': test_definition.uuid,
-            "test_definition": ValidationTestDefinitionKGSerializer(test_definition, self.client, api="nexus").data
+            "test_definition": ValidationTestDefinitionKGSerializer(test_definition, self.client).data
         }
         return data
 
