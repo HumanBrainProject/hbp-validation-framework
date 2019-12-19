@@ -241,7 +241,7 @@ class ScientificModelInstanceKGSerializer(BaseKGSerializer):
                     "model": ScientificModelKGSerializer(proj, self.client).data
                 }
         if hasattr(instance, "morphology"):
-            morph = instance.morphology.resolve(self.client, api="nexus")
+            morph = instance.morphology.resolve(self.client, api="nexus", use_cache=False)
             data["morphology"] = morph.morphology_file
         return data
 
