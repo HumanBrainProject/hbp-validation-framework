@@ -220,6 +220,7 @@ class ScientificModelInstanceKGSerializer(BaseKGSerializer):
         logger.debug("Serializing model instance - resolving script {} and project {}".format(instance.main_script, instance.project))
         script = instance.main_script.resolve(self.client, api="nexus")
         proj = instance.project.resolve(self.client, api="nexus")
+        logger.debug("Script location: {}".format(script.code_location))
         if isinstance(proj, list):
             logger.error("Model instance {} belongs to more than one model project".format(instance.id))
             proj = proj[0]
