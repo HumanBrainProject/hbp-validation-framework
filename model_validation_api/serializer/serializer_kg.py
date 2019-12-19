@@ -177,7 +177,7 @@ class ScientificModelKGSerializer(BaseKGSerializer):
             'images': model.images,
             'old_uuid': model.old_uuid,
             'instances': [],
-            "raw_data": model.instance.data
+            #"raw_data": model.instance.data
         }
         for instance in as_list(model.instances):
             instance = instance.resolve(self.client, api="nexus")
@@ -254,6 +254,8 @@ class ScientificModelInstanceKGSerializer(BaseKGSerializer):
                                  code_format=self.data.get("code_format"),
                                  code_location=self.data["source"],
                                  license=self.data.get("license"))
+            logger.debug("Saving script:")
+            logger.debug(repr(script))
             script.save(self.client)
 
             if model_project.model_of.label == "single cell" and "morphology" in self.data:

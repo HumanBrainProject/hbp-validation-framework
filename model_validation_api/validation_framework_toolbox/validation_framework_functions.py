@@ -176,7 +176,7 @@ def _are_test_code_version_unique_kg(testcode_json, kg_client):
     :rtype: boolean
     """
     new_version_name = testcode_json['version']
-    test_definition = testcode_json['test_definition']
+    test_definition = testcode_json['test_definition'].resolve(kg_client, api="nexus")
     all_instances_versions_name = [script.version for script in as_list(test_definition.scripts.resolve(kg_client, api="nexus"))]
     logger.debug("all versions: {} new version: {}".format(all_instances_versions_name, new_version_name))
     if new_version_name in all_instances_versions_name:
