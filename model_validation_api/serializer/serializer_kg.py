@@ -547,7 +547,7 @@ class ValidationTestCodeKGSerializer(BaseKGSerializer):
             self.obj = ValidationScript(
                 name="Implementation of {}, version '{}'".format(test_definition.name, self.data["version"]),
                 date_created=datetime.now(),
-                repository=self.data["repository"],
+                repository={"@id": self.data["repository"]},
                 version=self.data["version"],
                 description=self.data.get("description", ""),
                 parameters=self.data.get("parameters", None),
@@ -556,7 +556,7 @@ class ValidationTestCodeKGSerializer(BaseKGSerializer):
             )
         else:                 # update
             if "repository" in self.data:
-                self.obj.repository = self.data["repository"]
+                self.obj.repository = {"@id": self.data["repository"]}
             if "version" in self.data:
                 self.obj.version = self.data["version"]
             if "description" in self.data:
