@@ -525,11 +525,17 @@ class ValidationTestCodeKGSerializer(BaseKGSerializer):
     def serialize(self, obj):
         # todo: rewrite all this using KG Query API, to avoid doing all the individual resolves.
         test_definition = obj.test_definition.resolve(self.client, api="nexus")
+        if isinstance(obj.repository, dict):
+            repo = obj.repository["@id"]
+        elif isinstance(obj.repository, IRI):
+            repo = obj.repository.value
+        else:
+            repo = obj.repository
         data = {
             "uri": obj.id,
             "id": obj.uuid,
             "old_uuid": obj.old_uuid,
-            "repository": obj.repository.value,
+            "repository": repo,
             "version": obj.version,
             "description": obj.description,
             "parameters":  obj.parameters,
@@ -547,7 +553,7 @@ class ValidationTestCodeKGSerializer(BaseKGSerializer):
             self.obj = ValidationScript(
                 name="Implementation of {}, version '{}'".format(test_definition.name, self.data["version"]),
                 date_created=datetime.now(),
-                repository={"@id": self.data["repository"]},
+                repository=IRI(self.data["repository"]),
                 version=self.data["version"],
                 description=self.data.get("description", ""),
                 parameters=self.data.get("parameters", None),
@@ -556,7 +562,7 @@ class ValidationTestCodeKGSerializer(BaseKGSerializer):
             )
         else:                 # update
             if "repository" in self.data:
-                self.obj.repository = {"@id": self.data["repository"]}
+                self.obj.repository = IRI(self.data["repository"])
             if "version" in self.data:
                 self.obj.version = self.data["version"]
             if "description" in self.data:
