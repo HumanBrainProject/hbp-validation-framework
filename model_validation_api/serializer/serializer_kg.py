@@ -218,7 +218,7 @@ class ScientificModelInstanceKGSerializer(BaseKGSerializer):
     def serialize(self, instance):
         # todo: rewrite all this using KG Query API, to avoid doing all the individual resolves.
         logger.debug("Serializing model instance - resolving script {} and project {}".format(instance.main_script, instance.project))
-        script = instance.main_script.resolve(self.client, api="nexus")
+        script = instance.main_script.resolve(self.client, api="nexus", use_cache=False)
         proj = instance.project.resolve(self.client, api="nexus")
         logger.debug("Script location: {}".format(script.code_location))
         if isinstance(proj, list):
