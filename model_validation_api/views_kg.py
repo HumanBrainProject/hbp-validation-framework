@@ -193,7 +193,6 @@ class Models_KG(KGAPIView):
                 organization_filter = request.GET.getlist('organization')
                 owner_filter = request.GET.getlist('owner')
                 license_param_filter = request.GET.getlist('license')
-                owner_filter = request.GET.getlist('owner')
                 project_filter = request.GET.getlist('project')
                 collab_filter = [int(id) for id in request.GET.getlist('collab_id')]
 
@@ -794,7 +793,11 @@ class ModelInstances_KG(KGAPIView):
         for instance in DATA:
             model_serializer = ScientificModelInstanceKGSerializer(original_instance, self.client, data=instance)
 
-            if  model_serializer.is_valid() :
+            if  model_serializer.is_valid():
+                logger.info("Saving updates to model instance {}".format(original_instance.id))
+                logger.debug("Original: {}".format(original_instance.instance.data))
+                logger.debug("Updated: {}".format(instance))
+
                 model_instance = model_serializer.save()
                 list_id.append(model_instance.uuid)
 
