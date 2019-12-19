@@ -246,16 +246,11 @@ class ScientificModelInstanceKGSerializer(BaseKGSerializer):
     def save(self):
         # todo: Create/update EModel, MEModel and Morphology where model_scope is "single cell"
         if self.obj is None:  # create
-            logger.info("Saving ModelInstance")
             model_project = ModelProject.from_uuid(self.data["model_id"], self.client, api="nexus")
-            logger.debug("ModelProject to which the instance belongs. {} Data:".format(model_project))
-            logger.debug(str(model_project.instance.data))
             script = ModelScript(name="ModelScript for {} @ {}".format(model_project.name, self.data["version"]),
                                  code_format=self.data.get("code_format"),
                                  code_location=self.data["source"],
                                  license=self.data.get("license"))
-            logger.debug("Saving script:")
-            logger.debug(repr(script))
             script.save(self.client)
 
             if model_project.model_of.label == "single cell" and "morphology" in self.data:
@@ -334,7 +329,7 @@ class ScientificModelInstanceKGSerializer(BaseKGSerializer):
                 script_changed = True
             if "source" in self.data:
                 self.obj.main_script = resolve_obj(self.obj.main_script)
-                self.obj.main_script.source = self.data["source"]
+                self.obj.main_script.code_location = self.data["source"]
                 script_changed = True
             if "license" in self.data:
                 self.obj.main_script = resolve_obj(self.obj.main_script)
@@ -344,6 +339,9 @@ class ScientificModelInstanceKGSerializer(BaseKGSerializer):
                 self.obj.morphology = resolve_obj(self.obj.morphology)
                 self.obj.morphology.morphology_file = self.data["morphology"]
                 morphology_changed = True
+            logger.debug("Morphology changed: {}".format(morphology_changed))
+            logger.debug("Script changed: {}".format(script_changed))
+            logger.debug("Instance changed: {}".format(instance_changed))
             if morphology_changed:
                 self.obj.morphology.save(self.client)
             if script_changed:
