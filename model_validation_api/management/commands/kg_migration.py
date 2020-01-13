@@ -130,9 +130,9 @@ def lookup_model_project(model_name, date_created, client):
             }
         ]
     }
-    query = KGQuery(ModelProject, query_filter, context)
+    query = KGQuery(ModelProject, {"nexus": query_filter}, context)
     #try:
-    return query.resolve(client)
+    return query.resolve(client, api="nexus")
     #except Exception as err:
     #    logger.error("Error in lookup_model_project:\n{}".format(err))
     #    return None
@@ -141,19 +141,19 @@ def lookup_model_project(model_name, date_created, client):
 def lookup_model_instance(model_instance_old_uuid, client):
     query_filter = {"path": "nsg:providerId", "op": "eq", "value": model_instance_old_uuid}
     context = {"nsg": "https://bbp-nexus.epfl.ch/vocabs/bbp/neurosciencegraph/core/v0.1.0/", "oldUUID": "nsg:providerId"}
-    query = KGQuery(ModelInstance, query_filter, context)
-    result = query.resolve(client)
+    query = KGQuery(ModelInstance, {"nexus": query_filter}, context)
+    result = query.resolve(client, api="nexus")
     if not(result):
-        query = KGQuery(MEModel, query_filter, context)
-        result = query.resolve(client)
+        query = KGQuery(MEModel, {"nexus": query_filter}, context)
+        result = query.resolve(client, api="nexus")
     return result
 
 
 def lookup_test_script(test_script_old_uuid, client):
     query_filter = {"path": "nsg:providerId", "op": "eq", "value": test_script_old_uuid}
     context = {"nsg": "https://bbp-nexus.epfl.ch/vocabs/bbp/neurosciencegraph/core/v0.1.0/", "oldUUID": "nsg:providerId"}
-    query = KGQuery(ValidationScript, query_filter, context)
-    return query.resolve(client)
+    query = KGQuery(ValidationScript, {"nexus": query_filter}, context)
+    return query.resolve(client, api="nexus")
 
 
 def get_file_list(folder_uri, storage_client):
@@ -196,6 +196,8 @@ class Command(BaseCommand):
             if len(owners) > 1:
                 owners = owners[0]  # temporary, need to fix schema to remove maxCount: 1
             organization = self.get_organization(model.organization)
+            if organization:
+                organization.save(NAR_client)
             brain_region = self.get_parameters("brain_region", model.brain_region)
             species = self.get_parameters("species", model.species)
             cell_type = self.get_parameters("cell_type", model.cell_type)
@@ -252,30 +254,32 @@ class Command(BaseCommand):
             elif pattern in ("KTH-UNIC", "KOKI-UNIC"):
                 address = Address(locality='HBP', country='Europe')
                 organization = Organization("HBP-SP6", address, None)
-            elif pattern == "<<empty>>":
+            elif pattern == "Destexhe Lab":
+                address = Address(locality='Gif-sur-Yvette', country='France')
+                organization = Organization("CNRS", address, None)
+            elif pattern in ("<<empty>>", "Other"):
                 organization = None
             else:
                 raise ValueError("Can't handle this pattern: {}".format(pattern))
-
         return organization
 
     def _get_person_from_Persons_table(self, pattern):
         logger.debug("getting person %s", pattern)
         pattern = pattern.strip()
-        try:
-            p = Persons.objects.get(pattern=pattern)
-            person = Person(family_name=str(p.last_name), given_name =str(p.first_name), email=str(p.email), affiliation='')
-            logger.debug('person : %s', person)
-        except:
-            if pattern != None:
-                #raise Exception(pattern)
-                print('person ', pattern ,' has not been found. please enter it by hand')
-                family_name = raw_input('  give the family_name : ')
-                given_name = raw_input('  give the first_name : ')
-                email = raw_input('  give the email adress : ')
-                person = Person(family_name=str(family_name), given_name =str(given_name), email=str(email), affiliation='')
-            else:
-                person = None
+        #try:
+        p = Persons.objects.get(pattern=pattern)
+        person = Person(family_name=str(p.last_name), given_name =str(p.first_name), email=str(p.email), affiliation=None)
+        logger.debug('person : %s', person)
+        # except:
+        #     if pattern != None:
+        #         #raise Exception(pattern)
+        #         print('person ', pattern ,' has not been found. please enter it by hand')
+        #         family_name = raw_input('  give the family_name : ')
+        #         given_name = raw_input('  give the first_name : ')
+        #         email = raw_input('  give the email adress : ')
+        #         person = Person(family_name=str(family_name), given_name =str(given_name), email=str(email), affiliation=None)
+        #     else:
+        #         person = None
         return person
 
     def _get_people_from_Persons_table(self, patterns):
@@ -365,7 +369,7 @@ class Command(BaseCommand):
 
 
     def _save_person_in_KG(self,first_name, last_name, email):
-        person = Person(family_name=last_name, given_name =first_name, email=email, affiliation='')
+        person = Person(family_name=last_name, given_name =first_name, email=email, affiliation=None)
         if not person.exists(NAR_client):
             person.save(NAR_client)
             logger.debug('saved in KG: %s', person)
@@ -481,6 +485,12 @@ class Command(BaseCommand):
                                 morph_file = model_instance.morphology
                             elif model_instance.morphology.startswith('['):
                                 morph_file = json.loads(model_instance.morphology)
+                                if len(morph_file) > 1:
+                                    raise Exception("Multiple morph files")
+                                elif len(morph_file) == 0:
+                                    morph_file = None
+                                else:
+                                    morph_file = morph_file[0]
                             else:
                                 raise ValueError("Invalid morphology data: '{}'".format(model_instance.morphology))
                         else:
@@ -509,7 +519,7 @@ class Command(BaseCommand):
                                           e_model=e_model,
                                           morphology=morphology,
                                           main_script=script,
-                                          project=model_project,
+                                          #project=model_project,
                                           version=model_instance.version,
                                           parameters=model_instance.parameters,
                                           timestamp=model_instance.timestamp,
@@ -612,7 +622,7 @@ class Command(BaseCommand):
         test_code_objects = ValidationTestCode.objects.all()
         for tco in test_code_objects:
             test_name = tco.test_definition.name
-            test_definition = ValidationTestDefinitionKG.by_name(test_name, NAR_client)
+            test_definition = ValidationTestDefinitionKG.by_name(test_name, NAR_client, api="nexus")
             if not test_definition:
                 raise Exception("not found")
             script_obj = ValidationScript(
@@ -642,7 +652,7 @@ class Command(BaseCommand):
             if not test_script:
                 logger.error("Test script for {} not found in KG".format(ro.test_code))
                 continue
-            test_definition = test_script.test_definition.resolve(NAR_client)
+            test_definition = test_script.test_definition.resolve(NAR_client, api="nexus")
             assert test_definition
 
             additional_data = [AnalysisResult(name="{} @ {}".format(uri, ro.timestamp.isoformat()),
@@ -667,7 +677,7 @@ class Command(BaseCommand):
             logger.info("ValidationResult saved: %s", result_kg)
 
             reference_data = Collection("Reference data for {}".format(test_definition.name),
-                                        members=test_definition.reference_data.resolve(NAR_client))
+                                        members=test_definition.reference_data.resolve(NAR_client, api="nexus"))
             reference_data.save(NAR_client)
 
             validation_activity = ValidationActivity(
@@ -684,13 +694,13 @@ class Command(BaseCommand):
             result_kg.save(NAR_client)
 
     def handle(self, *args, **options):
-        self._getPersons_and_migrate()
-        self.add_organizations_in_KG_database()
-        self.migrate_models()
-        sleep(30)  # allow some time for indexing
-        self.migrate_model_instances()
-        #self.migrate_validation_definitions()
-        #sleep(30)
-        #self.migrate_validation_code()
-        #sleep(30)
-        #self.migrate_validation_results()
+        # self._getPersons_and_migrate()
+        # self.add_organizations_in_KG_database()
+        # self.migrate_models()
+        # sleep(30)  # allow some time for indexing
+        # self.migrate_model_instances()
+        self.migrate_validation_definitions()
+        sleep(30)
+        self.migrate_validation_code()
+        sleep(30)
+        self.migrate_validation_results()
