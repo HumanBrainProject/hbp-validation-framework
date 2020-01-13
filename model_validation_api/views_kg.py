@@ -14,6 +14,7 @@ from django.http import (HttpResponse, JsonResponse,
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.exceptions import NotAuthenticated
 
 from fairgraph.client import KGClient
 from fairgraph.base import KGQuery, as_list
@@ -77,7 +78,9 @@ class KGAPIView(APIView):
             method, token = auth.split(" ")
             logger.debug(token)
         else:
-            return Response("No authorization token provided", status=status.HTTP_401_UNAUTHORIZED)
+            raise NotAuthenticated()
+            #return Response("No authorization token provided", status=status.HTTP_401_UNAUTHORIZED)
+
 
         # check that the token is valid by getting user info
         self.user = get_user_from_token(request)

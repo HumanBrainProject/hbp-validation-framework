@@ -626,6 +626,15 @@ class ValidationTestResultKGSerializer(BaseKGSerializer):
         validation_activity = obj.generated_by.resolve(self.client, api="nexus")
         model_version_id = validation_activity.model_instance.uuid
         test_code_id = validation_activity.test_script.uuid
+        logger.debug("Serializing validation test result")
+        logger.debug("Additional data for {}:\n{}".format(obj.id, obj.additional_data))
+        additional_data_urls = []
+        for item in as_list(obj.additional_data):
+            item = item.resolve(self.client, api="nexus")
+            if item:
+                additional_data_urls.append(item.result_file.location)
+            else:
+                logger.warning("Couldn't resolve {}".format(item))
         data = {
             "uri": obj.id,
             "id": obj.uuid,
@@ -633,9 +642,8 @@ class ValidationTestResultKGSerializer(BaseKGSerializer):
             "model_version_id": model_version_id,
             "test_code_id": test_code_id,
             "results_storage": [
-                serialize_additional_data(item.resolve(self.client).result_file.location,
-                                          self.client)
-                for item in as_list(obj.additional_data)
+                serialize_additional_data(url)
+                for url in additional_data_urls
             ],
             "score": obj.score,
             "passed": obj.passed,

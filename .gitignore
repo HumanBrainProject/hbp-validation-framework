@@ -71,11 +71,13 @@ Thumbs.db
 /static
 /app/static/
 packages/*
-!packages/.keep 
+!packages/.keep
 
 validation_service/app/static/
 
+# Javascript
 
+*/node_modules
 
 # Migrations #
 ##############
