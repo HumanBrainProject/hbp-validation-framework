@@ -642,7 +642,7 @@ class ValidationTestResultKGSerializer(BaseKGSerializer):
             "model_version_id": model_version_id,
             "test_code_id": test_code_id,
             "results_storage": [
-                serialize_additional_data(url)
+                serialize_additional_data(url, self.client)
                 for url in additional_data_urls
             ],
             "score": obj.score,
