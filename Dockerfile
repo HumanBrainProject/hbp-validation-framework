@@ -1,30 +1,18 @@
 #
 # Build an image for deploying the Brain Simulation Platform Validation Service
 #
-# To build the image, from the parent directory:
-#   docker build -t hbp_validation_service -f validation_service/Dockerfile .
+# To build the image, from this directory:
+#   docker build -t hbp_validation_service .
 #
 # To run the application:
-#   docker run -d -p 443 hbp_validation_service
+#   docker run -d -p 443 -v /etc/letsencrypt:/etc/letsencrypt hbp_validation_service
 
-#473
-FROM debian:jessie-slim 
-#605
-# FROM bitnami/minideb:stretch 
-#533
-# FROM monsantoco/min-jessie:latest
-#459
-#FROM philcryer/min-wheezy:latest
-#531
-#FROM cgswong/min-jessie:latest
-#530
-#FROM philcryer/min-jessie:latest
-
+FROM debian:stretch-slim
 
 MAINTAINER Andrew Davison <andrew.davison@unic.cnrs-gif.fr>
 
 ENV DEBIAN_FRONTEND noninteractive
-RUN apt-get update --fix-missing; apt-get -y -q install python-dev python-pip sqlite3 python-psycopg2 supervisor build-essential nginx-extras python-yaml python-requests python-markdown
+RUN apt-get update --fix-missing; apt-get -y -q install python-dev python-pip sqlite3 python-psycopg2 supervisor build-essential nginx-extras git
 RUN unset DEBIAN_FRONTEND
 
 RUN pip install --upgrade pip
@@ -34,24 +22,26 @@ RUN echo "" >> /var/log/django.log
 
 ENV SITEDIR /home/docker/site
 
-COPY validation_service $SITEDIR
-
+RUN git clone https://github.com/HumanBrainProject/pyxus.git pyxus_src
+RUN pip install -r pyxus_src/pyxus/requirements.txt; pip install pyxus_src/pyxus
+RUN git clone https://github.com/apdavison/fairgraph.git
+RUN pip install ./fairgraph
 
 COPY packages /home/docker/packages
-
-
+COPY validation_service $SITEDIR
 COPY model_validation_api /home/docker/model_validation_api
 # COPY build_info.json $SITEDIR
 
 WORKDIR /home/docker
+
 RUN pip install -r $SITEDIR/requirements.txt
 ENV PYTHONPATH  /home/docker:/home/docker/site:/usr/local/lib/python2.7/dist-packages:/usr/lib/python2.7/dist-packages
 
 WORKDIR $SITEDIR
 RUN if [ -f $SITEDIR/db.sqlite3 ]; then rm $SITEDIR/db.sqlite3; fi
 RUN python manage.py check
-
-# RUN python manage.py collectstatic --noinput
+RUN python manage.py collectstatic --noinput
+RUN cd $SITEDIR/static; tar xf static.tar
 
 RUN echo "daemon off;" >> /etc/nginx/nginx.conf
 RUN rm /etc/nginx/sites-enabled/default

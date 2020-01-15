@@ -1,6 +1,7 @@
+from datetime import datetime
 from django.core.serializers.json import DjangoJSONEncoder
 
-from ..models import (ValidationTestDefinition, 
+from ..models import (ValidationTestDefinition,
                     ValidationTestCode,
                     ValidationTestResult,
                     ScientificModel,
@@ -19,24 +20,24 @@ from ..models import (ValidationTestDefinition,
                     Param_AbstractionLevel,
                     Param_ScoreType,
                     Param_organizations,
+                    Persons
                     )
 
 from rest_framework import serializers
 
-
+from fairgraph.brainsimulation import ModelInstance, ModelProject, ModelScript, MEModel, EModel, Morphology
 
 
 class CollabParametersSerializer(serializers.HyperlinkedModelSerializer):
      class Meta:
         model = CollabParameters
-        fields = ('id', 'data_modalities', 'test_type', 'species', 'brain_region', 
+        fields = ('id', 'data_modalities', 'test_type', 'species', 'brain_region',
                     'cell_type', 'model_scope','abstraction_level', 'organization', 'app_type','collab_id')
 
 class CollabParametersReadOnlyForHomeSerializer(serializers.HyperlinkedModelSerializer):
      class Meta:
         model = CollabParameters
         fields = ('id','collab_id')
-
 
 
 
@@ -47,6 +48,8 @@ class ScientificModelInstanceSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = ScientificModelInstance
         fields = ('id', 'version', 'description', 'parameters', 'code_format', 'source', 'model_id', 'hash', 'morphology','timestamp')
+
+
 
 class ScientificModelInstanceForModelReadOnlySerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
@@ -89,9 +92,9 @@ class ScientificModelSerializer(serializers.HyperlinkedModelSerializer):
 class ValidationTestDefinitionSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = ValidationTestDefinition
-        fields = ('id', 'name', 'alias', 'status', 'species', 'brain_region', 
-                    'cell_type', 'age', 'data_location', 
-                    'data_type', 'data_modality', 'test_type', 
+        fields = ('id', 'name', 'alias', 'status', 'species', 'brain_region',
+                    'cell_type', 'age', 'data_location',
+                    'data_type', 'data_modality', 'test_type',
                     'protocol', 'creation_date', 'author', 'publication', 'score_type')
 
 
@@ -114,7 +117,7 @@ class ValidationTestResultSerializer (serializers.HyperlinkedModelSerializer):
         model = ValidationTestResult
         fields = ('id', 'hash', 'model_version_id', 'test_code_id', 'results_storage', 'score', 'passed', 'timestamp', 'platform',   'project',  'normalized_score','runtime')
 
- 
+
 
 #############
 ## Tickets ##
@@ -145,13 +148,13 @@ class TicketSerializer(serializers.HyperlinkedModelSerializer):
 class Param_DataModalitiesSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Param_DataModalities
-        fields = ('id', 'authorized_value') 
+        fields = ('id', 'authorized_value')
 
 class Param_TestTypeSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Param_TestType
         fields = ('id', 'authorized_value')
-    
+
 class Param_SpeciesSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Param_Species
@@ -181,9 +184,13 @@ class Param_ScoreTypeSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Param_ScoreType
         fields = ('id', 'authorized_value')
-    
+
 class Param_OrganizationsSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Param_organizations
         fields = ('id', 'authorized_value')
-    
+
+class PersonSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = Persons
+        fields = ('id','pattern','first_name', 'last_name', 'email')

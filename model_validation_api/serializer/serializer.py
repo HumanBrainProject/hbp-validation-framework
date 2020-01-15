@@ -1,7 +1,9 @@
-
+import logging
+from datetime import datetime
+from itertools import chain
 from django.core.serializers.json import DjangoJSONEncoder
 
-from ..models import (ValidationTestDefinition, 
+from ..models import (ValidationTestDefinition,
                     ValidationTestCode,
                     ValidationTestResult,
                     ScientificModel,
@@ -48,8 +50,8 @@ from .simple_serializer import (
     Param_OrganizationsSerializer,
 )
 
-
 #### rest framework serializers ####
+logger = logging.getLogger("model_validation_api")
 
 
 class ScientificModelReadOnlySerializer2(serializers.HyperlinkedModelSerializer):
@@ -81,9 +83,12 @@ class ScientificModelReadOnlySerializer(serializers.HyperlinkedModelSerializer):
     instances = ScientificModelInstanceForModelReadOnlySerializer (read_only=True, many=True )
     images = ScientificModelImageForModelReadOnlySerializer (read_only=True , many=True )
     app = CollabParametersReadOnlyForHomeSerializer(read_only=True)
-    class Meta:        
+    class Meta:
         model = ScientificModel
         fields = ('id', 'name', 'alias', 'author','owner', 'app','organization','project','private','license', 'cell_type', 'model_scope','abstraction_level', 'brain_region', 'species','description', 'instances', 'images')
+
+
+
 
 class ScientificModelFullReadOnlySerializer(serializers.HyperlinkedModelSerializer):
     app = CollabParametersSerializer( read_only=True)
@@ -121,10 +126,11 @@ class ValidationTestDefinitionFullSerializer(serializers.HyperlinkedModelSeriali
     codes = ValidationTestCodeSerializer(many=True , read_only=True)
     class Meta:
         model = ValidationTestDefinition
-        fields = ('id', 'name', 'alias', 'status', 'species', 'brain_region', 
-                    'cell_type', 'age', 'data_location', 
+        fields = ('id', 'name', 'alias', 'status', 'species', 'brain_region',
+                    'cell_type', 'age', 'data_location',
                     'data_type', 'data_modality', 'test_type', 'score_type',
                     'protocol', 'author', 'creation_date', 'publication', 'codes')
+
 
 
 
@@ -136,6 +142,8 @@ class ValidationTestCodeReadOnlySerializer(serializers.HyperlinkedModelSerialize
     class Meta:
         model = ValidationTestCode
         fields = ('id', 'repository', 'version', 'description', 'parameters', 'path', 'timestamp', 'test_definition')
+
+
 
 
 
@@ -174,14 +182,14 @@ class TicketReadOnlySerializer(serializers.HyperlinkedModelSerializer):
 
 #     class Meta:
 #         model = CollabParameters
-#         # fields = ('id', 'data_modalities', 'test_type', 'species', 'brain_region', 
+#         # fields = ('id', 'data_modalities', 'test_type', 'species', 'brain_region',
 #         #             'cell_type', 'model_type')
 
 #         fields = ('id', 'param')
 
 
 #class configviewSerializer(object):
-    
+
 #    @staticmethod
 #    def _to_dict(model):
 #        data = {

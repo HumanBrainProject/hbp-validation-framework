@@ -37,8 +37,31 @@
                         <textarea class="scrollabletextbox" rows="5" cols="50" ng-model="model_instance.description"> </textarea>
                         <a class="glyphicon glyphicon-question-sign" aria-hidden="true" data-toggle="tooltip" data-placement="right" title="Example:"></a>
                     </td>
-                    <td></td>
-                </tr>
+                            </tr>
+                            <tr>
+                                <td><b>License:</b></td>
+                                <td>
+                                    <input type="text" ng-model="model_instance.license" />
+                                    <a class="glyphicon glyphicon-question-sign" aria-hidden="true" data-toggle="tooltip" data-placement="right" title="Example: BSD"></a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </td>
+                <td>
+                    <table>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <font color=red>*</font>
+                                    <b>Source code:</b>
+                                </td>
+                                <td>
+                                    <input type="text" ng-model="model_instance.source" required />
+                                    <a class="glyphicon glyphicon-question-sign" aria-hidden="true" data-toggle="tooltip" data-placement="right" title="Example: http://github.com"></a>
+                                </td>
+                            </tr>
+
                 <tr>
                     <td>
                         <b>Parameters:</b>

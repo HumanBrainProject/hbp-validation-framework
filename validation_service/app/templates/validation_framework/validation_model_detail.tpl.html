@@ -9,7 +9,7 @@
             <button class="button-MC" ng-click="Context.validation_goToHomeView();">Home</button>&ensp;
 
             <h1 align=center>{{ model.models[0].name}}</h1>
-            <h3 align=center> Author(s): {{ model.models[0].author }}</h3>
+            <h3 align=center> Author(s): {{ formatAuthors(model.models[0].author) }}</h3>
         </nav>
     </header>
 
@@ -148,7 +148,7 @@
 
                                             <tbody>
                                                 <tr ng-repeat="(key, result) in model_instance.results">
-                                                    <td class="th-td-limited-size tr-clickable VF-table-result-td-margin-right" ng-click=Context.goToResultDetailView($event,result)>
+                                                    <td class="th-td-limited-size tr-clickable VF-table-result-td-margin-right" ng-click=Context.goToResultDetailView($event,result.id)>
                                                         <div ng-if="key == 0">
                                                             <b precision=result.score> </b>
 

@@ -93,14 +93,14 @@
                         | orderBy: selected_sorting_option | itemsPerPage: itemsPerPages" pagination-id="models">
 
                     <td>{{ model.name}}</td>
-                    <td ng-text-truncate=model.alias ng-tt-chars-threshold="50 " ng-tt-no-toggling>{{ model.alias }}</td>
-                    <td ng-text-truncate=model.species ng-tt-chars-threshold="50 " ng-tt-no-toggling>{{ model.species }}</td>
-                    <td ng-text-truncate=model.brain_region ng-tt-chars-threshold="50 " ng-tt-no-toggling>{{ model.brain_region }}</td>
-                    <td ng-text-truncate=model.cell_type ng-tt-chars-threshold="50 " ng-tt-no-toggling>{{ model.cell_type }}</td>
-                    <td ng-text-truncate=model.model_scope ng-tt-chars-threshold="50 " ng-tt-no-toggling>{{ model.model_scope }}</td>
-                    <td ng-text-truncate=model.abstraction_level ng-tt-chars-threshold="50 " ng-tt-no-toggling>{{ model.abstraction_level }}</td>
-                    <td ng-text-truncate=model.author ng-tt-chars-threshold="50 " ng-tt-no-toggling>{{ model.author }}</td>
-                    <td ng-text-truncate=model.organization ng-tt-chars-threshold="50 " ng-tt-no-toggling>{{ model.organization }}</td>
+                <td ng-text-truncate="model.alias" ng-tt-chars-threshold="50 " ng-tt-no-toggling>{{ model.alias }}</td>
+                <td ng-text-truncate="model.species" ng-tt-chars-threshold="50 " ng-tt-no-toggling>{{ model.species }}</td>
+                <td ng-text-truncate="model.brain_region" ng-tt-chars-threshold="50 " ng-tt-no-toggling>{{ model.brain_region }}</td>
+                <td ng-text-truncate="model.cell_type" ng-tt-chars-threshold="50 " ng-tt-no-toggling>{{ model.cell_type }}</td>
+                <td ng-text-truncate="model.model_scope" ng-tt-chars-threshold="50 " ng-tt-no-toggling>{{ model.model_scope }}</td>
+                <td ng-text-truncate="model.abstraction_level" ng-tt-chars-threshold="50 " ng-tt-no-toggling>{{ model.abstraction_level }}</td>
+                <td ng-text-truncate="formatAuthors(model.author)" ng-tt-chars-threshold="50 " ng-tt-no-toggling>{{ formatAuthors(model.author) }}</td>
+                <td ng-text-truncate="model.organization" ng-tt-chars-threshold="50 " ng-tt-no-toggling>{{ model.organization }}</td>
                     <td>{{ model.app.collab_id }}</td>
                     <td>
                         <div ng-if="model.private == 1" class="glyphicon glyphicon-lock">Private</div>

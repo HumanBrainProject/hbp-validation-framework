@@ -71,11 +71,13 @@ Thumbs.db
 /static
 /app/static/
 packages/*
-!packages/.keep 
+!packages/.keep
 
 validation_service/app/static/
 
+# Javascript
 
+*/node_modules
 
 # Migrations #
 ##############
@@ -87,3 +89,5 @@ model_validation_api/migrations/
 ##########
 db.sqlite3
 
+# Files with secrets, should not go under version control
+env_local.sh

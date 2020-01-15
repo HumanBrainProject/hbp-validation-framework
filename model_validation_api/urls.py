@@ -25,7 +25,15 @@ from .views import (
                     IsCollabReaderRest,
                     Results,
                     CollabAppID,
-                    IsSuperUserRest,
+                    IsSuperUserRest)
+from .views_kg import (
+                    Models_KG,
+                    ModelInstances_KG,
+                    ModelAliases_KG,
+                    Tests_KG,
+                    TestInstances_KG,
+                    TestAliases_KG,
+                    Results_KG
                     )
 
 # from django.contrib.auth.decorators import login_required
@@ -42,7 +50,7 @@ uuid_pattern = "[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}"
 urlpatterns = (
     #general
     url(r'^collabidrest/$',
-        CollabIDRest.as_view(), 
+        CollabIDRest.as_view(),
         ),
     url(r'^appidrest/$',
          AppIDRest.as_view(),
@@ -50,43 +58,51 @@ urlpatterns = (
      url(r'^issuperuser/$',
          IsSuperUserRest.as_view(),
         ),
-        
+
     # url(r'^notificationrest/$',
     #     NotificationRest.as_view(),
-    #     ), 
+    #     ),
     url(r'^authorizedcollabparameterrest/$',
-        AuthorizedCollabParameterRest.as_view(), 
+        AuthorizedCollabParameterRest.as_view(),
         ),
     url(r'^IsCollabMemberRest/$',
         IsCollabMemberRest.as_view(),
         ),
     url(r'^IsCollabReaderRest/$',
         IsCollabReaderRest.as_view(),
-        ),    
+        ),
     url(r'^IsCollabMemberOrAdminRest/$',
         IsCollabMemberOrAdminRest.as_view(),
-        ),    
+        ),
 
     #validation app url
     url(r'^app/$',
         HomeValidationView.as_view(),
         name="home-validation-view"),
-    
+
     url(r'^collabappid/$',
         CollabAppID.as_view(),
         ),
-    
 
-    url(r'^tests/$',
+
+    url(r'^tests-old/$',
         Tests.as_view(),
+        name="validation-test-definition-old"),
+    url(r'^tests/$',
+        Tests_KG.as_view(),
         name="validation-test-definition"),
-    url(r'^test-instances/$',
+    url(r'^test-instances-old/$',
         TestInstances.as_view(),
+        name="validation-test-code-old"),
+    url(r'^test-instances/$',
+        TestInstances_KG.as_view(),
         name="validation-test-code"),
-    
 
-    url(r'^results/$',
+    url(r'^results-old/$',
         Results.as_view(),
+        ),
+    url(r'^results/$',
+        Results_KG.as_view(),
         ),
 
     url(r'^testcomment/$',
@@ -95,8 +111,11 @@ urlpatterns = (
     url(r'^testticket/$',
         TestTicketRest.as_view(),
         name="test-ticket"),
-    url(r'^test-aliases/$',
+    url(r'^test-aliases-old/$',
         TestAliases.as_view(),
+        name="scientific-test-alias-old"),
+    url(r'^test-aliases/$',
+        TestAliases_KG.as_view(),
         name="scientific-test-alias"),
     url(r'areversionseditable/$',
         AreVersionsEditableRest.as_view(),
@@ -105,30 +124,39 @@ urlpatterns = (
     url(r'^model-catalog/$',
         ModelCatalogView.as_view(),
         name="model-catalog-view"),
-    url(r'^models/$',
+    url(r'^models-old/$',
         Models.as_view(),
+        name="scientific-model-old"),
+    url(r'^models/$',
+        Models_KG.as_view(),
         name="scientific-model"),
-    url(r'^model-instances/$',
+    url(r'^model-instances-old/$',
         ModelInstances.as_view(),
+        name="scientific-model-instance-old"),
+    url(r'^model-instances/$',
+        ModelInstances_KG.as_view(),
         name="scientific-model-instance"),
     url(r'^images/$',
         Images.as_view(),
         name="scientific-model-image"),
-    url(r'^model-aliases/$',
+    url(r'^model-aliases-old/$',
         ModelAliases.as_view(),
-        name="scientific-model-alias"),  
+        name="scientific-model-alias-old"),
+    url(r'^model-aliases/$',
+        ModelAliases_KG.as_view(),
+        name="scientific-model-alias"),
     # url(r'^modelfollowrest/$',
     #     ModelFollowRest.as_view(),
     #     name="model-follow"),
 ######## ParameterConfiguration ##########
-   
+
     url(r'^parametersconfigurationrest/$',
         ParametersConfigurationRest.as_view(),
         ),
-    
+
         ## model_catalog configuration
     url(r'^parametersconfiguration-model-catalog/$',
-        ParametersConfigurationModelView.as_view(), 
+        ParametersConfigurationModelView.as_view(),
         ),
     url(r'^parametersconfiguration-model-catalog/parametersconfigurationrest/$',
         ParametersConfigurationRest.as_view(),
@@ -141,18 +169,18 @@ urlpatterns = (
         ),
     url(r'^parametersconfiguration-model-catalog/IsCollabMemberRest/$',
         IsCollabMemberRest.as_view(),
-        ),    
+        ),
     url(r'^parametersconfiguration-model-catalog/collabidrest/$',
          CollabIDRest.as_view(),
-        ),   
+        ),
     url(r'^parametersconfiguration-model-catalog/appidrest/$',
          AppIDRest.as_view(),
-        ),        
+        ),
 
         ## model_catalog configuration
     url(r'^parametersconfiguration-validation-app/$',
-        ParametersConfigurationValidationView.as_view(), 
-        ),  
+        ParametersConfigurationValidationView.as_view(),
+        ),
     url(r'^parametersconfiguration-validation-app/parametersconfigurationrest/$',
         ParametersConfigurationRest.as_view(),
         ),
@@ -161,18 +189,15 @@ urlpatterns = (
     ),
     url(r'^parametersconfiguration-validation-app/IsCollabMemberOrAdminRest/$',
         IsCollabMemberOrAdminRest.as_view(),
-        ), 
+        ),
     url(r'^parametersconfiguration-validation-app/IsCollabMemberRest/$',
         IsCollabMemberRest.as_view(),
-        ),   
+        ),
     url(r'^parametersconfiguration-validation-app/collabidrest/$',
          CollabIDRest.as_view(),
-        ),    
+        ),
     url(r'^parametersconfiguration-validation-app/appidrest/$',
          AppIDRest.as_view(),
-        ),        
+        ),
 
 )
-
-
-

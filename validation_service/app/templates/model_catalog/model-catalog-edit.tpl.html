@@ -56,25 +56,26 @@
                             </tr>
                             <tr>
                                 <td>
-                                    <b>Author:</b>
+                                    <b>Author(s):</b>
                                 </td>
                                 <td>
-                                    <input type="text" ng-model="model.models[0].author" required/>
+                                    <input type="text" ng-model="allAuthors" ng-model-options="{ getterSetter: true }" required/>
                                 </td>
                                 <td>
-                                    <b>Owner:</b>
+                                    <b>Owner(s):</b>
                                 </td>
                                 <td>
-                                    <input type="text" ng-model="model.models[0].owner" />
+                                    <input type="text" ng-model="allOwners" ng-model-options="{ getterSetter: true }" />
+
                                 </td>
                             </tr>
 
                             <tr>
                                 <td>
-                                    <b>App id:</b>
+                                    <b>Main collab id:</b>
                                 </td>
                                 <td>
-                                    <input type="text" ng-model="model.models[0].app.id" required/>
+                                    <input type="text" ng-model="model.models[0].app.collab_id" required/>
                                 </td>
                                 <td>
                                     <b>License:</b>
@@ -201,7 +202,7 @@
                     <div class="group" ng-repeat="img in model.models[0].images track by $index">
                         <figure>
                             <button id="button-sup" type="button" ng-click='deleteImage(img)' class='glyphicon glyphicon-remove'></button>
-                            <button><img id="image-$index"  ng-src="{{img.src}}" class=image> </button>
+                            <button><img id="image-$index"  ng-src="{{img.url}}" class=image> </button>
                             <figcaption> <textarea ng-model="img.caption" rows="3" cols="40" required> </textarea> </figcaption>
                             <br>
                         </figure>
@@ -210,9 +211,6 @@
             </tbody>
         </table>
         <br>
-        <nav class=navbar>
-            <button ng-show="model.models[0].images[0]" type="submit" class="btn btn-primary" ng-click=editImages()>Edit images</button>
-        </nav>
         <br>
         <br>
 

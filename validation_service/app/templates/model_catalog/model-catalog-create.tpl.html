@@ -48,20 +48,20 @@
                                     <tr>
                                         <td>
                                             <font color=red>*</font>
-                                            <b>Author:</b>
+                                            <b>Author(s):</b>
                                         </td>
                                         <td>
-                                            <input type="text" ng-model="model.author" required/>
-                                            <a class="glyphicon glyphicon-question-sign" aria-hidden="true" data-toggle="tooltip" data-placement="right" title="Example: John Smith"></a>
+                                            <input type="text" ng-model="allAuthors" ng-model-options="{ getterSetter: true }" required/>
+                                            <a class="glyphicon glyphicon-question-sign" aria-hidden="true" data-toggle="tooltip" data-placement="right" title="Example: John L. Smith; Salma Adil"></a>
                                         </td>
                                     </tr>
                                     <tr>
                                         <td>
-                                            <b>Owner:</b>
+                                            <b>Owner(s):</b>
                                         </td>
                                         <td>
-                                            <input type="text" ng-model="model.owner" />
-                                            <a class="glyphicon glyphicon-question-sign" aria-hidden="true" data-toggle="tooltip" data-placement="right" title="Example: John Smith"></a>
+                                            <input type="text" ng-model="allOwners" ng-model-options="{ getterSetter: true }" />
+                                            <a class="glyphicon glyphicon-question-sign" aria-hidden="true" data-toggle="tooltip" data-placement="right" title="Example: Lei Xie; Susanne Müller"></a>
                                         </td>
                                     </tr>
                                     <tr>

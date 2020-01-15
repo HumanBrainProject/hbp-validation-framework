@@ -27,6 +27,7 @@ class CollabParameters(models.Model):
     def __str__(self):
             return "Collab Parameters {}".format(self.id)
 
+
 @python_2_unicode_compatible
 class ValidationTestDefinition(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, )
@@ -68,6 +69,7 @@ class ValidationTestDefinition(models.Model):
         else:
             return self.cleaned_data['alias']
 
+
 @python_2_unicode_compatible
 class ValidationTestCode(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, )
@@ -79,8 +81,6 @@ class ValidationTestCode(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True, help_text="timestamp for this version of the code")
     test_definition = models.ForeignKey(ValidationTestDefinition, help_text="Validation test implemented by this code",
                                         related_name="codes")
-
-
 
     class Meta:
         verbose_name_plural = "validation test code"
@@ -107,21 +107,21 @@ class ScientificModel(models.Model):
     species = models.CharField(max_length=100 ,blank=True, help_text="species")
     brain_region = models.CharField(max_length=100, blank=True, help_text="brain region, if applicable")
     cell_type = models.CharField(max_length=100, blank=True, help_text="cell type, for single-cell models")
-    author = models.TextField(help_text="Author(s) of this model")  # do we need a separate "owner" field?
+    author = models.TextField(help_text="Author(s) of this model")
     model_type = models.CharField(max_length=100, blank=True, help_text="model_type...will be deleted after (split into model scope and abstraction level)")
     model_scope = models.CharField(max_length=100, blank=True, help_text="model scope: subcellular model, single cell, network...")
-    abstraction_level = models.CharField(max_length=100, blank=True, help_text="model type: protein sturcture, system biology, spiking neurons...")
+    abstraction_level = models.CharField(max_length=100, blank=True, help_text="model type: protein structure, system biology, spiking neurons...")
     private = models.BooleanField ( default= False ,help_text="privacy of the model: can be private (if true) or public (if false)")
     app = models.ForeignKey(CollabParameters, related_name="collab_params")
-    code_format = models.CharField(max_length=100 ,blank=True, help_text=".py, .c, etc...") ###to remove
+    code_format = models.CharField(max_length=100 ,blank=True, help_text=".py, .c, etc...") # to remove, moved to Instance
     alias = models.CharField(max_length=200, unique=True, blank=True, null=True, default=None,  help_text="alias of the model")
     creation_date = models.DateTimeField(auto_now_add=True, help_text="creation date of the model")
     organization = models.CharField(max_length=100 , blank=False, default="<<empty>>")
     owner = models.TextField(max_length=100, blank=True, null = True)
     project = models.TextField(max_length=100, blank=True, null = True) ##will be removed in KG
-    license = models.TextField(max_length=200, blank=True, null = True)
-    # todo: 
-    # spiking vs rate?
+    license = models.TextField(max_length=200, blank=True, null=True)  # to remove, moved to Instance
+    pla_components = models.CharField(max_length=100 , blank=False, null=True)
+    parents = models.ManyToManyField("ScientificModel", symmetrical=False, related_name="subprojects")
 
     def __str__(self):
         return "Model: {} ({})".format(self.name, self.id)
@@ -131,6 +131,7 @@ class ScientificModel(models.Model):
             return None
         else:
             return self.cleaned_data['alias']
+
 
 @python_2_unicode_compatible
 class ScientificModelInstance(models.Model):
@@ -143,12 +144,14 @@ class ScientificModelInstance(models.Model):
     description = models.TextField(null=True, blank=True)
     parameters = models.TextField(null=True, blank=True)
     source = models.TextField(max_length=500, blank=True, help_text="Version control repository containing the source code of the model")
+    license = models.TextField(max_length=200, blank=True, null=True)
     timestamp = models.DateTimeField(auto_now_add=True, help_text="Timestamp of when the version was created")
     code_format = models.CharField(max_length=100 , blank=True, null=True, default=None, help_text = "format of the code (PyNN, Brian, Neuron...)")
     hash = models.CharField(max_length=100 , blank=True, null=True, default=None, help_text = "")
     morphology = models.TextField(max_length=1000, blank=True, null=True, help_text="Json containing the morphology urls corresponding to the instances")
     def __str__(self):
         return "Model: {} @ version {}".format(self.model.name, self.version)
+
 
 @python_2_unicode_compatible
 class ScientificModelImage(models.Model):
@@ -202,6 +205,7 @@ class Tickets(models.Model):
     text = models.TextField()
     creation_date = models.DateTimeField(auto_now_add=True)
 
+
 class Comments(models.Model): 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, )
     Ticket = models.ForeignKey(Tickets, on_delete=models.CASCADE, default=None)
@@ -218,12 +222,14 @@ class Comments(models.Model):
 #     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, )
 #     test = models.ForeignKey(ValidationTestDefinition)
 #     user_id = models.IntegerField(help_text="user id of the follower")
+
 class Persons(models.Model):
      id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, )
      pattern = models.CharField(max_length=200, default="")
      first_name = models.CharField(max_length=200, default="")
      last_name = models.CharField(max_length=200, default="")
      email = models.CharField(max_length=200, default="")
+
 class  Param_organizations (models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, )
     authorized_value = models.CharField(max_length=200, unique=True, default="")
@@ -239,14 +245,17 @@ class Param_TestType (models.Model):
 class Param_Species (models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, )
     authorized_value = models.CharField(max_length=200, unique=True, default="")
+    iri = models.URLField(blank=True)
 
 class Param_BrainRegion (models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, )
     authorized_value = models.CharField(max_length=200, unique=True, default="")
+    iri = models.URLField(blank=True)
 
 class Param_CellType (models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, )
     authorized_value = models.CharField(max_length=200, unique=True, default="")
+    iri = models.URLField(blank=True)
 
 class Param_ModelType (models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, )
@@ -263,7 +272,3 @@ class Param_AbstractionLevel (models.Model):
 class Param_ScoreType (models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, )
     authorized_value = models.CharField(max_length=200, unique=True, default="")
-
-
-
-
