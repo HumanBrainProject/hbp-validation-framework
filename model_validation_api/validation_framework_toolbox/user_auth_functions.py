@@ -128,6 +128,7 @@ def get_user_from_token(request):
             raise Exception(res1.content + res2.content)
         else:
             user_info = res2.json()
+            logger.debug(user_info)
             # make this compatible with the v1 json
             user_info["id"] = user_info["sub"]
             user_info["username"] = user_info["preferred_username"]
