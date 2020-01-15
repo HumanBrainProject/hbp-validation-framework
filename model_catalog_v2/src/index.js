@@ -61,7 +61,7 @@ function checkAuth() {
     }
     if (isAuthenticated) {
         console.log('...which is authenticated, starting business logic...');
-        return doBusinessLogic();
+        return doBusinessLogic(keycloak);
     }
   }
 
@@ -76,7 +76,7 @@ function checkAuth() {
     }
     if (isAuthenticated) {
         console.log('...which is authenticated, starting business logic...');
-        return doBusinessLogic();
+        return doBusinessLogic(keycloak);
     }
   }
 
@@ -117,9 +117,9 @@ function verifyMessage(event) {
   return login(YOUR_APP_SCOPES);
 }
 
-function doBusinessLogic() {
+function doBusinessLogic(auth) {
   ReactDOM.render(
-    <ModelCatalog />,
+    <ModelCatalog auth={auth} />,
     document.getElementById('root')
   );
 }
