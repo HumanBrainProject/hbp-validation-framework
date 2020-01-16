@@ -2074,6 +2074,8 @@ ModelCatalogApp.controller('ModelCatalogEditCtrl', ['$scope', '$rootScope', '$ht
                 $scope.model = ScientificModelRest.get({ app_id: $scope.app_id, id: $stateParams.uuid });
 
                 $scope.model.$promise.then(function(model) {
+                    console.log("Got model for editing");
+                    console.log(model);
                     $scope.change_collab_url_to_real_url();
                     // return author full names as a string
                     var full_names = [];
