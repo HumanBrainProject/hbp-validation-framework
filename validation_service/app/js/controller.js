@@ -1826,9 +1826,17 @@ ModelCatalogApp.controller('ModelCatalogEditCtrl', ['$scope', '$rootScope', '$ht
         $scope.authors_str = [];
         $scope.owners_str = [];
 
+        $scope.asList = function(val) {
+            if (!angular.isArray(val)) {
+                return [val]
+            } else {
+                return val
+            }
+        };
+
         $scope.change_collab_url_to_real_url = function() {
             //COULD BE IN A SERVICE
-            for (var i in $scope.model.models[0].images) {
+            for (var i in $scope.asList($scope.model.models[0].images)) {
                 var substring = $scope.model.models[0].images[i].url.substring(0, 35);
                 if (substring == "https://collab.humanbrainproject.eu") {
                     $scope.get_url_from_collab_storage($scope.model.models[0].images[i].url, i);
@@ -2029,13 +2037,6 @@ ModelCatalogApp.controller('ModelCatalogEditCtrl', ['$scope', '$rootScope', '$ht
         $scope.isInArray = function(value, array) {
             return array.indexOf(value) > -1;
         };
-        $scope.asList = function(val) {
-            if (!angular.isArray(val)) {
-                return [val]
-            } else {
-                return val
-            }
-        };
 
         Context.setService().then(function() {
 
@@ -2071,6 +2072,9 @@ ModelCatalogApp.controller('ModelCatalogEditCtrl', ['$scope', '$rootScope', '$ht
                         full_names.push(person.given_name + " " + person.family_name)
                     });
                     $scope.authors_str = full_names.join("; ")
+                    console.log("full_names = ");
+                    console.log(full_names);
+                    console.log("authors_str = " + $scope.authors_str);
                     // same for owners
                     full_names = [];
                     $scope.model.models[0].owner.forEach(function(person) {
