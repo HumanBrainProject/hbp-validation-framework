@@ -1752,7 +1752,15 @@ ModelCatalogApp.controller('ModelCatalogDetailCtrl', ['$scope', '$rootScope', '$
                 full_names.push(auth.given_name + " " + auth.family_name)
             });
             return full_names.join(", ")
-        }
+        };
+
+        $scope.asList = function(val) {
+            if (!angular.isArray(val)) {
+                return [val]
+            } else {
+                return val
+            }
+        };
 
         Context.setService().then(function() {
 
@@ -1910,10 +1918,20 @@ ModelCatalogApp.controller('ModelCatalogEditCtrl', ['$scope', '$rootScope', '$ht
         $scope.saveImage = function() {
             if (JSON.stringify($scope.image) != undefined) {
                 if ($scope.model.models[0].images) {
-                    $scope.model.models[0].images.append({
-                        'caption': $scope.image.caption,
-                        'url': $scope.image.url
-                });
+                    if (angular.isArray($scope.model.models[0].images)) {
+                        $scope.model.models[0].images.append({
+                            'caption': $scope.image.caption,
+                            'url': $scope.image.url
+                        });
+                    } else {
+                        $scope.model.models[0].images = [
+                            $scope.model.models[0].images,
+                            {
+                                'caption': $scope.image.caption,
+                                'url': $scope.image.url
+                            }
+                        ]
+                    }
                 } else {
                     $scope.model.models[0].images = [{
                         'caption': $scope.image.caption,
@@ -2010,7 +2028,14 @@ ModelCatalogApp.controller('ModelCatalogEditCtrl', ['$scope', '$rootScope', '$ht
         };
         $scope.isInArray = function(value, array) {
             return array.indexOf(value) > -1;
-        }
+        };
+        $scope.asList = function(val) {
+            if (!angular.isArray(val)) {
+                return [val]
+            } else {
+                return val
+            }
+        };
 
         Context.setService().then(function() {
 

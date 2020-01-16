@@ -193,7 +193,7 @@
                     <label> <button type="button" id="plusI" class="glyphicon glyphicon-plus" ng-click="displayAddImage()"></button> Add an image</label> <br>
                 </tr>
                 <tr>
-                    <div class="group" ng-repeat="img in model.models[0].images track by $index">
+                    <div class="group" ng-repeat="img in asList(model.models[0].images) track by $index">
                         <figure>
                             <button id="button-sup" type="button" ng-click='deleteImage(img)' class='glyphicon glyphicon-remove'></button>
                             <button><img id="image-$index"  ng-src="{{img.url}}" class=image> </button>
