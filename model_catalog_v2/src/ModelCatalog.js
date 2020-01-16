@@ -38,7 +38,7 @@ export default class ModelCatalog extends React.Component {
         "https://validation-staging.brainsimulation.eu/models/?organization=HBP-SP6&brain_region=cerebellum",
         config)
       .then(res => {
-        const models = res.models;
+        const models = res.data.models;
         this.setState({
           modelData: models,
           currentModel: models[0],
