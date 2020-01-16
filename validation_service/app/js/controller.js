@@ -2067,22 +2067,24 @@ ModelCatalogApp.controller('ModelCatalogEditCtrl', ['$scope', '$rootScope', '$ht
                 $scope.model.$promise.then(function(model) {
                     console.log("Got model for editing");
                     console.log(model);
-                    $scope.change_collab_url_to_real_url();
+
                     // return author full names as a string
                     var full_names = [];
                     model.models[0].author.forEach(function(person) {
-                        full_names.push(person.given_name + " " + person.family_name)
+                        full_names.push(person.given_name + " " + person.family_name);
                     });
-                    $scope.authors_str = full_names.join("; ")
+                    $scope.authors_str = full_names.join("; ");
                     console.log("full_names = ");
                     console.log(full_names);
                     console.log("authors_str = " + $scope.authors_str);
                     // same for owners
                     full_names = [];
                     model.models[0].owner.forEach(function(person) {
-                        full_names.push(person.given_name + " " + person.family_name)
+                        full_names.push(person.given_name + " " + person.family_name);
                     });
-                    $scope.owners_str = full_names.join("; ")
+                    $scope.owners_str = full_names.join("; ");
+
+                    $scope.change_collab_url_to_real_url();
                 });
 
                 var version_editable = AreVersionsEditableRest.get({ app_id: $scope.app_id, model_id: $stateParams.uuid });
