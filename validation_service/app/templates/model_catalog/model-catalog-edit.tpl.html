@@ -78,12 +78,6 @@
                                     <input type="text" ng-model="model.models[0].app.collab_id" required/>
                                 </td>
                                 <td>
-                                    <b>License:</b>
-                                </td>
-                                <td>
-                                    <input type="text" ng-model="model.models[0].license">
-                                </td>
-                                <td>
                                     <b>Private: </b> &nbsp
 
                                     <label><input type="radio" ng-model="model.models[0].private" ng-value="false"/>no</label> &emsp;
@@ -258,6 +252,11 @@
                                         <tr>
                                             <td>Code format</td>
                                             <td><input size="20" type="text" ng-model="model_instance.code_format" /></td>
+                                            <td></td>
+                                        </tr>
+                                        <tr>
+                                            <td>License</td>
+                                            <td><input size="20" type="text" ng-model="model_instance.license" /></td>
                                             <td></td>
                                         </tr>
                                     </tbody>

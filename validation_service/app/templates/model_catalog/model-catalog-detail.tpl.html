@@ -73,17 +73,8 @@
                 <tr style="width: 15%" ng-if="model.models[0].organization && model.models[0].organization!='' &&  model.models[0].organization!='<<empty>>'">
                     <td> <b> Organization: </b> {{ model.models[0].organization }} </td>
                 </tr>
-                <tr style="width: 15%" ng-if="model.models[0].license && model.models[0].license!='' &&  model.models[0].license!='<<empty>>'">
-                    <td> <b> License: </b> {{ model.models[0].license }} </td>
-                </tr>
                 <tr style="width: 15%" ng-if="model.models[0].project && model.models[0].project!=''">
                     <td> <b> Project: </b> {{ model.models[0].project }} </td>
-                </tr>
-                <tr style="width: 15%" ng-if="model.models[0].parameters && model.models[0].parameters!=''">
-                    <td> <b> Parameters: </b> {{ model.models[0].parameters }} </td>
-                </tr>
-                <tr style="width: 15%" ng-if="model.models[0].license && model.models[0].license!=''">
-                    <td> <b> License: </b> {{ model.models[0].license }} </td>
                 </tr>
             </tbody>
         </table>
@@ -215,6 +206,23 @@
                                                                 <td><pre style="width: 60vw; overflow:hidden;"> <div class=div-no-overflow-scroll > <a target=_blank href={{model_instance.source}}>{{ model_instance.source }}</a></div></pre></td>
                                                                 <td style="width:5%"></td>
                                                                 <td> <button ng-if="model_instance.source && isCscsContainer(model_instance.source)" type="submit" class="btn btn-primary" ng-click="Context.newTab_goToBlueNaaSViewer(model_instance)">Launch in BlueNaaS</button></td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </td>
+
+                                            </tr>
+
+                                            <tr>
+
+                                                <td>License:</td>
+                                                <td>
+                                                    <table>
+                                                        <tbody>
+                                                            <tr>
+                                                                <td><pre style="width: 60vw; overflow:hidden;"> <div class=div-no-overflow-scroll > {{ model_instance.license }}</div></pre></td>
+                                                                <td style="width:5%"></td>
+                                                                <td style="width:5%"></td>
                                                             </tr>
                                                         </tbody>
                                                     </table>
