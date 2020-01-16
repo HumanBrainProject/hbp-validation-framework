@@ -1884,16 +1884,7 @@ ModelCatalogApp.controller('ModelCatalogEditCtrl', ['$scope', '$rootScope', '$ht
                 //console.log("Setting authors");
                 //console.log($scope.model.author);
             } else {
-                if ($scope.authors_str.length) {
-                    return $scope.authors_str;
-                } else {
-                    var full_names = [];
-                    $scope.model.author.forEach(function(person) {
-                        full_names.push(person.given_name + " " + person.family_name)
-                    });
-                    $scope.authors_str = full_names.join("; ")
-                    return $scope.authors_str;
-                }
+                return $scope.authors_str;
             }
         };
 
@@ -2079,7 +2070,7 @@ ModelCatalogApp.controller('ModelCatalogEditCtrl', ['$scope', '$rootScope', '$ht
                     $scope.change_collab_url_to_real_url();
                     // return author full names as a string
                     var full_names = [];
-                    $scope.model.models[0].author.forEach(function(person) {
+                    model.models[0].author.forEach(function(person) {
                         full_names.push(person.given_name + " " + person.family_name)
                     });
                     $scope.authors_str = full_names.join("; ")
@@ -2088,7 +2079,7 @@ ModelCatalogApp.controller('ModelCatalogEditCtrl', ['$scope', '$rootScope', '$ht
                     console.log("authors_str = " + $scope.authors_str);
                     // same for owners
                     full_names = [];
-                    $scope.model.models[0].owner.forEach(function(person) {
+                    model.models[0].owner.forEach(function(person) {
                         full_names.push(person.given_name + " " + person.family_name)
                     });
                     $scope.owners_str = full_names.join("; ")
