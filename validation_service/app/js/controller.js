@@ -1884,7 +1884,16 @@ ModelCatalogApp.controller('ModelCatalogEditCtrl', ['$scope', '$rootScope', '$ht
                 //console.log("Setting authors");
                 //console.log($scope.model.author);
             } else {
-                return $scope.authors_str;
+                if ($scope.authors_str.length) {
+                    return $scope.authors_str;
+                } else {
+                    var full_names = [];
+                    $scope.model.author.forEach(function(person) {
+                        full_names.push(person.given_name + " " + person.family_name)
+                    });
+                    $scope.authors_str = full_names.join("; ")
+                    return $scope.authors_str;
+                }
             }
         };
 
