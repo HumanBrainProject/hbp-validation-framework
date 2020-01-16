@@ -131,7 +131,7 @@ def get_user_from_token(request):
             logger.debug(user_info)
             # make this compatible with the v1 json
             user_info["id"] = user_info["sub"]
-            user_info["username"] = user_info["preferred_username"]
+            user_info["username"] = user_info.get("preferred_username", "unknown")
             return user_info
     # logger.debug("User information retrieved")
     else:
