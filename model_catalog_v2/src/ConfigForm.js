@@ -50,25 +50,22 @@ const brainRegions = [
 export default class ConfigForm extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {
-      selectedSpecies: [],
-      selectedBrainRegion: []
-    }
+    this.state = props.config;
     this.handleClose = this.handleClose.bind(this);
     this.handleSpeciesChange = this.handleSpeciesChange.bind(this);
     this.handleBrainRegionChange = this.handleBrainRegionChange.bind(this);
   }
 
   handleClose() {
-    this.props.onClose();
+    this.props.onClose(this.state);
   }
 
   handleSpeciesChange(event) {
-    this.setState({"selectedSpecies": event.target.value})
+    this.setState({"species": event.target.value})
   }
 
   handleBrainRegionChange(event) {
-    this.setState({"selectedBrainRegion": event.target.value})
+    this.setState({"brain_region": event.target.value})
   }
 
   render() {
@@ -84,12 +81,12 @@ export default class ConfigForm extends React.Component {
             <MultipleSelect
               itemNames={species}
               label="species"
-              value={this.state.selectedSpecies}
+              value={this.state.species}
               handleChange={this.handleSpeciesChange} />
             <MultipleSelect
               itemNames={brainRegions}
               label="brain region"
-              value={this.state.selectedBrainRegion}
+              value={this.state.brain_region}
               handleChange={this.handleBrainRegionChange} />
           </form>
         </DialogContent>

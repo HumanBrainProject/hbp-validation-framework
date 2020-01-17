@@ -68,6 +68,7 @@ export default function MultipleSelect(props) {
           id={fieldId}
           multiple
           value={props.value}
+          name={props.label}
           onChange={props.handleChange}
           input={<Input />}
           renderValue={selected => selected.join(', ')}

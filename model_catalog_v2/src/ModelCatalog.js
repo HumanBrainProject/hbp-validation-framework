@@ -19,7 +19,20 @@ import rows from './test_data.json';
 // if working on the appearance/layout set devMode=true
 // to avoid loading the models over the network every time;
 // instead we use the local test_data
-const devMode = true;
+const devMode = false;
+
+const baseUrl = "https://validation-staging.brainsimulation.eu/models/";
+
+const buildQuery = (filterDict) => {
+  let q = "";
+  for (var key in filterDict) {
+    for (var value of filterDict[key]) {
+      q += `&${key}=${value}`
+    }
+  }
+  return q.slice(1);
+};
+
 
 export default class ModelCatalog extends React.Component {
   constructor(props) {
@@ -30,7 +43,12 @@ export default class ModelCatalog extends React.Component {
       'currentModel': null,
       'open': false,
       'configOpen': false,
-      'loading': true
+      'loading': true,
+      'filters': {
+        'species': [],
+        'brain_region': ["cerebellum"],
+        'organization': ["HBP-SP6"]
+      }
     };
     if (devMode) {
       this.state['modelData'] = rows.models
@@ -41,36 +59,44 @@ export default class ModelCatalog extends React.Component {
     this.handleClickOpen = this.handleClickOpen.bind(this);
     this.openConfig = this.openConfig.bind(this);
     this.handleConfigClose = this.handleConfigClose.bind(this);
+    this.updateModels = this.updateModels.bind(this);
   }
 
   componentDidMount() {
     if (!devMode) {
-      let config = {
-        headers: {
-          'Authorization': 'Bearer ' + this.props.auth.token
-        }
-      }
-      axios.get(
-          "https://validation-staging.brainsimulation.eu/models/?organization=HBP-SP6&brain_region=cerebellum",
-          config)
-        .then(res => {
-          const models = res.data.models;
-          this.setState({
-            modelData: models,
-            currentModel: models[0],
-            loading: false,
-            error: null
-          });
-        })
-        .catch(err => {
-          // Something went wrong. Save the error in state and re-render.
-          this.setState({
-            loading: false,
-            error: err
-          });
-        });
+      this.updateModels(this.state.filters);
     }
   }
+
+  updateModels(filters) {
+    let query = buildQuery(filters);
+    let config = {
+      headers: {
+        'Authorization': 'Bearer ' + this.props.auth.token
+      }
+    }
+    let url = baseUrl + "?" + query;
+    console.log(url);
+    this.setState({loading: true});
+    axios.get(url, config)
+      .then(res => {
+        const models = res.data.models;
+        this.setState({
+          modelData: models,
+          currentModel: models[0],
+          loading: false,
+          error: null
+        });
+      })
+      .catch(err => {
+        // Something went wrong. Save the error in state and re-render.
+        this.setState({
+          loading: false,
+          error: err
+        });
+      }
+    );
+  };
 
   handleClickOpen(event, rowData) {
     this.setState({'currentModel': rowData});
@@ -86,8 +112,11 @@ export default class ModelCatalog extends React.Component {
     this.setState({'configOpen': true})
   }
 
-  handleConfigClose() {
+  handleConfigClose(filters) {
+    console.log("Closed config dialog");
+    this.setState({'filters': filters});
     this.setState({'configOpen': false});
+    this.updateModels(filters);
   }
 
   renderLoadingIndicator() {
@@ -118,7 +147,7 @@ export default class ModelCatalog extends React.Component {
             <IconButton onClick={this.openConfig} aria-label="Configure filters">
               <FilterListIcon />
             </IconButton>
-            <ConfigForm open={this.state.configOpen} onClose={this.handleConfigClose} />
+            <ConfigForm open={this.state.configOpen} onClose={this.handleConfigClose} config={this.state.filters} />
           </Grid>
           <Grid item xs={11}>
             <SearchBar/>
