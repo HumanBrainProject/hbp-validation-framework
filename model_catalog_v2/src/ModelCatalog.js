@@ -25,6 +25,7 @@ const devMode = false;
 const baseUrl = "https://validation-staging.brainsimulation.eu/models/";
 const collaboratoryOrigin = 'https://wiki.humanbrainproject.eu';
 const hashChangedTopic = '/clb/community-app/hashchange';
+const updateSettingsTopic = '/clb/community-app/settings';
 const isParent = (window.opener == null);
 const isIframe = (window !== window.parent);
 const isFramedApp = isIframe && isParent;
@@ -60,6 +61,17 @@ const updateHash = (value) => {
   };
 };
 
+const storeFilters = (filterDict) => {
+  if (isFramedApp) {
+    window.parent.postMessage({
+      topic: updateSettingsTopic,
+      data: {
+          setting1: 'setting 1 value',
+          setting2: 'setting 2 value'
+      }, collaboratoryOrigin});
+    console.log("Stored settings");
+  }
+};
 
 export default class ModelCatalog extends React.Component {
   constructor(props) {
@@ -182,13 +194,14 @@ export default class ModelCatalog extends React.Component {
 
   openConfig() {
     this.setState({'configOpen': true})
-  }
+  };
 
   handleConfigClose(filters) {
     this.setState({'filters': filters});
     this.setState({'configOpen': false});
+    storeFilters(filters);
     this.updateModels(filters);
-  }
+  };
 
   renderLoadingIndicator() {
     return (
@@ -204,7 +217,7 @@ export default class ModelCatalog extends React.Component {
         Uh oh: {this.state.error.message}
       </div>
     );
-  }
+  };
 
   renderModelCatalog() {
     if (this.state.error) {
