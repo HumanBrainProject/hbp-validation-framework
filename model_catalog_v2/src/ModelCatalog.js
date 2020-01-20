@@ -23,6 +23,11 @@ import rows from './test_data.json';
 const devMode = false;
 
 const baseUrl = "https://validation-staging.brainsimulation.eu/models/";
+const collaboratoryOrigin = 'https://wiki.humanbrainproject.eu';
+const hashChangedTopic = '/clb/community-app/hashchange';
+const isParent = (window.opener == null);
+const isIframe = (window !== window.parent);
+const isFramedApp = isIframe && isParent;
 
 const buildQuery = (filterDict) => {
   let q = "";
@@ -43,6 +48,16 @@ const filtersEmpty = (filterDict) => {
     }
   };
   return is_empty;
+};
+
+const updateHash = (value) => {
+  window.location.hash = value;
+  if (isFramedApp) {
+    window.parent.postMessage({
+      topic: hashChangedTopic,
+      data: value
+    }, collaboratoryOrigin);
+  };
 };
 
 
@@ -72,20 +87,54 @@ export default class ModelCatalog extends React.Component {
     this.openConfig = this.openConfig.bind(this);
     this.handleConfigClose = this.handleConfigClose.bind(this);
     this.updateModels = this.updateModels.bind(this);
+    this.getModel = this.getModel.bind(this);
   }
 
   componentDidMount() {
+    if (window.location.hash) {
+      // get a specific model
+      this.getModel(window.location.hash.slice(1));
+    }
     if (!devMode) {
       this.updateModels(this.state.filters);
     }
   }
+
+  getModel(model_id) {
+    let url = baseUrl + "?id=" + model_id;
+    console.log(url);
+    let config = {
+      headers: {
+        'Authorization': 'Bearer ' + this.props.auth.token
+      }
+    }
+    this.setState({loading: true});
+    axios.get(url, config)
+      .then(res => {
+        const models = res.data.models;
+        this.setState({
+          modelData: models,
+          currentModel: models[0],
+          loading: false,
+          error: null,
+          open: true
+        });
+      })
+      .catch(err => {
+        // Something went wrong. Save the error in state and re-render.
+        this.setState({
+          loading: false,
+          error: err
+        });
+      }
+    );
+  };
 
   updateModels(filters) {
 
     if (filtersEmpty(filters)) {
       this.setState({
         modelData: [],
-        currentModel: null,
         loading: false,
         error: null
       });
@@ -123,11 +172,12 @@ export default class ModelCatalog extends React.Component {
   handleClickOpen(event, rowData) {
     this.setState({'currentModel': rowData});
     this.setState({'open': true});
-    console.log(rowData);
+    updateHash(rowData.id);
   };
 
   handleClose() {
     this.setState({'open': false});
+    updateHash('');
   };
 
   openConfig() {
@@ -135,7 +185,6 @@ export default class ModelCatalog extends React.Component {
   }
 
   handleConfigClose(filters) {
-    console.log("Closed config dialog");
     this.setState({'filters': filters});
     this.setState({'configOpen': false});
     this.updateModels(filters);
@@ -163,10 +212,14 @@ export default class ModelCatalog extends React.Component {
     }
     if (filtersEmpty(this.state.filters)) {
       var mainContent = <Introduction />;
-      var modelDetail = "";
     } else {
-      var mainContent = <ModelTable rows={this.state.modelData} handleRowClick={this.handleClickOpen} />;
+      var mainContent = <ModelTable rows={this.state.modelData} handleRowClick={this.handleClickOpen} />
+    }
+
+    if (this.state.currentModel) {
       var modelDetail = <ModelDetail open={this.state.open} modelData={this.state.currentModel} onClose={this.handleClose} />;
+    } else {
+      var modelDetail = "";
     }
 
     return (
