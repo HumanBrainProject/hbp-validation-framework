@@ -38,14 +38,14 @@ export default function DetailContent(props) {
             <Typography variant="subtitle1"><b>Versions</b></Typography>
           </Box>
           {props.instances.map(instance => (
-            <Box m={2} p={2} pb={0} style={{backgroundColor: '#eeeeee'}}>
+            <Box m={2} p={2} pb={0} style={{backgroundColor: '#eeeeee'}} key={instance.id}>
               <Typography variant="subtitle2">{instance.version}</Typography>
               <Typography variant="body2" color="textSecondary">{instance.timestamp}</Typography>
               <InstanceParameter label="Description" value={instance.description} />
               <InstanceParameter label="Parameters" value={instance.parameters} />
               <InstanceParameter label="Morphology" value={instance.morphology} />
               <InstanceParameter label="Code format" value={instance.code_format} />
-              <Typography variant="caption text" color="textSecondary">ID: {instance.id}</Typography>
+              <Typography variant="caption" color="textSecondary">ID: {instance.id}</Typography>
               <IconButton aria-label="download code" href={instance.source}>
                 <CloudDownloadIcon />
               </IconButton>

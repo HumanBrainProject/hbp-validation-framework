@@ -33,7 +33,7 @@ export default function DetailHeader(props) {
         <Typography variant="h5" gutterBottom>
             {props.authors}
         </Typography>
-        <Typography variant="caption text"  color="textSecondary" gutterBottom>
+        <Typography variant="caption"  color="textSecondary" gutterBottom>
             ID: <b>{props.id}</b> &nbsp;&nbsp;&nbsp; Custodian: <b>{props.owner}</b> &nbsp;&nbsp;&nbsp; {props.alias ? "Alias: " : ""} <b>{props.alias ? props.alias : ""}</b>
         </Typography>
       </Grid>
