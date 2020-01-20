@@ -93,7 +93,7 @@ class ScientificModelKGSerializer(BaseKGSerializer):
                 self.data.get("private", True),
                 self.context["collab_id"],
                 self.data.get("alias"),
-                Organization(self.data["organization"]) if "organization" in self.data else None,
+                Organization(self.data["organization"]) if self.data.get("organization", False) else None,
                 pla_components=None,
                 brain_region=self._get_ontology_obj(BrainRegion, "brain_region"),
                 species=self._get_ontology_obj(Species, "species"),
