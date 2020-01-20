@@ -13,6 +13,7 @@ import ModelTable from "./ModelTable";
 import SearchBar from "./SearchBar";
 import ModelDetail from "./ModelDetail";
 import ConfigForm from "./ConfigForm";
+import Introduction from "./Introduction";
 
 import rows from './test_data.json';
 
@@ -33,6 +34,17 @@ const buildQuery = (filterDict) => {
   return q.slice(1);
 };
 
+const filtersEmpty = (filterDict) => {
+  // return true if no filters are set
+  let is_empty = true;
+  for (var key in filterDict) {
+    if (filterDict[key].length > 0) {
+      is_empty = false;
+    }
+  };
+  return is_empty;
+};
+
 
 export default class ModelCatalog extends React.Component {
   constructor(props) {
@@ -46,8 +58,8 @@ export default class ModelCatalog extends React.Component {
       'loading': true,
       'filters': {
         'species': [],
-        'brain_region': ["cerebellum"],
-        'organization': ["HBP-SP6"]
+        'brain_region': [],
+        'organization': [],
       }
     };
     if (devMode) {
@@ -69,33 +81,43 @@ export default class ModelCatalog extends React.Component {
   }
 
   updateModels(filters) {
-    let query = buildQuery(filters);
-    let config = {
-      headers: {
-        'Authorization': 'Bearer ' + this.props.auth.token
+
+    if (filtersEmpty(filters)) {
+      this.setState({
+        modelData: [],
+        currentModel: null,
+        loading: false,
+        error: null
+      });
+    } else {
+      let query = buildQuery(filters);
+      let config = {
+        headers: {
+          'Authorization': 'Bearer ' + this.props.auth.token
+        }
       }
-    }
-    let url = baseUrl + "?" + query;
-    console.log(url);
-    this.setState({loading: true});
-    axios.get(url, config)
-      .then(res => {
-        const models = res.data.models;
-        this.setState({
-          modelData: models,
-          currentModel: models[0],
-          loading: false,
-          error: null
-        });
-      })
-      .catch(err => {
-        // Something went wrong. Save the error in state and re-render.
-        this.setState({
-          loading: false,
-          error: err
-        });
-      }
-    );
+      let url = baseUrl + "?" + query;
+      console.log(url);
+      this.setState({loading: true});
+      axios.get(url, config)
+        .then(res => {
+          const models = res.data.models;
+          this.setState({
+            modelData: models,
+            currentModel: models[0],
+            loading: false,
+            error: null
+          });
+        })
+        .catch(err => {
+          // Something went wrong. Save the error in state and re-render.
+          this.setState({
+            loading: false,
+            error: err
+          });
+        }
+      );
+    };
   };
 
   handleClickOpen(event, rowData) {
@@ -139,6 +161,13 @@ export default class ModelCatalog extends React.Component {
     if (this.state.error) {
       return this.renderError();
     }
+    if (filtersEmpty(this.state.filters)) {
+      var mainContent = <Introduction />;
+      var modelDetail = "";
+    } else {
+      var mainContent = <ModelTable rows={this.state.modelData} handleRowClick={this.handleClickOpen} />;
+      var modelDetail = <ModelDetail open={this.state.open} modelData={this.state.currentModel} onClose={this.handleClose} />;
+    }
 
     return (
       <React.Fragment>
@@ -154,10 +183,10 @@ export default class ModelCatalog extends React.Component {
           </Grid>
         </Grid>
         <div>
-          <ModelDetail open={this.state.open} modelData={this.state.currentModel} onClose={this.handleClose} />
+          {modelDetail}
         </div>
         <main>
-          <ModelTable rows={this.state.modelData} handleRowClick={this.handleClickOpen} />
+          {mainContent}
         </main>
       </React.Fragment>
     );

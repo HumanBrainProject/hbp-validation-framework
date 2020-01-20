@@ -46,6 +46,21 @@ const brainRegions = [
   'primary auditory cortex'
 ];
 
+const organizations = [
+  // todo: build this from a query
+  "HBP-SP1",
+  "HBP-SP2",
+  "HBP-SP3",
+  "HBP-SP4",
+  "HBP-SP5",
+  "HBP-SP6",
+  "HBP-SP7",
+  "HBP-SP8",
+  "HBP-SP9",
+  "HBP-SP10",
+  "HBP-SP11"
+];
+
 
 export default class ConfigForm extends React.Component {
   constructor(props) {
@@ -54,6 +69,7 @@ export default class ConfigForm extends React.Component {
     this.handleClose = this.handleClose.bind(this);
     this.handleSpeciesChange = this.handleSpeciesChange.bind(this);
     this.handleBrainRegionChange = this.handleBrainRegionChange.bind(this);
+    this.handleOrganizationChange = this.handleOrganizationChange.bind(this);
   }
 
   handleClose() {
@@ -61,11 +77,15 @@ export default class ConfigForm extends React.Component {
   }
 
   handleSpeciesChange(event) {
-    this.setState({"species": event.target.value})
+    this.setState({"species": event.target.value});
   }
 
   handleBrainRegionChange(event) {
-    this.setState({"brain_region": event.target.value})
+    this.setState({"brain_region": event.target.value});
+  }
+
+  handleOrganizationChange(event) {
+    this.setState({"organization": event.target.value});
   }
 
   render() {
@@ -88,6 +108,11 @@ export default class ConfigForm extends React.Component {
               label="brain region"
               value={this.state.brain_region}
               handleChange={this.handleBrainRegionChange} />
+            <MultipleSelect
+              itemNames={organizations}
+              label="organization"
+              value={this.state.organization}
+              handleChange={this.handleOrganizationChange} />
           </form>
         </DialogContent>
         <DialogActions>
