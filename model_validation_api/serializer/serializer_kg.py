@@ -255,7 +255,7 @@ class ScientificModelInstanceKGSerializer(BaseKGSerializer):
                                  license=self.data.get("license"))
             script.save(self.client)
 
-            if model_project.model_of.label == "single cell" and "morphology" in self.data:
+            if model_project.model_of and model_project.model_of.label == "single cell" and "morphology" in self.data:
                 e_model = EModel(name="EModel for {} @ {}".format(model_project.name, self.data["version"]),
                                  brain_region=model_project.brain_region,
                                  species=model_project.species,
