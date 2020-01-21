@@ -29,6 +29,8 @@ const updateSettingsTopic = '/clb/community-app/settings';
 const isParent = (window.opener == null);
 const isIframe = (window !== window.parent);
 const isFramedApp = isIframe && isParent;
+const settingsDelimiter = ",";
+const filterKeys = ["species", "brain_region", "organization"];
 
 const buildQuery = (filterDict) => {
   let q = "";
@@ -65,13 +67,29 @@ const storeFilters = (filterDict) => {
   if (isFramedApp) {
     window.parent.postMessage({
       topic: updateSettingsTopic,
-      data: {
-          setting1: 'setting 1 value',
-          setting2: 'setting 2 value'
-      }, collaboratoryOrigin});
+      data: { // todo: rewrite to use filterKeys constant
+          species: filterDict['species'].join(settingsDelimiter),
+          brain_region: filterDict['brain_region'].join(settingsDelimiter),
+          organization: filterDict['organization'].join(settingsDelimiter),
+      }}, collaboratoryOrigin);
     console.log("Stored settings");
   }
 };
+
+const retrieveFilters = () => {
+  const searchParams = new URLSearchParams(window.location.search);
+
+  let filters = {};
+  for (let key of filterKeys) {
+    let param = searchParams.get(key);
+    if (param) {
+      filters[key] = param.split(settingsDelimiter);
+    } else {
+      filters[key] = [];
+    }
+  }
+  return filters;
+}
 
 export default class ModelCatalog extends React.Component {
   constructor(props) {
@@ -83,11 +101,7 @@ export default class ModelCatalog extends React.Component {
       'open': false,
       'configOpen': false,
       'loading': true,
-      'filters': {
-        'species': [],
-        'brain_region': [],
-        'organization': [],
-      }
+      'filters': retrieveFilters()
     };
     if (devMode) {
       this.state['modelData'] = rows.models
@@ -165,7 +179,7 @@ export default class ModelCatalog extends React.Component {
           const models = res.data.models;
           this.setState({
             modelData: models,
-            currentModel: models[0],
+            currentModel: this.state.currentModel ? this.state.currentModel : models[0],
             loading: false,
             error: null
           });
@@ -199,8 +213,10 @@ export default class ModelCatalog extends React.Component {
   handleConfigClose(filters) {
     this.setState({'filters': filters});
     this.setState({'configOpen': false});
-    storeFilters(filters);
-    this.updateModels(filters);
+    storeFilters(filters);  // this reloads the page, so the filters get applied on the reload
+                            // if this auto-reload behaviour is changed, will need to call
+                            // this.updateModels(filters);
+    // todo: if filters haven't changed, don't store them
   };
 
   renderLoadingIndicator() {
@@ -245,7 +261,7 @@ export default class ModelCatalog extends React.Component {
             <ConfigForm open={this.state.configOpen} onClose={this.handleConfigClose} config={this.state.filters} />
           </Grid>
           <Grid item xs={11}>
-            <SearchBar/>
+
           </Grid>
         </Grid>
         <div>

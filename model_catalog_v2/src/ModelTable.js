@@ -15,24 +15,10 @@ const useStyles = makeStyles({
 });
 
 
-// function handleRowClick(event, rowData) {
-//   console.log(event);
-//   console.log(rowData);
-// }
-
-
 export default function ModelTable(props) {
     const classes = useStyles();
 
     const handleRowClick = props.handleRowClick;
-
-    // function formatAuthors(authors) {
-    //   if (authors) {
-    //     return authors.map(author => (author.given_name + " " + author.family_name)).join(", ");
-    //   } else {
-    //     return "";
-    //   }
-    // }
 
     return (
       <MaterialTable
@@ -41,7 +27,10 @@ export default function ModelTable(props) {
             {
               title: 'Authors',
               field: 'authors',
-              render: rowData => formatAuthors(rowData.author)
+              render: rowData => formatAuthors(rowData.author),
+              customFilterAndSearch: (value, rowData) => {
+                return formatAuthors(rowData.author).toLowerCase().includes(value.toLowerCase());
+              }
             },
             { title: 'Species', field: 'species' },
             { title: 'Brain Region', field: 'brain_region' },
@@ -54,11 +43,13 @@ export default function ModelTable(props) {
               field: 'privacy',
               render: rowData => (rowData.private) ? 'Private' : 'Public'
             },
+            // add hidden columns (e.g. description) for search?
+            // or override DataManager.searchData ?
           ]}
           data={props.rows}
           title=""
           options={{
-            search: false,
+            search: true,
             sorting: true,
             pageSize: 20,
             pageSizeOptions: [10, 20, 100]
