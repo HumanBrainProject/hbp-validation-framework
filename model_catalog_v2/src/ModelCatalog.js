@@ -213,9 +213,10 @@ export default class ModelCatalog extends React.Component {
   handleConfigClose(filters) {
     this.setState({'filters': filters});
     this.setState({'configOpen': false});
-    storeFilters(filters);  // this reloads the page, so the filters get applied on the reload
-                            // if this auto-reload behaviour is changed, will need to call
-                            // this.updateModels(filters);
+    storeFilters(filters);
+    // if running within the Collaboratory, this reloads the page, so the filters get applied on the reload
+    // when accessed stand-alone, the filters are not stored, and the following line is executed
+    this.updateModels(filters);
     // todo: if filters haven't changed, don't store them
   };
 
