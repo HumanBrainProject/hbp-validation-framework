@@ -15,12 +15,16 @@ import ModelDetail from "./ModelDetail";
 import ConfigForm from "./ConfigForm";
 import Introduction from "./Introduction";
 
-import rows from './test_data.json';
 
 // if working on the appearance/layout set devMode=true
 // to avoid loading the models over the network every time;
 // instead we use the local test_data
+//import test_data from './test_data.json';
+
 const devMode = false;
+if (!devMode) {
+  var test_data = {models: []};
+}
 
 const baseUrl = "https://validation-staging.brainsimulation.eu/models/";
 const collaboratoryOrigin = 'https://wiki.humanbrainproject.eu';
@@ -104,8 +108,8 @@ export default class ModelCatalog extends React.Component {
       'filters': retrieveFilters()
     };
     if (devMode) {
-      this.state['modelData'] = rows.models
-      this.state['currentModel'] = rows.models[0]
+      this.state['modelData'] = test_data.models
+      this.state['currentModel'] = test_data.models[0]
       this.state['loading'] = false
     }
     this.handleClose = this.handleClose.bind(this);
