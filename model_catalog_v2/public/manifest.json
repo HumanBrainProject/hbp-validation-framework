@@ -1,6 +1,6 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "HBP Model Catalog",
+  "name": "Human Brain Project Model Catalog app",
   "icons": [
     {
       "src": "favicon.ico",
