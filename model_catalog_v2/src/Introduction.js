@@ -24,7 +24,7 @@ export default function Introduction() {
         </Typography>
         <Typography variant="body1" gutterBottom>
             To show a list of models, select the species, brain region, model scope, etc.
-            by clicking on the filter icon <FilterListIcon /> at the top right.
+            by clicking on the filter icon <FilterListIcon /> at the top left.
         </Typography>
       </Paper>
     )
