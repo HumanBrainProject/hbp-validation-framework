@@ -34,7 +34,8 @@ const isParent = (window.opener == null);
 const isIframe = (window !== window.parent);
 const isFramedApp = isIframe && isParent;
 const settingsDelimiter = ",";
-const filterKeys = ["species", "brain_region", "organization"];
+const filterKeys = ["species", "brain_region", "organization", "cell_type",
+                    "model_scope", "abstraction_level"];
 
 const buildQuery = (filterDict) => {
   let q = "";
@@ -69,13 +70,16 @@ const updateHash = (value) => {
 
 const storeFilters = (filterDict) => {
   if (isFramedApp) {
-    window.parent.postMessage({
-      topic: updateSettingsTopic,
-      data: { // todo: rewrite to use filterKeys constant
-          species: filterDict['species'].join(settingsDelimiter),
-          brain_region: filterDict['brain_region'].join(settingsDelimiter),
-          organization: filterDict['organization'].join(settingsDelimiter),
-      }}, collaboratoryOrigin);
+    let data = {};
+    for (let key of filterKeys) {
+      data[key] = filterDict[key].join(settingsDelimiter);
+    }
+    window.parent.postMessage(
+      {
+        topic: updateSettingsTopic,
+        data: data
+      },
+      collaboratoryOrigin);
     console.log("Stored settings");
   }
 };

@@ -61,31 +61,79 @@ const organizations = [
   "HBP-SP11"
 ];
 
+const cellTypes = [
+  'hippocampus CA1 pyramidal cell',
+  'hippocampus CA1 basket cell',
+  'hippocampus interneuron BP',
+  'hippocampus CA1 bistratified cell',
+  'hippocampus CA1 lacunosum moleculare neuron',
+  'hippocampus CA1 ivy neuron',
+  'hippocampus CA3 pyramidal cell',
+  'Purkinje cell',
+  'medium spiny neuron',
+  'interneuron',
+  'Golgi cell',
+  'pyramidal cell',
+  'granule cell',
+  'cerebellar granule cell',
+  'L2/3 chandelier cell',
+  'fast spiking interneuron',
+  'spiny stellate neuron',
+  'L5 tufted pyramidal cell',
+  'L2/3 pyramidal cell',
+  'medium spiny neuron (D2 type)',
+  'L6 inverted pyramidal cell',
+  'L4 Martinotti cell',
+  'medium spiny neuron (D1 type)',
+  'cholinergic interneuron',
+  'L1 neurogliaform cell',
+  'L2 inverted pyramidal cell'
+];
+
+const modelScopes = [
+  'subcellular',
+  'subcellular: spine',
+  'subcellular: ion channel',
+  'subcellular: signalling',
+  'subcellular: molecular',
+  'single cell',
+  'network',
+  'network: microcircuit',
+  'network: brain region',
+  'network: whole brain'
+];
+
+const abstractionLevels = [
+  'protein structure',
+  'systems biology',
+  'systems biology: continuous',
+  'systems biology: discrete',
+  'systems biology: flux balance',
+  'spiking neurons',
+  'spiking neurons: biophysical',
+  'spiking neurons: point neuron',
+  'rate neurons',
+  'population modelling',
+  'population modelling: neural field',
+  'population modelling: neural mass',
+  'cognitive modelling'
+];
+
 
 export default class ConfigForm extends React.Component {
   constructor(props) {
     super(props);
     this.state = props.config;
     this.handleClose = this.handleClose.bind(this);
-    this.handleSpeciesChange = this.handleSpeciesChange.bind(this);
-    this.handleBrainRegionChange = this.handleBrainRegionChange.bind(this);
-    this.handleOrganizationChange = this.handleOrganizationChange.bind(this);
+    this.handleFieldChange = this.handleFieldChange.bind(this);
   }
 
   handleClose() {
     this.props.onClose(this.state);
   }
 
-  handleSpeciesChange(event) {
-    this.setState({"species": event.target.value});
-  }
-
-  handleBrainRegionChange(event) {
-    this.setState({"brain_region": event.target.value});
-  }
-
-  handleOrganizationChange(event) {
-    this.setState({"organization": event.target.value});
+  handleFieldChange(event) {
+    this.setState({[event.target.name]: event.target.value});
   }
 
   render() {
@@ -102,17 +150,32 @@ export default class ConfigForm extends React.Component {
               itemNames={species}
               label="species"
               value={this.state.species}
-              handleChange={this.handleSpeciesChange} />
+              handleChange={this.handleFieldChange} />
             <MultipleSelect
               itemNames={brainRegions}
               label="brain region"
               value={this.state.brain_region}
-              handleChange={this.handleBrainRegionChange} />
+              handleChange={this.handleFieldChange} />
+            <MultipleSelect
+              itemNames={cellTypes}
+              label="cell type"
+              value={this.state.cell_type}
+              handleChange={this.handleFieldChange} />
+            <MultipleSelect
+              itemNames={modelScopes}
+              label="model scope"
+              value={this.state.model_scope}
+              handleChange={this.handleFieldChange} />
+            <MultipleSelect
+              itemNames={abstractionLevels}
+              label="abstraction_level"
+              value={this.state.abstraction_level}
+              handleChange={this.handleFieldChange} />
             <MultipleSelect
               itemNames={organizations}
               label="organization"
               value={this.state.organization}
-              handleChange={this.handleOrganizationChange} />
+              handleChange={this.handleFieldChange} />
           </form>
         </DialogContent>
         <DialogActions>

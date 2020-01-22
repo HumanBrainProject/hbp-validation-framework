@@ -54,6 +54,7 @@ export default function MultipleSelect(props) {
   //const [itemName, setItemName] = React.useState([]);
   const fieldId = "select-" + props.label.replace(" ", "-");
   const fieldLabelId = fieldId + "-label";
+  const fieldName = props.label.replace(" ", "_")
 
 //   const handleChange = event => {
 //     setItemName(event.target.value);
@@ -68,7 +69,7 @@ export default function MultipleSelect(props) {
           id={fieldId}
           multiple
           value={props.value}
-          name={props.label}
+          name={fieldName}
           onChange={props.handleChange}
           input={<Input />}
           renderValue={selected => selected.join(', ')}
