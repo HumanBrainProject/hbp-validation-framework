@@ -292,9 +292,9 @@ class Models_KG(KGAPIView):
 
             if len(filter_query["value"]) > 0:
                 logger.info("Searching for ModelProject with the following query: {}".format(filter_query))
-                models = KGQuery(ModelProject, {"nexus": filter_query}, context).resolve(self.client, api="nexus")
+                models = KGQuery(ModelProject, {"nexus": filter_query}, context).resolve(self.client, api="nexus", size=10000)
             else:
-                models = ModelProject.list(self.client, api="nexus")
+                models = ModelProject.list(self.client, api="nexus", size=10000)
 
             logger.debug("{} total models".format(len(as_list(models))))
             authorized_collabs = []
