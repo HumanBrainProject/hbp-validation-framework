@@ -108,7 +108,6 @@ def get_storage_file_by_id (request):
     return res._content
 
 
-
 def get_user_from_token(request):
     """
     Get user id with token
@@ -117,16 +116,26 @@ def get_user_from_token(request):
     :returns: res._content
     :rtype: str
     """
-    url = "{}/user/me".format(settings.HBP_IDENTITY_SERVICE_URL)
+    url_v1 = "{}/user/me".format(settings.HBP_IDENTITY_SERVICE_URL)
+    url_v2 = "https://iam.humanbrainproject.eu/auth/realms/hbp/protocol/openid-connect/userinfo"
     headers = get_authorization_header(request)
     # logger.debug("Requesting user information for given access token")
-    res = requests.get(url, headers=headers)
-    if res.status_code != 200:
-        logger.debug("Error" + res.content)
-        raise Exception(res.content)
+    res1 = requests.get(url_v1, headers=headers)
+    if res1.status_code != 200:
+        logger.debug("Problem with v1 token" + res1.content)
+        res2 = requests.get(url_v2, headers=headers)
+        if res2.status_code != 200:
+            raise Exception(res1.content + res2.content)
+        else:
+            user_info = res2.json()
+            logger.debug(user_info)
+            # make this compatible with the v1 json
+            user_info["id"] = user_info["sub"]
+            user_info["username"] = user_info.get("preferred_username", "unknown")
+            return user_info
     # logger.debug("User information retrieved")
-    return res.json()
-
+    else:
+        return res1.json()
 
 
 def is_admin(request):
@@ -346,6 +355,7 @@ def get_user_info(request):
     }
     res = requests.post(url, headers=headers)
     return res.json()
+
 
 def is_hbp_member (request):
     """
