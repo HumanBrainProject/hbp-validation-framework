@@ -18,7 +18,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True#os.environ.get('DEBUG') in ['True', '1']
+DEBUG = False #os.environ.get('DEBUG') in ['True', '1']
 LOCAL_DB = False  ## only applies when ENV='dev'
 
 ALLOWED_HOSTS = ["*"]
@@ -199,15 +199,15 @@ LOGGING = {
         },
         'openid_http_client.http_client': {
             'handlers': ['file'],
-            'level': 'DEBUG',
+            'level': 'INFO',
         },
         'kg_migration': {
             'handlers': ['file'],
-            'level': 'DEBUG',
+            'level': 'INFO',
         },
         'fairgraph': {
             'handlers': ['file'],
-            'level': 'DEBUG',
+            'level': 'INFO',
         }
     },
     'formatters': {
