@@ -1462,7 +1462,7 @@ class Results_KG(KGAPIView):
             # inverse relations in paths: ^ (see https://www.w3.org/TR/sparql11-query/#propertypaths)
             model_instances = []
             for uuid in param_model_version_id:
-                model_instances += get_full_uri((ModelInstance, MEModel), uuid, self.client, api="nexus")
+                model_instances += get_full_uri((ModelInstance, MEModel), uuid, self.client)
             for uuid in param_model_id:
                 model_instances += [inst.id for inst in as_list(ModelProject.from_uuid(uuid, self.client, api="nexus").instances)]
             for alias in param_model_alias:
