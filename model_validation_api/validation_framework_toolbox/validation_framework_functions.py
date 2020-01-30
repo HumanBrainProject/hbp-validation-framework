@@ -501,9 +501,9 @@ def get_result_information_kg(result, client):
     result_info = {}
 
     #test info
-    validation_activity = result.generated_by.resolve(client)
-    test_code = validation_activity.test_script.resolve(client)
-    test = test_code.test_definition.resolve(client)
+    validation_activity = result.generated_by.resolve(client, api="nexus")
+    test_code = validation_activity.test_script.resolve(client, api="nexus")
+    test = test_code.test_definition.resolve(client, api="nexus")
 
     result_info['test_id'] = str(test.uuid)
     result_info['test_name'] = str(test.name)
@@ -515,8 +515,8 @@ def get_result_information_kg(result, client):
 
 
     #model info
-    model_instance = validation_activity.model_instance.resolve(client)
-    model = model_instance.project.resolve(client)
+    model_instance = validation_activity.model_instance.resolve(client, api="nexus")
+    model = model_instance.project.resolve(client, api="nexus")
 
     if isinstance(model, list):
         logger.error("Model instance {} belongs to more than one model project".format(model_instance.id))
