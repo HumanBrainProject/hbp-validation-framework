@@ -1,7 +1,7 @@
 import React from "react";
 import IconButton from "@material-ui/core/IconButton";
 import Tooltip from "@material-ui/core/Tooltip";
-import AddIcon from "@material-ui/icons/Add";
+import FlipIcon from "@material-ui/icons/Flip";
 import { withStyles } from "@material-ui/core/styles";
 
 const defaultToolbarStyles = {
@@ -9,7 +9,7 @@ const defaultToolbarStyles = {
 };
 
 class CustomToolbar extends React.Component {
-  handleClick = () => {
+  changeTableWidth = () => {
     console.log("clicked on icon!");
   };
 
@@ -18,9 +18,9 @@ class CustomToolbar extends React.Component {
 
     return (
       <React.Fragment>
-        <Tooltip title={"custom icon"}>
-          <IconButton className={classes.iconButton} onClick={this.handleClick}>
-            <AddIcon className={classes.deleteIcon} />
+        <Tooltip title={"Table Width"}>
+          <IconButton className={classes.iconButton} onClick={this.props.changeTableWidth}>
+            <FlipIcon className={classes.deleteIcon} />
           </IconButton>
         </Tooltip>
       </React.Fragment>

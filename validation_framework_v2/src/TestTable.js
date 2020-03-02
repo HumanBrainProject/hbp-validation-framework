@@ -2,24 +2,30 @@ import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import MUIDataTable from "mui-datatables";
 
-import formatAuthors from "./utils";
+import {formatAuthors, downloadJSON} from "./utils";
+import MUIDataTableCustomToolbar from "./MUIDataTableCustomToolbar";
+import CustomToolbarSelect from "./MUIDataTableCustomRowToolbar";
 
-const useStyles = makeStyles({
-  root: {
-    width: '100%',
-    overflowX: 'auto',
-  },
-  table: {
-    minWidth: 650,
-  },
-});
+export default class TestTable extends React.Component {
+  constructor(props) {
+    super(props);
 
+    this.downloadSelectedJSON = this.downloadSelectedJSON.bind(this)
+  }
 
-export default function TestTable(props) {
-    const classes = useStyles();
+  downloadSelectedJSON(params) {
+    var selectedTests = [];
+    for (var item in params.data) {
+      var data = this.props.rows[params.data[item].index]
+      var ordered_data = {};
+      Object.keys(data).sort().forEach(function(key) { ordered_data[key] = data[key]; });
+      selectedTests.push(ordered_data)
+    }
+    downloadJSON(JSON.stringify(selectedTests), "selectedTests.json")
+  }
 
-    const handleRowClick = props.handleRowClick;
-
+  render() {
+    const handleRowClick = this.props.handleRowClick;
     return (
       <MUIDataTable
           title="Tests"
@@ -38,7 +44,7 @@ export default function TestTable(props) {
                     {name:'Data location', options: {display: false}},
                     {name:'Creation date', options: {display: false}}]
                   }
-          data={props.rows.map(item => {
+          data={this.props.rows.map(item => {
             return [
                     item.id,
                     item.name,
@@ -61,9 +67,15 @@ export default function TestTable(props) {
             sort: true,
             rowsPerPage: 20,
             rowsPerPageOptions: [10, 20, 100],
-            downloadOptions: {filename: 'selectedTests.csv', separator: ',', filterOptions: {useDisplayedRowsOnly: true}}
+            responsive: 'scrollMaxHeight',// 'stacked'
+            downloadOptions: {filename: 'selectedTests.csv', separator: ',', filterOptions: {useDisplayedRowsOnly: true}},
+            customToolbar: () => {
+              return <MUIDataTableCustomToolbar changeTableWidth={this.props.changeTableWidth} />;
+            },
+            customToolbarSelect: (selectedRows) => <CustomToolbarSelect selectedRows={selectedRows} downloadSelectedJSON={this.downloadSelectedJSON} />
           }}
           onRowClick={(event, rowData) => handleRowClick(event, rowData)}
       />
-  );
+    );
+  }
 }

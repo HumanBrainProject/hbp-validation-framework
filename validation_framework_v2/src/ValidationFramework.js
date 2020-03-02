@@ -120,7 +120,9 @@ export default class ValidationFramework extends React.Component {
       'open': false,
       'configOpen': false,
       'loading': true,
-      'filters': retrieveFilters()
+      'filters': retrieveFilters(),
+      'modelsTableWide': false,
+      'testsTableWide': false
     };
     if (devMode) {
       this.state['modelData'] = test_data.models
@@ -137,6 +139,20 @@ export default class ValidationFramework extends React.Component {
     this.updateTests = this.updateTests.bind(this);
     this.getModel = this.getModel.bind(this);
     this.getTest = this.getTest.bind(this);
+    this.modelTableFullWidth = this.modelTableFullWidth.bind(this);
+    this.testTableFullWidth = this.testTableFullWidth.bind(this);
+  }
+
+  modelTableFullWidth() {
+    this.setState({
+      modelsTableWide: !this.state.modelsTableWide
+    });
+  }
+
+  testTableFullWidth() {
+    this.setState({
+      testsTableWide: !this.state.testsTableWide
+    });
   }
 
   componentDidMount() {
@@ -333,6 +349,37 @@ export default class ValidationFramework extends React.Component {
     );
   };
 
+  renderTables() {
+    let content = "";
+      if (this.state.modelsTableWide && !this.state.testsTableWide) {
+        content = <Grid container>
+                    <Grid item xs={12}>
+                      <ModelTable rows={this.state.modelData} changeTableWidth={this.modelTableFullWidth} handleRowClick={this.handleClickOpen} />
+                    </Grid>
+                  </Grid>
+      } else if (!this.state.modelsTableWide && this.state.testsTableWide) {
+        content = <Grid container>
+                    <Grid item xs={12}>
+                      <TestTable rows={this.state.testData} changeTableWidth={this.testTableFullWidth}  handleRowClick={this.handleClickOpen} />
+                    </Grid>
+                  </Grid>
+      } else {
+        content = <Grid container spacing={2}>
+                    <Grid item xs={6}>
+                      <ModelTable rows={this.state.modelData} changeTableWidth={this.modelTableFullWidth} handleRowClick={this.handleClickOpen} />
+                    </Grid>
+                    <Grid item xs={6}>
+                      <TestTable rows={this.state.testData} changeTableWidth={this.testTableFullWidth} handleRowClick={this.handleClickOpen} />
+                    </Grid>
+                  </Grid>
+      }
+      return(
+        <div>
+          {content}
+        </div>
+        );
+  }
+
   renderValidationFramework() {
     if (this.state.error) {
       return this.renderError();
@@ -341,13 +388,8 @@ export default class ValidationFramework extends React.Component {
       var configContent = "";
       var mainContent = <Introduction />;
     } else {
-      console.log(this.state.filters)
       var configContent = <ExpansionPanel>
-                            <ExpansionPanelSummary
-                              expandIcon={<ExpandMoreIcon />}
-                              aria-controls="panel1a-content"
-                              id="panel1a-header"
-                            >
+                            <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
                               <Box fontSize={16} fontWeight="fontWeightBold">App's Current Configuration</Box>
                             </ExpansionPanelSummary>
                             <ExpansionPanelDetails>
@@ -366,16 +408,7 @@ export default class ValidationFramework extends React.Component {
                               </Box>
                             </ExpansionPanelDetails>
                           </ExpansionPanel>
-      var mainContent =         <div>
-                                  <Grid container spacing={2}>
-                                    <Grid item xs={6}>
-                                      <ModelTable rows={this.state.modelData} handleRowClick={this.handleClickOpen} />
-                                    </Grid>
-                                    <Grid item xs={6}>
-                                      <TestTable rows={this.state.testData} handleRowClick={this.handleClickOpen} />
-                                    </Grid>
-                                  </Grid>
-                                </div>;
+      var mainContent = this.renderTables();
     }
 
     if (this.state.currentModel) {

@@ -12,7 +12,7 @@ import CloseIcon from '@material-ui/icons/Close';
 import DetailHeader from './DetailHeader';
 import DetailContent from './DetailContent';
 import DetailMetadata from './DetailMetadata';
-import formatAuthors from "./utils";
+import {formatAuthors} from "./utils";
 
 
 const styles = theme => ({
