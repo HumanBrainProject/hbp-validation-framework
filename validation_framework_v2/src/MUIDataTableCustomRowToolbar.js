@@ -3,6 +3,7 @@ import IconButton from "@material-ui/core/IconButton";
 import Tooltip from "@material-ui/core/Tooltip";
 import PageviewIcon from "@material-ui/icons/Pageview";
 import SaveAltIcon from "@material-ui/icons/SaveAlt";
+import VisibilityOffIcon from '@material-ui/icons/VisibilityOff';
 import { withStyles } from "@material-ui/core/styles";
 
 const defaultToolbarSelectStyles = {
@@ -15,18 +16,12 @@ const defaultToolbarSelectStyles = {
 };
 
 class CustomToolbarSelect extends React.Component {
-
-  viewSelectedItems = () => {
-    console.log("click!", this.props.selectedRows); // a user can do something with these selectedRow values
-  }
-
   render() {
     const { classes } = this.props;
-
     return (
       <div className={"custom-toolbar-select"}>
         <Tooltip title={"View / Compare"}>
-          <IconButton className={classes.iconButton}  onClick={this.viewSelectedItems}>
+          <IconButton className={classes.iconButton}  onClick={() => this.props.viewSelectedItems(this.props.selectedRows)}>
             <PageviewIcon />
           </IconButton>
         </Tooltip>
@@ -35,10 +30,14 @@ class CustomToolbarSelect extends React.Component {
             <SaveAltIcon />
           </IconButton>
         </Tooltip>
+        <Tooltip title={"Hide Entry"}>
+          <IconButton className={classes.iconButton} onClick={() => this.props.hideTableRows(this.props.selectedRows)}>
+            <VisibilityOffIcon />
+          </IconButton>
+        </Tooltip>
       </div>
     );
   }
-
 }
 
 export default withStyles(defaultToolbarSelectStyles, { name: "CustomToolbarSelect" })(CustomToolbarSelect);
