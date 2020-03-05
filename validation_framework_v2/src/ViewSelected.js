@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import Dialog from '@material-ui/core/Dialog';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import DialogContent from '@material-ui/core/DialogContent';
@@ -12,15 +11,16 @@ export default class ViewSelected extends React.Component {
   }
 
   render_models() {
+    let myvar = this.props.selectedData;
     return (
         <Dialog onClose={this.props.onClose}
                 aria-labelledby="simple-dialog-title"
                 open={this.props.open}
                 fullWidth={true}
-                maxWidth="md">
-          <DialogTitle>Compare Models</DialogTitle>
+                maxWidth={false}>
+          <DialogTitle>View Model(s)</DialogTitle>
           <DialogContent>
-            {/* Add */}
+            { JSON.stringify(myvar) }
           </DialogContent>
           <DialogActions>
             <Button onClick={this.props.onClose} color="primary">
@@ -37,8 +37,8 @@ export default class ViewSelected extends React.Component {
               aria-labelledby="simple-dialog-title"
               open={this.props.open}
               fullWidth={true}
-              maxWidth="md">
-        <DialogTitle>Compare Tests</DialogTitle>
+              maxWidth={false}>
+        <DialogTitle>View Test(s)</DialogTitle>
         <DialogContent>
           {/* Add */}
         </DialogContent>

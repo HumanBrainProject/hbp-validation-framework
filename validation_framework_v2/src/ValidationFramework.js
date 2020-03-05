@@ -117,7 +117,8 @@ export default class ValidationFramework extends React.Component {
       'currentModel': null,
       'testData': [],
       'currentTest': null,
-      'open': false,
+      'modelDetailOpen': false,
+      'testDetailOpen': false,
       'configOpen': false,
       'loading': true,
       'filters': retrieveFilters(),
@@ -131,8 +132,10 @@ export default class ValidationFramework extends React.Component {
       this.state['currentTest'] = test_data.tests[0]
       this.state['loading'] = false
     }
-    this.handleClose = this.handleClose.bind(this);
-    this.handleClickOpen = this.handleClickOpen.bind(this);
+    this.handleModelDetailClose = this.handleModelDetailClose.bind(this);
+    this.handleTestDetailClose = this.handleTestDetailClose.bind(this);
+    this.handleModelRowClick = this.handleModelRowClick.bind(this);
+    this.handleTestRowClick = this.handleTestRowClick.bind(this);
     this.openConfig = this.openConfig.bind(this);
     this.handleConfigClose = this.handleConfigClose.bind(this);
     this.updateModels = this.updateModels.bind(this);
@@ -158,9 +161,9 @@ export default class ValidationFramework extends React.Component {
   componentDidMount() {
     if (window.location.hash) {
       // get a specific model
-      this.getModel(window.location.hash.slice(1));
+      // this.getModel(window.location.hash.slice(1));  // TODO: uncomment
       // get a specific test
-      this.getTest(window.location.hash.slice(1));
+      // this.getTest(window.location.hash.slice(1));   // TODO: uncomment
     }
     if (!devMode) {
       this.updateModels(this.state.filters);
@@ -185,7 +188,7 @@ export default class ValidationFramework extends React.Component {
           currentModel: models[0],
           loading: false,
           error: null,
-          open: true
+          modelDetailOpen: true
         });
       })
       .catch(err => {
@@ -215,7 +218,7 @@ export default class ValidationFramework extends React.Component {
           currentTest: tests[0],
           loading: false,
           error: null,
-          open: true
+          testDetailOpen: true
         });
       })
       .catch(err => {
@@ -306,15 +309,27 @@ export default class ValidationFramework extends React.Component {
     };
   };
 
-  handleClickOpen(event, rowData) {
-    this.setState({'currentModel': rowData});
-    this.setState({'currentTest': rowData});
-    this.setState({'open': true});
+  handleModelRowClick(rowData, rowMeta) {
+    // Note: last element of MUIDataTable (in ModelTable.js) is set to json Object of entry
+    this.setState({'currentModel': rowData[rowData.length-1]});
+    this.setState({'modelDetailOpen': true});
     updateHash(rowData.id);
   };
 
-  handleClose() {
-    this.setState({'open': false});
+  handleModelDetailClose() {
+    this.setState({'modelDetailOpen': false});
+    updateHash('');
+  };
+
+  handleTestRowClick(rowData, rowMeta) {
+    // Note: last element of MUIDataTable (in TestTable.js) is set to json Object of entry
+    this.setState({'currentTest': rowData[rowData.length-1]});
+    this.setState({'testDetailOpen': true});
+    updateHash(rowData.id);
+  };
+
+  handleTestDetailClose() {
+    this.setState({'testDetailOpen': false});
     updateHash('');
   };
 
@@ -354,22 +369,22 @@ export default class ValidationFramework extends React.Component {
       if (this.state.modelsTableWide && !this.state.testsTableWide) {
         content = <Grid container>
                     <Grid item xs={12}>
-                      <ModelTable rows={this.state.modelData} changeTableWidth={this.modelTableFullWidth} handleRowClick={this.handleClickOpen} />
+                      <ModelTable rows={this.state.modelData} changeTableWidth={this.modelTableFullWidth} handleRowClick={this.handleModelRowClick} />
                     </Grid>
                   </Grid>
       } else if (!this.state.modelsTableWide && this.state.testsTableWide) {
         content = <Grid container>
                     <Grid item xs={12}>
-                      <TestTable rows={this.state.testData} changeTableWidth={this.testTableFullWidth}  handleRowClick={this.handleClickOpen} />
+                      <TestTable rows={this.state.testData} changeTableWidth={this.testTableFullWidth}  handleRowClick={this.handleTestRowClick} />
                     </Grid>
                   </Grid>
       } else {
         content = <Grid container spacing={2}>
                     <Grid item xs={6}>
-                      <ModelTable rows={this.state.modelData} changeTableWidth={this.modelTableFullWidth} handleRowClick={this.handleClickOpen} />
+                      <ModelTable rows={this.state.modelData} changeTableWidth={this.modelTableFullWidth} handleRowClick={this.handleModelRowClick} />
                     </Grid>
                     <Grid item xs={6}>
-                      <TestTable rows={this.state.testData} changeTableWidth={this.testTableFullWidth} handleRowClick={this.handleClickOpen} />
+                      <TestTable rows={this.state.testData} changeTableWidth={this.testTableFullWidth} handleRowClick={this.handleTestRowClick} />
                     </Grid>
                   </Grid>
       }
@@ -412,13 +427,13 @@ export default class ValidationFramework extends React.Component {
     }
 
     if (this.state.currentModel) {
-      var modelDetail = <ModelDetail open={this.state.open} modelData={this.state.currentModel} onClose={this.handleClose} />;
+      var modelDetail = <ModelDetail open={this.state.modelDetailOpen} modelData={this.state.currentModel} onClose={this.handleModelDetailClose} />;
     } else {
       var modelDetail = "";
     }
 
     if (this.state.currentTest) {
-      var testDetail = <TestDetail open={this.state.open} testData={this.state.currentTest} onClose={this.handleClose} />;
+      var testDetail = <TestDetail open={this.state.testDetailOpen} testData={this.state.currentTest} onClose={this.handleTestDetailClose} />;
     } else {
       var testDetail = "";
     }

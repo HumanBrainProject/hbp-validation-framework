@@ -52,7 +52,6 @@ export default class TestTable extends React.Component {
   }
 
   render() {
-    const handleRowClick = this.props.handleRowClick;
     return (
       <div>
         <MUIDataTable
@@ -70,7 +69,9 @@ export default class TestTable extends React.Component {
                       {name:'Data type', options: {display: false}},
                       {name:'Data modality', options: {display: false}},
                       {name:'Data location', options: {display: false}},
-                      {name:'Creation date', options: {display: false}}]
+                      {name:'Creation date', options: {display: false}},
+                      {name:'jsonObject', options: {display: false, viewColumns: false, filter: false}}
+                    ]
                     }
             data={this.state.data.map(item => {
               return [
@@ -87,7 +88,8 @@ export default class TestTable extends React.Component {
                       item.data_type,
                       item.data_modality,
                       item.data_location,
-                      item.creation_date
+                      item.creation_date,
+                      item
                     ]
             })}
             options={{
@@ -95,14 +97,14 @@ export default class TestTable extends React.Component {
               sort: true,
               rowsPerPage: 20,
               rowsPerPageOptions: [10, 20, 100],
+              onRowClick: this.props.handleRowClick,
               responsive: 'stacked', // 'scrollMaxHeight', 'scrollFullHeight', 'scrollFullHeightFullWidth', 'stackedFullWidth'
               downloadOptions: {filename: 'selectedTests.csv', separator: ',', filterOptions: {useDisplayedRowsOnly: true}},
               customToolbar: () => {
                 return <MUIDataTableCustomToolbar changeTableWidth={this.props.changeTableWidth} />;
               },
-              customToolbarSelect: (selectedRows) => <CustomToolbarSelect selectedRows={selectedRows} downloadSelectedJSON={this.downloadSelectedJSON} hideTableRows={this.hideTableRows} />
+              customToolbarSelect: (selectedRows) => <CustomToolbarSelect selectedRows={selectedRows} downloadSelectedJSON={this.downloadSelectedJSON} hideTableRows={this.hideTableRows} viewSelectedItems={this.viewSelectedItems} />
             }}
-            onRowClick={(event, rowData) => handleRowClick(event, rowData)}
         />
         <ViewSelected entity="tests" open={this.state.viewSelectedOpen} onClose={this.handleViewSelectedClose} />
       </div>

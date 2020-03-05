@@ -19,17 +19,18 @@ function MetadataItem(props) {
 }
 
 
-export default function DetailMetadata(props) {
+export default function ModelDetailMetadata(props) {
   return (
     <React.Fragment>
       <Grid item xs={3} style={{backgroundColor: '#dddddd'}}>
-        <List aria-label="model metadata" alignItems="flex-start">
+        <List aria-label="model metadata">
           <MetadataItem value={props.species} label="Species" />
           <MetadataItem value={props.brainRegion} label="Brain region" />
           <MetadataItem value={props.cellType} label="Cell type" />
           <MetadataItem value={props.modelScope} label="Model scope" />
           <MetadataItem value={props.abstractionLevel} label="Abstraction level" />
           <MetadataItem value={props.collabID} label="Collab ID" />
+          <MetadataItem value={props.organization} label="Organization" />
         </List>
       </Grid>
     </React.Fragment>

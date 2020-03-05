@@ -24,10 +24,10 @@ function InstanceParameter(props) {
 // style={{backgroundColor: '#ffddff'}}
 // style={{backgroundColor: '#ffdddd'}}
 
-export default function DetailContent(props) {
+export default function ModelDetailContent(props) {
   return (
     <React.Fragment>
-      <Grid container xs={9} direction="column">
+      <Grid container xs={9} direction="column" item={true}>
         <Grid item>
           <Box p={2}>
             <Markdown>{props.description}</Markdown>
@@ -42,9 +42,11 @@ export default function DetailContent(props) {
               <Typography variant="subtitle2">{instance.version}</Typography>
               <Typography variant="body2" color="textSecondary">{instance.timestamp}</Typography>
               <InstanceParameter label="Description" value={instance.description} />
+              <InstanceParameter label="Source" value={instance.source} />
               <InstanceParameter label="Parameters" value={instance.parameters} />
               <InstanceParameter label="Morphology" value={instance.morphology} />
               <InstanceParameter label="Code format" value={instance.code_format} />
+              <InstanceParameter label="License" value={instance.license} />
               <Typography variant="caption" color="textSecondary">ID: {instance.id}</Typography>
               <IconButton aria-label="download code" href={instance.source}>
                 <CloudDownloadIcon />
@@ -62,14 +64,15 @@ export default function DetailContent(props) {
 }
 
 
-// "license": "",
-//                   "code_format": "",
-//                   "description": "",
-//                   "parameters": "",
-//                   "timestamp": "2017-09-24T20:59:41.871267+00:00",
-//                   "uri": "https://nexus.humanbrainproject.org/v0/data/modelvalidation/simulation/memodel/v0.1.2/c6994d4a-e95b-423a-81c4-f66e6f295d21",
-//                   "source": "https://github.com/lbologna/bsp_data_repository",
-//                   "version": "20170214164222",
-//                   "morphology": null,
-//                   "hash": "",
-//                   "id": "c6994d4a-e95b-423a-81c4-f66e6f295d21"
+// {
+//   "code_format" : "nest, dpsnn",
+//   "description" : "",
+//   "hash" : "",
+//   "id" : "9f4d1284-c5c1-43e9-b922-03bbb29de830",
+//   "license" : "All Rights Reserved",
+//   "parameters" : "",
+//   "source" : "https://collab.humanbrainproject.eu/#/collab/11175/nav/83589",
+//   "timestamp" : "2018-10-05T12:32:57.352445+00:00",
+//   "uri" : "https://nexus.humanbrainproject.org/v0/data/modelvalidation/simulation/modelinstance/v0.1.1/9f4d1284-c5c1-43e9-b922-03bbb29de830",
+//   "version" : "00.01.00"
+// }

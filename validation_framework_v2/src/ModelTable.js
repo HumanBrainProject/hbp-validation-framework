@@ -12,9 +12,9 @@ export default class ModelTable extends React.Component {
     super(props);
     this.state = {
                     data: this.props.rows,
+                    selectedData: [],
                     viewSelectedOpen: false
                   };
-
 
     this.downloadSelectedJSON = this.downloadSelectedJSON.bind(this);
     this.hideTableRows = this.hideTableRows.bind(this);
@@ -46,7 +46,17 @@ export default class ModelTable extends React.Component {
 
   viewSelectedItems(selectedRows) {
     console.log("View item(s).")
-    this.setState({viewSelectedOpen: true})
+    var selectedModels = [];
+    for (var item in selectedRows.data) {
+      var data = this.state.data[selectedRows.data[item].index]
+      var ordered_data = {};
+      Object.keys(data).sort().forEach(function(key) { ordered_data[key] = data[key]; });
+      selectedModels.push(ordered_data)
+    }
+    this.setState({
+                    viewSelectedOpen: true,
+                    selectedData: selectedModels
+                  })
   }
 
   handleViewSelectedClose() {
@@ -54,7 +64,6 @@ export default class ModelTable extends React.Component {
   }
 
   render() {
-    const handleRowClick = this.props.handleRowClick;
     return (
       <div>
         <MUIDataTable
@@ -71,7 +80,9 @@ export default class ModelTable extends React.Component {
                       {name:'Model scope', options: {display: false}},
                       {name:'Abstraction level', options: {display: false}},
                       {name:'Owner', options: {display: false}},
-                      {name:'Organization', options: {display: false}}]}
+                      {name:'Organization', options: {display: false}},
+                      {name:'jsonObject', options: {display: false, viewColumns: false, filter: false}}
+                    ]}
             data={this.state.data.map(item => {
               return [
                       item.id,
@@ -86,7 +97,8 @@ export default class ModelTable extends React.Component {
                       item.model_scope,
                       item.abstraction_level,
                       formatAuthors(item.owner),
-                      item.organization
+                      item.organization,
+                      item
                     ]
             })}
             options={{
@@ -94,16 +106,16 @@ export default class ModelTable extends React.Component {
               sort: true,
               rowsPerPage: 20,
               rowsPerPageOptions: [10, 20, 100],
+              onRowClick: this.props.handleRowClick,
               responsive: 'stacked', // 'scrollMaxHeight', 'scrollFullHeight', 'scrollFullHeightFullWidth', 'stackedFullWidth'
               downloadOptions: {filename: 'selectedModels.csv', separator: ',', filterOptions: {useDisplayedRowsOnly: true}},
               customToolbar: () => {
                 return <MUIDataTableCustomToolbar changeTableWidth={this.props.changeTableWidth} />;
               },
-              customToolbarSelect: (selectedRows) => <CustomToolbarSelect selectedRows={selectedRows} downloadSelectedJSON={this.downloadSelectedJSON} hideTableRows={this.hideTableRows} viewSelectedItems={this.viewSelectedItems}/>
+              customToolbarSelect: (selectedRows) => <CustomToolbarSelect selectedRows={selectedRows} downloadSelectedJSON={this.downloadSelectedJSON} hideTableRows={this.hideTableRows} viewSelectedItems={this.viewSelectedItems} />
             }}
-            onRowClick={(event, rowData) => handleRowClick(event, rowData)}
         />
-        <ViewSelected entity="models" open={this.state.viewSelectedOpen} onClose={this.handleViewSelectedClose} />
+        <ViewSelected entity="models" open={this.state.viewSelectedOpen} onClose={this.handleViewSelectedClose} selectedData={this.state.selectedData} />
       </div>
     );
   }
