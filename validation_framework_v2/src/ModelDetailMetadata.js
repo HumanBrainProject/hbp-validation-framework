@@ -22,7 +22,7 @@ function MetadataItem(props) {
 export default function ModelDetailMetadata(props) {
   return (
     <React.Fragment>
-      <Grid item xs={3} style={{backgroundColor: '#dddddd'}}>
+      <Grid item style={{backgroundColor: '#dddddd'}}>
         <List aria-label="model metadata">
           <MetadataItem value={props.species} label="Species" />
           <MetadataItem value={props.brainRegion} label="Brain region" />

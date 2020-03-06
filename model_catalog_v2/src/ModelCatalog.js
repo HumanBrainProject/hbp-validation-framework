@@ -267,7 +267,7 @@ export default class ModelCatalog extends React.Component {
             <IconButton onClick={this.openConfig} aria-label="Configure filters">
               <FilterListIcon />
             </IconButton>
-            <ConfigForm open={this.state.configOpen} onClose={this.handleConfigClose} config={this.state.filters} baseUrl={baseUrl}/>
+            <ConfigForm open={this.state.configOpen} onClose={this.handleConfigClose} config={this.state.filters} baseUrl={baseUrl} />
           </Grid>
           <Grid item xs={11}>
 

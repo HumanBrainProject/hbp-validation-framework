@@ -26,7 +26,7 @@ function AccessibilityIcon(props) {
 export default function ModelDetailHeader(props) {
   return (
     <React.Fragment>
-      <Grid item xs={10}>
+      <Grid item>
         <Typography variant="h4" gutterBottom>
             <AccessibilityIcon private={props.private} /> {props.name}
         </Typography>
@@ -37,9 +37,9 @@ export default function ModelDetailHeader(props) {
             ID: <b>{props.id}</b> &nbsp;&nbsp;&nbsp; Custodian: <b>{props.owner}</b> &nbsp;&nbsp;&nbsp; {props.alias ? "Alias: " : ""} <b>{props.alias ? props.alias : ""}</b>
         </Typography>
       </Grid>
-      <Grid item xs={2}>
+      {/* <Grid item> */}
         {/* optional image goes here */}
-      </Grid>
+      {/* </Grid> */}
     </React.Fragment>
   );
 }

@@ -8,10 +8,16 @@ import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
 import IconButton from '@material-ui/core/IconButton';
 import CloseIcon from '@material-ui/icons/Close';
+import AppBar from '@material-ui/core/AppBar';
+import Tabs from '@material-ui/core/Tabs';
+import Tab from '@material-ui/core/Tab';
+import Box from '@material-ui/core/Box';
+
 
 import ModelDetailHeader from './ModelDetailHeader';
 import ModelDetailContent from './ModelDetailContent';
 import ModelDetailMetadata from './ModelDetailMetadata';
+import ModelResultOverview from './ModelResultOverview';
 import {formatAuthors} from "./utils";
 
 
@@ -27,6 +33,29 @@ const styles = theme => ({
     color: theme.palette.grey[500],
   },
 });
+
+function TabPanel(props) {
+  const { children, value, index, ...other } = props;
+
+  return (
+    <Typography
+      component="div"
+      role="tabpanel"
+      hidden={value !== index}
+      id={`simple-tabpanel-${index}`}
+      aria-labelledby={`simple-tab-${index}`}
+      {...other}
+    >
+      {value === index && <Box p={3}>{children}</Box>}
+    </Typography>
+  );
+}
+
+TabPanel.propTypes = {
+  children: PropTypes.node,
+  index: PropTypes.any.isRequired,
+  value: PropTypes.any.isRequired,
+};
 
 const MyDialogTitle = withStyles(styles)(props => {
   const { children, classes, onClose, ...other } = props;
@@ -46,12 +75,18 @@ const MyDialogTitle = withStyles(styles)(props => {
 export default class ModelDetail extends React.Component {
   constructor(props) {
       super(props);
+      this.state = {tabValue: 0};
 
       this.handleClose = this.handleClose.bind(this);
+      this.handleTabChange = this.handleTabChange.bind(this);
   }
 
   handleClose() {
     this.props.onClose();
+  }
+
+  handleTabChange(event, newValue) {
+    this.setState({tabValue:newValue})
   }
 
   render() {
@@ -69,24 +104,44 @@ export default class ModelDetail extends React.Component {
               alias={this.props.modelData.alias}
               owner={formatAuthors(this.props.modelData.owner)}
             ></ModelDetailHeader>
-            <ModelDetailContent
-              description={this.props.modelData.description}
-              instances={this.props.modelData.instances}
-            ></ModelDetailContent>
-            <ModelDetailMetadata
-              species={this.props.modelData.species}
-              brainRegion={this.props.modelData.brain_region}
-              cellType={this.props.modelData.cell_type}
-              modelScope={this.props.modelData.model_scope}
-              abstractionLevel={this.props.modelData.abstraction_level}
-              collabID={this.props.modelData.app.collab_id}
-              organization={this.props.modelData.organization}
-            >
-            <ul>
-              <li>{this.props.modelData.id}</li>
-              <li>{this.props.modelData.alias}</li>
-            </ul>
-            </ModelDetailMetadata>
+              <AppBar position="static">
+                <Tabs value={this.state.tabValue} onChange={this.handleTabChange}>
+                  <Tab label="Info" />
+                  <Tab label="Results" />
+                </Tabs>
+              </AppBar>
+              <TabPanel value={this.state.tabValue} index={0}>
+                <Grid container spacing={2}>
+                  <Grid item xs={9}>
+                    <ModelDetailContent
+                      description={this.props.modelData.description}
+                      instances={this.props.modelData.instances}
+                    ></ModelDetailContent>
+                  </Grid>
+                  <Grid item xs={3}>
+                    <ModelDetailMetadata
+                      species={this.props.modelData.species}
+                      brainRegion={this.props.modelData.brain_region}
+                      cellType={this.props.modelData.cell_type}
+                      modelScope={this.props.modelData.model_scope}
+                      abstractionLevel={this.props.modelData.abstraction_level}
+                      collabID={this.props.modelData.app.collab_id}
+                      organization={this.props.modelData.organization}
+                    >
+                    <ul>
+                      <li>{this.props.modelData.id}</li>
+                      <li>{this.props.modelData.alias}</li>
+                    </ul>
+                    </ModelDetailMetadata>
+                  </Grid>
+                </Grid>
+              </TabPanel>
+              <TabPanel value={this.state.tabValue} index={1}>
+                <ModelResultOverview
+                  baseUrl={this.props.baseUrl} 
+                  id={this.props.modelData.id}
+                />
+              </TabPanel>
           </Grid>
         </DialogContent>
       </Dialog>

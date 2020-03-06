@@ -427,13 +427,13 @@ export default class ValidationFramework extends React.Component {
     }
 
     if (this.state.currentModel) {
-      var modelDetail = <ModelDetail open={this.state.modelDetailOpen} modelData={this.state.currentModel} onClose={this.handleModelDetailClose} />;
+      var modelDetail = <ModelDetail open={this.state.modelDetailOpen} modelData={this.state.currentModel} onClose={this.handleModelDetailClose} baseUrl={baseUrl} />;
     } else {
       var modelDetail = "";
     }
 
     if (this.state.currentTest) {
-      var testDetail = <TestDetail open={this.state.testDetailOpen} testData={this.state.currentTest} onClose={this.handleTestDetailClose} />;
+      var testDetail = <TestDetail open={this.state.testDetailOpen} testData={this.state.currentTest} onClose={this.handleTestDetailClose} baseUrl={baseUrl} />;
     } else {
       var testDetail = "";
     }
@@ -452,7 +452,7 @@ export default class ValidationFramework extends React.Component {
         </Grid>
         <br/>
 
-        <ConfigForm open={this.state.configOpen} onClose={this.handleConfigClose} config={this.state.filters} />
+        <ConfigForm open={this.state.configOpen} onClose={this.handleConfigClose} config={this.state.filters} baseUrl={baseUrl} />
 
         <div>
           {modelDetail}

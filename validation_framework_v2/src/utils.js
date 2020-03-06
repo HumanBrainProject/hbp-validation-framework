@@ -21,8 +21,18 @@ export function downloadJSON(json, filename) {
 
 export function formatAuthors(authors) {
     if (authors) {
-        return authors.map(author => (author.given_name + " " + author.family_name)).join(", ");
+      return authors.map(author => (author.given_name + " " + author.family_name)).join(", ");
     } else {
-        return "";
+      return "";
     }
+}
+
+
+export function formatTimeStamp(ISOtimestamp) {  
+  if (ISOtimestamp) {
+    const d = new Date(ISOtimestamp);
+    return d.toUTCString();
+  } else {
+      return "";
+  }
 }

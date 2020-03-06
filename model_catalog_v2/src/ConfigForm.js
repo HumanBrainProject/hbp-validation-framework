@@ -120,7 +120,7 @@ export default class ConfigForm extends React.Component {
               Ok
             </Button>
           </DialogActions>
-        </Dialog>      
+        </Dialog>
       );
     }
   }
