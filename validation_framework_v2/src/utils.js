@@ -28,11 +28,28 @@ export function formatAuthors(authors) {
 }
 
 
-export function formatTimeStamp(ISOtimestamp) {  
+export function formatTimeStampToLongString(ISOtimestamp) {
   if (ISOtimestamp) {
     const d = new Date(ISOtimestamp);
     return d.toUTCString();
   } else {
       return "";
   }
+}
+
+
+export function formatTimeStampToCompact(ISOtimestamp) {
+  if (ISOtimestamp) {
+    const d = new Date(ISOtimestamp);
+    return d.toISOString().
+            replace(/T/, ' ').      // replace T with a space
+            replace(/\..+/, '')     // delete the dot and everything after;
+  } else {
+      return "";
+  }
+}
+
+
+export function roundFloat(value, places) {
+  return `${value.toFixed(places)}`;
 }

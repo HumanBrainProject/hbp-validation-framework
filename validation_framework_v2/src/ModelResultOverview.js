@@ -1,4 +1,5 @@
 import React from 'react';
+import { withStyles, makeStyles } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
 import Box from '@material-ui/core/Box';
 import { Typography } from '@material-ui/core';
@@ -12,12 +13,11 @@ import Paper from '@material-ui/core/Paper';
 import axios from 'axios';
 
 import result_data from './test_data_results_model_repeatsMutliple.json';
-import {formatTimeStamp} from "./utils";
+import {formatTimeStampToCompact, roundFloat} from "./utils";
 
 const theme = {
   spacing: 8,
 }
-
 
 function ResultParameter(props) {
   if (props.value) {
@@ -42,10 +42,14 @@ export default class  ModelResultOverview extends React.Component {
     this.setState({
       results: result_data["results"]
     });
+
+    // group results by model instance, test instance combo
+    // each entry being a list of results ordered from newest to oldest
+    this.groupResults(result_data["results"]);
   }
 
   getModelResults = () => {
-    let url = this.props.baseUrl + "/results/?order=score_type&test_code_id=" + this.props.id;
+    let url = this.props.baseUrl + "/results/?order=score_type&model_id=" + this.props.id;
     return axios.get(url)
       .then(res => {
         this.setState({
@@ -62,7 +66,46 @@ export default class  ModelResultOverview extends React.Component {
     );
   };
 
+  groupResults = (results) => {
+    // var list_model_instances = []
+    // var list_test_instances = []
+
+    // will be a 2-D dict with list as values
+    // each value is a list of dicts containing result_id, score, timestamp
+    var dict_results = {}
+    results.forEach(function (result, index) {
+
+      if (!(result.test_code_id in dict_results)) {
+        dict_results[result.test_code_id] = {};
+      }
+
+      if (!(result.model_version_id in dict_results[result.test_code_id])) {
+        dict_results[result.test_code_id][result.test_code_id] = [];
+      }
+
+      dict_results[result.test_code_id][result.test_code_id].push({result_id:result.id, score:result.score, timestamp:result.timestamp})
+    });
+
+    console.log(dict_results)
+
+    dict_results.forEach(function (test_inst, index) {
+      dict_results[result.test_code_id].forEach(function (model_inst, index) {
+          dict_results[test_inst][model_inst.sort(function(a, b) {
+          if(a.timestamp < b.timestamp) { return -1; }
+          if(a.timestamp > b.timestamp) { return 1; }
+          return 0;
+        }
+        )
+      })
+    });
+
+    // this.setState({
+    //   results_grouped: results_grouped
+    // });
+  }
+
   render() {
+
     return (
       <React.Fragment>
         <Grid container xs={12} direction="column" item={true}>
@@ -72,41 +115,43 @@ export default class  ModelResultOverview extends React.Component {
             </Box>
 
             <TableContainer component={Paper}>
-              <Table className={classes.table} aria-label="spanning table">
+              <Table aria-label="spanning table">
                 <TableHead>
                   <TableRow>
-                    <TableCell align="center" colSpan={3}>
-                      Details
-                    </TableCell>
-                    <TableCell align="right">Price</TableCell>
+                    <TableCell align="center" colSpan={2}></TableCell>
+                    <TableCell align="center" colSpan={2}>Model Version(s)</TableCell>
                   </TableRow>
                   <TableRow>
-                    <TableCell>Desc</TableCell>
-                    <TableCell align="right">Qty.</TableCell>
-                    <TableCell align="right">Unit</TableCell>
-                    <TableCell align="right">Sum</TableCell>
+                    <TableCell align="center" colSpan={2} bgcolor='#26547d'>Validation Test</TableCell>
+                    <TableCell align="center" colSpan={2}>1.0</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell align="right" bgcolor='#3277b3'>Name</TableCell>
+                    <TableCell align="right" bgcolor='#3277b3'>Version</TableCell>
+                    <TableCell align="right">Score</TableCell>
+                    <TableCell align="center">Date</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {this.state.results.map(row => (
-                    <TableRow key={row.desc}>
-                      <TableCell>{row.desc}</TableCell>
-                      <TableCell align="right">{row.qty}</TableCell>
-                      <TableCell align="right">{row.unit}</TableCell>
-                      <TableCell align="right">{ccyFormat(row.price)}</TableCell>
+                  {this.state.results.map(result => (
+                    <TableRow>
+                      <TableCell align="right" bgcolor='#b9cbda'>{result.test_code.test_definition.alias ? result.test_code.test_definition.alias : result.test_code.test_definition.name}</TableCell>
+                      <TableCell align="right" bgcolor='#b9cbda'>{result.test_code.version}</TableCell>
+                      <TableCell align="right">{roundFloat(result.score, 2)}</TableCell>
+                      <TableCell align="center">{formatTimeStampToCompact(result.timestamp)}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
               </Table>
             </TableContainer>
 
-            {this.state.results.map(result => (
+            {/* {this.state.results.map(result => (
             <Box m={2} p={2} pb={0} style={{backgroundColor: '#eeeeee'}} key={result.id}>
               <ResultParameter label="Test Name" value={result.test_code.test_definition.name} />
-              <ResultParameter label="Score" value={result.score} />
-              <ResultParameter label="Created" value={formatTimeStamp(result.timestamp)} />
+              <ResultParameter label="Score" value={roundFloat(result.score, 2)} />
+              <ResultParameter label="Created" value={formatTimeStampToCompact(result.timestamp)} />
             </Box>
-            ))}
+            ))} */}
           </Grid>
         </Grid>
       </React.Fragment>
