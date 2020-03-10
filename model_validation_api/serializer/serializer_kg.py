@@ -575,7 +575,7 @@ class ValidationTestCodeKGSerializer(BaseKGSerializer):
         return self.obj
 
 
-def serialize_additional_data(input_url, kg_client):
+def serialize_additional_data(input_url, user_token):
     """If input_url is a 'special' URL, e.g. points to the Collaboratory storage,"""
 
     # Obtained from GET https://services.humanbrainproject.eu/collab/v0/collab/5165/nav/root/
@@ -588,7 +588,7 @@ def serialize_additional_data(input_url, kg_client):
 
     collab_id = url_parts.path.split("/")[1]
     request_url = "https://services.humanbrainproject.eu/collab/v0/collab/{}/nav/root/".format(collab_id)
-    headers = kg_client._nexus_client._http_client.auth_client.get_headers()
+    headers = {'Authorization': "Bearer {}".format(user_token)}
 
     data = requests.get(request_url, headers=headers)
 
@@ -648,7 +648,7 @@ class ValidationTestResultKGSerializer(BaseKGSerializer):
             "model_version_id": model_version_id,
             "test_code_id": test_code_id,
             "results_storage": [
-                serialize_additional_data(url, self.client)
+                serialize_additional_data(url, self.user_token)
                 for url in additional_data_urls
             ],
             "score": obj.score,

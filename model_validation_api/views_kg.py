@@ -84,8 +84,9 @@ class KGAPIView(APIView):
 
         # check that the token is valid by getting user info
         self.user = get_user_from_token(request)
+        self.user_token = token  # we need this for communicating with services other than Nexus (e.g. Collab storage)
 
-        kg_token = get_kg_token()
+        kg_token = get_kg_token()  # we need this for communicating with Nexus
 
         assert method == "Bearer"
         self.client = KGClient(kg_token,
@@ -1591,7 +1592,7 @@ class Results_KG(KGAPIView):
                                 status=status.HTTP_404_NOT_FOUND)
             result["test_script"] = test_code
 
-            serializer = ValidationTestResultKGSerializer(None, self.client, data=result)
+            serializer = ValidationTestResultKGSerializer(None, self.user_token, data=result)
             if serializer.is_valid():
                 res = serializer.save()
                 list_id.append(res.uuid)
