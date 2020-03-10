@@ -1545,7 +1545,7 @@ class Results_KG(KGAPIView):
             if result and not math.isnan(float(result.score)) and not math.isnan(float(result.normalized_score)) and not math.isinf(float(result.score)) and not math.isinf(float(result.normalized_score)):
                 new_results.append(result)
 
-        data_to_return = organise_results_dict_kg(detailed_view, param_order, new_results, self.client)
+        data_to_return = organise_results_dict_kg(detailed_view, param_order, new_results, self.client, self.user_token)
 
         # file = get_storage_file_by_id(request)
         # data_to_return['PDF'] = file
