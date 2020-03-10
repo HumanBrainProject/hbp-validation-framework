@@ -612,6 +612,12 @@ def serialize_additional_data(input_url, kg_client):
                     "path": entity_path
                 }
             }
+        else:
+            logger.warning("Unable to get Collab storage file listing for {}".format(entity_path))
+            logger.debug(data.content)
+    else:
+        logger.warning("Unable to retrieve Collab storage nav ID for {}".format(input_url))
+        logger.debug(data.content)
     # in case of errors, return the original url
     return {"original_url": input_url}
 
