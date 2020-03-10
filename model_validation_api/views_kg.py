@@ -1592,7 +1592,7 @@ class Results_KG(KGAPIView):
                                 status=status.HTTP_404_NOT_FOUND)
             result["test_script"] = test_code
 
-            serializer = ValidationTestResultKGSerializer(None, self.user_token, data=result)
+            serializer = ValidationTestResultKGSerializer(None, self.client, data=result, user_token=self.user_token)
             if serializer.is_valid():
                 res = serializer.save()
                 list_id.append(res.uuid)

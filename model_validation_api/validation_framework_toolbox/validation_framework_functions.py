@@ -709,7 +709,7 @@ def organise_results_dict_kg( detailed_view, point_of_view, results, client, use
             if result_info['model_instance_id'] not in current :
                 result.model_version_id = result_info["model_instance_id"]
                 result.test_code_id = result_info["test_code_id"]
-                result_data = ValidationTestResultKGSerializer(result, user_token).data
+                result_data = ValidationTestResultKGSerializer(result, client, user_token=user_token).data
                 current[result_info['model_instance_id']] = {'version' : result_info['model_instance_version'], 'result' : result_data }
 
 
@@ -737,7 +737,7 @@ def organise_results_dict_kg( detailed_view, point_of_view, results, client, use
             if result_info['test_code_id'] not in current :
                 result.model_version_id = result_info["model_instance_id"]
                 result.test_code_id = result_info["test_code_id"]
-                result_data = ValidationTestResultKGSerializer(result, user_token).data
+                result_data = ValidationTestResultKGSerializer(result, client, user_token=user_token).data
                 current[result_info['test_code_id']] = {'version' : result_info['test_code_version'], 'result' : result_data }
 
     elif  point_of_view == "test_code" :
@@ -757,7 +757,7 @@ def organise_results_dict_kg( detailed_view, point_of_view, results, client, use
             current = current[result_info['model_instance_id']]['results']
             result.model_version_id = result_info["model_instance_id"]
             result.test_code_id = result_info["test_code_id"]
-            result_data = ValidationTestResultKGSerializer(result, user_token).data
+            result_data = ValidationTestResultKGSerializer(result, client, user_token=user_token).data
             current[result_data['id']] = result_data
 
     elif  point_of_view == "model_instance" :
@@ -776,7 +776,7 @@ def organise_results_dict_kg( detailed_view, point_of_view, results, client, use
             current = current[result_info['test_code_id']]['results']
             result.model_version_id = result_info["model_instance_id"]
             result.test_code_id = result_info["test_code_id"]
-            result_data = ValidationTestResultKGSerializer(result, user_token).data
+            result_data = ValidationTestResultKGSerializer(result, client, user_token=user_token).data
             current[result_data['id']] = result_data
 
     elif  point_of_view == "score_type" :
@@ -801,15 +801,15 @@ def organise_results_dict_kg( detailed_view, point_of_view, results, client, use
             current = current[result_info['model_instance_id']]['results']
             result.model_version_id = result_info["model_instance_id"]
             result.test_code_id = result_info["test_code_id"]
-            result_data = ValidationTestResultKGSerializer(result, user_token).data
+            result_data = ValidationTestResultKGSerializer(result, client, user_token=user_token).data
             current[result_data['id']] = result_data
 
     #data_to_return no structuraction
     else :
         if detailed_view :
-            result_serializer = ValidationTestResultKGSerializer(results, user_token, many=True).data
+            result_serializer = ValidationTestResultKGSerializer(results, client, user_token=user_token, many=True).data
         else :
-            result_serializer = ValidationTestResultKGSerializer(results, user_token, many=True).data
+            result_serializer = ValidationTestResultKGSerializer(results, client, user_token=user_token, many=True).data
 
         data_to_return = {'results' : result_serializer}
 

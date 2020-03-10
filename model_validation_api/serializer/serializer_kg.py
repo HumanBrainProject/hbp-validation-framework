@@ -23,8 +23,9 @@ use_core_namespace("modelvalidation")
 
 class BaseKGSerializer(object):
 
-    def __init__(self, objects, client, data=None, many=False, context=None):
-        self.client = client
+    def __init__(self, objects, client, data=None, many=False, context=None, user_token=None):
+        self.client = client  # used for KG access
+        self.user_token = user_token  # used for accessing other services (e.g. collab storage)
         if isinstance(objects, (KGProxy, KGQuery)):
             objects = objects.resolve(self.client, api="nexus")
         if many:
