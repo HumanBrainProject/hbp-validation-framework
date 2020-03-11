@@ -411,7 +411,7 @@ export default class ValidationFramework extends React.Component {
                               <Box>
                                   {
                                     Object.keys(this.state.filters).map((key, index) => (
-                                      <Box lineHeight={2}>
+                                      <Box lineHeight={2} key={key}>
                                         <Box component="span" fontWeight="fontWeightBold">{stringCapsSpaces(key)}: </Box>
                                         <Box component="span">{this.state.filters[key].join(', ') ? this.state.filters[key].join(', ') : "<< all >>"}</Box>
                                         <br/>

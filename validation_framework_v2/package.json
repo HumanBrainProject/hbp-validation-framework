@@ -10,6 +10,7 @@
     "keycloak-js": "^8.0.1",
     "markdown-to-jsx": "^6.10.3",
     "material-table": "^1.54.0",
+    "moment": "^2.24.0",
     "mui-datatables": "^2.14.0",
     "react": "^16.11.0",
     "react-dom": "^16.11.0",

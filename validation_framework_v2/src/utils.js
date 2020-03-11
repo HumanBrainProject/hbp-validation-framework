@@ -1,3 +1,5 @@
+import moment from 'moment'
+
 export function downloadJSON(json, filename) {
     const blob = new Blob([json], { type: 'application/json' });
 
@@ -38,12 +40,9 @@ export function formatTimeStampToLongString(ISOtimestamp) {
 }
 
 
-export function formatTimeStampToCompact(ISOtimestamp) {
+export function formatTimeStampToCompact(ISOtimestamp) {  
   if (ISOtimestamp) {
-    const d = new Date(ISOtimestamp);
-    return d.toISOString().
-            replace(/T/, ' ').      // replace T with a space
-            replace(/\..+/, '')     // delete the dot and everything after;
+    return moment(ISOtimestamp).format('DD/MM/YYYY (HH:MM)');
   } else {
       return "";
   }

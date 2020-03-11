@@ -19,11 +19,50 @@ const theme = {
   spacing: 8,
 }
 
-function ResultParameter(props) {
-  if (props.value) {
-    return <Typography variant="body2"><b>{props.label}</b>: {props.value}</Typography>
-  } else {
-    return ""
+class ResultEntry extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+                    expanded: false
+                 };
+    this.toggleExpanded = this.toggleExpanded.bind(this);
+  }
+  toggleExpanded() {
+    this.setState({ expanded: !this.state.expanded });
+  }
+
+  render() {
+    const result_entry = this.props.result_entry;
+    if (result_entry) {
+      return (
+        <TableRow key={result_entry[0].result_id}>
+          <TableCell align="right" bgcolor='#b9cbda'>{result_entry[0].test_alias ? result_entry[0].test_alias : result_entry[0].test_name}</TableCell>
+          <TableCell align="right" bgcolor='#b9cbda'>{result_entry[0].test_version}</TableCell>
+          <TableCell align="right">
+            result_entry.forEach(function (result, ind) {
+              {
+              <div>
+                <div>
+                  <span>{roundFloat(result_entry[0].score, 2)}</span>
+                  <span onClick={this.toggleExpanded}>X</span>
+                </div>
+
+                <div style={ this.state.expanded ? { display:'block'} : {display : 'none'} } >
+                  <div>A {this.state.expanded}</div>
+                  <div>{roundFloat(result_entry[0].score, 2)}</div>
+                </div>
+              </div>
+               } else {
+                <div></div>
+              }
+            });
+            </TableCell>
+          <TableCell align="center">{formatTimeStampToCompact(result_entry[0].timestamp)}</TableCell>
+        </TableRow>
+      )
+    } else {
+      return ""
+    }
   }
 }
 
@@ -31,7 +70,8 @@ export default class  ModelResultOverview extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-                    results : []
+                    results : [],
+                    results_grouped : {}
                  };
 
     // this.handleClose = this.handleClose.bind(this);
@@ -67,12 +107,11 @@ export default class  ModelResultOverview extends React.Component {
   };
 
   groupResults = (results) => {
-    // var list_model_instances = []
-    // var list_test_instances = []
-
     // will be a 2-D dict with list as values
-    // each value is a list of dicts containing result_id, score, timestamp
+    // each value is a list of dicts containing:
+    // [result_id, score, timestamp, test_name, test_alias, test_version, model_name, model_alias, model_version]
     var dict_results = {}
+
     results.forEach(function (result, index) {
 
       if (!(result.test_code_id in dict_results)) {
@@ -80,33 +119,41 @@ export default class  ModelResultOverview extends React.Component {
       }
 
       if (!(result.model_version_id in dict_results[result.test_code_id])) {
-        dict_results[result.test_code_id][result.test_code_id] = [];
+        dict_results[result.test_code_id][result.model_version_id] = [];
       }
 
-      dict_results[result.test_code_id][result.test_code_id].push({result_id:result.id, score:result.score, timestamp:result.timestamp})
+      dict_results[result.test_code_id][result.model_version_id].push(
+                          {
+                            result_id:      result.id,
+                            score:          result.score,
+                            timestamp:      result.timestamp,
+                            test_name:      result.test_code.test_definition.name,
+                            test_alias:     result.test_code.test_definition.alias,
+                            test_version:   result.test_code.version,
+                            model_name:     result.model_version.model.name,
+                            model_alias:    result.model_version.model.alias,
+                            model_version:  result.model_version.version
+                          })
     });
 
-    console.log(dict_results)
-
-    dict_results.forEach(function (test_inst, index) {
-      dict_results[result.test_code_id].forEach(function (model_inst, index) {
-          dict_results[test_inst][model_inst.sort(function(a, b) {
-          if(a.timestamp < b.timestamp) { return -1; }
-          if(a.timestamp > b.timestamp) { return 1; }
+    // sort each list of dicts (each dict being a result) in descending order of timestamp
+    Object.keys(dict_results).forEach(function (test_inst, index_t) {
+      Object.keys(dict_results[test_inst]).forEach(function (model_inst, index_m) {
+          dict_results[test_inst][model_inst].sort(function(a, b) {
+          if(a.timestamp < b.timestamp) { return 1; }
+          if(a.timestamp > b.timestamp) { return -1; }
           return 0;
-        }
-        )
-      })
+        });
+      });
     });
 
-    // this.setState({
-    //   results_grouped: results_grouped
-    // });
+    this.setState({
+      results_grouped: dict_results
+    });
   }
 
-  render() {
-
-    return (
+  renderResultsSummaryTable(dict_results) {
+    return(
       <React.Fragment>
         <Grid container xs={12} direction="column" item={true}>
           <Grid item xs={12}>
@@ -129,32 +176,45 @@ export default class  ModelResultOverview extends React.Component {
                     <TableCell align="right" bgcolor='#3277b3'>Name</TableCell>
                     <TableCell align="right" bgcolor='#3277b3'>Version</TableCell>
                     <TableCell align="right">Score</TableCell>
-                    <TableCell align="center">Date</TableCell>
+                    <TableCell align="center">Date (Time)</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {this.state.results.map(result => (
-                    <TableRow>
-                      <TableCell align="right" bgcolor='#b9cbda'>{result.test_code.test_definition.alias ? result.test_code.test_definition.alias : result.test_code.test_definition.name}</TableCell>
-                      <TableCell align="right" bgcolor='#b9cbda'>{result.test_code.version}</TableCell>
-                      <TableCell align="right">{roundFloat(result.score, 2)}</TableCell>
-                      <TableCell align="center">{formatTimeStampToCompact(result.timestamp)}</TableCell>
-                    </TableRow>
-                  ))}
+                  {
+                    Object.keys(dict_results).map((test_inst, index_t) => (
+                      Object.keys(dict_results[test_inst]).map((model_inst, index_m) => (
+                        <ResultEntry result_entry={dict_results[test_inst][model_inst]} key={dict_results[test_inst][model_inst][0].result_id} />
+                      ))
+                    ))
+                  }
                 </TableBody>
               </Table>
             </TableContainer>
-
-            {/* {this.state.results.map(result => (
-            <Box m={2} p={2} pb={0} style={{backgroundColor: '#eeeeee'}} key={result.id}>
-              <ResultParameter label="Test Name" value={result.test_code.test_definition.name} />
-              <ResultParameter label="Score" value={roundFloat(result.score, 2)} />
-              <ResultParameter label="Created" value={formatTimeStampToCompact(result.timestamp)} />
-            </Box>
-            ))} */}
           </Grid>
         </Grid>
       </React.Fragment>
+    )
+  }
+
+  renderNoResults() {
+    return (
+        <Typography variant="h5" component="h3">
+            No results have yet been registered for this model!
+        </Typography>
+    )
+  }
+
+  render() {
+    const dict_results = this.state.results_grouped;
+    if (Object.keys(dict_results).length>0) {
+      var content = this.renderResultsSummaryTable(dict_results);
+    } else {
+      var content = this.renderNoResults();
+    }
+    return (
+      <div>
+        {content}
+      </div>
     );
   }
 }
