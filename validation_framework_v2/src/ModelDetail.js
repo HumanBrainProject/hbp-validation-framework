@@ -140,6 +140,7 @@ export default class ModelDetail extends React.Component {
                 <ModelResultOverview
                   baseUrl={this.props.baseUrl} 
                   id={this.props.modelData.id}
+                  modelJSON={this.props.modelData}
                 />
               </TabPanel>
           </Grid>

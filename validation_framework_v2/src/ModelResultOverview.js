@@ -23,26 +23,6 @@ const theme = {
   spacing: 8,
 }
 
-// class ResultPerInstanceComboMT_FirstElement extends React.Component {
-//   render() {
-//     console.log(this.props.result_MTcombo)
-//     return (""
-//       // <TableCell align="right">{result_test_instance.test_version}</TableCell>
-//       // <TableCell align="right">{result_test_instance.test_version}</TableCell>
-//     )
-//   }
-// }
-
-// class ResultPerInstanceComboMT_OtherElements extends React.Component {
-//   render() {
-//     console.log(this.props.result_MTcombo)
-//     return (""
-//       // <TableCell align="right">{result_test_instance.test_version}</TableCell>
-//       // <TableCell align="right">{result_test_instance.test_version}</TableCell>
-//     )
-//   }
-// }
-
 class ResultPerInstanceComboMT extends React.Component {
   constructor(props) {
     super(props);
@@ -63,7 +43,7 @@ class ResultPerInstanceComboMT extends React.Component {
           results_sublist.map((result, ind) => {
           return ind == 0 ?
             results_sublist.length==1 ?
-            <Grid>
+            <Grid container key={result.result_id}>
               <Grid item align="right">
                 {roundFloat(result.score, 2)}
               </Grid>
@@ -119,15 +99,15 @@ class ResultPerInstanceComboMT extends React.Component {
 class ResultEntryTestInstance extends React.Component {
   render() {
     const result_test_instance = this.props.result_entry;
-    console.log(result_test_instance)
     if (result_test_instance) {
       return (
         <TableRow>
           <TableCell align="right" bgcolor='#b9cbda'>{result_test_instance.test_alias ? result_test_instance.test_alias : result_test_instance.test_name}</TableCell>
           <TableCell align="right" bgcolor='#b9cbda'>{result_test_instance.test_version}</TableCell>
           {
-            Object.keys(result_test_instance.results).map((model_inst_id, index_m) => (
-              <ResultPerInstanceComboMT result_MTcombo={result_test_instance.results[model_inst_id]} key={model_inst_id} />
+            this.props.model_versions.map((model_inst, index_m) => (
+
+              <ResultPerInstanceComboMT result_MTcombo={result_test_instance.results[model_inst["model_inst_id"]]} model_versions={this.props.model_versions} key={model_inst["model_inst_id"]} />
             ))
           }
         </TableRow>
@@ -143,7 +123,8 @@ export default class  ModelResultOverview extends React.Component {
     super(props);
     this.state = {
                     results : [],
-                    results_grouped : {}
+                    results_grouped : {},
+                    model_versions : []
                  };
 
     // this.handleClose = this.handleClose.bind(this);
@@ -184,11 +165,35 @@ export default class  ModelResultOverview extends React.Component {
     // [result_id, score, timestamp, test_name, test_alias, test_version, model_name, model_alias, model_version]
     var dict_results = {}
 
-    results.forEach(function (result, index) {
+    // Get list of all model versions; note that not necessarily all model versions will have associated results
+    // so not appropriate to locate model versions via individual results
+    // var list_model_versions = [] // TODO: uncomment
+    // for dev usage
+    var list_model_versions = [{model_inst_id: "20e69189-ab22-4967-88a0-9e719a547381", model_version: "2.0", timestamp: "2019-06-06T12:55:17.673676+00:00"},
+                               {model_inst_id: "20e69189-ab22-4967-88a0-9e719a547380", model_version: "1.0", timestamp: "2019-06-04T12:55:17.673676+00:00"},
+                               {model_inst_id: "20e69189-ab22-4967-88a0-9e719a547382", model_version: "3.0", timestamp: "2019-06-08T12:55:17.673676+00:00"}]
 
+    // TODO: uncomment this for actual data
+    // this.props.modelJSON.instances.forEach(function (model_inst) {
+    //   list_model_versions.push({
+    //     model_inst_id:  model_inst.id,
+    //     model_version:  model_inst.version,
+    //     timestamp:      model_inst.timestamp
+    //   })
+    // })
+    // console.log(list_model_versions)
+
+    // sorting list_model_versions by timestamp (oldest to newest)
+    list_model_versions.sort(function(a, b) {
+      if(a.timestamp < b.timestamp) { return -1; }
+      if(a.timestamp > b.timestamp) { return 1; }
+      return 0;
+    });
+
+    results.forEach(function (result, index) {
       if (!(result.test_code_id in dict_results)) {
         dict_results[result.test_code_id] = {
-                                              test_id:        result.test_code_id,
+                                              test_inst_id:   result.test_code_id,
                                               test_name:      result.test_code.test_definition.name,
                                               test_alias:     result.test_code.test_definition.alias,
                                               test_version:   result.test_code.version,
@@ -208,12 +213,23 @@ export default class  ModelResultOverview extends React.Component {
                             // test_name:      result.test_code.test_definition.name,
                             // test_alias:     result.test_code.test_definition.alias,
                             // test_version:   result.test_code.version,
+                            model_inst_id:  result.model_version_id,
                             model_name:     result.model_version.model.name,
                             model_alias:    result.model_version.model.alias,
                             model_version:  result.model_version.version
                           })
     });
 
+    // insert empty lists for (test_instance, model_instance) combos without results
+    results.forEach(function (result, index) {
+      list_model_versions.forEach(function (m_inst) {
+        if (!(m_inst["model_inst_id"] in dict_results[result.test_code_id]["results"])) {
+          dict_results[result.test_code_id]["results"][m_inst["model_inst_id"]] = [];
+        }
+      })
+    })
+
+    // sorting entries by test name and version timestamp
 
 
     // sort each list of dicts (each dict being a result) in descending order of timestamp
@@ -228,7 +244,8 @@ export default class  ModelResultOverview extends React.Component {
     });
 
     this.setState({
-      results_grouped: dict_results
+      results_grouped:  dict_results,
+      model_versions:   list_model_versions
     });
   }
 
@@ -245,24 +262,33 @@ export default class  ModelResultOverview extends React.Component {
               <Table aria-label="spanning table">
                 <TableHead>
                   <TableRow>
-                    <TableCell align="center" colSpan={2}></TableCell>
-                    <TableCell align="center" colSpan={2}>Model Version(s)</TableCell>
+                  <TableCell align="center" colSpan={2} rowSpan={2} bgcolor='#26547d'>Validation Test</TableCell>
+                    <TableCell align="center" colSpan={this.state.model_versions.length*2}>Model Version(s)</TableCell>
                   </TableRow>
                   <TableRow>
-                    <TableCell align="center" colSpan={2} bgcolor='#26547d'>Validation Test</TableCell>
-                    <TableCell align="center" colSpan={2}>1.0</TableCell>
+                    {
+                      this.state.model_versions.map((item, index) => (
+                        <TableCell align="center" colSpan={2} key={item["model_inst_id"]}>{item["model_version"]}</TableCell>
+                      ))
+                    }
                   </TableRow>
                   <TableRow>
-                    <TableCell align="right" bgcolor='#3277b3'>Name</TableCell>
-                    <TableCell align="right" bgcolor='#3277b3'>Version</TableCell>
-                    <TableCell align="right">Score</TableCell>
-                    <TableCell align="center">Date (Time)</TableCell>
+                    <TableCell align="center" bgcolor='#3277b3'>Name</TableCell>
+                    <TableCell align="center" bgcolor='#3277b3'>Version</TableCell>
+                    {
+                      this.state.model_versions.map((item, index) => (
+                        <React.Fragment key={index}>
+                        <TableCell align="right">Score</TableCell>
+                        <TableCell align="center">Date (Time)</TableCell>
+                        </React.Fragment>
+                      ))
+                    }
                   </TableRow>
                 </TableHead>
                 <TableBody>
                   {
                     Object.keys(dict_results).map((test_inst_id, index_t) => (
-                        <ResultEntryTestInstance result_entry={dict_results[test_inst_id]} key={test_inst_id} />
+                        <ResultEntryTestInstance result_entry={dict_results[test_inst_id]} model_versions={this.state.model_versions} key={test_inst_id} />
                     ))
                   }
                 </TableBody>
