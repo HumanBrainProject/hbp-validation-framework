@@ -10,16 +10,40 @@ import TableContainer from '@material-ui/core/TableContainer';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
+import Avatar from '@material-ui/core/Avatar';
+import Tooltip from '@material-ui/core/Tooltip';
+import Divider from '@material-ui/core/Divider';
 import axios from 'axios';
 
-import result_data from './test_data_results_model_repeatsMutliple.json';
+// import result_data from './test_data_results_model_repeatsMutliple.json';
+import result_data from './test_data_results_model_repeatsMutliple_multipleVersions.json';
 import {formatTimeStampToCompact, roundFloat} from "./utils";
 
 const theme = {
   spacing: 8,
 }
 
-class ResultEntry extends React.Component {
+// class ResultPerInstanceComboMT_FirstElement extends React.Component {
+//   render() {
+//     console.log(this.props.result_MTcombo)
+//     return (""
+//       // <TableCell align="right">{result_test_instance.test_version}</TableCell>
+//       // <TableCell align="right">{result_test_instance.test_version}</TableCell>
+//     )
+//   }
+// }
+
+// class ResultPerInstanceComboMT_OtherElements extends React.Component {
+//   render() {
+//     console.log(this.props.result_MTcombo)
+//     return (""
+//       // <TableCell align="right">{result_test_instance.test_version}</TableCell>
+//       // <TableCell align="right">{result_test_instance.test_version}</TableCell>
+//     )
+//   }
+// }
+
+class ResultPerInstanceComboMT extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -30,34 +54,82 @@ class ResultEntry extends React.Component {
   toggleExpanded() {
     this.setState({ expanded: !this.state.expanded });
   }
-
   render() {
-    const result_entry = this.props.result_entry;
-    if (result_entry) {
-      return (
-        <TableRow key={result_entry[0].result_id}>
-          <TableCell align="right" bgcolor='#b9cbda'>{result_entry[0].test_alias ? result_entry[0].test_alias : result_entry[0].test_name}</TableCell>
-          <TableCell align="right" bgcolor='#b9cbda'>{result_entry[0].test_version}</TableCell>
-          <TableCell align="right">
-            result_entry.forEach(function (result, ind) {
-              {
-              <div>
-                <div>
-                  <span>{roundFloat(result_entry[0].score, 2)}</span>
-                  <span onClick={this.toggleExpanded}>X</span>
-                </div>
+    const results_sublist = this.props.result_MTcombo;
+    return [
+      // For score
+      <TableCell key="score">
+        {
+          results_sublist.map((result, ind) => {
+          return ind == 0 ?
+            results_sublist.length==1 ?
+            <Grid>
+              <Grid item align="right">
+                {roundFloat(result.score, 2)}
+              </Grid>
+            </Grid>
+            :
+            <Grid container spacing={2} key={result.result_id}>
+              <Grid item align="left" onClick={this.toggleExpanded} style={{ cursor: 'pointer' }}>
+                <Tooltip title={results_sublist.length + " results available"}>
+                  <Avatar style={{ width:"20px", height:"20px"}}>
+                    <Typography variant="button">
+                      {results_sublist.length}
+                    </Typography>
+                  </Avatar>
+                </Tooltip>
+              </Grid>
+              <Divider orientation="vertical" flexItem />
+              <Grid item align="right">
+                {roundFloat(result.score, 2)}
+              </Grid>
+            </Grid>
+          :
+            <Grid container style={this.state.expanded?{display:'block'}:{display:'none'}} key={result.result_id}>
+              <Grid item align="right">
+                {roundFloat(result.score, 2)}
+              </Grid>
+            </Grid>
+          })
+        }
+      </TableCell>,
+      // For timestamp
+      <TableCell key="timestamp">
+        {
+          results_sublist.map((result, ind) => {
+          return ind == 0 ?
+            <Grid container spacing={2} key={result.result_id}>
+              <Grid item align="right">
+                {formatTimeStampToCompact(result.timestamp)}
+              </Grid>
+            </Grid>
+          :
+            <Grid container style={this.state.expanded?{display:'block'}:{display:'none'}} key={result.result_id}>
+              <Grid item align="right">
+                {formatTimeStampToCompact(result.timestamp)}
+              </Grid>
+            </Grid>
+          })
+        }
+      </TableCell>
+    ];
+  }
+}
 
-                <div style={ this.state.expanded ? { display:'block'} : {display : 'none'} } >
-                  <div>A {this.state.expanded}</div>
-                  <div>{roundFloat(result_entry[0].score, 2)}</div>
-                </div>
-              </div>
-               } else {
-                <div></div>
-              }
-            });
-            </TableCell>
-          <TableCell align="center">{formatTimeStampToCompact(result_entry[0].timestamp)}</TableCell>
+class ResultEntryTestInstance extends React.Component {
+  render() {
+    const result_test_instance = this.props.result_entry;
+    console.log(result_test_instance)
+    if (result_test_instance) {
+      return (
+        <TableRow>
+          <TableCell align="right" bgcolor='#b9cbda'>{result_test_instance.test_alias ? result_test_instance.test_alias : result_test_instance.test_name}</TableCell>
+          <TableCell align="right" bgcolor='#b9cbda'>{result_test_instance.test_version}</TableCell>
+          {
+            Object.keys(result_test_instance.results).map((model_inst_id, index_m) => (
+              <ResultPerInstanceComboMT result_MTcombo={result_test_instance.results[model_inst_id]} key={model_inst_id} />
+            ))
+          }
         </TableRow>
       )
     } else {
@@ -115,31 +187,39 @@ export default class  ModelResultOverview extends React.Component {
     results.forEach(function (result, index) {
 
       if (!(result.test_code_id in dict_results)) {
-        dict_results[result.test_code_id] = {};
+        dict_results[result.test_code_id] = {
+                                              test_id:        result.test_code_id,
+                                              test_name:      result.test_code.test_definition.name,
+                                              test_alias:     result.test_code.test_definition.alias,
+                                              test_version:   result.test_code.version,
+                                              results: {}
+                                            };
       }
 
-      if (!(result.model_version_id in dict_results[result.test_code_id])) {
-        dict_results[result.test_code_id][result.model_version_id] = [];
+      if (!(result.model_version_id in dict_results[result.test_code_id]["results"])) {
+        dict_results[result.test_code_id]["results"][result.model_version_id] = [];
       }
 
-      dict_results[result.test_code_id][result.model_version_id].push(
+      dict_results[result.test_code_id]["results"][result.model_version_id].push(
                           {
                             result_id:      result.id,
                             score:          result.score,
                             timestamp:      result.timestamp,
-                            test_name:      result.test_code.test_definition.name,
-                            test_alias:     result.test_code.test_definition.alias,
-                            test_version:   result.test_code.version,
+                            // test_name:      result.test_code.test_definition.name,
+                            // test_alias:     result.test_code.test_definition.alias,
+                            // test_version:   result.test_code.version,
                             model_name:     result.model_version.model.name,
                             model_alias:    result.model_version.model.alias,
                             model_version:  result.model_version.version
                           })
     });
 
+
+
     // sort each list of dicts (each dict being a result) in descending order of timestamp
     Object.keys(dict_results).forEach(function (test_inst, index_t) {
-      Object.keys(dict_results[test_inst]).forEach(function (model_inst, index_m) {
-          dict_results[test_inst][model_inst].sort(function(a, b) {
+      Object.keys(dict_results[test_inst]["results"]).forEach(function (model_inst, index_m) {
+          dict_results[test_inst]["results"][model_inst].sort(function(a, b) {
           if(a.timestamp < b.timestamp) { return 1; }
           if(a.timestamp > b.timestamp) { return -1; }
           return 0;
@@ -181,10 +261,8 @@ export default class  ModelResultOverview extends React.Component {
                 </TableHead>
                 <TableBody>
                   {
-                    Object.keys(dict_results).map((test_inst, index_t) => (
-                      Object.keys(dict_results[test_inst]).map((model_inst, index_m) => (
-                        <ResultEntry result_entry={dict_results[test_inst][model_inst]} key={dict_results[test_inst][model_inst][0].result_id} />
-                      ))
+                    Object.keys(dict_results).map((test_inst_id, index_t) => (
+                        <ResultEntryTestInstance result_entry={dict_results[test_inst_id]} key={test_inst_id} />
                     ))
                   }
                 </TableBody>
