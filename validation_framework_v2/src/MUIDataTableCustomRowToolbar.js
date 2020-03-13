@@ -18,6 +18,7 @@ const defaultToolbarSelectStyles = {
 class CustomToolbarSelect extends React.Component {
   render() {
     const { classes } = this.props;
+    console.log(this.props.selectedRows)
     return (
       <div className={"custom-toolbar-select"}>
         <Tooltip title={"View / Compare"}>

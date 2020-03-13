@@ -93,26 +93,26 @@ class ResultPerInstanceComboMT extends React.Component {
 
 class ResultEntryTest extends React.Component {
   render() {
-    const result_test = this.props.result_entry;
-    const model_versions = this.props.model_versions;
-    if (result_test) {
+    const result_model = this.props.result_entry;
+    const test_versions = this.props.test_versions;
+    if (result_model) {
       return (
         <React.Fragment>
           {
-            Object.keys(result_test.test_instances).map((test_inst_id, index_tt) => (
+            Object.keys(result_model.model_instances).map((test_inst_id, index_tt) => (
               <TableRow key={test_inst_id}>
               {
                 (index_tt===0) ?
-                  <TableCell align="right" bgcolor='#b9cbda' rowSpan={Object.keys(result_test.test_instances).length}>{result_test.test_alias ? result_test.test_alias : result_test.test_name}</TableCell>
+                  <TableCell align="right" bgcolor='#b9cbda' rowSpan={Object.keys(result_model.model_instances).length}>{result_model.test_alias ? result_model.test_alias : result_model.test_name}</TableCell>
                 : <React.Fragment></React.Fragment>
               }
-              <TableCell align="right" bgcolor='#b9cbda'>{result_test.test_instances[test_inst_id].test_version}</TableCell>
+              <TableCell align="right" bgcolor='#b9cbda'>{result_model.model_instances[test_inst_id].test_version}</TableCell>
               {
-                  model_versions.map(function(model_version_entry, index_m) {
+                  test_versions.map(function(test_version_entry, index_m) {
                     return (
-                    <ResultPerInstanceComboMT result_MTcombo={result_test.test_instances[test_inst_id].results[model_version_entry.model_inst_id]}
-                                              model_versions={model_versions}
-                                              key={model_version_entry.model_inst_id} />
+                    <ResultPerInstanceComboMT result_MTcombo={result_model.model_instances[test_inst_id].results[test_version_entry.test_inst_id]}
+                                              test_versions={test_versions}
+                                              key={test_version_entry.test_inst_id} />
                     );
                   })
               }
@@ -127,31 +127,31 @@ class ResultEntryTest extends React.Component {
   }
 }
 
-export default class  ModelResultOverview extends React.Component {
+export default class  TestResultOverview extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
                     results         : [],
                     results_grouped : {},
-                    model_versions  : []
+                    test_versions   : []
                  };
 
     // this.handleClose = this.handleClose.bind(this);
   }
 
   componentDidMount() {
-    // this.getModelResults();  // TODO: uncomment
+    // this.getTestResults();  // TODO: uncomment
     this.setState({
       results: result_data["results"]
     });
 
-    // group results by model instance, test instance combo
+    // group results by test instance, model instance combo
     // each entry being a list of results ordered from newest to oldest
     this.groupResults(result_data["results"]);
   }
 
-  getModelResults = () => {
-    let url = this.props.baseUrl + "/results/?order=score_type&model_id=" + this.props.id;
+  getTestResults = () => {
+    let url = this.props.baseUrl + "/results/?order=score_type&test_id=" + this.props.id;
     return axios.get(url)
       .then(res => {
         this.setState({
@@ -169,29 +169,29 @@ export default class  ModelResultOverview extends React.Component {
   };
 
   groupResults = (results) => {
-    // will be a 3-D dict {test -> test instance -> model instance} with list as values
+    // will be a 3-D dict {model -> model instance -> test instance} with list as values
     var dict_results = {}
 
-    // Get list of all model versions; note that not necessarily all model versions will have associated results
-    // so not appropriate to locate model versions via individual results
-    // var list_model_versions = [] // TODO: uncomment
+    // Get list of all test versions; note that not necessarily all test versions will have associated results
+    // so not appropriate to locate test versions via individual results
+    // var list_test_versions = [] // TODO: uncomment
     // for dev usage
-    var list_model_versions = [{model_inst_id: "20e69189-ab22-4967-88a0-9e719a547381", model_version: "2.0", timestamp: "2019-06-06T12:55:17.673676+00:00"},
-                               {model_inst_id: "20e69189-ab22-4967-88a0-9e719a547380", model_version: "1.0", timestamp: "2019-06-04T12:55:17.673676+00:00"},
-                               {model_inst_id: "20e69189-ab22-4967-88a0-9e719a547382", model_version: "3.0", timestamp: "2019-06-08T12:55:17.673676+00:00"}]
+    var list_test_versions = [{test_inst_id: "f09665b8-5c4f-4655-b2c3-78c247d742c3", test_version: "1.0", timestamp: "2019-06-06T12:57:19.822637Z"},
+                              {test_inst_id: "f09665b8-5c4f-4655-b2c3-78c247d742c4", test_version: "2.0", timestamp: "2019-06-06T12:57:19.822637Z"},
+                              {test_inst_id: "f09665b8-5c4f-4655-b2c3-78c247d742c5", test_version: "3.0", timestamp: "2019-06-06T12:57:19.822637Z"}]
 
     // TODO: uncomment this for actual data
-    // this.props.modelJSON.instances.forEach(function (model_inst) {
-    //   list_model_versions.push({
-    //     model_inst_id:  model_inst.id,
-    //     model_version:  model_inst.version,
-    //     timestamp    :  model_inst.timestamp
+    // this.props.testJSON.instances.forEach(function (test_inst) {
+    //   list_test_versions.push({
+    //     test_inst_id:  test_inst.id,
+    //     test_version:  test_inst.version,
+    //     timestamp   :  test_inst.timestamp
     //   })
     // })
-    // console.log(list_model_versions)
+    // console.log(list_test_versions)
 
-    // sorting list_model_versions by timestamp (oldest to newest)
-    list_model_versions.sort(function(a, b) {
+    // sorting list_test_versions by timestamp (oldest to newest)
+    list_test_versions.sort(function(a, b) {
       if(a.timestamp < b.timestamp) { return -1; }
       if(a.timestamp > b.timestamp) { return 1; }
       return 0;
@@ -199,46 +199,46 @@ export default class  ModelResultOverview extends React.Component {
 
     // check if test exists
     results.forEach(function (result, index) {
-      if (!(result.test_code.test_definition.id in dict_results)) {
-        dict_results[result.test_code.test_definition.id] = {
-                                                              test_id:        result.test_code.test_definition.id,
-                                                              test_name:      result.test_code.test_definition.name,
-                                                              test_alias:     result.test_code.test_definition.alias,
-                                                              test_instances: {}
+      if (!(result.model_version.model.id in dict_results)) {
+        dict_results[result.model_version.model.id] = {
+                                                              model_id:        result.model_version.model.id,
+                                                              model_name:      result.model_version.model.name,
+                                                              model_alias:     result.model_version.model.alias,
+                                                              model_instances: {}
                                                             };
       }
       // check if test instance exists inside test
-      if (!(result.test_code_id in dict_results[result.test_code.test_definition.id]["test_instances"])) {
-        dict_results[result.test_code.test_definition.id]["test_instances"][result.test_code_id] = {
-                                                              test_inst_id:   result.test_code_id,
-                                                              test_version:   result.test_code.version,
-                                                              timestamp:      result.test_code.timestamp,
+      if (!(result.test_code_id in dict_results[result.model_version.model.id]["model_instances"])) {
+        dict_results[result.model_version.model.id]["model_instances"][result.test_code_id] = {
+                                                              model_inst_id:  result.model_version_id,
+                                                              model_version:  result.model_version.version,
+                                                              timestamp:      result.model_version.timestamp,
                                                               results: {}
                                                             };
       }
-      // check if model instance exists for this test instance
-      if (!(result.model_version_id in dict_results[result.test_code.test_definition.id]["test_instances"][result.test_code_id]["results"])) {
-        dict_results[result.test_code.test_definition.id]["test_instances"][result.test_code_id]["results"][result.model_version_id] = [];
+      // check if test instance exists for this test instance
+      if (!(result.test_version_id in dict_results[result.model_version.model.id]["model_instances"][result.test_code_id]["results"])) {
+        dict_results[result.model_version.model.id]["model_instances"][result.test_code_id]["results"][result.test_version_id] = [];
       }
-      // add result to list of model instance results for above test instance
-      dict_results[result.test_code.test_definition.id]["test_instances"][result.test_code_id]["results"][result.model_version_id].push(
+      // add result to list of test instance results for above test instance
+      dict_results[result.model_version.model.id]["model_instances"][result.test_code_id]["results"][result.test_version_id].push(
                           {
                             result_id:      result.id,
                             score:          result.score,
                             timestamp:      result.timestamp,
-                            model_id:       result.model_version.model.id,
-                            model_name:     result.model_version.model.name,
-                            model_alias:    result.model_version.model.alias,
-                            model_inst_id:  result.model_version_id,
-                            model_version:  result.model_version.version
+                            test_id:        result.test_version.test.id,
+                            test_name:      result.test_version.test.name,
+                            test_alias:     result.test_version.test.alias,
+                            test_inst_id:   result.test_version_id,
+                            test_version:   result.test_version.version
                           })
     });
-
-    // insert empty lists for (test_instance, model_instance) combos without results
+    console.log("1")
+    // insert empty lists for (model_instance, test_instance) combos without results
     results.forEach(function (result, index) {
-      list_model_versions.forEach(function (m_inst) {
-        if (!(m_inst["model_inst_id"] in dict_results[result.test_code.test_definition.id]["test_instances"][result.test_code_id]["results"])) {
-          dict_results[result.test_code.test_definition.id]["test_instances"][result.test_code_id]["results"][m_inst["model_inst_id"]] = [];
+      list_test_versions.forEach(function (m_inst) {
+        if (!(m_inst["test_inst_id"] in dict_results[result.model_version.model.id]["model_instances"][result.test_code_id]["results"])) {
+          dict_results[result.model_version.model.id]["model_instances"][result.test_code_id]["results"][m_inst["test_inst_id"]] = [];
         }
       })
     })
@@ -260,24 +260,24 @@ export default class  ModelResultOverview extends React.Component {
     // sorting test versions within test by timestamp, oldest to newest
     Object.keys(dict_results).forEach(function (test_id, index_t) {
       var temp_sorted = {};
-      Object.keys(dict_results[test_id]["test_instances"]).sort(function(a, b){
-          var t_a_timestamp = dict_results[test_id]["test_instances"][a].timestamp;
-          var t_b_timestamp = dict_results[test_id]["test_instances"][b].timestamp;
+      Object.keys(dict_results[test_id]["model_instances"]).sort(function(a, b){
+          var t_a_timestamp = dict_results[test_id]["model_instances"][a].timestamp;
+          var t_b_timestamp = dict_results[test_id]["model_instances"][b].timestamp;
           if(t_a_timestamp < t_b_timestamp) { return -1; }
           if(t_a_timestamp > t_b_timestamp) { return 1; }
           return 0;
         })
         .forEach(function(key) {
-          temp_sorted[key] = dict_results[test_id]["test_instances"][key];
+          temp_sorted[key] = dict_results[test_id]["model_instances"][key];
         });
-        dict_results[test_id]["test_instances"] = temp_sorted;
+        dict_results[test_id]["model_instances"] = temp_sorted;
     })
 
     // sort each list of dicts (each dict being a result), newest to oldest
     Object.keys(dict_results).forEach(function (test_id, index_t) {
-      Object.keys(dict_results[test_id]["test_instances"]).forEach(function (test_inst_id, index_t) {
-        Object.keys(dict_results[test_id]["test_instances"][test_inst_id]["results"]).forEach(function (model_inst_id, index_m) {
-            dict_results[test_id]["test_instances"][test_inst_id]["results"][model_inst_id].sort(function(a, b) {
+      Object.keys(dict_results[test_id]["model_instances"]).forEach(function (test_inst_id, index_t) {
+        Object.keys(dict_results[test_id]["model_instances"][test_inst_id]["results"]).forEach(function (test_inst_id, index_m) {
+            dict_results[test_id]["model_instances"][test_inst_id]["results"][test_inst_id].sort(function(a, b) {
               if(a.timestamp < b.timestamp) { return 1; }
               if(a.timestamp > b.timestamp) { return -1; }
               return 0;
@@ -288,7 +288,7 @@ export default class  ModelResultOverview extends React.Component {
 
     this.setState({
       results_grouped:  dict_results,
-      model_versions:   list_model_versions
+      test_versions:   list_test_versions
     });
   }
 
@@ -305,21 +305,21 @@ export default class  ModelResultOverview extends React.Component {
               <Table aria-label="spanning table">
                 <TableHead>
                   <TableRow>
-                  <TableCell align="center" colSpan={2} rowSpan={2} bgcolor='#26547d'>Validation Test</TableCell>
-                    <TableCell align="center" colSpan={this.state.model_versions.length*2}>Model Version(s)</TableCell>
+                  <TableCell align="center" colSpan={2} rowSpan={2} bgcolor='#26547d'>Model</TableCell>
+                    <TableCell align="center" colSpan={this.state.model_versions.length*2}>Test Version(s)</TableCell>
                   </TableRow>
                   <TableRow>
                     {
-                      this.state.model_versions.map((item, index) => (
-                        <TableCell align="center" colSpan={2} key={item["model_inst_id"]}>{item["model_version"]}</TableCell>
+                      this.state.test_versions.map((item, index) => (
+                        <TableCell align="center" colSpan={2} key={item["test_inst_id"]}>{item["test_version"]}</TableCell>
                       ))
                     }
                   </TableRow>
                   <TableRow>
-                    <TableCell align="center" bgcolor='#3277b3'>Test Name</TableCell>
-                    <TableCell align="center" bgcolor='#3277b3'>Test Version</TableCell>
+                    <TableCell align="center" bgcolor='#3277b3'>Model Name</TableCell>
+                    <TableCell align="center" bgcolor='#3277b3'>Model Version</TableCell>
                     {
-                      this.state.model_versions.map((item, index) => (
+                      this.state.test_versions.map((item, index) => (
                         <React.Fragment key={index}>
                         <TableCell align="right">Score</TableCell>
                         <TableCell align="center">Date (Time)</TableCell>
@@ -331,7 +331,7 @@ export default class  ModelResultOverview extends React.Component {
                 <TableBody>
                   {
                     Object.keys(dict_results).map((test_id, index_t) => (
-                        <ResultEntryTest result_entry={dict_results[test_id]} model_versions={this.state.model_versions} key={test_id} />
+                        <ResultEntryTest result_entry={dict_results[test_id]} test_versions={this.state.test_versions} key={test_id} />
                     ))
                   }
                 </TableBody>
@@ -346,7 +346,7 @@ export default class  ModelResultOverview extends React.Component {
   renderNoResults() {
     return (
         <Typography variant="h5" component="h3">
-            No results have yet been registered for this model!
+            No results have yet been registered with this test!
         </Typography>
     )
   }

@@ -6,10 +6,6 @@ import DialogActions from '@material-ui/core/DialogActions';
 import Button from '@material-ui/core/Button';
 
 export default class ViewSelected extends React.Component {
-  constructor(props) {
-    super(props);
-  }
-
   render_models() {
     let myvar = this.props.selectedData;
     return (
@@ -32,6 +28,7 @@ export default class ViewSelected extends React.Component {
   }
 
   render_tests() {
+    let myvar = this.props.selectedData;
     return (
       <Dialog onClose={this.props.onClose}
               aria-labelledby="simple-dialog-title"
@@ -40,7 +37,7 @@ export default class ViewSelected extends React.Component {
               maxWidth={false}>
         <DialogTitle>View Test(s)</DialogTitle>
         <DialogContent>
-          {/* Add */}
+          { JSON.stringify(myvar) }
         </DialogContent>
         <DialogActions>
           <Button onClick={this.props.onClose} color="primary">
@@ -53,7 +50,7 @@ export default class ViewSelected extends React.Component {
 
 
   render() {
-    if (this.props.entity == "models") {
+    if (this.props.entity === "models") {
       return this.render_models()
     } else {  // tests
       return this.render_tests()

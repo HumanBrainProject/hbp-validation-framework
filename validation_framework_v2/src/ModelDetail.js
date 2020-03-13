@@ -13,7 +13,6 @@ import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import Box from '@material-ui/core/Box';
 
-
 import ModelDetailHeader from './ModelDetailHeader';
 import ModelDetailContent from './ModelDetailContent';
 import ModelDetailMetadata from './ModelDetailMetadata';

@@ -7,11 +7,6 @@ import Markdown from './Markdown';
 import { Typography } from '@material-ui/core';
 
 
-const theme = {
-  spacing: 8,
-}
-
-
 function InstanceParameter(props) {
   if (props.value) {
     return <Typography variant="body2"><b>{props.label}</b>: {props.value}</Typography>

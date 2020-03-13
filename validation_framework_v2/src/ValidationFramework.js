@@ -6,7 +6,6 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 import IconButton from '@material-ui/core/IconButton';
 import SettingsIcon from '@material-ui/icons/Settings';
 import Box from '@material-ui/core/Box';
-import Typography from '@material-ui/core/Typography';
 import ExpansionPanel from '@material-ui/core/ExpansionPanel';
 import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
 import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
@@ -16,7 +15,6 @@ import axios from 'axios';
 
 import ModelTable from "./ModelTable";
 import TestTable from "./TestTable";
-import SearchBar from "./SearchBar";
 import ModelDetail from "./ModelDetail";
 import TestDetail from "./TestDetail";
 import ConfigForm from "./ConfigForm";
@@ -396,14 +394,19 @@ export default class ValidationFramework extends React.Component {
   }
 
   renderValidationFramework() {
+    var configContent = "";
+    var mainContent = "";
+    var modelDetail = "";
+    var testDetail = "";
+
     if (this.state.error) {
       return this.renderError();
     }
     if (filtersEmpty(this.state.filters) && isFramedApp) { // TODO: remove `isFramedApp` to avoid auto load of all entries on entry page
-      var configContent = "";
-      var mainContent = <Introduction />;
+      configContent = "";
+      mainContent = <Introduction />;
     } else {
-      var configContent = <ExpansionPanel>
+      configContent =   <ExpansionPanel>
                             <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
                               <Box fontSize={16} fontWeight="fontWeightBold">App's Current Configuration</Box>
                             </ExpansionPanelSummary>
@@ -423,19 +426,19 @@ export default class ValidationFramework extends React.Component {
                               </Box>
                             </ExpansionPanelDetails>
                           </ExpansionPanel>
-      var mainContent = this.renderTables();
+      mainContent = this.renderTables();
     }
 
     if (this.state.currentModel) {
-      var modelDetail = <ModelDetail open={this.state.modelDetailOpen} modelData={this.state.currentModel} onClose={this.handleModelDetailClose} baseUrl={baseUrl} />;
+      modelDetail = <ModelDetail open={this.state.modelDetailOpen} modelData={this.state.currentModel} onClose={this.handleModelDetailClose} baseUrl={baseUrl} />;
     } else {
-      var modelDetail = "";
+      modelDetail = "";
     }
 
     if (this.state.currentTest) {
-      var testDetail = <TestDetail open={this.state.testDetailOpen} testData={this.state.currentTest} onClose={this.handleTestDetailClose} baseUrl={baseUrl} />;
+      testDetail = <TestDetail open={this.state.testDetailOpen} testData={this.state.currentTest} onClose={this.handleTestDetailClose} baseUrl={baseUrl} />;
     } else {
-      var testDetail = "";
+      testDetail = "";
     }
 
     return (

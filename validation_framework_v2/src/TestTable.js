@@ -1,5 +1,4 @@
 import React from 'react';
-import { makeStyles } from '@material-ui/core/styles';
 import MUIDataTable from "mui-datatables";
 
 import {formatAuthors, downloadJSON} from "./utils";
@@ -11,9 +10,10 @@ export default class TestTable extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      data: this.props.rows,
-      viewSelectedOpen: false
-    };
+                    data: this.props.rows,
+                    selectedData: [],
+                    viewSelectedOpen: false
+                  };
 
     this.downloadSelectedJSON = this.downloadSelectedJSON.bind(this);
     this.hideTableRows = this.hideTableRows.bind(this);
@@ -22,11 +22,14 @@ export default class TestTable extends React.Component {
   }
 
   downloadSelectedJSON(selectedRows) {
+    console.log("Download JSON.");
     var selectedTests = [];
     for (var item in selectedRows.data) {
       var data = this.state.data[selectedRows.data[item].index]
       var ordered_data = {};
-      Object.keys(data).sort().forEach(function(key) { ordered_data[key] = data[key]; });
+      Object.keys(data).sort().forEach(function(key) {
+        ordered_data[key] = data[key];
+      });
       selectedTests.push(ordered_data)
     }
     downloadJSON(JSON.stringify(selectedTests), "selectedTests.json")
@@ -44,7 +47,19 @@ export default class TestTable extends React.Component {
 
   viewSelectedItems(selectedRows) {
     console.log("View item(s).")
-    this.setState({viewSelectedOpen: true})
+    var selectedTests = [];
+    for (var item in selectedRows.data) {
+      var data = this.state.data[selectedRows.data[item].index]
+      var ordered_data = {};
+      Object.keys(data).sort().forEach(function(key) {
+        ordered_data[key] = data[key];
+      });
+      selectedTests.push(ordered_data)
+    }
+    this.setState({
+                    viewSelectedOpen: true,
+                    selectedData: selectedTests
+                  })
   }
 
   handleViewSelectedClose() {
@@ -106,7 +121,7 @@ export default class TestTable extends React.Component {
               customToolbarSelect: (selectedRows) => <CustomToolbarSelect selectedRows={selectedRows} downloadSelectedJSON={this.downloadSelectedJSON} hideTableRows={this.hideTableRows} viewSelectedItems={this.viewSelectedItems} />
             }}
         />
-        <ViewSelected entity="tests" open={this.state.viewSelectedOpen} onClose={this.handleViewSelectedClose} />
+        <ViewSelected entity="tests" open={this.state.viewSelectedOpen} onClose={this.handleViewSelectedClose} selectedData={this.state.selectedData} />
       </div>
     );
   }

@@ -26,7 +26,7 @@ function AccessibilityIcon(props) {
 export default function TestDetailHeader(props) {
   return (
     <React.Fragment>
-      <Grid item xs={10}>
+      <Grid item>
         <Typography variant="h4" gutterBottom>
             <AccessibilityIcon private={props.private} /> {props.name}
         </Typography>
@@ -37,9 +37,9 @@ export default function TestDetailHeader(props) {
             ID: <b>{props.id}</b> &nbsp;&nbsp;&nbsp; Created: <b>{props.creationDate}</b> &nbsp;&nbsp;&nbsp; {props.alias ? "Alias: " : ""} <b>{props.alias ? props.alias : ""}</b> &nbsp;&nbsp;&nbsp; {props.status ? "Status: " : ""} <b>{props.status ? props.status : ""}</b>
         </Typography>
       </Grid>
-      <Grid item xs={2}>
+      {/* <Grid item> */}
         {/* optional image goes here */}
-      </Grid>
+      {/* </Grid> */}
     </React.Fragment>
   );
 }

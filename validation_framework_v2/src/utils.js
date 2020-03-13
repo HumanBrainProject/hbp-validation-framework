@@ -40,7 +40,7 @@ export function formatTimeStampToLongString(ISOtimestamp) {
 }
 
 
-export function formatTimeStampToCompact(ISOtimestamp) {  
+export function formatTimeStampToCompact(ISOtimestamp) {
   if (ISOtimestamp) {
     return moment(ISOtimestamp).format('DD-MM-YYYY (HH:MM)');
   } else {
