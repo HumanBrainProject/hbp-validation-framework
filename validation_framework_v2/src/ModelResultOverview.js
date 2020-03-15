@@ -108,7 +108,7 @@ class ResultEntryTest extends React.Component {
               }
               <TableCell align="right" bgcolor='#b9cbda'>{result_test.test_instances[test_inst_id].test_version}</TableCell>
               {
-                  model_versions.map(function(model_version_entry, index_m) {
+                  model_versions.map(function(model_version_entry) {
                     return (
                     <ResultPerInstanceComboMT result_MTcombo={result_test.test_instances[test_inst_id].results[model_version_entry.model_inst_id]}
                                               model_versions={model_versions}
@@ -235,7 +235,7 @@ export default class  ModelResultOverview extends React.Component {
     });
 
     // insert empty lists for (test_instance, model_instance) combos without results
-    results.forEach(function (result, index) {
+    results.forEach(function (result) {
       list_model_versions.forEach(function (m_inst) {
         if (!(m_inst["model_inst_id"] in dict_results[result.test_code.test_definition.id]["test_instances"][result.test_code_id]["results"])) {
           dict_results[result.test_code.test_definition.id]["test_instances"][result.test_code_id]["results"][m_inst["model_inst_id"]] = [];
@@ -258,7 +258,7 @@ export default class  ModelResultOverview extends React.Component {
     dict_results = temp_sorted;
 
     // sorting test versions within test by timestamp, oldest to newest
-    Object.keys(dict_results).forEach(function (test_id, index_t) {
+    Object.keys(dict_results).forEach(function (test_id) {
       var temp_sorted = {};
       Object.keys(dict_results[test_id]["test_instances"]).sort(function(a, b){
           var t_a_timestamp = dict_results[test_id]["test_instances"][a].timestamp;
@@ -274,8 +274,8 @@ export default class  ModelResultOverview extends React.Component {
     })
 
     // sort each list of dicts (each dict being a result), newest to oldest
-    Object.keys(dict_results).forEach(function (test_id, index_t) {
-      Object.keys(dict_results[test_id]["test_instances"]).forEach(function (test_inst_id, index_t) {
+    Object.keys(dict_results).forEach(function (test_id) {
+      Object.keys(dict_results[test_id]["test_instances"]).forEach(function (test_inst_id) {
         Object.keys(dict_results[test_id]["test_instances"][test_inst_id]["results"]).forEach(function (model_inst_id, index_m) {
             dict_results[test_id]["test_instances"][test_inst_id]["results"][model_inst_id].sort(function(a, b) {
               if(a.timestamp < b.timestamp) { return 1; }
