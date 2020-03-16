@@ -604,15 +604,19 @@ def serialize_additional_data(input_url, user_token):
         request_url = "https://services.humanbrainproject.eu/storage/v1/api/entity/?path={}".format(entity_path)
         data = requests.get(request_url, headers=headers)
         if data.status_code == 200:
-            entity_uuid = data.json()["uuid"]
-            output_url = "https://collab.humanbrainproject.eu/#/collab/{}/nav/{}?state=uuid%3D{}".format(collab_id, storage_nav_id, entity_uuid)
-            return {
-                "download_url": output_url,
-                "collab_storage": {
-                    "uuid": entity_uuid,
-                    "path": entity_path
+            metadata = data.json()
+            if metadata["entity_type"] == "folder":
+                pass
+            else:
+                entity_uuid = metadata["uuid"]
+                output_url = "https://collab.humanbrainproject.eu/#/collab/{}/nav/{}?state=uuid%3D{}".format(collab_id, storage_nav_id, entity_uuid)
+                return {
+                    "download_url": output_url,
+                    "collab_storage": {
+                        "uuid": entity_uuid,
+                        "path": entity_path
+                    }
                 }
-            }
         else:
             logger.warning("Unable to get Collab storage file listing for {}".format(entity_path))
             logger.debug(data.content)
