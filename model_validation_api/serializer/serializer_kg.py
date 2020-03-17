@@ -446,17 +446,17 @@ class ValidationTestDefinitionKGSerializer(BaseKGSerializer):
                 authors = [authors]
             self.obj = ValidationTestDefinition(
                 name=self.data["name"],
-                alias=self.data["alias"],
+                alias=self.data.get("alias"),
                 status=self.data.get("status", "proposal"),
                 species=self._get_ontology_obj(Species, "species"),
                 brain_region=self._get_ontology_obj(BrainRegion, "brain_region"),
                 celltype=self._get_ontology_obj(CellType, "cell_type"),
                 reference_data=reference_data,
-                data_type=self.data["data_type"],
-                recording_modality=self.data["data_modality"],
-                test_type=self.data["test_type"],
-                score_type=self.data["score_type"],
-                description=self.data["protocol"],
+                data_type=self.data.get("data_type"),
+                recording_modality=self.data.get("data_modality"),
+                test_type=self.data.get("test_type"),
+                score_type=self.data.get("score_type"),
+                description=self.data.get("protocol"),
                 authors=[Person(p["family_name"], p["given_name"], p.get("email", None))
                          for p in as_list(authors)],
                 date_created=datetime.now()
