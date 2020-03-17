@@ -296,6 +296,7 @@ def extract_all_instance_version_from_model_id (put_id,  model_id):
 
     return model_instance_list_id
 
+
 def extract_versions_and_model_id_from_instance_json (instance_json):
     """
     Get versions and id of models in json string with instance_json
@@ -305,6 +306,7 @@ def extract_versions_and_model_id_from_instance_json (instance_json):
     :rtype: str
     """
     return {'model_id': instance_json["model_id"] ,  'version_name': instance_json["version"] }
+
 
 def extract_versions_and_test_id_from_list_testcode_json (testcode_json):
     """
@@ -316,6 +318,7 @@ def extract_versions_and_test_id_from_list_testcode_json (testcode_json):
     """
     return {'test_id' :testcode_json["test_definition_id"] ,  'version_name': testcode_json["version"] }
 
+
 def check_commun_params_json (json):
     """
     Check validity of params of json params. It need each one of next parameters: cell_type, species and brain_region.
@@ -324,28 +327,23 @@ def check_commun_params_json (json):
     :returns: response boolean
     :rtype: boolean
     """
-    if 'cell_type' in json :
-        if json['cell_type'] != "" :
-            if len(Param_CellType.objects.filter(authorized_value= json['cell_type'])) != 1 :
-                return ("You gave an invalid cell_type parameter")
-        else :
-            json.pop('cell_type', None)
+    if 'cell_type' in json:
+        if json['cell_type'] is not None:
+            if Param_CellType.objects.filter(authorized_value=json['cell_type']).count() != 1:
+                return "You gave an invalid cell_type parameter"
 
-    if 'species' in json :
-        if json['species'] != "" :
-            if len(Param_Species.objects.filter(authorized_value=json['species'])) != 1 :
-                return ("You gave an invalid species parameter")
-        else :
-            json.pop('species', None)
+    if 'species' in json:
+        if json['species'] is not None:
+            if Param_Species.objects.filter(authorized_value=json['species']).count() != 1:
+                return "You gave an invalid species parameter"
 
-    if 'brain_region' in json :
-        if json['brain_region'] != "" :
-            if len(Param_BrainRegion.objects.filter(authorized_value=json['brain_region'])) != 1 :
-                return ("You gave an invalid brain_region parameter")
-        else :
-            json.pop('brain_region', None)
+    if 'brain_region' in json:
+        if json['brain_region'] is not None:
+            if Param_BrainRegion.objects.filter(authorized_value=json['brain_region']).count() != 1:
+                return "You gave an invalid brain_region parameter"
 
-    return (True)
+    return True
+
 
 def check_param_of_model_json (json):
     """
@@ -356,24 +354,19 @@ def check_param_of_model_json (json):
     :rtype: boolean
     """
     commun = check_commun_params_json(json)
-    if commun is True :
-        if 'model_type' in json :
-            if json['model_type'] != "" :
-                if len(Param_ModelType.objects.filter(authorized_value=json['model_type'])) != 1 :
+    if commun is True:
+        if 'model_type' in json:
+            if json['model_type'] is not None:
+                if Param_ModelType.objects.filter(authorized_value=json['model_type']).count() != 1:
                     return ("You gave an invalid model_type parameter")
-            else :
-                json.pop('model_type', None)
-
         if 'organization' in json :
-            if json['organization'] != "" :
-                if len(Param_organizations.objects.filter(authorized_value=json['organization'])) != 1 :
+            if json['organization'] is not None:
+                if Param_organizations.objects.filter(authorized_value=json['organization']).count() != 1:
                     return ("You gave an invalid organization parameter")
-            else :
-                json.pop('organization', None)
+        return True
+    else:
+        return commun
 
-        return (True)
-    else :
-        return (commun)
 
 def check_param_of_test_json (json):
     """
@@ -384,20 +377,16 @@ def check_param_of_test_json (json):
     :rtype: boolean
     """
     commun = check_commun_params_json(json)
-    if commun is True :
-        if 'data_modality' in json :
-            if json['data_modality'] != "" :
-                if len(Param_DataModalities.objects.filter(authorized_value=json['data_modality'])) != 1 :
+    if commun is True:
+        if 'data_modality' in json:
+            if json['data_modality'] is not None:
+                if Param_DataModalities.objects.filter(authorized_value=json['data_modality']).count() != 1:
                     return ("You gave an invalid data_modality parameter")
-            else :
-                json.pop('data_modality', None)
 
         if 'test_type' in json :
-            if json['test_type'] != "" :
-                if len(Param_TestType.objects.filter(authorized_value=json['test_type'])) != 1 :
+            if json['test_type'] is not None:
+                if Param_TestType.objects.filter(authorized_value=json['test_type']).count() != 1:
                     return ("You gave an invalid test_type parameter")
-            else :
-                json.pop('test_type', None)
 
         # if 'score_type' in json :
         #     if json['score_type'] != "" :
@@ -406,9 +395,9 @@ def check_param_of_test_json (json):
         #     else :
         #         json.pop('score_type', None)
 
-        return (True)
-    else :
-        return (commun)
+        return True
+    else:
+        return commun
 
 
 def user_has_acces_to_model (request, model):
