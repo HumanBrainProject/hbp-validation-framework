@@ -117,7 +117,7 @@ class ScientificModelKGSerializer(BaseKGSerializer):
                                    for p in as_list(self.data["owner"])]  # need to update person representation in clients
             if "app" in self.data:
                 self.obj.collab_id = self.data["app"]["collab_id"]
-            if "organization" in self.data:
+            if "organization" in self.data and self.data["organization"] is not None:
                 self.obj.organization = Organization(self.data["organization"])
             if "private" in self.data:
                 self.obj.private = self.data["private"]
