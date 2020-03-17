@@ -186,7 +186,7 @@ export default class ValidationFramework extends React.Component {
           currentModel: models[0],
           loading: false,
           error: null,
-          modelDetailOpen: true
+          modelDetailOpen: true  // TODO: required?
         });
       })
       .catch(err => {
@@ -216,7 +216,7 @@ export default class ValidationFramework extends React.Component {
           currentTest: tests[0],
           loading: false,
           error: null,
-          testDetailOpen: true
+          testDetailOpen: true  // TODO: required?
         });
       })
       .catch(err => {
