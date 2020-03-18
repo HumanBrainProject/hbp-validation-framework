@@ -125,7 +125,7 @@ testApp.controller('ValTestCtrl', ['$scope', '$rootScope', '$http', '$location',
                     // todo: this does not correctly handle multi-part surnames, e.g. "von Neumann"
                     $scope.authors_str = people_string;
                     var full_names = people_string.split(";");
-                    $scope.model.author = [];
+                    $scope.test.author = [];
                     full_names.forEach(function(person_name) {
                         var parts = person_name.trim().split(" ");
                         var n_parts = parts.length;
@@ -135,7 +135,7 @@ testApp.controller('ValTestCtrl', ['$scope', '$rootScope', '$http', '$location',
                         });
                     });
                     console.log("Setting authors");
-                    console.log($scope.model.author);
+                    console.log($scope.test.author);
                 } else {
                     return $scope.authors_str;
                 }
@@ -1174,17 +1174,17 @@ testApp.controller('ValTestCreateCtrl', ['$scope', '$rootScope', '$http', '$loca
                 // todo: this does not correctly handle multi-part surnames, e.g. "von Neumann"
                 $scope.authors_str = people_string;
                 var full_names = people_string.split(";");
-                $scope.model.author = [];
+                $scope.test.author = [];
                 full_names.forEach(function(person_name) {
                     var parts = person_name.trim().split(" ");
                     var n_parts = parts.length;
-                    $scope.model.author.push({
+                    $scope.test.author.push({
                         given_name: parts.slice(0, n_parts - 1).join(" "),
                         family_name: parts[n_parts - 1]
                     });
                 });
                 console.log("Setting authors");
-                console.log($scope.model.author);
+                console.log($scope.test.author);
             } else {
                 return $scope.authors_str;
             }
