@@ -120,6 +120,27 @@ testApp.controller('ValTestCtrl', ['$scope', '$rootScope', '$http', '$location',
             var app_id = Context.getAppID();
             console.log("app_id = " + app_id);
 
+            $scope.allAuthors = function(people_string) {
+                if (arguments.length) {
+                    // todo: this does not correctly handle multi-part surnames, e.g. "von Neumann"
+                    $scope.authors_str = people_string;
+                    var full_names = people_string.split(";");
+                    $scope.model.author = [];
+                    full_names.forEach(function(person_name) {
+                        var parts = person_name.trim().split(" ");
+                        var n_parts = parts.length;
+                        $scope.model.author.push({
+                            given_name: parts.slice(0, n_parts - 1).join(" "),
+                            family_name: parts[n_parts - 1]
+                        });
+                    });
+                    console.log("Setting authors");
+                    console.log($scope.model.author);
+                } else {
+                    return $scope.authors_str;
+                }
+            };
+
             DataHandler.loadModels({ app_id: app_id }).then(function(data) {
                 $scope.models = data;
                 $scope.$apply();
@@ -1148,6 +1169,27 @@ testApp.controller('ValTestCreateCtrl', ['$scope', '$rootScope', '$http', '$loca
             $scope.alias_is_valid = ValidationTestAliasRest.get({ app_id: $scope.app_id, alias: $scope.test.alias });
         };
 
+        $scope.allAuthors = function(people_string) {
+            if (arguments.length) {
+                // todo: this does not correctly handle multi-part surnames, e.g. "von Neumann"
+                $scope.authors_str = people_string;
+                var full_names = people_string.split(";");
+                $scope.model.author = [];
+                full_names.forEach(function(person_name) {
+                    var parts = person_name.trim().split(" ");
+                    var n_parts = parts.length;
+                    $scope.model.author.push({
+                        given_name: parts.slice(0, n_parts - 1).join(" "),
+                        family_name: parts[n_parts - 1]
+                    });
+                });
+                console.log("Setting authors");
+                console.log($scope.model.author);
+            } else {
+                return $scope.authors_str;
+            }
+        };
+
         Context.setService().then(function() {
 
             $scope.Context = Context;
@@ -1554,8 +1596,8 @@ ModelCatalogApp.controller('ModelCatalogCreateCtrl', ['$scope', '$rootScope', '$
                         family_name: parts[n_parts - 1]
                     });
                 });
-                //console.log("Setting authors");
-                //console.log($scope.model.author);
+                console.log("Setting authors");
+                console.log($scope.model.author);
             } else {
                 return $scope.authors_str;
             }
@@ -1881,8 +1923,8 @@ ModelCatalogApp.controller('ModelCatalogEditCtrl', ['$scope', '$rootScope', '$ht
                         family_name: parts[n_parts - 1]
                     });
                 });
-                //console.log("Setting authors");
-                //console.log($scope.model.author);
+                console.log("Setting authors");
+                console.log($scope.model.author);
             } else {
                 return $scope.authors_str;
             }

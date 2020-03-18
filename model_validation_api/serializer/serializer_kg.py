@@ -442,8 +442,8 @@ class ValidationTestDefinitionKGSerializer(BaseKGSerializer):
                     logger.error("error saving reference data. name = {}, urls={}".format(self.data["name"], self.data["data_location"]))
                     raise
             authors = self.data["author"]
-            if not isinstance(authors, list):
-                authors = [authors]
+            # if not isinstance(authors, list):
+            #     authors = [authors]
             self.obj = ValidationTestDefinition(
                 name=self.data["name"],
                 alias=self.data.get("alias"),
