@@ -169,11 +169,11 @@ class ScientificModelKGSerializer(BaseKGSerializer):
             },
             'organization': model.organization.resolve(self.client, api="nexus").name if model.organization else None,
             'private': model.private,
-            'cell_type': model.celltype.label if model.celltype else 'Not applicable',
-            'model_scope': model.model_of.label if model.model_of else "other",  # to fix
+            'cell_type': model.celltype.label if model.celltype else None,
+            'model_scope': model.model_of.label if model.model_of else None,
             'abstraction_level': model.abstraction_level.label if model.abstraction_level else None,
             'brain_region': model.brain_region.label if model.brain_region else None,
-            'species': model.species.label if model.species else None,  # 'Unknown' instead of None?
+            'species': model.species.label if model.species else None,
             'description': model.description,
             'images': model.images,
             'old_uuid': model.old_uuid,
@@ -391,7 +391,7 @@ class ValidationTestDefinitionKGSerializer(BaseKGSerializer):
             'status': test.status,
             'species': test.species.label if test.species else None,
             'brain_region': test.brain_region.label if test.brain_region else None,
-            'cell_type': test.celltype.label if test.celltype else 'Not applicable',
+            'cell_type': test.celltype.label if test.celltype else None,
             #'age': # todo
             'data_location': [item.resolve(self.client, api="nexus").result_file.location
                               for item in as_list(test.reference_data)][0],  # to fix: reference_data should never really be a list
