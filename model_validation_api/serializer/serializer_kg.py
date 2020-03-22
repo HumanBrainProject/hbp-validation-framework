@@ -196,7 +196,7 @@ class ScientificModelKGSerializer(BaseKGSerializer):
                 "source": '',
                 "license": '',
                 "hash": '',
-                "timestamp": instance.timestamp.isoformat()
+                "timestamp": instance.timestamp.isoformat() if instance.timestamp else None
             }
             if main_script:
                 instance_data.update({
