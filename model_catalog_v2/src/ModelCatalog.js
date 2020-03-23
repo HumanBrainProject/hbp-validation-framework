@@ -6,6 +6,7 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 import IconButton from '@material-ui/core/IconButton';
 import FilterListIcon from '@material-ui/icons/FilterList';
 import SettingsIcon from '@material-ui/icons/Settings';
+import AddIcon from '@material-ui/icons/Add';
 
 import axios from 'axios';
 
@@ -13,6 +14,7 @@ import ModelTable from "./ModelTable";
 import SearchBar from "./SearchBar";
 import ModelDetail from "./ModelDetail";
 import ConfigForm from "./ConfigForm";
+import AddModelForm from "./AddModelForm";
 import Introduction from "./Introduction";
 
 
@@ -99,6 +101,16 @@ const retrieveFilters = () => {
   return filters;
 }
 
+
+function AddModelButton(props) {
+  return (
+    <IconButton onClick={props.onClick} aria-label="Add model">
+      <AddIcon />
+    </IconButton>
+  );
+}
+
+
 export default class ModelCatalog extends React.Component {
   constructor(props) {
     super(props);
@@ -108,6 +120,7 @@ export default class ModelCatalog extends React.Component {
       'currentModel': null,
       'open': false,
       'configOpen': false,
+      'addModelFormOpen': false,
       'loading': true,
       'filters': retrieveFilters()
     };
@@ -120,11 +133,23 @@ export default class ModelCatalog extends React.Component {
     this.handleClickOpen = this.handleClickOpen.bind(this);
     this.openConfig = this.openConfig.bind(this);
     this.handleConfigClose = this.handleConfigClose.bind(this);
+    this.openAddModelForm = this.openAddModelForm.bind(this);
+    this.handleAddModelFormClose = this.handleAddModelFormClose.bind(this);
     this.updateModels = this.updateModels.bind(this);
     this.getModel = this.getModel.bind(this);
   }
 
   componentDidMount() {
+    const token = this.props.auth.tokenParsed;
+    console.log(token);
+
+    this.props.auth.loadUserInfo()
+        .success(() => {
+          const userInfo = this.props.auth.userInfo;
+          console.log(userInfo);
+        })
+        .error(console.log);
+
     if (window.location.hash) {
       // get a specific model
       this.getModel(window.location.hash.slice(1));
@@ -218,6 +243,10 @@ export default class ModelCatalog extends React.Component {
     this.setState({'configOpen': true})
   };
 
+  openAddModelForm() {
+    this.setState({'addModelFormOpen': true})
+  };
+
   handleConfigClose(filters) {
     this.setState({'filters': filters});
     this.setState({'configOpen': false});
@@ -227,6 +256,11 @@ export default class ModelCatalog extends React.Component {
     this.updateModels(filters);
     // todo: if filters haven't changed, don't store them
   };
+
+  handleAddModelFormClose() {
+    this.setState({'addModelFormOpen': false});
+    // save model here?
+  }
 
   renderLoadingIndicator() {
     return (
@@ -263,13 +297,15 @@ export default class ModelCatalog extends React.Component {
     return (
       <React.Fragment>
         <Grid container direction="row" spacing={0}>
-          <Grid item xs={1}>
+          <Grid item xs={2}>
             <IconButton onClick={this.openConfig} aria-label="Configure filters">
               <FilterListIcon />
             </IconButton>
+            <AddModelButton onClick={this.openAddModelForm} />
             <ConfigForm open={this.state.configOpen} onClose={this.handleConfigClose} config={this.state.filters} />
+            <AddModelForm open={this.state.addModelFormOpen} onClose={this.handleAddModelFormClose} />
           </Grid>
-          <Grid item xs={11}>
+          <Grid item xs={10}>
 
           </Grid>
         </Grid>
