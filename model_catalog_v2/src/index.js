@@ -12,7 +12,7 @@ const keycloak = Keycloak({
   realm: 'hbp',
   clientId: 'model-catalog'
 });
-const YOUR_APP_SCOPES = 'team email profile';
+const YOUR_APP_SCOPES = 'team email profile';   // full list at https://iam.ebrains.eu/auth/realms/hbp/.well-known/openid-configuration
 
 // When ready, we initialise the keycloak client
 // Once done, it will call our `checkAuth` function
@@ -57,7 +57,7 @@ function checkAuth() {
     console.log('This is a standalone app...');
     if (isAnonymous) {
         console.log('...which is not authenticated, starting login...');
-        return login();
+        return login(YOUR_APP_SCOPES);
     }
     if (isAuthenticated) {
         console.log('...which is authenticated, starting business logic...');
