@@ -37,7 +37,8 @@ from .validation_framework_toolbox.user_auth_functions import (
     get_storage_file_by_id,
     get_authorization_header,
     get_user_from_token,
-    get_kg_token
+    get_kg_token,
+    ADMIN_USERS
 )
 
 from .validation_framework_toolbox.validation_framework_functions import (
@@ -300,10 +301,10 @@ class Models_KG(KGAPIView):
             logger.debug("{} total models".format(len(as_list(models))))
             authorized_collabs = []
             for collab_id in set(model.collab_id for model in as_list(models) if model.private):
-                if is_authorised_or_admin(request, collab_id):
+                if self.user.get("username") in ADMIN_USERS or is_authorised_or_admin(request, collab_id):
                     authorized_collabs.append(collab_id)
 
-            logger.debug("Authorized collabs for user '{}': {}".format(self.user["username"], authorized_collabs))
+            logger.debug("Authorized collabs for user '{}': {}".format(self.user.get("username"), authorized_collabs))
             authorized_models = [model for model in as_list(models)
                                     if (not model.private) or (model.collab_id in authorized_collabs)]
             logger.debug("{} authorized models".format(len(authorized_models)))
@@ -343,7 +344,7 @@ class Models_KG(KGAPIView):
                     #check if private
                     if model.private:
                         #if private check if collab member
-                        if not is_authorised_or_admin(request, model.collab_id):
+                        if not (self.user.get("username") in ADMIN_USERS or is_authorised_or_admin(request, model.collab_id)):
                             response["errors"]["unauthorized"].append(model_id)
                             continue
                     model_serializer = ScientificModelKGSerializer(model, self.client)
@@ -382,7 +383,7 @@ class Models_KG(KGAPIView):
         else:
             return Response("You need to specify the app_id argument", status=status.HTTP_400_BAD_REQUEST)
 
-        if not is_authorised_or_admin(request, collab_id):
+        if not (self.user.get("username") in ADMIN_USERS or is_authorised_or_admin(request, collab_id)):
             return HttpResponse('Unauthorized for collab {}'.format(collab_id), status=401)
 
         data = _reformat_request_data(request.data)[0]
@@ -465,7 +466,7 @@ class Models_KG(KGAPIView):
                 return Response('We cannot update the model. Please give the id or the alias of the model.', status=status.HTTP_400_BAD_REQUEST )
 
         # security
-        if not is_authorised_or_admin(request, model.collab_id):
+        if not (self.user.get("username") in ADMIN_USERS or is_authorised_or_admin(request, model.collab_id)):
             return HttpResponse('Access to original model collab ({}) unauthorized'.format(model.collab_id),
                                 status=401)
         if ("collab_id" in model_data and model_data["collab_id"] != model.collab_id
@@ -499,7 +500,7 @@ class Models_KG(KGAPIView):
         list_ids = request.GET.getlist('id')
         logger.debug("Request to delete {}".format(list_ids))
 
-        if not is_authorised_or_admin(request, settings.ADMIN_COLLAB_ID):
+        if not (self.user.get("username") in ADMIN_USERS or is_authorised_or_admin(request, settings.ADMIN_COLLAB_ID)):
             return HttpResponseForbidden()
 
         elements_to_delete = [
@@ -668,7 +669,7 @@ class ModelInstances_KG(KGAPIView):
 
                 # security
                 collab_id = model_project.collab_id
-                if not is_authorised_or_admin(request, collab_id):
+                if not (self.user.get("username") in ADMIN_USERS or is_authorised_or_admin(request, collab_id)):
                     return HttpResponseForbidden()
 
                 # check if versions are unique
@@ -779,7 +780,7 @@ class ModelInstances_KG(KGAPIView):
 
             #security
             collab_id = model_project.collab_id
-            if not is_authorised_or_admin(request, collab_id):
+            if not (self.user.get("username") in ADMIN_USERS or is_authorised_or_admin(request, collab_id)):
                 return HttpResponseForbidden()
 
             # #check if version is editable - TODO reimplement once ValidationResult migrated to KG
@@ -812,7 +813,7 @@ class ModelInstances_KG(KGAPIView):
 
         """
 
-        if not is_authorised_or_admin(request, settings.ADMIN_COLLAB_ID):
+        if not (self.user.get("username") in ADMIN_USERS or is_authorised_or_admin(request, settings.ADMIN_COLLAB_ID)):
             return HttpResponseForbidden()
 
         list_ids = request.GET.getlist('id')
@@ -1075,7 +1076,7 @@ class Tests_KG(KGAPIView):
 
     def delete(self, request, format=None):
 
-        if not is_authorised_or_admin(request, settings.ADMIN_COLLAB_ID):
+        if not (self.user.get("username") in ADMIN_USERS or is_authorised_or_admin(request, settings.ADMIN_COLLAB_ID)):
             return HttpResponseForbidden()
 
         list_ids = request.GET.getlist('id')
@@ -1337,7 +1338,7 @@ class TestInstances_KG(KGAPIView):
                     return Response("To edit a test instance, you need to give an id, or a test_definition_id with a version, or a test_definition_alias with a version ", status=status.HTTP_400_BAD_REQUEST)
 
             #check if version is editable
-            if not is_authorised_or_admin(request,settings.ADMIN_COLLAB_ID):
+            if not (self.user.get("username") in ADMIN_USERS or is_authorised_or_admin(request,settings.ADMIN_COLLAB_ID)):
                 if not _are_test_code_editable_kg(test_code, self.client):
                     return Response("This version is no longer editable as there is at least one result associated with it", status=status.HTTP_400_BAD_REQUEST)
 
@@ -1359,7 +1360,7 @@ class TestInstances_KG(KGAPIView):
 
     def delete(self, request, format=None):
 
-        if not is_authorised_or_admin(request, settings.ADMIN_COLLAB_ID):
+        if not (self.user.get("username") in ADMIN_USERS or is_authorised_or_admin(request, settings.ADMIN_COLLAB_ID)):
             return HttpResponseForbidden()
 
         list_ids = request.GET.getlist('id')
@@ -1610,7 +1611,7 @@ class Results_KG(KGAPIView):
 
         """
 
-        if not is_authorised_or_admin(request, settings.ADMIN_COLLAB_ID):
+        if not (self.user.get("username") in ADMIN_USERS or is_authorised_or_admin(request, settings.ADMIN_COLLAB_ID)):
             return HttpResponseForbidden()
 
         list_ids = request.GET.getlist('id')

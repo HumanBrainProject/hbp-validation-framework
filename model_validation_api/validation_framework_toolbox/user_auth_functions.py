@@ -20,6 +20,7 @@ stream_handler.setLevel(logging.DEBUG)
 logger.addHandler(stream_handler)
 
 admin_id='13947'
+ADMIN_USERS = ("adavison", "shailesh")  # temporary hack for development of v2 collab apps
 
 
 def get_authorization_header(request):
