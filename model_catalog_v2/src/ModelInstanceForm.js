@@ -29,7 +29,7 @@ export default class ModelInstanceForm extends React.Component {
                    helperText="If the code is under version control, the version number should match the name of a tag or a commit ID" />
       </Grid>
       <Grid item xs={12}>
-        <TextField name="download_location" label="Code location (URL)" value={this.props.value.download_location}
+        <TextField name="source" label="Code location (URL)" value={this.props.value.source}
                    onChange={this.handleFieldChange} variant="outlined" fullWidth={true}
                    helperText=" " />
       </Grid>

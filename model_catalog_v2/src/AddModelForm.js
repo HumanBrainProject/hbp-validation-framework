@@ -15,10 +15,15 @@ import FormHelperText from '@material-ui/core/FormHelperText';
 import InputLabel from '@material-ui/core/InputLabel';
 import OutlinedInput from '@material-ui/core/OutlinedInput';
 
+import axios from 'axios';
+
 import SingleSelect from './SingleSelect';
 import MultipleSelect from './MultipleSelect';
 import PersonSelect from './PersonSelect';
 import ArrayOfModelInstanceForms from './ArrayOfModelInstanceForms';
+
+import globalConfig from "./config";
+
 
 
 const species = [
@@ -141,27 +146,28 @@ export default class AddModelForm extends React.Component {
   constructor(props) {
     super(props);
     this.handleClose = this.handleClose.bind(this);
+    this.handleSubmit = this.handleSubmit.bind(this);
     this.handleFieldChange = this.handleFieldChange.bind(this);
 
     this.state = {
       name: "",
       alias: "",
-      authors: [],
-      owners: [],
+      author: [],
+      owner: [],
       public: false,
       description: "",
-      species: [],
-      brain_region: [],
-      cell_type: [],
+      species: "",
+      brain_region: "",
+      cell_type: "",
       model_scope: "",
       abstraction_level: "",
-      organization: [],
+      organization: "",
       instances: [{
         version: "",
         description: "",
         parameters: "",
         morphology: "",
-        download_location: "",
+        source: "",
         code_format: "",
         license: ""
       }]
@@ -170,6 +176,41 @@ export default class AddModelForm extends React.Component {
 
   handleClose() {
     this.props.onClose(this.state);
+  }
+
+  handleSubmit() {
+    let payload = {
+      "model": { ...this.state },
+      "model_instance": this.state.instances,
+      "model_image": []
+    }
+    payload.model.private = !payload.model.public;
+    delete payload.model.public;
+    delete payload.model.instances;
+    console.log(payload);
+
+    const collab_id = "1771"  // for testing: Validation Framework collab (v1)
+    let url = globalConfig.baseUrl + "?collab_id=" + collab_id
+    let config = {
+      headers: {
+        'Authorization': 'Bearer ' + this.props.auth.token,
+        'Content-type': 'application/json'
+      }
+    };
+    axios.post(url, payload, config)
+      .then(res => {
+        console.log(res);
+        this.handleClose();
+      })
+      .catch(err => {
+        // Something went wrong. Save the error in state and re-render.
+        console.log(err);
+        // this.setState({
+        //   loading: false,
+        //   error: err
+        // });
+      }
+    );
   }
 
   handleFieldChange(event) {
@@ -204,12 +245,12 @@ export default class AddModelForm extends React.Component {
                            helperText="Please choose an informative name that will distinguish the model from other, similar models" />
               </Grid>
               <Grid item xs={12}>
-                <PersonSelect name="authors" label="Author(s)" value={this.state.authors}
+                <PersonSelect name="authors" label="Author(s)" value={this.state.author}
                               onChange={this.handleFieldChange} variant="outlined" fullWidth={true}
                               helperText="Enter author names as 'Last name, First name'" />
               </Grid>
               <Grid item xs={12}>
-                <PersonSelect name="owners" label="Custodian(s)" value={this.state.owners}
+                <PersonSelect name="owners" label="Custodian(s)" value={this.state.owner}
                               onChange={this.handleFieldChange} variant="outlined" fullWidth={true}
                               helperText="Enter custodian names as 'Last name, First name'" />
               </Grid>
@@ -230,21 +271,21 @@ export default class AddModelForm extends React.Component {
                            helperText="The description may be formatted with Markdown" />
               </Grid>
               <Grid item xs={12}>
-                <MultipleSelect
+                <SingleSelect
                   itemNames={species}
                   label="species"
                   value={this.state.species}
                   handleChange={this.handleFieldChange} />
               </Grid>
               <Grid item xs={12}>
-                <MultipleSelect
+                <SingleSelect
                   itemNames={brainRegions}
                   label="brain region"
                   value={this.state.brain_region}
                   handleChange={this.handleFieldChange} />
               </Grid>
               <Grid item xs={12}>
-                <MultipleSelect
+                <SingleSelect
                   itemNames={cellTypes}
                   label="cell type"
                   value={this.state.cell_type}
@@ -265,7 +306,7 @@ export default class AddModelForm extends React.Component {
                     handleChange={this.handleFieldChange} />
               </Grid>
               <Grid item xs={12}>
-                <MultipleSelect
+                <SingleSelect
                   itemNames={organizations}
                   label="organization"
                   value={this.state.organization}
@@ -282,7 +323,7 @@ export default class AddModelForm extends React.Component {
           <Button onClick={this.handleClose} color="default">
             Cancel
           </Button>
-          <Button onClick={this.handleClose} color="primary">
+          <Button onClick={this.handleSubmit} color="primary">
             Add Model
           </Button>
         </DialogActions>

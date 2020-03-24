@@ -17,6 +17,7 @@ import ConfigForm from "./ConfigForm";
 import AddModelForm from "./AddModelForm";
 import Introduction from "./Introduction";
 
+import globalConfig from "./config";
 
 // if working on the appearance/layout set devMode=true
 // to avoid loading the models over the network every time;
@@ -28,7 +29,6 @@ if (!devMode) {
   var test_data = {models: []};
 }
 
-const baseUrl = "https://validation-staging.brainsimulation.eu/models/";
 const collaboratoryOrigin = 'https://wiki.humanbrainproject.eu';
 const hashChangedTopic = '/clb/community-app/hashchange';
 const updateSettingsTopic = '/clb/community-app/settings';
@@ -160,7 +160,7 @@ export default class ModelCatalog extends React.Component {
   }
 
   getModel(model_id) {
-    let url = baseUrl + "?id=" + model_id;
+    let url = globalConfig.baseUrl + "?id=" + model_id;
     console.log(url);
     let config = {
       headers: {
@@ -204,7 +204,7 @@ export default class ModelCatalog extends React.Component {
           'Authorization': 'Bearer ' + this.props.auth.token
         }
       }
-      let url = baseUrl + "?" + query;
+      let url = globalConfig.baseUrl + "?" + query;
       console.log(url);
       this.setState({loading: true});
       axios.get(url, config)
@@ -303,7 +303,7 @@ export default class ModelCatalog extends React.Component {
             </IconButton>
             <AddModelButton onClick={this.openAddModelForm} />
             <ConfigForm open={this.state.configOpen} onClose={this.handleConfigClose} config={this.state.filters} />
-            <AddModelForm open={this.state.addModelFormOpen} onClose={this.handleAddModelFormClose} />
+            <AddModelForm open={this.state.addModelFormOpen} onClose={this.handleAddModelFormClose} auth={this.props.auth} />
           </Grid>
           <Grid item xs={10}>
 
