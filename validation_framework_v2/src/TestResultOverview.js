@@ -14,9 +14,9 @@ import Tooltip from '@material-ui/core/Tooltip';
 import Divider from '@material-ui/core/Divider';
 import axios from 'axios';
 
-// import result_data from './test_data_results_model_repeatsMutliple.json';
-import result_data from './test_data_results_model_repeatsMutliple_multipleVersions.json';
+import result_data from './test_data_results.json';
 import {formatTimeStampToCompact, roundFloat} from "./utils";
+import ResultDetail from './ResultDetail';
 
 class ResultPerInstanceComboMT extends React.Component {
   constructor(props) {
@@ -26,9 +26,11 @@ class ResultPerInstanceComboMT extends React.Component {
                  };
     this.toggleExpanded = this.toggleExpanded.bind(this);
   }
+
   toggleExpanded() {
     this.setState({ expanded: !this.state.expanded });
   }
+
   render() {
     const results_sublist = this.props.result_MTcombo;
     return [
@@ -37,31 +39,36 @@ class ResultPerInstanceComboMT extends React.Component {
         {
           results_sublist.map((result, ind) => {
           return ind === 0 ?
+            // to handle the most recent result for (model_instance, test_instance) combo
+            // Note: results are already ordered from latest to oldest
             results_sublist.length===1 ?
-            <Grid container key={result.result_id}>
-              <Grid item align="right">
-                {roundFloat(result.score, 2)}
+              // if just a single result exists for (model_instance, test_instance) combo
+              <Grid container key={result.result_id}>
+                <Grid item align="right" onClick={() => this.props.handleResultEntryClick(result.result_json)} style={{ cursor: 'pointer' }}>
+                  {roundFloat(result.score, 2)}
+                </Grid>
               </Grid>
-            </Grid>
             :
-            <Grid container spacing={2} key={result.result_id}>
-              <Grid item align="left" onClick={this.toggleExpanded} style={{ cursor: 'pointer' }}>
-                <Tooltip title={results_sublist.length + " results available"}>
-                  <Avatar style={{ width:"20px", height:"20px"}}>
-                    <Typography variant="button">
-                      {results_sublist.length}
-                    </Typography>
-                  </Avatar>
-                </Tooltip>
+              // if multiple results exist for (model_instance, test_instance) combo
+              <Grid container spacing={2} key={result.result_id}>
+                <Grid item align="left" onClick={this.toggleExpanded} style={{ cursor: 'pointer' }}>
+                  <Tooltip title={results_sublist.length + " results available"}>
+                    <Avatar style={{ width:"20px", height:"20px"}}>
+                      <Typography variant="button">
+                        {results_sublist.length}
+                      </Typography>
+                    </Avatar>
+                  </Tooltip>
+                </Grid>
+                <Divider orientation="vertical" flexItem />
+                <Grid item align="right" onClick={() => this.props.handleResultEntryClick(result.result_json)} style={{ cursor: 'pointer' }}>
+                  {roundFloat(result.score, 2)}
+                </Grid>
               </Grid>
-              <Divider orientation="vertical" flexItem />
-              <Grid item align="right">
-                {roundFloat(result.score, 2)}
-              </Grid>
-            </Grid>
           :
+            // to handle all other results (except latest) for (model_instance, test_instance) combo
             <Grid container style={this.state.expanded?{display:'block'}:{display:'none'}} key={result.result_id}>
-              <Grid item align="right">
+              <Grid item align="right" onClick={() => this.props.handleResultEntryClick(result.result_json)} style={{ cursor: 'pointer' }}>
                 {roundFloat(result.score, 2)}
               </Grid>
             </Grid>
@@ -73,12 +80,15 @@ class ResultPerInstanceComboMT extends React.Component {
         {
           results_sublist.map((result, ind) => {
           return ind === 0 ?
+            // to handle the most recent result for (model_instance, test_instance) combo
+            // Note: results are already ordered from latest to oldest
             <Grid container spacing={2} key={result.result_id}>
               <Grid item align="right">
                 {formatTimeStampToCompact(result.timestamp)}
               </Grid>
             </Grid>
           :
+            // to handle all other results (except latest) for (model_instance, test_instance) combo
             <Grid container style={this.state.expanded?{display:'block'}:{display:'none'}} key={result.result_id}>
               <Grid item align="right">
                 {formatTimeStampToCompact(result.timestamp)}
@@ -95,6 +105,7 @@ class ResultEntryTest extends React.Component {
   render() {
     const result_model = this.props.result_entry;
     const test_versions = this.props.test_versions;
+    const handleResultEntryClick = this.props.handleResultEntryClick;
     if (result_model) {
       return (
         <React.Fragment>
@@ -112,6 +123,7 @@ class ResultEntryTest extends React.Component {
                     return (
                     <ResultPerInstanceComboMT result_MTcombo={result_model.model_instances[model_inst_id].results[test_version_entry.test_inst_id]}
                                               test_versions={test_versions}
+                                              handleResultEntryClick={handleResultEntryClick}ick={handleResultEntryClick}
                                               key={test_version_entry.test_inst_id} />
                     );
                   })
@@ -133,10 +145,13 @@ export default class  TestResultOverview extends React.Component {
     this.state = {
                     results         : [],
                     results_grouped : {},
-                    test_versions   : []
+                    test_versions   : [],
+                    resultDetailOpen: false,
+                    currentResult  : null
                  };
 
-    // this.handleClose = this.handleClose.bind(this);
+    this.handleResultEntryClick = this.handleResultEntryClick.bind(this)
+    this.handleResultDetailClose = this.handleResultDetailClose.bind(this)
   }
 
   componentDidMount() {
@@ -230,7 +245,8 @@ export default class  TestResultOverview extends React.Component {
                             test_name:      result.test_code.test_definition.name,
                             test_alias:     result.test_code.test_definition.alias,
                             test_inst_id:   result.test_code_id,
-                            test_version:   result.test_code.version
+                            test_version:   result.test_code.version,
+                            result_json:    result
                           })
     });
 
@@ -292,6 +308,22 @@ export default class  TestResultOverview extends React.Component {
     });
   }
 
+  handleResultEntryClick(result) {
+    this.setState({
+                    'resultDetailOpen': true,
+                    'currentResult':   result
+                  });
+    // updateHash(rowData.id);
+  };
+
+  handleResultDetailClose() {
+    this.setState({
+                    'resultDetailOpen': false,
+                    'currentResult':    null
+                  });
+    // updateHash('');
+  };
+
   renderResultsSummaryTable(dict_results) {
     return(
       <React.Fragment>
@@ -300,7 +332,7 @@ export default class  TestResultOverview extends React.Component {
             <Box px={2} pb={0}>
               <Typography variant="subtitle1"><b>Summary of Validation Results</b></Typography>
             </Box>
-
+            <br />
             <TableContainer component={Paper}>
               <Table aria-label="spanning table">
                 <TableHead>
@@ -331,7 +363,7 @@ export default class  TestResultOverview extends React.Component {
                 <TableBody>
                   {
                     Object.keys(dict_results).map((test_id, index_t) => (
-                        <ResultEntryTest result_entry={dict_results[test_id]} test_versions={this.state.test_versions} key={test_id} />
+                        <ResultEntryTest result_entry={dict_results[test_id]} test_versions={this.state.test_versions} handleResultEntryClick={this.handleResultEntryClick} key={test_id} />
                     ))
                   }
                 </TableBody>
@@ -354,14 +386,25 @@ export default class  TestResultOverview extends React.Component {
   render() {
     const dict_results = this.state.results_grouped;
     var content = "";
+    var resultDetail = "";
     if (Object.keys(dict_results).length>0) {
       content = this.renderResultsSummaryTable(dict_results);
     } else {
       content = this.renderNoResults();
     }
+    if (this.state.currentResult) {
+      resultDetail = <ResultDetail open={this.state.resultDetailOpen} result={this.state.currentResult} onClose={this.handleResultDetailClose} />;
+    } else {
+      resultDetail = "";
+    }
     return (
       <div>
-        {content}
+        <div>
+          {content}
+        </div>
+        <div>
+          {resultDetail}
+        </div>
       </div>
     );
   }

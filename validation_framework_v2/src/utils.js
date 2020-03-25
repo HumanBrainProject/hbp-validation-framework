@@ -52,3 +52,37 @@ export function formatTimeStampToCompact(ISOtimestamp) {
 export function roundFloat(value, places) {
   return `${value.toFixed(places)}`;
 }
+
+
+export function formatValue(label, value) {
+  if (["owner", "author"].indexOf(label) > -1) {
+      value = formatAuthors(value);
+  }
+  if (["timestamp", "creation_date"].indexOf(label) > -1) {
+      value = formatTimeStampToLongString(value);
+  }
+  if (label == "app") {
+      value = value.collab_id;
+  }
+  if (label == "private") {
+    value = value ? "True" : "False";
+  }
+  return value;
+}
+
+
+export function formatLabel(label) {
+  // function to format labels by converting underscores to spaces, and
+  // capitalizing each word; certain specific labels are changed entirely to uppercase
+  if (["id", "uri"].indexOf(label) > -1) {
+      label = label.toUpperCase();
+  } else {
+      label = label.replace(/_/g, ' ');
+      label = label
+              .toLowerCase()
+              .split(' ')
+              .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+              .join(' ');
+  }
+  return label;
+}
