@@ -31,7 +31,7 @@ function ResultFile(props) {
     return (
         <TableRow>
             <TableCell>
-                <a style={{display: "table-cell", cursor: 'pointer'}} href={url} target="_blank">
+                <a style={{display: "table-cell", cursor: 'pointer'}} href={url} target="_blank" rel="noopener noreferrer">
                     <Typography variant="body2">
                         {filename}
                     </Typography>

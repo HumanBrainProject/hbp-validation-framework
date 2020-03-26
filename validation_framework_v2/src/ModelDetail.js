@@ -18,7 +18,7 @@ import ModelDetailContent from './ModelDetailContent';
 import ModelDetailMetadata from './ModelDetailMetadata';
 import ModelResultOverview from './ModelResultOverview';
 import {formatAuthors} from "./utils";
-
+import ResultGraphs from './ResultGraphs';
 
 const styles = theme => ({
   root: {
@@ -107,6 +107,7 @@ export default class ModelDetail extends React.Component {
                 <Tabs value={this.state.tabValue} onChange={this.handleTabChange}>
                   <Tab label="Info" />
                   <Tab label="Results" />
+                  <Tab label="Figures" />
                 </Tabs>
               </AppBar>
               <TabPanel value={this.state.tabValue} index={0}>
@@ -137,6 +138,13 @@ export default class ModelDetail extends React.Component {
               </TabPanel>
               <TabPanel value={this.state.tabValue} index={1}>
                 <ModelResultOverview
+                  baseUrl={this.props.baseUrl} 
+                  id={this.props.modelData.id}
+                  modelJSON={this.props.modelData}
+                />
+              </TabPanel>
+              <TabPanel value={this.state.tabValue} index={2}>
+                <ResultGraphs
                   baseUrl={this.props.baseUrl} 
                   id={this.props.modelData.id}
                   modelJSON={this.props.modelData}

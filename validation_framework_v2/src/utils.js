@@ -61,10 +61,10 @@ export function formatValue(label, value) {
   if (["timestamp", "creation_date"].indexOf(label) > -1) {
       value = formatTimeStampToLongString(value);
   }
-  if (label == "app") {
+  if (label === "app") {
       value = value.collab_id;
   }
-  if (label == "private") {
+  if (label === "private") {
     value = value ? "True" : "False";
   }
   return value;

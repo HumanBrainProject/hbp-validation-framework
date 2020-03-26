@@ -8,7 +8,7 @@ import TableCell from '@material-ui/core/TableCell';
 import TableContainer from '@material-ui/core/TableContainer';
 import TableRow from '@material-ui/core/TableRow';
 
-import {formatTimeStampToLongString, roundFloat} from "./utils";
+import {formatTimeStampToLongString} from "./utils";
 
 function ResultParameter(props) {
     if (props.value) {

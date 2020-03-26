@@ -394,8 +394,6 @@ export default class  ModelResultOverview extends React.Component {
     }
     if (this.state.currentResult) {
       resultDetail = <ResultDetail open={this.state.resultDetailOpen} result={this.state.currentResult} onClose={this.handleResultDetailClose} />;
-    } else {
-      resultDetail = "";
     }
     return (
       <div>

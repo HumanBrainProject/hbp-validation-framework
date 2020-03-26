@@ -5,6 +5,7 @@
   "dependencies": {
     "@material-ui/core": "^4.5.2",
     "@material-ui/icons": "^4.5.1",
+    "@types/react-plotly.js": "^2.2.4",
     "axios": "^0.19.0",
     "json-loader": "^0.5.7",
     "keycloak-js": "^8.0.1",
@@ -12,8 +13,13 @@
     "material-table": "^1.54.0",
     "moment": "^2.24.0",
     "mui-datatables": "^2.14.0",
+    "nivo": "^0.31.0",
+    "plotly.js": "1.52.3",
+    "plotly.js-dist": "^1.52.3",
     "react": "^16.11.0",
     "react-dom": "^16.11.0",
+    "react-plotly.js": "2.4.0",
+    "react-plotlyjs": "^0.4.4",
     "react-scripts": "^3.3.0",
     "recharts": "^1.8.5"
   },
