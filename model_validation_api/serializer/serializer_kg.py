@@ -368,6 +368,9 @@ class ValidationTestDefinitionKGSerializer(BaseKGSerializer):
             if bool(test_with_same_alias):
                 self.errors.append("validation test definition with this alias already exists.")
                 return False
+        if "protocol" not in self.data or len(self.data["protocol"]) == 0:
+            self.errors.append("Error in field 'protocol'. This field may not be blank.")
+            return False
         if not self.data.get("author"):
             self.errors.append("Error in field 'author'. This field may not be blank.")
             return False
