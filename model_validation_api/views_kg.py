@@ -830,7 +830,7 @@ class ModelInstances_KG(KGAPIView):
                         # it shouldn't happen, but sometimes an instance belongs to multiple projects
                         logger.debug("???instances = {}".format(proj.instances))
                         # delete instance from project.instances
-                        proj.instances = [inst for inst in proj.instances if inst.id != elem.id]
+                        proj.instances = [inst for inst in as_list(proj.instances) if inst.id != elem.id]
                         proj.save(self.client)
                 # delete any associated script and emodel
                 if elem.main_script:
@@ -1080,9 +1080,10 @@ class Tests_KG(KGAPIView):
 
         list_ids = request.GET.getlist('id')
 
-        elements_to_delete = [ValidationTestDefinitionKG.from_uuid(id, self.client) for id in list_ids]
+        elements_to_delete = [ValidationTestDefinitionKG.from_uuid(id, self.client, api="nexus") for id in list_ids]
         for test in elements_to_delete:
-            test.delete(self.client)
+            if test:
+                test.delete(self.client)
 
         return Response( status=status.HTTP_200_OK)
 
