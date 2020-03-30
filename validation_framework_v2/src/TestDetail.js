@@ -18,7 +18,7 @@ import TestDetailContent from './TestDetailContent';
 import TestDetailMetadata from './TestDetailMetadata';
 import TestResultOverview from './TestResultOverview';
 import {formatAuthors} from "./utils";
-
+import ResultGraphs from './ResultGraphs';
 
 const styles = theme => ({
   root: {
@@ -107,6 +107,7 @@ export default class TestDetail extends React.Component {
                 <Tabs value={this.state.tabValue} onChange={this.handleTabChange}>
                   <Tab label="Info" />
                   <Tab label="Results" />
+                  <Tab label="Figures" />
                 </Tabs>
               </AppBar>
               <TabPanel value={this.state.tabValue} index={0}>
@@ -138,9 +139,17 @@ export default class TestDetail extends React.Component {
               </TabPanel>
               <TabPanel value={this.state.tabValue} index={1}>
                 <TestResultOverview
-                  baseUrl={this.props.baseUrl} 
+                  baseUrl={this.props.baseUrl}
                   id={this.props.testData.id}
                   testJSON={this.props.testData}
+                />
+              </TabPanel>
+              <TabPanel value={this.state.tabValue} index={2}>
+                <ResultGraphs
+                  baseUrl={this.props.baseUrl}
+                  id={this.props.testData.id}
+                  test_id="100abccb-6d30-4c1e-a960-bc0489e0d82d"//{[this.props.testData.id]}
+                  // testJSON={this.props.testData}
                 />
               </TabPanel>
           </Grid>

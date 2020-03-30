@@ -1,6 +1,4 @@
 import React from 'react';
-import Grid from '@material-ui/core/Grid';
-import Box from '@material-ui/core/Box';
 import { Typography } from '@material-ui/core';
 import Container from '@material-ui/core/Container';
 import ExpansionPanel from "@material-ui/core/ExpansionPanel";
@@ -10,37 +8,68 @@ import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
 import TableContainer from '@material-ui/core/TableContainer';
-import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
-import Avatar from '@material-ui/core/Avatar';
-import Tooltip from '@material-ui/core/Tooltip';
-import Divider from '@material-ui/core/Divider';
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import axios from 'axios';
 import Plotly from "plotly.js"
 import createPlotlyComponent from 'react-plotly.js/factory';
 
 import result_data from './test_data_results.json';
-import {formatTimeStampToCompact, roundFloat} from "./utils";
+import {formatTimeStampToCompact} from "./utils";
 import ResultDetail from './ResultDetail';
 
 
 function ResultsFiguresTestIntance(props) {
     const Plot = createPlotlyComponent(Plotly);
 
+    var model_labels = [];
     var model_version_labels = [];
+    var model_version_longlabels = [];
     var model_version_scores = [];
+    var traces = [];
+    var layout = {};
+    var label_resultJSON_map = {};
 
     for (const [model_id, model_entry] of Object.entries(props.test_inst_entry["models"])) {
-        for (const [model_inst_id, model_inst_entry] of Object.entries(model_entry["model_instances"])) {
-            model_version_labels.push(model_entry.model_name + " (" + model_inst_entry.model_version + ")");
-            model_version_scores.push(model_inst_entry["results"][0]["score"]);
+      for (const [model_inst_id, model_inst_entry] of Object.entries(model_entry["model_instances"])) {
+        model_inst_entry["results"].forEach(function (result_entry, r_ind) {
+          model_labels.push(model_entry.model_name);
+          model_version_labels.push(model_inst_entry.model_version + " (#" + r_ind + ")");
+          var longlabel = model_entry.model_name + "-" + model_inst_entry.model_version + " (" + formatTimeStampToCompact(result_entry["timestamp"]) + ") - " + result_entry["result_id"].substr(0, 8);
+          model_version_longlabels.push(longlabel);
+          model_version_scores.push(result_entry.score);
+          label_resultJSON_map[longlabel] = result_entry.result_json;
+        });
+      }
+      traces.push(
+      {
+          x: [
+            model_labels,
+            model_version_labels
+          ],
+          y: model_version_scores,
+          // text:model_labels,
+          hovertext: model_version_longlabels,
+          name: model_entry.model_name,
+          type: 'bar'
         }
+      )
     }
-    console.log(model_version_labels)
-    console.log(model_version_scores)
 
+    layout = {
+      showlegend: true,
+      // hovermode: 'closest',
+      // width: 640,
+      // height: 480,
+      // title: 'Plot Title',
+      xaxis: {//tickvals: ["1", "2", "3", "4", "5"],
+              //ticktext : ["a", "b", "c", "d" ,"e"],
+             title: "Model Instance",
+             automargin: true},
+      yaxis: {title: "Score"},
+      autosize:true
+    };
 
     return (
         <ExpansionPanel defaultExpanded={true} key={props.test_inst_id}>
@@ -59,15 +88,13 @@ function ResultsFiguresTestIntance(props) {
                                 <TableRow>
                                     <TableCell>
                                         <Plot
-                                            data={[
-                                                    {   type: 'bar',
-                                                        x: model_version_labels,
-                                                        y: model_version_scores
-                                                    },
-                                                ]}
-                                            layout={ {width: 600, height: 400} }
-                                            // layout={ {width: 320, height: 240, title: 'A Fancy Plot'} }
+                                            data={traces}
+                                            layout={layout}
+                                            onClick={(data) => props.handleResultEntryClick(label_resultJSON_map[data["points"][0]["hovertext"]])}
                                         />
+                                        <br /><br />
+                                        <Typography variant="body2" align="center">Observation Data Type: <b>{props.test_inst_entry.data_type}</b></Typography>
+                                        <Typography variant="body2" align="center">Test Score Type: <b>{props.test_inst_entry.score_type}</b></Typography>
                                     </TableCell>
                                 </TableRow>
                             </TableBody>
@@ -82,16 +109,24 @@ function ResultsFiguresTestIntance(props) {
 export default class ResultGraphs extends React.Component {
   constructor(props) {
     super(props);
+
+    let test_ids = [];
+    if ("test_id" in props) {
+      test_ids.push(props.test_id)
+    }
+    console.log(test_ids)
+
     this.state = {
                     results         : [],
                     results_grouped : {},
                     // model_versions  : [],
                     resultDetailOpen: false,
-                    currentResult  : null
+                    currentResult  : null,
+                    test_ids : test_ids
                  };
 
-    // this.handleResultEntryClick = this.handleResultEntryClick.bind(this)
-    // this.handleResultDetailClose = this.handleResultDetailClose.bind(this)
+    this.handleResultEntryClick = this.handleResultEntryClick.bind(this)
+    this.handleResultDetailClose = this.handleResultDetailClose.bind(this)
   }
 
   componentDidMount() {
@@ -124,7 +159,6 @@ export default class ResultGraphs extends React.Component {
   };
 
   groupResults = (results) => {
-    console.log(results);
     // will be a multi-D dict {test -> test instance -> model -> model instance} with list as values
     var dict_results = {}
 
@@ -169,6 +203,8 @@ export default class ResultGraphs extends React.Component {
                                                               test_inst_id:   result.test_code_id,
                                                               test_version:   result.test_code.version,
                                                               timestamp:      result.test_code.timestamp,
+                                                              data_type:      result.test_code.test_definition.data_type,
+                                                              score_type:     result.test_code.test_definition.score_type,
                                                               models: {}
                                                             };
       }
@@ -195,7 +231,8 @@ export default class ResultGraphs extends React.Component {
                                                             {
                                                                 result_id:      result.id,
                                                                 score:          result.score,
-                                                                timestamp:      result.timestamp
+                                                                timestamp:      result.timestamp,
+                                                                result_json:    result
                                                             })
     });
 
@@ -300,48 +337,62 @@ export default class ResultGraphs extends React.Component {
       results_grouped:  dict_results,
     //   model_versions:   list_model_versions
     });
+
+    console.log(dict_results)
   }
 
-//   handleResultEntryClick(result) {
-//     this.setState({
-//                     'resultDetailOpen': true,
-//                     'currentResult':   result
-//                   });
-//     // updateHash(rowData.id);
-//   };
+  handleResultEntryClick(result) {
+    this.setState({
+                    'resultDetailOpen': true,
+                    'currentResult':   result
+                  });
+    // updateHash(rowData.id);
+  };
 
-//   handleResultDetailClose() {
-//     this.setState({
-//                     'resultDetailOpen': false,
-//                     'currentResult':    null
-//                   });
-//     // updateHash('');
-//   };
+  handleResultDetailClose() {
+    this.setState({
+                    'resultDetailOpen': false,
+                    'currentResult':    null
+                  });
+    // updateHash('');
+  };
 
   renderResultsFigures() {
     const dict_results = this.state.results_grouped;
 
+    var test_ids = this.state.test_ids;
+    // determine list of tests to be plotted
+    if (test_ids.length < 1) {
+      for (const test_id of Object.keys(dict_results)) {
+        test_ids.push(test_id)
+      }
+    }
+    console.log(test_ids)
 
-    console.log(dict_results)
+    if (test_ids.length > 0) {
+      console.log(this.state.test_ids)
+      console.log(dict_results)
+      console.log(dict_results["4bfa8342-226b-4a65-8385-49942d576020"])
     return(
         <Container>
-            {Object.entries(dict_results).map(([test_id, test_entry]) =>
+            {test_ids.map((test_id) =>
                 <ExpansionPanel defaultExpanded={true} key={test_id}>
                     <ExpansionPanelSummary
                         expandIcon={<ExpandMoreIcon />}
                         aria-controls="panel1a-content"
                         id={test_id}
                     >
-                    <Typography variant="subtitle1">Test: <b>{test_entry.test_alias ? test_entry.test_alias : test_entry.test_name}</b></Typography>
+                    <Typography variant="subtitle1">Test: <b>{dict_results[test_id].test_alias ? dict_results[test_id].test_alias : dict_results[test_id].test_name}</b></Typography>
                     </ExpansionPanelSummary>
                     <ExpansionPanelDetails>
                         <Container>
-                            {Object.entries(test_entry["test_instances"]).map(([test_inst_id, test_inst_entry]) =>
+                            {Object.entries(dict_results[test_id]["test_instances"]).map(([test_inst_id, test_inst_entry]) =>
 
                                 <ResultsFiguresTestIntance
                                     test_inst_id={test_inst_id}
                                     test_inst_entry={test_inst_entry}
                                     key={test_inst_id}
+                                    handleResultEntryClick={this.handleResultEntryClick}
                                 />
 
                             )}
@@ -351,6 +402,9 @@ export default class ResultGraphs extends React.Component {
             )}
         </Container>
     )
+    } else {
+      return ""
+    }
   }
 
   renderNoResults() {
@@ -364,15 +418,22 @@ export default class ResultGraphs extends React.Component {
   render() {
     const dict_results = this.state.results_grouped;
     var content = "";
+    var resultDetail = "";
     if (Object.keys(dict_results).length>0) {
       content = this.renderResultsFigures(dict_results);
     } else {
       content = this.renderNoResults();
     }
+    if (this.state.currentResult) {
+      resultDetail = <ResultDetail open={this.state.resultDetailOpen} result={this.state.currentResult} onClose={this.handleResultDetailClose} />;
+    }
     return (
       <div>
         <div>
           {content}
+        </div>
+        <div>
+          {resultDetail}
         </div>
       </div>
     );
