@@ -169,7 +169,7 @@ def _is_collaborator(request, collab_id):
     :returns: admins
     :rtype: boolean
     """
-
+    logger.debug("Checking access to {}".format(collab_id))
     svc_url = settings.HBP_COLLAB_SERVICE_URL
 
     #headers = {'Authorization': get_auth_header(request.user.social_auth.get())}
@@ -289,7 +289,7 @@ def is_authorised_or_admin(request, collab_id):
     #         return False
     #     else:
     #         return True
-    return _is_collaborator(request, collab_id) or _is_collaborator(request,admin_id)
+    return _is_collaborator(request, collab_id) or _is_collaborator(request, admin_id)
 
 def is_authorised(request, collab_id):
     """

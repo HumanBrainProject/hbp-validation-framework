@@ -496,11 +496,11 @@ class Models_KG(KGAPIView):
         :type image_id: uuid
         :return: int status response of request
         """
+        list_ids = request.GET.getlist('id')
+        logger.debug("Request to delete {}".format(list_ids))
 
         if not is_authorised_or_admin(request, settings.ADMIN_COLLAB_ID):
             return HttpResponseForbidden()
-
-        list_ids = request.GET.getlist('id')
 
         elements_to_delete = [
             ModelProject.from_uuid(id, self.client, api="nexus")
@@ -508,7 +508,7 @@ class Models_KG(KGAPIView):
         ]
         for model in elements_to_delete:
             if model.instances:
-                for instance in model.instances:
+                for instance in as_list(model.instances):
                     instance.delete(self.client)
             model.delete(self.client)
 
