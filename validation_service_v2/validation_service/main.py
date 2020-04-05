@@ -11,7 +11,7 @@ from fairgraph.client import KGClient
 from fairgraph.base import KGQuery, KGProxy, as_list
 from fairgraph.brainsimulation import ModelProject
 
-from fastapi import FastAPI, Depends, Header, Query
+from fastapi import FastAPI, Depends, Header, Query, HTTPException
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
 from .auth import get_kg_token, get_user_from_token, is_collab_member
@@ -56,8 +56,10 @@ def query_models(alias: List[str] = Query(None),
                  author: List[str] = Query(None),
                  owner: List[str] = Query(None),
                  organization: List[str] = Query(None),
-                 project_id: List[str] = Query(None),
+                 project_id: List[int] = Query(None),  # revisit for Collab v2, where collabs will be named not numbered
                  private: bool = None,
+                 size: int = Query(100),
+                 from_index: int = Query(0),
                  # from header
                  token: HTTPAuthorizationCredentials = Depends(auth)
                  ):  #, cell_type, model_scope, abstraction_level, ...):
@@ -75,7 +77,7 @@ def query_models(alias: List[str] = Query(None),
         if project_id:
             for collab_id in project_id:
                 if not is_collab_member(collab_id, token.credentials):
-                    raise HttpException(status_code=403,
+                    raise HTTPException(status_code=403,
                                         detail="You are not a member of project #{collab_id}")
         else:
             raise HTTPException(status_code=400,
@@ -98,16 +100,18 @@ def query_models(alias: List[str] = Query(None),
         author, owner, organization, project_id, private)
     if len(filter_query["value"]) > 0:
         logger.info("Searching for ModelProject with the following query: {}".format(filter_query))
-        models = KGQuery(ModelProject, {"nexus": filter_query}, context).resolve(kg_client, api="nexus", size=10000)
+        # note that from_index is not currently supported by KGQuery.resolve
+        model_projects = KGQuery(ModelProject, {"nexus": filter_query}, context).resolve(kg_client, api="nexus", size=size)
     else:
-        models = ModelProject.list(kg_client, api="nexus", size=10000)
-    return models
+        model_projects = ModelProject.list(kg_client, api="nexus", size=size, from_index=from_index)
+    return [ScientificModel.from_kg_object(model_project, kg_client)
+            for model_project in model_projects]
 
 
 @app.get("/models/{model_id}", response_model=ScientificModel)
 def get_model(model_id: UUID, token: HTTPAuthorizationCredentials = Depends(auth)):
-    user = get_user_from_token(token.credentials)
-    logging.info(f"user = {user}")
+    #user = get_user_from_token(token.credentials)
+    #logging.info(f"user = {user}")
     model_project = ModelProject.from_uuid(str(model_id), kg_client, api="nexus")  # todo: fairgraph should accept UUID object as well as str
     if model_project.private:
         if not is_collab_member(model_project.collab_id, token.credentials):

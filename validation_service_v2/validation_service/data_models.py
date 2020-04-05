@@ -12,10 +12,12 @@ logger = logging.getLogger("validation_service_v2")
 
 
 class BrainRegion(str, Enum):
-    hippocampus = "hippocampus CA1"
+    hippocampus_ca1 = "hippocampus CA1"
+    hippocampus = "hippocampus"
     basal_ganlia = "basal ganglia"
     cortex = "cerebral cortex"
     cerebellum = "cerebellum"
+    whole_brain = "whole brain"
 
 
 class Species(str, Enum):
@@ -24,6 +26,7 @@ class Species(str, Enum):
     human = "Homo sapiens"
     macaque = "Macaca mulatta"
     marmoset = "Callithrix jacchus"
+    rodent = "Rodentia"
 
 
 class Person(BaseModel):
@@ -78,7 +81,7 @@ class ModelInstance(BaseModel):
 
 
 class Image(BaseModel):
-    caption: str
+    caption: str = None
     url: HttpUrl
 
 
@@ -95,8 +98,8 @@ class ScientificModel(BaseModel):
     #cell_type: CellType
     #model_scope: ModelScope
     #abstraction_level: AbstractionLevel
-    brain_region: BrainRegion
-    species: Species
+    brain_region: BrainRegion = None
+    species: Species = None
     description: str
     images: List[Image] = None
     old_uuid: UUID = None
