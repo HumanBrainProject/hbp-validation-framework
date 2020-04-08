@@ -666,7 +666,8 @@ class ValidationTestResultKGSerializer(BaseKGSerializer):
             "normalized_score": obj.normalized_score,
             # the following are temporary. Ideally the client should do a lookup using the IDs above
             "model_version": ScientificModelInstanceKGSerializer(validation_activity.model_instance, self.client).data,
-            "test_code": ValidationTestCodeKGSerializer(validation_activity.test_script, self.client).data
+            "test_code": ValidationTestCodeKGSerializer(validation_activity.test_script, self.client).data,
+            "activity_uuid": validation_activity.uuid
         }
         return data
 
