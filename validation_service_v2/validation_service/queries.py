@@ -1,3 +1,4 @@
+from fairgraph.brainsimulation import ModelProject
 
 
 def build_model_project_filters(alias, id, name, brain_region, species,
@@ -30,3 +31,8 @@ def build_model_project_filters(alias, id, name, brain_region, species,
     if private is not None:
         filter_query["value"].append({"path": "nsg:private", "op": "eq", "value": private})
     return filter_query, context
+
+
+def model_alias_exists(alias, client):
+    model_with_same_alias = ModelProject.from_alias(alias, client, api="nexus")
+    return bool(model_with_same_alias)

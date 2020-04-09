@@ -1,5 +1,6 @@
 import os
 from datetime import datetime
+from time import sleep
 from urllib.parse import urlparse
 import logging
 
@@ -176,3 +177,86 @@ def test_list_models_filter_by_brain_region_and_authors():
         check_model(model)
         assert len([author["family_name"] == "Migliore" for author in model["author"]]) > 0
         assert model["brain_region"] == "hippocampus"
+
+
+def test_create_and_delete_network_model(caplog):
+    caplog.set_level(logging.DEBUG)
+    now = datetime.now()
+    payload = {
+        "name": f"TestModel API v2 {now.isoformat()}",
+        "alias": f"TestModel-APIv2-{now.isoformat()}",
+        "author": [
+            {
+            "given_name": "Frodo",
+            "family_name": "Baggins"
+            },
+            {
+            "given_name": "Tom",
+            "family_name": "Bombadil"
+            }
+        ],
+        "owner": [
+            {
+            "given_name": "Frodo",
+            "family_name": "Baggins"
+            }
+        ],
+        "project_id": 52468,
+        "organization": "HBP-SGA3-WP5",
+        "private": True,
+        "species": "Ornithorhynchus anatinus",
+        "brain_region": "hippocampus",
+        "model_scope": "network",
+        "abstraction_level": "spiking neurons: point neuron",
+        "cell_type": None,
+        "description": "description goes here",
+        "images": [
+            {
+            "caption": "Figure 1",
+            "url": "http://example.com/figure_1.png"
+            }
+        ],
+        "instances": [
+            {
+            "version": "1.23",
+            "description": "description of this version",
+            "parameters": "{'meaning': 42}",
+            "code_format": "Python",
+            "source": "http://example.com/my_code.py",
+            "license": "MIT"
+            }
+        ]
+    }
+    # create
+    response = client.post(f"/models/", json=payload, headers=AUTH_HEADER)
+    assert response.status_code == 201
+    posted_model = response.json()
+    check_model(posted_model)
+
+    # check we can retrieve model
+    model_uuid = posted_model["id"]
+    response = client.get(f"/models/{model_uuid}", headers=AUTH_HEADER)
+    assert response.status_code == 200
+    retrieved_model = response.json()
+    assert retrieved_model == posted_model
+
+    # delete again
+    response = client.delete(f"/models/{model_uuid}", headers=AUTH_HEADER)
+    assert response.status_code == 200
+
+    # todo: check model no longer exists
+    response = client.get(f"/models/{model_uuid}", headers=AUTH_HEADER)
+    assert response.status_code == 404
+
+
+def test_create_model_with_invalid_data():
+    pass
+
+def test_create_model_with_existing_alias():
+    pass
+
+def test_create_model_without_permissions():
+    pass
+
+def test_create_duplicate_model():
+    pass
