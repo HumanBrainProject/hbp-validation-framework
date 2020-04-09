@@ -37,8 +37,9 @@ const isParent = (window.opener == null);
 const isIframe = (window !== window.parent);
 const isFramedApp = isIframe && isParent;
 const settingsDelimiter = ",";
-const filterKeys = ["species", "brain_region", "organization", "cell_type",
-                    "model_scope", "abstraction_level"];
+const filterKeys = ["species", "brain_region", "cell_type",
+                    "organization", "model_scope", "abstraction_level",
+                    "test_type"]//, "score_type", "data_modalities"]
 
 const buildQuery = (filterDict) => {
   let q = "";

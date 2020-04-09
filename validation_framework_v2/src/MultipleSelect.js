@@ -8,6 +8,7 @@ import ListItemText from '@material-ui/core/ListItemText';
 import Select from '@material-ui/core/Select';
 import Checkbox from '@material-ui/core/Checkbox';
 
+import {formatLabel} from "./utils";
 
 const capitalize = (s) => {
   if (typeof s !== 'string') return ''
@@ -50,7 +51,7 @@ export default function MultipleSelect(props) {
   return (
     <div>
       <FormControl className={classes.formControl}>
-        <InputLabel id={fieldLabelId}>{capitalize(props.label)}</InputLabel>
+        <InputLabel id={fieldLabelId}>{formatLabel(props.label)}</InputLabel>
         <Select
           labelId={fieldLabelId}
           id={fieldId}

@@ -14,7 +14,7 @@ export default class ConfigForm extends React.Component {
     this.state = {
                   selected: props.config,
                   validValues: null,
-                  error: null
+                  error: null,
                  };
 
     this.handleClose = this.handleClose.bind(this);
@@ -83,36 +83,14 @@ export default class ConfigForm extends React.Component {
           <DialogTitle>Filter models</DialogTitle>
           <DialogContent>
             <form>
-              <MultipleSelect
-                itemNames={this.state.validValues == null ? [] : this.state.validValues.species}
-                label="species"
-                value={this.state.selected.species}
-                handleChange={this.handleFieldChange} />
-              <MultipleSelect
-                itemNames={this.state.validValues == null ? [] : this.state.validValues.brain_region}
-                label="brain region"
-                value={this.state.selected.brain_region}
-                handleChange={this.handleFieldChange} />
-              <MultipleSelect
-                itemNames={this.state.validValues == null ? [] : this.state.validValues.cell_type}
-                label="cell type"
-                value={this.state.selected.cell_type}
-                handleChange={this.handleFieldChange} />
-              <MultipleSelect
-                itemNames={this.state.validValues == null ? [] : this.state.validValues.model_scope}
-                label="model scope"
-                value={this.state.selected.model_scope}
-                handleChange={this.handleFieldChange} />
-              <MultipleSelect
-                itemNames={this.state.validValues == null ? [] : this.state.validValues.abstraction_level}
-                label="abstraction_level"
-                value={this.state.selected.abstraction_level}
-                handleChange={this.handleFieldChange} />
-              <MultipleSelect
-                itemNames={this.state.validValues == null ? [] : this.state.validValues.organization}
-                label="organization"
-                value={this.state.selected.organization}
-                handleChange={this.handleFieldChange} />
+              {Object.keys(this.state.selected).map(filter => (
+                <MultipleSelect
+                  itemNames={this.state.validValues == null ? [] : this.state.validValues[filter]}
+                  label={filter}
+                  value={this.state.selected[filter]}
+                  handleChange={this.handleFieldChange}
+                  key={filter} />
+              ))}
             </form>
           </DialogContent>
           <DialogActions>
