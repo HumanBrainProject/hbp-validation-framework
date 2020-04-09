@@ -141,6 +141,7 @@ export default class ModelDetail extends React.Component {
                   baseUrl={this.props.baseUrl} 
                   id={this.props.modelData.id}
                   modelJSON={this.props.modelData}
+                  auth={this.props.auth}
                 />
               </TabPanel>
               <TabPanel value={this.state.tabValue} index={2}>

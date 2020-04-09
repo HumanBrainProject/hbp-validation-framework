@@ -25,8 +25,8 @@ export default class TestTable extends React.Component {
     console.log("Download JSON.");
     var selectedTests = [];
     for (var item in selectedRows.data) {
-      var data = this.state.data[selectedRows.data[item].index]
-      var ordered_data = {};
+      let data = this.state.data[selectedRows.data[item].index]
+      let ordered_data = {};
       Object.keys(data).sort().forEach(function(key) {
         ordered_data[key] = data[key];
       });
@@ -49,8 +49,8 @@ export default class TestTable extends React.Component {
     console.log("View item(s).")
     var selectedTests = [];
     for (var item in selectedRows.data) {
-      var data = this.state.data[selectedRows.data[item].index]
-      var ordered_data = {};
+      let data = this.state.data[selectedRows.data[item].index]
+      let ordered_data = {};
       Object.keys(data).sort().forEach(function(key) {
         ordered_data[key] = data[key];
       });

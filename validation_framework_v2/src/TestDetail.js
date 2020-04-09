@@ -142,6 +142,7 @@ export default class TestDetail extends React.Component {
                   baseUrl={this.props.baseUrl}
                   id={this.props.testData.id}
                   testJSON={this.props.testData}
+                  auth={this.props.auth}
                 />
               </TabPanel>
               <TabPanel value={this.state.tabValue} index={2}>

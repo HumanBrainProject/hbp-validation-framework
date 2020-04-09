@@ -2,7 +2,6 @@ import React from 'react';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import Container from '@material-ui/core/Container';
 import Grid from '@material-ui/core/Grid';
-import CircularProgress from '@material-ui/core/CircularProgress';
 import IconButton from '@material-ui/core/IconButton';
 import SettingsIcon from '@material-ui/icons/Settings';
 import Box from '@material-ui/core/Box';
@@ -20,14 +19,18 @@ import TestDetail from "./TestDetail";
 import ConfigForm from "./ConfigForm";
 import Introduction from "./Introduction";
 
-// if working on the appearance/layout set devMode=true
+import globals from './globals';
+import {renderLoadingIndicator} from './utils'
+
+// if working on the appearance/layout set globals.DevMode=true
 // to avoid loading the models and tests over the network every time;
 // instead we use the local test_data
-import test_data from './test_data.json';
-const devMode = true;
-// if (!devMode) {
-//   var test_data = {models: [], tests: []};
-// }
+var test_data = {}
+if (globals.DevMode) {
+  test_data = require('./dev_data/test_data.json');
+} else {
+  test_data = {models: [], tests: []};
+}
 
 const baseUrl = "https://validation-staging.brainsimulation.eu";
 const collaboratoryOrigin = 'https://wiki.humanbrainproject.eu';
@@ -119,17 +122,19 @@ export default class ValidationFramework extends React.Component {
       'modelDetailOpen': false,
       'testDetailOpen': false,
       'configOpen': false,
-      'loading': true,
+      'loading_model': true,
+      'loading_test': true,
       'filters': retrieveFilters(),
       'modelsTableWide': false,
       'testsTableWide': false
     };
-    if (devMode) {
+    if (globals.DevMode) {
       this.state['modelData'] = test_data.models
       this.state['currentModel'] = test_data.models[0]
       this.state['testData'] = test_data.tests
       this.state['currentTest'] = test_data.tests[0]
-      this.state['loading'] = false
+      this.state['loading_model'] = false
+      this.state['loading_test'] = false
     }
     this.handleModelDetailClose = this.handleModelDetailClose.bind(this);
     this.handleTestDetailClose = this.handleTestDetailClose.bind(this);
@@ -158,13 +163,14 @@ export default class ValidationFramework extends React.Component {
   }
 
   componentDidMount() {
+    console.log(window.location.hash)
     if (window.location.hash) {
       // get a specific model
-      // this.getModel(window.location.hash.slice(1));  // TODO: uncomment
+      this.getModel(window.location.hash.slice(1));
       // get a specific test
-      // this.getTest(window.location.hash.slice(1));   // TODO: uncomment
+      this.getTest(window.location.hash.slice(1));
     }
-    if (!devMode) {
+    if (!globals.DevMode) {
       this.updateModels(this.state.filters);
       this.updateTests(this.state.filters);
     }
@@ -172,20 +178,19 @@ export default class ValidationFramework extends React.Component {
 
   getModel(model_id) {
     let url = baseUrl + "/models/?id=" + model_id;
-    console.log(url);
     let config = {
       headers: {
         'Authorization': 'Bearer ' + this.props.auth.token
       }
     }
-    this.setState({loading: true});
+    this.setState({loading_model: true});
     axios.get(url, config)
       .then(res => {
         const models = res.data.models;
         this.setState({
           modelData: models,
           currentModel: models[0],
-          loading: false,
+          loading_model: false,
           error: null,
           modelDetailOpen: true  // TODO: required?
         });
@@ -193,7 +198,7 @@ export default class ValidationFramework extends React.Component {
       .catch(err => {
         // Something went wrong. Save the error in state and re-render.
         this.setState({
-          loading: false,
+          loading_model: false,
           error: err
         });
       }
@@ -202,20 +207,19 @@ export default class ValidationFramework extends React.Component {
 
   getTest(test_id) {
     let url = baseUrl + "/tests/?id=" + test_id;
-    console.log(url);
     let config = {
       headers: {
         'Authorization': 'Bearer ' + this.props.auth.token
       }
     }
-    this.setState({loading: true});
+    this.setState({loading_test: true});
     axios.get(url, config)
       .then(res => {
         const tests = res.data.tests;
         this.setState({
           testData: tests,
           currentTest: tests[0],
-          loading: false,
+          loading_test: false,
           error: null,
           testDetailOpen: true  // TODO: required?
         });
@@ -223,7 +227,7 @@ export default class ValidationFramework extends React.Component {
       .catch(err => {
         // Something went wrong. Save the error in state and re-render.
         this.setState({
-          loading: false,
+          loading_test: false,
           error: err
         });
       }
@@ -231,11 +235,10 @@ export default class ValidationFramework extends React.Component {
   };
 
   updateModels(filters) {
-
-    if (filtersEmpty(filters) && isFramedApp) { // TODO: remove `isFramedApp` to avoid auto load of all entries on entry page
+    if (filtersEmpty(filters) && isFramedApp) { // TODO: remove `isFramedApp` to avoid auto load of all entries on entry page-
       this.setState({
         modelData: [],
-        loading: false,
+        loading_model: false,
         error: null
       });
     } else {
@@ -246,22 +249,21 @@ export default class ValidationFramework extends React.Component {
         }
       }
       let url = baseUrl + "/models/?" + query;
-      console.log(url);
-      this.setState({loading: true});
+      this.setState({loading_model: true});
       axios.get(url, config)
         .then(res => {
           const models = res.data.models;
           this.setState({
             modelData: models,
             currentModel: this.state.currentModel ? this.state.currentModel : models[0],
-            loading: false,
+            loading_model: false,
             error: null
           });
         })
         .catch(err => {
           // Something went wrong. Save the error in state and re-render.
           this.setState({
-            loading: false,
+            loading_model: false,
             error: err
           });
         }
@@ -270,11 +272,10 @@ export default class ValidationFramework extends React.Component {
   };
 
   updateTests(filters) {
-
     if (filtersEmpty(filters) && isFramedApp) { // TODO: remove `isFramedApp` to avoid auto load of all entries on entry page
       this.setState({
         testData: [],
-        loading: false,
+        loading_test: false,
         error: null
       });
     } else {
@@ -285,22 +286,21 @@ export default class ValidationFramework extends React.Component {
         }
       }
       let url = baseUrl + "/tests/?" + query;
-      console.log(url);
-      this.setState({loading: true});
+      this.setState({loading_test: true});
       axios.get(url, config)
         .then(res => {
           const tests = res.data.tests;
           this.setState({
             testData: tests,
             currentTest: this.state.currentTest ? this.state.currentTest : tests[0],
-            loading: false,
+            loading_test: false,
             error: null
           });
         })
         .catch(err => {
           // Something went wrong. Save the error in state and re-render.
           this.setState({
-            loading: false,
+            loading_test: false,
             error: err
           });
         }
@@ -345,14 +345,6 @@ export default class ValidationFramework extends React.Component {
     this.updateModels(filters);
     this.updateTests(filters);
     // todo: if filters haven't changed, don't store them
-  };
-
-  renderLoadingIndicator() {
-    return (
-      <div style={{display: 'flex', justifyContent: 'center', marginTop: '100px'}}>
-        <CircularProgress />
-      </div>
-    )
   };
 
   renderError() {
@@ -431,13 +423,13 @@ export default class ValidationFramework extends React.Component {
     }
 
     if (this.state.currentModel) {
-      modelDetail = <ModelDetail open={this.state.modelDetailOpen} modelData={this.state.currentModel} onClose={this.handleModelDetailClose} baseUrl={baseUrl} />;
+      modelDetail = <ModelDetail open={this.state.modelDetailOpen} modelData={this.state.currentModel} onClose={this.handleModelDetailClose} baseUrl={baseUrl} auth={this.props.auth} />;
     } else {
       modelDetail = "";
     }
 
     if (this.state.currentTest) {
-      testDetail = <TestDetail open={this.state.testDetailOpen} testData={this.state.currentTest} onClose={this.handleTestDetailClose} baseUrl={baseUrl} />;
+      testDetail = <TestDetail open={this.state.testDetailOpen} testData={this.state.currentTest} onClose={this.handleTestDetailClose} baseUrl={baseUrl} auth={this.props.auth} />;
     } else {
       testDetail = "";
     }
@@ -457,7 +449,6 @@ export default class ValidationFramework extends React.Component {
         <br/>
 
         <ConfigForm open={this.state.configOpen} onClose={this.handleConfigClose} config={this.state.filters} baseUrl={baseUrl} />
-
         <div>
           {modelDetail}
         </div>
@@ -476,7 +467,7 @@ export default class ValidationFramework extends React.Component {
       <React.Fragment>
         <CssBaseline />
         <Container maxWidth="xl">
-          {this.state.loading ? this.renderLoadingIndicator(): this.renderValidationFramework()}
+          {this.state.loading_model || this.state.loading_test ? renderLoadingIndicator(): this.renderValidationFramework()}
         </Container>
         </React.Fragment>
     );

@@ -15,7 +15,7 @@ import axios from 'axios';
 import Plotly from "plotly.js"
 import createPlotlyComponent from 'react-plotly.js/factory';
 
-import result_data from './test_data_results.json';
+import result_data from './dev_data/test_data_results.json';
 import {formatTimeStampToCompact} from "./utils";
 import ResultDetail from './ResultDetail';
 
@@ -31,8 +31,8 @@ function ResultsFiguresTestIntance(props) {
     var layout = {};
     var label_resultJSON_map = {};
 
-    for (const [model_id, model_entry] of Object.entries(props.test_inst_entry["models"])) {
-      for (const [model_inst_id, model_inst_entry] of Object.entries(model_entry["model_instances"])) {
+    for (let model_entry of Object.values(props.test_inst_entry["models"])) {
+      for (let model_inst_entry of Object.values(model_entry["model_instances"])) {
         model_inst_entry["results"].forEach(function (result_entry, r_ind) {
           model_labels.push(model_entry.model_name);
           model_version_labels.push(model_inst_entry.model_version + " (#" + r_ind + ")");

@@ -14,9 +14,19 @@ import Tooltip from '@material-ui/core/Tooltip';
 import Divider from '@material-ui/core/Divider';
 import axios from 'axios';
 
-import result_data from './test_data_results.json';
-import {formatTimeStampToCompact, roundFloat} from "./utils";
+import {renderLoadingIndicator, formatTimeStampToCompact, roundFloat} from "./utils";
 import ResultDetail from './ResultDetail';
+import globals from './globals';
+
+// if working on the appearance/layout set globals.DevMode=true
+// to avoid loading the models and tests over the network every time;
+// instead we use the local test_data
+var result_data = {}
+if (globals.DevMode) {
+  result_data = require('./dev_data/test_data_results.json');
+} else {
+  result_data = {results: []};
+}
 
 class ResultPerInstanceComboMT extends React.Component {
   constructor(props) {
@@ -146,6 +156,7 @@ export default class  ModelResultOverview extends React.Component {
                     results         : [],
                     results_grouped : {},
                     model_versions  : [],
+                    loading_result  : true,
                     resultDetailOpen: false,
                     currentResult  : null
                  };
@@ -155,7 +166,7 @@ export default class  ModelResultOverview extends React.Component {
   }
 
   componentDidMount() {
-    // this.getModelResults();  // TODO: uncomment
+    this.getModelResults();
     this.setState({
       results: result_data["results"]
     });
@@ -166,17 +177,25 @@ export default class  ModelResultOverview extends React.Component {
   }
 
   getModelResults = () => {
-    let url = this.props.baseUrl + "/results/?order=score_type&model_id=" + this.props.id;
-    return axios.get(url)
+    let url = this.props.baseUrl + "/results/?order=&model_id=" + this.props.id;
+    let config = {
+      headers: {
+        'Authorization': 'Bearer ' + this.props.auth.token
+      }
+    }
+    return axios.get(url, config)
       .then(res => {
         this.setState({
-          results: res.data["results"]
+          results: res.data["results"],
+          loading_result: false,
+          error: null
         });
+        console.log(res.data["results"])
       })
       .catch(err => {
         // Something went wrong. Save the error in state and re-render.
-        console.log(err)
         this.setState({
+          loading_result: false,
           error: err
         });
       }
@@ -387,6 +406,11 @@ export default class  ModelResultOverview extends React.Component {
     const dict_results = this.state.results_grouped;
     var content = "";
     var resultDetail = "";
+
+    if (this.state.loading_result) {
+      return renderLoadingIndicator()
+    }
+    console.log(dict_results)
     if (Object.keys(dict_results).length>0) {
       content = this.renderResultsSummaryTable(dict_results);
     } else {

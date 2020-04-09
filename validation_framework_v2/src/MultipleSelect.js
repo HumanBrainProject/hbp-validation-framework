@@ -10,11 +10,6 @@ import Checkbox from '@material-ui/core/Checkbox';
 
 import {formatLabel} from "./utils";
 
-const capitalize = (s) => {
-  if (typeof s !== 'string') return ''
-  return s.charAt(0).toUpperCase() + s.slice(1)
-}
-
 const useStyles = makeStyles(theme => ({
   formControl: {
     margin: theme.spacing(1),

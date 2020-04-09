@@ -14,9 +14,19 @@ import Tooltip from '@material-ui/core/Tooltip';
 import Divider from '@material-ui/core/Divider';
 import axios from 'axios';
 
-import result_data from './test_data_results.json';
 import {formatTimeStampToCompact, roundFloat} from "./utils";
 import ResultDetail from './ResultDetail';
+import globals from './globals';
+
+// if working on the appearance/layout set globals.DevMode=true
+// to avoid loading the models and tests over the network every time;
+// instead we use the local test_data
+var result_data = {}
+if (globals.DevMode) {
+  result_data = require('./dev_data/test_data_results.json');
+} else {
+  result_data = {results: []};
+}
 
 class ResultPerInstanceComboMT extends React.Component {
   constructor(props) {

@@ -103,7 +103,7 @@ function verifyMessage(event) {
   const receivedMessage = event.data;
   const messageOrigin = event.origin;
   const myAppOrigin = window.location.origin;
-  const reload = () => window.location.reload();
+  // const reload = () => window.location.reload(); // TODO: remove?
   const login = (scopes) => keycloak.login({ scope: scopes });
 
 
