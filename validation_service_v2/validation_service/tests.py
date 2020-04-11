@@ -4,6 +4,7 @@ from time import sleep
 from urllib.parse import urlparse
 import logging
 
+from fastapi import status
 from fastapi.testclient import TestClient
 
 from .main import app
@@ -179,10 +180,9 @@ def test_list_models_filter_by_brain_region_and_authors():
         assert model["brain_region"] == "hippocampus"
 
 
-def test_create_and_delete_network_model(caplog):
-    caplog.set_level(logging.DEBUG)
+def _build_sample_model():
     now = datetime.now()
-    payload = {
+    return {
         "name": f"TestModel API v2 {now.isoformat()}",
         "alias": f"TestModel-APIv2-{now.isoformat()}",
         "author": [
@@ -227,6 +227,11 @@ def test_create_and_delete_network_model(caplog):
             }
         ]
     }
+
+def test_create_and_delete_network_model(caplog):
+    caplog.set_level(logging.DEBUG)
+
+    payload = _build_sample_model()
     # create
     response = client.post(f"/models/", json=payload, headers=AUTH_HEADER)
     assert response.status_code == 201
@@ -250,13 +255,107 @@ def test_create_and_delete_network_model(caplog):
 
 
 def test_create_model_with_invalid_data():
-    pass
+    # missing required model project fields
+    for required_field in ("name", "author", "owner", "description"):
+        payload = _build_sample_model()
+        del payload[required_field]
+        response = client.post(f"/models/", json=payload, headers=AUTH_HEADER)
+        assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
+        assert response.json() == {
+            'detail': [
+                {'loc': ['body', 'model', required_field],
+                 'msg': 'field required',
+                 'type': 'value_error.missing'}
+            ]
+        }
+    # missing required model instance fields
+    for required_field in ("version",):
+        payload = _build_sample_model()
+        del payload["instances"][0][required_field]
+        response = client.post(f"/models/", json=payload, headers=AUTH_HEADER)
+        assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
+        assert response.json() == {
+            'detail': [
+                {'loc': ['body', 'model', 'instances', 0, required_field],
+                 'msg': 'field required',
+                 'type': 'value_error.missing'}
+            ]
+        }
+    # invalid value for Enum field
+    payload = _build_sample_model()
+    payload["species"] = "klingon"
+    response = client.post(f"/models/", json=payload, headers=AUTH_HEADER)
+    assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
+    err_msg = response.json()["detail"]
+    assert err_msg[0]['loc'] == ['body', 'model', 'species']
+    assert err_msg[0]['msg'].startswith('value is not a valid enumeration member')
+    assert err_msg[0]['type'] == 'type_error.enum'
+    # invalid URL
+    payload = _build_sample_model()
+    payload["instances"][0]["source"] = "/filesystem/path/to/doc.txt"
+    response = client.post(f"/models/", json=payload, headers=AUTH_HEADER)
+    assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
+    assert response.json() == {
+        'detail': [
+            {'loc': ['body', 'model', 'instances', 0, 'source'],
+             'msg': 'invalid or missing URL scheme',
+             'type': 'value_error.url.scheme'}
+        ]
+    }
+    # incorrectly formatted "owner" field
+    payload = _build_sample_model()
+    payload["owner"] = ["Thorin Oakenshield"]
+    response = client.post(f"/models/", json=payload, headers=AUTH_HEADER)
+    assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
+    assert response.json() == {
+        'detail': [
+            {'loc': ['body', 'model', 'owner', 0],
+             'msg': 'value is not a valid dict',
+             'type': 'type_error.dict'}
+        ]
+    }
+
 
 def test_create_model_with_existing_alias():
-    pass
+    payload = _build_sample_model()
+    payload["alias"] = "RatHippocampusCA1"
+    response = client.post(f"/models/", json=payload, headers=AUTH_HEADER)
+    assert response.status_code == status.HTTP_409_CONFLICT
+    assert response.json() == {
+        'detail': "Another model with alias 'RatHippocampusCA1' already exists."
+    }
 
-def test_create_model_without_permissions():
-    pass
 
-def test_create_duplicate_model():
-    pass
+def test_create_model_without_collab_membership():
+    payload = _build_sample_model()
+    payload["project_id"] = "1571"
+    response = client.post(f"/models/", json=payload, headers=AUTH_HEADER)
+    assert response.status_code == status.HTTP_403_FORBIDDEN
+    assert response.json() == {
+        'detail': "This account is not a member of Collab #1571"
+    }
+
+
+def test_create_duplicate_model(caplog):
+    # Creating two models with the same name and date_created fields is not allowed
+    #caplog.set_level(logging.INFO)
+    payload = _build_sample_model()
+    # create
+    response = client.post(f"/models/", json=payload, headers=AUTH_HEADER)
+    assert response.status_code == 201
+    posted_model = response.json()
+    check_model(posted_model)
+
+    # try to create the same again, copying the date_created from the original
+    payload["date_created"] = posted_model["date_created"]
+    response = client.post(f"/models/", json=payload, headers=AUTH_HEADER)
+    assert response.status_code == status.HTTP_409_CONFLICT
+    assert response.json() == {
+        'detail': 'Another model with the same name and timestamp already exists.'
+    }
+
+    # delete first model
+    response = client.delete(f"/models/{posted_model['id']}", headers=AUTH_HEADER)
+    assert response.status_code == 200
+
+    # todo: now try to create same again - should now work (set deprecated from True to False)

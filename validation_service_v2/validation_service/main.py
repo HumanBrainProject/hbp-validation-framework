@@ -157,7 +157,7 @@ def create_model(model: ScientificModel, token: HTTPAuthorizationCredentials = D
     kg_objects = model.to_kg_objects()
     model_project = kg_objects[-1]
     assert isinstance(model_project, ModelProject)
-    if model_project.exists(kg_client):
+    if model_project.exists(kg_client, api="any"):
         # see https://stackoverflow.com/questions/3825990/http-response-code-for-post-when-resource-already-exists
         # for a discussion of the most appropriate status code to use here
         raise HTTPException(status_code=status.HTTP_409_CONFLICT,

@@ -175,6 +175,7 @@ class ScientificModel(BaseModel):
     brain_region: BrainRegion = None
     species: Species = None
     description: str
+    date_created: datetime = None
     images: List[Image] = None
     old_uuid: UUID = None
     instances: List[ModelInstance] = None
@@ -199,6 +200,7 @@ class ScientificModel(BaseModel):
             brain_region=model_project.brain_region.label if model_project.brain_region else None,
             species=model_project.species.label if model_project.species else None,
             description=model_project.description,
+            date_created=model_project.date_created,
             images=as_list(model_project.images),
             old_uuid=model_project.old_uuid,
             instances=[ModelInstance.from_kg_object(inst, client)
@@ -223,7 +225,7 @@ class ScientificModel(BaseModel):
             owners=owners,
             authors=authors,
             description=self.description,
-            date_created=datetime.now(),
+            date_created=self.date_created or datetime.now(),
             private=self.private,
             collab_id=self.project_id,
             alias=self.alias,
