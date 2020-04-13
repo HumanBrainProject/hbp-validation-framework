@@ -5,11 +5,13 @@ from datetime import datetime
 from itertools import chain
 import logging
 
-from pydantic import BaseModel, HttpUrl
+from pydantic import BaseModel, HttpUrl, validator
 from fastapi.encoders import jsonable_encoder
 
 from fairgraph.base import KGQuery, KGProxy, as_list
 import fairgraph
+import fairgraph.core
+import fairgraph.brainsimulation
 
 fairgraph.core.use_namespace(fairgraph.brainsimulation.DEFAULT_NAMESPACE)
 logger = logging.getLogger("validation_service_v2")
@@ -80,11 +82,14 @@ class ModelInstance(BaseModel):
     timestamp: datetime = None
     morphology: HttpUrl = None
 
+    class Config:
+        extra = "allow"  # we temporarily store the IDs of sub-objects (e.g. ModelScript)
+                         # during object updates
+
     @classmethod
     def from_kg_object(cls, instance, client):
         if isinstance(instance, KGProxy):
             instance = instance.resolve(client, api="nexus")
-        main_script = instance.main_script.resolve(client, api="nexus")
         instance_data = {
             "id": instance.uuid,
             "uri": instance.id,
@@ -93,17 +98,21 @@ class ModelInstance(BaseModel):
             "parameters":  instance.parameters,
             "timestamp": instance.timestamp
         }
+        main_script = instance.main_script.resolve(client, api="nexus")
         if main_script:
             instance_data.update({
                 "code_format": main_script.code_format,
                 "source": main_script.code_location,
                 "license": main_script.license,
+                "script_id": main_script.id  # internal use only
             })
         if hasattr(instance, "morphology"):
             morph = instance.morphology.resolve(client, api="nexus")
             instance_data["morphology"] = morph.morphology_file
+            instance_data["morphology_id"] = morph.id  # internal
+        if hasattr(instance, "e_model"):
+            instance_data["e_model_id"] = instance.e_model.id
         return cls(**instance_data)
-
 
     def to_kg_objects(self, model_project):
         script = fairgraph.brainsimulation.ModelScript(
@@ -111,6 +120,8 @@ class ModelInstance(BaseModel):
             code_format=self.code_format,
             code_location=self.source,
             license=self.license)
+        if hasattr(self, "script_id"):
+            script.id = self.script_id
         kg_objects = [script]
 
         if model_project.model_of and model_project.model_of.label == "single cell" and self.morphology:
@@ -119,11 +130,15 @@ class ModelInstance(BaseModel):
                 brain_region=model_project.brain_region,
                 species=model_project.species,
                 model_of=None, main_script=None, release=None)
+            if hasattr(self, "e_model_id"):
+                e_model.id = self.e_model_id
             kg_objects.append(e_model)
             morph = fairgraph.brainsimulation.Morphology(
                 name=f"Morphology for {model_project.name} @ {self.version}",
                 cell_type=model_project.celltype,
                 morphology_file=self.morphology)
+            if hasattr(self, "morphology_id"):
+                morph.id = self.morphology_id
             kg_objects.append(e_model)
             minst = fairgraph.brainsimulation.MEModel(
                 name=f"ModelInstance for {model_project.name} @ {self.version}",
@@ -136,7 +151,7 @@ class ModelInstance(BaseModel):
                 morphology=morph,
                 version=self.version,
                 parameters=self.parameters,
-                timestamp=datetime.now(),
+                timestamp=self.timestamp or datetime.now(),
                 release=None)
         else:
             minst = fairgraph.brainsimulation.ModelInstance(
@@ -148,8 +163,10 @@ class ModelInstance(BaseModel):
                 main_script=script,
                 version=self.version,
                 parameters=self.parameters,
-                timestamp=datetime.now(),
+                timestamp=self.timestamp or datetime.now(),
                 release=None)
+        if self.uri:
+            minst.id = str(self.uri)
         kg_objects.append(minst)
         return kg_objects
 
@@ -237,6 +254,8 @@ class ScientificModel(BaseModel):
                                                   self.abstraction_level),
             model_of=get_ontology_object(fairgraph.commons.ModelScope, self.model_scope),
             images=jsonable_encoder(self.images))
+        if self.uri:
+            model_project.id = str(self.uri)
 
         for instance in self.instances:
             kg_objects.extend(instance.to_kg_objects(model_project))
@@ -247,7 +266,6 @@ class ScientificModel(BaseModel):
         ]
         kg_objects.append(model_project)
         return kg_objects
-
 
 
 class ScientificModelPatch(BaseModel):
@@ -269,3 +287,27 @@ class ScientificModelPatch(BaseModel):
     images: List[Image] = None
     old_uuid: UUID = None
     #instances: List[ModelInstance] = None
+
+    @classmethod
+    def _check_not_empty(cls, field_name, value):
+        if value is None:
+            raise ValueError(f"{field_name} cannot be set to None")
+        if len(value) == 0:
+            raise ValueError(f"{field_name} cannot be empty")
+        return value
+
+    @validator("name")
+    def name_not_empty(cls, value):
+        return cls._check_not_empty("name", value)
+
+    @validator("description")
+    def description_not_empty(cls, value):
+        return cls._check_not_empty("description", value)
+
+    @validator("author")
+    def author_not_empty(cls, value):
+        return cls._check_not_empty("author", value)
+
+    @validator("owner")
+    def owner_not_empty(cls, value):
+        return cls._check_not_empty("owner", value)

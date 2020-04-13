@@ -50,6 +50,7 @@ dist
 # coverage
 .coverage
 cover
+htmlcov
 
 # OS generated files #
 ######################

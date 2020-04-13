@@ -359,3 +359,102 @@ def test_create_duplicate_model(caplog):
     assert response.status_code == 200
 
     # todo: now try to create same again - should now work (set deprecated from True to False)
+
+
+def test_update_model(caplog):
+    #caplog.set_level(logging.INFO)
+    payload = _build_sample_model()
+    # create
+    response = client.post(f"/models/", json=payload, headers=AUTH_HEADER)
+    assert response.status_code == 201
+    posted_model = response.json()
+    check_model(posted_model)
+    # make changes
+    changes = {
+        "alias": posted_model["alias"] + "-changed",
+        "name": posted_model["name"] + " (changed)",  # as long as date_created is not changed, name can be
+        "owner": [{
+            "given_name": "Tom",
+            "family_name": "Bombadil"
+        }],
+        "model_scope": "network: brain region",
+        "description": "The previous description was too short"
+    }
+    # update
+    response = client.put(f"/models/{posted_model['id']}", json=changes, headers=AUTH_HEADER)
+    assert response.status_code == 200
+    updated_model = response.json()
+    check_model(updated_model)
+
+    assert posted_model["id"] == updated_model["id"]
+    assert posted_model["instances"] == updated_model["instances"]
+    assert updated_model["model_scope"] != payload["model_scope"]
+    assert updated_model["model_scope"] == changes["model_scope"] == "network: brain region"
+
+    # delete model
+    response = client.delete(f"/models/{posted_model['id']}", headers=AUTH_HEADER)
+    assert response.status_code == 200
+
+
+def test_update_model_with_invalid_data():
+    payload = _build_sample_model()
+    # create
+    response = client.post(f"/models/", json=payload, headers=AUTH_HEADER)
+    assert response.status_code == 201
+    posted_model = response.json()
+    check_model(posted_model)
+    # mix valid and invalid changes
+    # none of them should be applied
+    changes = {
+        "alias": posted_model["alias"] + "-changed",
+        "name": posted_model["name"] + " (changed)",  # as long as date_created is not changed, name can be
+        "owner": None,  # invalid
+        "model_scope": "foo",  # invalid
+        "description": None   # invalid
+    }
+    response = client.put(f"/models/{posted_model['id']}", json=changes, headers=AUTH_HEADER)
+    assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
+    errmsg = response.json()["detail"]
+    assert set([part['loc'][-1] for part in errmsg]) == set(['owner', 'model_scope', 'description'])
+
+    # delete model
+    response = client.delete(f"/models/{posted_model['id']}", headers=AUTH_HEADER)
+    assert response.status_code == 200
+
+
+def test_changing_project_id():
+    # if test user isn't a member of the new collab, returns 403
+    payload = _build_sample_model()
+    # create
+    response = client.post(f"/models/", json=payload, headers=AUTH_HEADER)
+    assert response.status_code == 201
+    posted_model = response.json()
+    check_model(posted_model)
+
+    changes = {"project_id": "1571"}
+    response = client.put(f"/models/{posted_model['id']}", json=changes, headers=AUTH_HEADER)
+    assert response.status_code == status.HTTP_403_FORBIDDEN
+    assert response.json()["detail"] == "This account is not a member of Collab #1571"
+
+    # delete model
+    response = client.delete(f"/models/{posted_model['id']}", headers=AUTH_HEADER)
+    assert response.status_code == 200
+
+
+def test_changing_to_invalid_alias():
+    # expect 409
+    payload = _build_sample_model()
+    # create
+    response = client.post(f"/models/", json=payload, headers=AUTH_HEADER)
+    assert response.status_code == 201
+    posted_model = response.json()
+    check_model(posted_model)
+
+    changes = {"alias": "RatHippocampusCA1"}
+    response = client.put(f"/models/{posted_model['id']}", json=changes, headers=AUTH_HEADER)
+    assert response.status_code == status.HTTP_409_CONFLICT
+    assert response.json()["detail"] == "Another model with alias 'RatHippocampusCA1' already exists."
+
+    # delete model
+    response = client.delete(f"/models/{posted_model['id']}", headers=AUTH_HEADER)
+    assert response.status_code == 200

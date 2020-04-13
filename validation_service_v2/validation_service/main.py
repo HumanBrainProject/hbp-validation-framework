@@ -13,6 +13,7 @@ from fairgraph.brainsimulation import ModelProject
 
 from fastapi import FastAPI, Depends, Header, Query, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from pydantic import ValidationError
 
 from .auth import get_kg_token, get_user_from_token, is_collab_member
 from .data_models import (Person, Species, BrainRegion, CellType, ModelScope, AbstractionLevel,
@@ -166,8 +167,45 @@ def create_model(model: ScientificModel, token: HTTPAuthorizationCredentials = D
         obj.save(kg_client)
     return ScientificModel.from_kg_object(model_project, kg_client)
 
-# PUT
-# /models/?app_id=(string: app_id)
+
+@app.put("/models/{model_id}", response_model=ScientificModel, status_code=status.HTTP_200_OK)
+def update_model(model_id: UUID, model_patch: ScientificModelPatch,
+                 token: HTTPAuthorizationCredentials = Depends(auth)):
+    # if payload contains a project_id, check permissions for that id
+    if model_patch.project_id and not is_collab_member(model_patch.project_id, token.credentials):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
+                            detail=f"This account is not a member of Collab #{model_patch.project_id}")
+    # retrieve stored model
+    model_project = ModelProject.from_uuid(str(model_id), kg_client, api="nexus")
+    stored_model = ScientificModel.from_kg_object(model_project, kg_client)
+    # if retrieved project_id is different to payload id, check permissions for that id
+    if (stored_model.project_id != model_patch.project_id
+            and not is_collab_member(stored_model.project_id, token.credentials)):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
+                            detail=f"Access to this model is restricted to members of Collab #{stored_model.project_id}")
+    # if alias changed, check uniqueness of new alias
+    if (model_patch.alias
+            and model_patch.alias != stored_model.alias
+            and model_alias_exists(model_patch.alias, kg_client)):
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT,
+                            detail=f"Another model with alias '{model_patch.alias}' already exists.")
+    # todo: if model id provided in payload, check it matches the model_id parameter
+    # todo: if model uri provided in payload, check it matches the id
+
+    # here we are updating the pydantic model `stored_model`, then recreating the kg objects
+    # from this. It might be more efficient to directly update `model_project`.
+    # todo: profile both possible implementations
+    update_data = model_patch.dict(exclude_unset=True)
+    for field, value in update_data.items():
+        if field in ("author", "owner"):
+            update_data[field] = [Person(**p) for p in update_data[field]]
+    updated_model = stored_model.copy(update=update_data)
+    kg_objects = updated_model.to_kg_objects()
+    for obj in kg_objects:
+        obj.save(kg_client)
+    model_project = kg_objects[-1]
+    assert isinstance(model_project, ModelProject)
+    return ScientificModel.from_kg_object(model_project, kg_client)
 
 
 @app.delete("/models/{model_id}", status_code=status.HTTP_200_OK)
