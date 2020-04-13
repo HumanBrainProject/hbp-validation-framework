@@ -7,8 +7,8 @@ import logging
 from fastapi import status
 from fastapi.testclient import TestClient
 
-from .main import app
-from .data_models import BrainRegion, Species
+from ..main import app
+from ..data_models import BrainRegion, Species
 
 client = TestClient(app)
 token = os.environ["VF_TEST_TOKEN"]
