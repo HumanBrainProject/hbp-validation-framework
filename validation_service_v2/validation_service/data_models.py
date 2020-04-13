@@ -81,6 +81,7 @@ class ModelInstance(BaseModel):
     hash: str = None
     timestamp: datetime = None
     morphology: HttpUrl = None
+    # should probably add "project" or "instance_of" field containing parent model uuid
 
     class Config:
         extra = "allow"  # we temporarily store the IDs of sub-objects (e.g. ModelScript)

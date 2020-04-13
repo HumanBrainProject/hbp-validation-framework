@@ -458,3 +458,34 @@ def test_changing_to_invalid_alias():
     # delete model
     response = client.delete(f"/models/{posted_model['id']}", headers=AUTH_HEADER)
     assert response.status_code == 200
+
+
+
+def test_list_model_instances_by_model_id():
+    model_uuid = "21d03065-38e6-4720-bec6-dec4bdaff812"
+    response1 = client.get(f"/models/{model_uuid}", headers=AUTH_HEADER)
+    assert response1.status_code == 200
+    model_project = response1.json()
+    response2 = client.get(f"/models/{model_uuid}/instances/", headers=AUTH_HEADER)
+    assert response2.status_code == 200
+    model_instances = response2.json()
+    assert len(model_instances) > 0
+
+    assert model_project["instances"] == model_instances
+
+
+def test_get_model_instance_by_id():
+    instance_uuid = "a7915504-1f7a-4fed-8f68-e7e8f99529c2"
+    response = client.get(f"/models/query/instances/{instance_uuid}", headers=AUTH_HEADER)
+    assert response.status_code == 200
+    model_instance = response.json()
+    check_model_instance(model_instance)
+
+
+def test_get_model_instance_by_project_and_id():
+    model_uuid  = "21d03065-38e6-4720-bec6-dec4bdaff812"
+    instance_uuid = "a7915504-1f7a-4fed-8f68-e7e8f99529c2"
+    response = client.get(f"/models/{model_uuid}/instances/{instance_uuid}", headers=AUTH_HEADER)
+    assert response.status_code == 200
+    model_instance = response.json()
+    check_model_instance(model_instance)

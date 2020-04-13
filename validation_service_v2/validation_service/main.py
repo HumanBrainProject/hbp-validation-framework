@@ -9,7 +9,7 @@ import requests
 
 from fairgraph.client import KGClient
 from fairgraph.base import KGQuery, KGProxy, as_list
-from fairgraph.brainsimulation import ModelProject
+from fairgraph.brainsimulation import ModelProject, ModelInstance as ModelInstanceKG, MEModel
 
 from fastapi import FastAPI, Depends, Header, Query, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
@@ -128,20 +128,50 @@ def query_models(alias: List[str] = Query(None),
             for model_project in model_projects]
 
 
-@app.get("/models/{model_id}", response_model=ScientificModel)
-def get_model(model_id: UUID, token: HTTPAuthorizationCredentials = Depends(auth)):
-    #user = get_user_from_token(token.credentials)
-    #logging.info(f"user = {user}")
-    # todo: handle non-existent UUID
-    model_project = ModelProject.from_uuid(str(model_id), kg_client, api="nexus")
-    if model_project is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
-                            detail=f"Model with ID {model_id} not found.")
-    # todo: fairgraph should accept UUID object as well as str
+def _check_model_access(model_project, token):
     if model_project.private:
         if not is_collab_member(model_project.collab_id, token.credentials):
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
                                 detail=f"Access to this model is restricted to members of Collab #{model_project.collab_id}")
+
+
+def _get_model_by_id_or_alias(model_id, token):
+    try:
+        model_id = UUID(model_id)
+        model_project = ModelProject.from_uuid(str(model_id), kg_client, api="nexus")
+    except ValueError:
+        model_alias = model_id
+        model_project = ModelProject.from_alias(model_alias, kg_client, api="nexus")
+    if model_project is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail=f"Model with ID or alias '{model_id}' not found.")
+    # todo: fairgraph should accept UUID object as well as str
+    _check_model_access(model_project, token)
+    return model_project
+
+
+def _get_model_instance_by_id(instance_id, token):
+    model_instance = ModelInstanceKG.from_uuid(str(instance_id), kg_client, api="nexus")
+    if model_instance is None:
+        model_instance = MEModel.from_uuid(str(instance_id), kg_client, api="nexus")
+    if model_instance is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail=f"Model instance with ID '{instance_id}' not found.")
+
+    model_project = model_instance.project.resolve(kg_client, api="nexus")
+    # todo: in case of a dangling model instance, where the parent model_project
+    #       has been deleted but the instance wasn't, we could get a None here
+    #       which we need to deal with
+    _check_model_access(model_project, token)
+    return model_instance
+
+
+@app.get("/models/{model_id}", response_model=ScientificModel)
+def get_model(model_id: str, token: HTTPAuthorizationCredentials = Depends(auth)):
+    #user = get_user_from_token(token.credentials)
+    #logging.info(f"user = {user}")
+    # todo: handle non-existent UUID
+    model_project = _get_model_by_id_or_alias(model_id, token)
     return ScientificModel.from_kg_object(model_project, kg_client)
 
 
@@ -221,6 +251,46 @@ def delete_model(model_id: UUID, token: HTTPAuthorizationCredentials = Depends(a
         # but need to check they're not shared with other instances
         model_instance.delete(kg_client)
 
+
+@app.get("/models/{model_id}/instances/", response_model=List[ModelInstance])
+def get_model_instances(model_id: str,
+                        token: HTTPAuthorizationCredentials = Depends(auth)):
+    model_project = _get_model_by_id_or_alias(model_id, token)
+    model_instances = [ModelInstance.from_kg_object(inst, kg_client)
+                       for inst in model_project.instances]
+    return model_instances
+    # todo: implement filter by version
+
+
+@app.get("/models/query/instances/{model_instance_id}", response_model=ModelInstance)
+def get_model_instance_from_instance_id(model_instance_id: UUID,
+                                        token: HTTPAuthorizationCredentials = Depends(auth)):
+     inst = _get_model_instance_by_id(model_instance_id, token)
+     return ModelInstance.from_kg_object(inst, kg_client)
+
+
+@app.get("/models/{model_id}/instances/latest", response_model=ModelInstance)
+def get_latest_model_instance_given_model_id(model_id: str,
+                                             token: HTTPAuthorizationCredentials = Depends(auth)):
+    model_project = _get_model_by_id_or_alias(model_id, token)
+    model_instances = [ModelInstance.from_kg_object(inst, kg_client)
+                       for inst in model_project.instances]
+    latest = sorted(model_instances, key=lambda inst: inst["timestamp"])[-1]
+    return latest
+
+
+@app.get("/models/{model_id}/instances/{model_instance_id}", response_model=ModelInstance)
+def get_model_instance_given_model_id(model_id: str,
+                                      model_instance_id: UUID,
+                                      token: HTTPAuthorizationCredentials = Depends(auth)):
+    model_project = _get_model_by_id_or_alias(model_id, token)
+    for inst in model_project.instances:
+        if UUID(inst.uuid) == model_instance_id:
+            return ModelInstance.from_kg_object(inst, kg_client)
+    raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                        detail="Model ID/alias and model instance ID are inconsistent")
+
+
 # GET
 # /model-instances/?id=(string: model_instance_uuid)
 # /model-instances/?model_id=(string: model_uuid)&version=(string: version)
@@ -228,6 +298,23 @@ def delete_model(model_id: UUID, token: HTTPAuthorizationCredentials = Depends(a
 # /model-instances/?model_id=(string: model_uuid)
 # /model-instances/?model_alias=(string: model_alias)
 
+@app.post("/models/{model_id}/instances/",
+          response_model=ModelInstance, status_code=status.HTTP_201_CREATED)
+def create_model_instance(model_id: str,
+                          model_instance: ModelInstance,
+                          token: HTTPAuthorizationCredentials = Depends(auth)):
+
+    pass
+
+
+@app.put("/models/{model_id}/instances/{model_instance_id}",
+         response_model=ModelInstance, status_code=status.HTTP_201_CREATED)
+def update_model_instance(model_id: str,
+                          model_instance_id: str,
+                          model_instance: ModelInstance,
+                          token: HTTPAuthorizationCredentials = Depends(auth)):
+
+    pass
 
 # POST
 # /model-instances/
