@@ -4,11 +4,6 @@ import Container from '@material-ui/core/Container';
 import Grid from '@material-ui/core/Grid';
 import IconButton from '@material-ui/core/IconButton';
 import SettingsIcon from '@material-ui/icons/Settings';
-import Box from '@material-ui/core/Box';
-import ExpansionPanel from '@material-ui/core/ExpansionPanel';
-import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
-import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 
 import axios from 'axios';
 
@@ -18,9 +13,9 @@ import ModelDetail from "./ModelDetail";
 import TestDetail from "./TestDetail";
 import ConfigForm from "./ConfigForm";
 import Introduction from "./Introduction";
-
-import globals from './globals';
-import {renderLoadingIndicator} from './utils'
+import ConfigDisplayTop from "./ConfigDisplayTop"
+import LoadingIndicator from "./LoadingIndicator"
+import globals from "./globals";
 
 // if working on the appearance/layout set globals.DevMode=true
 // to avoid loading the models and tests over the network every time;
@@ -106,10 +101,6 @@ const retrieveFilters = () => {
   return filters;
 }
 
-const stringCapsSpaces = (str) => {
-  return (str.charAt(0).toUpperCase() + str.slice(1)).replace(/_/g, ' ');
-}
-
 export default class ValidationFramework extends React.Component {
   constructor(props) {
     super(props);
@@ -166,9 +157,9 @@ export default class ValidationFramework extends React.Component {
     console.log(window.location.hash)
     if (window.location.hash) {
       // get a specific model
-      this.getModel(window.location.hash.slice(1));
+      // this.getModel(window.location.hash.slice(1));  // TODO: uncomment?
       // get a specific test
-      this.getTest(window.location.hash.slice(1));
+      // this.getTest(window.location.hash.slice(1));   // TODO: uncomment?
     }
     if (!globals.DevMode) {
       this.updateModels(this.state.filters);
@@ -235,7 +226,7 @@ export default class ValidationFramework extends React.Component {
   };
 
   updateModels(filters) {
-    if (filtersEmpty(filters) && isFramedApp) { // TODO: remove `isFramedApp` to avoid auto load of all entries on entry page-
+    if (filtersEmpty(filters)) { // TODO: remove `isFramedApp` to avoid auto load of all entries on entry page-
       this.setState({
         modelData: [],
         loading_model: false,
@@ -255,7 +246,7 @@ export default class ValidationFramework extends React.Component {
           const models = res.data.models;
           this.setState({
             modelData: models,
-            currentModel: this.state.currentModel ? this.state.currentModel : models[0],
+            // currentModel: this.state.currentModel ? this.state.currentModel : models[0], //TODO: why?
             loading_model: false,
             error: null
           });
@@ -272,7 +263,7 @@ export default class ValidationFramework extends React.Component {
   };
 
   updateTests(filters) {
-    if (filtersEmpty(filters) && isFramedApp) { // TODO: remove `isFramedApp` to avoid auto load of all entries on entry page
+    if (filtersEmpty(filters)) { // TODO: remove `isFramedApp` to avoid auto load of all entries on entry page
       this.setState({
         testData: [],
         loading_test: false,
@@ -292,7 +283,7 @@ export default class ValidationFramework extends React.Component {
           const tests = res.data.tests;
           this.setState({
             testData: tests,
-            currentTest: this.state.currentTest ? this.state.currentTest : tests[0],
+            // currentTest: this.state.currentTest ? this.state.currentTest : tests[0], //TODO: why?
             loading_test: false,
             error: null
           });
@@ -316,6 +307,7 @@ export default class ValidationFramework extends React.Component {
   };
 
   handleModelDetailClose() {
+    this.setState({'currentModel': null});
     this.setState({'modelDetailOpen': false});
     updateHash('');
   };
@@ -328,6 +320,7 @@ export default class ValidationFramework extends React.Component {
   };
 
   handleTestDetailClose() {
+    this.setState({'currentTest': null});
     this.setState({'testDetailOpen': false});
     updateHash('');
   };
@@ -395,30 +388,11 @@ export default class ValidationFramework extends React.Component {
     if (this.state.error) {
       return this.renderError();
     }
-    if (filtersEmpty(this.state.filters) && isFramedApp) { // TODO: remove `isFramedApp` to avoid auto load of all entries on entry page
+    if (filtersEmpty(this.state.filters)) { // TODO: remove `isFramedApp` to avoid auto load of all entries on entry page
       configContent = "";
       mainContent = <Introduction />;
     } else {
-      configContent =   <ExpansionPanel>
-                            <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
-                              <Box fontSize={16} fontWeight="fontWeightBold">App's Current Configuration</Box>
-                            </ExpansionPanelSummary>
-                            <ExpansionPanelDetails>
-                              <Box>
-                                  {
-                                    Object.keys(this.state.filters).map((key, index) => (
-                                      <Box lineHeight={2} key={key}>
-                                        <Box component="span" fontWeight="fontWeightBold">{stringCapsSpaces(key)}: </Box>
-                                        <Box component="span">{this.state.filters[key].join(', ') ? this.state.filters[key].join(', ') : "<< all >>"}</Box>
-                                        <br/>
-                                      </Box>
-                                    ))
-                                  }
-                                <br/>
-                                To re-configure the app, click on the configure icon <SettingsIcon />  at the top left of the page.
-                              </Box>
-                            </ExpansionPanelDetails>
-                          </ExpansionPanel>
+      configContent = <ConfigDisplayTop filters={this.state.filters} />
       mainContent = this.renderTables();
     }
 
@@ -467,9 +441,9 @@ export default class ValidationFramework extends React.Component {
       <React.Fragment>
         <CssBaseline />
         <Container maxWidth="xl">
-          {this.state.loading_model || this.state.loading_test ? renderLoadingIndicator(): this.renderValidationFramework()}
+          {this.state.loading_model || this.state.loading_test ? <LoadingIndicator />: this.renderValidationFramework()}
         </Container>
-        </React.Fragment>
+      </React.Fragment>
     );
   }
 }

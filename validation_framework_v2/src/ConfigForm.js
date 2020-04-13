@@ -8,6 +8,8 @@ import Button from '@material-ui/core/Button';
 import MultipleSelect from './MultipleSelect';
 import axios from 'axios';
 
+import ThreeWaySwitch from './ThreeWaySwitch'
+
 export default class ConfigForm extends React.Component {
   constructor(props) {
     super(props);
@@ -83,6 +85,7 @@ export default class ConfigForm extends React.Component {
           <DialogTitle>Filter models</DialogTitle>
           <DialogContent>
             <form>
+              <ThreeWaySwitch values={['Only Models', 'Models & Tests', 'Only Tests']} selected="Models & Tests" />
               {Object.keys(this.state.selected).map(filter => (
                 <MultipleSelect
                   itemNames={this.state.validValues == null ? [] : this.state.validValues[filter]}

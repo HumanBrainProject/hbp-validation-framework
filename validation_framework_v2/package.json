@@ -21,7 +21,8 @@
     "react-plotly.js": "2.4.0",
     "react-plotlyjs": "^0.4.4",
     "react-scripts": "^3.3.0",
-    "recharts": "^1.8.5"
+    "recharts": "^1.8.5",
+    "styled-components": "^5.1.0"
   },
   "scripts": {
     "start": "HTTPS=true react-scripts start",

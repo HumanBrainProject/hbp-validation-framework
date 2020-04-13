@@ -9,7 +9,7 @@ import { Typography } from '@material-ui/core';
 
 function InstanceParameter(props) {
   if (props.value) {
-    return <Typography variant="body2"><b>{props.label}</b>: {props.value}</Typography>
+    return <Typography variant="body2"><b>{props.label}: </b>{props.value}</Typography>
   } else {
     return ""
   }
@@ -25,6 +25,7 @@ export default function ModelDetailContent(props) {
       <Grid container xs={9} direction="column" item={true}>
         <Grid item>
           <Box p={2}>
+            <Typography><b>Description: </b></Typography>
             <Markdown>{props.description}</Markdown>
           </Box>
         </Grid>

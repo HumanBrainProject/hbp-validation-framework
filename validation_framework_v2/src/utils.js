@@ -1,7 +1,4 @@
-import React from 'react';
 import moment from 'moment'
-import CircularProgress from '@material-ui/core/CircularProgress';
-
 
 export function downloadJSON(json, filename) {
     const blob = new Blob([json], { type: 'application/json' });
@@ -89,12 +86,3 @@ export function formatLabel(label) {
   }
   return label;
 }
-
-
-export function renderLoadingIndicator() {
-  return (
-    <div style={{display: 'flex', justifyContent: 'center', marginTop: '100px'}}>
-      <CircularProgress />
-    </div>
-  )
-};

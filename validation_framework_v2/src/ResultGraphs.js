@@ -11,12 +11,11 @@ import TableContainer from '@material-ui/core/TableContainer';
 import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
-import axios from 'axios';
 import Plotly from "plotly.js"
 import createPlotlyComponent from 'react-plotly.js/factory';
 
-import result_data from './dev_data/test_data_results.json';
 import {formatTimeStampToCompact} from "./utils";
+import LoadingIndicator from "./LoadingIndicator"
 import ResultDetail from './ResultDetail';
 
 
@@ -110,19 +109,11 @@ export default class ResultGraphs extends React.Component {
   constructor(props) {
     super(props);
 
-    let test_ids = [];
-    if ("test_id" in props) {
-      test_ids.push(props.test_id)
-    }
-    console.log(test_ids)
-
     this.state = {
                     results         : [],
-                    results_grouped : {},
-                    // model_versions  : [],
                     resultDetailOpen: false,
                     currentResult  : null,
-                    test_ids : test_ids
+                    test_ids : []
                  };
 
     this.handleResultEntryClick = this.handleResultEntryClick.bind(this)
@@ -130,35 +121,12 @@ export default class ResultGraphs extends React.Component {
   }
 
   componentDidMount() {
-    // this.getModelResults();  // TODO: uncomment
-    this.setState({
-      results: result_data["results"]
-    });
-
     // group results by model instance, test instance combo
     // each entry being a list of results ordered from newest to oldest
-    this.groupResults(result_data["results"]);
   }
 
-  getModelResults = () => {
-    let url = this.props.baseUrl + "/results/?order=score_type&model_id=" + this.props.id;
-    return axios.get(url)
-      .then(res => {
-        this.setState({
-          results: res.data["results"]
-        });
-      })
-      .catch(err => {
-        // Something went wrong. Save the error in state and re-render.
-        console.log(err)
-        this.setState({
-          error: err
-        });
-      }
-    );
-  };
-
-  groupResults = (results) => {
+  groupResults = () => {
+    const results = this.props.results;
     // will be a multi-D dict {test -> test instance -> model -> model instance} with list as values
     var dict_results = {}
 
@@ -333,12 +301,7 @@ export default class ResultGraphs extends React.Component {
         });
     });
 
-    this.setState({
-      results_grouped:  dict_results,
-    //   model_versions:   list_model_versions
-    });
-
-    console.log(dict_results)
+    return dict_results
   }
 
   handleResultEntryClick(result) {
@@ -357,9 +320,7 @@ export default class ResultGraphs extends React.Component {
     // updateHash('');
   };
 
-  renderResultsFigures() {
-    const dict_results = this.state.results_grouped;
-
+  renderResultsFigures(dict_results) {
     var test_ids = this.state.test_ids;
     // determine list of tests to be plotted
     if (test_ids.length < 1) {
@@ -372,7 +333,6 @@ export default class ResultGraphs extends React.Component {
     if (test_ids.length > 0) {
       console.log(this.state.test_ids)
       console.log(dict_results)
-      console.log(dict_results["4bfa8342-226b-4a65-8385-49942d576020"])
     return(
         <Container>
             {test_ids.map((test_id) =>
@@ -416,11 +376,21 @@ export default class ResultGraphs extends React.Component {
   }
 
   render() {
-    const dict_results = this.state.results_grouped;
     var content = "";
     var resultDetail = "";
-    if (Object.keys(dict_results).length>0) {
-      content = this.renderResultsFigures(dict_results);
+
+    if (this.props.loading_result) {
+      return (
+        <LoadingIndicator />
+      )
+    }
+
+    const results_grouped = this.groupResults();
+
+    console.log(results_grouped)
+    console.log(this.props.loading_result)
+    if (Object.keys(results_grouped).length>0) {
+      content = this.renderResultsFigures(results_grouped);
     } else {
       content = this.renderNoResults();
     }

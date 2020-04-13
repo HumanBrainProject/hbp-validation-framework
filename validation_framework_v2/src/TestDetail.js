@@ -13,12 +13,25 @@ import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import Box from '@material-ui/core/Box';
 
+import axios from 'axios';
+
 import TestDetailHeader from './TestDetailHeader';
 import TestDetailContent from './TestDetailContent';
 import TestDetailMetadata from './TestDetailMetadata';
 import TestResultOverview from './TestResultOverview';
 import {formatAuthors} from "./utils";
 import ResultGraphs from './ResultGraphs';
+import globals from "./globals";
+
+// if working on the appearance/layout set globals.DevMode=true
+// to avoid loading the models and tests over the network every time;
+// instead we use the local test_data
+var result_data = {}
+if (globals.DevMode) {
+  result_data = require('./dev_data/test_data_results.json');
+} else {
+  result_data = {results: []};
+}
 
 const styles = theme => ({
   root: {
@@ -72,21 +85,67 @@ const MyDialogTitle = withStyles(styles)(props => {
 
 
 export default class TestDetail extends React.Component {
+  signal = axios.CancelToken.source();
+
   constructor(props) {
       super(props);
-      this.state = {tabValue: 0};
+      this.state = {
+                      tabValue: 0,
+                      loading_result  : true,
+                    };
 
       this.handleClose = this.handleClose.bind(this);
       this.handleTabChange = this.handleTabChange.bind(this);
   }
 
+  componentDidMount() {
+    this.getTestResults();
+  }
+
+  componentWillUnmount() {
+    console.log("close1")
+    this.signal.cancel('Api is being canceled');
+  }
+
   handleClose() {
+    console.log("close2")
     this.props.onClose();
   }
 
   handleTabChange(event, newValue) {
     this.setState({tabValue:newValue})
   }
+
+  getTestResults = () => {
+    let url = this.props.baseUrl + "/results/?order=&test_id=" + this.props.testData.id;
+    let config = {
+      headers: {
+        'Authorization': 'Bearer ' + this.props.auth.token,
+        // 'cancelToken': this.signal.token // TODO: uncomment this
+      }
+    }
+    return axios.get(url, config)
+      .then(res => {
+        this.setState({
+          results: res.data["results"],
+          loading_result: false,
+          error: null
+        });
+        console.log(res.data["results"])
+      })
+      .catch(err => {
+        if (axios.isCancel(err)) {
+          console.log('Error: ', err.message); // => prints: Api is being canceled
+        } else {
+          // Something went wrong. Save the error in state and re-render.
+          this.setState({
+            loading_result: false,
+            error: err
+          });
+        }
+      }
+    );
+  };
 
   render() {
     return (
@@ -139,18 +198,17 @@ export default class TestDetail extends React.Component {
               </TabPanel>
               <TabPanel value={this.state.tabValue} index={1}>
                 <TestResultOverview
-                  baseUrl={this.props.baseUrl}
                   id={this.props.testData.id}
                   testJSON={this.props.testData}
-                  auth={this.props.auth}
+                  results={this.state.results}
+                  loading_result={this.state.loading_result}
                 />
               </TabPanel>
               <TabPanel value={this.state.tabValue} index={2}>
                 <ResultGraphs
-                  baseUrl={this.props.baseUrl}
                   id={this.props.testData.id}
-                  test_id="100abccb-6d30-4c1e-a960-bc0489e0d82d"//{[this.props.testData.id]}
-                  // testJSON={this.props.testData}
+                  results={this.state.results}
+                  loading_result={this.state.loading_result}
                 />
               </TabPanel>
           </Grid>

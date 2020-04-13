@@ -12,21 +12,10 @@ import Paper from '@material-ui/core/Paper';
 import Avatar from '@material-ui/core/Avatar';
 import Tooltip from '@material-ui/core/Tooltip';
 import Divider from '@material-ui/core/Divider';
-import axios from 'axios';
 
-import {renderLoadingIndicator, formatTimeStampToCompact, roundFloat} from "./utils";
+import {formatTimeStampToCompact, roundFloat} from "./utils";
+import LoadingIndicator from "./LoadingIndicator"
 import ResultDetail from './ResultDetail';
-import globals from './globals';
-
-// if working on the appearance/layout set globals.DevMode=true
-// to avoid loading the models and tests over the network every time;
-// instead we use the local test_data
-var result_data = {}
-if (globals.DevMode) {
-  result_data = require('./dev_data/test_data_results.json');
-} else {
-  result_data = {results: []};
-}
 
 class ResultPerInstanceComboMT extends React.Component {
   constructor(props) {
@@ -149,14 +138,12 @@ class ResultEntryTest extends React.Component {
   }
 }
 
-export default class  ModelResultOverview extends React.Component {
+export default class ModelResultOverview extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-                    results         : [],
-                    results_grouped : {},
+                    // results         : [],
                     model_versions  : [],
-                    loading_result  : true,
                     resultDetailOpen: false,
                     currentResult  : null
                  };
@@ -166,63 +153,29 @@ export default class  ModelResultOverview extends React.Component {
   }
 
   componentDidMount() {
-    this.getModelResults();
-    this.setState({
-      results: result_data["results"]
-    });
-
-    // group results by model instance, test instance combo
-    // each entry being a list of results ordered from newest to oldest
-    this.groupResults(result_data["results"]);
+    // this.setState({
+    //   results: result_data["results"]
+    // });
   }
 
-  getModelResults = () => {
-    let url = this.props.baseUrl + "/results/?order=&model_id=" + this.props.id;
-    let config = {
-      headers: {
-        'Authorization': 'Bearer ' + this.props.auth.token
-      }
-    }
-    return axios.get(url, config)
-      .then(res => {
-        this.setState({
-          results: res.data["results"],
-          loading_result: false,
-          error: null
-        });
-        console.log(res.data["results"])
-      })
-      .catch(err => {
-        // Something went wrong. Save the error in state and re-render.
-        this.setState({
-          loading_result: false,
-          error: err
-        });
-      }
-    );
-  };
-
-  groupResults = (results) => {
-    // will be a 3-D dict {test -> test instance -> model instance} with list as values
-    var dict_results = {}
-
+  getModelVersions = () => {
     // Get list of all model versions; note that not necessarily all model versions will have associated results
     // so not appropriate to locate model versions via individual results
-    // var list_model_versions = [] // TODO: uncomment
-    // for dev usage
-    var list_model_versions = [{model_inst_id: "20e69189-ab22-4967-88a0-9e719a547381", model_version: "2.0", timestamp: "2019-06-06T12:55:17.673676+00:00"},
-                               {model_inst_id: "20e69189-ab22-4967-88a0-9e719a547380", model_version: "1.0", timestamp: "2019-06-04T12:55:17.673676+00:00"},
-                               {model_inst_id: "20e69189-ab22-4967-88a0-9e719a547382", model_version: "3.0", timestamp: "2019-06-08T12:55:17.673676+00:00"}]
+    var list_model_versions = []
+    this.props.modelJSON.instances.forEach(function (model_inst) {
+      list_model_versions.push({
+        model_inst_id:  model_inst.id,
+        model_version:  model_inst.version,
+        timestamp    :  model_inst.timestamp
+      })
+    })
+    return list_model_versions
+  }
 
-    // TODO: uncomment this for actual data
-    // this.props.modelJSON.instances.forEach(function (model_inst) {
-    //   list_model_versions.push({
-    //     model_inst_id:  model_inst.id,
-    //     model_version:  model_inst.version,
-    //     timestamp    :  model_inst.timestamp
-    //   })
-    // })
-    // console.log(list_model_versions)
+  groupResults = (list_model_versions) => {
+    const results = this.props.results;
+    // will be a 3-D dict {test -> test instance -> model instance} with list as values
+    var dict_results = {};
 
     // sorting list_model_versions by timestamp (oldest to newest)
     list_model_versions.sort(function(a, b) {
@@ -321,10 +274,7 @@ export default class  ModelResultOverview extends React.Component {
       });
     });
 
-    this.setState({
-      results_grouped:  dict_results,
-      model_versions:   list_model_versions
-    });
+    return dict_results
   }
 
   handleResultEntryClick(result) {
@@ -343,7 +293,7 @@ export default class  ModelResultOverview extends React.Component {
     // updateHash('');
   };
 
-  renderResultsSummaryTable(dict_results) {
+  renderResultsSummaryTable(dict_results, model_versions) {
     return(
       <React.Fragment>
         <Grid container xs={12} direction="column" item={true}>
@@ -361,7 +311,7 @@ export default class  ModelResultOverview extends React.Component {
                   </TableRow>
                   <TableRow>
                     {
-                      this.state.model_versions.map((item, index) => (
+                      model_versions.map((item, index) => (
                         <TableCell align="center" colSpan={2} key={item["model_inst_id"]}>{item["model_version"]}</TableCell>
                       ))
                     }
@@ -370,7 +320,7 @@ export default class  ModelResultOverview extends React.Component {
                     <TableCell align="center" bgcolor='#3277b3'>Test Name</TableCell>
                     <TableCell align="center" bgcolor='#3277b3'>Test Version</TableCell>
                     {
-                      this.state.model_versions.map((item, index) => (
+                      model_versions.map((item, index) => (
                         <React.Fragment key={index}>
                         <TableCell align="right">Score</TableCell>
                         <TableCell align="center">Date (Time)</TableCell>
@@ -382,7 +332,7 @@ export default class  ModelResultOverview extends React.Component {
                 <TableBody>
                   {
                     Object.keys(dict_results).map((test_id, index_t) => (
-                        <ResultEntryTest result_entry={dict_results[test_id]} model_versions={this.state.model_versions} handleResultEntryClick={this.handleResultEntryClick} key={test_id} />
+                        <ResultEntryTest result_entry={dict_results[test_id]} model_versions={model_versions} handleResultEntryClick={this.handleResultEntryClick} key={test_id} />
                     ))
                   }
                 </TableBody>
@@ -403,21 +353,27 @@ export default class  ModelResultOverview extends React.Component {
   }
 
   render() {
-    const dict_results = this.state.results_grouped;
     var content = "";
     var resultDetail = "";
 
-    if (this.state.loading_result) {
-      return renderLoadingIndicator()
+    if (this.props.loading_result) {
+      return <LoadingIndicator />
     }
-    console.log(dict_results)
-    if (Object.keys(dict_results).length>0) {
-      content = this.renderResultsSummaryTable(dict_results);
+
+    const model_versions = this.getModelVersions();
+    const results_grouped = this.groupResults(model_versions);
+
+    console.log(results_grouped)
+    console.log(this.props.loading_result)
+    if (Object.keys(results_grouped).length>0) {
+      content = this.renderResultsSummaryTable(results_grouped, model_versions);
     } else {
       content = this.renderNoResults();
     }
     if (this.state.currentResult) {
       resultDetail = <ResultDetail open={this.state.resultDetailOpen} result={this.state.currentResult} onClose={this.handleResultDetailClose} />;
+    } else {
+      resultDetail = "";
     }
     return (
       <div>

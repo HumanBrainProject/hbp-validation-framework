@@ -12,21 +12,10 @@ import Paper from '@material-ui/core/Paper';
 import Avatar from '@material-ui/core/Avatar';
 import Tooltip from '@material-ui/core/Tooltip';
 import Divider from '@material-ui/core/Divider';
-import axios from 'axios';
 
 import {formatTimeStampToCompact, roundFloat} from "./utils";
+import LoadingIndicator from "./LoadingIndicator"
 import ResultDetail from './ResultDetail';
-import globals from './globals';
-
-// if working on the appearance/layout set globals.DevMode=true
-// to avoid loading the models and tests over the network every time;
-// instead we use the local test_data
-var result_data = {}
-if (globals.DevMode) {
-  result_data = require('./dev_data/test_data_results.json');
-} else {
-  result_data = {results: []};
-}
 
 class ResultPerInstanceComboMT extends React.Component {
   constructor(props) {
@@ -149,12 +138,11 @@ class ResultEntryTest extends React.Component {
   }
 }
 
-export default class  TestResultOverview extends React.Component {
+export default class TestResultOverview extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-                    results         : [],
-                    results_grouped : {},
+                    // results         : [],
                     test_versions   : [],
                     resultDetailOpen: false,
                     currentResult  : null
@@ -165,55 +153,30 @@ export default class  TestResultOverview extends React.Component {
   }
 
   componentDidMount() {
-    // this.getTestResults();  // TODO: uncomment
-    this.setState({
-      results: result_data["results"]
-    });
-
-    // group results by test instance, model instance combo
-    // each entry being a list of results ordered from newest to oldest
-    this.groupResults(result_data["results"]);
+    // this.setState({
+    //   results: result_data["results"]
+    // });
   }
 
-  getTestResults = () => {
-    let url = this.props.baseUrl + "/results/?order=score_type&test_id=" + this.props.id;
-    return axios.get(url)
-      .then(res => {
-        this.setState({
-          results: res.data["results"]
-        });
-      })
-      .catch(err => {
-        // Something went wrong. Save the error in state and re-render.
-        console.log(err)
-        this.setState({
-          error: err
-        });
-      }
-    );
-  };
-
-  groupResults = (results) => {
-    // will be a 3-D dict {model -> model instance -> test instance} with list as values
-    var dict_results = {}
-
+  getTestVersions = () => {
+    console.log(this.props.testJSON)
     // Get list of all test versions; note that not necessarily all test versions will have associated results
     // so not appropriate to locate test versions via individual results
-    // var list_test_versions = [] // TODO: uncomment
-    // for dev usage
-    var list_test_versions = [{test_inst_id: "f09665b8-5c4f-4655-b2c3-78c247d742c4", test_version: "2.0", timestamp: "2019-06-06T12:57:19.822637Z"},
-                              {test_inst_id: "f09665b8-5c4f-4655-b2c3-78c247d742c3", test_version: "1.0", timestamp: "2019-06-04T12:57:19.822637Z"},
-                              {test_inst_id: "f09665b8-5c4f-4655-b2c3-78c247d742c5", test_version: "3.0", timestamp: "2019-06-08T12:57:19.822637Z"}]
+    var list_test_versions = []
+    this.props.testJSON.codes.forEach(function (test_inst) {
+      list_test_versions.push({
+        test_inst_id:  test_inst.id,
+        test_version:  test_inst.version,
+        timestamp   :  test_inst.timestamp
+      })
+    })
+    return list_test_versions
+  }
 
-    // TODO: uncomment this for actual data
-    // this.props.testJSON.instances.forEach(function (test_inst) {
-    //   list_test_versions.push({
-    //     test_inst_id:  test_inst.id,
-    //     test_version:  test_inst.version,
-    //     timestamp   :  test_inst.timestamp
-    //   })
-    // })
-    // console.log(list_test_versions)
+  groupResults = (list_test_versions) => {
+    const results = this.props.results;
+    // will be a 3-D dict {model -> model instance -> test instance} with list as values
+    var dict_results = {}
 
     // sorting list_test_versions by timestamp (oldest to newest)
     list_test_versions.sort(function(a, b) {
@@ -312,10 +275,7 @@ export default class  TestResultOverview extends React.Component {
       });
     });
 
-    this.setState({
-      results_grouped:  dict_results,
-      test_versions:   list_test_versions
-    });
+    return dict_results
   }
 
   handleResultEntryClick(result) {
@@ -334,7 +294,7 @@ export default class  TestResultOverview extends React.Component {
     // updateHash('');
   };
 
-  renderResultsSummaryTable(dict_results) {
+  renderResultsSummaryTable(dict_results, test_versions) {
     return(
       <React.Fragment>
         <Grid container xs={12} direction="column" item={true}>
@@ -352,7 +312,7 @@ export default class  TestResultOverview extends React.Component {
                   </TableRow>
                   <TableRow>
                     {
-                      this.state.test_versions.map((item, index) => (
+                      test_versions.map((item, index) => (
                         <TableCell align="center" colSpan={2} key={item["test_inst_id"]}>{item["test_version"]}</TableCell>
                       ))
                     }
@@ -361,7 +321,7 @@ export default class  TestResultOverview extends React.Component {
                     <TableCell align="center" bgcolor='#3277b3'>Model Name</TableCell>
                     <TableCell align="center" bgcolor='#3277b3'>Model Version</TableCell>
                     {
-                      this.state.test_versions.map((item, index) => (
+                      test_versions.map((item, index) => (
                         <React.Fragment key={index}>
                         <TableCell align="right">Score</TableCell>
                         <TableCell align="center">Date (Time)</TableCell>
@@ -373,7 +333,7 @@ export default class  TestResultOverview extends React.Component {
                 <TableBody>
                   {
                     Object.keys(dict_results).map((test_id, index_t) => (
-                        <ResultEntryTest result_entry={dict_results[test_id]} test_versions={this.state.test_versions} handleResultEntryClick={this.handleResultEntryClick} key={test_id} />
+                        <ResultEntryTest result_entry={dict_results[test_id]} test_versions={test_versions} handleResultEntryClick={this.handleResultEntryClick} key={test_id} />
                     ))
                   }
                 </TableBody>
@@ -394,11 +354,20 @@ export default class  TestResultOverview extends React.Component {
   }
 
   render() {
-    const dict_results = this.state.results_grouped;
     var content = "";
     var resultDetail = "";
-    if (Object.keys(dict_results).length>0) {
-      content = this.renderResultsSummaryTable(dict_results);
+
+    if (this.props.loading_result) {
+      return <LoadingIndicator />
+    }
+
+    const test_versions = this.getTestVersions();
+    const results_grouped = this.groupResults(test_versions);
+
+    console.log(results_grouped)
+    console.log(this.props.loading_result)
+    if (Object.keys(results_grouped).length>0) {
+      content = this.renderResultsSummaryTable(results_grouped, test_versions);
     } else {
       content = this.renderNoResults();
     }
