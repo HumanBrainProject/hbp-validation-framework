@@ -4,7 +4,8 @@ import Container from '@material-ui/core/Container';
 import Grid from '@material-ui/core/Grid';
 import IconButton from '@material-ui/core/IconButton';
 import SettingsIcon from '@material-ui/icons/Settings';
-
+import Typography from '@material-ui/core/Typography';
+import Paper from '@material-ui/core/Paper';
 import axios from 'axios';
 
 import ModelTable from "./ModelTable";
@@ -226,7 +227,7 @@ export default class ValidationFramework extends React.Component {
   };
 
   updateModels(filters) {
-    if (filtersEmpty(filters)) { // TODO: remove `isFramedApp` to avoid auto load of all entries on entry page-
+    if (filtersEmpty(filters) && isFramedApp) { // TODO: remove `isFramedApp` to avoid auto load of all entries on entry page-
       this.setState({
         modelData: [],
         loading_model: false,
@@ -263,7 +264,7 @@ export default class ValidationFramework extends React.Component {
   };
 
   updateTests(filters) {
-    if (filtersEmpty(filters)) { // TODO: remove `isFramedApp` to avoid auto load of all entries on entry page
+    if (filtersEmpty(filters) && isFramedApp) { // TODO: remove `isFramedApp` to avoid auto load of all entries on entry page
       this.setState({
         testData: [],
         loading_test: false,
@@ -353,22 +354,58 @@ export default class ValidationFramework extends React.Component {
       if (this.state.modelsTableWide && !this.state.testsTableWide) {
         content = <Grid container>
                     <Grid item xs={12}>
+                      { this.state.loading_model ?
+                      <Paper style={{padding: '0 0 0 16px'}}>
+                        <br />
+                        <Typography variant="h6">Models</Typography>
+                        <LoadingIndicator />
+                        <br /><br />
+                      </Paper>
+                      :
                       <ModelTable rows={this.state.modelData} changeTableWidth={this.modelTableFullWidth} handleRowClick={this.handleModelRowClick} />
+                      }
                     </Grid>
                   </Grid>
       } else if (!this.state.modelsTableWide && this.state.testsTableWide) {
         content = <Grid container>
                     <Grid item xs={12}>
-                      <TestTable rows={this.state.testData} changeTableWidth={this.testTableFullWidth}  handleRowClick={this.handleTestRowClick} />
+                      { this.state.loading_test ?
+                        <Paper style={{padding: '0 0 0 16px'}}>
+                          <br />
+                          <Typography variant="h6">Tests</Typography>
+                          <LoadingIndicator />
+                          <br /><br />
+                        </Paper>
+                        :
+                        <TestTable rows={this.state.testData} changeTableWidth={this.testTableFullWidth}  handleRowClick={this.handleTestRowClick} />
+                      }
                     </Grid>
                   </Grid>
       } else {
         content = <Grid container spacing={2}>
                     <Grid item xs={6}>
-                      <ModelTable rows={this.state.modelData} changeTableWidth={this.modelTableFullWidth} handleRowClick={this.handleModelRowClick} />
+                      { this.state.loading_model ?
+                        <Paper style={{padding: '0 0 0 16px'}}>
+                          <br />
+                          <Typography variant="h6">Models</Typography>
+                          <LoadingIndicator />
+                          <br /><br />
+                        </Paper>
+                        :
+                        <ModelTable rows={this.state.modelData} changeTableWidth={this.modelTableFullWidth} handleRowClick={this.handleModelRowClick} />
+                      }
                     </Grid>
                     <Grid item xs={6}>
-                      <TestTable rows={this.state.testData} changeTableWidth={this.testTableFullWidth} handleRowClick={this.handleTestRowClick} />
+                      { this.state.loading_test ?
+                        <Paper style={{padding: '0 0 0 16px'}}>
+                          <br />
+                          <Typography variant="h6">Tests</Typography>
+                          <LoadingIndicator />
+                          <br /><br />
+                        </Paper>
+                        :
+                        <TestTable rows={this.state.testData} changeTableWidth={this.testTableFullWidth} handleRowClick={this.handleTestRowClick} />
+                      }
                     </Grid>
                   </Grid>
       }
@@ -388,7 +425,7 @@ export default class ValidationFramework extends React.Component {
     if (this.state.error) {
       return this.renderError();
     }
-    if (filtersEmpty(this.state.filters)) { // TODO: remove `isFramedApp` to avoid auto load of all entries on entry page
+    if (filtersEmpty(this.state.filters) && isFramedApp) { // TODO: remove `isFramedApp` to avoid auto load of all entries on entry page
       configContent = "";
       mainContent = <Introduction />;
     } else {
@@ -441,7 +478,7 @@ export default class ValidationFramework extends React.Component {
       <React.Fragment>
         <CssBaseline />
         <Container maxWidth="xl">
-          {this.state.loading_model || this.state.loading_test ? <LoadingIndicator />: this.renderValidationFramework()}
+          {this.renderValidationFramework()}
         </Container>
       </React.Fragment>
     );
