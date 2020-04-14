@@ -328,11 +328,11 @@ def test_create_model_with_existing_alias():
 
 def test_create_model_without_collab_membership():
     payload = _build_sample_model()
-    payload["project_id"] = "1571"
+    payload["project_id"] = "636"
     response = client.post(f"/models/", json=payload, headers=AUTH_HEADER)
     assert response.status_code == status.HTTP_403_FORBIDDEN
     assert response.json() == {
-        'detail': "This account is not a member of Collab #1571"
+        'detail': "This account is not a member of Collab #636"
     }
 
 
@@ -431,10 +431,10 @@ def test_changing_project_id():
     posted_model = response.json()
     check_model(posted_model)
 
-    changes = {"project_id": "1571"}
+    changes = {"project_id": "636"}
     response = client.put(f"/models/{posted_model['id']}", json=changes, headers=AUTH_HEADER)
     assert response.status_code == status.HTTP_403_FORBIDDEN
-    assert response.json()["detail"] == "This account is not a member of Collab #1571"
+    assert response.json()["detail"] == "This account is not a member of Collab #636"
 
     # delete model
     response = client.delete(f"/models/{posted_model['id']}", headers=AUTH_HEADER)

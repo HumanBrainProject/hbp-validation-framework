@@ -8,7 +8,7 @@ import logging
 from pydantic import BaseModel, HttpUrl, validator
 from fastapi.encoders import jsonable_encoder
 
-from fairgraph.base import KGQuery, KGProxy, as_list
+from fairgraph.base import KGQuery, KGProxy, as_list, IRI
 import fairgraph
 import fairgraph.core
 import fairgraph.brainsimulation
@@ -51,6 +51,49 @@ CellType = Enum(
     "CellType",
     [(name.replace(" ", "_"), name) for name in fairgraph.commons.CellType.iri_map.keys()]
 )
+
+
+class ImplementationStatus(str, Enum):
+    dev = "in development"
+    proposal  = "proposal"
+    complete = "complete"
+
+
+# class DataType(str, Enum):
+#     {'Frequency of occurence, probability',
+#     'LFP',
+#     'Mean, SD',
+#     'Mean, STD',
+#     'Morphology',
+#     'NWB:N HDF5',
+#     'Vector of values',
+#     'application/json',
+#     'json'}
+
+
+class RecordingModality(str, Enum):
+    # todo: get this enum from KG
+    twophoton = "2-photon imaging"
+    em = "electron microscopy"
+    ephys = "electrophysiology"
+    fmri = "fMRI"
+    hist = "histology"
+    ophys = "optical microscopy"
+
+
+class ValidationTestType(str, Enum):
+    behaviour = "behaviour"
+    network_activity = "network activity"
+    network_structure = "network structure"
+    single_cell_activity = "single cell activity"
+    subcellular =  "subcellular"
+
+
+class ScoreType(str, Enum):
+    other = "Other"
+    rsquare = "Rsquare"
+    pvalue = "p-value"
+    zscore = "z-score"
 
 
 class Person(BaseModel):
@@ -312,3 +355,179 @@ class ScientificModelPatch(BaseModel):
     @validator("owner")
     def owner_not_empty(cls, value):
         return cls._check_not_empty("owner", value)
+
+
+class ValidationTestInstance(BaseModel):
+    id: UUID = None
+    uri: HttpUrl = None
+    old_uuid: UUID = None
+    repository: HttpUrl
+    version: str
+    description: str = None
+    parameters: str = None  # or dict?
+    path: str
+    timestamp: datetime = None
+    test_definition_id: UUID = None
+
+    @classmethod
+    def from_kg_object(cls, test_script, client):
+        return cls(
+            uri=test_script.id,
+            id=test_script.uuid,
+            old_uuid=test_script.old_uuid,
+            repository=test_script.repository.value,
+            version=test_script.version,
+            description=test_script.description,
+            parameters= test_script.parameters,
+            path=test_script.test_class,
+            timestamp=test_script.date_created,
+            test_definition_id=test_script.test_definition.uuid
+        )
+
+    def to_kg_objects(self, test_definition):
+        return [
+            fairgraph.brainsimulation.ValidationScript(
+                name=f"Implementation of {test_definition.name}, version '{self.version}'",
+                date_created=self.timestamp or datetime.now(),
+                repository=IRI(self.repository),
+                version=self.version,
+                description=self.description,
+                parameters=self.parameters,
+                test_class=self.path,
+                test_definition=test_definition
+            )
+        ]
+
+
+class ValidationTest(BaseModel):
+    id: UUID = None
+    uri: HttpUrl = None
+    name: str
+    alias: str = None
+    status: ImplementationStatus = ImplementationStatus.proposal
+    author: List[Person]
+    cell_type: CellType = None
+    brain_region: BrainRegion = None
+    species: Species = None
+    description: str  # was 'protocol', renamed for consistency with models
+    date_created: datetime = None
+    old_uuid: UUID = None
+    data_location: List[HttpUrl]
+    data_type: str =  None
+    data_modality: RecordingModality = None
+    test_type: ValidationTestType = None
+    score_type: ScoreType = None
+    instances: List[ValidationTestInstance] = None
+
+    @classmethod
+    def from_kg_object(cls, test_definition, client):
+        return cls(
+            id=test_definition.uuid,
+            uri=test_definition.id,
+            name=test_definition.name,
+            alias=test_definition.alias,
+            status=test_definition.status,
+            author=[Person.from_kg_object(p, client) for p in as_list(test_definition.authors)],
+            cell_type=test_definition.celltype.label if test_definition.celltype else None,
+            brain_region=test_definition.brain_region.label if test_definition.brain_region else None,
+            species=test_definition.species.label if test_definition.species else None,
+            description=test_definition.description,
+            date_created=test_definition.date_created,
+            old_uuid=test_definition.old_uuid,
+            data_location=[item.resolve(client, api="nexus").result_file.location
+                           for item in as_list(test_definition.reference_data)],
+            data_type=test_definition.data_type,
+            data_modality=test_definition.recording_modality  if test_definition.recording_modality else None,
+            test_type=test_definition.test_type if test_definition.test_type else None,
+            score_type=test_definition.score_type if test_definition.score_type else None,
+            instances=[ValidationTestInstance.from_kg_object(inst, client)
+                       for inst in as_list(test_definition.scripts.resolve(client, api="nexus"))]
+        )
+
+    def to_kg_objects(self):
+        authors = [person.to_kg_object() for person in self.author]
+        timestamp = self.date_created or datetime.now()
+        data_files = [
+            fairgraph.brainsimulation.AnalysisResult(
+                name="Reference data #{} for validation test '{}'".format(i + 1, self.name),
+                result_file=url,
+                timestamp=timestamp
+            ) for i, url in enumerate(self.data_location)
+        ]
+        kg_objects = authors + data_files
+
+        def get_ontology_object(cls, value):
+            return cls(value.value) if value else None
+
+        test_definition = fairgraph.brainsimulation.ValidationTestDefinition(
+            name=self.name,
+            alias=self.alias,
+            status=self.status,
+            brain_region=get_ontology_object(fairgraph.commons.BrainRegion, self.brain_region),
+            species=get_ontology_object(fairgraph.commons.Species, self.species),
+            celltype=get_ontology_object(fairgraph.commons.CellType, self.cell_type),
+            reference_data=data_files,
+            data_type=self.data_type,
+            recording_modality=self.data_modality,
+            test_type=self.test_type,
+            score_type=self.score_type,
+            description=self.description,
+            authors=authors,
+            date_created=timestamp
+        )
+        if self.uri:
+            test_definition.id = str(self.uri)
+        kg_objects.append(test_definition)
+
+        for instance in self.instances:
+            kg_objects.extend(instance.to_kg_objects(test_definition))
+        test_definition.instances = [
+            obj for obj in kg_objects
+            if isinstance(obj, fairgraph.brainsimulation.ValidationScript)
+        ]
+
+        return kg_objects
+
+
+class ValidationTestPatch(BaseModel):
+    id: UUID = None
+    uri: HttpUrl = None
+    name: str = None
+    alias: str = None
+    status: ImplementationStatus = None
+    author: List[Person] = None
+    cell_type: CellType = None
+    brain_region: BrainRegion = None
+    species: Species = None
+    description: str = None
+    date_created: datetime = None
+    old_uuid: UUID = None
+    data_location: List[HttpUrl] = None
+    data_type: str =  None
+    data_modality: RecordingModality = None
+    test_type: ValidationTestType = None
+    score_type: ScoreType = None
+
+    @classmethod
+    def _check_not_empty(cls, field_name, value):
+        if value is None:
+            raise ValueError(f"{field_name} cannot be set to None")
+        if len(value) == 0:
+            raise ValueError(f"{field_name} cannot be empty")
+        return value
+
+    @validator("name")
+    def name_not_empty(cls, value):
+        return cls._check_not_empty("name", value)
+
+    @validator("description")
+    def description_not_empty(cls, value):
+        return cls._check_not_empty("description", value)
+
+    @validator("author")
+    def author_not_empty(cls, value):
+        return cls._check_not_empty("author", value)
+
+    @validator("status")
+    def status_not_empty(cls, value):
+        return cls._check_not_empty("status", value)

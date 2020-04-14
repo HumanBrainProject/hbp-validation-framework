@@ -1,10 +1,14 @@
 import requests
 import logging
 
+from fairgraph.client import KGClient
+
 from fastapi import HTTPException
 from . import settings
 
 logger = logging.getLogger("validation_service_v2")
+
+kg_client = None
 
 
 def get_kg_token():
@@ -20,6 +24,13 @@ def get_kg_token():
     # todo: cache this in some persistent way on the server, only refresh when necessary,
     #       rather than on every request
     return response.json()["access_token"]
+
+
+def get_kg_client():
+    global kg_client
+    if kg_client is None:
+        kg_client = KGClient(get_kg_token(), nexus_endpoint=settings.NEXUS_ENDPOINT)
+    return kg_client
 
 
 def get_user_from_token(token):

@@ -15,17 +15,17 @@ from fastapi import APIRouter, Depends, Header, Query, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic import ValidationError
 
-from ..auth import get_kg_token, get_user_from_token, is_collab_member
+from ..auth import get_kg_client, get_user_from_token, is_collab_member
 from ..data_models import (Person, Species, BrainRegion, CellType, ModelScope, AbstractionLevel,
                           ScientificModel, ScientificModelPatch, ModelInstance)
 from ..queries import build_model_project_filters, model_alias_exists
-from ..settings import NEXUS_ENDPOINT
+
 
 
 logger = logging.getLogger("validation_service_v2")
 
 auth = HTTPBearer()
-kg_client = KGClient(get_kg_token(), nexus_endpoint=NEXUS_ENDPOINT)
+kg_client = get_kg_client()
 router = APIRouter()
 
 
@@ -77,7 +77,7 @@ def query_models(alias: List[str] = Query(None),
                  from_index: int = Query(0),
                  # from header
                  token: HTTPAuthorizationCredentials = Depends(auth)
-                 ):  #, cell_type, model_scope, abstraction_level, ...):
+                 ):
     """
     If project_id is provided:
         - private = None: both public and private models from that project (collab), if the user is a member
@@ -98,17 +98,17 @@ def query_models(alias: List[str] = Query(None),
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
                                 detail="To see private models, you must specify the project/collab id")
 
-    # temporary, until we add these back in
-    cell_type = None
-    model_scope = None
-    abstraction_level = None
-    # end temporary
-
     # get the values of of the Enums
     if brain_region:
         brain_region = [item.value for item in  brain_region]
     if species:
         species = [item.value for item in species]
+    if cell_type:
+        cell_type = [item.value for item in cell_type]
+    if model_scope:
+        model_scope = model_scope.value
+    if abstraction_level:
+        abstraction_level = abstraction_level.value
 
     filter_query, context = build_model_project_filters(
         alias, id, name, brain_region, species, cell_type, model_scope, abstraction_level,
@@ -286,13 +286,6 @@ def get_model_instance_given_model_id(model_id: str,
                         detail="Model ID/alias and model instance ID are inconsistent")
 
 
-# GET
-# /model-instances/?id=(string: model_instance_uuid)
-# /model-instances/?model_id=(string: model_uuid)&version=(string: version)
-# /model-instances/?model_alias=(string: model_alias)&version=(string: version)
-# /model-instances/?model_id=(string: model_uuid)
-# /model-instances/?model_alias=(string: model_alias)
-
 @router.post("/models/{model_id}/instances/",
           response_model=ModelInstance, status_code=status.HTTP_201_CREATED)
 def create_model_instance(model_id: str,
@@ -310,9 +303,3 @@ def update_model_instance(model_id: str,
                           token: HTTPAuthorizationCredentials = Depends(auth)):
 
     pass
-
-# POST
-# /model-instances/
-
-# PUT
-# /model-instances/
