@@ -358,7 +358,7 @@ export default class TestResultOverview extends React.Component {
     var resultDetail = "";
 
     if (this.props.loading_result) {
-      return <LoadingIndicator />
+      return <LoadingIndicator position="absolute" />
     }
 
     const test_versions = this.getTestVersions();

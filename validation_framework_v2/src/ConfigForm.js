@@ -11,6 +11,8 @@ import axios from 'axios';
 import ThreeWaySwitch from './ThreeWaySwitch'
 
 export default class ConfigForm extends React.Component {
+  signal = axios.CancelToken.source();
+
   constructor(props) {
     super(props);
     this.state = {
@@ -27,20 +29,30 @@ export default class ConfigForm extends React.Component {
     this.getConfigValidValues();
   }
 
+  componentWillUnmount() {
+    this.signal.cancel('REST API call canceled!');
+  }
+
   getConfigValidValues = () => {
     let url = this.props.baseUrl + "/authorizedcollabparameterrest/?python_client=true";
-    return axios.get(url)
+    let config = {
+      cancelToken: this.signal.token
+    }
+    return axios.get(url, config)
       .then(res => {
         this.setState({
           validValues: res.data
         });
       })
       .catch(err => {
-        // Something went wrong. Save the error in state and re-render.
-        console.log(err)
-        this.setState({
-          error: err
-        });
+        if (axios.isCancel(err)) {
+          console.log('Error: ', err.message);
+        } else {
+          // Something went wrong. Save the error in state and re-render.
+          this.setState({
+            error: err
+          });
+        }
       }
     );
   };

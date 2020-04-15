@@ -357,7 +357,7 @@ export default class ModelResultOverview extends React.Component {
     var resultDetail = "";
 
     if (this.props.loading_result) {
-      return <LoadingIndicator />
+      return <LoadingIndicator position="absolute" />
     }
 
     const model_versions = this.getModelVersions();

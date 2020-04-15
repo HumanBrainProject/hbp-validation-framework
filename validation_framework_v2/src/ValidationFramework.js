@@ -7,6 +7,7 @@ import SettingsIcon from '@material-ui/icons/Settings';
 import Typography from '@material-ui/core/Typography';
 import Paper from '@material-ui/core/Paper';
 import axios from 'axios';
+import _ from 'lodash';
 
 import ModelTable from "./ModelTable";
 import TestTable from "./TestTable";
@@ -103,6 +104,8 @@ const retrieveFilters = () => {
 }
 
 export default class ValidationFramework extends React.Component {
+  signal = axios.CancelToken.source();
+
   constructor(props) {
     super(props);
 
@@ -168,11 +171,16 @@ export default class ValidationFramework extends React.Component {
     }
   }
 
+  componentWillUnmount() {
+    this.signal.cancel('REST API call canceled!');
+  }
+
   getModel(model_id) {
     let url = baseUrl + "/models/?id=" + model_id;
     let config = {
+      cancelToken: this.signal.token,
       headers: {
-        'Authorization': 'Bearer ' + this.props.auth.token
+        'Authorization': 'Bearer ' + this.props.auth.token,
       }
     }
     this.setState({loading_model: true});
@@ -188,11 +196,15 @@ export default class ValidationFramework extends React.Component {
         });
       })
       .catch(err => {
-        // Something went wrong. Save the error in state and re-render.
-        this.setState({
-          loading_model: false,
-          error: err
-        });
+        if (axios.isCancel(err)) {
+          console.log('Error: ', err.message);
+        } else {
+          // Something went wrong. Save the error in state and re-render.
+          this.setState({
+            loading_model: false,
+            error: err
+          });
+        }
       }
     );
   };
@@ -200,8 +212,9 @@ export default class ValidationFramework extends React.Component {
   getTest(test_id) {
     let url = baseUrl + "/tests/?id=" + test_id;
     let config = {
+      cancelToken: this.signal.token,
       headers: {
-        'Authorization': 'Bearer ' + this.props.auth.token
+        'Authorization': 'Bearer ' + this.props.auth.token,
       }
     }
     this.setState({loading_test: true});
@@ -217,11 +230,15 @@ export default class ValidationFramework extends React.Component {
         });
       })
       .catch(err => {
-        // Something went wrong. Save the error in state and re-render.
-        this.setState({
-          loading_test: false,
-          error: err
-        });
+        if (axios.isCancel(err)) {
+          console.log('Error: ', err.message);
+        } else {
+          // Something went wrong. Save the error in state and re-render.
+          this.setState({
+            loading_test: false,
+            error: err
+          });
+        }
       }
     );
   };
@@ -236,8 +253,9 @@ export default class ValidationFramework extends React.Component {
     } else {
       let query = buildQuery(filters);
       let config = {
+        cancelToken: this.signal.token,
         headers: {
-          'Authorization': 'Bearer ' + this.props.auth.token
+          'Authorization': 'Bearer ' + this.props.auth.token,
         }
       }
       let url = baseUrl + "/models/?" + query;
@@ -253,11 +271,15 @@ export default class ValidationFramework extends React.Component {
           });
         })
         .catch(err => {
-          // Something went wrong. Save the error in state and re-render.
-          this.setState({
-            loading_model: false,
-            error: err
-          });
+          if (axios.isCancel(err)) {
+            console.log('Error: ', err.message);
+          } else {
+            // Something went wrong. Save the error in state and re-render.
+            this.setState({
+              loading_model: false,
+              error: err
+            });
+          }
         }
       );
     };
@@ -273,8 +295,9 @@ export default class ValidationFramework extends React.Component {
     } else {
       let query = buildQuery(filters);
       let config = {
+        cancelToken: this.signal.token,
         headers: {
-          'Authorization': 'Bearer ' + this.props.auth.token
+          'Authorization': 'Bearer ' + this.props.auth.token,
         }
       }
       let url = baseUrl + "/tests/?" + query;
@@ -290,11 +313,15 @@ export default class ValidationFramework extends React.Component {
           });
         })
         .catch(err => {
-          // Something went wrong. Save the error in state and re-render.
-          this.setState({
-            loading_test: false,
-            error: err
-          });
+          if (axios.isCancel(err)) {
+            console.log('Error: ', err.message);
+          } else {
+            // Something went wrong. Save the error in state and re-render.
+            this.setState({
+              loading_test: false,
+              error: err
+            });
+          }
         }
       );
     };
@@ -331,14 +358,15 @@ export default class ValidationFramework extends React.Component {
   };
 
   handleConfigClose(filters) {
-    this.setState({'filters': filters});
+    if(!_.isEqual(filters, this.state.filters)) {
+      this.setState({'filters': filters});
+      storeFilters(filters);
+      // if running within the Collaboratory, this reloads the page, so the filters get applied on the reload
+      // when accessed stand-alone, the filters are not stored, and the following line is executed
+      this.updateModels(filters);
+      this.updateTests(filters);
+    }
     this.setState({'configOpen': false});
-    storeFilters(filters);
-    // if running within the Collaboratory, this reloads the page, so the filters get applied on the reload
-    // when accessed stand-alone, the filters are not stored, and the following line is executed
-    this.updateModels(filters);
-    this.updateTests(filters);
-    // todo: if filters haven't changed, don't store them
   };
 
   renderError() {

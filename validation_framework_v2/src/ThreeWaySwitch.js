@@ -53,7 +53,7 @@ const ClickableLabel = ({ title, onChange, id }) =>
   </SwitchLabel>;
 
 const ConcealedRadio = ({ value, selected }) =>
-  <SwitchRadio type="radio" name="switch" checked={selected === value} />;
+  <SwitchRadio type="radio" name="switch" checked={selected === value} onChange={()=>{}} />;
 
 export default class ThreeWaySwitch extends React.Component {
   state = { selected: this.props.selected };
@@ -74,7 +74,7 @@ export default class ThreeWaySwitch extends React.Component {
       <Switch>
         {this.props.values.map(val => {
           return (
-            <span>
+            <span key={val}>
               <ConcealedRadio value={val} selected={selected} />
               <ClickableLabel title={val} onChange={this.handleChange} />
             </span>

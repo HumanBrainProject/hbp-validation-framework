@@ -104,7 +104,7 @@ export default class ModelDetail extends React.Component {
 
   componentWillUnmount() {
     console.log("close1")
-    this.signal.cancel('Api is being canceled');
+    this.signal.cancel('REST API call canceled!');
   }
 
   handleClose() {
@@ -119,9 +119,9 @@ export default class ModelDetail extends React.Component {
   getModelResults = () => {
     let url = this.props.baseUrl + "/results/?order=&model_id=" + this.props.modelData.id;
     let config = {
+      cancelToken: this.signal.token,
       headers: {
         'Authorization': 'Bearer ' + this.props.auth.token,
-        // 'cancelToken': this.signal.token // TODO: uncomment this
       }
     }
     return axios.get(url, config)
@@ -135,7 +135,7 @@ export default class ModelDetail extends React.Component {
       })
       .catch(err => {
         if (axios.isCancel(err)) {
-          console.log('Error: ', err.message); // => prints: Api is being canceled
+          console.log('Error: ', err.message);
         } else {
           // Something went wrong. Save the error in state and re-render.
           this.setState({
