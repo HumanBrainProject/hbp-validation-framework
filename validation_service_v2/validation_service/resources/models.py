@@ -1,23 +1,17 @@
 from uuid import UUID
-from enum import Enum
 from typing import List
 from datetime import datetime
-import os
 import logging
 
-import requests
-
-from fairgraph.client import KGClient
-from fairgraph.base import KGQuery, KGProxy, as_list
+from fairgraph.base import KGQuery, as_list
 from fairgraph.brainsimulation import ModelProject, ModelInstance as ModelInstanceKG, MEModel
 
-from fastapi import APIRouter, Depends, Header, Query, HTTPException, status
+from fastapi import APIRouter, Depends, Query, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from pydantic import ValidationError
 
 from ..auth import get_kg_client, get_user_from_token, is_collab_member
 from ..data_models import (Person, Species, BrainRegion, CellType, ModelScope, AbstractionLevel,
-                          ScientificModel, ScientificModelPatch, ModelInstance)
+                           ScientificModel, ScientificModelPatch, ModelInstance)
 from ..queries import build_model_project_filters, model_alias_exists
 
 
@@ -34,32 +28,7 @@ def read_root():
     return {"Hello": "World"}
 
 
-@router.get("/brain-regions/")
-def list_brain_regions():
-    return [item.value for item in BrainRegion]
-
-
-@router.get("/species/")
-def list_species():
-    return [item.value for item in Species]
-
-
-@router.get("/model-scopes/")
-def list_model_scopes():
-    return [item.value for item in ModelScope]
-
-
-@router.get("/cell-types/")
-def list_cell_types():
-    return [item.value for item in CellType]
-
-
-@router.get("/abstraction-levels/")
-def list_abstraction_levels():
-    return [item.value for item in AbstractionLevel]
-
-
-@router.get("/models/")
+@router.get("/models/", response_model=List[ScientificModel])
 def query_models(alias: List[str] = Query(None),
                  id: List[UUID] = Query(None),
                  name: List[str] = Query(None),

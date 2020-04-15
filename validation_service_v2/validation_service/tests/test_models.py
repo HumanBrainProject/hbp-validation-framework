@@ -5,14 +5,9 @@ from urllib.parse import urlparse
 import logging
 
 from fastapi import status
-from fastapi.testclient import TestClient
 
-from ..main import app
 from ..data_models import BrainRegion, Species
-
-client = TestClient(app)
-token = os.environ["VF_TEST_TOKEN"]
-AUTH_HEADER = {"Authorization": f"Bearer {token}"}
+from .fixtures import _build_sample_model, client, token, AUTH_HEADER
 
 
 def check_model(model):
@@ -180,53 +175,7 @@ def test_list_models_filter_by_brain_region_and_authors():
         assert model["brain_region"] == "hippocampus"
 
 
-def _build_sample_model():
-    now = datetime.now()
-    return {
-        "name": f"TestModel API v2 {now.isoformat()}",
-        "alias": f"TestModel-APIv2-{now.isoformat()}",
-        "author": [
-            {
-            "given_name": "Frodo",
-            "family_name": "Baggins"
-            },
-            {
-            "given_name": "Tom",
-            "family_name": "Bombadil"
-            }
-        ],
-        "owner": [
-            {
-            "given_name": "Frodo",
-            "family_name": "Baggins"
-            }
-        ],
-        "project_id": 52468,
-        "organization": "HBP-SGA3-WP5",
-        "private": True,
-        "species": "Ornithorhynchus anatinus",
-        "brain_region": "hippocampus",
-        "model_scope": "network",
-        "abstraction_level": "spiking neurons: point neuron",
-        "cell_type": None,
-        "description": "description goes here",
-        "images": [
-            {
-            "caption": "Figure 1",
-            "url": "http://example.com/figure_1.png"
-            }
-        ],
-        "instances": [
-            {
-            "version": "1.23",
-            "description": "description of this version",
-            "parameters": "{'meaning': 42}",
-            "code_format": "Python",
-            "source": "http://example.com/my_code.py",
-            "license": "MIT"
-            }
-        ]
-    }
+
 
 def test_create_and_delete_network_model(caplog):
     caplog.set_level(logging.DEBUG)

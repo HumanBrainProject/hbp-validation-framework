@@ -1,17 +1,12 @@
 from uuid import UUID
-from enum import Enum
 from typing import List
 from datetime import datetime
-import os
 import logging
 
-import requests
-
-from fairgraph.client import KGClient
-from fairgraph.base import KGQuery, KGProxy, as_list
+from fairgraph.base import KGQuery, as_list
 from fairgraph.brainsimulation import ValidationTestDefinition, ValidationScript
 
-from fastapi import APIRouter, Depends, Header, Query, HTTPException, status
+from fastapi import APIRouter, Depends, Query, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic import ValidationError
 
@@ -28,6 +23,7 @@ logger = logging.getLogger("validation_service_v2")
 auth = HTTPBearer()
 kg_client = get_kg_client()
 router = APIRouter()
+
 
 @router.get("/tests/")
 def query_tests(alias: List[str] = Query(None),
@@ -66,9 +62,10 @@ def query_tests(alias: List[str] = Query(None),
         alias, id, name, status, brain_region, species, cell_type, data_type,
         data_modality, test_type, score_type, author)
     if len(filter_query["value"]) > 0:
-        logger.info("Searching for ValidationTestDefinition with the following query: {}".format(filter_query))
+        logger.info(f"Searching for ValidationTestDefinition with the following query: {filter_query}")
         # note that from_index is not currently supported by KGQuery.resolve
-        test_definitions = KGQuery(ValidationTestDefinition, {"nexus": filter_query}, context).resolve(kg_client, api="nexus", size=size)
+        query = KGQuery(ValidationTestDefinition, {"nexus": filter_query}, context)
+        test_definitions = query.resolve(kg_client, api="nexus", size=size)
     else:
         test_definitions = ValidationTestDefinition.list(kg_client, api="nexus", size=size, from_index=from_index)
     return [ValidationTest.from_kg_object(test_definition, kg_client)
@@ -114,10 +111,14 @@ def create_test(test: ValidationTest, token: HTTPAuthorizationCredentials = Depe
         raise HTTPException(status_code=status.HTTP_409_CONFLICT,
                             detail=f"Another validation test with alias '{test.alias}' already exists.")
     kg_objects = test.to_kg_objects()
+    recently_saved_scripts = []  # due to the time it takes for Nexus to become consistent,
+                                 # we keep newly saved scripts to add to the result of the KG query
+                                 # in case they are not yet included
     for obj in kg_objects:
         if isinstance(obj, ValidationTestDefinition):
             test_definition = obj
-            break
+        elif isinstance(obj, ValidationScript):
+            recently_saved_scripts.append(obj)
     if test_definition.exists(kg_client, api="any"):
         # see https://stackoverflow.com/questions/3825990/http-response-code-for-post-when-resource-already-exists
         # for a discussion of the most appropriate status code to use here
@@ -125,7 +126,8 @@ def create_test(test: ValidationTest, token: HTTPAuthorizationCredentials = Depe
                             detail=f"Another validation test with the same name and timestamp already exists.")
     for obj in kg_objects:
         obj.save(kg_client)
-    return ValidationTest.from_kg_object(test_definition, kg_client)
+    return ValidationTest.from_kg_object(test_definition, kg_client,
+                                         recently_saved_scripts=recently_saved_scripts)
 
 
 @router.put("/tests/{test_id}", response_model=ValidationTest, status_code=status.HTTP_200_OK)
@@ -153,8 +155,8 @@ def update_test(test_id: UUID, test_patch: ValidationTestPatch,
     kg_objects = updated_test.to_kg_objects()
     for obj in kg_objects:
         obj.save(kg_client)
-    test_definition = kg_objects[-1]
-    assert isinstance(test_definition, ValidationTestDefinition)
+        if isinstance(obj, ValidationTestDefinition):
+            test_definition = obj
     return ValidationTest.from_kg_object(test_definition, kg_client)
 
 
@@ -164,7 +166,7 @@ def delete_test(test_id: UUID, token: HTTPAuthorizationCredentials = Depends(aut
     test_definition = ValidationTestDefinition.from_uuid(str(test_id), kg_client, api="nexus")
     if not is_collab_member(settings.ADMIN_COLLAB_ID, token.credentials):
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
-                            detail=f"Deleting tests is restricted to admins #{test_definition.collab_id}")
+                            detail="Deleting tests is restricted to admins")
     test_definition.delete(kg_client)
     for test_script in as_list(test_definition.scripts.resolve(kg_client, api="nexus")):
         test_script.delete(kg_client)
@@ -210,12 +212,12 @@ def get_test_instance_given_test_id(test_id: str,
 
 
 @router.post("/tests/{test_id}/instances/",
-          response_model=ValidationTestInstance, status_code=status.HTTP_201_CREATED)
+             response_model=ValidationTestInstance, status_code=status.HTTP_201_CREATED)
 def create_test_instance(test_id: str,
                          test_instance: ValidationTestInstance,
                          token: HTTPAuthorizationCredentials = Depends(auth)):
 
-    pass
+    pass  # todo
 
 
 @router.put("/tests/{test_id}/instances/{test_instance_id}",
@@ -225,4 +227,4 @@ def update_test_instance(test_id: str,
                          test_instance: ValidationTestInstance,
                          token: HTTPAuthorizationCredentials = Depends(auth)):
 
-    pass
+    pass  # todo

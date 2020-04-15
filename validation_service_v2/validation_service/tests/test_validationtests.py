@@ -5,18 +5,13 @@ from urllib.parse import urlparse
 import logging
 
 from fastapi import status
-from fastapi.testclient import TestClient
 
-from ..main import app
 from ..data_models import (BrainRegion, Species, ImplementationStatus,
                            ScoreType, RecordingModality, ValidationTestType)
-
-client = TestClient(app)
-token = os.environ["VF_TEST_TOKEN"]
-AUTH_HEADER = {"Authorization": f"Bearer {token}"}
+from .fixtures import _build_sample_validation_test, client, token, AUTH_HEADER
 
 
-def check_validation_test(test_definition):
+def check_validation_test(test_definition, expected_instances=0):
     assert isinstance(test_definition["name"], str)
     assert isinstance(test_definition["description"], str)
     if test_definition["alias"]:
@@ -39,6 +34,8 @@ def check_validation_test(test_definition):
     if test_definition["data_location"]:
         for url in test_definition["data_location"]:
             assert_is_valid_url(url)
+    if expected_instances:
+        assert len(test_definition["instances"]) == expected_instances
     if test_definition["instances"]:
         check_validation_test_instance(test_definition["instances"][0])
 
@@ -136,42 +133,6 @@ def test_list_validation_tests_filter_by_brain_region_and_authors():
         assert validation_test["brain_region"] == "hippocampus"
 
 
-def _build_sample_validation_test():
-    now = datetime.now()
-    return {
-        "name": f"TestValidationTestDefinition API v2 {now.isoformat()}",
-        "alias": f"TestValidationTestDefinition-APIv2-{now.isoformat()}",
-        "author": [
-            {
-            "given_name": "Frodo",
-            "family_name": "Baggins"
-            },
-            {
-            "given_name": "Tom",
-            "family_name": "Bombadil"
-            }
-        ],
-        "status": "proposal",
-        "species": "Mus musculus",
-        "brain_region": "hippocampus",
-        "cell_type": "hippocampus CA1 pyramidal cell",
-        "description": "description goes here",
-        "data_location": ["http://example.com/my_data.csv"],
-        "data_type": "csv",
-        "data_modality": "electrophysiology",
-        "test_type": "single cell activity",
-        "score_type": "z-score",
-        "instances": [
-            {
-            "version": "1.23",
-            "description": "description of this version",
-            "parameters": "{'meaning': 42}",
-            "path": "mylib.tests.MeaningOfLifeTest",
-            "repository": "http://example.com/my_code.py"
-            }
-        ]
-    }
-
 def test_create_and_delete_validation_test_definition(caplog):
     caplog.set_level(logging.DEBUG)
 
@@ -180,9 +141,10 @@ def test_create_and_delete_validation_test_definition(caplog):
     response = client.post(f"/tests/", json=payload, headers=AUTH_HEADER)
     assert response.status_code == 201
     posted_validation_test = response.json()
-    check_validation_test(posted_validation_test)
+    check_validation_test(posted_validation_test, expected_instances=len(payload["instances"]))
 
     # check we can retrieve validation_test
+    sleep(15)  # need to wait a short time to allow Nexus to become consistent
     validation_test_uuid = posted_validation_test["id"]
     response = client.get(f"/tests/{validation_test_uuid}", headers=AUTH_HEADER)
     assert response.status_code == 200
@@ -304,6 +266,7 @@ def test_update_validation_test(caplog):
     posted_validation_test = response.json()
     check_validation_test(posted_validation_test)
     # make changes
+    sleep(15)  # need to wait a short time to allow Nexus to become consistent
     changes = {
         "alias": posted_validation_test["alias"] + "-changed",
         "name": posted_validation_test["name"] + " (changed)",  # as long as date_created is not changed, name can be

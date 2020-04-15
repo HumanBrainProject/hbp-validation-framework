@@ -5,10 +5,11 @@ from datetime import datetime
 from itertools import chain
 import logging
 
-from pydantic import BaseModel, HttpUrl, validator
+from pydantic import BaseModel, HttpUrl, AnyUrl, validator
 from fastapi.encoders import jsonable_encoder
+from fastapi import HTTPException, status
 
-from fairgraph.base import KGQuery, KGProxy, as_list, IRI
+from fairgraph.base import KGQuery, KGProxy, as_list, IRI, Distribution
 import fairgraph
 import fairgraph.core
 import fairgraph.brainsimulation
@@ -420,8 +421,15 @@ class ValidationTest(BaseModel):
     instances: List[ValidationTestInstance] = None
 
     @classmethod
-    def from_kg_object(cls, test_definition, client):
-        return cls(
+    def from_kg_object(cls, test_definition, client, recently_saved_scripts=[]):
+        # due to the time it takes for Nexus to become consistent, we add newly saved scripts
+        # to the result of the KG query in case they are not yet included
+        scripts = {scr.id: scr
+                   for scr in as_list(test_definition.scripts.resolve(client, api="nexus"))}
+        for script in recently_saved_scripts:
+            scripts[id] = script
+
+        obj = cls(
             id=test_definition.uuid,
             uri=test_definition.id,
             name=test_definition.name,
@@ -441,8 +449,9 @@ class ValidationTest(BaseModel):
             test_type=test_definition.test_type if test_definition.test_type else None,
             score_type=test_definition.score_type if test_definition.score_type else None,
             instances=[ValidationTestInstance.from_kg_object(inst, client)
-                       for inst in as_list(test_definition.scripts.resolve(client, api="nexus"))]
+                       for inst in scripts.values()]
         )
+        return obj
 
     def to_kg_objects(self):
         authors = [person.to_kg_object() for person in self.author]
@@ -481,10 +490,6 @@ class ValidationTest(BaseModel):
 
         for instance in self.instances:
             kg_objects.extend(instance.to_kg_objects(test_definition))
-        test_definition.instances = [
-            obj for obj in kg_objects
-            if isinstance(obj, fairgraph.brainsimulation.ValidationScript)
-        ]
 
         return kg_objects
 
@@ -531,3 +536,104 @@ class ValidationTestPatch(BaseModel):
     @validator("status")
     def status_not_empty(cls, value):
         return cls._check_not_empty("status", value)
+
+
+# note: this is essentially copied from resources/models.py
+# todo: refactor to eliminate this duplicatin
+def _get_model_instance_by_id(instance_id, kg_client):
+    model_instance = fairgraph.brainsimulation.ModelInstance.from_uuid(
+        str(instance_id), kg_client, api="nexus")
+    if model_instance is None:
+        model_instance = fairgraph.brainsimulation.MEModel.from_uuid(
+            str(instance_id), kg_client, api="nexus")
+    if model_instance is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail=f"Model instance with ID '{instance_id}' not found.")
+    return model_instance
+
+
+
+class ValidationResult(BaseModel):
+    id: UUID = None
+    uri: HttpUrl = None
+    old_uuid: UUID = None
+    model_version_id: UUID
+    test_code_id: UUID
+    results_storage: List[AnyUrl]  # for now at least, accept "collab:" and "swift:" URLs
+    score: float
+    passed: bool = None
+    timestamp: datetime = None
+    project_id: str = None
+    normalized_score: float = None
+
+    @classmethod
+    def from_kg_object(cls, result, client):
+        validation_activity = result.generated_by.resolve(client, api="nexus")
+        model_version_id = validation_activity.model_instance.uuid
+        test_code_id = validation_activity.test_script.uuid
+        logger.debug("Serializing validation test result")
+        logger.debug("Additional data for {}:\n{}".format(result.id, result.additional_data))
+        additional_data_urls = []
+        for item in as_list(result.additional_data):
+            item = item.resolve(client, api="nexus")
+            if item:
+                additional_data_urls.append(item.result_file.location)
+            else:
+                logger.warning("Couldn't resolve {}".format(item))
+        return cls(
+            id=result.uuid,
+            uri=result.id,
+            old_uuid=result.old_uuid,
+            model_version_id=model_version_id,
+            test_code_id=test_code_id,
+            results_storage=additional_data_urls,  # todo: handle collab storage redirects
+            score=result.score,
+            passed=result.passed,
+            timestamp=result.timestamp,
+            project_id=result.collab_id,
+            normalized_score=result.normalized_score
+        )
+
+    def to_kg_objects(self, kg_client):
+        timestamp = self.timestamp or datetime.now()
+
+        additional_data = [
+            fairgraph.brainsimulation.AnalysisResult(
+                name=f"{uri} @ {timestamp.isoformat()}",
+                result_file=Distribution(uri),
+                timestamp=timestamp
+            ) for uri in self.results_storage]
+        kg_objects = additional_data[:]
+
+        test_code = fairgraph.brainsimulation.ValidationScript.from_id(str(self.test_code_id),
+                                                                       kg_client, api="nexus")
+        test_definition = test_code.test_definition.resolve(kg_client, api="nexus")
+        model_instance = _get_model_instance_by_id(self.model_version_id, kg_client)
+        reference_data = fairgraph.core.Collection(
+            f"Reference data for {test_definition.name}",
+            members=as_list(test_definition.reference_data)
+        )
+        kg_objects.append(reference_data)
+
+        result = fairgraph.brainsimulation.ValidationResult(
+            name=f"Validation results for model {self.model_version_id} and test {self.test_code_id} with timestamp {timestamp.isoformat()}",
+            generated_by=None,
+            description=None,
+            score=self.score,
+            normalized_score=self.normalized_score,
+            passed=self.passed,
+            timestamp=timestamp,
+            additional_data=additional_data,
+            collab_id=self.project_id
+        )
+
+        activity = fairgraph.brainsimulation.ValidationActivity(
+            model_instance=model_instance,
+            test_script=test_code,
+            reference_data=reference_data,
+            timestamp=timestamp,
+            result=result
+        )
+        kg_objects.append(result)
+        kg_objects.append(activity)
+        return kg_objects
