@@ -48,6 +48,8 @@ from .simple_serializer import (
     Param_AbstractionLevelSerializer,
     Param_ScoreTypeSerializer,
     Param_OrganizationsSerializer,
+    Param_ImplementationStatusSerializer,
+    Param_LicenseSerializer
 )
 
 #### rest framework serializers ####

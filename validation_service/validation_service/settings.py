@@ -257,13 +257,13 @@ CSRF_COOKIE_DOMAIN = (
 )
 
 CORS_ALLOW_HEADERS = (
-'x-requested-with',
-'content-type',
-'accept',
-'origin',
-'authorization',
-'X-CSRFToken',
-'access-control-allow-origin'
+    'x-requested-with',
+    'content-type',
+    'accept',
+    'origin',
+    'authorization',
+    'X-CSRFToken',
+    'access-control-allow-origin',
 )
 
 REST_FRAMEWORK = {

@@ -4,7 +4,7 @@ from .models import (ValidationTestDefinition, ValidationTestCode, ValidationTes
                      CollabParameters,
                      Param_DataModalities, Param_TestType, Param_Species,
                      Param_BrainRegion, Param_CellType, Param_ModelScope, Param_AbstractionLevel, Param_ScoreType,Param_organizations,
-                     Tickets, Comments)
+                     Param_License, Param_ImplementationStatus, Tickets, Comments)
 
 admin.site.site_header = "HBP Validation Service administration"
 
@@ -100,6 +100,21 @@ class Param_ScoreTypeAdmin(admin.ModelAdmin):
 class Param_organizationsAdmin(admin.ModelAdmin):
     list_display = ('id', 'authorized_value')
     search_fields = ('id', 'authorized_value')
+
+
+@admin.register(Param_ImplementationStatus)
+class Param_LicenseAdmin(admin.ModelAdmin):
+    list_display = ('id', 'authorized_value')
+    search_fields = ('id', 'authorized_value')
+
+@admin.register(Param_License)
+class Param_LicenseAdmin(admin.ModelAdmin):
+    list_display = ('id', 'authorized_value')
+    search_fields = ('id', 'authorized_value')
+
+
+
+
 
 @admin.register(Comments)
 class CommentsAdmin(admin.ModelAdmin):

@@ -20,6 +20,8 @@ from ..models import (ValidationTestDefinition,
                     Param_AbstractionLevel,
                     Param_ScoreType,
                     Param_organizations,
+                    Param_License,
+                    Param_ImplementationStatus,
                     Persons
                     )
 
@@ -189,6 +191,17 @@ class Param_OrganizationsSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Param_organizations
         fields = ('id', 'authorized_value')
+
+class Param_LicenseSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = Param_License
+        fields = ('id', 'authorized_value')
+
+class Param_ImplementationStatusSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = Param_ImplementationStatus
+        fields = ('id', 'authorized_value')
+
 
 class PersonSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:

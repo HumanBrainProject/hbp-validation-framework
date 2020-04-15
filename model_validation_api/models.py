@@ -8,9 +8,9 @@ import uuid
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
 
-@python_2_unicode_compatible 
+@python_2_unicode_compatible
 class CollabParameters(models.Model):
-    # id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, ) 
+    # id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, )
     id = models.CharField(primary_key=True, max_length=100 , default="")
     app_type = models.CharField(max_length=100 ,blank=True, help_text="type of application: model_catalog or validation_app")
     data_modalities = models.CharField(max_length=500 ,blank=True, help_text="data modalities")
@@ -40,13 +40,13 @@ class ValidationTestDefinition(models.Model):
     data_type = models.CharField(max_length=100, help_text="type of comparison data (number, histogram, time series, etc.)")  # S
     data_modality = models.CharField(max_length=100, default='', blank=True,
                                      help_text="recording modality for comparison data (ephys, fMRI, 2-photon, etc)")  # J, K
-    test_type = models.CharField(max_length=100, 
+    test_type = models.CharField(max_length=100,
                                  help_text="single cell activity, network structure, network activity, subcellular")  # B, C
     protocol = models.TextField(blank=True, help_text="Description of the experimental protocol")  # R (sort of)
     author = models.CharField(max_length=100, help_text="Author of this test")  # H
     publication = models.CharField(max_length=1000, null=True, blank=True, help_text="Publication in which the validation data set was reported")  # E
     score_type = models.CharField(help_text="Type of score: p-value, r square ..", max_length=20)
-    alias = models.CharField(max_length=200, unique=True, null=True, blank=True, default=None, help_text="alias of the test") 
+    alias = models.CharField(max_length=200, unique=True, null=True, blank=True, default=None, help_text="alias of the test")
     creation_date = models.DateTimeField(auto_now_add=True, help_text="creation date of the test")
     status = models.CharField(max_length=100,blank=True, default='',help_text="status fo the test: Proposal, Published or on Development")
     # missing fields wrt Lungsi's spreadsheet
@@ -181,7 +181,7 @@ class ValidationTestResult(models.Model):
     project = models.CharField(help_text="Project with which this test run is associated(optional)",
                                max_length=200,
                                blank=True)  # project==collab_id for HBP ??rename o collab_id?
-    normalized_score = models.FloatField(help_text="A normalized numerical measure of the difference between model and experiment") 
+    normalized_score = models.FloatField(help_text="A normalized numerical measure of the difference between model and experiment")
     hash = models.CharField(max_length=100, blank=True, null=True, default=None, help_text = "hash of the result")
     runtime = models.CharField(max_length=100, blank=True, null=True, default=None, help_text = "runtime of the simulation")
 
@@ -206,7 +206,7 @@ class Tickets(models.Model):
     creation_date = models.DateTimeField(auto_now_add=True)
 
 
-class Comments(models.Model): 
+class Comments(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, )
     Ticket = models.ForeignKey(Tickets, on_delete=models.CASCADE, default=None)
     author = models.CharField(max_length=200, default="")
@@ -270,5 +270,13 @@ class Param_AbstractionLevel (models.Model):
     authorized_value = models.CharField(max_length=200, unique=True, default="")
 
 class Param_ScoreType (models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, )
+    authorized_value = models.CharField(max_length=200, unique=True, default="")
+
+class Param_License(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, )
+    authorized_value = models.CharField(max_length=200, unique=True, default="")
+
+class Param_ImplementationStatus(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, )
     authorized_value = models.CharField(max_length=200, unique=True, default="")

@@ -54,6 +54,8 @@ from .models import (ValidationTestDefinition,
                         CollabParameters,
                         Param_ScoreType,
                         Param_organizations,
+                        Param_License,
+                        Param_ImplementationStatus
                         )
 
 
@@ -86,7 +88,9 @@ from .serializer.serializer import (ValidationTestDefinitionSerializer,
                             Param_ModelScopeSerializer,
                             Param_AbstractionLevelSerializer,
                             Param_ScoreTypeSerializer,
-                            Param_OrganizationsSerializer
+                            Param_OrganizationsSerializer,
+                            Param_ImplementationStatusSerializer,
+                            Param_LicenseSerializer
                             )
 
 
@@ -227,6 +231,12 @@ class AuthorizedCollabParameterRest(APIView):
         organization = Param_organizations.objects.all().order_by('authorized_value')
         organization_serializer = Param_OrganizationsSerializer(organization, context=serializer_context, many=True)
 
+        licenses = Param_License.objects.all().order_by('authorized_value')
+        licenses_serializer = Param_LicenseSerializer(licenses, context=serializer_context, many=True)
+
+        implementation_status_values = Param_ImplementationStatus.objects.all().order_by('authorized_value')
+        status_serializer = Param_ImplementationStatusSerializer(implementation_status_values, context=serializer_context, many=True)
+
         ##for python client #'python_client=True' 'parameters= list()'
         if python_client == 'true':
             params_asked = request.GET.getlist('parameters')
@@ -237,6 +247,7 @@ class AuthorizedCollabParameterRest(APIView):
                 # print "if((params_asked[0]=='all') or (len(params_asked) ==0)):"
                 res = {
                     'data_modalities': data_modalities.values_list('authorized_value', flat=True),
+                    'data_modality': data_modalities.values_list('authorized_value', flat=True),
                     'test_type' : test_type.values_list('authorized_value', flat=True),
                     'species' : species.values_list('authorized_value', flat=True),
                     'brain_region' : brain_region.values_list('authorized_value', flat=True),
@@ -245,6 +256,8 @@ class AuthorizedCollabParameterRest(APIView):
                     'abstraction_level' : abstraction_level.values_list('authorized_value', flat=True),
                     'score_type': score_type.values_list('authorized_value', flat=True),
                     'organization': organization.values_list('authorized_value', flat=True),
+                    'license': licenses.values_list('authorized_value', flat=True),
+                    'status': implementation_status_values.values_list('authorized_value', flat=True),
                 }
                 return Response(res)
             else:
@@ -256,6 +269,8 @@ class AuthorizedCollabParameterRest(APIView):
                         res['species']= species.values_list('authorized_value', flat=True)
                     if (param == 'data_modalities'):
                         res['data_modalities'] = data_modalities.values_list('authorized_value', flat=True)
+                    if (param == 'data_modality'):
+                        res['data_modality'] = data_modalities.values_list('authorized_value', flat=True)
                     if (param == 'test_type'):
                         res['test_type'] = test_type.values_list('authorized_value', flat=True)
                     if (param == 'brain_region'):
@@ -270,6 +285,10 @@ class AuthorizedCollabParameterRest(APIView):
                         res['score_type'] = score_type.values_list('authorized_value', flat=True)
                     if (param == 'organization'):
                         res['organization'] = organization.values_list('authorized_value', flat=True)
+                    if (param == 'license'):
+                        res['license'] = licenses.values_list('authorized_value', flat=True)
+                    if (param == 'status'):
+                        res['status'] = implementation_status_values.values_list('authorized_value', flat=True)
 
                 # print "final res"
                 # print res
@@ -278,6 +297,7 @@ class AuthorizedCollabParameterRest(APIView):
 
         return Response({
             'data_modalities': data_modalities_serializer.data,
+            'data_modality': data_modalities_serializer.data,
             'test_type' : test_type_serializer.data,
             'species' : species_serializer.data,
             'brain_region' : brain_region_serializer.data,
@@ -286,7 +306,10 @@ class AuthorizedCollabParameterRest(APIView):
             'abstraction_level' : abstraction_level_serializer.data,
             'score_type': score_type_serializer.data,
             'organization': organization_serializer.data,
+            'license': licenses_serializer.data,
+            'status': status_serializer.data
         })
+
 
 class CollabIDRest(APIView):
     """
