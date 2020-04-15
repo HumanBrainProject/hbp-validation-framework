@@ -15,13 +15,16 @@ export default class ConfigForm extends React.Component {
 
   constructor(props) {
     super(props);
+    console.log(props.display)
     this.state = {
                   selected: props.config,
+                  display: props.display,
                   validValues: null,
                   error: null,
                  };
 
     this.handleClose = this.handleClose.bind(this);
+    this.handleDisplayChange = this.handleDisplayChange.bind(this);
     this.handleFieldChange = this.handleFieldChange.bind(this);
   }
 
@@ -58,7 +61,11 @@ export default class ConfigForm extends React.Component {
   };
 
   handleClose() {
-    this.props.onClose(this.state.selected);
+    this.props.onClose(this.state.display, this.state.selected);
+  }
+
+  handleDisplayChange(display) {
+    this.setState({display: display});
   }
 
   handleFieldChange(event) {
@@ -88,16 +95,22 @@ export default class ConfigForm extends React.Component {
     if (this.state.error) {
       return this.renderError();
     } else {
+      console.log(this.state.display)
       return (
         <Dialog onClose={this.handleClose}
                 aria-labelledby="simple-dialog-title"
                 open={this.props.open}
                 fullWidth={true}
                 maxWidth="md">
-          <DialogTitle>Filter models</DialogTitle>
+          <DialogTitle>Configure App</DialogTitle>
           <DialogContent>
             <form>
-              <ThreeWaySwitch values={['Only Models', 'Models & Tests', 'Only Tests']} selected="Models & Tests" />
+              <ThreeWaySwitch 
+                values={this.props.displayValid}
+                // options={{"models":"Only Models", "both":"Models & Tests", "tests":"Only Tests"}}
+                // selected='Models & Tests'
+                selected={this.state.display}
+                onChange={this.handleDisplayChange} />
               {Object.keys(this.state.selected).map(filter => (
                 <MultipleSelect
                   itemNames={this.state.validValues == null ? [] : this.state.validValues[filter]}

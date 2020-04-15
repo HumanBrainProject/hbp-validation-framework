@@ -60,6 +60,7 @@ export default class ThreeWaySwitch extends React.Component {
 
   handleChange = val => {
     this.setState({ selected: val });
+    this.props.onChange(val);
   };
 
   selectionStyle = () => {

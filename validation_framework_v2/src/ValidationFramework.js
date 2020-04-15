@@ -40,6 +40,7 @@ const settingsDelimiter = ",";
 const filterKeys = ["species", "brain_region", "cell_type",
                     "organization", "model_scope", "abstraction_level",
                     "test_type"]//, "score_type", "data_modalities"]
+const displayValid = ["Only Models", "Models & Tests", "Only Tests"];
 
 const buildQuery = (filterDict) => {
   let q = "";
@@ -84,7 +85,21 @@ const storeFilters = (filterDict) => {
         data: data
       },
       collaboratoryOrigin);
-    console.log("Stored settings");
+    console.log("Stored filter settings");
+  }
+};
+
+const storeDisplay = (display) => {
+  if (isFramedApp) {
+    let data = {};
+    data["display"] = display;
+    window.parent.postMessage(
+      {
+        topic: updateSettingsTopic,
+        data: data
+      },
+      collaboratoryOrigin);
+    console.log("Stored display settings");
   }
 };
 
@@ -101,6 +116,16 @@ const retrieveFilters = () => {
     }
   }
   return filters;
+}
+
+const retrieveDisplay = () => {
+  const searchParams = new URLSearchParams(window.location.search);
+  let param = searchParams.get("display");
+  if (displayValid.includes(param)) {
+    return param;
+  } else {
+    return displayValid[1]; //"Models & Tests"
+  }
 }
 
 export default class ValidationFramework extends React.Component {
@@ -120,6 +145,7 @@ export default class ValidationFramework extends React.Component {
       'loading_model': true,
       'loading_test': true,
       'filters': retrieveFilters(),
+      'display': retrieveDisplay(),
       'modelsTableWide': false,
       'testsTableWide': false
     };
@@ -357,14 +383,22 @@ export default class ValidationFramework extends React.Component {
     this.setState({'configOpen': true})
   };
 
-  handleConfigClose(filters) {
+  handleConfigClose(display, filters) {
     if(!_.isEqual(filters, this.state.filters)) {
       this.setState({'filters': filters});
       storeFilters(filters);
       // if running within the Collaboratory, this reloads the page, so the filters get applied on the reload
-      // when accessed stand-alone, the filters are not stored, and the following line is executed
+      // when accessed stand-alone, the filters are not stored, and the following lines are executed
       this.updateModels(filters);
       this.updateTests(filters);
+    }
+    if(display !== this.state.display) {
+      console.log(this.state.display)
+      console.log(display)
+      storeDisplay(display);
+      this.setState({'display': display});
+      this.setState({modelsTableWide: false});
+      this.setState({testsTableWide: false});
     }
     this.setState({'configOpen': false});
   };
@@ -379,7 +413,8 @@ export default class ValidationFramework extends React.Component {
 
   renderTables() {
     let content = "";
-      if (this.state.modelsTableWide && !this.state.testsTableWide) {
+    console.log(this.state.display);
+      if ((this.state.modelsTableWide && !this.state.testsTableWide) || (this.state.display==="Only Models")) {
         content = <Grid container>
                     <Grid item xs={12}>
                       { this.state.loading_model ?
@@ -390,11 +425,11 @@ export default class ValidationFramework extends React.Component {
                         <br /><br />
                       </Paper>
                       :
-                      <ModelTable rows={this.state.modelData} changeTableWidth={this.modelTableFullWidth} handleRowClick={this.handleModelRowClick} />
+                      <ModelTable rows={this.state.modelData} display={this.state.display} changeTableWidth={this.modelTableFullWidth} handleRowClick={this.handleModelRowClick} />
                       }
                     </Grid>
                   </Grid>
-      } else if (!this.state.modelsTableWide && this.state.testsTableWide) {
+      } else if ((!this.state.modelsTableWide && this.state.testsTableWide) || (this.state.display==="Only Tests")) {
         content = <Grid container>
                     <Grid item xs={12}>
                       { this.state.loading_test ?
@@ -405,7 +440,7 @@ export default class ValidationFramework extends React.Component {
                           <br /><br />
                         </Paper>
                         :
-                        <TestTable rows={this.state.testData} changeTableWidth={this.testTableFullWidth}  handleRowClick={this.handleTestRowClick} />
+                        <TestTable rows={this.state.testData} display={this.state.display} changeTableWidth={this.testTableFullWidth}  handleRowClick={this.handleTestRowClick} />
                       }
                     </Grid>
                   </Grid>
@@ -420,7 +455,7 @@ export default class ValidationFramework extends React.Component {
                           <br /><br />
                         </Paper>
                         :
-                        <ModelTable rows={this.state.modelData} changeTableWidth={this.modelTableFullWidth} handleRowClick={this.handleModelRowClick} />
+                        <ModelTable rows={this.state.modelData} display={this.state.display} changeTableWidth={this.modelTableFullWidth} handleRowClick={this.handleModelRowClick} />
                       }
                     </Grid>
                     <Grid item xs={6}>
@@ -432,7 +467,7 @@ export default class ValidationFramework extends React.Component {
                           <br /><br />
                         </Paper>
                         :
-                        <TestTable rows={this.state.testData} changeTableWidth={this.testTableFullWidth} handleRowClick={this.handleTestRowClick} />
+                        <TestTable rows={this.state.testData} display={this.state.display} changeTableWidth={this.testTableFullWidth} handleRowClick={this.handleTestRowClick} />
                       }
                     </Grid>
                   </Grid>
@@ -461,13 +496,13 @@ export default class ValidationFramework extends React.Component {
       mainContent = this.renderTables();
     }
 
-    if (this.state.currentModel) {
+    if (this.state.currentModel && this.state.display!=="Only Tests") {
       modelDetail = <ModelDetail open={this.state.modelDetailOpen} modelData={this.state.currentModel} onClose={this.handleModelDetailClose} baseUrl={baseUrl} auth={this.props.auth} />;
     } else {
       modelDetail = "";
     }
 
-    if (this.state.currentTest) {
+    if (this.state.currentTest && this.state.display!=="Only Models") {
       testDetail = <TestDetail open={this.state.testDetailOpen} testData={this.state.currentTest} onClose={this.handleTestDetailClose} baseUrl={baseUrl} auth={this.props.auth} />;
     } else {
       testDetail = "";
@@ -487,7 +522,7 @@ export default class ValidationFramework extends React.Component {
         </Grid>
         <br/>
 
-        <ConfigForm open={this.state.configOpen} onClose={this.handleConfigClose} config={this.state.filters} baseUrl={baseUrl} />
+        <ConfigForm open={this.state.configOpen} onClose={this.handleConfigClose} config={this.state.filters} displayValid={displayValid} display={this.state.display} baseUrl={baseUrl} />
         <div>
           {modelDetail}
         </div>

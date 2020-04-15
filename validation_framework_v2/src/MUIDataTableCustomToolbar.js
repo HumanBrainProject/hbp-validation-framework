@@ -15,16 +15,20 @@ class CustomToolbar extends React.Component {
 
   render() {
     const { classes } = this.props;
-
-    return (
-      <React.Fragment>
-        <Tooltip title={"Table Width"}>
-          <IconButton className={classes.iconButton} onClick={this.props.changeTableWidth}>
-            <FlipIcon className={classes.deleteIcon} />
-          </IconButton>
-        </Tooltip>
-      </React.Fragment>
-    );
+    if (this.props.display === "Models & Tests") {
+      return (
+        <React.Fragment>
+          <Tooltip title={"Table Width"}>
+            <IconButton className={classes.iconButton} onClick={this.props.changeTableWidth}>
+              <FlipIcon className={classes.deleteIcon} />
+            </IconButton>
+          </Tooltip>
+        </React.Fragment>
+      );
+    } else {
+      // disable option if only showing models or tests (not both)
+      return ""
+    }
   }
 }
 
