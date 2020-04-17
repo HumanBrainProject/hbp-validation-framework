@@ -13,7 +13,9 @@ import Avatar from '@material-ui/core/Avatar';
 import Tooltip from '@material-ui/core/Tooltip';
 import Divider from '@material-ui/core/Divider';
 
-import {formatTimeStampToCompact, roundFloat} from "./utils";
+import { formatTimeStampToCompact, roundFloat } from "./utils";
+import { updateHash } from "./globals";
+
 import LoadingIndicator from "./LoadingIndicator"
 import ResultDetail from './ResultDetail';
 
@@ -282,7 +284,7 @@ export default class ModelResultOverview extends React.Component {
                     'resultDetailOpen': true,
                     'currentResult':   result
                   });
-    // updateHash(rowData.id);
+    updateHash("result_id."+result.id);
   };
 
   handleResultDetailClose() {
@@ -290,7 +292,7 @@ export default class ModelResultOverview extends React.Component {
                     'resultDetailOpen': false,
                     'currentResult':    null
                   });
-    // updateHash('');
+    updateHash('');
   };
 
   renderResultsSummaryTable(dict_results, model_versions) {

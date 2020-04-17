@@ -14,7 +14,9 @@ import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import Plotly from "plotly.js"
 import createPlotlyComponent from 'react-plotly.js/factory';
 
-import {formatTimeStampToCompact} from "./utils";
+import { formatTimeStampToCompact } from "./utils";
+import { updateHash } from "./globals";
+
 import LoadingIndicator from "./LoadingIndicator"
 import ResultDetail from './ResultDetail';
 
@@ -309,7 +311,7 @@ export default class ResultGraphs extends React.Component {
                     'resultDetailOpen': true,
                     'currentResult':   result
                   });
-    // updateHash(rowData.id);
+    updateHash("result_id."+result.id);
   };
 
   handleResultDetailClose() {
@@ -317,7 +319,7 @@ export default class ResultGraphs extends React.Component {
                     'resultDetailOpen': false,
                     'currentResult':    null
                   });
-    // updateHash('');
+    updateHash('');
   };
 
   renderResultsFigures(dict_results) {

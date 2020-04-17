@@ -9,13 +9,13 @@ import MultipleSelect from './MultipleSelect';
 import axios from 'axios';
 
 import ThreeWaySwitch from './ThreeWaySwitch'
+import { baseUrl, displayValid, filterModelKeys, filterTestKeys } from "./globals";
 
 export default class ConfigForm extends React.Component {
   signal = axios.CancelToken.source();
 
   constructor(props) {
     super(props);
-    console.log(props.display)
     this.state = {
                   selected: props.config,
                   display: props.display,
@@ -37,7 +37,7 @@ export default class ConfigForm extends React.Component {
   }
 
   getConfigValidValues = () => {
-    let url = this.props.baseUrl + "/authorizedcollabparameterrest/?python_client=true";
+    let url = baseUrl + "/authorizedcollabparameterrest/?python_client=true";
     let config = {
       cancelToken: this.signal.token
     }
@@ -95,7 +95,6 @@ export default class ConfigForm extends React.Component {
     if (this.state.error) {
       return this.renderError();
     } else {
-      console.log(this.state.display)
       return (
         <Dialog onClose={this.handleClose}
                 aria-labelledby="simple-dialog-title"
@@ -106,9 +105,7 @@ export default class ConfigForm extends React.Component {
           <DialogContent>
             <form>
               <ThreeWaySwitch 
-                values={this.props.displayValid}
-                // options={{"models":"Only Models", "both":"Models & Tests", "tests":"Only Tests"}}
-                // selected='Models & Tests'
+                values={displayValid}
                 selected={this.state.display}
                 onChange={this.handleDisplayChange} />
               {Object.keys(this.state.selected).map(filter => (

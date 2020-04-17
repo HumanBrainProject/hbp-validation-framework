@@ -17,30 +17,20 @@ import ConfigForm from "./ConfigForm";
 import Introduction from "./Introduction";
 import ConfigDisplayTop from "./ConfigDisplayTop"
 import LoadingIndicator from "./LoadingIndicator"
-import globals from "./globals";
+import ResultDetail from './ResultDetail';
+import ErrorDialog from './ErrorDialog';
+import { DevMode, baseUrl, collaboratoryOrigin, updateSettingsTopic, isFramedApp, settingsDelimiter, filterKeys, displayValid, queryValid, updateHash } from "./globals";
+import { isUUID } from './utils'
 
 // if working on the appearance/layout set globals.DevMode=true
 // to avoid loading the models and tests over the network every time;
 // instead we use the local test_data
 var test_data = {}
-if (globals.DevMode) {
+if (DevMode) {
   test_data = require('./dev_data/test_data.json');
 } else {
   test_data = {models: [], tests: []};
 }
-
-const baseUrl = "https://validation-staging.brainsimulation.eu";
-const collaboratoryOrigin = 'https://wiki.humanbrainproject.eu';
-const hashChangedTopic = '/clb/community-app/hashchange';
-const updateSettingsTopic = '/clb/community-app/settings';
-const isParent = (window.opener == null);
-const isIframe = (window !== window.parent);
-const isFramedApp = isIframe && isParent;
-const settingsDelimiter = ",";
-const filterKeys = ["species", "brain_region", "cell_type",
-                    "organization", "model_scope", "abstraction_level",
-                    "test_type"]//, "score_type", "data_modalities"]
-const displayValid = ["Only Models", "Models & Tests", "Only Tests"];
 
 const buildQuery = (filterDict) => {
   let q = "";
@@ -63,22 +53,13 @@ const filtersEmpty = (filterDict) => {
   return is_empty;
 };
 
-const updateHash = (value) => {
-  window.location.hash = value;
-  if (isFramedApp) {
-    window.parent.postMessage({
-      topic: hashChangedTopic,
-      data: value
-    }, collaboratoryOrigin);
-  };
-};
-
 const storeFilters = (filterDict) => {
   if (isFramedApp) {
     let data = {};
     for (let key of filterKeys) {
       data[key] = filterDict[key].join(settingsDelimiter);
     }
+    data["reload"] = false;
     window.parent.postMessage(
       {
         topic: updateSettingsTopic,
@@ -93,6 +74,7 @@ const storeDisplay = (display) => {
   if (isFramedApp) {
     let data = {};
     data["display"] = display;
+    data["reload"] = false;
     window.parent.postMessage(
       {
         topic: updateSettingsTopic,
@@ -136,20 +118,24 @@ export default class ValidationFramework extends React.Component {
 
     this.state = {
       'modelData': [],
-      'currentModel': null,
       'testData': [],
+      'currentModel': null,
       'currentTest': null,
+      'currentResult': null,
       'modelDetailOpen': false,
       'testDetailOpen': false,
+      'resultDetailOpen': false,
       'configOpen': false,
       'loading_model': true,
       'loading_test': true,
+      'errorUpdate': null,
+      'errorGet': null,
       'filters': retrieveFilters(),
       'display': retrieveDisplay(),
       'modelsTableWide': false,
       'testsTableWide': false
     };
-    if (globals.DevMode) {
+    if (DevMode) {
       this.state['modelData'] = test_data.models
       this.state['currentModel'] = test_data.models[0]
       this.state['testData'] = test_data.tests
@@ -159,10 +145,13 @@ export default class ValidationFramework extends React.Component {
     }
     this.handleModelDetailClose = this.handleModelDetailClose.bind(this);
     this.handleTestDetailClose = this.handleTestDetailClose.bind(this);
+    this.handleResultDetailClose = this.handleResultDetailClose.bind(this);
     this.handleModelRowClick = this.handleModelRowClick.bind(this);
     this.handleTestRowClick = this.handleTestRowClick.bind(this);
     this.openConfig = this.openConfig.bind(this);
     this.handleConfigClose = this.handleConfigClose.bind(this);
+    this.handleErrorGetDialogClose = this.handleErrorGetDialogClose.bind(this);
+    this.handleErrorUpdateDialogClose = this.handleErrorUpdateDialogClose.bind(this);
     this.updateModels = this.updateModels.bind(this);
     this.updateTests = this.updateTests.bind(this);
     this.getModel = this.getModel.bind(this);
@@ -184,16 +173,42 @@ export default class ValidationFramework extends React.Component {
   }
 
   componentDidMount() {
-    console.log(window.location.hash)
     if (window.location.hash) {
-      // get a specific model
-      // this.getModel(window.location.hash.slice(1));  // TODO: uncomment?
-      // get a specific test
-      // this.getTest(window.location.hash.slice(1));   // TODO: uncomment?
+      let proceed = true;
+      const param = window.location.hash.slice(1);
+      const key = param.split(".")[0]
+      const value = param.substr(param.indexOf('.')+1)
+      let error_message = ""
+
+      if (!queryValid.includes(key)) {
+        error_message = "URL query parameter must be one of the following:\n" + queryValid.join(", ");
+        this.setState({errorGet: error_message});
+        proceed = false;
+      }
+      if(proceed && key.endsWith("_id") && !isUUID(value)) {
+        error_message = "Value for query parameter '" + key + "' is not a valid UUID.\n Value: (" + value + ")";
+        this.setState({errorGet: error_message});
+        proceed = false;
+      }
+
+      if(proceed && key.startsWith("model")) {
+        // get a specific model
+        this.getModel(key, value);
+      } else if(proceed && key.startsWith("test")) {
+        // get a specific test
+        this.getTest(key, value);
+      } else if(proceed && key === "result_id") {
+        // get a specific result
+        this.getResult(key, value);
+      }
     }
-    if (!globals.DevMode) {
-      this.updateModels(this.state.filters);
-      this.updateTests(this.state.filters);
+    if (!DevMode) {
+      if (this.state.display!=="Only Tests") {
+        this.updateModels(this.state.filters);
+      }
+      if (this.state.display!=="Only Models") {
+        this.updateTests(this.state.filters);
+      }
     }
   }
 
@@ -201,68 +216,114 @@ export default class ValidationFramework extends React.Component {
     this.signal.cancel('REST API call canceled!');
   }
 
-  getModel(model_id) {
-    let url = baseUrl + "/models/?id=" + model_id;
+  getModel(key, value) {
+    let url = "";
+    if (key === "model_id") {
+      url = baseUrl + "/models/?id=" + value;
+    } else if (key === "model_alias") {
+      url = baseUrl + "/models/?alias=" + value;
+    }
     let config = {
       cancelToken: this.signal.token,
       headers: {
         'Authorization': 'Bearer ' + this.props.auth.token,
       }
     }
-    this.setState({loading_model: true});
+    // this.setState({loading_model: true});
     axios.get(url, config)
       .then(res => {
-        const models = res.data.models;
+        if(res.data.models.length !== 1) {
+          throw "Specified model_alias = '" + value + "' does not exist!";
+        }
         this.setState({
-          modelData: models,
-          currentModel: models[0],
-          loading_model: false,
-          error: null,
-          modelDetailOpen: true  // TODO: required?
+          currentModel: res.data.models[0],
+          // loading_model: false,
+          errorGet: null,
+          modelDetailOpen: true
         });
       })
       .catch(err => {
         if (axios.isCancel(err)) {
-          console.log('Error: ', err.message);
+          console.log('errorGet: ', err.message);
         } else {
           // Something went wrong. Save the error in state and re-render.
           this.setState({
-            loading_model: false,
-            error: err
+            // loading_model: false,
+            errorGet: "Specified model_id = '" + value + "' is invalid!"
           });
         }
       }
     );
   };
 
-  getTest(test_id) {
-    let url = baseUrl + "/tests/?id=" + test_id;
+  getTest(key, value) {
+    let url = "";
+    if (key === "test_id") {
+      url = baseUrl + "/tests/?id=" + value;
+    } else if (key === "test_alias") {
+      url = baseUrl + "/tests/?alias=" + value;
+    }
     let config = {
       cancelToken: this.signal.token,
       headers: {
         'Authorization': 'Bearer ' + this.props.auth.token,
       }
     }
-    this.setState({loading_test: true});
+    // this.setState({loading_test: true});
     axios.get(url, config)
-      .then(res => {
-        const tests = res.data.tests;
+      .then(res =>   {
+        if(res.data.tests.length !== 1) {
+          throw "Specified test_alias = '" + value + "' does not exist!";
+        }
         this.setState({
-          testData: tests,
-          currentTest: tests[0],
-          loading_test: false,
-          error: null,
-          testDetailOpen: true  // TODO: required?
+          currentTest: res.data.tests[0],
+          // loading_test: false,
+          errorGet: null,
+          testDetailOpen: true
         });
       })
       .catch(err => {
         if (axios.isCancel(err)) {
-          console.log('Error: ', err.message);
+          console.log('errorGet: ', err.message);
         } else {
           // Something went wrong. Save the error in state and re-render.
           this.setState({
-            loading_test: false,
-            error: err
+            // loading_test: false,
+            errorGet: "Specified test_id = '" + value + "' is invalid!"
+          });
+        }
+      }
+    );
+  };
+
+  getResult(key, value) {
+    let url = baseUrl + "/results/?order=&id=" + value;
+    let config = {
+      cancelToken: this.signal.token,
+      headers: {
+        'Authorization': 'Bearer ' + this.props.auth.token,
+      }
+    }
+    return axios.get(url, config)
+      .then(res => {
+        if(res.data.results.length !== 1) {
+          throw "Specified result_id = '" + value + "' is invalid!"
+        }
+        this.setState({
+          currentResult: res.data["results"][0],
+          // loading_result: false,
+          errorGet: null,
+          resultDetailOpen: true
+        });
+      })
+      .catch(err => {
+        if (axios.isCancel(err)) {
+          console.log('errorGet: ', err.message);
+        } else {
+          // Something went wrong. Save the error in state and re-render.
+          this.setState({
+            // loading_result: false,
+            errorGet: err
           });
         }
       }
@@ -274,7 +335,7 @@ export default class ValidationFramework extends React.Component {
       this.setState({
         modelData: [],
         loading_model: false,
-        error: null
+        errorUpdate: null
       });
     } else {
       let query = buildQuery(filters);
@@ -291,19 +352,19 @@ export default class ValidationFramework extends React.Component {
           const models = res.data.models;
           this.setState({
             modelData: models,
-            // currentModel: this.state.currentModel ? this.state.currentModel : models[0], //TODO: why?
+            // currentModel: this.state.currentModel ? this.state.currentModel : models[0], //Remove?
             loading_model: false,
-            error: null
+            errorUpdate: null
           });
         })
         .catch(err => {
           if (axios.isCancel(err)) {
-            console.log('Error: ', err.message);
+            console.log('errorUpdate: ', err.message);
           } else {
             // Something went wrong. Save the error in state and re-render.
             this.setState({
               loading_model: false,
-              error: err
+              errorUpdate: err
             });
           }
         }
@@ -316,7 +377,7 @@ export default class ValidationFramework extends React.Component {
       this.setState({
         testData: [],
         loading_test: false,
-        error: null
+        errorUpdate: null
       });
     } else {
       let query = buildQuery(filters);
@@ -333,19 +394,19 @@ export default class ValidationFramework extends React.Component {
           const tests = res.data.tests;
           this.setState({
             testData: tests,
-            // currentTest: this.state.currentTest ? this.state.currentTest : tests[0], //TODO: why?
+            // currentTest: this.state.currentTest ? this.state.currentTest : tests[0], //Remove?
             loading_test: false,
-            error: null
+            errorUpdate: null
           });
         })
         .catch(err => {
           if (axios.isCancel(err)) {
-            console.log('Error: ', err.message);
+            console.log('errorUpdate: ', err.message);
           } else {
             // Something went wrong. Save the error in state and re-render.
             this.setState({
               loading_test: false,
-              error: err
+              errorUpdate: err
             });
           }
         }
@@ -357,7 +418,7 @@ export default class ValidationFramework extends React.Component {
     // Note: last element of MUIDataTable (in ModelTable.js) is set to json Object of entry
     this.setState({'currentModel': rowData[rowData.length-1]});
     this.setState({'modelDetailOpen': true});
-    updateHash(rowData.id);
+    updateHash("model_id."+rowData[0]);
   };
 
   handleModelDetailClose() {
@@ -370,7 +431,7 @@ export default class ValidationFramework extends React.Component {
     // Note: last element of MUIDataTable (in TestTable.js) is set to json Object of entry
     this.setState({'currentTest': rowData[rowData.length-1]});
     this.setState({'testDetailOpen': true});
-    updateHash(rowData.id);
+    updateHash("test_id."+rowData[0]);
   };
 
   handleTestDetailClose() {
@@ -379,28 +440,55 @@ export default class ValidationFramework extends React.Component {
     updateHash('');
   };
 
+  handleResultDetailClose() {
+    this.setState({'currentResult': null});
+    this.setState({'resultDetailOpen': false});
+    updateHash('');
+  };
+
   openConfig() {
     this.setState({'configOpen': true})
   };
 
   handleConfigClose(display, filters) {
+    let update_flag = false;
     if(!_.isEqual(filters, this.state.filters)) {
       this.setState({'filters': filters});
       storeFilters(filters);
       // if running within the Collaboratory, this reloads the page, so the filters get applied on the reload
       // when accessed stand-alone, the filters are not stored, and the following lines are executed
-      this.updateModels(filters);
-      this.updateTests(filters);
+      if (display!=="Only Tests") {
+        update_flag = true;
+        this.updateModels(filters);
+      }
+      if (display!=="Only Models") {
+        update_flag = true;
+        this.updateTests(filters);
+      }
     }
-    if(display !== this.state.display) {
+    if(display !== this.state.display) { // compare new with existing
       console.log(this.state.display)
       console.log(display)
+      if ((!update_flag) && (this.state.display === "Only Tests")) {
+        this.updateModels(filters);
+      }
+      if ((!update_flag) && (this.state.display === "Only Models")) {
+        this.updateTests(filters);
+      }
       storeDisplay(display);
       this.setState({'display': display});
       this.setState({modelsTableWide: false});
       this.setState({testsTableWide: false});
     }
     this.setState({'configOpen': false});
+  };
+
+  handleErrorGetDialogClose() {
+    this.setState({'errorGet': null});
+  };
+
+  handleErrorUpdateDialogClose() {
+    this.setState({'errorUpdate': null});
   };
 
   renderError() {
@@ -413,11 +501,40 @@ export default class ValidationFramework extends React.Component {
 
   renderTables() {
     let content = "";
-    console.log(this.state.display);
-      if ((this.state.modelsTableWide && !this.state.testsTableWide) || (this.state.display==="Only Models")) {
-        content = <Grid container>
-                    <Grid item xs={12}>
-                      { this.state.loading_model ?
+    if ((this.state.modelsTableWide && !this.state.testsTableWide) || (this.state.display==="Only Models")) {
+      content = <Grid container>
+                  <Grid item xs={12}>
+                    { this.state.loading_model ?
+                    <Paper style={{padding: '0 0 0 16px'}}>
+                      <br />
+                      <Typography variant="h6">Models</Typography>
+                      <LoadingIndicator />
+                      <br /><br />
+                    </Paper>
+                    :
+                    <ModelTable rows={this.state.modelData} display={this.state.display} changeTableWidth={this.modelTableFullWidth} handleRowClick={this.handleModelRowClick} />
+                    }
+                  </Grid>
+                </Grid>
+    } else if ((!this.state.modelsTableWide && this.state.testsTableWide) || (this.state.display==="Only Tests")) {
+      content = <Grid container>
+                  <Grid item xs={12}>
+                    { this.state.loading_test ?
+                      <Paper style={{padding: '0 0 0 16px'}}>
+                        <br />
+                        <Typography variant="h6">Tests</Typography>
+                        <LoadingIndicator />
+                        <br /><br />
+                      </Paper>
+                      :
+                      <TestTable rows={this.state.testData} display={this.state.display} changeTableWidth={this.testTableFullWidth}  handleRowClick={this.handleTestRowClick} />
+                    }
+                  </Grid>
+                </Grid>
+    } else {
+      content = <Grid container spacing={2}>
+                  <Grid item xs={6}>
+                    { this.state.loading_model ?
                       <Paper style={{padding: '0 0 0 16px'}}>
                         <br />
                         <Typography variant="h6">Models</Typography>
@@ -426,57 +543,27 @@ export default class ValidationFramework extends React.Component {
                       </Paper>
                       :
                       <ModelTable rows={this.state.modelData} display={this.state.display} changeTableWidth={this.modelTableFullWidth} handleRowClick={this.handleModelRowClick} />
-                      }
-                    </Grid>
+                    }
                   </Grid>
-      } else if ((!this.state.modelsTableWide && this.state.testsTableWide) || (this.state.display==="Only Tests")) {
-        content = <Grid container>
-                    <Grid item xs={12}>
-                      { this.state.loading_test ?
-                        <Paper style={{padding: '0 0 0 16px'}}>
-                          <br />
-                          <Typography variant="h6">Tests</Typography>
-                          <LoadingIndicator />
-                          <br /><br />
-                        </Paper>
-                        :
-                        <TestTable rows={this.state.testData} display={this.state.display} changeTableWidth={this.testTableFullWidth}  handleRowClick={this.handleTestRowClick} />
-                      }
-                    </Grid>
+                  <Grid item xs={6}>
+                    { this.state.loading_test ?
+                      <Paper style={{padding: '0 0 0 16px'}}>
+                        <br />
+                        <Typography variant="h6">Tests</Typography>
+                        <LoadingIndicator />
+                        <br /><br />
+                      </Paper>
+                      :
+                      <TestTable rows={this.state.testData} display={this.state.display} changeTableWidth={this.testTableFullWidth} handleRowClick={this.handleTestRowClick} />
+                    }
                   </Grid>
-      } else {
-        content = <Grid container spacing={2}>
-                    <Grid item xs={6}>
-                      { this.state.loading_model ?
-                        <Paper style={{padding: '0 0 0 16px'}}>
-                          <br />
-                          <Typography variant="h6">Models</Typography>
-                          <LoadingIndicator />
-                          <br /><br />
-                        </Paper>
-                        :
-                        <ModelTable rows={this.state.modelData} display={this.state.display} changeTableWidth={this.modelTableFullWidth} handleRowClick={this.handleModelRowClick} />
-                      }
-                    </Grid>
-                    <Grid item xs={6}>
-                      { this.state.loading_test ?
-                        <Paper style={{padding: '0 0 0 16px'}}>
-                          <br />
-                          <Typography variant="h6">Tests</Typography>
-                          <LoadingIndicator />
-                          <br /><br />
-                        </Paper>
-                        :
-                        <TestTable rows={this.state.testData} display={this.state.display} changeTableWidth={this.testTableFullWidth} handleRowClick={this.handleTestRowClick} />
-                      }
-                    </Grid>
-                  </Grid>
-      }
-      return(
-        <div>
-          {content}
-        </div>
-        );
+                </Grid>
+    }
+    return(
+      <div>
+        {content}
+      </div>
+      );
   }
 
   renderValidationFramework() {
@@ -484,9 +571,13 @@ export default class ValidationFramework extends React.Component {
     var mainContent = "";
     var modelDetail = "";
     var testDetail = "";
+    var resultDetail = "";
 
-    if (this.state.error) {
-      return this.renderError();
+    if (this.state.errorGet) {
+      return <ErrorDialog open={Boolean(this.state.errorGet)} handleErrorDialogClose={this.handleErrorGetDialogClose} error={this.state.errorGet.message || this.state.errorGet} />
+    }
+    if (this.state.errorUpdate) {
+      return <ErrorDialog open={Boolean(this.state.errorUpdate)} handleErrorDialogClose={this.handleErrorUpdateDialogClose} error={this.state.errorUpdate.message || this.state.errorUpdate} />
     }
     if (filtersEmpty(this.state.filters) && isFramedApp) { // TODO: remove `isFramedApp` to avoid auto load of all entries on entry page
       configContent = "";
@@ -496,16 +587,22 @@ export default class ValidationFramework extends React.Component {
       mainContent = this.renderTables();
     }
 
-    if (this.state.currentModel && this.state.display!=="Only Tests") {
-      modelDetail = <ModelDetail open={this.state.modelDetailOpen} modelData={this.state.currentModel} onClose={this.handleModelDetailClose} baseUrl={baseUrl} auth={this.props.auth} />;
+    if (this.state.currentModel) {// && this.state.display!=="Only Tests") {
+      modelDetail = <ModelDetail open={this.state.modelDetailOpen} modelData={this.state.currentModel} onClose={this.handleModelDetailClose} auth={this.props.auth} />;
     } else {
       modelDetail = "";
     }
 
-    if (this.state.currentTest && this.state.display!=="Only Models") {
-      testDetail = <TestDetail open={this.state.testDetailOpen} testData={this.state.currentTest} onClose={this.handleTestDetailClose} baseUrl={baseUrl} auth={this.props.auth} />;
+    if (this.state.currentTest) {// && this.state.display!=="Only Models") {
+      testDetail = <TestDetail open={this.state.testDetailOpen} testData={this.state.currentTest} onClose={this.handleTestDetailClose} auth={this.props.auth} />;
     } else {
       testDetail = "";
+    }
+
+    if (this.state.currentResult) {
+      resultDetail = <ResultDetail open={this.state.resultDetailOpen} result={this.state.currentResult} onClose={this.handleResultDetailClose} auth={this.props.auth} />;
+    } else {
+      resultDetail = "";
     }
 
     return (
@@ -522,12 +619,15 @@ export default class ValidationFramework extends React.Component {
         </Grid>
         <br/>
 
-        <ConfigForm open={this.state.configOpen} onClose={this.handleConfigClose} config={this.state.filters} displayValid={displayValid} display={this.state.display} baseUrl={baseUrl} />
+        <ConfigForm open={this.state.configOpen} onClose={this.handleConfigClose} config={this.state.filters} display={this.state.display} />
         <div>
           {modelDetail}
         </div>
         <div>
           {testDetail}
+        </div>
+        <div>
+          {resultDetail}
         </div>
         <main>
           {mainContent}

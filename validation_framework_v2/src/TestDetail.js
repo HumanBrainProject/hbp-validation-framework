@@ -21,13 +21,14 @@ import TestDetailMetadata from './TestDetailMetadata';
 import TestResultOverview from './TestResultOverview';
 import {formatAuthors} from "./utils";
 import ResultGraphs from './ResultGraphs';
-import globals from "./globals";
+import { DevMode } from "./globals";
+import { baseUrl } from "./globals";
 
 // if working on the appearance/layout set globals.DevMode=true
 // to avoid loading the models and tests over the network every time;
 // instead we use the local test_data
 var result_data = {}
-if (globals.DevMode) {
+if (DevMode) {
   result_data = require('./dev_data/test_data_results.json');
 } else {
   result_data = {results: []};
@@ -117,7 +118,7 @@ export default class TestDetail extends React.Component {
   }
 
   getTestResults = () => {
-    let url = this.props.baseUrl + "/results/?order=&test_id=" + this.props.testData.id;
+    let url = baseUrl + "/results/?order=&test_id=" + this.props.testData.id;
     let config = {
       cancelToken: this.signal.token,
       headers: {
