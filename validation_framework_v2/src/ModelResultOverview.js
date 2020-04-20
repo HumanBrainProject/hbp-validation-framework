@@ -358,7 +358,7 @@ export default class ModelResultOverview extends React.Component {
     var content = "";
     var resultDetail = "";
 
-    if (this.props.loading_result) {
+    if (this.props.loadingResult) {
       return <LoadingIndicator position="absolute" />
     }
 
@@ -366,7 +366,7 @@ export default class ModelResultOverview extends React.Component {
     const results_grouped = this.groupResults(model_versions);
 
     console.log(results_grouped)
-    console.log(this.props.loading_result)
+    console.log(this.props.loadingResult)
     if (Object.keys(results_grouped).length>0) {
       content = this.renderResultsSummaryTable(results_grouped, model_versions);
     } else {

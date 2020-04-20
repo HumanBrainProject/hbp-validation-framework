@@ -9,15 +9,28 @@ import MultipleSelect from './MultipleSelect';
 import axios from 'axios';
 
 import ThreeWaySwitch from './ThreeWaySwitch'
-import { baseUrl, displayValid, filterModelKeys, filterTestKeys } from "./globals";
+import { baseUrl, displayValid, filterKeys, filterModelKeys, filterTestKeys } from "./globals";
 
 export default class ConfigForm extends React.Component {
   signal = axios.CancelToken.source();
 
   constructor(props) {
     super(props);
+    let selectedConfig = {};
+    if (props.display === 'Only Models') {
+      filterModelKeys.forEach(function (key, index) {
+        selectedConfig[key] = props.config[key];
+      });
+    } else if (props.display === 'Only Tests') {
+      filterTestKeys.forEach(function (key, index) {
+        selectedConfig[key] = props.config[key];
+      });
+    } else {
+      selectedConfig = props.config;
+    }
+
     this.state = {
-                  selected: props.config,
+                  selected: selectedConfig,
                   display: props.display,
                   validValues: null,
                   error: null,
@@ -95,6 +108,14 @@ export default class ConfigForm extends React.Component {
     if (this.state.error) {
       return this.renderError();
     } else {
+      let showFilters = {};
+      if (this.state.display === "Only Models") {
+        showFilters = filterModelKeys;
+      } else if (this.state.display === "Only Tests") {
+        showFilters = filterTestKeys;
+      } else {
+        showFilters = filterKeys;
+      }
       return (
         <Dialog onClose={this.handleClose}
                 aria-labelledby="simple-dialog-title"
@@ -104,11 +125,11 @@ export default class ConfigForm extends React.Component {
           <DialogTitle>Configure App</DialogTitle>
           <DialogContent>
             <form>
-              <ThreeWaySwitch 
+              <ThreeWaySwitch
                 values={displayValid}
                 selected={this.state.display}
                 onChange={this.handleDisplayChange} />
-              {Object.keys(this.state.selected).map(filter => (
+              {showFilters.map(filter => (
                 <MultipleSelect
                   itemNames={this.state.validValues == null ? [] : this.state.validValues[filter]}
                   label={filter}

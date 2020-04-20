@@ -29,9 +29,7 @@ import { baseUrl } from "./globals";
 // instead we use the local test_data
 var result_data = {}
 if (DevMode) {
-  result_data = require('./dev_data/test_data_results.json');
-} else {
-  result_data = {results: []};
+  result_data = require('./dev_data/sample_test_results.json');
 }
 
 const styles = theme => ({
@@ -92,24 +90,29 @@ export default class TestDetail extends React.Component {
       super(props);
       this.state = {
                       tabValue: 0,
-                      loading_result  : true,
+                      results: [],
+                      loadingResult  : true,
+                      error: null
                     };
-
+      if (DevMode) {
+        this.state['results'] = result_data.results;
+        this.state['loadingResult'] = false;
+      }
       this.handleClose = this.handleClose.bind(this);
       this.handleTabChange = this.handleTabChange.bind(this);
   }
 
   componentDidMount() {
-    this.getTestResults();
+    if (!DevMode) {
+      this.getTestResults();
+    }
   }
 
   componentWillUnmount() {
-    console.log("close1")
     this.signal.cancel('REST API call canceled!');
   }
 
   handleClose() {
-    console.log("close2")
     this.props.onClose();
   }
 
@@ -129,7 +132,7 @@ export default class TestDetail extends React.Component {
       .then(res => {
         this.setState({
           results: res.data["results"],
-          loading_result: false,
+          loadingResult: false,
           error: null
         });
         console.log(res.data["results"])
@@ -140,7 +143,7 @@ export default class TestDetail extends React.Component {
         } else {
           // Something went wrong. Save the error in state and re-render.
           this.setState({
-            loading_result: false,
+            loadingResult: false,
             error: err
           });
         }
@@ -202,14 +205,14 @@ export default class TestDetail extends React.Component {
                   id={this.props.testData.id}
                   testJSON={this.props.testData}
                   results={this.state.results}
-                  loading_result={this.state.loading_result}
+                  loadingResult={this.state.loadingResult}
                 />
               </TabPanel>
               <TabPanel value={this.state.tabValue} index={2}>
                 <ResultGraphs
                   id={this.props.testData.id}
                   results={this.state.results}
-                  loading_result={this.state.loading_result}
+                  loadingResult={this.state.loadingResult}
                 />
               </TabPanel>
           </Grid>
