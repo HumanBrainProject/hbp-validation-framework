@@ -20,394 +20,394 @@ import { updateHash } from "./globals";
 import LoadingIndicator from "./LoadingIndicator"
 import ResultDetail from './ResultDetail';
 
-
 function ResultsFiguresTestIntance(props) {
-    const Plot = createPlotlyComponent(Plotly);
+	const Plot = createPlotlyComponent(Plotly);
 
-    var model_labels = [];
-    var model_version_labels = [];
-    var model_version_longlabels = [];
-    var model_version_scores = [];
-    var traces = [];
-    var layout = {};
-    var label_resultJSON_map = {};
+	var model_labels = [];
+	var model_version_labels = [];
+	var model_version_longlabels = [];
+	var model_version_scores = [];
+	var traces = [];
+	var layout = {};
+	var label_resultJSON_map = {};
 
-    for (let model_entry of Object.values(props.test_inst_entry["models"])) {
-      for (let model_inst_entry of Object.values(model_entry["model_instances"])) {
-        model_inst_entry["results"].forEach(function (result_entry, r_ind) {
-          model_labels.push(model_entry.model_name);
-          model_version_labels.push(model_inst_entry.model_version + " (#" + r_ind + ")");
-          var longlabel = model_entry.model_name + "-" + model_inst_entry.model_version + " (" + formatTimeStampToCompact(result_entry["timestamp"]) + ") - " + result_entry["result_id"].substr(0, 8);
-          model_version_longlabels.push(longlabel);
-          model_version_scores.push(result_entry.score);
-          label_resultJSON_map[longlabel] = result_entry.result_json;
-        });
-      }
-      traces.push(
-      {
-          x: [
-            model_labels,
-            model_version_labels
-          ],
-          y: model_version_scores,
-          // text:model_labels,
-          hovertext: model_version_longlabels,
-          name: model_entry.model_name,
-          type: 'bar'
-        }
-      )
-    }
+	for (let model_entry of Object.values(props.test_inst_entry["models"])) {
+		for (let model_inst_entry of Object.values(model_entry["model_instances"])) {
+			model_inst_entry["results"].forEach(function (result_entry, r_ind) {
+				model_labels.push(model_entry.model_name);
+				model_version_labels.push(model_inst_entry.model_version + " (#" + r_ind + ")");
+				var longlabel = model_entry.model_name + "-" + model_inst_entry.model_version + " (" + formatTimeStampToCompact(result_entry["timestamp"]) + ") - " + result_entry["result_id"].substr(0, 8);
+				model_version_longlabels.push(longlabel);
+				model_version_scores.push(result_entry.score);
+				label_resultJSON_map[longlabel] = result_entry.result_json;
+			});
+		}
+		traces.push(
+			{
+				x: [
+					model_labels,
+					model_version_labels
+				],
+				y: model_version_scores,
+				// text:model_labels,
+				hovertext: model_version_longlabels,
+				name: model_entry.model_name,
+				type: 'bar'
+			}
+		)
+	}
 
-    layout = {
-      showlegend: true,
-      // hovermode: 'closest',
-      // width: 640,
-      // height: 480,
-      // title: 'Plot Title',
-      xaxis: {//tickvals: ["1", "2", "3", "4", "5"],
-              //ticktext : ["a", "b", "c", "d" ,"e"],
-             title: "Model Instance",
-             automargin: true},
-      yaxis: {title: "Score"},
-      autosize:true
-    };
+	layout = {
+		showlegend: true,
+		// hovermode: 'closest',
+		// width: 640,
+		// height: 480,
+		// title: 'Plot Title',
+		xaxis: {//tickvals: ["1", "2", "3", "4", "5"],
+			//ticktext : ["a", "b", "c", "d" ,"e"],
+			title: "Model Instance",
+			automargin: true
+		},
+		yaxis: { title: "Score" },
+		autosize: true
+	};
 
-    return (
-        <ExpansionPanel defaultExpanded={true} key={props.test_inst_id}>
-            <ExpansionPanelSummary
-                expandIcon={<ExpandMoreIcon />}
-                aria-controls="panel1a-content"
-                id={props.test_inst_id}
-            >
-            <Typography variant="subtitle1">Test Version: <b>{props.test_inst_entry.test_version}</b></Typography>
-            </ExpansionPanelSummary>
-            <ExpansionPanelDetails>
-                <Container>
-                    <TableContainer component={Paper}>
-                        <Table>
-                            <TableBody>
-                                <TableRow>
-                                    <TableCell>
-                                        <Plot
-                                            data={traces}
-                                            layout={layout}
-                                            onClick={(data) => props.handleResultEntryClick(label_resultJSON_map[data["points"][0]["hovertext"]])}
-                                        />
-                                        <br /><br />
-                                        <Typography variant="body2" align="center">Observation Data Type: <b>{props.test_inst_entry.data_type}</b></Typography>
-                                        <Typography variant="body2" align="center">Test Score Type: <b>{props.test_inst_entry.score_type}</b></Typography>
-                                    </TableCell>
-                                </TableRow>
-                            </TableBody>
-                        </Table>
-                    </TableContainer>
-                </Container>
-            </ExpansionPanelDetails>
-        </ExpansionPanel>
-    )
-  }
+	return (
+		<ExpansionPanel defaultExpanded={true} key={props.test_inst_id}>
+			<ExpansionPanelSummary
+				expandIcon={<ExpandMoreIcon />}
+				aria-controls="panel1a-content"
+				id={props.test_inst_id}
+			>
+				<Typography variant="subtitle1">Test Version: <b>{props.test_inst_entry.test_version}</b></Typography>
+			</ExpansionPanelSummary>
+			<ExpansionPanelDetails>
+				<Container>
+					<TableContainer component={Paper}>
+						<Table>
+							<TableBody>
+								<TableRow>
+									<TableCell>
+										<Plot
+											data={traces}
+											layout={layout}
+											onClick={(data) => props.handleResultEntryClick(label_resultJSON_map[data["points"][0]["hovertext"]])}
+										/>
+										<br /><br />
+										<Typography variant="body2" align="center">Observation Data Type: <b>{props.test_inst_entry.data_type}</b></Typography>
+										<Typography variant="body2" align="center">Test Score Type: <b>{props.test_inst_entry.score_type}</b></Typography>
+									</TableCell>
+								</TableRow>
+							</TableBody>
+						</Table>
+					</TableContainer>
+				</Container>
+			</ExpansionPanelDetails>
+		</ExpansionPanel>
+	)
+}
 
 export default class ResultGraphs extends React.Component {
-  constructor(props) {
-    super(props);
+	constructor(props) {
+		super(props);
 
-    this.state = {
-                    results         : [],
-                    resultDetailOpen: false,
-                    currentResult  : null,
-                    test_ids : []
-                 };
+		this.state = {
+			results: [],
+			resultDetailOpen: false,
+			currentResult: null,
+			test_ids: []
+		};
 
-    this.handleResultEntryClick = this.handleResultEntryClick.bind(this)
-    this.handleResultDetailClose = this.handleResultDetailClose.bind(this)
-  }
+		this.handleResultEntryClick = this.handleResultEntryClick.bind(this)
+		this.handleResultDetailClose = this.handleResultDetailClose.bind(this)
+	}
 
-  componentDidMount() {
-    // group results by model instance, test instance combo
-    // each entry being a list of results ordered from newest to oldest
-  }
+	componentDidMount() {
+		// group results by model instance, test instance combo
+		// each entry being a list of results ordered from newest to oldest
+	}
 
-  groupResults = () => {
-    const results = this.props.results;
-    // will be a multi-D dict {test -> test instance -> model -> model instance} with list as values
-    var dict_results = {}
+	groupResults = () => {
+		const results = this.props.results;
+		// will be a multi-D dict {test -> test instance -> model -> model instance} with list as values
+		var dict_results = {}
 
-    // Get list of all model versions; note that not necessarily all model versions will have associated results
-    // so not appropriate to locate model versions via individual results
-    // var list_model_versions = [] // TODO: uncomment
-    // for dev usage
-    // var list_model_versions = [{model_inst_id: "20e69189-ab22-4967-88a0-9e719a547381", model_version: "2.0", timestamp: "2019-06-06T12:55:17.673676+00:00"},
-    //                            {model_inst_id: "20e69189-ab22-4967-88a0-9e719a547380", model_version: "1.0", timestamp: "2019-06-04T12:55:17.673676+00:00"},
-    //                            {model_inst_id: "20e69189-ab22-4967-88a0-9e719a547382", model_version: "3.0", timestamp: "2019-06-08T12:55:17.673676+00:00"}]
+		// Get list of all model versions; note that not necessarily all model versions will have associated results
+		// so not appropriate to locate model versions via individual results
+		// var list_model_versions = [] // TODO: uncomment
+		// for dev usage
+		// var list_model_versions = [{model_inst_id: "20e69189-ab22-4967-88a0-9e719a547381", model_version: "2.0", timestamp: "2019-06-06T12:55:17.673676+00:00"},
+		//                            {model_inst_id: "20e69189-ab22-4967-88a0-9e719a547380", model_version: "1.0", timestamp: "2019-06-04T12:55:17.673676+00:00"},
+		//                            {model_inst_id: "20e69189-ab22-4967-88a0-9e719a547382", model_version: "3.0", timestamp: "2019-06-08T12:55:17.673676+00:00"}]
 
-    // TODO: uncomment this for actual data
-    // this.props.modelJSON.instances.forEach(function (model_inst) {
-    //   list_model_versions.push({
-    //     model_inst_id:  model_inst.id,
-    //     model_version:  model_inst.version,
-    //     timestamp    :  model_inst.timestamp
-    //   })
-    // })
-    // console.log(list_model_versions)
+		// TODO: uncomment this for actual data
+		// this.props.modelJSON.instances.forEach(function (model_inst) {
+		//   list_model_versions.push({
+		//     model_inst_id:  model_inst.id,
+		//     model_version:  model_inst.version,
+		//     timestamp    :  model_inst.timestamp
+		//   })
+		// })
+		// console.log(list_model_versions)
 
-    // sorting list_model_versions by timestamp (oldest to newest)
-    // list_model_versions.sort(function(a, b) {
-    //   if(a.timestamp < b.timestamp) { return -1; }
-    //   if(a.timestamp > b.timestamp) { return 1; }
-    //   return 0;
-    // });
+		// sorting list_model_versions by timestamp (oldest to newest)
+		// list_model_versions.sort(function(a, b) {
+		//   if(a.timestamp < b.timestamp) { return -1; }
+		//   if(a.timestamp > b.timestamp) { return 1; }
+		//   return 0;
+		// });
 
-    // check if test exists
-    results.forEach(function (result, index) {
-      if (!(result.test_code.test_definition.id in dict_results)) {
-        dict_results[result.test_code.test_definition.id] = {
-                                                              test_id:        result.test_code.test_definition.id,
-                                                              test_name:      result.test_code.test_definition.name,
-                                                              test_alias:     result.test_code.test_definition.alias,
-                                                              test_instances: {}
-                                                            };
-      }
-      // check if test instance exists inside test
-      if (!(result.test_code_id in dict_results[result.test_code.test_definition.id]["test_instances"])) {
-        dict_results[result.test_code.test_definition.id]["test_instances"][result.test_code_id] = {
-                                                              test_inst_id:   result.test_code_id,
-                                                              test_version:   result.test_code.version,
-                                                              timestamp:      result.test_code.timestamp,
-                                                              data_type:      result.test_code.test_definition.data_type,
-                                                              score_type:     result.test_code.test_definition.score_type,
-                                                              models: {}
-                                                            };
-      }
-      // check if model exists for this test instance
-      if (!(result.model_version.model.id in dict_results[result.test_code.test_definition.id]["test_instances"][result.test_code_id]["models"])) {
-        dict_results[result.test_code.test_definition.id]["test_instances"][result.test_code_id]["models"][result.model_version.model.id] = {
-                                                                model_id:       result.model_version.model.id,
-                                                                model_name:     result.model_version.model.name,
-                                                                model_alias:    result.model_version.model.alias,
-                                                                model_instances: {}
-                                                            };
-      }
-      // check if model instance exists for this model
-      if (!(result.model_version_id in dict_results[result.test_code.test_definition.id]["test_instances"][result.test_code_id]["models"][result.model_version.model.id]["model_instances"])) {
-        dict_results[result.test_code.test_definition.id]["test_instances"][result.test_code_id]["models"][result.model_version.model.id]["model_instances"][result.model_version_id] = {
-                                                                model_inst_id:   result.model_version_id,
-                                                                model_version:   result.model_version.version,
-                                                                timestamp:       result.model_version.timestamp,
-                                                                results: []
-                                                            };
-      }
-      // add result to list of model instance results for above test instance
-      dict_results[result.test_code.test_definition.id]["test_instances"][result.test_code_id]["models"][result.model_version.model.id]["model_instances"][result.model_version_id]["results"].push(
-                                                            {
-                                                                result_id:      result.id,
-                                                                score:          result.score,
-                                                                timestamp:      result.timestamp,
-                                                                result_json:    result
-                                                            })
-    });
+		// check if test exists
+		results.forEach(function (result, index) {
+			if (!(result.test_code.test_definition.id in dict_results)) {
+				dict_results[result.test_code.test_definition.id] = {
+					test_id: result.test_code.test_definition.id,
+					test_name: result.test_code.test_definition.name,
+					test_alias: result.test_code.test_definition.alias,
+					test_instances: {}
+				};
+			}
+			// check if test instance exists inside test
+			if (!(result.test_code_id in dict_results[result.test_code.test_definition.id]["test_instances"])) {
+				dict_results[result.test_code.test_definition.id]["test_instances"][result.test_code_id] = {
+					test_inst_id: result.test_code_id,
+					test_version: result.test_code.version,
+					timestamp: result.test_code.timestamp,
+					data_type: result.test_code.test_definition.data_type,
+					score_type: result.test_code.test_definition.score_type,
+					models: {}
+				};
+			}
+			// check if model exists for this test instance
+			if (!(result.model_version.model.id in dict_results[result.test_code.test_definition.id]["test_instances"][result.test_code_id]["models"])) {
+				dict_results[result.test_code.test_definition.id]["test_instances"][result.test_code_id]["models"][result.model_version.model.id] = {
+					model_id: result.model_version.model.id,
+					model_name: result.model_version.model.name,
+					model_alias: result.model_version.model.alias,
+					model_instances: {}
+				};
+			}
+			// check if model instance exists for this model
+			if (!(result.model_version_id in dict_results[result.test_code.test_definition.id]["test_instances"][result.test_code_id]["models"][result.model_version.model.id]["model_instances"])) {
+				dict_results[result.test_code.test_definition.id]["test_instances"][result.test_code_id]["models"][result.model_version.model.id]["model_instances"][result.model_version_id] = {
+					model_inst_id: result.model_version_id,
+					model_version: result.model_version.version,
+					timestamp: result.model_version.timestamp,
+					results: []
+				};
+			}
+			// add result to list of model instance results for above test instance
+			dict_results[result.test_code.test_definition.id]["test_instances"][result.test_code_id]["models"][result.model_version.model.id]["model_instances"][result.model_version_id]["results"].push(
+				{
+					result_id: result.id,
+					score: result.score,
+					timestamp: result.timestamp,
+					result_json: result
+				})
+		});
 
-    // NOT NEEDED HERE?
-    // // insert empty lists for (test_instance, model_instance) combos without results
-    // results.forEach(function (result) {
-    //   list_model_versions.forEach(function (m_inst) {
-    //     if (!(m_inst["model_inst_id"] in dict_results[result.test_code.test_definition.id]["test_instances"][result.test_code_id]["results"])) {
-    //       dict_results[result.test_code.test_definition.id]["test_instances"][result.test_code_id]["results"][m_inst["model_inst_id"]] = [];
-    //     }
-    //   })
-    // })
+		// NOT NEEDED HERE?
+		// // insert empty lists for (test_instance, model_instance) combos without results
+		// results.forEach(function (result) {
+		//   list_model_versions.forEach(function (m_inst) {
+		//     if (!(m_inst["model_inst_id"] in dict_results[result.test_code.test_definition.id]["test_instances"][result.test_code_id]["results"])) {
+		//       dict_results[result.test_code.test_definition.id]["test_instances"][result.test_code_id]["results"][m_inst["model_inst_id"]] = [];
+		//     }
+		//   })
+		// })
 
-    // sorting tests by test name/alias (whichever is displayed)
-    var temp_sorted = {};
-    Object.keys(dict_results).sort(function(a, b){
-      var parent = dict_results;
-      var t_a_display = parent[a].test_alias ? parent[a].test_alias : parent[a].test_name;
-      var t_b_display = parent[b].test_alias ? parent[b].test_alias : parent[b].test_name;
-      if(t_a_display < t_b_display) { return -1; }
-      if(t_a_display > t_b_display) { return 1; }
-      return 0;
-    })
-    .forEach(function(key) {
-      temp_sorted[key] = dict_results[key];
-    });
-    dict_results = temp_sorted;
+		// sorting tests by test name/alias (whichever is displayed)
+		var temp_sorted = {};
+		Object.keys(dict_results).sort(function (a, b) {
+			var parent = dict_results;
+			var t_a_display = parent[a].test_alias ? parent[a].test_alias : parent[a].test_name;
+			var t_b_display = parent[b].test_alias ? parent[b].test_alias : parent[b].test_name;
+			if (t_a_display < t_b_display) { return -1; }
+			if (t_a_display > t_b_display) { return 1; }
+			return 0;
+		})
+			.forEach(function (key) {
+				temp_sorted[key] = dict_results[key];
+			});
+		dict_results = temp_sorted;
 
-    // sorting test versions within test by timestamp, oldest to newest
-    Object.keys(dict_results).forEach(function (test_id) {
-        var temp_sorted = {};
-        Object.keys(dict_results[test_id]["test_instances"]).sort(function(a, b){
-                var parent = dict_results[test_id]["test_instances"];
-                var t_a_timestamp = parent[a].timestamp;
-                var t_b_timestamp = parent[b].timestamp;
-                if(t_a_timestamp < t_b_timestamp) { return -1; }
-                if(t_a_timestamp > t_b_timestamp) { return 1; }
-                return 0;
-            })
-          .forEach(function(key) {
-            temp_sorted[key] = dict_results[test_id]["test_instances"][key];
-        });
-        dict_results[test_id]["test_instances"] = temp_sorted;
-    })
+		// sorting test versions within test by timestamp, oldest to newest
+		Object.keys(dict_results).forEach(function (test_id) {
+			var temp_sorted = {};
+			Object.keys(dict_results[test_id]["test_instances"]).sort(function (a, b) {
+				var parent = dict_results[test_id]["test_instances"];
+				var t_a_timestamp = parent[a].timestamp;
+				var t_b_timestamp = parent[b].timestamp;
+				if (t_a_timestamp < t_b_timestamp) { return -1; }
+				if (t_a_timestamp > t_b_timestamp) { return 1; }
+				return 0;
+			})
+				.forEach(function (key) {
+					temp_sorted[key] = dict_results[test_id]["test_instances"][key];
+				});
+			dict_results[test_id]["test_instances"] = temp_sorted;
+		})
 
-    // sorting models within each test instance by model name/alias (whichever is displayed)
-    Object.keys(dict_results).forEach(function(test_id) {
-        Object.keys(dict_results[test_id]["test_instances"]).forEach(function(test_inst_id) {
-            var temp_sorted = {};
-            Object.keys(dict_results[test_id]["test_instances"][test_inst_id]["models"]).sort(function(a, b){
-                var parent = dict_results[test_id]["test_instances"][test_inst_id]["models"];
-                var t_a_display = parent[a].model_alias ? parent[a].model_alias : parent[a].model_name;
-                var t_b_display = parent[b].model_alias ? parent[b].model_alias : parent[b].model_name;
-                if(t_a_display < t_b_display) { return -1; }
-                if(t_a_display > t_b_display) { return 1; }
-                return 0;
-            })
-            .forEach(function(key) {
-                temp_sorted[key] = dict_results[test_id]["test_instances"][test_inst_id]["models"][key];
-            });
-            dict_results[test_id]["test_instances"][test_inst_id]["models"] = temp_sorted;
-        })
-    })
+		// sorting models within each test instance by model name/alias (whichever is displayed)
+		Object.keys(dict_results).forEach(function (test_id) {
+			Object.keys(dict_results[test_id]["test_instances"]).forEach(function (test_inst_id) {
+				var temp_sorted = {};
+				Object.keys(dict_results[test_id]["test_instances"][test_inst_id]["models"]).sort(function (a, b) {
+					var parent = dict_results[test_id]["test_instances"][test_inst_id]["models"];
+					var t_a_display = parent[a].model_alias ? parent[a].model_alias : parent[a].model_name;
+					var t_b_display = parent[b].model_alias ? parent[b].model_alias : parent[b].model_name;
+					if (t_a_display < t_b_display) { return -1; }
+					if (t_a_display > t_b_display) { return 1; }
+					return 0;
+				})
+					.forEach(function (key) {
+						temp_sorted[key] = dict_results[test_id]["test_instances"][test_inst_id]["models"][key];
+					});
+				dict_results[test_id]["test_instances"][test_inst_id]["models"] = temp_sorted;
+			})
+		})
 
-    // sorting model versions within each model by timestamp, oldest to newest
-    Object.keys(dict_results).forEach(function(test_id) {
-        Object.keys(dict_results[test_id]["test_instances"]).forEach(function(test_inst_id) {
-            Object.keys(dict_results[test_id]["test_instances"][test_inst_id]["models"]).forEach(function(model_id) {
-                var temp_sorted = {};
-                Object.keys(dict_results[test_id]["test_instances"][test_inst_id]["models"][model_id]["model_instances"]).sort(function(a, b){
-                    var parent = dict_results[test_id]["test_instances"][test_inst_id]["models"][model_id]["model_instances"];
-                    var t_a_timestamp = parent[a].timestamp;
-                    var t_b_timestamp = parent[b].timestamp;
-                    if(t_a_timestamp < t_b_timestamp) { return -1; }
-                    if(t_a_timestamp > t_b_timestamp) { return 1; }
-                    return 0;
-                })
-                .forEach(function(key) {
-                    temp_sorted[key] = dict_results[test_id]["test_instances"][test_inst_id]["models"][model_id]["model_instances"][key];
-                });
-                dict_results[test_id]["test_instances"][test_inst_id]["models"][model_id]["model_instances"] = temp_sorted;
-            })
-        })
-    })
+		// sorting model versions within each model by timestamp, oldest to newest
+		Object.keys(dict_results).forEach(function (test_id) {
+			Object.keys(dict_results[test_id]["test_instances"]).forEach(function (test_inst_id) {
+				Object.keys(dict_results[test_id]["test_instances"][test_inst_id]["models"]).forEach(function (model_id) {
+					var temp_sorted = {};
+					Object.keys(dict_results[test_id]["test_instances"][test_inst_id]["models"][model_id]["model_instances"]).sort(function (a, b) {
+						var parent = dict_results[test_id]["test_instances"][test_inst_id]["models"][model_id]["model_instances"];
+						var t_a_timestamp = parent[a].timestamp;
+						var t_b_timestamp = parent[b].timestamp;
+						if (t_a_timestamp < t_b_timestamp) { return -1; }
+						if (t_a_timestamp > t_b_timestamp) { return 1; }
+						return 0;
+					})
+						.forEach(function (key) {
+							temp_sorted[key] = dict_results[test_id]["test_instances"][test_inst_id]["models"][model_id]["model_instances"][key];
+						});
+					dict_results[test_id]["test_instances"][test_inst_id]["models"][model_id]["model_instances"] = temp_sorted;
+				})
+			})
+		})
 
-    // sort each list of dicts (each dict being a result), newest to oldest
-    Object.keys(dict_results).forEach(function (test_id) {
-        Object.keys(dict_results[test_id]["test_instances"]).forEach(function (test_inst_id) {
-            Object.keys(dict_results[test_id]["test_instances"][test_inst_id]["models"]).forEach(function(model_id) {
-                Object.keys(dict_results[test_id]["test_instances"][test_inst_id]["models"][model_id]["model_instances"]).forEach(function(model_inst_id) {
-                    dict_results[test_id]["test_instances"][test_inst_id]["models"][model_id]["model_instances"][model_inst_id]["results"].sort(function(a, b) {
-                        if(a.timestamp < b.timestamp) { return 1; }
-                        if(a.timestamp > b.timestamp) { return -1; }
-                        return 0;
-                    });
-                });
-            });
-        });
-    });
+		// sort each list of dicts (each dict being a result), newest to oldest
+		Object.keys(dict_results).forEach(function (test_id) {
+			Object.keys(dict_results[test_id]["test_instances"]).forEach(function (test_inst_id) {
+				Object.keys(dict_results[test_id]["test_instances"][test_inst_id]["models"]).forEach(function (model_id) {
+					Object.keys(dict_results[test_id]["test_instances"][test_inst_id]["models"][model_id]["model_instances"]).forEach(function (model_inst_id) {
+						dict_results[test_id]["test_instances"][test_inst_id]["models"][model_id]["model_instances"][model_inst_id]["results"].sort(function (a, b) {
+							if (a.timestamp < b.timestamp) { return 1; }
+							if (a.timestamp > b.timestamp) { return -1; }
+							return 0;
+						});
+					});
+				});
+			});
+		});
 
-    return dict_results
-  }
+		return dict_results
+	}
 
-  handleResultEntryClick(result) {
-    this.setState({
-                    'resultDetailOpen': true,
-                    'currentResult':   result
-                  });
-    updateHash("result_id."+result.id);
-  };
+	handleResultEntryClick(result) {
+		this.setState({
+			'resultDetailOpen': true,
+			'currentResult': result
+		});
+		updateHash("result_id." + result.id);
+	};
 
-  handleResultDetailClose() {
-    this.setState({
-                    'resultDetailOpen': false,
-                    'currentResult':    null
-                  });
-    updateHash('');
-  };
+	handleResultDetailClose() {
+		this.setState({
+			'resultDetailOpen': false,
+			'currentResult': null
+		});
+		updateHash('');
+	};
 
-  renderResultsFigures(dict_results) {
-    var test_ids = this.state.test_ids;
-    // determine list of tests to be plotted
-    if (test_ids.length < 1) {
-      for (const test_id of Object.keys(dict_results)) {
-        test_ids.push(test_id)
-      }
-    }
-    console.log(test_ids)
+	renderResultsFigures(dict_results) {
+		var test_ids = this.state.test_ids;
+		// determine list of tests to be plotted
+		if (test_ids.length < 1) {
+			for (const test_id of Object.keys(dict_results)) {
+				test_ids.push(test_id)
+			}
+		}
+		console.log(test_ids)
 
-    if (test_ids.length > 0) {
-      console.log(this.state.test_ids)
-      console.log(dict_results)
-    return(
-        <Container>
-            {test_ids.map((test_id) =>
-                <ExpansionPanel defaultExpanded={true} key={test_id}>
-                    <ExpansionPanelSummary
-                        expandIcon={<ExpandMoreIcon />}
-                        aria-controls="panel1a-content"
-                        id={test_id}
-                    >
-                    <Typography variant="subtitle1">Test: <b>{dict_results[test_id].test_alias ? dict_results[test_id].test_alias : dict_results[test_id].test_name}</b></Typography>
-                    </ExpansionPanelSummary>
-                    <ExpansionPanelDetails>
-                        <Container>
-                            {Object.entries(dict_results[test_id]["test_instances"]).map(([test_inst_id, test_inst_entry]) =>
+		if (test_ids.length > 0) {
+			console.log(this.state.test_ids)
+			console.log(dict_results)
+			return (
+				<Container>
+					{test_ids.map((test_id) =>
+						<ExpansionPanel defaultExpanded={true} key={test_id}>
+							<ExpansionPanelSummary
+								expandIcon={<ExpandMoreIcon />}
+								aria-controls="panel1a-content"
+								id={test_id}
+							>
+								<Typography variant="subtitle1">Test: <b>{dict_results[test_id].test_alias ? dict_results[test_id].test_alias : dict_results[test_id].test_name}</b></Typography>
+							</ExpansionPanelSummary>
+							<ExpansionPanelDetails>
+								<Container>
+									{Object.entries(dict_results[test_id]["test_instances"]).map(([test_inst_id, test_inst_entry]) =>
 
-                                <ResultsFiguresTestIntance
-                                    test_inst_id={test_inst_id}
-                                    test_inst_entry={test_inst_entry}
-                                    key={test_inst_id}
-                                    handleResultEntryClick={this.handleResultEntryClick}
-                                />
+										<ResultsFiguresTestIntance
+											test_inst_id={test_inst_id}
+											test_inst_entry={test_inst_entry}
+											key={test_inst_id}
+											handleResultEntryClick={this.handleResultEntryClick}
+										/>
 
-                            )}
-                        </Container>
-                    </ExpansionPanelDetails>
-                </ExpansionPanel>
-            )}
-        </Container>
-    )
-    } else {
-      return ""
-    }
-  }
+									)}
+								</Container>
+							</ExpansionPanelDetails>
+						</ExpansionPanel>
+					)}
+				</Container>
+			)
+		} else {
+			return ""
+		}
+	}
 
-  renderNoResults() {
-    return (
-        <Typography variant="h5" component="h3">
-            No results have yet been registered for this model!
-        </Typography>
-    )
-  }
+	renderNoResults() {
+		return (
+			<Typography variant="h5" component="h3">
+				No results have yet been registered for this model!
+			</Typography>
+		)
+	}
 
-  render() {
-    var content = "";
-    var resultDetail = "";
+	render() {
+		var content = "";
+		var resultDetail = "";
 
-    if (this.props.loadingResult) {
-      return <LoadingIndicator position="absolute" />
-    }
+		if (this.props.loadingResult) {
+			return <LoadingIndicator position="absolute" />
+		}
 
-    const results_grouped = this.groupResults();
+		const results_grouped = this.groupResults();
 
-    console.log(results_grouped)
-    console.log(this.props.loadingResult)
-    if (Object.keys(results_grouped).length>0) {
-      content = this.renderResultsFigures(results_grouped);
-    } else {
-      content = this.renderNoResults();
-    }
-    if (this.state.currentResult) {
-      resultDetail = <ResultDetail open={this.state.resultDetailOpen} result={this.state.currentResult} onClose={this.handleResultDetailClose} />;
-    }
-    return (
-      <div>
-        <div>
-          {content}
-        </div>
-        <div>
-          {resultDetail}
-        </div>
-      </div>
-    );
-  }
+		console.log(results_grouped)
+		console.log(this.props.loadingResult)
+		if (Object.keys(results_grouped).length > 0) {
+			content = this.renderResultsFigures(results_grouped);
+		} else {
+			content = this.renderNoResults();
+		}
+		if (this.state.currentResult) {
+			resultDetail = <ResultDetail open={this.state.resultDetailOpen} result={this.state.currentResult} onClose={this.handleResultDetailClose} />;
+		}
+		return (
+			<div>
+				<div>
+					{content}
+				</div>
+				<div>
+					{resultDetail}
+				</div>
+			</div>
+		);
+	}
 }
 
 

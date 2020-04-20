@@ -6,57 +6,52 @@ import CloudDownloadIcon from '@material-ui/icons/CloudDownload';
 import Markdown from './Markdown';
 import { Typography } from '@material-ui/core';
 
-
 function InstanceParameter(props) {
-  if (props.value) {
-    return <Typography variant="body2"><b>{props.label}: </b>{props.value}</Typography>
-  } else {
-    return ""
-  }
+	if (props.value) {
+		return <Typography variant="body2"><b>{props.label}: </b>{props.value}</Typography>
+	} else {
+		return ""
+	}
 }
 
-// style={{backgroundColor: '#ddffdd'}}
-// style={{backgroundColor: '#ffddff'}}
-// style={{backgroundColor: '#ffdddd'}}
-
 export default function TestDetailContent(props) {
-  return (
-    <React.Fragment>
-      <Grid container xs={9} direction="column" item={true}>
-        <Grid item>
-          <Box p={2}>
-            <Typography><b>Data Location: </b>{props.dataLocation}</Typography>
-            <br />
-            <Typography><b>Protocol: </b></Typography>
-            <Markdown>{props.protocol}</Markdown>
-          </Box>
-        </Grid>
-        <Grid item>
-          <Box px={2} pb={0}>
-            <Typography variant="subtitle1"><b>Versions</b></Typography>
-          </Box>
-          {props.codes.map(instance => (
-            <Box m={2} p={2} pb={0} style={{backgroundColor: '#eeeeee'}} key={instance.id}>
-              <Typography variant="subtitle2">{instance.version}</Typography>
-              <Typography variant="body2" color="textSecondary">{instance.timestamp}</Typography>
-              <InstanceParameter label="Description" value={instance.description} />
-              <InstanceParameter label="Source" value={instance.repository} />
-              <InstanceParameter label="Path" value={instance.path} />
-              <InstanceParameter label="Parameters" value={instance.parameters} />
-              <Typography variant="caption" color="textSecondary">ID: {instance.id}</Typography>
-              <IconButton aria-label="download code" href={instance.source}>
-                <CloudDownloadIcon />
-              </IconButton>
-          </Box>
-          ))}
-        </Grid>
+	return (
+		<React.Fragment>
+			<Grid container xs={9} direction="column" item={true}>
+				<Grid item>
+					<Box p={2}>
+						<Typography><b>Data Location: </b>{props.dataLocation}</Typography>
+						<br />
+						<Typography><b>Protocol: </b></Typography>
+						<Markdown>{props.protocol}</Markdown>
+					</Box>
+				</Grid>
+				<Grid item>
+					<Box px={2} pb={0}>
+						<Typography variant="subtitle1"><b>Versions</b></Typography>
+					</Box>
+					{props.codes.map(instance => (
+						<Box m={2} p={2} pb={0} style={{ backgroundColor: '#eeeeee' }} key={instance.id}>
+							<Typography variant="subtitle2">{instance.version}</Typography>
+							<Typography variant="body2" color="textSecondary">{instance.timestamp}</Typography>
+							<InstanceParameter label="Description" value={instance.description} />
+							<InstanceParameter label="Source" value={instance.repository} />
+							<InstanceParameter label="Path" value={instance.path} />
+							<InstanceParameter label="Parameters" value={instance.parameters} />
+							<Typography variant="caption" color="textSecondary">ID: {instance.id}</Typography>
+							<IconButton aria-label="download code" href={instance.source}>
+								<CloudDownloadIcon />
+							</IconButton>
+						</Box>
+					))}
+				</Grid>
 
-        <Grid item>
-          {/* todo: images */}
-        </Grid>
-      </Grid>
-    </React.Fragment>
-  );
+				<Grid item>
+					{/* todo: images */}
+				</Grid>
+			</Grid>
+		</React.Fragment>
+	);
 }
 
 

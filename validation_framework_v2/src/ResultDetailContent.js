@@ -8,40 +8,40 @@ import TableCell from '@material-ui/core/TableCell';
 import TableContainer from '@material-ui/core/TableContainer';
 import TableRow from '@material-ui/core/TableRow';
 
-import {formatTimeStampToLongString} from "./utils";
+import { formatTimeStampToLongString } from "./utils";
 
 function ResultParameter(props) {
-    if (props.value) {
-      return (
-            <TableRow>
-                <TableCell><Typography variant="body2"><b>{props.label}</b>: </Typography></TableCell>
-                <TableCell><Typography variant="body2">{props.value}</Typography></TableCell>
-            </TableRow>
-        )
-    } else {
-      return <TableRow></TableRow>
-    }
+	if (props.value) {
+		return (
+			<TableRow>
+				<TableCell><Typography variant="body2"><b>{props.label}</b>: </Typography></TableCell>
+				<TableCell><Typography variant="body2">{props.value}</Typography></TableCell>
+			</TableRow>
+		)
+	} else {
+		return <TableRow></TableRow>
+	}
 }
 
 export default function ResultDetailContent(props) {
-  return (
-        <Grid container>
-            <Grid item xs={12}>
-                <TableContainer component={Paper}>
-                    <Table>
-                        <TableBody>
-                            <ResultParameter label="Score" value={props.score} />
-                            <ResultParameter label="Normalized Score" value={props.normalized_score} />
-                            <ResultParameter label="TimeStamp" value={formatTimeStampToLongString(props.timestamp)} />
-                            <ResultParameter label="Project" value={props.project} />
-                            <ResultParameter label="Pass / Fail" value={props.passed} />
-                            <ResultParameter label="KG URI" value={props.uri} />
-                        </TableBody>
-                    </Table>
-                </TableContainer>
-            </Grid>
-        </Grid>
-  );
+	return (
+		<Grid container>
+			<Grid item xs={12}>
+				<TableContainer component={Paper}>
+					<Table>
+						<TableBody>
+							<ResultParameter label="Score" value={props.score} />
+							<ResultParameter label="Normalized Score" value={props.normalized_score} />
+							<ResultParameter label="TimeStamp" value={formatTimeStampToLongString(props.timestamp)} />
+							<ResultParameter label="Project" value={props.project} />
+							<ResultParameter label="Pass / Fail" value={props.passed} />
+							<ResultParameter label="KG URI" value={props.uri} />
+						</TableBody>
+					</Table>
+				</TableContainer>
+			</Grid>
+		</Grid>
+	);
 }
 
 

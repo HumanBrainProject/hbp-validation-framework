@@ -9,64 +9,63 @@ import TableCell from '@material-ui/core/TableCell';
 import TableContainer from '@material-ui/core/TableContainer';
 import TableRow from '@material-ui/core/TableRow';
 
-
 function ResultFile(props) {
-    // See for details: https://github.com/HumanBrainProject/hbp-validation-framework/issues/246
-    let url = "";
-    var filename = "";
-    if ("download_url" in props.r_file) {
-        url = props.r_file.download_url;
-        if ("collab_storage" in props.r_file) {
-            // for files stored in Collab storage
-            filename = props.r_file.collab_storage.path.split('/').pop().split('#')[0].split('?')[0];
-        } else {
-            //  for files not stored in collab storage
-            filename = url.split('/').pop().split('#')[0].split('?')[0];
-        }
-    } else {
-        // collab URL retrieval fails
-        url = props.r_file.original_url;
-        filename = url.split('/').pop().split('#')[0].split('?')[0];
-    }
-    return (
-        <TableRow>
-            <TableCell>
-                <a style={{display: "table-cell", cursor: 'pointer'}} href={url} target="_blank" rel="noopener noreferrer">
-                    <Typography variant="body2">
-                        {filename}
-                    </Typography>
-                </a>
-            </TableCell>
-        </TableRow>
-    )
+	// See for details: https://github.com/HumanBrainProject/hbp-validation-framework/issues/246
+	let url = "";
+	var filename = "";
+	if ("download_url" in props.r_file) {
+		url = props.r_file.download_url;
+		if ("collab_storage" in props.r_file) {
+			// for files stored in Collab storage
+			filename = props.r_file.collab_storage.path.split('/').pop().split('#')[0].split('?')[0];
+		} else {
+			//  for files not stored in collab storage
+			filename = url.split('/').pop().split('#')[0].split('?')[0];
+		}
+	} else {
+		// collab URL retrieval fails
+		url = props.r_file.original_url;
+		filename = url.split('/').pop().split('#')[0].split('?')[0];
+	}
+	return (
+		<TableRow>
+			<TableCell>
+				<a style={{ display: "table-cell", cursor: 'pointer' }} href={url} target="_blank" rel="noopener noreferrer">
+					<Typography variant="body2">
+						{filename}
+					</Typography>
+				</a>
+			</TableCell>
+		</TableRow>
+	)
 }
 
 export default function ResultRelatedFiles(props) {
-    if (props.result_files.length===0) {
-        return (
-            <Typography variant="subtitle1"><b>No files were generated during the validation process!</b></Typography>
-        )
-    } else {
-        return (
-            <Grid container>
-                <Box px={2} pb={0}>
-                    <Typography variant="subtitle1"><b>File(s) generated during the validation process:</b></Typography>
-                </Box>
-                <br /><br />
-                <Grid item xs={12}>
-                    <TableContainer component={Paper}>
-                        <Table>
-                            <TableBody>
-                                {props.result_files.map((r_file, ind) => (
-                                    <ResultFile r_file={r_file} key={ind} />
-                                ))}
-                            </TableBody>
-                        </Table>
-                    </TableContainer>
-                </Grid>
-            </Grid>
-        )
-    }
+	if (props.result_files.length === 0) {
+		return (
+			<Typography variant="subtitle1"><b>No files were generated during the validation process!</b></Typography>
+		)
+	} else {
+		return (
+			<Grid container>
+				<Box px={2} pb={0}>
+					<Typography variant="subtitle1"><b>File(s) generated during the validation process:</b></Typography>
+				</Box>
+				<br /><br />
+				<Grid item xs={12}>
+					<TableContainer component={Paper}>
+						<Table>
+							<TableBody>
+								{props.result_files.map((r_file, ind) => (
+									<ResultFile r_file={r_file} key={ind} />
+								))}
+							</TableBody>
+						</Table>
+					</TableContainer>
+				</Grid>
+			</Grid>
+		)
+	}
 }
 
 // Source: https://github.com/HumanBrainProject/hbp-validation-framework/issues/246

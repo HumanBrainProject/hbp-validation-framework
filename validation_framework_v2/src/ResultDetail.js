@@ -19,131 +19,131 @@ import ResultRelatedFiles from './ResultRelatedFiles';
 import ResultModelTestInfo from './ResultModelTestInfo';
 
 const styles = theme => ({
-  root: {
-    margin: 0,
-    padding: theme.spacing(2),
-  },
-  closeButton: {
-    position: 'absolute',
-    right: theme.spacing(1),
-    top: theme.spacing(1),
-    color: theme.palette.grey[500],
-  },
+	root: {
+		margin: 0,
+		padding: theme.spacing(2),
+	},
+	closeButton: {
+		position: 'absolute',
+		right: theme.spacing(1),
+		top: theme.spacing(1),
+		color: theme.palette.grey[500],
+	},
 });
 
 function TabPanel(props) {
-  const { children, value, index, ...other } = props;
+	const { children, value, index, ...other } = props;
 
-  return (
-    <Typography
-      component="div"
-      role="tabpanel"
-      hidden={value !== index}
-      id={`simple-tabpanel-${index}`}
-      aria-labelledby={`simple-tab-${index}`}
-      {...other}
-    >
-      {value === index && <Box p={3}>{children}</Box>}
-    </Typography>
-  );
+	return (
+		<Typography
+			component="div"
+			role="tabpanel"
+			hidden={value !== index}
+			id={`simple-tabpanel-${index}`}
+			aria-labelledby={`simple-tab-${index}`}
+			{...other}
+		>
+			{value === index && <Box p={3}>{children}</Box>}
+		</Typography>
+	);
 }
 
 TabPanel.propTypes = {
-  children: PropTypes.node,
-  index: PropTypes.any.isRequired,
-  value: PropTypes.any.isRequired,
+	children: PropTypes.node,
+	index: PropTypes.any.isRequired,
+	value: PropTypes.any.isRequired,
 };
 
 const MyDialogTitle = withStyles(styles)(props => {
-  const { children, classes, onClose, ...other } = props;
-  return (
-    <MuiDialogTitle disableTypography className={classes.root} {...other}>
-      <Typography variant="h6">{children}</Typography>
-      {onClose ? (
-        <IconButton aria-label="close" className={classes.closeButton} onClick={onClose}>
-          <CloseIcon />
-        </IconButton>
-      ) : null}
-    </MuiDialogTitle>
-  );
+	const { children, classes, onClose, ...other } = props;
+	return (
+		<MuiDialogTitle disableTypography className={classes.root} {...other}>
+			<Typography variant="h6">{children}</Typography>
+			{onClose ? (
+				<IconButton aria-label="close" className={classes.closeButton} onClick={onClose}>
+					<CloseIcon />
+				</IconButton>
+			) : null}
+		</MuiDialogTitle>
+	);
 });
 
 
 export default class ResultDetail extends React.Component {
-  constructor(props) {
-      super(props);
-      this.state = {tabValue: 0};
+	constructor(props) {
+		super(props);
+		this.state = { tabValue: 0 };
 
-      this.handleClose = this.handleClose.bind(this);
-      this.handleTabChange = this.handleTabChange.bind(this);
-  }
+		this.handleClose = this.handleClose.bind(this);
+		this.handleTabChange = this.handleTabChange.bind(this);
+	}
 
-  handleClose() {
-    this.props.onClose();
-  }
+	handleClose() {
+		this.props.onClose();
+	}
 
-  handleTabChange(event, newValue) {
-    this.setState({tabValue:newValue})
-  }
+	handleTabChange(event, newValue) {
+		this.setState({ tabValue: newValue })
+	}
 
-  render() {
-    const result = this.props.result;
-    return (
-      <Dialog fullScreen onClose={this.handleClose} aria-labelledby="simple-dialog-title" open={this.props.open}>
-        <MyDialogTitle onClose={this.handleClose} />
-        <DialogContent>
-          <Grid container spacing={3}>
+	render() {
+		const result = this.props.result;
+		return (
+			<Dialog fullScreen onClose={this.handleClose} aria-labelledby="simple-dialog-title" open={this.props.open}>
+				<MyDialogTitle onClose={this.handleClose} />
+				<DialogContent>
+					<Grid container spacing={3}>
 
-            <ResultDetailHeader
-              id={result.id}
-              timestamp={result.timestamp}
-              modelName={result.model_version.model.name}
-              modelAlias={result.model_version.model.alias}
-              modelVersion={result.model_version.version}
-              testName={result.test_code.test_definition.name}
-              testAlias={result.test_code.test_definition.alias}
-              testVersion={result.test_code.version}
-            />
-              <AppBar position="static">
-                <Tabs value={this.state.tabValue} onChange={this.handleTabChange}>
-                  <Tab label="Result Info" />
-                  <Tab label="Result Files" />
-                  <Tab label="Model/Test Info" />
-                </Tabs>
-              </AppBar>
-              <TabPanel value={this.state.tabValue} index={0}>
-                <ResultDetailContent
-                  score={result.score}
-                  normalized_score={result.normalized_score}
-                  timestamp={result.timestamp}
-                  project={result.project}
-                  passed={result.passed}
-                  uri={result.uri}
-                />
-              </TabPanel>
-              <TabPanel value={this.state.tabValue} index={1}>
-                <ResultRelatedFiles
-                  result_files={result.results_storage}
-                />
-              </TabPanel>
-              <TabPanel value={this.state.tabValue} index={2}>
-                <ResultModelTestInfo
-                  model={result.model_version.model}
-                  model_instance={result.model_version}
-                  test={result.test_code.test_definition}
-                  test_instance={result.test_code}
-                />
-              </TabPanel>
-          </Grid>
-        </DialogContent>
-      </Dialog>
-    );
-  }
+						<ResultDetailHeader
+							id={result.id}
+							timestamp={result.timestamp}
+							modelName={result.model_version.model.name}
+							modelAlias={result.model_version.model.alias}
+							modelVersion={result.model_version.version}
+							testName={result.test_code.test_definition.name}
+							testAlias={result.test_code.test_definition.alias}
+							testVersion={result.test_code.version}
+						/>
+						<AppBar position="static">
+							<Tabs value={this.state.tabValue} onChange={this.handleTabChange}>
+								<Tab label="Result Info" />
+								<Tab label="Result Files" />
+								<Tab label="Model/Test Info" />
+							</Tabs>
+						</AppBar>
+						<TabPanel value={this.state.tabValue} index={0}>
+							<ResultDetailContent
+								score={result.score}
+								normalized_score={result.normalized_score}
+								timestamp={result.timestamp}
+								project={result.project}
+								passed={result.passed}
+								uri={result.uri}
+							/>
+						</TabPanel>
+						<TabPanel value={this.state.tabValue} index={1}>
+							<ResultRelatedFiles
+								result_files={result.results_storage}
+							/>
+						</TabPanel>
+						<TabPanel value={this.state.tabValue} index={2}>
+							<ResultModelTestInfo
+								model={result.model_version.model}
+								model_instance={result.model_version}
+								test={result.test_code.test_definition}
+								test_instance={result.test_code}
+							/>
+						</TabPanel>
+					</Grid>
+				</DialogContent>
+			</Dialog>
+		);
+	}
 }
 
 ResultDetail.propTypes = {
-  onClose: PropTypes.func.isRequired,
-  open: PropTypes.bool.isRequired
+	onClose: PropTypes.func.isRequired,
+	open: PropTypes.bool.isRequired
 };
 
 

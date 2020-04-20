@@ -4,35 +4,32 @@ import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 
-
-
 function MetadataItem(props) {
-  if (props.value) {
-    return (
-      <ListItem>
-        <ListItemText primary={props.value} secondary={props.label} />
-      </ListItem>
-    )
-  } else {
-    return "";
-  }
+	if (props.value) {
+		return (
+			<ListItem>
+				<ListItemText primary={props.value} secondary={props.label} />
+			</ListItem>
+		)
+	} else {
+		return "";
+	}
 }
 
-
 export default function ModelDetailMetadata(props) {
-  return (
-    <React.Fragment>
-      <Grid item style={{backgroundColor: '#dddddd'}}>
-        <List aria-label="model metadata">
-          <MetadataItem value={props.species} label="Species" />
-          <MetadataItem value={props.brainRegion} label="Brain region" />
-          <MetadataItem value={props.cellType} label="Cell type" />
-          <MetadataItem value={props.modelScope} label="Model scope" />
-          <MetadataItem value={props.abstractionLevel} label="Abstraction level" />
-          <MetadataItem value={props.collabID} label="Collab ID" />
-          <MetadataItem value={props.organization} label="Organization" />
-        </List>
-      </Grid>
-    </React.Fragment>
-  );
+	return (
+		<React.Fragment>
+			<Grid item style={{ backgroundColor: '#dddddd' }}>
+				<List aria-label="model metadata">
+					<MetadataItem value={props.species} label="Species" />
+					<MetadataItem value={props.brainRegion} label="Brain region" />
+					<MetadataItem value={props.cellType} label="Cell type" />
+					<MetadataItem value={props.modelScope} label="Model scope" />
+					<MetadataItem value={props.abstractionLevel} label="Abstraction level" />
+					<MetadataItem value={props.collabID} label="Collab ID" />
+					<MetadataItem value={props.organization} label="Organization" />
+				</List>
+			</Grid>
+		</React.Fragment>
+	);
 }

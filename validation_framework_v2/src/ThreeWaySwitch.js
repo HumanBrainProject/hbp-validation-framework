@@ -45,44 +45,44 @@ export const SwitchLabel = styled.label`
 
 
 const titleCase = str =>
-  str.split(/\s+/).map(w => w[0].toUpperCase() + w.slice(1)).join(' ');
+	str.split(/\s+/).map(w => w[0].toUpperCase() + w.slice(1)).join(' ');
 
 const ClickableLabel = ({ title, onChange, id }) =>
-  <SwitchLabel onClick={() => onChange(title)} className={id}>
-    {titleCase(title)}
-  </SwitchLabel>;
+	<SwitchLabel onClick={() => onChange(title)} className={id}>
+		{titleCase(title)}
+	</SwitchLabel>;
 
 const ConcealedRadio = ({ value, selected }) =>
-  <SwitchRadio type="radio" name="switch" checked={selected === value} onChange={()=>{}} />;
+	<SwitchRadio type="radio" name="switch" checked={selected === value} onChange={() => { }} />;
 
 export default class ThreeWaySwitch extends React.Component {
-  state = { selected: this.props.selected };
+	state = { selected: this.props.selected };
 
-  handleChange = val => {
-    this.setState({ selected: val });
-    this.props.onChange(val);
-  };
+	handleChange = val => {
+		this.setState({ selected: val });
+		this.props.onChange(val);
+	};
 
-  selectionStyle = () => {
-    return {
-      left: `${this.props.values.indexOf(this.state.selected) / 3 * 100}%`,
-    };
-  };
+	selectionStyle = () => {
+		return {
+			left: `${this.props.values.indexOf(this.state.selected) / 3 * 100}%`,
+		};
+	};
 
-  render() {
-    const { selected } = this.state;
-    return (
-      <Switch>
-        {this.props.values.map(val => {
-          return (
-            <span key={val}>
-              <ConcealedRadio value={val} selected={selected} />
-              <ClickableLabel title={val} onChange={this.handleChange} />
-            </span>
-          );
-        })}
-        <SwitchSelection style={this.selectionStyle()} />
-      </Switch>
-    );
-  }
+	render() {
+		const { selected } = this.state;
+		return (
+			<Switch>
+				{this.props.values.map(val => {
+					return (
+						<span key={val}>
+							<ConcealedRadio value={val} selected={selected} />
+							<ClickableLabel title={val} onChange={this.handleChange} />
+						</span>
+					);
+				})}
+				<SwitchSelection style={this.selectionStyle()} />
+			</Switch>
+		);
+	}
 }
