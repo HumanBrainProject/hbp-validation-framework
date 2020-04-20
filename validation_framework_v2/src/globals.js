@@ -1,4 +1,4 @@
-export const DevMode = true;
+export const DevMode = false;
 export const baseUrl = "https://validation-v1.brainsimulation.eu";
 export const collaboratoryOrigin = 'https://wiki.humanbrainproject.eu';
 export const hashChangedTopic = '/clb/community-app/hashchange';
