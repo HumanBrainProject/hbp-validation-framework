@@ -175,8 +175,6 @@ def test_list_models_filter_by_brain_region_and_authors():
         assert model["brain_region"] == "hippocampus"
 
 
-
-
 def test_create_and_delete_network_model(caplog):
     caplog.set_level(logging.DEBUG)
 
@@ -438,3 +436,72 @@ def test_get_model_instance_by_project_and_id():
     assert response.status_code == 200
     model_instance = response.json()
     check_model_instance(model_instance)
+
+
+def test_create_model_instance():
+    # first create a model project
+    payload1 = _build_sample_model()
+    response = client.post(f"/models/", json=payload1, headers=AUTH_HEADER)
+    assert response.status_code == 201
+    posted_model = response.json()
+    check_model(posted_model)
+    assert len(posted_model["instances"]) == 1
+    model_uuid = posted_model["id"]
+
+    # now add a new instance
+    payload2 = {
+        "version": "1.3",
+        "description": "description of this version",
+        "parameters": "{'meaning': 42.01}",
+        "code_format": "Python",
+        "source": "http://example.com/my_code.py",
+        "license": "MIT"
+    }
+    response = client.post(f"/models/{model_uuid}/instances/", json=payload2, headers=AUTH_HEADER)
+    assert response.status_code == status.HTTP_201_CREATED
+
+    # now retrieve the model and check we have both instances
+    response = client.get(f"/models/{model_uuid}", headers=AUTH_HEADER)
+    assert response.status_code == 200
+    retrieved_model = response.json()
+    assert len(retrieved_model["instances"]) == 2
+    assert retrieved_model["instances"][1]["version"] == payload2["version"]
+
+    # delete again
+    response = client.delete(f"/models/{model_uuid}", headers=AUTH_HEADER)
+    assert response.status_code == 200
+
+
+def test_update_model_instance():
+    # first create a model project
+    payload1 = _build_sample_model()
+    response = client.post(f"/models/", json=payload1, headers=AUTH_HEADER)
+    assert response.status_code == 201
+    posted_model = response.json()
+    check_model(posted_model)
+    assert len(posted_model["instances"]) == 1
+    model_uuid = posted_model["id"]
+    model_instance_uuid = posted_model["instances"][0]["id"]
+
+    # now edit the instance
+    payload2 = {
+        "description": "a more detailed description of this version",
+        "source": "http://example.com/my_code_in_a_new_location.py",
+        "license": "BSD"
+    }
+    response = client.put(f"/models/{model_uuid}/instances/{model_instance_uuid}",
+                          json=payload2, headers=AUTH_HEADER)
+    assert response.status_code == 200
+
+    # now retrieve the model and check the instance has been updated
+    response = client.get(f"/models/{model_uuid}", headers=AUTH_HEADER)
+    assert response.status_code == 200
+    retrieved_model = response.json()
+    assert len(retrieved_model["instances"]) == 1
+    assert retrieved_model["instances"][0]["version"] == payload1["instances"][0]["version"]  # should be unchanged
+    assert retrieved_model["instances"][0]["license"] == payload2["license"]
+    assert retrieved_model["instances"][0]["description"] == payload2["description"]
+
+    # delete again
+    response = client.delete(f"/models/{model_uuid}", headers=AUTH_HEADER)
+    assert response.status_code == 200

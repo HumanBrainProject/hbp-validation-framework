@@ -2,6 +2,7 @@ from uuid import UUID
 from typing import List
 from datetime import datetime
 import logging
+from time import sleep
 
 from fairgraph.base import KGQuery, as_list
 from fairgraph.brainsimulation import ModelProject, ModelInstance as ModelInstanceKG, MEModel
@@ -11,7 +12,8 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
 from ..auth import get_kg_client, get_user_from_token, is_collab_member
 from ..data_models import (Person, Species, BrainRegion, CellType, ModelScope, AbstractionLevel,
-                           ScientificModel, ScientificModelPatch, ModelInstance)
+                           ScientificModel, ScientificModelPatch, ModelInstance,
+                           ModelInstancePatch)
 from ..queries import build_model_project_filters, model_alias_exists
 
 
@@ -22,6 +24,7 @@ auth = HTTPBearer()
 kg_client = get_kg_client()
 router = APIRouter()
 
+RETRY_INTERVAL = 60  # seconds
 
 @router.get("/")
 def read_root():
@@ -123,9 +126,16 @@ def _get_model_instance_by_id(instance_id, token):
                             detail=f"Model instance with ID '{instance_id}' not found.")
 
     model_project = model_instance.project.resolve(kg_client, api="nexus")
-    # todo: in case of a dangling model instance, where the parent model_project
-    #       has been deleted but the instance wasn't, we could get a None here
-    #       which we need to deal with
+    if not model_project:
+        # we could get an empty response if the model_project has just been
+        # updated and the KG is not consistent, so we wait and try again
+        sleep(RETRY_INTERVAL)
+        model_project = model_instance.project.resolve(kg_client, api="nexus")
+        if not model_project:
+            # in case of a dangling model instance, where the parent model_project
+            # has been deleted but the instance wasn't
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                                detail=f"Model instance with ID '{instance_id}' no longer exists.")
     _check_model_access(model_project, token)
     return model_instance
 
@@ -229,8 +239,8 @@ def get_model_instances(model_id: str,
 @router.get("/models/query/instances/{model_instance_id}", response_model=ModelInstance)
 def get_model_instance_from_instance_id(model_instance_id: UUID,
                                         token: HTTPAuthorizationCredentials = Depends(auth)):
-     inst = _get_model_instance_by_id(model_instance_id, token)
-     return ModelInstance.from_kg_object(inst, kg_client)
+    inst = _get_model_instance_by_id(model_instance_id, token)
+    return ModelInstance.from_kg_object(inst, kg_client)
 
 
 @router.get("/models/{model_id}/instances/latest", response_model=ModelInstance)
@@ -256,19 +266,57 @@ def get_model_instance_given_model_id(model_id: str,
 
 
 @router.post("/models/{model_id}/instances/",
-          response_model=ModelInstance, status_code=status.HTTP_201_CREATED)
+             response_model=ModelInstance, status_code=status.HTTP_201_CREATED)
 def create_model_instance(model_id: str,
                           model_instance: ModelInstance,
                           token: HTTPAuthorizationCredentials = Depends(auth)):
+    model_project = _get_model_by_id_or_alias(model_id, token)
+    # check permissions for this model
+    if model_project.collab_id and not is_collab_member(model_project.collab_id, token.credentials):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
+                            detail=f"This account is not a member of Collab #{model_project.project_id}")
+    kg_objects = model_instance.to_kg_objects(model_project)
+    for obj in kg_objects:
+        obj.save(kg_client)
+    model_instance_kg = kg_objects[-1]
+    model_project.instances = as_list(model_project.instances.resolve(kg_client, api="nexus"))
+    model_project.instances.append(model_instance_kg)
+    model_project.save(kg_client)
+    return ModelInstance.from_kg_object(model_instance_kg, kg_client)
 
-    pass
+
+@router.put("/models/query/instances/{model_instance_id}", response_model=ModelInstance)
+def update_model_instance_by_id(model_instance_id: str,
+                                model_instance_patch: ModelInstancePatch,
+                                token: HTTPAuthorizationCredentials = Depends(auth)):
+    model_instance_kg = _get_model_instance_by_id(model_instance_id, token)
+    model_project = model_instance_kg.inst.project.resolve(kg_client, api="nexus")
+    return _update_model_instance(model_instance_kg, model_project, model_instance_patch, token)
 
 
 @router.put("/models/{model_id}/instances/{model_instance_id}",
-         response_model=ModelInstance, status_code=status.HTTP_201_CREATED)
+            response_model=ModelInstance, status_code=status.HTTP_200_OK)
 def update_model_instance(model_id: str,
                           model_instance_id: str,
-                          model_instance: ModelInstance,
+                          model_instance_patch: ModelInstancePatch,
                           token: HTTPAuthorizationCredentials = Depends(auth)):
+    model_instance_kg = _get_model_instance_by_id(model_instance_id, token)
+    model_project = _get_model_by_id_or_alias(model_id, token)
+    return _update_model_instance(model_instance_kg, model_project, model_instance_patch, token)
 
-    pass
+
+def _update_model_instance(model_instance_kg, model_project, model_instance_patch, token):
+    # check permissions for this model
+    if model_project.collab_id and not is_collab_member(model_project.collab_id, token.credentials):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
+                            detail=f"This account is not a member of Collab #{model_project.project_id}")
+
+    stored_model_instance = ModelInstance.from_kg_object(model_instance_kg, kg_client)
+    update_data = model_instance_patch.dict(exclude_unset=True)
+    updated_model_instance = stored_model_instance.copy(update=update_data)
+    kg_objects = updated_model_instance.to_kg_objects(model_project)
+    for obj in kg_objects:
+        obj.save(kg_client)
+    model_instance_kg = kg_objects[-1]
+    assert isinstance(model_instance_kg, (ModelInstanceKG, MEModel))
+    return ModelInstance.from_kg_object(model_instance_kg, kg_client)

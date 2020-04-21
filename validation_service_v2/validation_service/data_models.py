@@ -216,6 +216,24 @@ class ModelInstance(BaseModel):
         return kg_objects
 
 
+class ModelInstancePatch(BaseModel):
+    id: UUID = None
+    uri: HttpUrl = None
+    version: str = None
+    description: str = None
+    parameters: str = None
+    code_format: str = None
+    source: HttpUrl = None
+    license: str = None
+    hash: str = None
+    timestamp: datetime = None
+    morphology: HttpUrl = None
+
+    class Config:
+        extra = "allow"  # we temporarily store the IDs of sub-objects (e.g. ModelScript)
+                         # during object updates
+
+
 class Image(BaseModel):
     caption: str = None
     url: HttpUrl
