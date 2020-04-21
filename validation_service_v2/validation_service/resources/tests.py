@@ -13,7 +13,8 @@ from pydantic import ValidationError
 from ..auth import get_kg_client, get_user_from_token, is_collab_member
 from ..data_models import (Person, Species, BrainRegion, CellType, RecordingModality,
                            ValidationTestType, ScoreType,
-                           ValidationTest, ValidationTestInstance, ValidationTestPatch)
+                           ValidationTest, ValidationTestInstance,
+                           ValidationTestPatch, ValidationTestInstancePatch)
 from ..queries import build_validation_test_filters, test_alias_exists
 from .. import settings
 
@@ -201,8 +202,8 @@ def get_latest_test_instance_given_test_id(test_id: str,
 
 @router.get("/tests/{test_id}/instances/{test_instance_id}", response_model=ValidationTestInstance)
 def get_test_instance_given_test_id(test_id: str,
-                                      test_instance_id: UUID,
-                                      token: HTTPAuthorizationCredentials = Depends(auth)):
+                                    test_instance_id: UUID,
+                                    token: HTTPAuthorizationCredentials = Depends(auth)):
     test_definition = _get_test_by_id_or_alias(test_id, token)
     for inst in as_list(test_definition.scripts.resolve(kg_client, api="nexus")):
         if UUID(inst.uuid) == test_instance_id:
@@ -211,20 +212,52 @@ def get_test_instance_given_test_id(test_id: str,
                         detail="Test ID and test instance ID are inconsistent")
 
 
+@router.get("/tests/query/instances/{test_instance_id}", response_model=ValidationTestInstance)
+def get_test_instance_from_instance_id(test_instance_id: UUID,
+                                       token: HTTPAuthorizationCredentials = Depends(auth)):
+    test_instance_kg = _get_test_instance_by_id(test_instance_id, token)
+    return ValidationTestInstance.from_kg_object(test_instance_kg, kg_client)
+
+
 @router.post("/tests/{test_id}/instances/",
              response_model=ValidationTestInstance, status_code=status.HTTP_201_CREATED)
 def create_test_instance(test_id: str,
                          test_instance: ValidationTestInstance,
                          token: HTTPAuthorizationCredentials = Depends(auth)):
-
-    pass  # todo
+    test_definition = _get_test_by_id_or_alias(test_id, token)
+    kg_object = test_instance.to_kg_objects(test_definition)[0]
+    kg_object.save(kg_client)
+    return ValidationTestInstance.from_kg_object(kg_object, kg_client)
 
 
 @router.put("/tests/{test_id}/instances/{test_instance_id}",
-         response_model=ValidationTestInstance, status_code=status.HTTP_201_CREATED)
+         response_model=ValidationTestInstance, status_code=status.HTTP_200_OK)
 def update_test_instance(test_id: str,
                          test_instance_id: str,
-                         test_instance: ValidationTestInstance,
+                         test_instance_patch: ValidationTestInstancePatch,
                          token: HTTPAuthorizationCredentials = Depends(auth)):
+    validation_script = _get_test_instance_by_id(test_instance_id, token)
+    test_definition_kg = _get_test_by_id_or_alias(test_id, token)
+    return _update_test_instance(validation_script, test_definition_kg, test_instance_patch, token)
 
-    pass  # todo
+
+@router.put("/tests/query/instances/{test_instance_id}",
+         response_model=ValidationTestInstance, status_code=status.HTTP_200_OK)
+def update_test_instance_by_id(test_instance_id: str,
+                               test_instance_patch: ValidationTestInstancePatch,
+                               token: HTTPAuthorizationCredentials = Depends(auth)):
+    validation_script = _get_test_instance_by_id(test_instance_id, token)
+    test_definition_kg = validation_script.test_definition.resolve(kg_client, api="nexus")
+    return _update_test_instance(validation_script, test_definition_kg, test_instance_patch, token)
+
+
+def _update_test_instance(validation_script, test_definition_kg, test_instance_patch, token):
+    stored_test_instance = ValidationTestInstance.from_kg_object(validation_script, kg_client)
+    update_data = test_instance_patch.dict(exclude_unset=True)
+    updated_test_instance = stored_test_instance.copy(update=update_data)
+    kg_objects = updated_test_instance.to_kg_objects(test_definition_kg)
+    for obj in kg_objects:
+        obj.save(kg_client)
+    test_instance_kg = kg_objects[-1]
+    assert isinstance(test_instance_kg, ValidationScript)
+    return ValidationTestInstance.from_kg_object(test_instance_kg, kg_client)

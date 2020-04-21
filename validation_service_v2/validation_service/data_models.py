@@ -418,6 +418,19 @@ class ValidationTestInstance(BaseModel):
         ]
 
 
+class ValidationTestInstancePatch(BaseModel):
+    id: UUID = None
+    uri: HttpUrl = None
+    old_uuid: UUID = None
+    repository: HttpUrl = None
+    version: str = None
+    description: str = None
+    parameters: str = None
+    path: str = None
+    timestamp: datetime = None
+    test_definition_id: UUID = None
+
+
 class ValidationTest(BaseModel):
     id: UUID = None
     uri: HttpUrl = None
@@ -446,7 +459,8 @@ class ValidationTest(BaseModel):
                    for scr in as_list(test_definition.scripts.resolve(client, api="nexus"))}
         for script in recently_saved_scripts:
             scripts[id] = script
-
+        instances = [ValidationTestInstance.from_kg_object(inst, client)
+                     for inst in scripts.values()]
         obj = cls(
             id=test_definition.uuid,
             uri=test_definition.id,
@@ -466,8 +480,7 @@ class ValidationTest(BaseModel):
             data_modality=test_definition.recording_modality  if test_definition.recording_modality else None,
             test_type=test_definition.test_type if test_definition.test_type else None,
             score_type=test_definition.score_type if test_definition.score_type else None,
-            instances=[ValidationTestInstance.from_kg_object(inst, client)
-                       for inst in scripts.values()]
+            instances=sorted(instances, key=lambda inst: inst.timestamp)
         )
         return obj
 
