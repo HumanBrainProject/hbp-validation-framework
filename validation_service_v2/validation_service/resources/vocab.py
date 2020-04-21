@@ -10,7 +10,7 @@ from ..data_models import (Species, BrainRegion, CellType, ModelScope, Abstracti
 
 router = APIRouter()
 
-@router.get("/brain-regions/")
+@router.get("/brain-region/")
 def list_brain_regions():
     return [item.value for item in BrainRegion]
 
@@ -20,36 +20,36 @@ def list_species():
     return [item.value for item in Species]
 
 
-@router.get("/model-scopes/")
+@router.get("/model-scope/")
 def list_model_scopes():
     return [item.value for item in ModelScope]
 
 
-@router.get("/cell-types/")
+@router.get("/cell-type/")
 def list_cell_types():
     return [item.value for item in CellType]
 
 
-@router.get("/abstraction-levels/")
+@router.get("/abstraction-level/")
 def list_abstraction_levels():
     return [item.value for item in AbstractionLevel]
 
 
-@router.get("/recording-modalities/")
+@router.get("/recording-modality/")
 def list_recording_modalities():
     return [item.value for item in RecordingModality]
 
 
-@router.get("/test-types/")
+@router.get("/test-type/")
 def list_test_types():
     return [item.value for item in ValidationTestType]
 
 
-@router.get("/score-types/")
+@router.get("/score-type/")
 def list_score_types():
     return [item.value for item in ScoreType]
 
 
-@router.get("/test-status-values/")
+@router.get("/test-status/")
 def list_implementation_status_values():
     return [item.value for item in ImplementationStatus]
