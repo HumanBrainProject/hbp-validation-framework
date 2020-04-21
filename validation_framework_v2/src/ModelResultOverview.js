@@ -144,7 +144,7 @@ export default class ModelResultOverview extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			// results         : [],
+			results: [],
 			model_versions: [],
 			resultDetailOpen: false,
 			currentResult: null
@@ -152,12 +152,6 @@ export default class ModelResultOverview extends React.Component {
 
 		this.handleResultEntryClick = this.handleResultEntryClick.bind(this)
 		this.handleResultDetailClose = this.handleResultDetailClose.bind(this)
-	}
-
-	componentDidMount() {
-		// this.setState({
-		//   results: result_data["results"]
-		// });
 	}
 
 	getModelVersions = () => {
@@ -174,8 +168,7 @@ export default class ModelResultOverview extends React.Component {
 		return list_model_versions
 	}
 
-	groupResults = (list_model_versions) => {
-		const results = this.props.results;
+	groupResults = (list_model_versions, results) => {
 		// will be a 3-D dict {test -> test instance -> model instance} with list as values
 		var dict_results = {};
 
@@ -363,15 +356,14 @@ export default class ModelResultOverview extends React.Component {
 		}
 
 		const model_versions = this.getModelVersions();
-		const results_grouped = this.groupResults(model_versions);
-
-		console.log(results_grouped)
-		console.log(this.props.loadingResult)
-		if (Object.keys(results_grouped).length > 0) {
-			content = this.renderResultsSummaryTable(results_grouped, model_versions);
-		} else {
+		const results = this.props.results;
+		if (results.length === 0) {
 			content = this.renderNoResults();
+		} else {
+			const results_grouped = this.groupResults(model_versions, results);
+			content = this.renderResultsSummaryTable(results_grouped, model_versions);
 		}
+
 		if (this.state.currentResult) {
 			resultDetail = <ResultDetail open={this.state.resultDetailOpen} result={this.state.currentResult} onClose={this.handleResultDetailClose} />;
 		} else {

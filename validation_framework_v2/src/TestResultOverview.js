@@ -144,7 +144,7 @@ export default class TestResultOverview extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			// results         : [],
+			results: [],
 			test_versions: [],
 			resultDetailOpen: false,
 			currentResult: null
@@ -154,14 +154,7 @@ export default class TestResultOverview extends React.Component {
 		this.handleResultDetailClose = this.handleResultDetailClose.bind(this)
 	}
 
-	componentDidMount() {
-		// this.setState({
-		//   results: result_data["results"]
-		// });
-	}
-
 	getTestVersions = () => {
-		console.log(this.props.testJSON)
 		// Get list of all test versions; note that not necessarily all test versions will have associated results
 		// so not appropriate to locate test versions via individual results
 		var list_test_versions = []
@@ -175,8 +168,7 @@ export default class TestResultOverview extends React.Component {
 		return list_test_versions
 	}
 
-	groupResults = (list_test_versions) => {
-		const results = this.props.results;
+	groupResults = (list_test_versions, results) => {
 		// will be a 3-D dict {model -> model instance -> test instance} with list as values
 		var dict_results = {}
 
@@ -364,15 +356,14 @@ export default class TestResultOverview extends React.Component {
 		}
 
 		const test_versions = this.getTestVersions();
-		const results_grouped = this.groupResults(test_versions);
-
-		console.log(results_grouped)
-		console.log(this.props.loadingResult)
-		if (Object.keys(results_grouped).length > 0) {
-			content = this.renderResultsSummaryTable(results_grouped, test_versions);
-		} else {
+		const results = this.props.results;
+		if (results.length === 0) {
 			content = this.renderNoResults();
+		} else {
+			const results_grouped = this.groupResults(test_versions, results);
+			content = this.renderResultsSummaryTable(results_grouped, test_versions);
 		}
+
 		if (this.state.currentResult) {
 			resultDetail = <ResultDetail open={this.state.resultDetailOpen} result={this.state.currentResult} onClose={this.handleResultDetailClose} />;
 		} else {

@@ -135,7 +135,6 @@ export default class TestDetail extends React.Component {
 					loadingResult: false,
 					error: null
 				});
-				console.log(res.data["results"])
 			})
 			.catch(err => {
 				if (axios.isCancel(err)) {

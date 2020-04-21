@@ -122,13 +122,7 @@ export default class ResultGraphs extends React.Component {
 		this.handleResultDetailClose = this.handleResultDetailClose.bind(this)
 	}
 
-	componentDidMount() {
-		// group results by model instance, test instance combo
-		// each entry being a list of results ordered from newest to oldest
-	}
-
-	groupResults = () => {
-		const results = this.props.results;
+	groupResults = (results) => {
 		// will be a multi-D dict {test -> test instance -> model -> model instance} with list as values
 		var dict_results = {}
 
@@ -330,11 +324,8 @@ export default class ResultGraphs extends React.Component {
 				test_ids.push(test_id)
 			}
 		}
-		console.log(test_ids)
 
 		if (test_ids.length > 0) {
-			console.log(this.state.test_ids)
-			console.log(dict_results)
 			return (
 				<Container>
 					{test_ids.map((test_id) =>
@@ -385,15 +376,14 @@ export default class ResultGraphs extends React.Component {
 			return <LoadingIndicator position="absolute" />
 		}
 
-		const results_grouped = this.groupResults();
-
-		console.log(results_grouped)
-		console.log(this.props.loadingResult)
-		if (Object.keys(results_grouped).length > 0) {
-			content = this.renderResultsFigures(results_grouped);
-		} else {
+		const results = this.props.results;
+		if (results.length === 0) {
 			content = this.renderNoResults();
+		} else {
+			const results_grouped = this.groupResults(results);
+			content = this.renderResultsFigures(results_grouped);
 		}
+
 		if (this.state.currentResult) {
 			resultDetail = <ResultDetail open={this.state.resultDetailOpen} result={this.state.currentResult} onClose={this.handleResultDetailClose} />;
 		}
