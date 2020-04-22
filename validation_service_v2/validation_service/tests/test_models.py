@@ -201,6 +201,41 @@ def test_create_and_delete_network_model(caplog):
     assert response.status_code == 404
 
 
+def test_create_model_with_minimal_data(caplog):
+    payload = {
+        "name": f"TestModel API v2 {datetime.now().isoformat()}",
+        "author": [
+            {
+            "given_name": "Frodo",
+            "family_name": "Baggins"
+            }
+        ],
+        "owner": [
+            {
+            "given_name": "Frodo",
+            "family_name": "Baggins"
+            }
+        ],
+        "project_id": 52468,
+        "description": "description goes here"
+    }
+    # create
+    response = client.post(f"/models/", json=payload, headers=AUTH_HEADER)
+    assert response.status_code == 201
+    posted_model = response.json()
+    check_model(posted_model)
+
+    # check we can retrieve model
+    model_uuid = posted_model["id"]
+    response = client.get(f"/models/{model_uuid}", headers=AUTH_HEADER)
+    assert response.status_code == 200
+    retrieved_model = response.json()
+    assert retrieved_model == posted_model
+
+    # delete again
+    response = client.delete(f"/models/{model_uuid}", headers=AUTH_HEADER)
+    assert response.status_code == 200
+
 def test_create_model_with_invalid_data():
     # missing required model project fields
     for required_field in ("name", "author", "owner", "description"):

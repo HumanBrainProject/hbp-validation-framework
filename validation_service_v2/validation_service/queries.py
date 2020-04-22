@@ -115,8 +115,10 @@ def build_result_filters(model_version_id, test_code_id, model_id, test_id,
 
 
 def model_alias_exists(alias, client):
-    model_with_same_alias = ModelProject.from_alias(alias, client, api="nexus")
-    return bool(model_with_same_alias)
+    if alias:
+        model_with_same_alias = ModelProject.from_alias(alias, client, api="nexus")
+        return bool(model_with_same_alias)
+    return False
 
 
 def test_alias_exists(alias, client):

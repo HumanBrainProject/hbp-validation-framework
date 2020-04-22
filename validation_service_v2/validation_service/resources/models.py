@@ -159,7 +159,7 @@ def create_model(model: ScientificModel, token: HTTPAuthorizationCredentials = D
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
                             detail=f"This account is not a member of Collab #{model.project_id}")
     # check uniqueness of alias
-    if model_alias_exists(model.alias, kg_client):
+    if model.alias and model_alias_exists(model.alias, kg_client):
         raise HTTPException(status_code=status.HTTP_409_CONFLICT,
                             detail=f"Another model with alias '{model.alias}' already exists.")
     kg_objects = model.to_kg_objects()

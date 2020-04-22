@@ -333,13 +333,14 @@ class ScientificModel(BaseModel):
         if self.uri:
             model_project.id = str(self.uri)
 
-        for instance in self.instances:
-            kg_objects.extend(instance.to_kg_objects(model_project))
-        model_project.instances = [
-            obj for obj in kg_objects
-            if (isinstance(obj, fairgraph.brainsimulation.ModelInstance)
-                and not isinstance(obj, fairgraph.brainsimulation.EModel))
-        ]
+        if self.instances:
+            for instance in self.instances:
+                kg_objects.extend(instance.to_kg_objects(model_project))
+            model_project.instances = [
+                obj for obj in kg_objects
+                if (isinstance(obj, fairgraph.brainsimulation.ModelInstance)
+                    and not isinstance(obj, fairgraph.brainsimulation.EModel))
+            ]
         kg_objects.append(model_project)
         return kg_objects
 
