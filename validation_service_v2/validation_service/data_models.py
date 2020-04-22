@@ -184,7 +184,7 @@ class ModelInstance(BaseModel):
                 morphology_file=self.morphology)
             if hasattr(self, "morphology_id"):
                 morph.id = self.morphology_id
-            kg_objects.append(e_model)
+            kg_objects.append(morph)
             minst = fairgraph.brainsimulation.MEModel(
                 name=f"ModelInstance for {model_project.name} @ {self.version}",
                 description=self.description or "",
