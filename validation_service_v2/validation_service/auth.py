@@ -73,7 +73,7 @@ def get_collab_permissions(collab_id, user_token):
     try:
         response = res.json()
     except json.decoder.JSONDecodeError:
-        raise Exception(f"Error in retrieving collab permissions. Response was: {res.content}")
+        raise Exception(f"Error in retrieving collab permissions from {url}. Response was: {res.content}")
     return response
 
 
