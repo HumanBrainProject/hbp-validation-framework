@@ -152,6 +152,9 @@ def get_model(model_id: str, token: HTTPAuthorizationCredentials = Depends(auth)
 @router.post("/models/", response_model=ScientificModel, status_code=status.HTTP_201_CREATED)
 def create_model(model: ScientificModel, token: HTTPAuthorizationCredentials = Depends(auth)):
     # check permissions
+    if model.project_id is None:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                            detail=f"project_id must be provided")
     if not is_collab_member(model.project_id, token.credentials):
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
                             detail=f"This account is not a member of Collab #{model.project_id}")
