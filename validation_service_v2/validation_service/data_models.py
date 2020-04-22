@@ -5,7 +5,7 @@ from datetime import datetime
 from itertools import chain
 import logging
 
-from pydantic import BaseModel, HttpUrl, AnyUrl, validator
+from pydantic import BaseModel, HttpUrl, AnyUrl, validator, ValidationError
 from fastapi.encoders import jsonable_encoder
 from fastapi import HTTPException, status
 
@@ -160,7 +160,12 @@ class ModelInstance(BaseModel):
             instance_data["morphology_id"] = morph.id  # internal
         if hasattr(instance, "e_model"):
             instance_data["e_model_id"] = instance.e_model.id
-        return cls(**instance_data)
+        try:
+            obj = cls(**instance_data)
+        except ValidationError as err:
+            logger.error(f"Validation error for data: {instance_data}")
+            raise
+        return obj
 
     def to_kg_objects(self, model_project):
         script = fairgraph.brainsimulation.ModelScript(
