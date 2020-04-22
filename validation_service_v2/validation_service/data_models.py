@@ -270,30 +270,35 @@ class ScientificModel(BaseModel):
 
     @classmethod
     def from_kg_object(cls, model_project, client):
-        return cls(
-            id=model_project.uuid,
-            uri=model_project.id,
-            name=model_project.name,
-            alias=model_project.alias,
-            author=[Person.from_kg_object(p, client) for p in as_list(model_project.authors)],
-            owner=[Person.from_kg_object(p, client) for p in as_list(model_project.owners)],
-            project_id=model_project.collab_id,
-            organization=model_project.organization.resolve(client, api="nexus").name
-                         if model_project.organization else None,
-            private=model_project.private,
-            cell_type=model_project.celltype.label if model_project.celltype else None,
-            model_scope=model_project.model_of.label if model_project.model_of else None,
-            abstraction_level=model_project.abstraction_level.label
-                              if model_project.abstraction_level else None,
-            brain_region=model_project.brain_region.label if model_project.brain_region else None,
-            species=model_project.species.label if model_project.species else None,
-            description=model_project.description,
-            date_created=model_project.date_created,
-            images=as_list(model_project.images),
-            old_uuid=model_project.old_uuid,
-            instances=[ModelInstance.from_kg_object(inst, client)
-                       for inst in as_list(model_project.instances)]
-        )
+        try:
+            obj = cls(
+                id=model_project.uuid,
+                uri=model_project.id,
+                name=model_project.name,
+                alias=model_project.alias,
+                author=[Person.from_kg_object(p, client) for p in as_list(model_project.authors)],
+                owner=[Person.from_kg_object(p, client) for p in as_list(model_project.owners)],
+                project_id=model_project.collab_id,
+                organization=model_project.organization.resolve(client, api="nexus").name
+                            if model_project.organization else None,
+                private=model_project.private,
+                cell_type=model_project.celltype.label if model_project.celltype else None,
+                model_scope=model_project.model_of.label if model_project.model_of else None,
+                abstraction_level=model_project.abstraction_level.label
+                                if model_project.abstraction_level else None,
+                brain_region=model_project.brain_region.label if model_project.brain_region else None,
+                species=model_project.species.label if model_project.species else None,
+                description=model_project.description,
+                date_created=model_project.date_created,
+                images=as_list(model_project.images),
+                old_uuid=model_project.old_uuid,
+                instances=[ModelInstance.from_kg_object(inst, client)
+                        for inst in as_list(model_project.instances)]
+            )
+        except ValidationError as err:
+            logger.error(f"Validation error for data from model project: {model_project}")
+            raise
+        return obj
 
     def to_kg_objects(self):
         authors = [person.to_kg_object() for person in self.author]
