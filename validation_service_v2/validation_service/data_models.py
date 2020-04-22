@@ -120,7 +120,7 @@ class ModelInstance(BaseModel):
     description: str = None
     parameters: str = None  # or dict?
     code_format: str = None
-    source: HttpUrl = None  # should be required
+    source: AnyUrl = None  # should be required
     license: str = None  # use Enum
     hash: str = None
     timestamp: datetime = None
