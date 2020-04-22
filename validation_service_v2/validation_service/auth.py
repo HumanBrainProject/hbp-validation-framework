@@ -1,5 +1,6 @@
 import requests
 import logging
+import json
 
 from fairgraph.client import KGClient
 
@@ -69,7 +70,11 @@ def get_collab_permissions(collab_id, user_token):
     res = requests.get(url, headers=headers)
     #if res.status_code != 200:
     #    return {"VIEW": False, "UPDATE": False}
-    return res.json()
+    try:
+        response = res.json()
+    except json.decoder.JSONDecodeError:
+        raise Exception(f"Error in retrieving collab permissions. Response was: {res.content}")
+    return response
 
 
 def is_collab_member(collab_id, user_token):
