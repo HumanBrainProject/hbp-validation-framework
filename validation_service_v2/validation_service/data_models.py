@@ -143,7 +143,10 @@ class ModelInstance(BaseModel):
             "parameters":  instance.parameters,
             "timestamp": instance.timestamp
         }
-        main_script = instance.main_script.resolve(client, api="nexus")
+        if instance.main_script:
+            main_script = instance.main_script.resolve(client, api="nexus")
+        else:
+            raise Exception(f"main_script unexpectedly not present.\ninstance: {instance}")
         if main_script:
             instance_data.update({
                 "code_format": main_script.code_format,
