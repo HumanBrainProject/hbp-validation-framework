@@ -92,7 +92,7 @@ def query_models(alias: List[str] = Query(None),
     else:
         model_projects = ModelProject.list(kg_client, api="nexus", size=size, from_index=from_index)
     return [ScientificModel.from_kg_object(model_project, kg_client)
-            for model_project in model_projects]
+            for model_project in as_list(model_projects)]
 
 
 def _check_model_access(model_project, token):

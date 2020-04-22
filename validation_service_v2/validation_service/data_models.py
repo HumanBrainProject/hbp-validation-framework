@@ -293,7 +293,7 @@ class ScientificModel(BaseModel):
                 images=as_list(model_project.images),
                 old_uuid=model_project.old_uuid,
                 instances=[ModelInstance.from_kg_object(inst, client)
-                        for inst in as_list(model_project.instances)]
+                           for inst in as_list(model_project.instances)]
             )
         except ValidationError as err:
             logger.error(f"Validation error for data from model project: {model_project}")
