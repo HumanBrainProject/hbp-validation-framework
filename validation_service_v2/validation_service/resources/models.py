@@ -284,7 +284,10 @@ def create_model_instance(model_id: str,
     for obj in kg_objects:
         obj.save(kg_client)
     model_instance_kg = kg_objects[-1]
-    model_project.instances = as_list(model_project.instances.resolve(kg_client, api="nexus"))
+    # not sure the following is needed.
+    # Should just be able to leave the existing model instances as KGProxy objects?
+    model_project.instances = [inst.resolve(kg_client, api="nexus")
+                               for inst in as_list(model_project.instances)]
     model_project.instances.append(model_instance_kg)
     model_project.save(kg_client)
     return ModelInstance.from_kg_object(model_instance_kg, kg_client)
