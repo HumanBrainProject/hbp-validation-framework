@@ -231,12 +231,14 @@ def delete_model(model_id: UUID, token: HTTPAuthorizationCredentials = Depends(a
 
 @router.get("/models/{model_id}/instances/", response_model=List[ModelInstance])
 def get_model_instances(model_id: str,
+                        version: str = None,
                         token: HTTPAuthorizationCredentials = Depends(auth)):
     model_project = _get_model_by_id_or_alias(model_id, token)
     model_instances = [ModelInstance.from_kg_object(inst, kg_client)
                        for inst in model_project.instances]
+    if version is not None:
+        model_instances = [inst for inst in model_instances if inst.version == version]
     return model_instances
-    # todo: implement filter by version
 
 
 @router.get("/models/query/instances/{model_instance_id}", response_model=ModelInstance)
