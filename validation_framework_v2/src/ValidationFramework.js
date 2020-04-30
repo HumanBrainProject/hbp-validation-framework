@@ -15,6 +15,7 @@ import ModelTable from "./ModelTable";
 import TestTable from "./TestTable";
 import ModelDetail from "./ModelDetail";
 import TestDetail from "./TestDetail";
+import AddModelForm from "./AddModelForm";
 import ConfigForm from "./ConfigForm";
 import Introduction from "./Introduction";
 import ConfigDisplayTop from "./ConfigDisplayTop"
@@ -89,7 +90,7 @@ const storeDisplay = (display) => {
 
 const retrieveFilters = () => {
 	const searchParams = new URLSearchParams(window.location.search);
-
+	console.log(searchParams.get("species"))
 	let filters = {};
 	for (let key of filterKeys) {
 		let param = searchParams.get(key);
@@ -99,6 +100,7 @@ const retrieveFilters = () => {
 			filters[key] = [];
 		}
 	}
+	console.log(filters)
 	return filters;
 }
 
@@ -127,6 +129,7 @@ class ValidationFramework extends React.Component {
 			'modelDetailOpen': false,
 			'testDetailOpen': false,
 			'resultDetailOpen': false,
+			'addModelFormOpen': false,
 			'configOpen': false,
 			'loadingOpen': false,
 			'loadingModel': true,
@@ -134,6 +137,7 @@ class ValidationFramework extends React.Component {
 			'errorUpdate': null,
 			'errorGet': null,
 			'filters': retrieveFilters(),
+			'validFilterValues' : this.retrieveFilterValidValues(),
 			'display': retrieveDisplay(),
 			'modelsTableWide': false,
 			'testsTableWide': false
@@ -144,6 +148,7 @@ class ValidationFramework extends React.Component {
 			this.state['loadingModel'] = false
 			this.state['loadingTest'] = false
 		}
+		this.retrieveFilterValidValues = this.retrieveFilterValidValues(this);
 		this.handleModelDetailClose = this.handleModelDetailClose.bind(this);
 		this.handleTestDetailClose = this.handleTestDetailClose.bind(this);
 		this.handleResultDetailClose = this.handleResultDetailClose.bind(this);
@@ -159,6 +164,8 @@ class ValidationFramework extends React.Component {
 		this.getTest = this.getTest.bind(this);
 		this.modelTableFullWidth = this.modelTableFullWidth.bind(this);
 		this.testTableFullWidth = this.testTableFullWidth.bind(this);
+		this.openAddModelForm = this.openAddModelForm.bind(this);
+		this.handleAddModelFormClose = this.handleAddModelFormClose.bind(this);
 	}
 
 	modelTableFullWidth() {
@@ -173,7 +180,38 @@ class ValidationFramework extends React.Component {
 		});
 	}
 
+	openAddModelForm() {
+		this.setState({ 'addModelFormOpen': true })
+	};
+
+	handleAddModelFormClose(currentModel) {
+		console.log("close add")
+		console.log(currentModel)
+		this.setState({ 'addModelFormOpen': false });
+		if (currentModel) {
+			console.log(currentModel)
+			let models = this.state.data;
+			models.unshift(currentModel);
+			this.setState({
+				data: models,
+				currentModel: currentModel,
+				modelDetailOpen: true
+			});
+			updateHash("model_id." + currentModel.id);
+		}
+	}
+
 	componentDidMount() {
+	const token = this.props.auth.tokenParsed;
+    console.log(token);
+
+    this.props.auth.loadUserInfo()
+        .success(() => {
+          const userInfo = this.props.auth.userInfo;
+          console.log(userInfo);
+        })
+		.error(console.log);
+
 		if (window.location.hash) {
 			let proceed = true;
 			const param = window.location.hash.slice(1);
@@ -217,6 +255,30 @@ class ValidationFramework extends React.Component {
 
 	componentWillUnmount() {
 		this.signal.cancel('REST API call canceled!');
+	}
+
+	retrieveFilterValidValues() {
+		let url = baseUrl + "/authorizedcollabparameterrest/?python_client=true";
+		let config = {
+			cancelToken: this.signal.token
+		}
+		return axios.get(url, config)
+			.then(res => {
+				this.setState({
+					validFilterValues: res.data
+				});
+			})
+			.catch(err => {
+				if (axios.isCancel(err)) {
+					console.log('Error: ', err.message);
+				} else {
+					// Something went wrong. Save the error in state and re-render.
+					this.setState({
+						error: err
+					});
+				}
+			}
+			);
 	}
 
 	getModel(key, value) {
@@ -364,7 +426,6 @@ class ValidationFramework extends React.Component {
 					const models = res.data.models;
 					this.setState({
 						modelData: models,
-						// currentModel: this.state.currentModel ? this.state.currentModel : models[0], //Remove?
 						loadingModel: false,
 						errorUpdate: null
 					});
@@ -406,7 +467,6 @@ class ValidationFramework extends React.Component {
 					const tests = res.data.tests;
 					this.setState({
 						testData: tests,
-						// currentTest: this.state.currentTest ? this.state.currentTest : tests[0], //Remove?
 						loadingTest: false,
 						errorUpdate: null
 					});
@@ -463,6 +523,8 @@ class ValidationFramework extends React.Component {
 	};
 
 	handleConfigClose(display, filters) {
+		console.log(this.state.filters)
+		console.log(filters)
 		let modelFilters = {};
 		filterModelKeys.forEach(function (key, index) {
 			modelFilters[key] = filters[key]
@@ -558,7 +620,7 @@ class ValidationFramework extends React.Component {
 							<br /><br />
 						</Paper>
 						:
-						<ModelTable rows={this.state.modelData} display={this.state.display} changeTableWidth={this.modelTableFullWidth} handleRowClick={this.handleModelRowClick} />
+						<ModelTable modelData={this.state.modelData} display={this.state.display} changeTableWidth={this.modelTableFullWidth} openAddModelForm={this.openAddModelForm} handleRowClick={this.handleModelRowClick} />
 					}
 				</Grid>
 			</Grid>
@@ -573,7 +635,7 @@ class ValidationFramework extends React.Component {
 							<br /><br />
 						</Paper>
 						:
-						<TestTable rows={this.state.testData} display={this.state.display} changeTableWidth={this.testTableFullWidth} handleRowClick={this.handleTestRowClick} />
+						<TestTable testData={this.state.testData} display={this.state.display} auth={this.props.auth} changeTableWidth={this.testTableFullWidth} openAddModelForm={this.openAddModelForm} handleRowClick={this.handleTestRowClick} />
 					}
 				</Grid>
 			</Grid>
@@ -588,7 +650,7 @@ class ValidationFramework extends React.Component {
 							<br /><br />
 						</Paper>
 						:
-						<ModelTable rows={this.state.modelData} display={this.state.display} changeTableWidth={this.modelTableFullWidth} handleRowClick={this.handleModelRowClick} />
+						<ModelTable modelData={this.state.modelData} display={this.state.display} auth={this.props.auth} changeTableWidth={this.modelTableFullWidth} openAddModelForm={this.openAddModelForm} handleRowClick={this.handleModelRowClick} />
 					}
 				</Grid>
 				<Grid item xs={6}>
@@ -600,7 +662,7 @@ class ValidationFramework extends React.Component {
 							<br /><br />
 						</Paper>
 						:
-						<TestTable rows={this.state.testData} display={this.state.display} changeTableWidth={this.testTableFullWidth} handleRowClick={this.handleTestRowClick} />
+						<TestTable testData={this.state.testData} display={this.state.display} auth={this.props.auth} changeTableWidth={this.testTableFullWidth} openAddModelForm={this.openAddModelForm} handleRowClick={this.handleTestRowClick} />
 					}
 				</Grid>
 			</Grid>
@@ -618,6 +680,7 @@ class ValidationFramework extends React.Component {
 		var modelDetail = "";
 		var testDetail = "";
 		var resultDetail = "";
+		var addModel = "";
 
 		if (this.state.loadingOpen) {
 			return this.renderLoading();
@@ -638,20 +701,18 @@ class ValidationFramework extends React.Component {
 
 		if (this.state.currentModel) {// && this.state.display!=="Only Tests") {
 			modelDetail = <ModelDetail open={this.state.modelDetailOpen} modelData={this.state.currentModel} onClose={this.handleModelDetailClose} auth={this.props.auth} />;
-		} else {
-			modelDetail = "";
 		}
 
 		if (this.state.currentTest) {// && this.state.display!=="Only Models") {
 			testDetail = <TestDetail open={this.state.testDetailOpen} testData={this.state.currentTest} onClose={this.handleTestDetailClose} auth={this.props.auth} />;
-		} else {
-			testDetail = "";
 		}
 
 		if (this.state.currentResult) {
 			resultDetail = <ResultDetail open={this.state.resultDetailOpen} result={this.state.currentResult} onClose={this.handleResultDetailClose} auth={this.props.auth} />;
-		} else {
-			resultDetail = "";
+		}
+
+		if (this.state.addModelFormOpen) {
+			addModel = <AddModelForm open={this.state.addModelFormOpen} onClose={this.handleAddModelFormClose} filters={this.state.filters} validFilterValues={this.state.validFilterValues} auth={this.props.auth} />
 		}
 
 		return (
@@ -668,7 +729,7 @@ class ValidationFramework extends React.Component {
 				</Grid>
 				<br />
 
-				<ConfigForm open={this.state.configOpen} onClose={this.handleConfigClose} config={this.state.filters} display={this.state.display} />
+				<ConfigForm open={this.state.configOpen} onClose={this.handleConfigClose} config={this.state.filters} validFilterValues={this.state.validFilterValues} display={this.state.display} />
 				<div>
 					{modelDetail}
 				</div>
@@ -677,6 +738,9 @@ class ValidationFramework extends React.Component {
 				</div>
 				<div>
 					{resultDetail}
+				</div>
+				<div>
+					{addModel}
 				</div>
 				<main>
 					{mainContent}

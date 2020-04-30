@@ -10,7 +10,7 @@ export default class TestTable extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			data: this.props.rows,
+			data: this.props.testData,
 			selectedData: [],
 			viewSelectedOpen: false
 		};
@@ -116,7 +116,7 @@ export default class TestTable extends React.Component {
 						responsive: 'stacked', // 'scrollMaxHeight', 'scrollFullHeight', 'scrollFullHeightFullWidth', 'stackedFullWidth'
 						downloadOptions: { filename: 'selectedTests.csv', separator: ',', filterOptions: { useDisplayedRowsOnly: true } },
 						customToolbar: () => {
-							return <MUIDataTableCustomToolbar display={this.props.display} changeTableWidth={this.props.changeTableWidth} />;
+							return <MUIDataTableCustomToolbar display={this.props.display} changeTableWidth={this.props.changeTableWidth} tableType="tests" />;
 						},
 						customToolbarSelect: (selectedRows) => <CustomToolbarSelect selectedRows={selectedRows} downloadSelectedJSON={this.downloadSelectedJSON} hideTableRows={this.hideTableRows} viewSelectedItems={this.viewSelectedItems} />
 					}}

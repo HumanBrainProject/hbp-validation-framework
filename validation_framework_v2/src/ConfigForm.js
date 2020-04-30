@@ -9,7 +9,7 @@ import MultipleSelect from './MultipleSelect';
 import axios from 'axios';
 
 import ThreeWaySwitch from './ThreeWaySwitch'
-import { baseUrl, displayValid, filterKeys, filterModelKeys, filterTestKeys } from "./globals";
+import { displayValid, filterKeys, filterModelKeys, filterTestKeys } from "./globals";
 
 export default class ConfigForm extends React.Component {
 	signal = axios.CancelToken.source();
@@ -32,7 +32,6 @@ export default class ConfigForm extends React.Component {
 		this.state = {
 			selected: selectedConfig,
 			display: props.display,
-			validValues: null,
 			error: null,
 		};
 
@@ -40,38 +39,6 @@ export default class ConfigForm extends React.Component {
 		this.handleDisplayChange = this.handleDisplayChange.bind(this);
 		this.handleFieldChange = this.handleFieldChange.bind(this);
 	}
-
-	componentDidMount() {
-		this.getConfigValidValues();
-	}
-
-	componentWillUnmount() {
-		this.signal.cancel('REST API call canceled!');
-	}
-
-	getConfigValidValues = () => {
-		let url = baseUrl + "/authorizedcollabparameterrest/?python_client=true";
-		let config = {
-			cancelToken: this.signal.token
-		}
-		return axios.get(url, config)
-			.then(res => {
-				this.setState({
-					validValues: res.data
-				});
-			})
-			.catch(err => {
-				if (axios.isCancel(err)) {
-					console.log('Error: ', err.message);
-				} else {
-					// Something went wrong. Save the error in state and re-render.
-					this.setState({
-						error: err
-					});
-				}
-			}
-			);
-	};
 
 	handleClose() {
 		this.props.onClose(this.state.display, this.state.selected);
@@ -131,7 +98,7 @@ export default class ConfigForm extends React.Component {
 								onChange={this.handleDisplayChange} />
 							{showFilters.map(filter => (
 								<MultipleSelect
-									itemNames={this.state.validValues == null ? [] : this.state.validValues[filter]}
+									itemNames={this.props.validFilterValues == null ? [] : this.props.validFilterValues[filter]}
 									label={filter}
 									value={this.state.selected[filter]}
 									handleChange={this.handleFieldChange}
