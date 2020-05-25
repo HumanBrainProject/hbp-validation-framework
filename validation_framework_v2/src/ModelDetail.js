@@ -178,6 +178,7 @@ export default class ModelDetail extends React.Component {
 									<ModelDetailContent
 										description={this.props.modelData.description}
 										instances={this.props.modelData.instances}
+										id={this.props.modelData.id}
 									></ModelDetailContent>
 								</Grid>
 								<Grid item xs={3}>

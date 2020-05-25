@@ -3,6 +3,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import Input from '@material-ui/core/Input';
 import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
+import FormHelperText from '@material-ui/core/FormHelperText';
 import FormControl from '@material-ui/core/FormControl';
 import ListItemText from '@material-ui/core/ListItemText';
 import Select from '@material-ui/core/Select';
@@ -59,7 +60,27 @@ export default function SingleSelect(props) {
             </MenuItem>
           ))}
         </Select>
+        <FormHelperText>{props.helperText}</FormHelperText>
       </FormControl>
     </div>
+
+    // Alternative (styling pending)
+    // <div>
+    //   <TextField
+    //     id={fieldId}
+    //     select
+    //     label={capitalize(props.label)}
+    //     value={props.value}
+    //     onChange={props.handleChange}
+    //     helperText={props.helperText}
+    //     variant="outlined"
+    //   >
+    //     {props.itemNames.map((name) => (
+    //       <MenuItem key={name} value={name} MenuProps={MenuProps}>
+    //         {name}
+    //       </MenuItem>
+    //     ))}
+    //   </TextField>
+    // </div>
   );
 }

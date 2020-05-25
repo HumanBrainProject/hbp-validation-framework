@@ -2,6 +2,7 @@ import Keycloak from 'keycloak-js';
 import React from 'react';
 import ReactDOM from 'react-dom';
 
+import { ContextMainProvider } from './ContextMain';
 import ValidationFramework from './ValidationFramework';
 
 
@@ -119,7 +120,9 @@ function verifyMessage(event) {
 
 function doBusinessLogic(auth) {
 	ReactDOM.render(
-		<ValidationFramework auth={auth} />,
+		<ContextMainProvider>
+			<ValidationFramework auth={auth} />
+		</ContextMainProvider>,
 		document.getElementById('root')
 	);
 }

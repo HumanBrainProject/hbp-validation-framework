@@ -1,7 +1,7 @@
 import React from 'react';
 import ModelInstanceForm from './ModelInstanceForm'
 
-export default class ArrayOfModelInstanceForms extends React.Component {
+export default class ModelInstanceArrayOfForms extends React.Component {
 	constructor(props) {
 		super(props);
 		this.handleFieldChange = this.handleFieldChange.bind(this);

@@ -4,7 +4,8 @@ import Box from '@material-ui/core/Box';
 import IconButton from '@material-ui/core/IconButton';
 import CloudDownloadIcon from '@material-ui/icons/CloudDownload';
 import Markdown from './Markdown';
-import { Typography } from '@material-ui/core';
+import { Typography, Button } from '@material-ui/core';
+import ModelInstanceAddForm from './ModelInstanceAddForm';
 
 function InstanceParameter(props) {
 	if (props.value) {
@@ -14,44 +15,94 @@ function InstanceParameter(props) {
 	}
 }
 
-export default function ModelDetailContent(props) {
-	return (
-		<React.Fragment>
-			<Grid container xs={9} direction="column" item={true}>
-				<Grid item>
-					<Box p={2}>
-						<Typography><b>Description: </b></Typography>
-						<Markdown>{props.description}</Markdown>
-					</Box>
-				</Grid>
-				<Grid item>
-					<Box px={2} pb={0}>
-						<Typography variant="subtitle1"><b>Versions</b></Typography>
-					</Box>
-					{props.instances.map(instance => (
-						<Box m={2} p={2} pb={0} style={{ backgroundColor: '#eeeeee' }} key={instance.id}>
-							<Typography variant="subtitle2">{instance.version}</Typography>
-							<Typography variant="body2" color="textSecondary">{instance.timestamp}</Typography>
-							<InstanceParameter label="Description" value={instance.description} />
-							<InstanceParameter label="Source" value={instance.source} />
-							<InstanceParameter label="Parameters" value={instance.parameters} />
-							<InstanceParameter label="Morphology" value={instance.morphology} />
-							<InstanceParameter label="Code format" value={instance.code_format} />
-							<InstanceParameter label="License" value={instance.license} />
-							<Typography variant="caption" color="textSecondary">ID: {instance.id}</Typography>
-							<IconButton aria-label="download code" href={instance.source}>
-								<CloudDownloadIcon />
-							</IconButton>
-						</Box>
-					))}
-				</Grid>
+export default class ModelDetailContent extends React.Component {
+	constructor(props) {
+		super(props);
 
-				<Grid item>
-					{/* todo: images */}
+		this.state = {
+			openAddInstanceForm: false,
+		}
+		this.handleAddModelInstanceFormClose = this.handleAddModelInstanceFormClose.bind(this);
+	}
+
+	handleAddModelInstanceFormClose(currentModel) {
+		console.log("close add")
+		// console.log(currentModel)
+		// this.setState({ 'addModelFormOpen': false });
+		// if (currentModel) {
+		// 	console.log(currentModel)
+		// 	let models = this.state.modelData;
+		// 	console.log(this.state.modelData)
+		// 	models.unshift(currentModel);
+		// 	this.setState({
+		// 		data: models,
+		// 		currentModel: currentModel,
+		// 		modelDetailOpen: true
+		// 	});
+		// 	updateHash("model_id." + currentModel.id);
+		// }
+	}
+
+	render() {
+		let addInstanceForm = "";
+		if (this.state.openAddInstanceForm) {
+			addInstanceForm = <ModelInstanceAddForm
+				open={this.state.openAddInstanceForm}
+				onClose={this.handleAddModelInstanceFormClose}
+				modelID={this.props.id}
+			/>
+		}
+
+		return (
+			<React.Fragment>
+				<Grid container xs={9} direction="column" item={true}>
+					<Grid item>
+						<Box p={2}>
+							<Typography><b>Description: </b></Typography>
+							<Markdown>{this.props.description}</Markdown>
+						</Box>
+					</Grid>
+					<Grid item>
+						<Grid container xs={9} direction="row" item={true} style={{ justify: "space-between", flex: 1 }}>
+							<Grid item>
+								<Box px={2} pb={0} xs={3}>
+									<Typography variant="subtitle1"><b>Versions</b></Typography>
+								</Box>
+							</Grid>
+							<Grid item xs={6}>
+								<Button variant="contained" color="primary" onClick={() => this.setState({ openAddInstanceForm: true })}>
+									Add new version
+								</Button>
+							</Grid>
+						</Grid>
+						{this.props.instances.map(instance => (
+							<Box m={2} p={2} pb={0} style={{ backgroundColor: '#eeeeee' }} key={instance.id}>
+								<Typography variant="subtitle2">{instance.version}</Typography>
+								<Typography variant="body2" color="textSecondary">{instance.timestamp}</Typography>
+								<InstanceParameter label="Description" value={instance.description} />
+								<InstanceParameter label="Source" value={instance.source} />
+								<InstanceParameter label="Parameters" value={instance.parameters} />
+								<InstanceParameter label="Morphology" value={instance.morphology} />
+								<InstanceParameter label="Code format" value={instance.code_format} />
+								<InstanceParameter label="License" value={instance.license} />
+								<Typography variant="caption" color="textSecondary">ID: {instance.id}</Typography>
+								<IconButton aria-label="download code" href={instance.source}>
+									<CloudDownloadIcon />
+								</IconButton>
+							</Box>
+						))}
+					</Grid>
+
+					<Grid item>
+						{/* todo: images */}
+					</Grid>
 				</Grid>
-			</Grid>
-		</React.Fragment>
-	);
+				<div>
+					{addInstanceForm}
+				</div>
+			</React.Fragment>
+		);
+	}
 }
 
 

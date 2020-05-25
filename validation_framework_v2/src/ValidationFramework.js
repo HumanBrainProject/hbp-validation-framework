@@ -15,7 +15,7 @@ import ModelTable from "./ModelTable";
 import TestTable from "./TestTable";
 import ModelDetail from "./ModelDetail";
 import TestDetail from "./TestDetail";
-import AddModelForm from "./AddModelForm";
+import ModelAddForm from "./ModelAddForm";
 import ConfigForm from "./ConfigForm";
 import Introduction from "./Introduction";
 import ConfigDisplayTop from "./ConfigDisplayTop"
@@ -24,6 +24,7 @@ import ResultDetail from './ResultDetail';
 import ErrorDialog from './ErrorDialog';
 import { DevMode, baseUrl, collaboratoryOrigin, updateSettingsTopic, isFramedApp, settingsDelimiter, filterKeys, filterModelKeys, filterTestKeys, displayValid, queryValid, updateHash } from "./globals";
 import { isUUID } from './utils'
+import ContextMain from './ContextMain';
 
 // if working on the appearance/layout set globals.DevMode=true
 // to avoid loading the models and tests over the network every time;
@@ -116,6 +117,7 @@ const retrieveDisplay = () => {
 
 class ValidationFramework extends React.Component {
 	signal = axios.CancelToken.source();
+	static contextType = ContextMain;
 
 	constructor(props) {
 		super(props);
@@ -137,7 +139,7 @@ class ValidationFramework extends React.Component {
 			'errorUpdate': null,
 			'errorGet': null,
 			'filters': retrieveFilters(),
-			'validFilterValues' : this.retrieveFilterValidValues(),
+			'validFilterValues': this.retrieveFilterValidValues(),
 			'display': retrieveDisplay(),
 			'modelsTableWide': false,
 			'testsTableWide': false
@@ -190,7 +192,8 @@ class ValidationFramework extends React.Component {
 		this.setState({ 'addModelFormOpen': false });
 		if (currentModel) {
 			console.log(currentModel)
-			let models = this.state.data;
+			let models = this.state.modelData;
+			console.log(this.state.modelData)
 			models.unshift(currentModel);
 			this.setState({
 				data: models,
@@ -202,15 +205,20 @@ class ValidationFramework extends React.Component {
 	}
 
 	componentDidMount() {
-	const token = this.props.auth.tokenParsed;
-    console.log(token);
+		const token = this.props.auth.tokenParsed;
+		console.log(token);
+		
+		const [ authContext, setAuthContext ] = this.context.auth;
+		setAuthContext(this.props.auth)
+		// console.log("Here: ", authContext);
+		// console.log("Here: ", setAuthContext);
 
-    this.props.auth.loadUserInfo()
-        .success(() => {
-          const userInfo = this.props.auth.userInfo;
-          console.log(userInfo);
-        })
-		.error(console.log);
+		this.props.auth.loadUserInfo()
+			.success(() => {
+				const userInfo = this.props.auth.userInfo;
+				console.log(userInfo);
+			})
+			.error(console.log);
 
 		if (window.location.hash) {
 			let proceed = true;
@@ -267,6 +275,8 @@ class ValidationFramework extends React.Component {
 				this.setState({
 					validFilterValues: res.data
 				});
+				const [ contaxtValidFilterValues, setContaxtValidFilterValues ] = this.context.validFilterValues;
+				setContaxtValidFilterValues(res.data);
 			})
 			.catch(err => {
 				if (axios.isCancel(err)) {
@@ -682,6 +692,9 @@ class ValidationFramework extends React.Component {
 		var resultDetail = "";
 		var addModel = "";
 
+		// const [ contaxtValidFilterValues, setContaxtValidFilterValues ] = this.context.validFilterValues;
+		// console.log(contaxtValidFilterValues)
+
 		if (this.state.loadingOpen) {
 			return this.renderLoading();
 		}
@@ -712,7 +725,7 @@ class ValidationFramework extends React.Component {
 		}
 
 		if (this.state.addModelFormOpen) {
-			addModel = <AddModelForm open={this.state.addModelFormOpen} onClose={this.handleAddModelFormClose} filters={this.state.filters} validFilterValues={this.state.validFilterValues} auth={this.props.auth} />
+			addModel = <ModelAddForm open={this.state.addModelFormOpen} onClose={this.handleAddModelFormClose} filters={this.state.filters} validFilterValues={this.state.validFilterValues} auth={this.props.auth} />
 		}
 
 		return (
