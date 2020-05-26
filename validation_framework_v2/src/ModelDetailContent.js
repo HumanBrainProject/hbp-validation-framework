@@ -3,9 +3,13 @@ import Grid from '@material-ui/core/Grid';
 import Box from '@material-ui/core/Box';
 import IconButton from '@material-ui/core/IconButton';
 import CloudDownloadIcon from '@material-ui/icons/CloudDownload';
+import EditIcon from '@material-ui/icons/Edit';
 import Markdown from './Markdown';
 import { Typography, Button } from '@material-ui/core';
 import ModelInstanceAddForm from './ModelInstanceAddForm';
+import ModelInstanceEditForm from './ModelInstanceEditForm';
+import ErrorDialog from './ErrorDialog';
+import Tooltip from '@material-ui/core/Tooltip';
 
 function InstanceParameter(props) {
 	if (props.value) {
@@ -13,6 +17,7 @@ function InstanceParameter(props) {
 	} else {
 		return ""
 	}
+	// return <Typography variant="body2"><b>{props.label}: </b>{props.value}</Typography>
 }
 
 export default class ModelDetailContent extends React.Component {
@@ -21,29 +26,65 @@ export default class ModelDetailContent extends React.Component {
 
 		this.state = {
 			openAddInstanceForm: false,
+			openEditInstanceForm: false,
+			instances: this.props.instances,
+			instancesWithResults: [...new Set(this.props.results.map(a => a.model_version_id))],
+			currentInstance: null
 		}
 		this.handleAddModelInstanceFormClose = this.handleAddModelInstanceFormClose.bind(this);
+		this.handleEditModelInstanceFormClose = this.handleEditModelInstanceFormClose.bind(this);
+		this.handleEditClick = this.handleEditClick.bind(this);
+		this.handleErrorEditDialogClose = this.handleErrorEditDialogClose.bind(this);
 	}
 
-	handleAddModelInstanceFormClose(currentModel) {
+	handleErrorEditDialogClose() {
+		this.setState({ 'errorEditModelInstance': null });
+	};
+
+	handleAddModelInstanceFormClose(newModelInstance) {
 		console.log("close add")
-		// console.log(currentModel)
-		// this.setState({ 'addModelFormOpen': false });
-		// if (currentModel) {
-		// 	console.log(currentModel)
-		// 	let models = this.state.modelData;
-		// 	console.log(this.state.modelData)
-		// 	models.unshift(currentModel);
-		// 	this.setState({
-		// 		data: models,
-		// 		currentModel: currentModel,
-		// 		modelDetailOpen: true
-		// 	});
-		// 	updateHash("model_id." + currentModel.id);
-		// }
+		console.log(newModelInstance)
+		this.setState({ 'openAddInstanceForm': false });
+		if (newModelInstance) {
+			let instances = this.state.instances;
+			instances.push(newModelInstance)
+			this.setState({
+				instances: instances,
+			});
+		}
+	}
+
+	handleEditModelInstanceFormClose(modelInstance) {
+		console.log("close edit")
+		console.log(modelInstance)
+		this.setState({ 'openEditInstanceForm': false });
+		if (modelInstance) {
+			let instances = this.state.instances;
+			this.setState({
+				instances: instances.map(obj => [modelInstance].find(o => o.id === obj.id) || obj)
+			});
+		}
+	}
+
+	handleEditClick(instance) {
+		if (this.state.instancesWithResults.includes(instance.id)) {
+			this.setState({
+				errorEditModelInstance: "This model instance cannot be edited as there are validation results associated with it!",
+			});
+		} else {
+			this.setState({ 
+				openEditInstanceForm: true, 
+				currentInstance : instance
+			})
+		}
 	}
 
 	render() {
+		let errorMessage = "";
+		if (this.state.errorEditModelInstance) {
+			errorMessage = <ErrorDialog open={Boolean(this.state.errorEditModelInstance)} handleErrorDialogClose={this.handleErrorEditDialogClose} error={this.state.errorEditModelInstance.message || this.state.errorEditModelInstance} />
+		}
+
 		let addInstanceForm = "";
 		if (this.state.openAddInstanceForm) {
 			addInstanceForm = <ModelInstanceAddForm
@@ -53,8 +94,19 @@ export default class ModelDetailContent extends React.Component {
 			/>
 		}
 
+		let editInstanceForm = "";
+		if (this.state.openEditInstanceForm) {
+			editInstanceForm = <ModelInstanceEditForm
+				open={this.state.openEditInstanceForm}
+				onClose={this.handleEditModelInstanceFormClose}
+				instance={this.state.currentInstance}
+				modelID={this.props.id}
+			/>
+		}
+
 		return (
 			<React.Fragment>
+				{console.log(this.state.instancesWithResults)}
 				<Grid container xs={9} direction="column" item={true}>
 					<Grid item>
 						<Box p={2}>
@@ -75,9 +127,21 @@ export default class ModelDetailContent extends React.Component {
 								</Button>
 							</Grid>
 						</Grid>
-						{this.props.instances.map(instance => (
+						{this.state.instances.map(instance => (
 							<Box m={2} p={2} pb={0} style={{ backgroundColor: '#eeeeee' }} key={instance.id}>
-								<Typography variant="subtitle2">{instance.version}</Typography>
+								<div style={{
+									display: "flex",
+									alignItems: "center",
+								}}>
+									<Box display="flex" flexDirection="row">
+										<p variant="subtitle2">Version: {instance.version}</p>
+										<Tooltip placement="right" title={this.state.instancesWithResults.includes(instance.id) ? "Cannot Edit" : "Edit"}>
+											<IconButton aria-label="edit model instance" onClick={() => this.handleEditClick(instance)}>
+												<EditIcon />
+											</IconButton>
+										</Tooltip>
+									</Box>
+								</div>
 								<Typography variant="body2" color="textSecondary">{instance.timestamp}</Typography>
 								<InstanceParameter label="Description" value={instance.description} />
 								<InstanceParameter label="Source" value={instance.source} />
@@ -99,6 +163,12 @@ export default class ModelDetailContent extends React.Component {
 				</Grid>
 				<div>
 					{addInstanceForm}
+				</div>
+				<div>
+					{editInstanceForm}
+				</div>
+				<div>
+					{errorMessage}
 				</div>
 			</React.Fragment>
 		);

@@ -14,7 +14,7 @@ import ContextMain from './ContextMain';
 
 let versionAxios = null;
 
-export default class ModelInstanceAddForm extends React.Component {
+export default class ModelInstanceEditForm extends React.Component {
 	signal = axios.CancelToken.source();
 	static contextType = ContextMain;
 
@@ -33,25 +33,33 @@ export default class ModelInstanceAddForm extends React.Component {
 
 		this.state = {
 			instances: [{
+				id: "",
 				version: "",
 				description: "",
 				parameters: "",
 				morphology: "",
 				source: "",
 				code_format: "",
-				license: ""
+				license: "",
+				hash: "",
+				timestamp: "",
+				uri: ""
 			}],
 			auth: authContext
 		}
 
-		this.handleErrorAddDialogClose = this.handleErrorAddDialogClose.bind(this);
+		this.handleErrorEditDialogClose = this.handleErrorEditDialogClose.bind(this);
 		this.handleCancel = this.handleCancel.bind(this);
 		this.checkVersionUnique = this.checkVersionUnique.bind(this);
 		this.createPayload = this.createPayload.bind(this);
 	}
 
-	handleErrorAddDialogClose() {
-		this.setState({ 'errorAddModelInstance': null });
+	componentDidMount() {
+		this.setState({ instances: [{ ...this.props.instance }] })
+	}
+
+	handleErrorEditDialogClose() {
+		this.setState({ 'errorEditModelInstance': null });
 	};
 
 	handleCancel() {
@@ -93,7 +101,6 @@ export default class ModelInstanceAddForm extends React.Component {
 	createPayload() {
 		return [
 			{
-				model_id: this.props.modelID,
 				...this.state.instances[0]
 			}
 		]
@@ -104,17 +111,20 @@ export default class ModelInstanceAddForm extends React.Component {
 		let error = null;
 		if (payload[0].version === "") {
 			error = "Model instance 'version' cannot be empty!"
-		} else {
-			// rule 2: check if version is unique
-			let isUnique = await this.checkVersionUnique(payload[0].version);
-			if (!isUnique) {
-				error = "Model instance 'version' has to be unique within a model!"
+		}
+		else {
+			// rule 2: if version has been changed, check if new version is unique
+			if (payload[0].version !== this.props.instance.version) {
+				let isUnique = await this.checkVersionUnique(payload[0].version);
+				if (!isUnique) {
+					error = "Model instance 'version' has to be unique within a model!"
+				}
 			}
 		}
 		if (error) {
 			console.log(error);
 			this.setState({
-				errorAddModelInstance: error,
+				errorEditModelInstance: error,
 			});
 			return false;
 		} else {
@@ -135,17 +145,14 @@ export default class ModelInstanceAddForm extends React.Component {
 				}
 			};
 
-			axios.post(url, payload, config)
+			axios.put(url, payload, config)
 				.then(res => {
 					console.log(res);
 					delete payload[0].model_id
 					this.props.onClose({
 						id: res.data.uuid[0],
 						...payload[0],
-						hash: "<< missing data >>",
-						timestamp: "<< missing data >>",
-						uri: "<< missing data >>"
-						// TODO: have POST on 'instances' return entire JSON object 
+						// TODO: have PUT on 'instances' return entire JSON object 
 						// this will provide above missing fields
 					});
 				})
@@ -155,7 +162,7 @@ export default class ModelInstanceAddForm extends React.Component {
 					} else {
 						console.log(err);
 						this.setState({
-							errorAddModelInstance: err,
+							errorEditModelInstance: err,
 						});
 					}
 				}
@@ -177,17 +184,18 @@ export default class ModelInstanceAddForm extends React.Component {
 	}
 
 	render() {
+		console.log(this.state.instances)
 		let errorMessage = "";
-		if (this.state.errorAddModelInstance) {
-			errorMessage = <ErrorDialog open={Boolean(this.state.errorAddModelInstance)} handleErrorDialogClose={this.handleErrorAddDialogClose} error={this.state.errorAddModelInstance.message || this.state.errorAddModelInstance} />
+		if (this.state.errorEditModelInstance) {
+			errorMessage = <ErrorDialog open={Boolean(this.state.errorEditModelInstance)} handleErrorDialogClose={this.handleErrorEditDialogClose} error={this.state.errorEditModelInstance.message || this.state.errorEditModelInstance} />
 		}
 		return (
 			<Dialog onClose={this.handleClose}
-				aria-labelledby="Form for adding a new model instance"
+				aria-labelledby="Form for editing a new model instance"
 				open={this.props.open}
 				fullWidth={true}
 				maxWidth="md">
-				<DialogTitle>Add a new model instance</DialogTitle>
+				<DialogTitle>Edit an existing model instance</DialogTitle>
 				<DialogContent>
 					<form>
 						<Grid container spacing={3}>
@@ -206,7 +214,7 @@ export default class ModelInstanceAddForm extends React.Component {
 						Cancel
           </Button>
 					<Button onClick={this.handleSubmit} color="primary">
-						Add Model Instance
+						Edit Model Instance
           </Button>
 				</DialogActions>
 			</Dialog>
@@ -214,7 +222,7 @@ export default class ModelInstanceAddForm extends React.Component {
 	}
 }
 
-ModelInstanceAddForm.propTypes = {
+ModelInstanceEditForm.propTypes = {
 	onClose: PropTypes.func.isRequired,
 	open: PropTypes.bool.isRequired
 };

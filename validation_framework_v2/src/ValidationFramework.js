@@ -208,7 +208,7 @@ class ValidationFramework extends React.Component {
 		const token = this.props.auth.tokenParsed;
 		console.log(token);
 		
-		const [ authContext, setAuthContext ] = this.context.auth;
+		const [ , setAuthContext ] = this.context.auth;
 		setAuthContext(this.props.auth)
 		// console.log("Here: ", authContext);
 		// console.log("Here: ", setAuthContext);
@@ -275,7 +275,7 @@ class ValidationFramework extends React.Component {
 				this.setState({
 					validFilterValues: res.data
 				});
-				const [ contaxtValidFilterValues, setContaxtValidFilterValues ] = this.context.validFilterValues;
+				const [ , setContaxtValidFilterValues ] = this.context.validFilterValues;
 				setContaxtValidFilterValues(res.data);
 			})
 			.catch(err => {

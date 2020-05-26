@@ -12,8 +12,7 @@ export default class ModelInstanceForm extends React.Component {
 	constructor(props, context) {
 		super(props, context);
 
-		const [ validFilterValuesContext, setValidFilterValuesContext ] = this.context.validFilterValues;
-		console.log(validFilterValuesContext);
+		const [ validFilterValuesContext, ] = this.context.validFilterValues;
 
 		this.state = {
 			validFilterValues: validFilterValuesContext

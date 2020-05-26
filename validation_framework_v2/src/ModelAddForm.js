@@ -163,7 +163,7 @@ export default class ModelAddForm extends React.Component {
 			error = "Model 'name' cannot be empty!"
 		}
 		// rule 2: check if alias (if specified) is unique
-		if (!this.state.aliasLoading && payload.model.alias && this.state.isAliasNotUnique) {
+		else if (!this.state.aliasLoading && payload.model.alias && this.state.isAliasNotUnique) {
 			error = "Model 'alias' has to be unique!"
 		}
 		if (error) {
@@ -200,7 +200,7 @@ export default class ModelAddForm extends React.Component {
 						app: this.state.app,
 						instances: payload.model_instance,
 						// TODO: add instance ID to 'instances' so that newly 
-						// created models have data necessary for ModelDetail page
+						// created models have data necessary for ModelDetail page; also URI above
 						images: payload.model_image
 					});
 				})
