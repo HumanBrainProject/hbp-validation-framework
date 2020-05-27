@@ -15,7 +15,7 @@ import FormLabel from '@material-ui/core/FormLabel';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Switch from '@material-ui/core/Switch';
 import ErrorDialog from './ErrorDialog';
-
+import ContextMain from './ContextMain';
 import axios from 'axios';
 
 import SingleSelect from './SingleSelect';
@@ -28,15 +28,20 @@ let aliasAxios = null;
 
 export default class ModelAddForm extends React.Component {
 	signal = axios.CancelToken.source();
+	static contextType = ContextMain;
 
-	constructor(props) {
-		super(props);
+	constructor(props, context) {
+		super(props, context);
 		this.handleCancel = this.handleCancel.bind(this);
 		this.handleSubmit = this.handleSubmit.bind(this);
 		this.handleFieldChange = this.handleFieldChange.bind(this);
 		this.createPayload = this.createPayload.bind(this);
 		this.checkRequirements = this.checkRequirements.bind(this);
 		this.checkAliasUnique = this.checkAliasUnique.bind(this);
+
+		const [authContext,] = this.context.auth;
+		const [validFilterValuesContext,] = this.context.validFilterValues;
+		const [filtersContext,] = this.context.filters;
 
 		this.state = {
 			// NOTE: cannot use nested state object owing to performance issues:
@@ -67,7 +72,10 @@ export default class ModelAddForm extends React.Component {
 			}],
 			app: {
 				collab_id: "8123"  // TODO: change for prod! -> temp for testing: Validation Framework collab (v1)
-			}
+			},
+			auth: authContext,
+			filters: filtersContext,
+			validFilterValues: validFilterValuesContext
 		}
 
 		this.handleErrorAddDialogClose = this.handleErrorAddDialogClose.bind(this);
@@ -103,7 +111,7 @@ export default class ModelAddForm extends React.Component {
 		let config = {
 			cancelToken: aliasAxios.token,
 			headers: {
-				'Authorization': 'Bearer ' + this.props.auth.token,
+				'Authorization': 'Bearer ' + this.state.auth.token,
 			}
 		};
 		axios.get(url, config)
@@ -185,7 +193,7 @@ export default class ModelAddForm extends React.Component {
 			let config = {
 				cancelToken: this.signal.token,
 				headers: {
-					'Authorization': 'Bearer ' + this.props.auth.token,
+					'Authorization': 'Bearer ' + this.state.auth.token,
 					'Content-type': 'application/json'
 				}
 			};
@@ -299,7 +307,7 @@ export default class ModelAddForm extends React.Component {
 							{filterModelKeys.map(filter => (
 								<Grid item xs={12} key={filter}>
 									<SingleSelect
-										itemNames={(this.props.filters[filter] && this.props.filters[filter].length) ? this.props.filters[filter] : this.props.validFilterValues[filter]}
+										itemNames={(this.state.filters[filter] && this.state.filters[filter].length) ? this.state.filters[filter] : this.state.validFilterValues[filter]}
 										label={filter}
 										value={this.state[filter]}
 										handleChange={this.handleFieldChange} />

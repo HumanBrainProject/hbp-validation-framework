@@ -727,7 +727,7 @@ class ValidationFramework extends React.Component {
 		}
 
 		if (this.state.addModelFormOpen) {
-			addModel = <ModelAddForm open={this.state.addModelFormOpen} onClose={this.handleAddModelFormClose} filters={this.state.filters} validFilterValues={this.state.validFilterValues} auth={this.props.auth} />
+			addModel = <ModelAddForm open={this.state.addModelFormOpen} onClose={this.handleAddModelFormClose} />
 		}
 
 		return (
