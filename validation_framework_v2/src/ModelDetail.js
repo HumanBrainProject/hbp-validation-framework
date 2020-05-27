@@ -92,12 +92,14 @@ export default class ModelDetail extends React.Component {
 			tabValue: 0,
 			results: [],
 			loadingResult: true,
-			error: null
+			error: null,
+			modelData: this.props.modelData
 		};
 		if (DevMode) {
 			this.state['results'] = result_data.results;
 			this.state['loadingResult'] = false;
 		}
+		this.updateCurrentModelData = this.updateCurrentModelData.bind(this);
 		this.handleClose = this.handleClose.bind(this);
 		this.handleTabChange = this.handleTabChange.bind(this);
 	}
@@ -110,6 +112,12 @@ export default class ModelDetail extends React.Component {
 
 	componentWillUnmount() {
 		this.signal.cancel('REST API call canceled!');
+	}
+
+	updateCurrentModelData(updatedModelData) {
+		this.setState({
+			modelData: updatedModelData
+		})
 	}
 
 	handleClose() {
@@ -151,6 +159,7 @@ export default class ModelDetail extends React.Component {
 	};
 
 	render() {
+		console.log(this.state.modelData)
 		return (
 			<Dialog fullScreen onClose={this.handleClose} aria-labelledby="simple-dialog-title" open={this.props.open}>
 				<MyDialogTitle onClose={this.handleClose} />
@@ -158,12 +167,14 @@ export default class ModelDetail extends React.Component {
 					<Grid container spacing={3}>
 
 						<ModelDetailHeader
-							name={this.props.modelData.name}
-							authors={formatAuthors(this.props.modelData.author)}
-							private={this.props.modelData.private}
-							id={this.props.modelData.id}
-							alias={this.props.modelData.alias}
-							owner={formatAuthors(this.props.modelData.owner)}
+							name={this.state.modelData.name}
+							authors={formatAuthors(this.state.modelData.author)}
+							private={this.state.modelData.private}
+							id={this.state.modelData.id}
+							alias={this.state.modelData.alias}
+							owner={formatAuthors(this.state.modelData.owner)}
+							modelData={this.state.modelData}
+							updateCurrentModelData={this.updateCurrentModelData}
 						></ModelDetailHeader>
 						<AppBar position="static">
 							<Tabs value={this.state.tabValue} onChange={this.handleTabChange}>
@@ -176,25 +187,25 @@ export default class ModelDetail extends React.Component {
 							<Grid container spacing={2}>
 								<Grid item xs={9}>
 									<ModelDetailContent
-										description={this.props.modelData.description}
-										instances={this.props.modelData.instances}
-										id={this.props.modelData.id}
+										description={this.state.modelData.description}
+										instances={this.state.modelData.instances}
+										id={this.state.modelData.id}
 										results={this.state.results}
 									></ModelDetailContent>
 								</Grid>
 								<Grid item xs={3}>
 									<ModelDetailMetadata
-										species={this.props.modelData.species}
-										brainRegion={this.props.modelData.brain_region}
-										cellType={this.props.modelData.cell_type}
-										modelScope={this.props.modelData.model_scope}
-										abstractionLevel={this.props.modelData.abstraction_level}
-										collabID={this.props.modelData.app.collab_id}
-										organization={this.props.modelData.organization}
+										species={this.state.modelData.species}
+										brainRegion={this.state.modelData.brain_region}
+										cellType={this.state.modelData.cell_type}
+										modelScope={this.state.modelData.model_scope}
+										abstractionLevel={this.state.modelData.abstraction_level}
+										collabID={this.state.modelData.app.collab_id}
+										organization={this.state.modelData.organization}
 									>
 										<ul>
-											<li>{this.props.modelData.id}</li>
-											<li>{this.props.modelData.alias}</li>
+											<li>{this.state.modelData.id}</li>
+											<li>{this.state.modelData.alias}</li>
 										</ul>
 									</ModelDetailMetadata>
 								</Grid>
@@ -202,15 +213,15 @@ export default class ModelDetail extends React.Component {
 						</TabPanel>
 						<TabPanel value={this.state.tabValue} index={1}>
 							<ModelResultOverview
-								id={this.props.modelData.id}
-								modelJSON={this.props.modelData}
+								id={this.state.modelData.id}
+								modelJSON={this.state.modelData}
 								results={this.state.results}
 								loadingResult={this.state.loadingResult}
 							/>
 						</TabPanel>
 						<TabPanel value={this.state.tabValue} index={2}>
 							<ResultGraphs
-								id={this.props.modelData.id}
+								id={this.state.modelData.id}
 								results={this.state.results}
 								loadingResult={this.state.loadingResult}
 							/>

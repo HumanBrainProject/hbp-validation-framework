@@ -89,7 +89,7 @@ const storeDisplay = (display) => {
 	}
 };
 
-const retrieveFilters = () => {
+const retrieveFilters = (context) => {
 	const searchParams = new URLSearchParams(window.location.search);
 	console.log(searchParams.get("species"))
 	let filters = {};
@@ -102,6 +102,8 @@ const retrieveFilters = () => {
 		}
 	}
 	console.log(filters)
+	const [, setContextFilters] = context.filters;
+	setContextFilters(filters);
 	return filters;
 }
 
@@ -119,8 +121,8 @@ class ValidationFramework extends React.Component {
 	signal = axios.CancelToken.source();
 	static contextType = ContextMain;
 
-	constructor(props) {
-		super(props);
+	constructor(props, context) {
+		super(props, context);
 
 		this.state = {
 			'modelData': [],
@@ -138,7 +140,7 @@ class ValidationFramework extends React.Component {
 			'loadingTest': true,
 			'errorUpdate': null,
 			'errorGet': null,
-			'filters': retrieveFilters(),
+			'filters': retrieveFilters(context),
 			'validFilterValues': this.retrieveFilterValidValues(),
 			'display': retrieveDisplay(),
 			'modelsTableWide': false,
@@ -207,8 +209,8 @@ class ValidationFramework extends React.Component {
 	componentDidMount() {
 		const token = this.props.auth.tokenParsed;
 		console.log(token);
-		
-		const [ , setAuthContext ] = this.context.auth;
+
+		const [, setAuthContext] = this.context.auth;
 		setAuthContext(this.props.auth)
 		// console.log("Here: ", authContext);
 		// console.log("Here: ", setAuthContext);
@@ -275,8 +277,8 @@ class ValidationFramework extends React.Component {
 				this.setState({
 					validFilterValues: res.data
 				});
-				const [ , setContaxtValidFilterValues ] = this.context.validFilterValues;
-				setContaxtValidFilterValues(res.data);
+				const [, setContextValidFilterValues] = this.context.validFilterValues;
+				setContextValidFilterValues(res.data);
 			})
 			.catch(err => {
 				if (axios.isCancel(err)) {

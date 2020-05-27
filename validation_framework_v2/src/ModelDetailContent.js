@@ -29,7 +29,8 @@ export default class ModelDetailContent extends React.Component {
 			openEditInstanceForm: false,
 			instances: this.props.instances,
 			instancesWithResults: [...new Set(this.props.results.map(a => a.model_version_id))],
-			currentInstance: null
+			currentInstance: null,
+			errorEditModelInstance: null
 		}
 		this.handleAddModelInstanceFormClose = this.handleAddModelInstanceFormClose.bind(this);
 		this.handleEditModelInstanceFormClose = this.handleEditModelInstanceFormClose.bind(this);

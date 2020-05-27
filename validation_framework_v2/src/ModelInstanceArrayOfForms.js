@@ -30,5 +30,4 @@ export default class ModelInstanceArrayOfForms extends React.Component {
 			</React.Fragment>
 		)
 	}
-
 }
