@@ -11,21 +11,19 @@ import InputAdornment from '@material-ui/core/InputAdornment';
 import RadioButtonUncheckedIcon from '@material-ui/icons/RadioButtonUnchecked';
 import CancelIcon from '@material-ui/icons/Cancel';
 import CheckCircleIcon from '@material-ui/icons/CheckCircle';
-import FormLabel from '@material-ui/core/FormLabel';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import Switch from '@material-ui/core/Switch';
 import ErrorDialog from './ErrorDialog';
 import ContextMain from './ContextMain';
 import axios from 'axios';
 
 import SingleSelect from './SingleSelect';
 import PersonSelect from './PersonSelect';
+import TestInstanceArrayOfForms from './TestInstanceArrayOfForms';
 
-import { baseUrl, filterModelKeys } from "./globals";
+import { baseUrl, filterTestKeys } from "./globals";
 
 let aliasAxios = null;
 
-export default class ModelEditForm extends React.Component {
+export default class TestAddForm extends React.Component {
 	signal = axios.CancelToken.source();
 	static contextType = ContextMain;
 
@@ -45,41 +43,39 @@ export default class ModelEditForm extends React.Component {
 		this.state = {
 			// NOTE: cannot use nested state object owing to performance issues:
 			// See: https://dev.to/walecloud/updating-react-nested-state-properties-ga6
-			errorEditModel: null,
-			isAliasNotUnique: false,
+			errorAddTest: null,
+			isAliasNotUnique: true,
 			aliasLoading: false,
-			id: "",
-			uri: "",
 			name: "",
 			alias: "",
 			author: [],
-			owner: [],
-			private: false,
-			description: "",
+			protocol: "",
+			data_location: "",
+			data_type: "",
 			species: "",
 			brain_region: "",
 			cell_type: "",
-			model_scope: "",
-			abstraction_level: "",
-			organization: "",
-			app: {
-				collab_id: ""
-			},
+			test_type: "",
+			score_type: "",
+			data_modality: "",
+			status: "",
+			codes: [{
+				version: "",
+				repository: "",
+				path: "",
+				description: "",
+				parameters: ""
+			}],
 			auth: authContext,
 			filters: filtersContext,
 			validFilterValues: validFilterValuesContext
 		}
 
-		this.handleErrorEditDialogClose = this.handleErrorEditDialogClose.bind(this);
+		this.handleErrorAddDialogClose = this.handleErrorAddDialogClose.bind(this);
 	}
 
-	componentDidMount() {
-		console.log({...this.props.modelData});
-		this.setState({ ...this.props.modelData })
-	}
-
-	handleErrorEditDialogClose() {
-		this.setState({ 'errorEditModel': null });
+	handleErrorAddDialogClose() {
+		this.setState({ 'errorAddTest': null });
 	};
 
 	handleCancel() {
@@ -93,15 +89,6 @@ export default class ModelEditForm extends React.Component {
 			aliasAxios.cancel();
 		}
 		aliasAxios = axios.CancelToken.source();
-
-		if (newAlias === this.props.modelData.alias) {
-			this.setState({
-				isAliasNotUnique: false,
-				aliasLoading: false
-			});
-			return
-		}
-
 		this.setState({
 			aliasLoading: true,
 		});
@@ -113,7 +100,7 @@ export default class ModelEditForm extends React.Component {
 			});
 			return;
 		}
-		let url = baseUrl + "/models/?alias=" + newAlias;
+		let url = baseUrl + "/tests/?alias=" + newAlias;
 		let config = {
 			cancelToken: aliasAxios.token,
 			headers: {
@@ -122,8 +109,8 @@ export default class ModelEditForm extends React.Component {
 		};
 		axios.get(url, config)
 			.then(res => {
-				console.log(res.data.models);
-				if (res.data.models.length === 0) {
+				console.log(res.data.tests);
+				if (res.data.tests.length === 0) {
 					this.setState({
 						isAliasNotUnique: false,
 						aliasLoading: false
@@ -149,50 +136,41 @@ export default class ModelEditForm extends React.Component {
 	}
 
 	createPayload() {
-		let modelData = this.props.modelData;
-		delete modelData.images;
-		delete modelData.instances;
 		return {
-			"models":
-				[
-					{
-						id: this.state.id,
-						uri: this.state.uri,
-						name: this.state.name,
-						alias: this.state.alias,
-						author: this.state.author,
-						owner: this.state.owner,
-						private: this.state.private,
-						description: this.state.description,
-						species: this.state.species,
-						brain_region: this.state.brain_region,
-						cell_type: this.state.cell_type,
-						model_scope: this.state.model_scope,
-						abstraction_level: this.state.abstraction_level,
-						organization: this.state.organization,
-						app: this.state.app,
-					}
-				]
+			"test_data": {
+				name: this.state.name,
+				alias: this.state.alias,
+				author: this.state.author.length > 0 ? this.state.author : [{ "given_name": "", "family_name": "" }],
+				protocol: this.state.protocol,
+				data_location: this.state.data_location,
+				data_type: this.state.data_type,
+				species: this.state.species || null,
+				brain_region: this.state.brain_region || null,
+				cell_type: this.state.cell_type || null,
+				test_type: this.state.test_type || null,
+				score_type: this.state.score_type || null,
+				data_modality: this.state.data_modality || null,
+				status: this.state.status || null,
+			},
+			"code_data": this.state.codes[0]
 		}
 	}
 
 	checkRequirements(payload) {
-		// rule 1: model name cannot be empty
+		// rule 1: test name cannot be empty
 		let error = null;
-		console.log(payload["models"][0].name)
-		if (!payload["models"][0].name) {
-			error = "Model 'name' cannot be empty!"
+		console.log(payload.test_data.name)
+		if (!payload.test_data.name) {
+			error = "Test 'name' cannot be empty!"
 		}
-		else {
-			// rule 2: check if alias (if specified) has been changed, and is still unique
-			if (!this.state.aliasLoading && payload["models"][0].alias && this.state.isAliasNotUnique) {
-				error = "Model 'alias' has to be unique!"
-			}
+		// rule 2: check if alias (if specified) is unique
+		else if (!this.state.aliasLoading && payload.test_data.alias && this.state.isAliasNotUnique) {
+			error = "Test 'alias' has to be unique!"
 		}
 		if (error) {
 			console.log(error);
 			this.setState({
-				errorEditModel: error,
+				errorAddTest: error,
 			});
 			return false;
 		} else {
@@ -204,7 +182,7 @@ export default class ModelEditForm extends React.Component {
 		let payload = this.createPayload();
 		console.log(payload);
 		if (this.checkRequirements(payload)) {
-			let url = baseUrl + "/models/?collab_id=" + this.state.app.collab_id;
+			let url = baseUrl + "/tests/";
 			let config = {
 				cancelToken: this.signal.token,
 				headers: {
@@ -213,11 +191,18 @@ export default class ModelEditForm extends React.Component {
 				}
 			};
 
-			axios.put(url, payload, config)
+			axios.post(url, payload, config)
 				.then(res => {
 					console.log(res);
+					payload.code_data.id = "<< missing data >>";
 					this.props.onClose({
-						...payload["models"][0]
+						...payload.test_data,
+						id: res.data.uuid,
+						uri: "<< missing data >>",
+						creation_date: "<< missing data >>",
+						codes: [payload.code_data]
+						// TODO: add instance ID to 'codes' so that newly 
+						// created tests have data necessary for TestDetail page; also URI, creation_date above
 					});
 				})
 				.catch(err => {
@@ -226,7 +211,7 @@ export default class ModelEditForm extends React.Component {
 					} else {
 						console.log(err);
 						this.setState({
-							errorEditModel: err,
+							errorAddTest: err,
 						});
 					}
 				}
@@ -239,10 +224,7 @@ export default class ModelEditForm extends React.Component {
 		let value = target.value;
 		const name = target.name;
 		console.log(name + " => " + value);
-		if (name === "private") {
-			value = !target.checked;
-		}
-		else if (name === "alias") {
+		if (name === "alias") {
 			this.checkAliasUnique(value)
 		}
 		this.setState({
@@ -252,37 +234,31 @@ export default class ModelEditForm extends React.Component {
 
 	render() {
 		let errorMessage = "";
-		if (this.state.errorEditModel) {
-			errorMessage = <ErrorDialog open={Boolean(this.state.errorEditModel)} handleErrorDialogClose={this.handleErrorEditDialogClose} error={this.state.errorEditModel.message || this.state.errorEditModel} />
+		if (this.state.errorAddTest) {
+			errorMessage = <ErrorDialog open={Boolean(this.state.errorAddTest)} handleErrorDialogClose={this.handleErrorAddDialogClose} error={this.state.errorAddTest.message || this.state.errorAddTest} />
 		}
-		console.log(this.props.modelData)
 		return (
 			<Dialog onClose={this.handleClose}
-				aria-labelledby="Form for editing an existing model in the catalog"
+				aria-labelledby="Form for adding a new test to the catalog"
 				open={this.props.open}
 				fullWidth={true}
 				maxWidth="md">
-				<DialogTitle>Edit a new model to the catalog</DialogTitle>
+				<DialogTitle>Add a new test to the library</DialogTitle>
 				<DialogContent>
 					<form>
 						<Grid container spacing={3}>
 							<Grid item xs={12}>
-								<TextField name="name" label="Model Name" defaultValue={this.state.name}
+								<TextField name="name" label="Test Name" defaultValue={this.state.name}
 									onBlur={this.handleFieldChange} variant="outlined" fullWidth={true}
-									helperText="Please choose an informative name that will distinguish the model from other, similar models" />
+									helperText="Please choose an informative name that will distinguish the test from other, similar tests" />
 							</Grid>
 							<Grid item xs={12}>
 								<PersonSelect name="authors" label="Author(s)" value={this.state.author}
 									onChange={this.handleFieldChange} variant="outlined" fullWidth={true} newChipKeyCodes={[13, 186]}
 									helperText="Enter author names separated by semicolon: firstName1 lastName1; firstName2 lastName2" />
 							</Grid>
-							<Grid item xs={12}>
-								<PersonSelect name="owners" label="Custodian(s)" value={this.state.owner}
-									onChange={this.handleFieldChange} variant="outlined" fullWidth={true} newChipKeyCodes={[13, 186]}
-									helperText="Enter author names separated by semicolon: firstName1 lastName1; firstName2 lastName2" />
-							</Grid>
 							<Grid item xs={9}>
-								<TextField name="alias" label="Model alias / Short name" defaultValue={this.state.alias}
+								<TextField name="alias" label="Test alias / Short name" defaultValue={this.state.alias}
 									onBlur={this.handleFieldChange} variant="outlined" fullWidth={true}
 									error={!this.state.alias || this.state.aliasLoading ? false : this.state.isAliasNotUnique}
 									helperText={!this.state.alias || this.state.aliasLoading
@@ -301,27 +277,34 @@ export default class ModelEditForm extends React.Component {
 										),
 									}} />
 							</Grid>
-							<Grid item xs={3}>
-								<FormLabel component="legend">Make model public?</FormLabel>
-								<FormControlLabel
-									labelPlacement="bottom"
-									control={<Switch checked={!this.state.private} onChange={this.handleFieldChange} name="private" />}
-									label={this.state.private ? "Private" : "Public"} />
+							<Grid item xs={12}>
+								<TextField multiline rows="6" name="protocol" label="Protocol" defaultValue={this.state.protocol}
+									onBlur={this.handleFieldChange} variant="outlined" fullWidth={true}
+									helperText="The protocol may be formatted with Markdown" />
 							</Grid>
 							<Grid item xs={12}>
-								<TextField multiline rows="6" name="description" label="Description" defaultValue={this.state.description}
+								<TextField name="data_location" label="Data Location (URL)" defaultValue={this.state.data_location}
 									onBlur={this.handleFieldChange} variant="outlined" fullWidth={true}
-									helperText="The description may be formatted with Markdown" />
+									helperText="Enter location of target experimental data file" />
 							</Grid>
-							{filterModelKeys.map(filter => (
+							<Grid item xs={9}>
+								<TextField name="data_type" label="Data Type" defaultValue={this.state.data_type}
+									onBlur={this.handleFieldChange} variant="outlined" fullWidth={true}
+									helperText="Type of target experimental data" />
+							</Grid>
+							{filterTestKeys.map(filter => (
 								<Grid item xs={12} key={filter}>
 									<SingleSelect
 										itemNames={(this.state.filters[filter] && this.state.filters[filter].length) ? this.state.filters[filter] : this.state.validFilterValues[filter]}
 										label={filter}
-										value={this.state[filter] ? this.state[filter] : ""}
+										value={this.state[filter]}
 										handleChange={this.handleFieldChange} />
 								</Grid>
 							))}
+							<TestInstanceArrayOfForms
+								name="codes"
+								value={this.state.codes}
+								onChange={this.handleFieldChange} />
 						</Grid>
 					</form>
 					<div>
@@ -333,7 +316,7 @@ export default class ModelEditForm extends React.Component {
 						Cancel
           </Button>
 					<Button onClick={this.handleSubmit} color="primary">
-						Edit Model
+						Add Test
           </Button>
 				</DialogActions>
 			</Dialog>
@@ -341,7 +324,7 @@ export default class ModelEditForm extends React.Component {
 	}
 }
 
-ModelEditForm.propTypes = {
+TestAddForm.propTypes = {
 	onClose: PropTypes.func.isRequired,
 	open: PropTypes.bool.isRequired
 };

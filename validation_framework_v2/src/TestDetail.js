@@ -92,12 +92,14 @@ export default class TestDetail extends React.Component {
 			tabValue: 0,
 			results: [],
 			loadingResult: true,
-			error: null
+			error: null,
+			testData: this.props.testData
 		};
 		if (DevMode) {
 			this.state['results'] = result_data.results;
 			this.state['loadingResult'] = false;
 		}
+		this.updateCurrentTestData = this.updateCurrentTestData.bind(this);
 		this.handleClose = this.handleClose.bind(this);
 		this.handleTabChange = this.handleTabChange.bind(this);
 	}
@@ -110,6 +112,12 @@ export default class TestDetail extends React.Component {
 
 	componentWillUnmount() {
 		this.signal.cancel('REST API call canceled!');
+	}
+
+	updateCurrentTestData(updatedTestData) {
+		this.setState({
+			testData: updatedTestData
+		})
 	}
 
 	handleClose() {
@@ -151,6 +159,7 @@ export default class TestDetail extends React.Component {
 	};
 
 	render() {
+		console.log(this.state.testData)
 		return (
 			<Dialog fullScreen onClose={this.handleClose} aria-labelledby="simple-dialog-title" open={this.props.open}>
 				<MyDialogTitle onClose={this.handleClose} />
@@ -158,12 +167,14 @@ export default class TestDetail extends React.Component {
 					<Grid container spacing={3}>
 
 						<TestDetailHeader
-							name={this.props.testData.name}
-							authors={formatAuthors(this.props.testData.author)}
-							id={this.props.testData.id}
-							alias={this.props.testData.alias}
-							creationDate={this.props.testData.creation_date}
-							status={this.props.testData.status}
+							name={this.state.testData.name}
+							authors={formatAuthors(this.state.testData.author)}
+							id={this.state.testData.id}
+							alias={this.state.testData.alias}
+							creationDate={this.state.testData.creation_date}
+							status={this.state.testData.status}
+							testData={this.state.testData}
+							updateCurrentTestData={this.updateCurrentTestData}
 						></TestDetailHeader>
 						<AppBar position="static">
 							<Tabs value={this.state.tabValue} onChange={this.handleTabChange}>
@@ -176,24 +187,26 @@ export default class TestDetail extends React.Component {
 							<Grid container spacing={2}>
 								<Grid item xs={9}>
 									<TestDetailContent
-										dataLocation={this.props.testData.data_location}
-										protocol={this.props.testData.protocol}
-										codes={this.props.testData.codes}
+										dataLocation={this.state.testData.data_location}
+										protocol={this.state.testData.protocol}
+										instances={this.state.testData.codes}
+										id={this.state.testData.id}
+										results={this.state.results}
 									></TestDetailContent>
 								</Grid>
 								<Grid item xs={3}>
 									<TestDetailMetadata
-										species={this.props.testData.species}
-										brainRegion={this.props.testData.brain_region}
-										cellType={this.props.testData.cell_type}
-										dataModality={this.props.testData.data_modality}
-										dataType={this.props.testData.data_type}
-										testType={this.props.testData.test_type}
-										scoreType={this.props.testData.score_type}
+										species={this.state.testData.species}
+										brainRegion={this.state.testData.brain_region}
+										cellType={this.state.testData.cell_type}
+										dataModality={this.state.testData.data_modality}
+										dataType={this.state.testData.data_type}
+										testType={this.state.testData.test_type}
+										scoreType={this.state.testData.score_type}
 									>
 										<ul>
-											<li>{this.props.testData.id}</li>
-											<li>{this.props.testData.alias}</li>
+											<li>{this.state.testData.id}</li>
+											<li>{this.state.testData.alias}</li>
 										</ul>
 									</TestDetailMetadata>
 								</Grid>
@@ -201,15 +214,15 @@ export default class TestDetail extends React.Component {
 						</TabPanel>
 						<TabPanel value={this.state.tabValue} index={1}>
 							<TestResultOverview
-								id={this.props.testData.id}
-								testJSON={this.props.testData}
+								id={this.state.testData.id}
+								testJSON={this.state.testData}
 								results={this.state.results}
 								loadingResult={this.state.loadingResult}
 							/>
 						</TabPanel>
 						<TabPanel value={this.state.tabValue} index={2}>
 							<ResultGraphs
-								id={this.props.testData.id}
+								id={this.state.testData.id}
 								results={this.state.results}
 								loadingResult={this.state.loadingResult}
 							/>

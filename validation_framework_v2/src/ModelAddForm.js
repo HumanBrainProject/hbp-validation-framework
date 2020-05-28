@@ -201,6 +201,7 @@ export default class ModelAddForm extends React.Component {
 			axios.post(url, payload, config)
 				.then(res => {
 					console.log(res);
+					payload.model_instance.id = "<< missing data >>";
 					this.props.onClose({
 						...payload.model,
 						id: res.data.uuid,

@@ -15,6 +15,7 @@ export const filterModelKeys = ["species", "brain_region", "cell_type",
 export const filterModelInstanceKeys = ["license"]
 export const filterTestKeys = ["species", "brain_region", "cell_type",
 	"test_type", "score_type", "data_modality", "status"]
+export const filterTestInstanceKeys = []
 export const displayValid = ["Only Models", "Models & Tests", "Only Tests"];
 export const queryValid = ["model_id", "model_alias", "test_id", "test_alias", "result_id"]
 

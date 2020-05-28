@@ -73,9 +73,9 @@ export default class ModelDetailContent extends React.Component {
 				errorEditModelInstance: "This model instance cannot be edited as there are validation results associated with it!",
 			});
 		} else {
-			this.setState({ 
-				openEditInstanceForm: true, 
-				currentInstance : instance
+			this.setState({
+				openEditInstanceForm: true,
+				currentInstance: instance
 			})
 		}
 	}

@@ -16,6 +16,7 @@ import TestTable from "./TestTable";
 import ModelDetail from "./ModelDetail";
 import TestDetail from "./TestDetail";
 import ModelAddForm from "./ModelAddForm";
+import TestAddForm from "./TestAddForm";
 import ConfigForm from "./ConfigForm";
 import Introduction from "./Introduction";
 import ConfigDisplayTop from "./ConfigDisplayTop"
@@ -134,6 +135,7 @@ class ValidationFramework extends React.Component {
 			'testDetailOpen': false,
 			'resultDetailOpen': false,
 			'addModelFormOpen': false,
+			'addTestFormOpen': false,
 			'configOpen': false,
 			'loadingOpen': false,
 			'loadingModel': true,
@@ -169,7 +171,9 @@ class ValidationFramework extends React.Component {
 		this.modelTableFullWidth = this.modelTableFullWidth.bind(this);
 		this.testTableFullWidth = this.testTableFullWidth.bind(this);
 		this.openAddModelForm = this.openAddModelForm.bind(this);
+		this.openAddTestForm = this.openAddTestForm.bind(this);
 		this.handleAddModelFormClose = this.handleAddModelFormClose.bind(this);
+		this.handleAddTestFormClose = this.handleAddTestFormClose.bind(this);
 	}
 
 	modelTableFullWidth() {
@@ -188,12 +192,15 @@ class ValidationFramework extends React.Component {
 		this.setState({ 'addModelFormOpen': true })
 	};
 
+	openAddTestForm() {
+		this.setState({ 'addTestFormOpen': true })
+	};
+
 	handleAddModelFormClose(currentModel) {
 		console.log("close add")
 		console.log(currentModel)
 		this.setState({ 'addModelFormOpen': false });
 		if (currentModel) {
-			console.log(currentModel)
 			let models = this.state.modelData;
 			console.log(this.state.modelData)
 			models.unshift(currentModel);
@@ -203,6 +210,23 @@ class ValidationFramework extends React.Component {
 				modelDetailOpen: true
 			});
 			updateHash("model_id." + currentModel.id);
+		}
+	}
+
+	handleAddTestFormClose(currentTest) {
+		console.log("close add")
+		console.log(currentTest)
+		this.setState({ 'addTestFormOpen': false });
+		if (currentTest) {
+			let tests = this.state.testData;
+			console.log(this.state.testData)
+			tests.unshift(currentTest);
+			this.setState({
+				data: tests,
+				currentTest: currentTest,
+				testDetailOpen: true
+			});
+			updateHash("test_id." + currentTest.id);
 		}
 	}
 
@@ -647,7 +671,7 @@ class ValidationFramework extends React.Component {
 							<br /><br />
 						</Paper>
 						:
-						<TestTable testData={this.state.testData} display={this.state.display} auth={this.props.auth} changeTableWidth={this.testTableFullWidth} openAddModelForm={this.openAddModelForm} handleRowClick={this.handleTestRowClick} />
+						<TestTable testData={this.state.testData} display={this.state.display} auth={this.props.auth} changeTableWidth={this.testTableFullWidth} openAddTestForm={this.openAddTestForm} handleRowClick={this.handleTestRowClick} />
 					}
 				</Grid>
 			</Grid>
@@ -674,7 +698,7 @@ class ValidationFramework extends React.Component {
 							<br /><br />
 						</Paper>
 						:
-						<TestTable testData={this.state.testData} display={this.state.display} auth={this.props.auth} changeTableWidth={this.testTableFullWidth} openAddModelForm={this.openAddModelForm} handleRowClick={this.handleTestRowClick} />
+						<TestTable testData={this.state.testData} display={this.state.display} auth={this.props.auth} changeTableWidth={this.testTableFullWidth} openAddTestForm={this.openAddTestForm} handleRowClick={this.handleTestRowClick} />
 					}
 				</Grid>
 			</Grid>
@@ -728,6 +752,10 @@ class ValidationFramework extends React.Component {
 
 		if (this.state.addModelFormOpen) {
 			addModel = <ModelAddForm open={this.state.addModelFormOpen} onClose={this.handleAddModelFormClose} />
+		}
+
+		if (this.state.addTestFormOpen) {
+			addModel = <TestAddForm open={this.state.addTestFormOpen} onClose={this.handleAddTestFormClose} />
 		}
 
 		return (
