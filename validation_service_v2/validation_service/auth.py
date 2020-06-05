@@ -21,7 +21,8 @@ oauth.register(
     client_id=settings.EBRAINS_IAM_CLIENT_ID,
     client_secret=settings.EBRAINS_IAM_SECRET,
     client_kwargs={
-        'scope': 'openid profile collab.drive clb.drive:read clb.drive:write group team web-origins role_list roles email'
+        'scope': 'openid profile collab.drive clb.drive:read clb.drive:write group team web-origins role_list roles email',
+        'trust_env': False
     }
 )
 
