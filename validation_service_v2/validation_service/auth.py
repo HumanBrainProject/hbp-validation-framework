@@ -5,12 +5,25 @@ import json
 from fairgraph.client import KGClient
 
 from fastapi import HTTPException
+from authlib.integrations.starlette_client import OAuth
+
 from . import settings
 
 logger = logging.getLogger("validation_service_v2")
 
 kg_client = None
 
+oauth = OAuth()
+
+oauth.register(
+    name='ebrains',
+    server_metadata_url=settings.EBRAINS_IAM_CONF_URL,
+    client_id=settings.EBRAINS_IAM_CLIENT_ID,
+    client_secret=settings.EBRAINS_IAM_SECRET,
+    client_kwargs={
+        'scope': 'openid profile collab.drive clb.drive:read clb.drive:write group team web-origins role_list roles email'
+    }
+)
 
 def get_kg_token():
     data = {
