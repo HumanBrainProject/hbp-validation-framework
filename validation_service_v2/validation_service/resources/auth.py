@@ -1,13 +1,14 @@
 from fastapi import APIRouter
 from starlette.requests import Request
 from ..auth import oauth
+from ..settings import BASE_URL
 
 router = APIRouter()
 
 
 @router.get("/login")
 async def login_via_ebrains(request: Request):
-    redirect_uri = 'http://127.0.0.1:8000/auth'
+    redirect_uri = BASE_URL + '/auth'
     return await oauth.ebrains.authorize_redirect(request, redirect_uri)
 
 
