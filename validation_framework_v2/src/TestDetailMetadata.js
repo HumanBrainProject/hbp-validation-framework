@@ -3,6 +3,7 @@ import Grid from '@material-ui/core/Grid';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
+import Theme from './theme';
 
 function MetadataItem(props) {
 	if (props.value) {
@@ -19,7 +20,7 @@ function MetadataItem(props) {
 export default function TestDetailMetadata(props) {
 	return (
 		<React.Fragment>
-			<Grid item xs={3} style={{ backgroundColor: '#dddddd' }}>
+			<Grid item style={{ backgroundColor: Theme.metadataInfoBox }}>
 				<List aria-label="test metadata">
 					<MetadataItem value={props.species} label="Species" />
 					<MetadataItem value={props.brainRegion} label="Brain region" />

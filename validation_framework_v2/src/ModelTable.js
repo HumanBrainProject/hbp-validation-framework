@@ -1,10 +1,11 @@
 import React from 'react';
 import MUIDataTable from "mui-datatables";
-
+import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
 import { formatAuthors, downloadJSON } from "./utils";
 import MUIDataTableCustomToolbar from "./MUIDataTableCustomToolbar";
 import CustomToolbarSelect from "./MUIDataTableCustomRowToolbar";
 import ViewSelected from "./ViewSelected";
+import Theme from './theme';
 
 export default class ModelTable extends React.Component {
 	constructor(props) {
@@ -20,6 +21,48 @@ export default class ModelTable extends React.Component {
 		this.viewSelectedItems = this.viewSelectedItems.bind(this);
 		this.handleViewSelectedClose = this.handleViewSelectedClose.bind(this);
 	}
+
+	getMuiTheme = () => createMuiTheme({
+		overrides: {
+			// handles table title bar color
+			MUIDataTableToolbar: {
+				root: {
+					backgroundColor: Theme.tableHeader,
+					color: Theme.textPrimary
+				}
+			},
+			// handles table data header color
+			MUIDataTableHeadCell: {
+				fixedHeaderCommon: {
+					backgroundColor: Theme.tableDataHeader
+				}
+			},
+			// handles data row color; clashes and blocks MuiTableRow
+			// MUIDataTableBodyCell: {
+			// 	root: {
+			// 		backgroundColor: Theme.tableDataRow,
+			// 		color: Theme.textPrimary,
+			// 		// borderBottom: "none"
+			// 	}
+			// },
+			// handles data footer color
+			MUIDataTablePagination: {
+				root: {
+					backgroundColor: Theme.tableFooter,
+					color: Theme.textPrimary
+				}
+			},
+			// handles row hover color and selected row color
+			MuiTableRow: {
+				hover: { '&$root': { '&:hover': { backgroundColor: Theme.tableRowHoverColor }, } },
+				root: {
+					'&$selected': {
+						backgroundColor: Theme.tableRowSelectColor
+					}
+				}
+			},
+		}
+	})
 
 	downloadSelectedJSON(selectedRows) {
 		console.log("Download JSON.");
@@ -69,55 +112,57 @@ export default class ModelTable extends React.Component {
 	render() {
 		return (
 			<div>
-				<MUIDataTable
-					title="Models"
-					columns={[{ name: 'ID', options: { display: false } },
-					{ name: 'Name', options: { display: true } },
-					{ name: 'Alias', options: { display: false } },
-					{ name: 'Author', options: { display: true } },
-					{ name: 'Visibility', options: { display: false } },
-					{ name: 'Collab ID', options: { display: false } },
-					{ name: 'Species', options: { display: false } },
-					{ name: 'Brain region', options: { display: false } },
-					{ name: 'Cell type', options: { display: false } },
-					{ name: 'Model scope', options: { display: false } },
-					{ name: 'Abstraction level', options: { display: false } },
-					{ name: 'Owner', options: { display: false } },
-					{ name: 'Organization', options: { display: false } },
-					{ name: 'jsonObject', options: { display: false, viewColumns: false, filter: false } }
-					]}
-					data={this.state.data.map(item => {
-						return [
-							item.id,
-							item.name,
-							item.alias,
-							formatAuthors(item.author),
-							item.private ? 'Private' : 'Public',
-							item.app.collab_id,
-							item.species,
-							item.brain_region,
-							item.cell_type,
-							item.model_scope,
-							item.abstraction_level,
-							formatAuthors(item.owner),
-							item.organization,
-							item
-						]
-					})}
-					options={{
-						filter: true,
-						sort: true,
-						rowsPerPage: 20,
-						rowsPerPageOptions: [10, 20, 100],
-						onRowClick: this.props.handleRowClick,
-						responsive: 'stacked', // 'scrollMaxHeight', 'scrollFullHeight', 'scrollFullHeightFullWidth', 'stackedFullWidth'
-						downloadOptions: { filename: 'selectedModels.csv', separator: ',', filterOptions: { useDisplayedRowsOnly: true } },
-						customToolbar: () => {
-							return <MUIDataTableCustomToolbar display={this.props.display} changeTableWidth={this.props.changeTableWidth} tableType="models" addNew={this.props.openAddModelForm} />;
-						},
-						customToolbarSelect: (selectedRows) => <CustomToolbarSelect selectedRows={selectedRows} downloadSelectedJSON={this.downloadSelectedJSON} hideTableRows={this.hideTableRows} viewSelectedItems={this.viewSelectedItems} />
-					}}
-				/>
+				<MuiThemeProvider theme={this.getMuiTheme()}>
+					<MUIDataTable
+						title="Models"
+						columns={[{ name: 'ID', options: { display: false } },
+						{ name: 'Name', options: { display: true } },
+						{ name: 'Alias', options: { display: false } },
+						{ name: 'Author', options: { display: true } },
+						{ name: 'Visibility', options: { display: false } },
+						{ name: 'Collab ID', options: { display: false } },
+						{ name: 'Species', options: { display: false } },
+						{ name: 'Brain region', options: { display: false } },
+						{ name: 'Cell type', options: { display: false } },
+						{ name: 'Model scope', options: { display: false } },
+						{ name: 'Abstraction level', options: { display: false } },
+						{ name: 'Owner', options: { display: false } },
+						{ name: 'Organization', options: { display: false } },
+						{ name: 'jsonObject', options: { display: false, viewColumns: false, filter: false } }
+						]}
+						data={this.state.data.map(item => {
+							return [
+								item.id,
+								item.name,
+								item.alias,
+								formatAuthors(item.author),
+								item.private ? 'Private' : 'Public',
+								item.app.collab_id,
+								item.species,
+								item.brain_region,
+								item.cell_type,
+								item.model_scope,
+								item.abstraction_level,
+								formatAuthors(item.owner),
+								item.organization,
+								item
+							]
+						})}
+						options={{
+							filter: true,
+							sort: true,
+							rowsPerPage: 20,
+							rowsPerPageOptions: [10, 20, 100],
+							onRowClick: this.props.handleRowClick,
+							responsive: 'stacked', // 'scrollMaxHeight', 'scrollFullHeight', 'scrollFullHeightFullWidth', 'stackedFullWidth'
+							downloadOptions: { filename: 'selectedModels.csv', separator: ',', filterOptions: { useDisplayedRowsOnly: true } },
+							customToolbar: () => {
+								return <MUIDataTableCustomToolbar display={this.props.display} changeTableWidth={this.props.changeTableWidth} tableType="models" addNew={this.props.openAddModelForm} />;
+							},
+							customToolbarSelect: (selectedRows) => <CustomToolbarSelect selectedRows={selectedRows} downloadSelectedJSON={this.downloadSelectedJSON} hideTableRows={this.hideTableRows} viewSelectedItems={this.viewSelectedItems} />
+						}}
+					/>
+				</MuiThemeProvider>
 				<ViewSelected entity="models" open={this.state.viewSelectedOpen} onClose={this.handleViewSelectedClose} selectedData={this.state.selectedData} />
 			</div>
 		);

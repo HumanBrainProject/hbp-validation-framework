@@ -26,6 +26,7 @@ import ErrorDialog from './ErrorDialog';
 import { DevMode, baseUrl, collaboratoryOrigin, updateSettingsTopic, isFramedApp, settingsDelimiter, filterKeys, filterModelKeys, filterTestKeys, displayValid, queryValid, updateHash } from "./globals";
 import { isUUID } from './utils'
 import ContextMain from './ContextMain';
+import Theme from './theme';
 
 // if working on the appearance/layout set globals.DevMode=true
 // to avoid loading the models and tests over the network every time;
@@ -231,6 +232,8 @@ class ValidationFramework extends React.Component {
 	}
 
 	componentDidMount() {
+		document.body.style.backgroundColor = Theme.bodyBackground;
+
 		const token = this.props.auth.tokenParsed;
 		console.log(token);
 

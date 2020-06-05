@@ -10,6 +10,7 @@ import ModelInstanceAddForm from './ModelInstanceAddForm';
 import ModelInstanceEditForm from './ModelInstanceEditForm';
 import ErrorDialog from './ErrorDialog';
 import Tooltip from '@material-ui/core/Tooltip';
+import Theme from './theme';
 
 function InstanceParameter(props) {
 	if (props.value) {
@@ -123,13 +124,13 @@ export default class ModelDetailContent extends React.Component {
 								</Box>
 							</Grid>
 							<Grid item xs={6}>
-								<Button variant="contained" color="primary" onClick={() => this.setState({ openAddInstanceForm: true })}>
+								<Button variant="contained" style={{backgroundColor: Theme.buttonPrimary}} onClick={() => this.setState({ openAddInstanceForm: true })}>
 									Add new version
 								</Button>
 							</Grid>
 						</Grid>
 						{this.state.instances.map(instance => (
-							<Box m={2} p={2} pb={0} style={{ backgroundColor: '#eeeeee' }} key={instance.id}>
+							<Box m={2} p={2} pb={0} style={{ backgroundColor: Theme.lightBackground }} key={instance.id}>
 								<div style={{
 									display: "flex",
 									alignItems: "center",

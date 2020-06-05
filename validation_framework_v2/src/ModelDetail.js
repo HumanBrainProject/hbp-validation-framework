@@ -12,6 +12,7 @@ import AppBar from '@material-ui/core/AppBar';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import Box from '@material-ui/core/Box';
+import Theme from './theme';
 
 import axios from 'axios';
 
@@ -177,7 +178,8 @@ export default class ModelDetail extends React.Component {
 							updateCurrentModelData={this.updateCurrentModelData}
 						></ModelDetailHeader>
 						<AppBar position="static">
-							<Tabs value={this.state.tabValue} onChange={this.handleTabChange}>
+							<Tabs value={this.state.tabValue} onChange={this.handleTabChange}
+								style={{ backgroundColor: Theme.tableRowSelectColor, color: Theme.textPrimary }} >
 								<Tab label="Info" />
 								<Tab label="Results" />
 								<Tab label="Figures" />
