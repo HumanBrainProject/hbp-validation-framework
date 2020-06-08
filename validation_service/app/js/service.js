@@ -181,7 +181,7 @@ ContextServices.service('Context', ['$rootScope', '$location', 'AppIDRest', 'Col
         var newTab_goToMorphologyViewer = function(model_instance, model_id) {
             _getCollabIDAndAppIDFromUrl("model_catalog").then(function(ids) {
                 var url_collab = encodeURIComponent("https://collab.humanbrainproject.eu/#/collab/" + ids.collab_id + "/nav/" + ids.app_id + "?state=model." + model_id + ",external")
-                var url = "https://neuroinformatics.nl/HBP/morphology-viewer-dev/?hbp-model-instance-id=" + model_instance.id + "&referrer=" + url_collab;
+                var url = "https://neuroinformatics.nl/HBP/morphology-viewer-dev/?url=" + model_instance.morphology + "&referrer=" + url_collab;
                 window.open(url, '_blank')
             })
         }
