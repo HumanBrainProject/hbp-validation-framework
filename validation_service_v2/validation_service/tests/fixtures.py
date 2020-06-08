@@ -1,5 +1,5 @@
 import os
-from datetime import datetime
+from datetime import datetime, timezone
 from fastapi.testclient import TestClient
 
 from ..main import app
@@ -10,7 +10,7 @@ AUTH_HEADER = {"Authorization": f"Bearer {token}"}
 
 
 def _build_sample_model():
-    now = datetime.now()
+    now = datetime.now(timezone.utc)
     return {
         "name": f"TestModel API v2 {now.isoformat()}",
         "alias": f"TestModel-APIv2-{now.isoformat()}",
@@ -30,7 +30,7 @@ def _build_sample_model():
             "family_name": "Baggins"
             }
         ],
-        "project_id": 52468,
+        "project_id": "52468",
         "organization": "HBP-SGA3-WP5",
         "private": True,
         "species": "Ornithorhynchus anatinus",
@@ -59,7 +59,7 @@ def _build_sample_model():
 
 
 def _build_sample_validation_test():
-    now = datetime.now()
+    now = datetime.now(timezone.utc)
     return {
         "name": f"TestValidationTestDefinition API v2 {now.isoformat()}",
         "alias": f"TestValidationTestDefinition-APIv2-{now.isoformat()}",
@@ -96,7 +96,7 @@ def _build_sample_validation_test():
 
 
 def _build_sample_result(model_instance_id, test_instance_id):
-    now = datetime.now()
+    now = datetime.now(timezone.utc)
     return {
         "model_version_id": model_instance_id,
         "test_code_id": test_instance_id,

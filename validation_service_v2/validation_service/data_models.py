@@ -1,7 +1,7 @@
 from uuid import UUID
 from enum import Enum
 from typing import List
-from datetime import datetime
+from datetime import datetime, timezone
 from itertools import chain
 import logging
 
@@ -16,6 +16,15 @@ import fairgraph.brainsimulation
 
 fairgraph.core.use_namespace(fairgraph.brainsimulation.DEFAULT_NAMESPACE)
 logger = logging.getLogger("validation_service_v2")
+
+
+def ensure_has_timezone(timestamp):
+    if timestamp is None:
+        return timestamp
+    elif timestamp.tzname() is None:
+        return timestamp.astimezone(timezone.utc)
+    else:
+        return timestamp
 
 
 class Species(str, Enum):
@@ -141,7 +150,7 @@ class ModelInstance(BaseModel):
             "version": instance.version,
             "description": instance.description,
             "parameters":  instance.parameters,
-            "timestamp": instance.timestamp
+            "timestamp": ensure_has_timezone(instance.timestamp)
         }
         if instance.main_script:
             main_script = instance.main_script.resolve(client, api="nexus")
@@ -204,7 +213,7 @@ class ModelInstance(BaseModel):
                 morphology=morph,
                 version=self.version,
                 parameters=self.parameters,
-                timestamp=self.timestamp or datetime.now(),
+                timestamp=ensure_has_timezone(self.timestamp) or datetime.now(timezone.utc),
                 release=None)
         else:
             minst = fairgraph.brainsimulation.ModelInstance(
@@ -216,7 +225,7 @@ class ModelInstance(BaseModel):
                 main_script=script,
                 version=self.version,
                 parameters=self.parameters,
-                timestamp=self.timestamp or datetime.now(),
+                timestamp=ensure_has_timezone(self.timestamp) or datetime.now(timezone.utc),
                 release=None)
         if self.uri:
             minst.id = str(self.uri)
@@ -318,7 +327,7 @@ class ScientificModel(BaseModel):
             owners=owners,
             authors=authors,
             description=self.description,
-            date_created=self.date_created or datetime.now(),
+            date_created=self.date_created or datetime.now(timezone.utc),
             private=self.private,
             collab_id=self.project_id,
             alias=self.alias,
@@ -413,7 +422,7 @@ class ValidationTestInstance(BaseModel):
             description=test_script.description,
             parameters= test_script.parameters,
             path=test_script.test_class,
-            timestamp=test_script.date_created,
+            timestamp=ensure_has_timezone(test_script.date_created),
             test_definition_id=test_script.test_definition.uuid
         )
 
@@ -421,7 +430,7 @@ class ValidationTestInstance(BaseModel):
         return [
             fairgraph.brainsimulation.ValidationScript(
                 name=f"Implementation of {test_definition.name}, version '{self.version}'",
-                date_created=self.timestamp or datetime.now(),
+                date_created=ensure_has_timezone(self.timestamp) or datetime.now(timezone.utc),
                 repository=IRI(self.repository),
                 version=self.version,
                 description=self.description,
@@ -500,12 +509,12 @@ class ValidationTest(BaseModel):
 
     def to_kg_objects(self):
         authors = [person.to_kg_object() for person in self.author]
-        timestamp = self.date_created or datetime.now()
+        timestamp = ensure_has_timezone(self.date_created) or datetime.now(timezone.utc)
         data_files = [
-            fairgraph.brainsimulation.AnalysisResult(
+            fairgraph.analysis.AnalysisResult(
                 name="Reference data #{} for validation test '{}'".format(i + 1, self.name),
                 result_file=url,
-                timestamp=timestamp
+                timestamp=ensure_has_timezone(timestamp)
             ) for i, url in enumerate(self.data_location)
         ]
         kg_objects = authors + data_files
@@ -527,7 +536,7 @@ class ValidationTest(BaseModel):
             score_type=self.score_type,
             description=self.description,
             authors=authors,
-            date_created=timestamp
+            date_created=ensure_has_timezone(timestamp)
         )
         if self.uri:
             test_definition.id = str(self.uri)
@@ -634,16 +643,16 @@ class ValidationResult(BaseModel):
             results_storage=additional_data_urls,  # todo: handle collab storage redirects
             score=result.score,
             passed=result.passed,
-            timestamp=result.timestamp,
+            timestamp=ensure_has_timezone(result.timestamp),
             project_id=result.collab_id,
             normalized_score=result.normalized_score
         )
 
     def to_kg_objects(self, kg_client):
-        timestamp = self.timestamp or datetime.now()
+        timestamp = ensure_has_timezone(self.timestamp) or datetime.now(timezone.utc)
 
         additional_data = [
-            fairgraph.brainsimulation.AnalysisResult(
+            fairgraph.analysis.AnalysisResult(
                 name=f"{uri} @ {timestamp.isoformat()}",
                 result_file=Distribution(uri),
                 timestamp=timestamp

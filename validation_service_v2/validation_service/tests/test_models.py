@@ -1,5 +1,5 @@
 import os
-from datetime import datetime
+from datetime import datetime, timezone
 from time import sleep
 from urllib.parse import urlparse
 import logging
@@ -35,7 +35,8 @@ def check_model(model):
 
 
 def check_model_instance(model_instance):
-    datetime.fromisoformat(model_instance["timestamp"])
+    if model_instance["timestamp"]:
+        datetime.fromisoformat(model_instance["timestamp"])
     assert isinstance(model_instance["version"], str)
     assert_is_valid_url(model_instance["source"])
 
@@ -203,7 +204,7 @@ def test_create_and_delete_network_model(caplog):
 
 def test_create_model_with_minimal_data(caplog):
     payload = {
-        "name": f"TestModel API v2 {datetime.now().isoformat()}",
+        "name": f"TestModel API v2 {datetime.now(timezone.utc).isoformat()}",
         "author": [
             {
             "given_name": "Frodo",
