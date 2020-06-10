@@ -284,7 +284,7 @@ async def create_model_instance(model_id: str,
     kg_objects = model_instance.to_kg_objects(model_project)
     model_instance_kg = kg_objects[-1]
     # check if an identical model instance already exists, raise an error if so
-    if model_instance_kg.exists(kg_client):
+    if model_instance_kg.exists(kg_client, api="any"):
         raise HTTPException(status_code=status.HTTP_409_CONFLICT,
                             detail=f"Another model instance with the same name already exists.")
     # otherwise save to KG
