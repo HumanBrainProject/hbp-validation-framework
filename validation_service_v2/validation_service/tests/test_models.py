@@ -444,7 +444,6 @@ def test_changing_to_invalid_alias():
     assert response.status_code == 200
 
 
-
 def test_list_model_instances_by_model_id():
     model_uuid = "cb62b56e-bdfa-4016-81cd-c9dbc834cebc"
     response1 = client.get(f"/models/{model_uuid}", headers=AUTH_HEADER)
@@ -540,5 +539,28 @@ def test_update_model_instance():
     assert retrieved_model["instances"][0]["description"] == payload2["description"]
 
     # delete again
+    response = client.delete(f"/models/{model_uuid}", headers=AUTH_HEADER)
+    assert response.status_code == 200
+
+
+def test_create_duplicate_model_instance(caplog):
+    # Creating two model instances with the same name and date_created fields is not allowed
+
+    # first create a model project
+    payload1 = _build_sample_model()
+    response = client.post(f"/models/", json=payload1, headers=AUTH_HEADER)
+    assert response.status_code == 201
+    posted_model = response.json()
+    check_model(posted_model)
+    assert len(posted_model["instances"]) == 1
+    model_uuid = posted_model["id"]
+
+    # now try to add the same instance again
+    sleep(15)
+    payload2 = posted_model["instances"][0]
+    response = client.post(f"/models/{model_uuid}/instances/", json=payload2, headers=AUTH_HEADER)
+    assert response.status_code == status.HTTP_409_CONFLICT
+
+    # delete model
     response = client.delete(f"/models/{model_uuid}", headers=AUTH_HEADER)
     assert response.status_code == 200

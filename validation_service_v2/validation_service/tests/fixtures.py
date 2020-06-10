@@ -103,6 +103,6 @@ def _build_sample_result(model_instance_id, test_instance_id):
         "results_storage": [f"http://example.com/validation_result_{now.strftime('%Y%m%d-%H%M%S')}"],
         "score": 0.1234,
         "passed": True,
-        "project_id": 52468,
+        "project_id": "model-validation",
         "normalized_score": 0.2468
     }

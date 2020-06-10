@@ -282,9 +282,14 @@ async def create_model_instance(model_id: str,
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
                             detail=f"This account is not a member of Collab #{model_project.project_id}")
     kg_objects = model_instance.to_kg_objects(model_project)
+    model_instance_kg = kg_objects[-1]
+    # check if an identical model instance already exists, raise an error if so
+    if model_instance_kg.exists(kg_client):
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT,
+                            detail=f"Another model instance with the same name already exists.")
+    # otherwise save to KG
     for obj in kg_objects:
         obj.save(kg_client)
-    model_instance_kg = kg_objects[-1]
     # not sure the following is needed.
     # Should just be able to leave the existing model instances as KGProxy objects?
     model_project.instances = [inst.resolve(kg_client, api="nexus")
