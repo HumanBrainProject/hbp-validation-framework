@@ -50,7 +50,7 @@ def test_list_results_nofilters():
 
 
 def test_list_results_filter_by_model_id():
-    model_uuid = "4c62cb9a-d1c5-41ab-ab6d-29a5ed28fa4d"
+    model_uuid = "528ec0e6-2f21-413c-9abd-d131f7150882"
     response = client.get(f"/results/?size=5&model_id={model_uuid}", headers=AUTH_HEADER)
     assert response.status_code == 200
     validation_results = response.json()
@@ -130,8 +130,10 @@ def test_list_results_filter_by_test_alias():
 
 
 def test_get_result_by_id_no_auth():
-    test_ids = ("00422555-4bdf-49c6-98cc-26fc4f5cc54c",
-                "21d03065-38e6-4720-bec6-dec4bdaff812")
+    test_ids = (
+        "612160c9-2a76-44b3-aaf0-18c7fd40b942",
+        "0f83007b-1c0e-4606-8a79-6268ac79ab2a"
+    )
     for result_uuid in test_ids:
         response = client.get(f"/results/{result_uuid}")
         assert response.status_code == 403

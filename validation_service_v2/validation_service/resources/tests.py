@@ -162,10 +162,11 @@ def update_test(test_id: UUID, test_patch: ValidationTestPatch,
 
 
 @router.delete("/tests/{test_id}", status_code=status.HTTP_200_OK)
-def delete_test(test_id: UUID, token: HTTPAuthorizationCredentials = Depends(auth)):
+async def delete_test(test_id: UUID, token: HTTPAuthorizationCredentials = Depends(auth)):
     # todo: handle non-existent UUID
     test_definition = ValidationTestDefinition.from_uuid(str(test_id), kg_client, api="nexus")
-    if not is_collab_member(settings.ADMIN_COLLAB_ID, token.credentials):
+    if not await is_collab_member(settings.ADMIN_COLLAB_ID, token.credentials):
+        # todo: replace this check with a group membership check for Collab v2
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
                             detail="Deleting tests is restricted to admins")
     test_definition.delete(kg_client)
@@ -178,7 +179,7 @@ def get_test_instances(test_id: str,
                         token: HTTPAuthorizationCredentials = Depends(auth)):
     test_definition = _get_test_by_id_or_alias(test_id, token)
     test_instances = [ValidationTestInstance.from_kg_object(inst, kg_client)
-                       for inst in as_list(test_definition.scripts.resolve(kg_client, api="nexus"))]
+                      for inst in as_list(test_definition.scripts.resolve(kg_client, api="nexus"))]
     return test_instances
     # todo: implement filter by version
 

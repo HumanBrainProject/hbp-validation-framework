@@ -30,7 +30,7 @@ def _build_sample_model():
             "family_name": "Baggins"
             }
         ],
-        "project_id": "52468",
+        "project_id": "model-validation",
         "organization": "HBP-SGA3-WP5",
         "private": True,
         "species": "Ornithorhynchus anatinus",
@@ -106,31 +106,3 @@ def _build_sample_result(model_instance_id, test_instance_id):
         "project_id": 52468,
         "normalized_score": 0.2468
     }
-
-
-{
-    'name': 'Validation results for model e11dfffe-aa30-4747-bee3-25caa2b9cad6 and test 12573fe1-c4a8-467f-89da-1c18eb07df71 with timestamp 2020-04-17T11:48:11.751521',
-    'score': 0.1234,
-    'normalizedScore': 0.2468,
-    'passedValidation': True,
-    'dateCreated': '2020-04-17T11:48:11.751521',
-    'hadMember': [
-        {
-            '@id': 'https://nexus.humanbrainproject.org/v0/data/modelvalidation/simulation/analysisresult/v1.0.0/107363e1-c72f-478d-a2e4-08fef50cef6c',
-            '@type': ['prov:Entity', 'nsg:Entity', 'nsg:AnalysisResult']
-        },
-        {
-            '@id': 'https://nexus.humanbrainproject.org/v0/data/modelvalidation/core/collection/v0.1.0/2b9781fa-b240-47fb-b23d-3b10ad463286',
-            '@type': ['nsg:Collection', 'prov:Entity']
-        },
-        {
-            '@id': None,
-            '@type': ['prov:Entity', 'nsg:ValidationResult']
-        },
-        {
-            '@id': None,
-            '@type': ['prov:Activity', 'nsg:ModelValidation']
-        }
-    ],
-    'collabID': '52468'
-}

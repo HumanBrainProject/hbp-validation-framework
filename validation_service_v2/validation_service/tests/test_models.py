@@ -49,8 +49,8 @@ def assert_is_valid_url(url):
 
 
 def test_get_model_by_id_no_auth():
-    test_ids = ("00422555-4bdf-49c6-98cc-26fc4f5cc54c",
-                "21d03065-38e6-4720-bec6-dec4bdaff812")
+    test_ids = ("8fbdf42c-11a1-40c2-8311-a19f294cbc2c",
+                "cb62b56e-bdfa-4016-81cd-c9dbc834cebc")
     for model_uuid in test_ids:
         response = client.get(f"/models/{model_uuid}")
         assert response.status_code == 403
@@ -62,8 +62,8 @@ def test_get_model_by_id_no_auth():
 def test_get_model_by_id(caplog):
     #caplog.set_level(logging.DEBUG)
     test_ids = (
-        (True, "00422555-4bdf-49c6-98cc-26fc4f5cc54c"),
-        (False, "21d03065-38e6-4720-bec6-dec4bdaff812")
+        (True, "8fbdf42c-11a1-40c2-8311-a19f294cbc2c"),
+        (False, "cb62b56e-bdfa-4016-81cd-c9dbc834cebc")
     )
     for expected_private, model_uuid in test_ids:
         # first is private (but test user has access), second is public
@@ -187,6 +187,7 @@ def test_create_and_delete_network_model(caplog):
     check_model(posted_model)
 
     # check we can retrieve model
+    sleep(15)  # need to wait a short time to allow Nexus to become consistent
     model_uuid = posted_model["id"]
     response = client.get(f"/models/{model_uuid}", headers=AUTH_HEADER)
     assert response.status_code == 200
@@ -217,7 +218,7 @@ def test_create_model_with_minimal_data(caplog):
             "family_name": "Baggins"
             }
         ],
-        "project_id": 52468,
+        "project_id": "model-validation",
         "description": "description goes here"
     }
     # create
@@ -445,7 +446,7 @@ def test_changing_to_invalid_alias():
 
 
 def test_list_model_instances_by_model_id():
-    model_uuid = "21d03065-38e6-4720-bec6-dec4bdaff812"
+    model_uuid = "cb62b56e-bdfa-4016-81cd-c9dbc834cebc"
     response1 = client.get(f"/models/{model_uuid}", headers=AUTH_HEADER)
     assert response1.status_code == 200
     model_project = response1.json()
@@ -466,7 +467,7 @@ def test_get_model_instance_by_id():
 
 
 def test_get_model_instance_by_project_and_id():
-    model_uuid  = "21d03065-38e6-4720-bec6-dec4bdaff812"
+    model_uuid  = "cb62b56e-bdfa-4016-81cd-c9dbc834cebc"
     instance_uuid = "a7915504-1f7a-4fed-8f68-e7e8f99529c2"
     response = client.get(f"/models/{model_uuid}/instances/{instance_uuid}", headers=AUTH_HEADER)
     assert response.status_code == 200

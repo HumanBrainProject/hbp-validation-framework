@@ -20,6 +20,7 @@ oauth.register(
     server_metadata_url=settings.EBRAINS_IAM_CONF_URL,
     client_id=settings.EBRAINS_IAM_CLIENT_ID,
     client_secret=settings.EBRAINS_IAM_SECRET,
+    userinfo_endpoint=f"{settings.HBP_IDENTITY_SERVICE_URL_V2}/userinfo",
     client_kwargs={
         'scope': 'openid profile collab.drive clb.drive:read clb.drive:write group team web-origins role_list roles email',
         'trust_env': False
@@ -78,7 +79,7 @@ def get_user_from_token(token):
         return res1.json()
 
 
-def get_collab_permissions(collab_id, user_token):
+async def get_collab_permissions_v1(collab_id, user_token):
     url = f"{settings.HBP_COLLAB_SERVICE_URL}collab/{collab_id}/permissions/"
     headers = {"Authorization": f"Bearer {user_token}"}
     res = requests.get(url, headers=headers)
@@ -91,6 +92,32 @@ def get_collab_permissions(collab_id, user_token):
     return response
 
 
-def is_collab_member(collab_id, user_token):
-    permissions = get_collab_permissions(collab_id, user_token)
+async def get_collab_permissions_v2(collab_id, user_token):
+    userinfo = await oauth.ebrains.userinfo(
+        token={"access_token": user_token, "token_type": "bearer"})
+    target_team_name = f"collab-{collab_id}"
+    matching_teams = [team for team in userinfo["roles"]["team"]
+                      if team.startswith(target_team_name)]
+    if len(matching_teams) == 0:
+        permissions = {"VIEW": False, "UPDATE": False}
+    elif len(matching_teams) > 1:
+        raise Exception("Invalid collab id")
+    else:
+        matching_team = matching_teams[0]
+        if matching_team.endswith("viewer"):  # todo: what about public collabs?
+            permissions = {"VIEW": True, "UPDATE": False}
+        elif matching_team.endswith("editor") or matching_team.endswith("administrator"):
+            permissions = {"VIEW": True, "UPDATE": True}
+        else:
+            raise Exception("Invalid collab id")
+    return permissions
+
+
+async def is_collab_member(collab_id, user_token):
+    try:
+        int(collab_id)
+        get_collab_permissions = get_collab_permissions_v1
+    except ValueError:
+        get_collab_permissions = get_collab_permissions_v2
+    permissions = await get_collab_permissions(collab_id, user_token)
     return permissions.get("UPDATE", False)

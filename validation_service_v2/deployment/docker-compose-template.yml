@@ -1,0 +1,18 @@
+version: '3'
+services:
+  web:
+    build:
+      context: validation_service_v2
+      dockerfile: deployment/Dockerfile
+    ports:
+      - "443:443"
+    volumes:
+      - /etc/letsencrypt:/etc/letsencrypt
+    environment:
+      - KG_SERVICE_ACCOUNT_REFRESH_TOKEN=
+      - KG_SERVICE_ACCOUNT_CLIENT_ID=
+      - KG_SERVICE_ACCOUNT_SECRET=
+      - EBRAINS_IAM_CLIENT_ID=
+      - EBRAINS_IAM_SECRET=
+      - SESSIONS_SECRET_KEY=
+      - VALIDATION_SERVICE_BASE_URL=https://validation-v2.brainsimulation.eu

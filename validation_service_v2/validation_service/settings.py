@@ -12,5 +12,5 @@ EBRAINS_IAM_CONF_URL = 'https://iam.ebrains.eu/auth/realms/hbp/.well-known/openi
 EBRAINS_IAM_CLIENT_ID = os.environ.get('EBRAINS_IAM_CLIENT_ID')
 EBRAINS_IAM_SECRET = os.environ.get('EBRAINS_IAM_SECRET')
 SESSIONS_SECRET_KEY=os.environ.get('SESSIONS_SECRET_KEY')
-ADMIN_COLLAB_ID = "13947"
+ADMIN_COLLAB_ID = "model-validation"  # "13947"
 BASE_URL=os.environ.get('VALIDATION_SERVICE_BASE_URL')

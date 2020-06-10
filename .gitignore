@@ -92,3 +92,4 @@ db.sqlite3
 
 # Files with secrets, should not go under version control
 env_local.sh
+docker-compose.yml

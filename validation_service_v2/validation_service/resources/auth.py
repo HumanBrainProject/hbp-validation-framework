@@ -16,6 +16,8 @@ async def login_via_ebrains(request: Request):
 async def auth_via_ebrains(request: Request):
     token = await oauth.ebrains.authorize_access_token(request)
     user = await oauth.ebrains.parse_id_token(request, token)
+    user2 = await oauth.ebrains.userinfo(token=token)
+    user.update(user2)
     response = {
         "access_token": token["access_token"],
         "user": {
@@ -24,6 +26,7 @@ async def auth_via_ebrains(request: Request):
             "username": user["preferred_username"],
             "given_name": user["given_name"],
             "family_name": user["family_name"]
+            # todo: add group info
         }
     }
     full_response = {

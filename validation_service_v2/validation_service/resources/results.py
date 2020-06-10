@@ -84,10 +84,10 @@ def create_result(result: ValidationResult, token: HTTPAuthorizationCredentials 
 
 
 @router.delete("/results/{result_id}", status_code=status.HTTP_200_OK)
-def delete_result(result_id: UUID, token: HTTPAuthorizationCredentials = Depends(auth)):
+async def delete_result(result_id: UUID, token: HTTPAuthorizationCredentials = Depends(auth)):
     # todo: handle non-existent UUID
     result = ValidationResultKG.from_uuid(str(result_id), kg_client, api="nexus")
-    if not is_collab_member(settings.ADMIN_COLLAB_ID, token.credentials):
+    if not await is_collab_member(settings.ADMIN_COLLAB_ID, token.credentials):
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
                             detail="Deleting validation results is restricted to admins")
     for item in as_list(result.additional_data):
