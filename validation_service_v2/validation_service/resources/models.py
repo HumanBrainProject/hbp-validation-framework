@@ -304,7 +304,7 @@ async def update_model_instance_by_id(model_instance_id: str,
                                       model_instance_patch: ModelInstancePatch,
                                       token: HTTPAuthorizationCredentials = Depends(auth)):
     model_instance_kg = await _get_model_instance_by_id(model_instance_id, token)
-    model_project = model_instance_kg.inst.project.resolve(kg_client, api="nexus")
+    model_project = model_instance_kg.project.resolve(kg_client, api="nexus")
     return await _update_model_instance(model_instance_kg, model_project, model_instance_patch, token)
 
 
