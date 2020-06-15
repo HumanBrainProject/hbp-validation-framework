@@ -112,7 +112,7 @@ def get_test(test_id: str, token: HTTPAuthorizationCredentials = Depends(auth)):
 @router.post("/tests/", response_model=ValidationTest, status_code=status.HTTP_201_CREATED)
 def create_test(test: ValidationTest, token: HTTPAuthorizationCredentials = Depends(auth)):
     # check uniqueness of alias
-    if test_alias_exists(test.alias, kg_client):
+    if test.alias and test_alias_exists(test.alias, kg_client):
         raise HTTPException(status_code=status.HTTP_409_CONFLICT,
                             detail=f"Another validation test with alias '{test.alias}' already exists.")
     kg_objects = test.to_kg_objects()

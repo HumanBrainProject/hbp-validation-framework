@@ -232,6 +232,20 @@ def test_create_validation_test_with_existing_alias():
     }
 
 
+def test_create_validation_test_no_alias(caplog):
+    payload = _build_sample_validation_test()
+    payload.pop("alias")
+    # create
+    response = client.post(f"/tests/", json=payload, headers=AUTH_HEADER)
+    assert response.status_code == 201
+    posted_validation_test = response.json()
+    check_validation_test(posted_validation_test)
+
+    # delete validation_test
+    response = client.delete(f"/tests/{posted_validation_test['id']}", headers=AUTH_HEADER)
+    assert response.status_code == 200
+
+
 def test_create_duplicate_validation_test(caplog):
     # Creating two validation_tests with the same name and date_created fields is not allowed
     #caplog.set_level(logging.INFO)
