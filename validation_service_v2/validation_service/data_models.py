@@ -490,7 +490,7 @@ class ValidationTest(BaseModel):
             uri=test_definition.id,
             name=test_definition.name,
             alias=test_definition.alias,
-            status=test_definition.status or ImplementationStatus.proposal,
+            status=test_definition.status or ImplementationStatus.proposal.value,
             author=[Person.from_kg_object(p, client) for p in as_list(test_definition.authors)],
             cell_type=test_definition.celltype.label if test_definition.celltype else None,
             brain_region=test_definition.brain_region.label if test_definition.brain_region else None,
