@@ -80,7 +80,7 @@ def _get_test_by_id_or_alias(test_id, token):
     except ValueError:
         test_alias = test_id
         test_definition = ValidationTestDefinition.from_alias(test_alias, kg_client, api="nexus")
-    if test_definition is None:
+    if not test_definition:  # None or empty list
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                             detail=f"Test with ID or alias '{test_id}' not found.")
     if isinstance(test_definition, list):
