@@ -473,6 +473,7 @@ class ValidationTest(BaseModel):
     test_type: ValidationTestType = None
     score_type: ScoreType = None
     instances: List[ValidationTestInstance] = None
+    # todo: add "publication" field
 
     @classmethod
     def from_kg_object(cls, test_definition, client, recently_saved_scripts=[]):

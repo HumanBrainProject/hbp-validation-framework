@@ -72,6 +72,7 @@ def query_tests(alias: List[str] = Query(None),
     return [ValidationTest.from_kg_object(test_definition, kg_client)
             for test_definition in test_definitions]
 
+
 def _get_test_by_id_or_alias(test_id, token):
     try:
         test_id = UUID(test_id)
@@ -82,6 +83,9 @@ def _get_test_by_id_or_alias(test_id, token):
     if test_definition is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                             detail=f"Test with ID or alias '{test_id}' not found.")
+    if isinstance(test_definition, list):
+        # this could happen if a duplicate alias has sneaked through
+        raise Exception("Found multiple tests (n={len(test_definition)}) with id/alias '{test_id}'")
     # todo: fairgraph should accept UUID object as well as str
     return test_definition
 
