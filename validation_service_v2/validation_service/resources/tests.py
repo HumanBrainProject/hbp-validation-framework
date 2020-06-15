@@ -85,7 +85,7 @@ def _get_test_by_id_or_alias(test_id, token):
                             detail=f"Test with ID or alias '{test_id}' not found.")
     if isinstance(test_definition, list):
         # this could happen if a duplicate alias has sneaked through
-        raise Exception("Found multiple tests (n={len(test_definition)}) with id/alias '{test_id}'")
+        raise Exception(f"Found multiple tests (n={len(test_definition)}) with id/alias '{test_id}'")
     # todo: fairgraph should accept UUID object as well as str
     return test_definition
 
