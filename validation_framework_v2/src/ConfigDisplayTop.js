@@ -22,7 +22,7 @@ export default function ConfigDisplayTop(props) {
 		showFilters = filterKeys;
 	}
 	return (
-		<ExpansionPanel style={{backgroundColor: Theme.lightBackground}}>
+		<ExpansionPanel style={{ backgroundColor: Theme.lightBackground }}>
 			<ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
 				<Box fontSize={16} fontWeight="fontWeightBold">View Current Configuration</Box>
 			</ExpansionPanelSummary>
@@ -34,7 +34,7 @@ export default function ConfigDisplayTop(props) {
 						</Grid>
 						<Grid item xs={8}>
 							<Box component="span">
-								<Chip label={props.display} variant="outlined" />
+								<Chip label={props.display} style={{ backgroundColor: "#FFFFFF" }} variant="outlined" />
 							</Box>
 						</Grid>
 					</Grid>
@@ -50,10 +50,10 @@ export default function ConfigDisplayTop(props) {
 											props.filters[key].length > 0
 												?
 												props.filters[key].forEach(
-													element => <Chip label={element} variant="outlined" />
+													element => <Chip label={element} style={{ backgroundColor: "#FFFFFF" }} variant="outlined" />
 												)
 												:
-												<Chip label="<< all >>" variant="outlined" />
+												<Chip label="<< all >>" style={{ backgroundColor: "#FFFFFF" }} variant="outlined" />
 										}
 									</Box>
 								</Grid>
