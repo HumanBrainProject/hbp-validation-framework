@@ -41,10 +41,10 @@ def test_list_results_no_auth():
 
 
 def test_list_results_nofilters():
-    response = client.get(f"/results/?size=5", headers=AUTH_HEADER)
+    response = client.get(f"/results/?size=10", headers=AUTH_HEADER)
     assert response.status_code == 200
     validation_results = response.json()
-    assert len(validation_results) == 5
+    assert len(validation_results) == 10
     for result in validation_results:
         check_validation_result(result)
 

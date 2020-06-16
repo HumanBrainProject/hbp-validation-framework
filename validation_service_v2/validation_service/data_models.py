@@ -609,6 +609,9 @@ def _get_model_instance_by_id(instance_id, kg_client):
     return model_instance
 
 
+class ConsistencyError(Exception):
+    pass
+
 
 class ValidationResult(BaseModel):
     id: UUID = None
@@ -626,6 +629,8 @@ class ValidationResult(BaseModel):
     @classmethod
     def from_kg_object(cls, result, client):
         validation_activity = result.generated_by.resolve(client, api="nexus")
+        if validation_activity is None:
+            raise ConsistencyError("Missing ValidationActivity")
         model_version_id = validation_activity.model_instance.uuid
         test_code_id = validation_activity.test_script.uuid
         logger.debug("Serializing validation test result")

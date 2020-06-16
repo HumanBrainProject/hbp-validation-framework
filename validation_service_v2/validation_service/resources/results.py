@@ -18,7 +18,7 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic import ValidationError
 
 from ..auth import get_kg_client, get_user_from_token, is_collab_member
-from ..data_models import (ScoreType, ValidationResult)
+from ..data_models import ScoreType, ValidationResult, ConsistencyError
 from ..queries import build_result_filters
 from .. import settings
 
@@ -56,14 +56,26 @@ def query_results(passed: List[bool]=Query(None),
         results = query.resolve(kg_client, api="nexus", size=size)
     else:
         results = ValidationResultKG.list(kg_client, api="nexus", size=size, from_index=from_index)
-    return [ValidationResult.from_kg_object(result, kg_client)
-            for result in results]
+    response = []
+    for result in results:
+        try:
+            obj = ValidationResult.from_kg_object(result, kg_client)
+        except ConsistencyError as err:  # todo: count these and report them in the response
+            logger.warning(str(err))
+        else:
+            response.append(obj)
+    return response
 
 
 @router.get("/results/{result_id}", response_model=ValidationResult)
 def get_result(result_id: UUID, token: HTTPAuthorizationCredentials = Depends(auth)):
     result = ValidationResultKG.from_uuid(str(result_id), kg_client, api="nexus")
-    return ValidationResult.from_kg_object(result, kg_client)
+    try:
+        obj = ValidationResult.from_kg_object(result, kg_client)
+    except ConsistencyError as err:
+        raise HTTPException(status_code=status.HTTP_404_NOTFOUND,
+                            detail=str(err))
+    return obj
 
 
 @router.post("/results/", response_model=ValidationResult, status_code=status.HTTP_201_CREATED)
