@@ -233,6 +233,7 @@ def create_test_instance(test_id: str,
                          token: HTTPAuthorizationCredentials = Depends(auth)):
     test_definition = _get_test_by_id_or_alias(test_id, token)
     kg_object = test_instance.to_kg_objects(test_definition)[0]
+    _check_test_script_uniqueness(test_definition, kg_object, kg_client)
     kg_object.save(kg_client)
     return ValidationTestInstance.from_kg_object(kg_object, kg_client)
 
@@ -258,15 +259,27 @@ def update_test_instance_by_id(test_instance_id: str,
     return _update_test_instance(validation_script, test_definition_kg, test_instance_patch, token)
 
 
+def _check_test_script_uniqueness(test_definition, test_script, kg_client):
+    other_scripts = test_definition.scripts.resolve(kg_client, api="nexus")
+    for other_script in as_list(other_scripts):
+        if (test_script.version == other_script.version
+              and test_script.parameters == other_script.parameters
+              and test_script.id != other_script.id):
+            raise HTTPException(
+                    status_code=status.HTTP_409_CONFLICT,
+                    detail="Version and parameters match those of an existing test instance")
+
+
 def _update_test_instance(validation_script, test_definition_kg, test_instance_patch, token):
     stored_test_instance = ValidationTestInstance.from_kg_object(validation_script, kg_client)
     update_data = test_instance_patch.dict(exclude_unset=True)
     updated_test_instance = stored_test_instance.copy(update=update_data)
     kg_objects = updated_test_instance.to_kg_objects(test_definition_kg)
-    for obj in kg_objects:
-        obj.save(kg_client)
     test_instance_kg = kg_objects[-1]
     assert isinstance(test_instance_kg, ValidationScript)
+    _check_test_script_uniqueness(test_definition_kg, test_instance_kg, kg_client)
+    for obj in kg_objects:
+        obj.save(kg_client)
     return ValidationTestInstance.from_kg_object(test_instance_kg, kg_client)
 
 

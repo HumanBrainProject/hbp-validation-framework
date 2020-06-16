@@ -453,6 +453,51 @@ def test_create_validation_test_instance():
     assert response.status_code == 200
 
 
+def test_create_validation_test_instance_with_duplicate_version_and_parameters():
+    payload = _build_sample_validation_test()
+    # create
+    response = client.post(f"/tests/", json=payload, headers=AUTH_HEADER)
+    assert response.status_code == 201
+    posted_validation_test = response.json()
+    check_validation_test(posted_validation_test, expected_instances=len(payload["instances"]))
+    validation_test_uuid = posted_validation_test["id"]
+
+    # now try to add a duplicate instance
+    sleep(30)
+    payload2 = payload["instances"][0]
+    response = client.post(f"/tests/{validation_test_uuid}/instances/",
+                           json=payload2,
+                           headers=AUTH_HEADER)
+    assert response.status_code == status.HTTP_409_CONFLICT
+
+    # delete test
+    response = client.delete(f"/tests/{validation_test_uuid}", headers=AUTH_HEADER)
+    assert response.status_code == 200
+
+
+def test_create_validation_test_instance_with_duplicate_version_different_parameters():
+    payload = _build_sample_validation_test()
+    # create
+    response = client.post(f"/tests/", json=payload, headers=AUTH_HEADER)
+    assert response.status_code == 201
+    posted_validation_test = response.json()
+    check_validation_test(posted_validation_test, expected_instances=len(payload["instances"]))
+    validation_test_uuid = posted_validation_test["id"]
+
+    # now add a new instance with same version but changed parameters
+    sleep(20)
+    payload2 = payload["instances"][0]
+    payload2["parameters"] = "{'meaning': 42.1}"
+    response = client.post(f"/tests/{validation_test_uuid}/instances/",
+                        json=payload2,
+                        headers=AUTH_HEADER)
+    assert response.status_code == status.HTTP_201_CREATED
+
+    # delete test
+    response = client.delete(f"/tests/{validation_test_uuid}", headers=AUTH_HEADER)
+    assert response.status_code == 200
+
+
 def test_update_test_instance():
     # first create a test project
     payload1 = _build_sample_validation_test()
