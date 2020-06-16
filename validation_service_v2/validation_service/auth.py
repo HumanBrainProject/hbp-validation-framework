@@ -4,7 +4,7 @@ import json
 
 from fairgraph.client import KGClient
 
-from fastapi import HTTPException
+from fastapi import HTTPException, status
 from authlib.integrations.starlette_client import OAuth
 
 from . import settings
@@ -95,15 +95,17 @@ async def get_collab_permissions_v1(collab_id, user_token):
 async def get_collab_permissions_v2(collab_id, user_token):
     userinfo = await oauth.ebrains.userinfo(
         token={"access_token": user_token, "token_type": "bearer"})
-    if "roles" not in userinfo:
-        raise Exception(f"Invalid token, you may need to obtain a new one.\nuserinfo = {userinfo}")
+    if "error" in userinfo:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
+                            detail=userinfo["error_description"])
     target_team_name = f"collab-{collab_id}"
     matching_teams = [team for team in userinfo["roles"]["team"]
                       if team.startswith(target_team_name)]
     if len(matching_teams) == 0:
         permissions = {"VIEW": False, "UPDATE": False}
     elif len(matching_teams) > 1:
-        raise Exception("Invalid collab id")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                            detail="Invalid collab id")
     else:
         matching_team = matching_teams[0]
         if matching_team.endswith("viewer"):  # todo: what about public collabs?
@@ -111,7 +113,8 @@ async def get_collab_permissions_v2(collab_id, user_token):
         elif matching_team.endswith("editor") or matching_team.endswith("administrator"):
             permissions = {"VIEW": True, "UPDATE": True}
         else:
-            raise Exception("Invalid collab id")
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                                detail="Invalid collab id")
     return permissions
 
 
