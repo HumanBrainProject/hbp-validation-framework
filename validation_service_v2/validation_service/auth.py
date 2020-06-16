@@ -95,6 +95,8 @@ async def get_collab_permissions_v1(collab_id, user_token):
 async def get_collab_permissions_v2(collab_id, user_token):
     userinfo = await oauth.ebrains.userinfo(
         token={"access_token": user_token, "token_type": "bearer"})
+    if "roles" not in userinfo:
+        raise Exception(f"Invalid token, you may need to obtain a new one.\nuserinfo = {userinfo}")
     target_team_name = f"collab-{collab_id}"
     matching_teams = [team for team in userinfo["roles"]["team"]
                       if team.startswith(target_team_name)]
