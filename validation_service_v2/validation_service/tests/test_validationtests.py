@@ -406,6 +406,18 @@ def test_get_validation_test_instance_by_test_id_and_version():
         assert validation_test_instance["id"] == test_case["instance_uuid"]
 
 
+def test_get_validation_test_instance_latest_by_test_id():
+    validation_test_uuid  = "100abccb-6d30-4c1e-a960-bc0489e0d82d"
+    expected_instance_uuid = "b645536f-fd2c-4a84-9e3e-9372018fbe5d"
+
+    response = client.get(f"/tests/{validation_test_uuid}/instances/latest",
+                            headers=AUTH_HEADER)
+    assert response.status_code == 200
+    validation_test_instance = response.json()
+    check_validation_test_instance(validation_test_instance)
+    assert validation_test_instance["id"] == expected_instance_uuid
+
+
 def test_create_validation_test_instance():
     payload = _build_sample_validation_test()
     # create

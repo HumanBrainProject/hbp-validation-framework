@@ -203,7 +203,7 @@ def get_latest_test_instance_given_test_id(test_id: str,
     test_definition = _get_test_by_id_or_alias(test_id, token)
     test_instances = [ValidationTestInstance.from_kg_object(inst, kg_client)
                        for inst in as_list(test_definition.scripts.resolve(kg_client, api="nexus"))]
-    latest = sorted(test_instances, key=lambda inst: inst["timestamp"])[-1]
+    latest = sorted(test_instances, key=lambda inst: inst.timestamp)[-1]
     return latest
 
 
