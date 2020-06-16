@@ -427,18 +427,20 @@ class ValidationTestInstance(BaseModel):
         )
 
     def to_kg_objects(self, test_definition):
-        return [
-            fairgraph.brainsimulation.ValidationScript(
-                name=f"Implementation of {test_definition.name}, version '{self.version}'",
-                date_created=ensure_has_timezone(self.timestamp) or datetime.now(timezone.utc),
-                repository=IRI(self.repository),
-                version=self.version,
-                description=self.description,
-                parameters=self.parameters,
-                test_class=self.path,
-                test_definition=test_definition
-            )
-        ]
+        script = fairgraph.brainsimulation.ValidationScript(
+            name=f"Implementation of {test_definition.name}, version '{self.version}'",
+            date_created=ensure_has_timezone(self.timestamp) or datetime.now(timezone.utc),
+            repository=IRI(self.repository),
+            version=self.version,
+            description=self.description,
+            parameters=self.parameters,
+            test_class=self.path,
+            test_definition=test_definition,
+            id=self.uri
+        )
+        if self.uri:
+            script.id = str(self.uri)
+        return [script]
 
 
 class ValidationTestInstancePatch(BaseModel):

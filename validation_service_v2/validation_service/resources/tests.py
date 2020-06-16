@@ -277,6 +277,7 @@ def _update_test_instance(validation_script, test_definition_kg, test_instance_p
     kg_objects = updated_test_instance.to_kg_objects(test_definition_kg)
     test_instance_kg = kg_objects[-1]
     assert isinstance(test_instance_kg, ValidationScript)
+    assert test_instance_kg.id == validation_script.id
     _check_test_script_uniqueness(test_definition_kg, test_instance_kg, kg_client)
     for obj in kg_objects:
         obj.save(kg_client)
