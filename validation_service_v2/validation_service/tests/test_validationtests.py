@@ -374,13 +374,36 @@ def test_get_validation_test_instance_by_id():
     check_validation_test_instance(validation_test_instance)
 
 
-def test_get_validation_test_instance_by_project_and_id():
+def test_get_validation_test_instance_by_test_id_and_id():
     validation_test_uuid  = "01c68387-fcc4-4fd3-85f0-6eb8ce4467a1"
     instance_uuid = "46e376a8-8c46-44ce-aa76-020d35114703"
     response = client.get(f"/tests/{validation_test_uuid}/instances/{instance_uuid}", headers=AUTH_HEADER)
     assert response.status_code == 200
     validation_test_instance = response.json()
     check_validation_test_instance(validation_test_instance)
+
+
+def test_get_validation_test_instance_by_test_id_and_version():
+    validation_test_uuid  = "100abccb-6d30-4c1e-a960-bc0489e0d82d"
+    expected_instances = [
+        {
+            "instance_uuid": "1d22e1c0-5a74-49b4-b114-41d233d3250a",
+            "version": "1.0"
+        },
+        {
+            "instance_uuid": "b645536f-fd2c-4a84-9e3e-9372018fbe5d",
+            "version": "1.3.5"
+        }
+    ]
+    for test_case in expected_instances:
+        response = client.get(f"/tests/{validation_test_uuid}/instances/?version={test_case['version']}",
+                              headers=AUTH_HEADER)
+        assert response.status_code == 200
+        validation_test_instances = response.json()
+        assert len(validation_test_instances) == 1
+        validation_test_instance = validation_test_instances[0]
+        check_validation_test_instance(validation_test_instance)
+        assert validation_test_instance["id"] == test_case["instance_uuid"]
 
 
 def test_create_validation_test_instance():

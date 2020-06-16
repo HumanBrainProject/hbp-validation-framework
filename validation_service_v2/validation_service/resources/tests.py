@@ -180,24 +180,26 @@ async def delete_test(test_id: UUID, token: HTTPAuthorizationCredentials = Depen
 
 @router.get("/tests/{test_id}/instances/", response_model=List[ValidationTestInstance])
 def get_test_instances(test_id: str,
-                        token: HTTPAuthorizationCredentials = Depends(auth)):
+                       version: str = Query(None),
+                       token: HTTPAuthorizationCredentials = Depends(auth)):
     test_definition = _get_test_by_id_or_alias(test_id, token)
     test_instances = [ValidationTestInstance.from_kg_object(inst, kg_client)
                       for inst in as_list(test_definition.scripts.resolve(kg_client, api="nexus"))]
+    if version:
+        test_instances = [inst for inst in test_instances if inst.version == version]
     return test_instances
-    # todo: implement filter by version
 
 
 @router.get("/tests/query/instances/{test_instance_id}", response_model=ValidationTestInstance)
 def get_test_instance_from_instance_id(test_instance_id: UUID,
-                                        token: HTTPAuthorizationCredentials = Depends(auth)):
+                                       token: HTTPAuthorizationCredentials = Depends(auth)):
      inst = _get_test_instance_by_id(test_instance_id, token)
      return ValidationTestInstance.from_kg_object(inst, kg_client)
 
 
 @router.get("/tests/{test_id}/instances/latest", response_model=ValidationTestInstance)
 def get_latest_test_instance_given_test_id(test_id: str,
-                                             token: HTTPAuthorizationCredentials = Depends(auth)):
+                                           token: HTTPAuthorizationCredentials = Depends(auth)):
     test_definition = _get_test_by_id_or_alias(test_id, token)
     test_instances = [ValidationTestInstance.from_kg_object(inst, kg_client)
                        for inst in as_list(test_definition.scripts.resolve(kg_client, api="nexus"))]
@@ -266,3 +268,39 @@ def _update_test_instance(validation_script, test_definition_kg, test_instance_p
     test_instance_kg = kg_objects[-1]
     assert isinstance(test_instance_kg, ValidationScript)
     return ValidationTestInstance.from_kg_object(test_instance_kg, kg_client)
+
+
+@router.delete("/tests/{test_id}/instances/{test_instance_id}",
+         response_model=ValidationTestInstance, status_code=status.HTTP_200_OK)
+def update_test_instance(test_id: str,
+                         test_instance_id: str,
+                         test_instance_patch: ValidationTestInstancePatch,
+                         token: HTTPAuthorizationCredentials = Depends(auth)):
+    validation_script = _get_test_instance_by_id(test_instance_id, token)
+    test_definition_kg = _get_test_by_id_or_alias(test_id, token)
+    return _update_test_instance(validation_script, test_definition_kg, test_instance_patch, token)
+
+
+@router.delete("/tests/query/instances/{test_instance_id}", status_code=status.HTTP_200_OK)
+async def delete_test_instance_by_id(test_instance_id: UUID,
+                                     token: HTTPAuthorizationCredentials = Depends(auth)):
+    # todo: handle non-existent UUID, inconsistent test_id and test_instance_id
+    test_script = ValidationScript.from_uuid(str(test_instance_id), kg_client, api="nexus")
+    if not await is_collab_member(settings.ADMIN_COLLAB_ID, token.credentials):
+        # todo: replace this check with a group membership check for Collab v2
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
+                            detail="Deleting test instances is restricted to admins")
+    test_script.delete(kg_client)
+
+
+@router.delete("/tests/{test_id}/instances/{test_instance_id}", status_code=status.HTTP_200_OK)
+async def delete_test_instance(test_id: str,
+                               test_instance_id: UUID,
+                               token: HTTPAuthorizationCredentials = Depends(auth)):
+    # todo: handle non-existent UUID, inconsistent test_id and test_instance_id
+    test_script = ValidationScript.from_uuid(str(test_instance_id), kg_client, api="nexus")
+    if not await is_collab_member(settings.ADMIN_COLLAB_ID, token.credentials):
+        # todo: replace this check with a group membership check for Collab v2
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
+                            detail="Deleting test instances is restricted to admins")
+    test_script.delete(kg_client)
