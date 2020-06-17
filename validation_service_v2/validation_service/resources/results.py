@@ -70,11 +70,15 @@ def query_results(passed: List[bool]=Query(None),
 @router.get("/results/{result_id}", response_model=ValidationResult)
 def get_result(result_id: UUID, token: HTTPAuthorizationCredentials = Depends(auth)):
     result = ValidationResultKG.from_uuid(str(result_id), kg_client, api="nexus")
-    try:
-        obj = ValidationResult.from_kg_object(result, kg_client)
-    except ConsistencyError as err:
+    if result:
+        try:
+            obj = ValidationResult.from_kg_object(result, kg_client)
+        except ConsistencyError as err:
+            raise HTTPException(status_code=status.HTTP_404_NOTFOUND,
+                                detail=str(err))
+    else:
         raise HTTPException(status_code=status.HTTP_404_NOTFOUND,
-                            detail=str(err))
+                            detail=f"Validation result {result_id} not found.")
     return obj
 
 
