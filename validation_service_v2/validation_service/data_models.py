@@ -134,6 +134,7 @@ class ModelInstance(BaseModel):
     hash: str = None
     timestamp: datetime = None
     morphology: HttpUrl = None
+    model_id: UUID = None  # id of parent model
     # should probably add "project" or "instance_of" field containing parent model uuid
 
     class Config:
@@ -141,7 +142,7 @@ class ModelInstance(BaseModel):
                          # during object updates
 
     @classmethod
-    def from_kg_object(cls, instance, client):
+    def from_kg_object(cls, instance, client, model_id):
         if isinstance(instance, KGProxy):
             instance = instance.resolve(client, api="nexus")
         instance_data = {
@@ -150,7 +151,8 @@ class ModelInstance(BaseModel):
             "version": instance.version,
             "description": instance.description,
             "parameters":  instance.parameters,
-            "timestamp": ensure_has_timezone(instance.timestamp)
+            "timestamp": ensure_has_timezone(instance.timestamp),
+            "model_id": model_id
         }
         if instance.main_script:
             main_script = instance.main_script.resolve(client, api="nexus")
@@ -301,7 +303,7 @@ class ScientificModel(BaseModel):
                 date_created=model_project.date_created,
                 images=as_list(model_project.images),
                 old_uuid=model_project.old_uuid,
-                instances=[ModelInstance.from_kg_object(inst, client)
+                instances=[ModelInstance.from_kg_object(inst, client, model_id=model_project.uuid)
                            for inst in as_list(model_project.instances)]
             )
         except ValidationError as err:

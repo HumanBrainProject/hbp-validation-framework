@@ -137,7 +137,7 @@ async def _get_model_instance_by_id(instance_id, token):
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                                 detail=f"Model instance with ID '{instance_id}' no longer exists.")
     await _check_model_access(model_project, token)
-    return model_instance
+    return model_instance, model_project.uuid
 
 
 @router.get("/models/{model_id}", response_model=ScientificModel)
@@ -235,7 +235,7 @@ async def get_model_instances(model_id: str,
                               version: str = None,
                               token: HTTPAuthorizationCredentials = Depends(auth)):
     model_project = await _get_model_by_id_or_alias(model_id, token)
-    model_instances = [ModelInstance.from_kg_object(inst, kg_client)
+    model_instances = [ModelInstance.from_kg_object(inst, kg_client, model_id)
                        for inst in model_project.instances]
     if version is not None:
         model_instances = [inst for inst in model_instances if inst.version == version]
@@ -245,15 +245,15 @@ async def get_model_instances(model_id: str,
 @router.get("/models/query/instances/{model_instance_id}", response_model=ModelInstance)
 async def get_model_instance_from_instance_id(model_instance_id: UUID,
                                               token: HTTPAuthorizationCredentials = Depends(auth)):
-    inst = await _get_model_instance_by_id(model_instance_id, token)
-    return ModelInstance.from_kg_object(inst, kg_client)
+    inst, model_id = await _get_model_instance_by_id(model_instance_id, token)
+    return ModelInstance.from_kg_object(inst, kg_client, model_id)
 
 
 @router.get("/models/{model_id}/instances/latest", response_model=ModelInstance)
 async def get_latest_model_instance_given_model_id(model_id: str,
                                                    token: HTTPAuthorizationCredentials = Depends(auth)):
     model_project = await _get_model_by_id_or_alias(model_id, token)
-    model_instances = [ModelInstance.from_kg_object(inst, kg_client)
+    model_instances = [ModelInstance.from_kg_object(inst, kg_client, model_id)
                        for inst in model_project.instances]
     latest = sorted(model_instances, key=lambda inst: inst["timestamp"])[-1]
     return latest
@@ -266,7 +266,7 @@ async def get_model_instance_given_model_id(model_id: str,
     model_project = await _get_model_by_id_or_alias(model_id, token)
     for inst in model_project.instances:
         if UUID(inst.uuid) == model_instance_id:
-            return ModelInstance.from_kg_object(inst, kg_client)
+            return ModelInstance.from_kg_object(inst, kg_client, model_id)
     raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
                         detail="Model ID/alias and model instance ID are inconsistent")
 
@@ -296,14 +296,14 @@ async def create_model_instance(model_id: str,
                                for inst in as_list(model_project.instances)]
     model_project.instances.append(model_instance_kg)
     model_project.save(kg_client)
-    return ModelInstance.from_kg_object(model_instance_kg, kg_client)
+    return ModelInstance.from_kg_object(model_instance_kg, kg_client, model_project.uuid)
 
 
 @router.put("/models/query/instances/{model_instance_id}", response_model=ModelInstance)
 async def update_model_instance_by_id(model_instance_id: str,
                                       model_instance_patch: ModelInstancePatch,
                                       token: HTTPAuthorizationCredentials = Depends(auth)):
-    model_instance_kg = await _get_model_instance_by_id(model_instance_id, token)
+    model_instance_kg, model_id = await _get_model_instance_by_id(model_instance_id, token)
     model_project = model_instance_kg.project.resolve(kg_client, api="nexus")
     return await _update_model_instance(model_instance_kg, model_project, model_instance_patch, token)
 
@@ -314,7 +314,7 @@ async def update_model_instance(model_id: str,
                                 model_instance_id: str,
                                 model_instance_patch: ModelInstancePatch,
                                 token: HTTPAuthorizationCredentials = Depends(auth)):
-    model_instance_kg = await _get_model_instance_by_id(model_instance_id, token)
+    model_instance_kg, model_id = await _get_model_instance_by_id(model_instance_id, token)
     model_project = await _get_model_by_id_or_alias(model_id, token)
     return await _update_model_instance(model_instance_kg, model_project, model_instance_patch, token)
 
@@ -325,7 +325,7 @@ async def _update_model_instance(model_instance_kg, model_project, model_instanc
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
                             detail=f"This account is not a member of Collab #{model_project.project_id}")
 
-    stored_model_instance = ModelInstance.from_kg_object(model_instance_kg, kg_client)
+    stored_model_instance = ModelInstance.from_kg_object(model_instance_kg, kg_client, model_project.uuid)
     update_data = model_instance_patch.dict(exclude_unset=True)
     updated_model_instance = stored_model_instance.copy(update=update_data)
     kg_objects = updated_model_instance.to_kg_objects(model_project)
@@ -333,4 +333,4 @@ async def _update_model_instance(model_instance_kg, model_project, model_instanc
         obj.save(kg_client)
     model_instance_kg = kg_objects[-1]
     assert isinstance(model_instance_kg, (ModelInstanceKG, MEModel))
-    return ModelInstance.from_kg_object(model_instance_kg, kg_client)
+    return ModelInstance.from_kg_object(model_instance_kg, kg_client, model_project.uuid)
