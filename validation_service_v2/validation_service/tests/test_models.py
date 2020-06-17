@@ -599,3 +599,42 @@ def test_create_duplicate_model_instance(caplog):
     # delete model
     response = client.delete(f"/models/{model_uuid}", headers=AUTH_HEADER)
     assert response.status_code == 200
+
+
+def test_delete_model_instance(caplog):
+
+    # first create a model project
+    payload = _build_sample_model()
+    # add a second instance to the default payload
+    payload["instances"].append({
+            "version": "1.3",
+            "description": "description of this version",
+            "parameters": "{'meaning': sqrt(42)}",
+            "code_format": "Python",
+            "source": "http://example.com/my_code_2.py",
+            "license": "MIT"
+    })
+    response = client.post(f"/models/", json=payload, headers=AUTH_HEADER)
+    assert response.status_code == 201
+    posted_model = response.json()
+    model_uuid = posted_model["id"]
+
+    # now delete one of the instances
+    sleep(15)
+    instance_uuids = [inst["id"] for inst in posted_model["instances"]]
+    response = client.delete(f"/models/{model_uuid}/instances/{instance_uuids[0]}",
+                             headers=AUTH_HEADER)
+    assert response.status_code == 200
+
+    # now get the model again and check the deleted instance is not there
+    sleep(15)
+    response = client.get(f"/models/{model_uuid}", headers=AUTH_HEADER)
+    assert response.status_code == 200
+    retrieved_model = response.json()
+    retrieved_uuids = [inst["id"] for inst in retrieved_model["instances"]]
+    assert len(retrieved_uuids) == 1
+    assert retrieved_uuids[0] == instance_uuids[1]
+
+    # delete the model
+    response = client.delete(f"/models/{model_uuid}", headers=AUTH_HEADER)
+    assert response.status_code == 200
