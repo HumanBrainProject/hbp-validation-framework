@@ -74,10 +74,10 @@ def get_result(result_id: UUID, token: HTTPAuthorizationCredentials = Depends(au
         try:
             obj = ValidationResult.from_kg_object(result, kg_client)
         except ConsistencyError as err:
-            raise HTTPException(status_code=status.HTTP_404_NOTFOUND,
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                                 detail=str(err))
     else:
-        raise HTTPException(status_code=status.HTTP_404_NOTFOUND,
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                             detail=f"Validation result {result_id} not found.")
     return obj
 
