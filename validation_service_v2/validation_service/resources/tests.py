@@ -203,6 +203,9 @@ def get_latest_test_instance_given_test_id(test_id: str,
     test_definition = _get_test_by_id_or_alias(test_id, token)
     test_instances = [ValidationTestInstance.from_kg_object(inst, kg_client)
                        for inst in as_list(test_definition.scripts.resolve(kg_client, api="nexus"))]
+    if len(test_instances) == 0:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail="Test definition {test_id} has no code associated with it")
     latest = sorted(test_instances, key=lambda inst: inst.timestamp)[-1]
     return latest
 
