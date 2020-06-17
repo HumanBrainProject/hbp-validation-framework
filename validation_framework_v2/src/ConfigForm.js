@@ -109,7 +109,7 @@ export default class ConfigForm extends React.Component {
 					<DialogActions>
 						<Button onClick={this.handleClose} color="primary">
 							Ok
-            </Button>
+           				</Button>
 					</DialogActions>
 				</Dialog>
 			);

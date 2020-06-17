@@ -764,12 +764,12 @@ class ValidationFramework extends React.Component {
 		return (
 			<React.Fragment>
 				<Grid container direction="row">
-					<Grid item xs={1}>
+					<Grid item xs={1} sm={1} md={1} lg={1}>
 						<IconButton onClick={this.openConfig} aria-label="Configure filters">
 							<SettingsIcon />
 						</IconButton>
 					</Grid>
-					<Grid item xs={11}>
+					<Grid item xs={11} sm={11} md={11} lg={11}>
 						{configContent}
 					</Grid>
 				</Grid>

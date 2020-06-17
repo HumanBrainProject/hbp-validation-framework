@@ -27,12 +27,12 @@ export default function ConfigDisplayTop(props) {
 				<Box fontSize={16} fontWeight="fontWeightBold">View Current Configuration</Box>
 			</ExpansionPanelSummary>
 			<ExpansionPanelDetails>
-				<Box>
+				<Box style={{ width: "100%" }}>
 					<Grid container spacing={3}>
-						<Grid item xs={4}>
+						<Grid item xs={4} sm={3} md={3} lg={2}>
 							<Box component="span" fontWeight="fontWeightBold">Display: </Box>
 						</Grid>
-						<Grid item xs={8}>
+						<Grid item xs={8} sm={9} md={9} lg={10}>
 							<Box component="span">
 								<Chip label={props.display} style={{ backgroundColor: "#FFFFFF" }} variant="outlined" />
 							</Box>
@@ -40,20 +40,20 @@ export default function ConfigDisplayTop(props) {
 					</Grid>
 					{
 						showFilters.map((key, index) => (
-							<Grid container spacing={3}>
-								<Grid item xs={4}>
+							<Grid container spacing={3} key={key}>
+								<Grid item xs={4} sm={3} md={3} lg={2}>
 									<Box component="span" fontWeight="fontWeightBold">{formatLabel(key)}: </Box>
 								</Grid>
-								<Grid item xs={8}>
+								<Grid item xs={8} sm={9} md={9} lg={10}>
 									<Box component="span">
 										{
 											props.filters[key].length > 0
 												?
-												props.filters[key].forEach(
-													element => <Chip label={element} style={{ backgroundColor: "#FFFFFF" }} variant="outlined" />
-												)
+												props.filters[key].map(element => {
+													return <Chip key={element} label={element} style={{ backgroundColor: "#FFFFFF", marginRight: 5, marginBottom: 5 }} variant="outlined" />
+												})
 												:
-												<Chip label="<< all >>" style={{ backgroundColor: "#FFFFFF" }} variant="outlined" />
+												<Chip key="<< all >>" label="<< all >>" style={{ backgroundColor: "#FFFFFF" }} variant="outlined" />
 										}
 									</Box>
 								</Grid>
@@ -61,8 +61,8 @@ export default function ConfigDisplayTop(props) {
 						))
 					}
 					<br />
-          To re-configure the app, click on the configure icon <SettingsIcon />  at the top left of the page.
-        </Box>
+					To re-configure the app, click on the configure icon <SettingsIcon />  at the top left of the page.
+       			</Box>
 			</ExpansionPanelDetails>
 		</ExpansionPanel >
 	);

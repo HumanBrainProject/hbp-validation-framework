@@ -186,16 +186,16 @@ export default class ModelDetail extends React.Component {
 							</Tabs>
 						</AppBar>
 						<TabPanel value={this.state.tabValue} index={0}>
-							<Grid container spacing={2}>
-								<Grid item xs={9}>
+							<Grid container spacing={4}>
+								<Grid item xs={9} sm={9} md={9} lg={9}>
 									<ModelDetailContent
 										description={this.state.modelData.description}
 										instances={this.state.modelData.instances}
 										id={this.state.modelData.id}
 										results={this.state.results}
-									></ModelDetailContent>
+									/>
 								</Grid>
-								<Grid item xs={3}>
+								<Grid item xs={3} sm={3} md={3} lg={3}>
 									<ModelDetailMetadata
 										species={this.state.modelData.species}
 										brainRegion={this.state.modelData.brain_region}
@@ -204,12 +204,7 @@ export default class ModelDetail extends React.Component {
 										abstractionLevel={this.state.modelData.abstraction_level}
 										collabID={this.state.modelData.app.collab_id}
 										organization={this.state.modelData.organization}
-									>
-										<ul>
-											<li>{this.state.modelData.id}</li>
-											<li>{this.state.modelData.alias}</li>
-										</ul>
-									</ModelDetailMetadata>
+									/>
 								</Grid>
 							</Grid>
 						</TabPanel>

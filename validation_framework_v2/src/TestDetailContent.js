@@ -11,6 +11,7 @@ import TestInstanceEditForm from './TestInstanceEditForm';
 import ErrorDialog from './ErrorDialog';
 import Tooltip from '@material-ui/core/Tooltip';
 import Theme from './theme';
+import { formatTimeStampToLongString } from './utils';
 
 function InstanceParameter(props) {
 	if (props.value) {
@@ -146,7 +147,7 @@ export default class TestDetailContent extends React.Component {
 										</Tooltip>
 									</Box>
 								</div>
-								<Typography variant="body2" color="textSecondary">{instance.timestamp}</Typography>
+								<Typography variant="body2" color="textSecondary">{formatTimeStampToLongString(instance.timestamp)}</Typography>
 								<InstanceParameter label="Description" value={instance.description} />
 								<InstanceParameter label="Source" value={instance.repository} />
 								<InstanceParameter label="Path" value={instance.path} />
