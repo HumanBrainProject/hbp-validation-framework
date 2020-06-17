@@ -142,10 +142,10 @@ async def _get_model_instance_by_id(instance_id, token):
 
 @router.get("/models/{model_id}", response_model=ScientificModel)
 async def get_model(model_id: str, token: HTTPAuthorizationCredentials = Depends(auth)):
-    #user = get_user_from_token(token.credentials)
-    #logging.info(f"user = {user}")
-    # todo: handle non-existent UUID
     model_project = await _get_model_by_id_or_alias(model_id, token)
+    if not model_project:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail=f"Model with ID '{model_id}' not found.")
     return ScientificModel.from_kg_object(model_project, kg_client)
 
 

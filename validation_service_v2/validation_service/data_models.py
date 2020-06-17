@@ -145,6 +145,8 @@ class ModelInstance(BaseModel):
     def from_kg_object(cls, instance, client, model_id):
         if isinstance(instance, KGProxy):
             instance = instance.resolve(client, api="nexus")
+            if instance is None:
+                raise Exception(f"Instance not found.")
         instance_data = {
             "id": instance.uuid,
             "uri": instance.id,
@@ -281,6 +283,14 @@ class ScientificModel(BaseModel):
 
     @classmethod
     def from_kg_object(cls, model_project, client):
+        instances = []
+        for inst_obj in as_list(model_project.instances):
+            try:
+                inst = ModelInstance.from_kg_object(inst_obj, client, model_id=model_project.uuid)
+            except Exception as err:
+                logger.warn(f"Problem retrieving model instance {inst_obj.id}: {err}")
+            else:
+                instances.append(inst)
         try:
             obj = cls(
                 id=model_project.uuid,
@@ -303,8 +313,7 @@ class ScientificModel(BaseModel):
                 date_created=model_project.date_created,
                 images=as_list(model_project.images),
                 old_uuid=model_project.old_uuid,
-                instances=[ModelInstance.from_kg_object(inst, client, model_id=model_project.uuid)
-                           for inst in as_list(model_project.instances)]
+                instances=instances
             )
         except ValidationError as err:
             logger.error(f"Validation error for data from model project: {model_project}")
