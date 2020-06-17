@@ -236,7 +236,7 @@ async def get_model_instances(model_id: str,
                               token: HTTPAuthorizationCredentials = Depends(auth)):
     model_project = await _get_model_by_id_or_alias(model_id, token)
     model_instances = [ModelInstance.from_kg_object(inst, kg_client, model_id)
-                       for inst in model_project.instances]
+                       for inst in as_list(model_project.instances)]
     if version is not None:
         model_instances = [inst for inst in model_instances if inst.version == version]
     return model_instances
@@ -254,7 +254,7 @@ async def get_latest_model_instance_given_model_id(model_id: str,
                                                    token: HTTPAuthorizationCredentials = Depends(auth)):
     model_project = await _get_model_by_id_or_alias(model_id, token)
     model_instances = [ModelInstance.from_kg_object(inst, kg_client, model_id)
-                       for inst in model_project.instances]
+                       for inst in as_list(model_project.instances)]
     latest = sorted(model_instances, key=lambda inst: inst["timestamp"])[-1]
     return latest
 
@@ -264,7 +264,7 @@ async def get_model_instance_given_model_id(model_id: str,
                                             model_instance_id: UUID,
                                             token: HTTPAuthorizationCredentials = Depends(auth)):
     model_project = await _get_model_by_id_or_alias(model_id, token)
-    for inst in model_project.instances:
+    for inst in as_list(model_project.instances):
         if UUID(inst.uuid) == model_instance_id:
             return ModelInstance.from_kg_object(inst, kg_client, model_id)
     raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
