@@ -630,9 +630,12 @@ class ValidationResult(BaseModel):
 
     @classmethod
     def from_kg_object(cls, result, client):
-        validation_activity = result.generated_by.resolve(client, api="nexus")
-        if validation_activity is None:
+        if result.generated_by:
+            validation_activity = result.generated_by.resolve(client, api="nexus")
+        else:
             raise ConsistencyError("Missing ValidationActivity")
+        if validation_activity is None:
+            raise ConsistencyError("Missing ValidationActivity (may have been deleted)")
         model_version_id = validation_activity.model_instance.uuid
         test_code_id = validation_activity.test_script.uuid
         logger.debug("Serializing validation test result")
