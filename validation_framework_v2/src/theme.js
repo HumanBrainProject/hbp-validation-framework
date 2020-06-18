@@ -12,4 +12,5 @@ export default {
     instanceInfoBox: "#FFF1CC",
     metadataInfoBox: "#FFE5A8",
     buttonPrimary: '#FFC73B',
+    plotBarColor: '#FF9933'
 }

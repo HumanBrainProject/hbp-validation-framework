@@ -8,100 +8,107 @@ import ModelEditForm from './ModelEditForm';
 import ErrorDialog from './ErrorDialog';
 import Tooltip from '@material-ui/core/Tooltip';
 import IconButton from '@material-ui/core/IconButton';
+import { withSnackbar } from 'notistack';
+import { copyToClipboard } from './utils';
 
 function AccessibilityIcon(props) {
-	if (props.private) {
-		return (
-			<Tooltip title="private" placement="top">
-				<LockIcon color="disabled" />
-			</Tooltip>
-		)
-	} else {
-		return (
-			<Tooltip title="public" placement="top">
-				<PublicIcon color="disabled" />
-			</Tooltip>
-		)
-	}
+    if (props.private) {
+        return (
+            <Tooltip title="private" placement="top">
+                <LockIcon color="disabled" />
+            </Tooltip>
+        )
+    } else {
+        return (
+            <Tooltip title="public" placement="top">
+                <PublicIcon color="disabled" />
+            </Tooltip>
+        )
+    }
 }
 
-export default class ModelDetailHeader extends React.Component {
-	constructor(props) {
-		super(props);
+class ModelDetailHeader extends React.Component {
+    constructor(props) {
+        super(props);
 
-		this.state = {
-			openEditForm: false,
-			errorEditModel: null
-		}
-		this.handleEditModelFormClose = this.handleEditModelFormClose.bind(this);
-		this.handleEditClick = this.handleEditClick.bind(this);
-		this.handleErrorEditDialogClose = this.handleErrorEditDialogClose.bind(this);
-	}
+        this.state = {
+            openEditForm: false,
+            errorEditModel: null
+        }
+        this.handleEditModelFormClose = this.handleEditModelFormClose.bind(this);
+        this.handleEditClick = this.handleEditClick.bind(this);
+        this.handleErrorEditDialogClose = this.handleErrorEditDialogClose.bind(this);
+    }
 
-	handleErrorEditDialogClose() {
-		this.setState({ 'errorEditModel': null });
-	};
+    handleErrorEditDialogClose() {
+        this.setState({ 'errorEditModel': null });
+    };
 
-	handleEditModelFormClose(model) {
-		console.log("close edit")
-		console.log(model)
-		this.setState({ 'openEditForm': false });
-		if (model) {
-			this.props.updateCurrentModelData(model)
-		}
-	}
+    handleEditModelFormClose(model) {
+        console.log("close edit")
+        console.log(model)
+        this.setState({ 'openEditForm': false });
+        if (model) {
+            this.props.updateCurrentModelData(model)
+        }
+    }
 
-	handleEditClick() {
-		this.setState({
-			openEditForm: true,
-		})
-	}
+    handleEditClick() {
+        this.setState({
+            openEditForm: true,
+        })
+    }
 
-	render() {
-		let errorMessage = "";
-		if (this.state.errorEditModel) {
-			errorMessage = <ErrorDialog open={Boolean(this.state.errorEditModel)} handleErrorDialogClose={this.handleErrorEditDialogClose} error={this.state.errorEditModel.message || this.state.errorEditModel} />
-		}
+    render() {
+        let errorMessage = "";
+        if (this.state.errorEditModel) {
+            errorMessage = <ErrorDialog open={Boolean(this.state.errorEditModel)} handleErrorDialogClose={this.handleErrorEditDialogClose} error={this.state.errorEditModel.message || this.state.errorEditModel} />
+        }
 
-		let editForm = "";
-		if (this.state.openEditForm) {
-			editForm = <ModelEditForm
-				open={this.state.openEditForm}
-				onClose={this.handleEditModelFormClose}
-				modelData={this.props.modelData}
-			/>
-		}
+        let editForm = "";
+        if (this.state.openEditForm) {
+            editForm = <ModelEditForm
+                open={this.state.openEditForm}
+                onClose={this.handleEditModelFormClose}
+                modelData={this.props.modelData}
+            />
+        }
 
-		return (
-			<React.Fragment>
-				<Grid item>
-					<Typography variant="h4" gutterBottom>
-						<AccessibilityIcon private={this.props.private} /> {this.props.name}
-						<Tooltip placement="right" title="Edit Model">
-							<IconButton aria-label="edit model" onClick={() => this.handleEditClick()}>
-								<EditIcon />
-							</IconButton>
-						</Tooltip>
-					</Typography>
-					<Typography variant="h5" gutterBottom>
-						{this.props.authors}
-					</Typography>
-					<Typography variant="caption" color="textSecondary" gutterBottom>
-						ID: <b>{this.props.id}</b> &nbsp;&nbsp;&nbsp; Custodian: <b>{this.props.owner}</b> &nbsp;&nbsp;&nbsp; {this.props.alias ? "Alias: " : ""} <b>{this.props.alias ? this.props.alias : ""}</b>
-					</Typography>
-				</Grid>
-				{/* <Grid item> */}
-				{/* optional image goes here */}
-				{/* </Grid> */}
-				<div>
-					{editForm}
-				</div>
-				<div>
-					{errorMessage}
-				</div>
-			</React.Fragment>
-		);
-	}
+        return (
+            <React.Fragment>
+                <Grid item>
+                    <Typography variant="h4" gutterBottom>
+                        <AccessibilityIcon private={this.props.private} />
+                        <span style={{ marginHorizontal: 125, cursor: "pointer" }} onClick={() => copyToClipboard(this.props.name, this.props.enqueueSnackbar, "Model name copied")}> {this.props.name}</span>
+                        <Tooltip placement="right" title="Edit Model">
+                            <IconButton aria-label="edit model" onClick={() => this.handleEditClick()}>
+                                <EditIcon />
+                            </IconButton>
+                        </Tooltip>
+                    </Typography>
+                    <Typography variant="h5" gutterBottom>
+                        {this.props.authors}
+                    </Typography>
+                    <Typography variant="caption" color="textSecondary" gutterBottom>
+                        ID: <b><span style={{ marginHorizontal: 125, cursor: "pointer" }} onClick={() => copyToClipboard(this.props.id, this.props.enqueueSnackbar, "Model UUID copied")}>{this.props.id}</span></b>
+                        &nbsp;&nbsp;&nbsp;
+                        Custodian: <b>{this.props.owner}</b>
+                        &nbsp;&nbsp;&nbsp;
+                        {this.props.alias ? "Alias: " : ""} <b>{this.props.alias ? <span style={{ marginHorizontal: 125, cursor: "pointer" }} onClick={() => copyToClipboard(this.props.alias, this.props.enqueueSnackbar, "Model alias copied")}>{this.props.alias}</span> : ""}</b>
+                    </Typography>
+                </Grid>
+                {/* <Grid item> */}
+                {/* optional image goes here */}
+                {/* </Grid> */}
+                <div>
+                    {editForm}
+                </div>
+                <div>
+                    {errorMessage}
+                </div>
+            </React.Fragment>
+        );
+    }
 }
 
-//  style={{backgroundColor: "#ddddff"}}
+export default withSnackbar(ModelDetailHeader);

@@ -235,6 +235,7 @@ ModelDetail.propTypes = {
 	open: PropTypes.bool.isRequired
 };
 
+
 // {
 //   "abstraction_level" : "spiking neurons: biophysical",
 //   "alias" : "test20200116b",

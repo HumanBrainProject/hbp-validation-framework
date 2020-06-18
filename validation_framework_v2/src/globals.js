@@ -1,4 +1,4 @@
-export const DevMode = false; // TODO: change to false for production
+export const DevMode = true; // TODO: change to false for production
 export const baseUrl = "https://validation-v1.brainsimulation.eu"; // TODO: change to "https://validation-v1.brainsimulation.eu" for production 
 export const collaboratoryOrigin = 'https://wiki.humanbrainproject.eu';
 export const hashChangedTopic = '/clb/community-app/hashchange';

@@ -17,6 +17,7 @@
     "moment": "^2.24.0",
     "mui-datatables": "^2.14.0",
     "nivo": "^0.31.0",
+    "notistack": "^0.9.17",
     "plotly.js": "1.52.3",
     "plotly.js-dist": "^1.52.3",
     "react": "^16.11.0",
