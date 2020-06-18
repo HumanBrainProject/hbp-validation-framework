@@ -6,8 +6,14 @@ import logging
 
 from fastapi import status
 
-from .fixtures import (_build_sample_model, _build_sample_validation_test, _build_sample_result,
-                      client, token, AUTH_HEADER)
+from .fixtures import (
+    _build_sample_model,
+    _build_sample_validation_test,
+    _build_sample_result,
+    client,
+    token,
+    AUTH_HEADER,
+)
 
 
 logger = logging.getLogger("validation_service_v2")
@@ -32,12 +38,11 @@ def check_validation_result(result):
     if result["normalized_score"]:
         assert isinstance(result["normalized_score"], float)
 
+
 def test_list_results_no_auth():
     response = client.get(f"/results/")
     assert response.status_code == 403
-    assert response.json() == {
-        "detail": "Not authenticated"
-    }
+    assert response.json() == {"detail": "Not authenticated"}
 
 
 def test_list_results_nofilters():
@@ -79,8 +84,9 @@ def test_list_results_filter_by_model_alias():
 
 def test_list_results_filter_by_model_version_id():
     model_instance_uuid = "403d865e-417c-45fe-97cf-83a9613ae664"
-    response = client.get(f"/results/?size=5&model_version_id={model_instance_uuid}",
-                          headers=AUTH_HEADER)
+    response = client.get(
+        f"/results/?size=5&model_version_id={model_instance_uuid}", headers=AUTH_HEADER
+    )
     assert response.status_code == 200
     validation_results = response.json()
     assert len(validation_results) == 5
@@ -105,8 +111,7 @@ def test_list_results_filter_by_test_id():
 
 def test_list_results_filter_by_test_code_id():
     test_code_uuid = "1d22e1c0-5a74-49b4-b114-41d233d3250a"
-    response = client.get(f"/results/?size=5&test_code_id={test_code_uuid}",
-                          headers=AUTH_HEADER)
+    response = client.get(f"/results/?size=5&test_code_id={test_code_uuid}", headers=AUTH_HEADER)
     assert response.status_code == 200
     validation_results = response.json()
     assert len(validation_results) == 5
@@ -130,24 +135,16 @@ def test_list_results_filter_by_test_alias():
 
 
 def test_get_result_by_id_no_auth():
-    test_ids = (
-        "612160c9-2a76-44b3-aaf0-18c7fd40b942",
-        "0f83007b-1c0e-4606-8a79-6268ac79ab2a"
-    )
+    test_ids = ("612160c9-2a76-44b3-aaf0-18c7fd40b942", "0f83007b-1c0e-4606-8a79-6268ac79ab2a")
     for result_uuid in test_ids:
         response = client.get(f"/results/{result_uuid}")
         assert response.status_code == 403
-        assert response.json() == {
-            "detail": "Not authenticated"
-        }
+        assert response.json() == {"detail": "Not authenticated"}
 
 
 def test_get_result_by_id(caplog):
-    #caplog.set_level(logging.DEBUG)
-    test_ids = (
-        "612160c9-2a76-44b3-aaf0-18c7fd40b942",
-        "0f83007b-1c0e-4606-8a79-6268ac79ab2a"
-    )
+    # caplog.set_level(logging.DEBUG)
+    test_ids = ("612160c9-2a76-44b3-aaf0-18c7fd40b942", "0f83007b-1c0e-4606-8a79-6268ac79ab2a")
     for result_uuid in test_ids:
         response = client.get(f"/results/{result_uuid}", headers=AUTH_HEADER)
         assert response.status_code == 200
@@ -168,7 +165,9 @@ def test_create_and_delete_validation_result(caplog):
 
     # create result
     logger.info("Creating sample result")
-    payload = _build_sample_result(model["instances"][0]["id"], validation_test["instances"][0]["id"])
+    payload = _build_sample_result(
+        model["instances"][0]["id"], validation_test["instances"][0]["id"]
+    )
     logger.info(f"Payload = {payload}")
     response = client.post("/results/", json=payload, headers=AUTH_HEADER)
     assert response.status_code == 201

@@ -9,9 +9,7 @@ import requests
 
 from fairgraph.client import KGClient
 from fairgraph.base import KGQuery, KGProxy, as_list
-from fairgraph.brainsimulation import (
-    ValidationResult as ValidationResultKG,
-    ValidationActivity)
+from fairgraph.brainsimulation import ValidationResult as ValidationResultKG, ValidationActivity
 
 from fastapi import APIRouter, Depends, Header, Query, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
@@ -31,24 +29,35 @@ router = APIRouter()
 
 
 @router.get("/results/", response_model=List[ValidationResult])
-def query_results(passed: List[bool]=Query(None),
-                  project_id: List[int] = Query(None),
-                  model_version_id: List[UUID] = Query(None),  # todo: rename this 'model_instance_id' for consistency
-                  test_code_id: List[UUID] = Query(None),
-                  model_id: List[UUID] = Query(None),
-                  test_id: List[UUID] = Query(None),
-                  model_alias: List[str] = Query(None),
-                  test_alias: List[str] = Query(None),
-                  score_type: List[ScoreType] = None,
-                  size: int = Query(100),
-                  from_index: int = Query(0),
-                  # from header
-                  token: HTTPAuthorizationCredentials = Depends(auth)
-            ):
+def query_results(
+    passed: List[bool] = Query(None),
+    project_id: List[int] = Query(None),
+    model_version_id: List[UUID] = Query(
+        None
+    ),  # todo: rename this 'model_instance_id' for consistency
+    test_code_id: List[UUID] = Query(None),
+    model_id: List[UUID] = Query(None),
+    test_id: List[UUID] = Query(None),
+    model_alias: List[str] = Query(None),
+    test_alias: List[str] = Query(None),
+    score_type: List[ScoreType] = None,
+    size: int = Query(100),
+    from_index: int = Query(0),
+    # from header
+    token: HTTPAuthorizationCredentials = Depends(auth),
+):
     filter_query, context = build_result_filters(
-        model_version_id, test_code_id, model_id, test_id,
-        model_alias, test_alias, score_type, passed, project_id,
-        kg_client)
+        model_version_id,
+        test_code_id,
+        model_id,
+        test_id,
+        model_alias,
+        test_alias,
+        score_type,
+        passed,
+        project_id,
+        kg_client,
+    )
     if len(filter_query["value"]) > 0:
         logger.info(f"Searching for ValidationResult with the following query: {filter_query}")
         # note that from_index is not currently supported by KGQuery.resolve
@@ -74,11 +83,12 @@ def get_result(result_id: UUID, token: HTTPAuthorizationCredentials = Depends(au
         try:
             obj = ValidationResult.from_kg_object(result, kg_client)
         except ConsistencyError as err:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
-                                detail=str(err))
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(err))
     else:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
-                            detail=f"Validation result {result_id} not found.")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Validation result {result_id} not found.",
+        )
     return obj
 
 
@@ -104,8 +114,10 @@ async def delete_result(result_id: UUID, token: HTTPAuthorizationCredentials = D
     # todo: handle non-existent UUID
     result = ValidationResultKG.from_uuid(str(result_id), kg_client, api="nexus")
     if not await is_collab_member(settings.ADMIN_COLLAB_ID, token.credentials):
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
-                            detail="Deleting validation results is restricted to admins")
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Deleting validation results is restricted to admins",
+        )
     for item in as_list(result.additional_data):
         item.delete(kg_client)
         # todo: check whether the result has been used in further analysis

@@ -42,32 +42,37 @@ class Species(str, Enum):
 
 BrainRegion = Enum(
     "BrainRegion",
-    [(name.replace(" ", "_"), name) for name in fairgraph.commons.BrainRegion.iri_map.keys()])
+    [(name.replace(" ", "_"), name) for name in fairgraph.commons.BrainRegion.iri_map.keys()],
+)
 
 
 ModelScope = Enum(
     "ModelScope",
-    [(name.replace(" ", "_").replace(":", "__"), name)
-     for name in fairgraph.commons.ModelScope.iri_map.keys()]
+    [
+        (name.replace(" ", "_").replace(":", "__"), name)
+        for name in fairgraph.commons.ModelScope.iri_map.keys()
+    ],
 )
 
 
 AbstractionLevel = Enum(
     "AbstractionLevel",
-    [(name.replace(" ", "_").replace(":", "__"), name)
-     for name in fairgraph.commons.AbstractionLevel.iri_map.keys()]
+    [
+        (name.replace(" ", "_").replace(":", "__"), name)
+        for name in fairgraph.commons.AbstractionLevel.iri_map.keys()
+    ],
 )
 
 
 CellType = Enum(
     "CellType",
-    [(name.replace(" ", "_"), name) for name in fairgraph.commons.CellType.iri_map.keys()]
+    [(name.replace(" ", "_"), name) for name in fairgraph.commons.CellType.iri_map.keys()],
 )
 
 
 class ImplementationStatus(str, Enum):
     dev = "in development"
-    proposal  = "proposal"
+    proposal = "proposal"
     complete = "complete"
 
 
@@ -98,7 +103,7 @@ class ValidationTestType(str, Enum):
     network_activity = "network activity"
     network_structure = "network structure"
     single_cell_activity = "single cell activity"
-    subcellular =  "subcellular"
+    subcellular = "subcellular"
 
 
 class ScoreType(str, Enum):
@@ -118,7 +123,7 @@ class Person(BaseModel):
             pr = p.resolve(client, api="nexus")
         else:
             pr = p
-        return cls(given_name= pr.given_name, family_name=pr.family_name)
+        return cls(given_name=pr.given_name, family_name=pr.family_name)
 
     def to_kg_object(self):
         return fairgraph.core.Person(family_name=self.family_name, given_name=self.given_name)
@@ -140,7 +145,7 @@ class ModelInstance(BaseModel):
 
     class Config:
         extra = "allow"  # we temporarily store the IDs of sub-objects (e.g. ModelScript)
-                         # during object updates
+        # during object updates
 
     @classmethod
     def from_kg_object(cls, instance, client, model_id):
@@ -153,21 +158,23 @@ class ModelInstance(BaseModel):
             "uri": instance.id,
             "version": instance.version,
             "description": instance.description,
-            "parameters":  instance.parameters,
+            "parameters": instance.parameters,
             "timestamp": ensure_has_timezone(instance.timestamp),
-            "model_id": model_id
+            "model_id": model_id,
         }
         if instance.main_script:
             main_script = instance.main_script.resolve(client, api="nexus")
         else:
             raise Exception(f"main_script unexpectedly not present.\ninstance: {instance}")
         if main_script:
-            instance_data.update({
-                "code_format": main_script.code_format,
-                "source": main_script.code_location,
-                "license": main_script.license,
-                "script_id": main_script.id  # internal use only
-            })
+            instance_data.update(
+                {
+                    "code_format": main_script.code_format,
+                    "source": main_script.code_location,
+                    "license": main_script.license,
+                    "script_id": main_script.id,  # internal use only
+                }
+            )
         if hasattr(instance, "morphology"):
             morph = instance.morphology.resolve(client, api="nexus")
             instance_data["morphology"] = morph.morphology_file
@@ -186,24 +193,33 @@ class ModelInstance(BaseModel):
             name=f"ModelScript for {model_project.name} @ {self.version}",
             code_format=self.code_format,
             code_location=self.source,
-            license=self.license)
+            license=self.license,
+        )
         if hasattr(self, "script_id"):
             script.id = self.script_id
         kg_objects = [script]
 
-        if model_project.model_of and model_project.model_of.label == "single cell" and self.morphology:
+        if (
+            model_project.model_of
+            and model_project.model_of.label == "single cell"
+            and self.morphology
+        ):
             e_model = fairgraph.brainsimulation.EModel(
                 name=f"EModel for {model_project.name} @ {self.version}",
                 brain_region=model_project.brain_region,
                 species=model_project.species,
-                model_of=None, main_script=None, release=None)
+                model_of=None,
+                main_script=None,
+                release=None,
+            )
             if hasattr(self, "e_model_id"):
                 e_model.id = self.e_model_id
             kg_objects.append(e_model)
             morph = fairgraph.brainsimulation.Morphology(
                 name=f"Morphology for {model_project.name} @ {self.version}",
                 cell_type=model_project.celltype,
-                morphology_file=self.morphology)
+                morphology_file=self.morphology,
+            )
             if hasattr(self, "morphology_id"):
                 morph.id = self.morphology_id
             kg_objects.append(morph)
@@ -219,7 +235,8 @@ class ModelInstance(BaseModel):
                 version=self.version,
                 parameters=self.parameters,
                 timestamp=ensure_has_timezone(self.timestamp) or datetime.now(timezone.utc),
-                release=None)
+                release=None,
+            )
         else:
             minst = fairgraph.brainsimulation.ModelInstance(
                 name=f"ModelInstance for {model_project.name} @ {self.version}",
@@ -231,7 +248,8 @@ class ModelInstance(BaseModel):
                 version=self.version,
                 parameters=self.parameters,
                 timestamp=ensure_has_timezone(self.timestamp) or datetime.now(timezone.utc),
-                release=None)
+                release=None,
+            )
         if self.uri:
             minst.id = str(self.uri)
         kg_objects.append(minst)
@@ -253,7 +271,7 @@ class ModelInstancePatch(BaseModel):
 
     class Config:
         extra = "allow"  # we temporarily store the IDs of sub-objects (e.g. ModelScript)
-                         # during object updates
+        # during object updates
 
 
 class Image(BaseModel):
@@ -265,6 +283,7 @@ class ScientificModel(BaseModel):
     """
 
     """
+
     id: UUID = None
     uri: HttpUrl = None
     name: str
@@ -286,9 +305,7 @@ class ScientificModel(BaseModel):
     instances: List[ModelInstance] = None
 
     class Config:
-        schema_extra = {
-            "example": EXAMPLES["ScientificModel"]
-        }
+        schema_extra = {"example": EXAMPLES["ScientificModel"]}
 
     @classmethod
     def from_kg_object(cls, model_project, client):
@@ -310,19 +327,23 @@ class ScientificModel(BaseModel):
                 owner=[Person.from_kg_object(p, client) for p in as_list(model_project.owners)],
                 project_id=model_project.collab_id,
                 organization=model_project.organization.resolve(client, api="nexus").name
-                            if model_project.organization else None,
+                if model_project.organization
+                else None,
                 private=model_project.private,
                 cell_type=model_project.celltype.label if model_project.celltype else None,
                 model_scope=model_project.model_of.label if model_project.model_of else None,
                 abstraction_level=model_project.abstraction_level.label
-                                if model_project.abstraction_level else None,
-                brain_region=model_project.brain_region.label if model_project.brain_region else None,
+                if model_project.abstraction_level
+                else None,
+                brain_region=model_project.brain_region.label
+                if model_project.brain_region
+                else None,
                 species=model_project.species.label if model_project.species else None,
                 description=model_project.description,
                 date_created=model_project.date_created,
                 images=as_list(model_project.images),
                 old_uuid=model_project.old_uuid,
-                instances=instances
+                instances=instances,
             )
         except ValidationError as err:
             logger.error(f"Validation error for data from model project: {model_project}")
@@ -355,10 +376,12 @@ class ScientificModel(BaseModel):
             brain_region=get_ontology_object(fairgraph.commons.BrainRegion, self.brain_region),
             species=get_ontology_object(fairgraph.commons.Species, self.species),
             celltype=get_ontology_object(fairgraph.commons.CellType, self.cell_type),
-            abstraction_level=get_ontology_object(fairgraph.commons.AbstractionLevel,
-                                                  self.abstraction_level),
+            abstraction_level=get_ontology_object(
+                fairgraph.commons.AbstractionLevel, self.abstraction_level
+            ),
             model_of=get_ontology_object(fairgraph.commons.ModelScope, self.model_scope),
-            images=jsonable_encoder(self.images))
+            images=jsonable_encoder(self.images),
+        )
         if self.uri:
             model_project.id = str(self.uri)
 
@@ -366,9 +389,12 @@ class ScientificModel(BaseModel):
             for instance in self.instances:
                 kg_objects.extend(instance.to_kg_objects(model_project))
             model_project.instances = [
-                obj for obj in kg_objects
-                if (isinstance(obj, fairgraph.brainsimulation.ModelInstance)
-                    and not isinstance(obj, fairgraph.brainsimulation.EModel))
+                obj
+                for obj in kg_objects
+                if (
+                    isinstance(obj, fairgraph.brainsimulation.ModelInstance)
+                    and not isinstance(obj, fairgraph.brainsimulation.EModel)
+                )
             ]
         kg_objects.append(model_project)
         return kg_objects
@@ -392,7 +418,7 @@ class ScientificModelPatch(BaseModel):
     description: str = None
     images: List[Image] = None
     old_uuid: UUID = None
-    #instances: List[ModelInstance] = None
+    # instances: List[ModelInstance] = None
 
     @classmethod
     def _check_not_empty(cls, field_name, value):
@@ -440,10 +466,10 @@ class ValidationTestInstance(BaseModel):
             repository=test_script.repository.value,
             version=test_script.version,
             description=test_script.description,
-            parameters= test_script.parameters,
+            parameters=test_script.parameters,
             path=test_script.test_class,
             timestamp=ensure_has_timezone(test_script.date_created),
-            test_definition_id=test_script.test_definition.uuid
+            test_definition_id=test_script.test_definition.uuid,
         )
 
     def to_kg_objects(self, test_definition):
@@ -456,7 +482,7 @@ class ValidationTestInstance(BaseModel):
             parameters=self.parameters,
             test_class=self.path,
             test_definition=test_definition,
-            id=self.uri
+            id=self.uri,
         )
         if self.uri:
             script.id = str(self.uri)
@@ -490,7 +516,7 @@ class ValidationTest(BaseModel):
     date_created: datetime = None
     old_uuid: UUID = None
     data_location: List[HttpUrl]
-    data_type: str =  None
+    data_type: str = None
     data_modality: RecordingModality = None
     test_type: ValidationTestType = None
     score_type: ScoreType = None
@@ -501,12 +527,14 @@ class ValidationTest(BaseModel):
     def from_kg_object(cls, test_definition, client, recently_saved_scripts=[]):
         # due to the time it takes for Nexus to become consistent, we add newly saved scripts
         # to the result of the KG query in case they are not yet included
-        scripts = {scr.id: scr
-                   for scr in as_list(test_definition.scripts.resolve(client, api="nexus"))}
+        scripts = {
+            scr.id: scr for scr in as_list(test_definition.scripts.resolve(client, api="nexus"))
+        }
         for script in recently_saved_scripts:
             scripts[id] = script
-        instances = [ValidationTestInstance.from_kg_object(inst, client)
-                     for inst in scripts.values()]
+        instances = [
+            ValidationTestInstance.from_kg_object(inst, client) for inst in scripts.values()
+        ]
         obj = cls(
             id=test_definition.uuid,
             uri=test_definition.id,
@@ -515,18 +543,24 @@ class ValidationTest(BaseModel):
             status=test_definition.status or ImplementationStatus.proposal.value,
             author=[Person.from_kg_object(p, client) for p in as_list(test_definition.authors)],
             cell_type=test_definition.celltype.label if test_definition.celltype else None,
-            brain_region=test_definition.brain_region.label if test_definition.brain_region else None,
+            brain_region=test_definition.brain_region.label
+            if test_definition.brain_region
+            else None,
             species=test_definition.species.label if test_definition.species else None,
             description=test_definition.description,
             date_created=test_definition.date_created,
             old_uuid=test_definition.old_uuid,
-            data_location=[item.resolve(client, api="nexus").result_file.location
-                           for item in as_list(test_definition.reference_data)],
+            data_location=[
+                item.resolve(client, api="nexus").result_file.location
+                for item in as_list(test_definition.reference_data)
+            ],
             data_type=test_definition.data_type,
-            data_modality=test_definition.recording_modality  if test_definition.recording_modality else None,
+            data_modality=test_definition.recording_modality
+            if test_definition.recording_modality
+            else None,
             test_type=test_definition.test_type if test_definition.test_type else None,
             score_type=test_definition.score_type if test_definition.score_type else None,
-            instances=sorted(instances, key=lambda inst: inst.timestamp)
+            instances=sorted(instances, key=lambda inst: inst.timestamp),
         )
         return obj
 
@@ -537,8 +571,9 @@ class ValidationTest(BaseModel):
             fairgraph.analysis.AnalysisResult(
                 name="Reference data #{} for validation test '{}'".format(i + 1, self.name),
                 result_file=url,
-                timestamp=ensure_has_timezone(timestamp)
-            ) for i, url in enumerate(self.data_location)
+                timestamp=ensure_has_timezone(timestamp),
+            )
+            for i, url in enumerate(self.data_location)
         ]
         kg_objects = authors + data_files
 
@@ -559,7 +594,7 @@ class ValidationTest(BaseModel):
             score_type=self.score_type,
             description=self.description,
             authors=authors,
-            date_created=ensure_has_timezone(timestamp)
+            date_created=ensure_has_timezone(timestamp),
         )
         if self.uri:
             test_definition.id = str(self.uri)
@@ -585,7 +620,7 @@ class ValidationTestPatch(BaseModel):
     date_created: datetime = None
     old_uuid: UUID = None
     data_location: List[HttpUrl] = None
-    data_type: str =  None
+    data_type: str = None
     data_modality: RecordingModality = None
     test_type: ValidationTestType = None
     score_type: ScoreType = None
@@ -619,13 +654,17 @@ class ValidationTestPatch(BaseModel):
 # todo: refactor to eliminate this duplicatin
 def _get_model_instance_by_id(instance_id, kg_client):
     model_instance = fairgraph.brainsimulation.ModelInstance.from_uuid(
-        str(instance_id), kg_client, api="nexus")
+        str(instance_id), kg_client, api="nexus"
+    )
     if model_instance is None:
         model_instance = fairgraph.brainsimulation.MEModel.from_uuid(
-            str(instance_id), kg_client, api="nexus")
+            str(instance_id), kg_client, api="nexus"
+        )
     if model_instance is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
-                            detail=f"Model instance with ID '{instance_id}' not found.")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Model instance with ID '{instance_id}' not found.",
+        )
     return model_instance
 
 
@@ -676,7 +715,7 @@ class ValidationResult(BaseModel):
             passed=result.passed,
             timestamp=ensure_has_timezone(result.timestamp),
             project_id=result.collab_id,
-            normalized_score=result.normalized_score
+            normalized_score=result.normalized_score,
         )
 
     def to_kg_objects(self, kg_client):
@@ -686,17 +725,20 @@ class ValidationResult(BaseModel):
             fairgraph.analysis.AnalysisResult(
                 name=f"{uri} @ {timestamp.isoformat()}",
                 result_file=Distribution(uri),
-                timestamp=timestamp
-            ) for uri in self.results_storage]
+                timestamp=timestamp,
+            )
+            for uri in self.results_storage
+        ]
         kg_objects = additional_data[:]
 
-        test_code = fairgraph.brainsimulation.ValidationScript.from_id(str(self.test_code_id),
-                                                                       kg_client, api="nexus")
+        test_code = fairgraph.brainsimulation.ValidationScript.from_id(
+            str(self.test_code_id), kg_client, api="nexus"
+        )
         test_definition = test_code.test_definition.resolve(kg_client, api="nexus")
         model_instance = _get_model_instance_by_id(self.model_version_id, kg_client)
         reference_data = fairgraph.core.Collection(
             f"Reference data for {test_definition.name}",
-            members=as_list(test_definition.reference_data)
+            members=as_list(test_definition.reference_data),
         )
         kg_objects.append(reference_data)
 
@@ -709,7 +751,7 @@ class ValidationResult(BaseModel):
             passed=self.passed,
             timestamp=timestamp,
             additional_data=additional_data,
-            collab_id=self.project_id
+            collab_id=self.project_id,
         )
 
         activity = fairgraph.brainsimulation.ValidationActivity(
@@ -717,7 +759,7 @@ class ValidationResult(BaseModel):
             test_script=test_code,
             reference_data=reference_data,
             timestamp=timestamp,
-            result=result
+            result=result,
         )
         kg_objects.append(result)
         kg_objects.append(activity)

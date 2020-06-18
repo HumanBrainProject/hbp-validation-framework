@@ -4,11 +4,21 @@ Controlled vocabulatories
 
 from fastapi import APIRouter
 
-from ..data_models import (Species, BrainRegion, CellType, ModelScope, AbstractionLevel,
-                           RecordingModality, ValidationTestType, ScoreType, ImplementationStatus)
+from ..data_models import (
+    Species,
+    BrainRegion,
+    CellType,
+    ModelScope,
+    AbstractionLevel,
+    RecordingModality,
+    ValidationTestType,
+    ScoreType,
+    ImplementationStatus,
+)
 
 
 router = APIRouter()
+
 
 @router.get("/brain-region/")
 def list_brain_regions():

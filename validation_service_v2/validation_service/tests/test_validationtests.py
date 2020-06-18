@@ -6,8 +6,14 @@ import logging
 
 from fastapi import status
 
-from ..data_models import (BrainRegion, Species, ImplementationStatus,
-                           ScoreType, RecordingModality, ValidationTestType)
+from ..data_models import (
+    BrainRegion,
+    Species,
+    ImplementationStatus,
+    ScoreType,
+    RecordingModality,
+    ValidationTestType,
+)
 from .fixtures import _build_sample_validation_test, client, token, AUTH_HEADER
 
 
@@ -58,13 +64,11 @@ def test_get_validation_test_by_id_no_auth():
     for validation_test_uuid in test_ids:
         response = client.get(f"/tests/{validation_test_uuid}")
         assert response.status_code == 403
-        assert response.json() == {
-            "detail": "Not authenticated"
-        }
+        assert response.json() == {"detail": "Not authenticated"}
 
 
 def test_get_validation_test_by_id(caplog):
-    #caplog.set_level(logging.DEBUG)
+    # caplog.set_level(logging.DEBUG)
     test_ids = ("01c68387-fcc4-4fd3-85f0-6eb8ce4467a1",)
     for validation_test_uuid in test_ids:
         # first is private (but test user has access), second is public
@@ -78,9 +82,7 @@ def test_get_validation_test_by_id(caplog):
 def test_list_validation_tests_no_auth():
     response = client.get(f"/tests/")
     assert response.status_code == 403
-    assert response.json() == {
-        "detail": "Not authenticated"
-    }
+    assert response.json() == {"detail": "Not authenticated"}
 
 
 def test_list_validation_tests_nofilters():
@@ -119,17 +121,25 @@ def test_list_validation_tests_filter_by_author():
     assert len(validation_tests) == 5
     for validation_test in validation_tests:
         check_validation_test(validation_test)
-        assert len([author["family_name"] == "Appukuttan" for author in validation_test["author"]]) > 0
+        assert (
+            len([author["family_name"] == "Appukuttan" for author in validation_test["author"]])
+            > 0
+        )
 
 
 def test_list_validation_tests_filter_by_brain_region_and_authors():
-    response = client.get(f"/tests/?size=5&brain_region=hippocampus&author=Appukuttan", headers=AUTH_HEADER)
+    response = client.get(
+        f"/tests/?size=5&brain_region=hippocampus&author=Appukuttan", headers=AUTH_HEADER
+    )
     assert response.status_code == 200
     validation_tests = response.json()
     assert len(validation_tests) == 5
     for validation_test in validation_tests:
         check_validation_test(validation_test)
-        assert len([author["family_name"] == "Appukuttan" for author in validation_test["author"]]) > 0
+        assert (
+            len([author["family_name"] == "Appukuttan" for author in validation_test["author"]])
+            > 0
+        )
         assert validation_test["brain_region"] == "hippocampus"
 
 
@@ -168,10 +178,12 @@ def test_create_validation_test_with_invalid_data():
         response = client.post(f"/tests/", json=payload, headers=AUTH_HEADER)
         assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
         assert response.json() == {
-            'detail': [
-                {'loc': ['body', 'test', required_field],
-                 'msg': 'field required',
-                 'type': 'value_error.missing'}
+            "detail": [
+                {
+                    "loc": ["body", "test", required_field],
+                    "msg": "field required",
+                    "type": "value_error.missing",
+                }
             ]
         }
     # missing required validation_test instance fields
@@ -181,10 +193,12 @@ def test_create_validation_test_with_invalid_data():
         response = client.post(f"/tests/", json=payload, headers=AUTH_HEADER)
         assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
         assert response.json() == {
-            'detail': [
-                {'loc': ['body', 'test', 'instances', 0, required_field],
-                 'msg': 'field required',
-                 'type': 'value_error.missing'}
+            "detail": [
+                {
+                    "loc": ["body", "test", "instances", 0, required_field],
+                    "msg": "field required",
+                    "type": "value_error.missing",
+                }
             ]
         }
     # invalid value for Enum field
@@ -193,19 +207,21 @@ def test_create_validation_test_with_invalid_data():
     response = client.post(f"/tests/", json=payload, headers=AUTH_HEADER)
     assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
     err_msg = response.json()["detail"]
-    assert err_msg[0]['loc'] == ['body', 'test', 'species']
-    assert err_msg[0]['msg'].startswith('value is not a valid enumeration member')
-    assert err_msg[0]['type'] == 'type_error.enum'
+    assert err_msg[0]["loc"] == ["body", "test", "species"]
+    assert err_msg[0]["msg"].startswith("value is not a valid enumeration member")
+    assert err_msg[0]["type"] == "type_error.enum"
     # invalid URL
     payload = _build_sample_validation_test()
     payload["instances"][0]["repository"] = "/filesystem/path/to/doc.txt"
     response = client.post(f"/tests/", json=payload, headers=AUTH_HEADER)
     assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
     assert response.json() == {
-        'detail': [
-            {'loc': ['body', 'test', 'instances', 0, 'repository'],
-             'msg': 'invalid or missing URL scheme',
-             'type': 'value_error.url.scheme'}
+        "detail": [
+            {
+                "loc": ["body", "test", "instances", 0, "repository"],
+                "msg": "invalid or missing URL scheme",
+                "type": "value_error.url.scheme",
+            }
         ]
     }
     # incorrectly formatted "author" field
@@ -214,10 +230,12 @@ def test_create_validation_test_with_invalid_data():
     response = client.post(f"/tests/", json=payload, headers=AUTH_HEADER)
     assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
     assert response.json() == {
-        'detail': [
-            {'loc': ['body', 'test', 'author', 0],
-             'msg': 'value is not a valid dict',
-             'type': 'type_error.dict'}
+        "detail": [
+            {
+                "loc": ["body", "test", "author", 0],
+                "msg": "value is not a valid dict",
+                "type": "type_error.dict",
+            }
         ]
     }
 
@@ -228,7 +246,7 @@ def test_create_validation_test_with_existing_alias():
     response = client.post(f"/tests/", json=payload, headers=AUTH_HEADER)
     assert response.status_code == status.HTTP_409_CONFLICT
     assert response.json() == {
-        'detail': "Another validation test with alias 'bpo_efel' already exists."
+        "detail": "Another validation test with alias 'bpo_efel' already exists."
     }
 
 
@@ -248,7 +266,7 @@ def test_create_validation_test_no_alias(caplog):
 
 def test_create_duplicate_validation_test(caplog):
     # Creating two validation_tests with the same name and date_created fields is not allowed
-    #caplog.set_level(logging.INFO)
+    # caplog.set_level(logging.INFO)
     payload = _build_sample_validation_test()
     # create
     response = client.post(f"/tests/", json=payload, headers=AUTH_HEADER)
@@ -261,7 +279,7 @@ def test_create_duplicate_validation_test(caplog):
     response = client.post(f"/tests/", json=payload, headers=AUTH_HEADER)
     assert response.status_code == status.HTTP_409_CONFLICT
     assert response.json() == {
-        'detail': 'Another validation test with the same name and timestamp already exists.'
+        "detail": "Another validation test with the same name and timestamp already exists."
     }
 
     # delete first validation_test
@@ -272,7 +290,7 @@ def test_create_duplicate_validation_test(caplog):
 
 
 def test_update_validation_test(caplog):
-    #caplog.set_level(logging.INFO)
+    # caplog.set_level(logging.INFO)
     payload = _build_sample_validation_test()
     # create
     response = client.post(f"/tests/", json=payload, headers=AUTH_HEADER)
@@ -283,16 +301,16 @@ def test_update_validation_test(caplog):
     sleep(15)  # need to wait a short time to allow Nexus to become consistent
     changes = {
         "alias": posted_validation_test["alias"] + "-changed",
-        "name": posted_validation_test["name"] + " (changed)",  # as long as date_created is not changed, name can be
-        "author": [{
-            "given_name": "Tom",
-            "family_name": "Bombadil"
-        }],
+        "name": posted_validation_test["name"]
+        + " (changed)",  # as long as date_created is not changed, name can be
+        "author": [{"given_name": "Tom", "family_name": "Bombadil"}],
         "data_modality": "fMRI",
-        "description": "The previous description was too short"
+        "description": "The previous description was too short",
     }
     # update
-    response = client.put(f"/tests/{posted_validation_test['id']}", json=changes, headers=AUTH_HEADER)
+    response = client.put(
+        f"/tests/{posted_validation_test['id']}", json=changes, headers=AUTH_HEADER
+    )
     assert response.status_code == 200
     updated_validation_test = response.json()
     check_validation_test(updated_validation_test)
@@ -318,15 +336,20 @@ def test_update_validation_test_with_invalid_data():
     # none of them should be applied
     changes = {
         "alias": posted_validation_test["alias"] + "-changed",
-        "name": posted_validation_test["name"] + " (changed)",  # as long as date_created is not changed, name can be
+        "name": posted_validation_test["name"]
+        + " (changed)",  # as long as date_created is not changed, name can be
         "author": None,  # invalid
         "data_modality": "foo",  # invalid
-        "description": None   # invalid
+        "description": None,  # invalid
     }
-    response = client.put(f"/tests/{posted_validation_test['id']}", json=changes, headers=AUTH_HEADER)
+    response = client.put(
+        f"/tests/{posted_validation_test['id']}", json=changes, headers=AUTH_HEADER
+    )
     assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
     errmsg = response.json()["detail"]
-    assert set([part['loc'][-1] for part in errmsg]) == set(['author', 'data_modality', 'description'])
+    assert set([part["loc"][-1] for part in errmsg]) == set(
+        ["author", "data_modality", "description"]
+    )
 
     # delete validation_test
     response = client.delete(f"/tests/{posted_validation_test['id']}", headers=AUTH_HEADER)
@@ -343,14 +366,18 @@ def test_changing_to_invalid_alias():
     check_validation_test(posted_validation_test)
 
     changes = {"alias": "bpo_efel"}
-    response = client.put(f"/tests/{posted_validation_test['id']}", json=changes, headers=AUTH_HEADER)
+    response = client.put(
+        f"/tests/{posted_validation_test['id']}", json=changes, headers=AUTH_HEADER
+    )
     assert response.status_code == status.HTTP_409_CONFLICT
-    assert response.json()["detail"] == "Another validation test with alias 'bpo_efel' already exists."
+    assert (
+        response.json()["detail"]
+        == "Another validation test with alias 'bpo_efel' already exists."
+    )
 
     # delete validation_test
     response = client.delete(f"/tests/{posted_validation_test['id']}", headers=AUTH_HEADER)
     assert response.status_code == 200
-
 
 
 def test_list_validation_test_instances_by_validation_test_id():
@@ -375,29 +402,27 @@ def test_get_validation_test_instance_by_id():
 
 
 def test_get_validation_test_instance_by_test_id_and_id():
-    validation_test_uuid  = "01c68387-fcc4-4fd3-85f0-6eb8ce4467a1"
+    validation_test_uuid = "01c68387-fcc4-4fd3-85f0-6eb8ce4467a1"
     instance_uuid = "46e376a8-8c46-44ce-aa76-020d35114703"
-    response = client.get(f"/tests/{validation_test_uuid}/instances/{instance_uuid}", headers=AUTH_HEADER)
+    response = client.get(
+        f"/tests/{validation_test_uuid}/instances/{instance_uuid}", headers=AUTH_HEADER
+    )
     assert response.status_code == 200
     validation_test_instance = response.json()
     check_validation_test_instance(validation_test_instance)
 
 
 def test_get_validation_test_instance_by_test_id_and_version():
-    validation_test_uuid  = "100abccb-6d30-4c1e-a960-bc0489e0d82d"
+    validation_test_uuid = "100abccb-6d30-4c1e-a960-bc0489e0d82d"
     expected_instances = [
-        {
-            "instance_uuid": "1d22e1c0-5a74-49b4-b114-41d233d3250a",
-            "version": "1.0"
-        },
-        {
-            "instance_uuid": "b645536f-fd2c-4a84-9e3e-9372018fbe5d",
-            "version": "1.3.5"
-        }
+        {"instance_uuid": "1d22e1c0-5a74-49b4-b114-41d233d3250a", "version": "1.0"},
+        {"instance_uuid": "b645536f-fd2c-4a84-9e3e-9372018fbe5d", "version": "1.3.5"},
     ]
     for test_case in expected_instances:
-        response = client.get(f"/tests/{validation_test_uuid}/instances/?version={test_case['version']}",
-                              headers=AUTH_HEADER)
+        response = client.get(
+            f"/tests/{validation_test_uuid}/instances/?version={test_case['version']}",
+            headers=AUTH_HEADER,
+        )
         assert response.status_code == 200
         validation_test_instances = response.json()
         assert len(validation_test_instances) == 1
@@ -407,11 +432,10 @@ def test_get_validation_test_instance_by_test_id_and_version():
 
 
 def test_get_validation_test_instance_latest_by_test_id():
-    validation_test_uuid  = "100abccb-6d30-4c1e-a960-bc0489e0d82d"
+    validation_test_uuid = "100abccb-6d30-4c1e-a960-bc0489e0d82d"
     expected_instance_uuid = "b645536f-fd2c-4a84-9e3e-9372018fbe5d"
 
-    response = client.get(f"/tests/{validation_test_uuid}/instances/latest",
-                            headers=AUTH_HEADER)
+    response = client.get(f"/tests/{validation_test_uuid}/instances/latest", headers=AUTH_HEADER)
     assert response.status_code == 200
     validation_test_instance = response.json()
     check_validation_test_instance(validation_test_instance)
@@ -433,11 +457,11 @@ def test_create_validation_test_instance():
         "description": "description of this version",
         "parameters": "{'meaning': 41.9}",
         "path": "mylib.tests.MeaningOfLifeTest",
-        "repository": "http://example.com/my_code.py"
+        "repository": "http://example.com/my_code.py",
     }
-    response = client.post(f"/tests/{validation_test_uuid}/instances/",
-                           json=payload2,
-                           headers=AUTH_HEADER)
+    response = client.post(
+        f"/tests/{validation_test_uuid}/instances/", json=payload2, headers=AUTH_HEADER
+    )
     assert response.status_code == status.HTTP_201_CREATED
 
     # now retrieve the test and check we have both instances
@@ -465,9 +489,9 @@ def test_create_validation_test_instance_with_duplicate_version_and_parameters()
     # now try to add a duplicate instance
     sleep(30)
     payload2 = payload["instances"][0]
-    response = client.post(f"/tests/{validation_test_uuid}/instances/",
-                           json=payload2,
-                           headers=AUTH_HEADER)
+    response = client.post(
+        f"/tests/{validation_test_uuid}/instances/", json=payload2, headers=AUTH_HEADER
+    )
     assert response.status_code == status.HTTP_409_CONFLICT
 
     # delete test
@@ -488,9 +512,9 @@ def test_create_validation_test_instance_with_duplicate_version_different_parame
     sleep(20)
     payload2 = payload["instances"][0]
     payload2["parameters"] = "{'meaning': 42.1}"
-    response = client.post(f"/tests/{validation_test_uuid}/instances/",
-                        json=payload2,
-                        headers=AUTH_HEADER)
+    response = client.post(
+        f"/tests/{validation_test_uuid}/instances/", json=payload2, headers=AUTH_HEADER
+    )
     assert response.status_code == status.HTTP_201_CREATED
 
     # delete test
@@ -514,8 +538,9 @@ def test_update_test_instance():
         "description": "a more detailed description of this version",
         "repository": "http://example.com/my_code_in_a_new_location.py",
     }
-    response = client.put(f"/tests/{test_uuid}/instances/{test_instance_uuid}",
-                          json=payload2, headers=AUTH_HEADER)
+    response = client.put(
+        f"/tests/{test_uuid}/instances/{test_instance_uuid}", json=payload2, headers=AUTH_HEADER
+    )
     assert response.status_code == 200
 
     # now retrieve the test and check the instance has been updated
@@ -524,7 +549,9 @@ def test_update_test_instance():
     assert response.status_code == 200
     retrieved_test = response.json()
     assert len(retrieved_test["instances"]) == 1
-    assert retrieved_test["instances"][0]["version"] == payload1["instances"][0]["version"]  # should be unchanged
+    assert (
+        retrieved_test["instances"][0]["version"] == payload1["instances"][0]["version"]
+    )  # should be unchanged
     assert retrieved_test["instances"][0]["repository"] == payload2["repository"]
     assert retrieved_test["instances"][0]["description"] == payload2["description"]
 
@@ -545,11 +572,10 @@ def test_update_test_instance_version():
     test_instance_uuid = posted_test["instances"][0]["id"]
 
     # now edit the instance
-    payload2 = {
-        "version": "1.24"
-    }
-    response = client.put(f"/tests/{test_uuid}/instances/{test_instance_uuid}",
-                          json=payload2, headers=AUTH_HEADER)
+    payload2 = {"version": "1.24"}
+    response = client.put(
+        f"/tests/{test_uuid}/instances/{test_instance_uuid}", json=payload2, headers=AUTH_HEADER
+    )
     assert response.status_code == 200
 
     # now retrieve the test and check the instance has been updated

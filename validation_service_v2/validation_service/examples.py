@@ -5,21 +5,10 @@ EXAMPLES = {
         "name": "Kali_Freund",
         "alias": "kali-freund-2004",
         "author": [
-            {
-                "given_name": "Szabolcs",
-                "family_name": "Kali"
-            },
-            {
-                "given_name": "Tamas F.",
-                "family_name": "Freund"
-            }
+            {"given_name": "Szabolcs", "family_name": "Kali"},
+            {"given_name": "Tamas F.", "family_name": "Freund"},
         ],
-        "owner": [
-            {
-                "given_name": "Tamas F.",
-                "family_name": "Freund"
-            }
-        ],
+        "owner": [{"given_name": "Tamas F.", "family_name": "Freund"}],
         "project_id": "343",
         "organization": None,
         "private": False,
@@ -45,7 +34,7 @@ EXAMPLES = {
                 "hash": None,
                 "timestamp": "2017-09-24T20:59:27.577819+00:00",
                 "morphology": None,
-                "model_id": "cb62b56e-bdfa-4016-81cd-c9dbc834cebc"
+                "model_id": "cb62b56e-bdfa-4016-81cd-c9dbc834cebc",
             },
             {
                 "id": "2b07e752-a051-4c10-85df-4591949c568e",
@@ -59,8 +48,8 @@ EXAMPLES = {
                 "hash": None,
                 "timestamp": "2017-09-24T20:59:31.174931+00:00",
                 "morphology": None,
-                "model_id": "cb62b56e-bdfa-4016-81cd-c9dbc834cebc"
-            }
-        ]
+                "model_id": "cb62b56e-bdfa-4016-81cd-c9dbc834cebc",
+            },
+        ],
     }
 }

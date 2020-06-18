@@ -16,27 +16,30 @@ kg_client = None
 oauth = OAuth()
 
 oauth.register(
-    name='ebrains',
+    name="ebrains",
     server_metadata_url=settings.EBRAINS_IAM_CONF_URL,
     client_id=settings.EBRAINS_IAM_CLIENT_ID,
     client_secret=settings.EBRAINS_IAM_SECRET,
     userinfo_endpoint=f"{settings.HBP_IDENTITY_SERVICE_URL_V2}/userinfo",
     client_kwargs={
-        'scope': 'openid profile collab.drive clb.drive:read clb.drive:write group team web-origins role_list roles email',
-        'trust_env': False
-    }
+        "scope": "openid profile collab.drive clb.drive:read clb.drive:write group team web-origins role_list roles email",
+        "trust_env": False,
+    },
 )
+
 
 def get_kg_token():
     data = {
         "grant_type": "refresh_token",
         "refresh_token": settings.KG_SERVICE_ACCOUNT_REFRESH_TOKEN,
         "client_id": settings.KG_SERVICE_ACCOUNT_CLIENT_ID,
-        "client_secret": settings.KG_SERVICE_ACCOUNT_SECRET
+        "client_secret": settings.KG_SERVICE_ACCOUNT_SECRET,
     }
     response = requests.post(settings.OIDC_ENDPOINT, data=data)
     if response.status_code != 200:
-        raise Exception("Unable to get access token for service account")  # this should result in a 500 error
+        raise Exception(
+            "Unable to get access token for service account"
+        )  # this should result in a 500 error
     # todo: cache this in some persistent way on the server, only refresh when necessary,
     #       rather than on every request
     return response.json()["access_token"]
@@ -63,7 +66,7 @@ def get_user_from_token(token):
     # logger.debug("Requesting user information for given access token")
     res1 = requests.get(url_v1, headers=headers)
     if res1.status_code != 200:
-        #logger.debug(f"Problem with v1 token: {res1.content}")
+        # logger.debug(f"Problem with v1 token: {res1.content}")
         res2 = requests.get(url_v2, headers=headers)
         if res2.status_code != 200:
             raise HTTPException(status_code=401, detail="Invalid token")
@@ -83,29 +86,33 @@ async def get_collab_permissions_v1(collab_id, user_token):
     url = f"{settings.HBP_COLLAB_SERVICE_URL}collab/{collab_id}/permissions/"
     headers = {"Authorization": f"Bearer {user_token}"}
     res = requests.get(url, headers=headers)
-    #if res.status_code != 200:
+    # if res.status_code != 200:
     #    return {"VIEW": False, "UPDATE": False}
     try:
         response = res.json()
     except json.decoder.JSONDecodeError:
-        raise Exception(f"Error in retrieving collab permissions from {url}. Response was: {res.content}")
+        raise Exception(
+            f"Error in retrieving collab permissions from {url}. Response was: {res.content}"
+        )
     return response
 
 
 async def get_collab_permissions_v2(collab_id, user_token):
     userinfo = await oauth.ebrains.userinfo(
-        token={"access_token": user_token, "token_type": "bearer"})
+        token={"access_token": user_token, "token_type": "bearer"}
+    )
     if "error" in userinfo:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
-                            detail=userinfo["error_description"])
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail=userinfo["error_description"]
+        )
     target_team_name = f"collab-{collab_id}"
-    matching_teams = [team for team in userinfo["roles"]["team"]
-                      if team.startswith(target_team_name)]
+    matching_teams = [
+        team for team in userinfo["roles"]["team"] if team.startswith(target_team_name)
+    ]
     if len(matching_teams) == 0:
         permissions = {"VIEW": False, "UPDATE": False}
     elif len(matching_teams) > 1:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
-                            detail="Invalid collab id")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid collab id")
     else:
         matching_team = matching_teams[0]
         if matching_team.endswith("viewer"):  # todo: what about public collabs?
@@ -113,8 +120,9 @@ async def get_collab_permissions_v2(collab_id, user_token):
         elif matching_team.endswith("editor") or matching_team.endswith("administrator"):
             permissions = {"VIEW": True, "UPDATE": True}
         else:
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
-                                detail="Invalid collab id")
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid collab id"
+            )
     return permissions
 
 

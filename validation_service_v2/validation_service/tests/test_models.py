@@ -49,21 +49,18 @@ def assert_is_valid_url(url):
 
 
 def test_get_model_by_id_no_auth():
-    test_ids = ("8fbdf42c-11a1-40c2-8311-a19f294cbc2c",
-                "cb62b56e-bdfa-4016-81cd-c9dbc834cebc")
+    test_ids = ("8fbdf42c-11a1-40c2-8311-a19f294cbc2c", "cb62b56e-bdfa-4016-81cd-c9dbc834cebc")
     for model_uuid in test_ids:
         response = client.get(f"/models/{model_uuid}")
         assert response.status_code == 403
-        assert response.json() == {
-            "detail": "Not authenticated"
-        }
+        assert response.json() == {"detail": "Not authenticated"}
 
 
 def test_get_model_by_id(caplog):
-    #caplog.set_level(logging.DEBUG)
+    # caplog.set_level(logging.DEBUG)
     test_ids = (
         (True, "8fbdf42c-11a1-40c2-8311-a19f294cbc2c"),
-        (False, "cb62b56e-bdfa-4016-81cd-c9dbc834cebc")
+        (False, "cb62b56e-bdfa-4016-81cd-c9dbc834cebc"),
     )
     for expected_private, model_uuid in test_ids:
         # first is private (but test user has access), second is public
@@ -78,9 +75,7 @@ def test_get_model_by_id(caplog):
 def test_list_models_no_auth():
     response = client.get(f"/models/")
     assert response.status_code == 403
-    assert response.json() == {
-        "detail": "Not authenticated"
-    }
+    assert response.json() == {"detail": "Not authenticated"}
 
 
 def test_list_models_nofilters():
@@ -166,7 +161,9 @@ def test_list_models_filter_by_privacy_status():
 
 
 def test_list_models_filter_by_brain_region_and_authors():
-    response = client.get(f"/models/?size=5&brain_region=hippocampus&author=Migliore", headers=AUTH_HEADER)
+    response = client.get(
+        f"/models/?size=5&brain_region=hippocampus&author=Migliore", headers=AUTH_HEADER
+    )
     assert response.status_code == 200
     models = response.json()
     assert len(models) == 5
@@ -206,20 +203,10 @@ def test_create_and_delete_network_model(caplog):
 def test_create_model_with_minimal_data(caplog):
     payload = {
         "name": f"TestModel API v2 {datetime.now(timezone.utc).isoformat()}",
-        "author": [
-            {
-            "given_name": "Frodo",
-            "family_name": "Baggins"
-            }
-        ],
-        "owner": [
-            {
-            "given_name": "Frodo",
-            "family_name": "Baggins"
-            }
-        ],
+        "author": [{"given_name": "Frodo", "family_name": "Baggins"}],
+        "owner": [{"given_name": "Frodo", "family_name": "Baggins"}],
         "project_id": "model-validation",
-        "description": "description goes here"
+        "description": "description goes here",
     }
     # create
     response = client.post(f"/models/", json=payload, headers=AUTH_HEADER)
@@ -238,6 +225,7 @@ def test_create_model_with_minimal_data(caplog):
     response = client.delete(f"/models/{model_uuid}", headers=AUTH_HEADER)
     assert response.status_code == 200
 
+
 def test_create_model_with_invalid_data():
     # missing required model project fields
     for required_field in ("name", "author", "owner", "description"):
@@ -246,10 +234,12 @@ def test_create_model_with_invalid_data():
         response = client.post(f"/models/", json=payload, headers=AUTH_HEADER)
         assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
         assert response.json() == {
-            'detail': [
-                {'loc': ['body', 'model', required_field],
-                 'msg': 'field required',
-                 'type': 'value_error.missing'}
+            "detail": [
+                {
+                    "loc": ["body", "model", required_field],
+                    "msg": "field required",
+                    "type": "value_error.missing",
+                }
             ]
         }
     # missing required model instance fields
@@ -259,10 +249,12 @@ def test_create_model_with_invalid_data():
         response = client.post(f"/models/", json=payload, headers=AUTH_HEADER)
         assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
         assert response.json() == {
-            'detail': [
-                {'loc': ['body', 'model', 'instances', 0, required_field],
-                 'msg': 'field required',
-                 'type': 'value_error.missing'}
+            "detail": [
+                {
+                    "loc": ["body", "model", "instances", 0, required_field],
+                    "msg": "field required",
+                    "type": "value_error.missing",
+                }
             ]
         }
     # invalid value for Enum field
@@ -271,19 +263,21 @@ def test_create_model_with_invalid_data():
     response = client.post(f"/models/", json=payload, headers=AUTH_HEADER)
     assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
     err_msg = response.json()["detail"]
-    assert err_msg[0]['loc'] == ['body', 'model', 'species']
-    assert err_msg[0]['msg'].startswith('value is not a valid enumeration member')
-    assert err_msg[0]['type'] == 'type_error.enum'
+    assert err_msg[0]["loc"] == ["body", "model", "species"]
+    assert err_msg[0]["msg"].startswith("value is not a valid enumeration member")
+    assert err_msg[0]["type"] == "type_error.enum"
     # invalid URL
     payload = _build_sample_model()
     payload["instances"][0]["source"] = "/filesystem/path/to/doc.txt"
     response = client.post(f"/models/", json=payload, headers=AUTH_HEADER)
     assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
     assert response.json() == {
-        'detail': [
-            {'loc': ['body', 'model', 'instances', 0, 'source'],
-             'msg': 'invalid or missing URL scheme',
-             'type': 'value_error.url.scheme'}
+        "detail": [
+            {
+                "loc": ["body", "model", "instances", 0, "source"],
+                "msg": "invalid or missing URL scheme",
+                "type": "value_error.url.scheme",
+            }
         ]
     }
     # incorrectly formatted "owner" field
@@ -292,10 +286,12 @@ def test_create_model_with_invalid_data():
     response = client.post(f"/models/", json=payload, headers=AUTH_HEADER)
     assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
     assert response.json() == {
-        'detail': [
-            {'loc': ['body', 'model', 'owner', 0],
-             'msg': 'value is not a valid dict',
-             'type': 'type_error.dict'}
+        "detail": [
+            {
+                "loc": ["body", "model", "owner", 0],
+                "msg": "value is not a valid dict",
+                "type": "type_error.dict",
+            }
         ]
     }
 
@@ -306,7 +302,7 @@ def test_create_model_with_existing_alias():
     response = client.post(f"/models/", json=payload, headers=AUTH_HEADER)
     assert response.status_code == status.HTTP_409_CONFLICT
     assert response.json() == {
-        'detail': "Another model with alias 'RatHippocampusCA1' already exists."
+        "detail": "Another model with alias 'RatHippocampusCA1' already exists."
     }
 
 
@@ -315,14 +311,12 @@ def test_create_model_without_collab_membership():
     payload["project_id"] = "636"
     response = client.post(f"/models/", json=payload, headers=AUTH_HEADER)
     assert response.status_code == status.HTTP_403_FORBIDDEN
-    assert response.json() == {
-        'detail': "This account is not a member of Collab #636"
-    }
+    assert response.json() == {"detail": "This account is not a member of Collab #636"}
 
 
 def test_create_duplicate_model(caplog):
     # Creating two models with the same name and date_created fields is not allowed
-    #caplog.set_level(logging.INFO)
+    # caplog.set_level(logging.INFO)
     payload = _build_sample_model()
     # create
     response = client.post(f"/models/", json=payload, headers=AUTH_HEADER)
@@ -335,7 +329,7 @@ def test_create_duplicate_model(caplog):
     response = client.post(f"/models/", json=payload, headers=AUTH_HEADER)
     assert response.status_code == status.HTTP_409_CONFLICT
     assert response.json() == {
-        'detail': 'Another model with the same name and timestamp already exists.'
+        "detail": "Another model with the same name and timestamp already exists."
     }
 
     # delete first model
@@ -346,7 +340,7 @@ def test_create_duplicate_model(caplog):
 
 
 def test_update_model(caplog):
-    #caplog.set_level(logging.INFO)
+    # caplog.set_level(logging.INFO)
     payload = _build_sample_model()
     # create
     response = client.post(f"/models/", json=payload, headers=AUTH_HEADER)
@@ -356,13 +350,11 @@ def test_update_model(caplog):
     # make changes
     changes = {
         "alias": posted_model["alias"] + "-changed",
-        "name": posted_model["name"] + " (changed)",  # as long as date_created is not changed, name can be
-        "owner": [{
-            "given_name": "Tom",
-            "family_name": "Bombadil"
-        }],
+        "name": posted_model["name"]
+        + " (changed)",  # as long as date_created is not changed, name can be
+        "owner": [{"given_name": "Tom", "family_name": "Bombadil"}],
         "model_scope": "network: brain region",
-        "description": "The previous description was too short"
+        "description": "The previous description was too short",
     }
     # update
     response = client.put(f"/models/{posted_model['id']}", json=changes, headers=AUTH_HEADER)
@@ -391,15 +383,18 @@ def test_update_model_with_invalid_data():
     # none of them should be applied
     changes = {
         "alias": posted_model["alias"] + "-changed",
-        "name": posted_model["name"] + " (changed)",  # as long as date_created is not changed, name can be
+        "name": posted_model["name"]
+        + " (changed)",  # as long as date_created is not changed, name can be
         "owner": None,  # invalid
         "model_scope": "foo",  # invalid
-        "description": None   # invalid
+        "description": None,  # invalid
     }
     response = client.put(f"/models/{posted_model['id']}", json=changes, headers=AUTH_HEADER)
     assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
     errmsg = response.json()["detail"]
-    assert set([part['loc'][-1] for part in errmsg]) == set(['owner', 'model_scope', 'description'])
+    assert set([part["loc"][-1] for part in errmsg]) == set(
+        ["owner", "model_scope", "description"]
+    )
 
     # delete model
     response = client.delete(f"/models/{posted_model['id']}", headers=AUTH_HEADER)
@@ -437,7 +432,9 @@ def test_changing_to_invalid_alias():
     changes = {"alias": "RatHippocampusCA1"}
     response = client.put(f"/models/{posted_model['id']}", json=changes, headers=AUTH_HEADER)
     assert response.status_code == status.HTTP_409_CONFLICT
-    assert response.json()["detail"] == "Another model with alias 'RatHippocampusCA1' already exists."
+    assert (
+        response.json()["detail"] == "Another model with alias 'RatHippocampusCA1' already exists."
+    )
 
     # delete model
     response = client.delete(f"/models/{posted_model['id']}", headers=AUTH_HEADER)
@@ -466,7 +463,7 @@ def test_get_model_instance_by_id():
 
 
 def test_get_model_instance_by_project_and_id():
-    model_uuid  = "cb62b56e-bdfa-4016-81cd-c9dbc834cebc"
+    model_uuid = "cb62b56e-bdfa-4016-81cd-c9dbc834cebc"
     instance_uuid = "a7915504-1f7a-4fed-8f68-e7e8f99529c2"
     response = client.get(f"/models/{model_uuid}/instances/{instance_uuid}", headers=AUTH_HEADER)
     assert response.status_code == 200
@@ -491,7 +488,7 @@ def test_create_model_instance():
         "parameters": "{'meaning': 42.01}",
         "code_format": "Python",
         "source": "http://example.com/my_code.py",
-        "license": "MIT"
+        "license": "MIT",
     }
     response = client.post(f"/models/{model_uuid}/instances/", json=payload2, headers=AUTH_HEADER)
     assert response.status_code == status.HTTP_201_CREATED
@@ -523,10 +520,11 @@ def test_update_model_instance():
     payload2 = {
         "description": "a more detailed description of this version",
         "source": "http://example.com/my_code_in_a_new_location.py",
-        "license": "BSD"
+        "license": "BSD",
     }
-    response = client.put(f"/models/{model_uuid}/instances/{model_instance_uuid}",
-                          json=payload2, headers=AUTH_HEADER)
+    response = client.put(
+        f"/models/{model_uuid}/instances/{model_instance_uuid}", json=payload2, headers=AUTH_HEADER
+    )
     assert response.status_code == 200
 
     # now retrieve the model and check the instance has been updated
@@ -534,7 +532,9 @@ def test_update_model_instance():
     assert response.status_code == 200
     retrieved_model = response.json()
     assert len(retrieved_model["instances"]) == 1
-    assert retrieved_model["instances"][0]["version"] == payload1["instances"][0]["version"]  # should be unchanged
+    assert (
+        retrieved_model["instances"][0]["version"] == payload1["instances"][0]["version"]
+    )  # should be unchanged
     assert retrieved_model["instances"][0]["license"] == payload2["license"]
     assert retrieved_model["instances"][0]["description"] == payload2["description"]
 
@@ -558,10 +558,11 @@ def test_update_model_instance_without_model_id():
     payload2 = {
         "description": "a more detailed description of this version",
         "source": "http://example.com/my_code_in_a_new_location.py",
-        "license": "BSD"
+        "license": "BSD",
     }
-    response = client.put(f"/models/query/instances/{model_instance_uuid}",
-                          json=payload2, headers=AUTH_HEADER)
+    response = client.put(
+        f"/models/query/instances/{model_instance_uuid}", json=payload2, headers=AUTH_HEADER
+    )
     assert response.status_code == 200
 
     # now retrieve the model and check the instance has been updated
@@ -569,7 +570,9 @@ def test_update_model_instance_without_model_id():
     assert response.status_code == 200
     retrieved_model = response.json()
     assert len(retrieved_model["instances"]) == 1
-    assert retrieved_model["instances"][0]["version"] == payload1["instances"][0]["version"]  # should be unchanged
+    assert (
+        retrieved_model["instances"][0]["version"] == payload1["instances"][0]["version"]
+    )  # should be unchanged
     assert retrieved_model["instances"][0]["license"] == payload2["license"]
     assert retrieved_model["instances"][0]["description"] == payload2["description"]
 
@@ -606,14 +609,16 @@ def test_delete_model_instance(caplog):
     # first create a model project
     payload = _build_sample_model()
     # add a second instance to the default payload
-    payload["instances"].append({
+    payload["instances"].append(
+        {
             "version": "1.3",
             "description": "description of this version",
             "parameters": "{'meaning': sqrt(42)}",
             "code_format": "Python",
             "source": "http://example.com/my_code_2.py",
-            "license": "MIT"
-    })
+            "license": "MIT",
+        }
+    )
     response = client.post(f"/models/", json=payload, headers=AUTH_HEADER)
     assert response.status_code == 201
     posted_model = response.json()
@@ -622,8 +627,9 @@ def test_delete_model_instance(caplog):
     # now delete one of the instances
     sleep(15)
     instance_uuids = [inst["id"] for inst in posted_model["instances"]]
-    response = client.delete(f"/models/{model_uuid}/instances/{instance_uuids[0]}",
-                             headers=AUTH_HEADER)
+    response = client.delete(
+        f"/models/{model_uuid}/instances/{instance_uuids[0]}", headers=AUTH_HEADER
+    )
     assert response.status_code == 200
 
     # now get the model again and check the deleted instance is not there

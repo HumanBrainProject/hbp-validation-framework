@@ -1,23 +1,36 @@
 from itertools import chain
-from fairgraph.brainsimulation import (ModelProject, ValidationTestDefinition, ValidationScript,
-                                       ModelInstance, MEModel)
+from fairgraph.brainsimulation import (
+    ModelProject,
+    ValidationTestDefinition,
+    ValidationScript,
+    ModelInstance,
+    MEModel,
+)
 
 
-def build_model_project_filters(alias, id, name, brain_region, species,
-                                cell_type, model_scope, abstraction_level,
-                                author, owner, organization, project_id,
-                                private):
+def build_model_project_filters(
+    alias,
+    id,
+    name,
+    brain_region,
+    species,
+    cell_type,
+    model_scope,
+    abstraction_level,
+    author,
+    owner,
+    organization,
+    project_id,
+    private,
+):
     context = {
         "nsg": "https://bbp-nexus.epfl.ch/vocabs/bbp/neurosciencegraph/core/v0.1.0/",
-        "schema": "http://schema.org/"
+        "schema": "http://schema.org/",
     }
-    filter_query = {
-        "op": "and",
-        "value": []
-    }
+    filter_query = {"op": "and", "value": []}
     # todo: handle filter by id
     for value, path in (
-        #(id, "@id"),  # does this work?
+        # (id, "@id"),  # does this work?
         (alias, "nsg:alias"),
         (name, "schema:name"),
         (brain_region, "nsg:brainRegion / rdfs:label"),
@@ -37,16 +50,25 @@ def build_model_project_filters(alias, id, name, brain_region, species,
     return filter_query, context
 
 
-def build_validation_test_filters(alias, id, name, status, brain_region, species, cell_type,
-                                  data_type, data_modality, test_type, score_type, author):
+def build_validation_test_filters(
+    alias,
+    id,
+    name,
+    status,
+    brain_region,
+    species,
+    cell_type,
+    data_type,
+    data_modality,
+    test_type,
+    score_type,
+    author,
+):
     context = {
         "nsg": "https://bbp-nexus.epfl.ch/vocabs/bbp/neurosciencegraph/core/v0.1.0/",
-        "schema": "http://schema.org/"
+        "schema": "http://schema.org/",
     }
-    filter_query = {
-        "op": "and",
-        "value": []
-    }
+    filter_query = {"op": "and", "value": []}
     for value, path in (
         (alias, "nsg:alias"),
         (name, "schema:name"),
@@ -58,7 +80,7 @@ def build_validation_test_filters(alias, id, name, status, brain_region, species
         (data_modality, "nsg:recordingModality"),
         (test_type, "nsg:testType"),
         (score_type, "nsg:scoreType"),
-        (author, "schema:author / schema:familyName")
+        (author, "schema:author / schema:familyName"),
     ):
         if value is not None and len(value) > 0:
             filter_query["value"].append({"path": path, "op": "in", "value": value})
@@ -72,31 +94,42 @@ def get_full_uri(kg_types, uuid, client):
     return uris
 
 
-def build_result_filters(model_version_id, test_code_id, model_id, test_id,
-                         model_alias, test_alias, score_type, passed, project_id,
-                         kg_client):
+def build_result_filters(
+    model_version_id,
+    test_code_id,
+    model_id,
+    test_id,
+    model_alias,
+    test_alias,
+    score_type,
+    passed,
+    project_id,
+    kg_client,
+):
     context = {
         "nsg": "https://bbp-nexus.epfl.ch/vocabs/bbp/neurosciencegraph/core/v0.1.0/",
         "schema": "http://schema.org/",
-        "dcterms": "http://purl.org/dc/terms/"
+        "dcterms": "http://purl.org/dc/terms/",
     }
-    filter_query = {
-        "op": "and",
-        "value": []
-    }
+    filter_query = {"op": "and", "value": []}
 
     if model_version_id is not None:
-        model_version_id = list(chain(get_full_uri([ModelInstance,MEModel], uuid, kg_client)
-                                      for uuid in model_version_id))
+        model_version_id = list(
+            chain(
+                get_full_uri([ModelInstance, MEModel], uuid, kg_client)
+                for uuid in model_version_id
+            )
+        )
     if test_code_id is not None:
-        test_code_id = list(chain(get_full_uri(ValidationScript, uuid, kg_client)
-                                  for uuid in test_code_id))
+        test_code_id = list(
+            chain(get_full_uri(ValidationScript, uuid, kg_client) for uuid in test_code_id)
+        )
     if model_id is not None:
-        model_id = list(chain(get_full_uri(ModelProject, uuid, kg_client)
-                              for uuid in model_id))
+        model_id = list(chain(get_full_uri(ModelProject, uuid, kg_client) for uuid in model_id))
     if test_id is not None:
-        test_id = list(chain(get_full_uri(ValidationTestDefinition, uuid, kg_client)
-                             for uuid in test_id))
+        test_id = list(
+            chain(get_full_uri(ValidationTestDefinition, uuid, kg_client) for uuid in test_id)
+        )
 
     for value, path in (
         (model_version_id, "prov:wasGeneratedBy / prov:used"),
@@ -107,7 +140,7 @@ def build_result_filters(model_version_id, test_code_id, model_id, test_id,
         (test_alias, "prov:wasGeneratedBy / prov:used / nsg:implements / nsg:alias"),
         (score_type, "prov:wasGeneratedBy / prov:used / nsg:implements / nsg:scoreType"),
         (passed, "nsg:passedValidation"),
-        (project_id, "nsg:collabID")
+        (project_id, "nsg:collabID"),
     ):
         if value is not None and len(value) > 0:
             filter_query["value"].append({"path": path, "op": "in", "value": value})

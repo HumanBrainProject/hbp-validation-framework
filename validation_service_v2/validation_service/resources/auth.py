@@ -8,7 +8,7 @@ router = APIRouter()
 
 @router.get("/login")
 async def login_via_ebrains(request: Request):
-    redirect_uri = BASE_URL + '/auth'
+    redirect_uri = BASE_URL + "/auth"
     return await oauth.ebrains.authorize_redirect(request, redirect_uri)
 
 
@@ -27,10 +27,7 @@ async def auth_via_ebrains(request: Request):
             "given_name": user["given_name"],
             "family_name": user["family_name"]
             # todo: add group info
-        }
+        },
     }
-    full_response = {
-        "token": token,
-        "user": user
-    }
+    full_response = {"token": token, "user": user}
     return full_response
