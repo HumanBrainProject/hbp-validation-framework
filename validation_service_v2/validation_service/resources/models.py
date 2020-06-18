@@ -336,6 +336,15 @@ async def _update_model_instance(model_instance_kg, model_project, model_instanc
     return ModelInstance.from_kg_object(model_instance_kg, kg_client, model_project.uuid)
 
 
+@router.delete("/models/query/instances/{model_instance_id}",
+               status_code=status.HTTP_200_OK)
+async def delete_model_instance_by_id(model_instance_id: UUID,
+                                      token: HTTPAuthorizationCredentials = Depends(auth)):
+    model_instance_kg, model_id = await _get_model_instance_by_id(model_instance_id, token)
+    model_project = model_instance_kg.project.resolve(kg_client, api="nexus")
+    await _delete_model_instance(model_instance_id, model_project)
+
+
 @router.delete("/models/{model_id}/instances/{model_instance_id}",
                status_code=status.HTTP_200_OK)
 async def delete_model_instance(model_id: UUID,
@@ -346,6 +355,10 @@ async def delete_model_instance(model_id: UUID,
     if not await is_collab_member(model_project.collab_id, token.credentials):
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
                             detail=f"Access to this model is restricted to members of Collab #{model_project.collab_id}")
+    await _delete_model_instance(model_instance_id, model_project)
+
+
+async def _delete_model_instance(model_instance_id, model_project):
     model_instances = as_list(model_project.instances)
     for model_instance in model_instances[:]:
         # todo: we should possibly also delete emodels, modelscripts, morphologies,

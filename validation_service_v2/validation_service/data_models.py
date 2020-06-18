@@ -288,7 +288,7 @@ class ScientificModel(BaseModel):
             try:
                 inst = ModelInstance.from_kg_object(inst_obj, client, model_id=model_project.uuid)
             except Exception as err:
-                logger.warn(f"Problem retrieving model instance {inst_obj.id}: {err}")
+                logger.warning(f"Problem retrieving model instance {inst_obj.id}: {err}")
             else:
                 instances.append(inst)
         try:
