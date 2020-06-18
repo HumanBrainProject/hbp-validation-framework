@@ -287,17 +287,6 @@ def _update_test_instance(validation_script, test_definition_kg, test_instance_p
     return ValidationTestInstance.from_kg_object(test_instance_kg, kg_client)
 
 
-@router.delete("/tests/{test_id}/instances/{test_instance_id}",
-         response_model=ValidationTestInstance, status_code=status.HTTP_200_OK)
-def update_test_instance(test_id: str,
-                         test_instance_id: str,
-                         test_instance_patch: ValidationTestInstancePatch,
-                         token: HTTPAuthorizationCredentials = Depends(auth)):
-    validation_script = _get_test_instance_by_id(test_instance_id, token)
-    test_definition_kg = _get_test_by_id_or_alias(test_id, token)
-    return _update_test_instance(validation_script, test_definition_kg, test_instance_patch, token)
-
-
 @router.delete("/tests/query/instances/{test_instance_id}", status_code=status.HTTP_200_OK)
 async def delete_test_instance_by_id(test_instance_id: UUID,
                                      token: HTTPAuthorizationCredentials = Depends(auth)):
