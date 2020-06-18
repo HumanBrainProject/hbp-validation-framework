@@ -14,6 +14,8 @@ import fairgraph
 import fairgraph.core
 import fairgraph.brainsimulation
 
+from .examples import EXAMPLES
+
 fairgraph.core.use_namespace(fairgraph.brainsimulation.DEFAULT_NAMESPACE)
 logger = logging.getLogger("validation_service_v2")
 
@@ -135,7 +137,6 @@ class ModelInstance(BaseModel):
     timestamp: datetime = None
     morphology: HttpUrl = None
     model_id: UUID = None  # id of parent model
-    # should probably add "project" or "instance_of" field containing parent model uuid
 
     class Config:
         extra = "allow"  # we temporarily store the IDs of sub-objects (e.g. ModelScript)
@@ -261,6 +262,9 @@ class Image(BaseModel):
 
 
 class ScientificModel(BaseModel):
+    """
+
+    """
     id: UUID = None
     uri: HttpUrl = None
     name: str
@@ -280,6 +284,11 @@ class ScientificModel(BaseModel):
     images: List[Image] = None
     old_uuid: UUID = None
     instances: List[ModelInstance] = None
+
+    class Config:
+        schema_extra = {
+            "example": EXAMPLES["ScientificModel"]
+        }
 
     @classmethod
     def from_kg_object(cls, model_project, client):
