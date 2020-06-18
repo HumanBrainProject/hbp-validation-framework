@@ -235,7 +235,7 @@ async def get_model_instances(model_id: str,
                               version: str = None,
                               token: HTTPAuthorizationCredentials = Depends(auth)):
     model_project = await _get_model_by_id_or_alias(model_id, token)
-    model_instances = [ModelInstance.from_kg_object(inst, kg_client, model_id)
+    model_instances = [ModelInstance.from_kg_object(inst, kg_client, model_project.uuid)
                        for inst in as_list(model_project.instances)]
     if version is not None:
         model_instances = [inst for inst in model_instances if inst.version == version]
@@ -253,7 +253,7 @@ async def get_model_instance_from_instance_id(model_instance_id: UUID,
 async def get_latest_model_instance_given_model_id(model_id: str,
                                                    token: HTTPAuthorizationCredentials = Depends(auth)):
     model_project = await _get_model_by_id_or_alias(model_id, token)
-    model_instances = [ModelInstance.from_kg_object(inst, kg_client, model_id)
+    model_instances = [ModelInstance.from_kg_object(inst, kg_client, model_project.uuid)
                        for inst in as_list(model_project.instances)]
     latest = sorted(model_instances, key=lambda inst: inst["timestamp"])[-1]
     return latest
@@ -266,7 +266,7 @@ async def get_model_instance_given_model_id(model_id: str,
     model_project = await _get_model_by_id_or_alias(model_id, token)
     for inst in as_list(model_project.instances):
         if UUID(inst.uuid) == model_instance_id:
-            return ModelInstance.from_kg_object(inst, kg_client, model_id)
+            return ModelInstance.from_kg_object(inst, kg_client, model_project.uuid)
     raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
                         detail="Model ID/alias and model instance ID are inconsistent")
 
