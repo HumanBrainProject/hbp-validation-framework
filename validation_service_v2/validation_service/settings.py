@@ -1,7 +1,7 @@
 import os
 
 NEXUS_ENDPOINT = "https://nexus.humanbrainproject.org/v0"
-OIDC_ENDPOINT = "https://services.humanbrainproject.eu/oidc/token"
+OIDC_HOST = "https://services.humanbrainproject.eu/oidc"
 HBP_IDENTITY_SERVICE_URL_V1 = "https://services.humanbrainproject.eu/idm/v1/api"
 HBP_IDENTITY_SERVICE_URL_V2 = (
     "https://iam.humanbrainproject.eu/auth/realms/hbp/protocol/openid-connect"

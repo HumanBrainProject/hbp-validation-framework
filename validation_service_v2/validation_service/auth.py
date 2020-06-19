@@ -28,27 +28,16 @@ oauth.register(
 )
 
 
-def get_kg_token():
-    data = {
-        "grant_type": "refresh_token",
-        "refresh_token": settings.KG_SERVICE_ACCOUNT_REFRESH_TOKEN,
-        "client_id": settings.KG_SERVICE_ACCOUNT_CLIENT_ID,
-        "client_secret": settings.KG_SERVICE_ACCOUNT_SECRET,
-    }
-    response = requests.post(settings.OIDC_ENDPOINT, data=data)
-    if response.status_code != 200:
-        raise Exception(
-            "Unable to get access token for service account"
-        )  # this should result in a 500 error
-    # todo: cache this in some persistent way on the server, only refresh when necessary,
-    #       rather than on every request
-    return response.json()["access_token"]
-
-
 def get_kg_client():
     global kg_client
     if kg_client is None:
-        kg_client = KGClient(get_kg_token(), nexus_endpoint=settings.NEXUS_ENDPOINT)
+        kg_client = KGClient(
+            client_id=settings.KG_SERVICE_ACCOUNT_CLIENT_ID,
+            client_secret=settings.KG_SERVICE_ACCOUNT_SECRET,
+            refresh_token=settings.KG_SERVICE_ACCOUNT_REFRESH_TOKEN,
+            oidc_host=settings.OIDC_HOST,
+            nexus_endpoint=settings.NEXUS_ENDPOINT,
+        )
     return kg_client
 
 
