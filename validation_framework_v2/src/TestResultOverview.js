@@ -12,6 +12,7 @@ import Paper from '@material-ui/core/Paper';
 import Avatar from '@material-ui/core/Avatar';
 import Tooltip from '@material-ui/core/Tooltip';
 import Divider from '@material-ui/core/Divider';
+import Theme from './theme';
 
 import { formatTimeStampToCompact, roundFloat } from "./utils";
 import { updateHash } from "./globals";
@@ -115,10 +116,10 @@ class ResultEntryTest extends React.Component {
 							<TableRow key={model_inst_id}>
 								{
 									(index_tt === 0) ?
-										<TableCell align="right" bgcolor='#b9cbda' rowSpan={Object.keys(result_model.model_instances).length}>{result_model.model_alias ? result_model.model_alias : result_model.model_name}</TableCell>
+										<TableCell align="right" bgcolor={Theme.tableDataHeader} rowSpan={Object.keys(result_model.model_instances).length}>{result_model.model_alias ? result_model.model_alias : result_model.model_name}</TableCell>
 										: <React.Fragment></React.Fragment>
 								}
-								<TableCell align="right" bgcolor='#b9cbda'>{result_model.model_instances[model_inst_id].model_version}</TableCell>
+								<TableCell align="right" bgcolor={Theme.tableDataHeader}>{result_model.model_instances[model_inst_id].model_version}</TableCell>
 								{
 									test_versions.map(function (test_version_entry) {
 										return (
@@ -301,24 +302,24 @@ export default class TestResultOverview extends React.Component {
 							<Table aria-label="spanning table">
 								<TableHead>
 									<TableRow>
-										<TableCell align="center" colSpan={2} rowSpan={2} bgcolor='#26547d'>Model</TableCell>
-										<TableCell align="center" colSpan={this.state.test_versions.length * 2}>Test Version(s)</TableCell>
+										<TableCell align="center" colSpan={2} rowSpan={2} bgcolor={Theme.tableRowSelectColor}>Model</TableCell>
+										<TableCell align="center" colSpan={test_versions.length * 2} bgcolor={Theme.tableRowSelectColor}>Test Version(s)</TableCell>
 									</TableRow>
 									<TableRow>
 										{
 											test_versions.map((item, index) => (
-												<TableCell align="center" colSpan={2} key={item["test_inst_id"]}>{item["test_version"]}</TableCell>
+												<TableCell align="center" colSpan={2} key={item["test_inst_id"]} bgcolor={Theme.tableHeader}>{item["test_version"]}</TableCell>
 											))
 										}
 									</TableRow>
 									<TableRow>
-										<TableCell align="center" bgcolor='#3277b3'>Model Name</TableCell>
-										<TableCell align="center" bgcolor='#3277b3'>Model Version</TableCell>
+										<TableCell align="center" bgcolor={Theme.tableHeader}>Model Name</TableCell>
+										<TableCell align="center" bgcolor={Theme.tableHeader}>Model Version</TableCell>
 										{
 											test_versions.map((item, index) => (
 												<React.Fragment key={index}>
-													<TableCell align="right">Score</TableCell>
-													<TableCell align="center">Date (Time)</TableCell>
+													<TableCell align="right" bgcolor={Theme.tableDataHeader}>Score</TableCell>
+													<TableCell align="center" bgcolor={Theme.tableDataHeader}>Date (Time)</TableCell>
 												</React.Fragment>
 											))
 										}

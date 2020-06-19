@@ -12,6 +12,7 @@ import AppBar from '@material-ui/core/AppBar';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import Box from '@material-ui/core/Box';
+import Theme from './theme';
 
 import ResultDetailHeader from './ResultDetailHeader';
 import ResultDetailContent from './ResultDetailContent';
@@ -96,16 +97,21 @@ export default class ResultDetail extends React.Component {
 
 						<ResultDetailHeader
 							id={result.id}
-							timestamp={result.timestamp}
+                            timestamp={result.timestamp}
+                            modelID={result.model_version.model.id}
 							modelName={result.model_version.model.name}
-							modelAlias={result.model_version.model.alias}
-							modelVersion={result.model_version.version}
+                            modelAlias={result.model_version.model.alias}
+                            modelInstID={result.model_version.id}
+                            modelVersion={result.model_version.version}
+                            testID={result.test_code.test_definition.id}
 							testName={result.test_code.test_definition.name}
-							testAlias={result.test_code.test_definition.alias}
+                            testAlias={result.test_code.test_definition.alias}
+                            testInstID={result.test_code.id}
 							testVersion={result.test_code.version}
 						/>
 						<AppBar position="static">
-							<Tabs value={this.state.tabValue} onChange={this.handleTabChange}>
+							<Tabs value={this.state.tabValue} onChange={this.handleTabChange}
+								style={{ backgroundColor: Theme.tableRowSelectColor, color: Theme.textPrimary }}>
 								<Tab label="Result Info" />
 								<Tab label="Result Files" />
 								<Tab label="Model/Test Info" />

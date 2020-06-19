@@ -1,72 +1,81 @@
-import React from 'react';
-import Grid from '@material-ui/core/Grid';
-import Box from '@material-ui/core/Box';
 import { Typography } from '@material-ui/core';
-import Paper from '@material-ui/core/Paper';
-import Table from '@material-ui/core/Table';
-import TableBody from '@material-ui/core/TableBody';
-import TableCell from '@material-ui/core/TableCell';
-import TableContainer from '@material-ui/core/TableContainer';
-import TableRow from '@material-ui/core/TableRow';
+import Box from '@material-ui/core/Box';
+import Grid from '@material-ui/core/Grid';
+import React from 'react';
+import Theme from './theme';
 
 function ResultFile(props) {
-	// See for details: https://github.com/HumanBrainProject/hbp-validation-framework/issues/246
-	let url = "";
-	var filename = "";
-	if ("download_url" in props.r_file) {
-		url = props.r_file.download_url;
-		if ("collab_storage" in props.r_file) {
-			// for files stored in Collab storage
-			filename = props.r_file.collab_storage.path.split('/').pop().split('#')[0].split('?')[0];
-		} else {
-			//  for files not stored in collab storage
-			filename = url.split('/').pop().split('#')[0].split('?')[0];
-		}
-	} else {
-		// collab URL retrieval fails
-		url = props.r_file.original_url;
-		filename = url.split('/').pop().split('#')[0].split('?')[0];
-	}
-	return (
-		<TableRow>
-			<TableCell>
-				<a style={{ display: "table-cell", cursor: 'pointer' }} href={url} target="_blank" rel="noopener noreferrer">
-					<Typography variant="body2">
-						{filename}
-					</Typography>
-				</a>
-			</TableCell>
-		</TableRow>
-	)
+    // See for details: https://github.com/HumanBrainProject/hbp-validation-framework/issues/246
+    let url = "";
+    var filename = "";
+    if ("download_url" in props.r_file) {
+        url = props.r_file.download_url;
+        if ("collab_storage" in props.r_file) {
+            // for files stored in Collab storage
+            filename = props.r_file.collab_storage.path.split('/').pop().split('#')[0].split('?')[0];
+        } else {
+            //  for files not stored in collab storage
+            filename = url.split('/').pop().split('#')[0].split('?')[0];
+        }
+    } else {
+        // collab URL retrieval fails
+        url = props.r_file.original_url;
+        filename = url.split('/').pop().split('#')[0].split('?')[0];
+    }
+    return (
+        // <TableRow>
+        // 	<TableCell>
+        // 		<a style={{ display: "table-cell", cursor: 'pointer' }} href={url} target="_blank" rel="noopener noreferrer">
+        // 			<Typography variant="body2">
+        // 				{filename}
+        // 			</Typography>
+        // 		</a>
+        // 	</TableCell>
+        // </TableRow>
+        <Box component="div" my={2} bgcolor={Theme.lightBackground} overflow="auto" border={1} borderColor="grey.500" borderRadius={10} style={{ padding: 10 }} whiteSpace="nowrap" width="75%">
+            <a style={{ display: "table-cell", cursor: 'pointer' }} href={url} target="_blank" rel="noopener noreferrer">
+                <Typography variant="body2">
+                    {filename}
+                </Typography>
+            </a>
+        </Box>
+    )
 }
 
-export default function ResultRelatedFiles(props) {
-	if (props.result_files.length === 0) {
-		return (
-			<Typography variant="subtitle1"><b>No files were generated during the validation process!</b></Typography>
-		)
-	} else {
-		return (
-			<Grid container>
-				<Box px={2} pb={0}>
-					<Typography variant="subtitle1"><b>File(s) generated during the validation process:</b></Typography>
-				</Box>
-				<br /><br />
-				<Grid item xs={12}>
-					<TableContainer component={Paper}>
+export default class ResultRelatedFiles extends React.Component {
+    render() {
+        if (this.props.result_files.length === 0) {
+            return (
+                <Typography variant="subtitle1"><b>No files were generated during the validation process!</b></Typography>
+            )
+        } else {
+            return (
+                <Grid container>
+                    <Box px={2} pb={0}>
+                        <Typography variant="subtitle1"><b>File(s) generated during the validation process:</b></Typography>
+                    </Box>
+                    <br /><br />
+                    <Grid item xs={12}>
+                        {/* <TableContainer component={Paper}>
 						<Table>
 							<TableBody>
-								{props.result_files.map((r_file, ind) => (
+								{this.props.result_files.map((r_file, ind) => (
 									<ResultFile r_file={r_file} key={ind} />
 								))}
 							</TableBody>
 						</Table>
-					</TableContainer>
-				</Grid>
-			</Grid>
-		)
-	}
+					</TableContainer> */}
+
+                        {this.props.result_files.map((r_file, ind) => (
+                            <ResultFile r_file={r_file} key={ind} />
+                        ))}
+                    </Grid>
+                </Grid>
+            )
+        }
+    }
 }
+
 
 // Source: https://github.com/HumanBrainProject/hbp-validation-framework/issues/246
 

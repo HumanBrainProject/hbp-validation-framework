@@ -175,7 +175,7 @@ class ModelDetailContent extends React.Component {
                     <Grid item>
                         <Box p={2}>
                             <Typography><b>Description: </b></Typography>
-                            <Markdown>{this.props.description}</Markdown>
+                            <Markdown>{this.props.description}</Markdown><br/><br/>
                         </Box>
                     </Grid>
                     <Grid item>
@@ -198,7 +198,7 @@ class ModelDetailContent extends React.Component {
                                     alignItems: "center",
                                 }}>
                                     <Box display="flex" flexDirection="row">
-                                        <p variant="subtitle2">Version: {instance.version}</p>
+                                        <p variant="subtitle2">Version: <span style={{ cursor: "pointer" }} onClick={() => copyToClipboard(instance.version, this.props.enqueueSnackbar, "Model version copied")}>{instance.version}</span></p>
                                         <Tooltip placement="right" title={this.state.instancesWithResults.includes(instance.id) ? "Cannot Edit" : "Edit"}>
                                             <IconButton aria-label="edit model instance" onClick={() => this.handleEditClick(instance)}>
                                                 <EditIcon />
@@ -213,7 +213,7 @@ class ModelDetailContent extends React.Component {
                                 <InstanceParameter label="Morphology" value={instance.morphology} enqueueSnackbar={this.props.enqueueSnackbar} />
                                 <InstanceParameter label="Code format" value={instance.code_format} enqueueSnackbar={this.props.enqueueSnackbar} />
                                 <InstanceParameter label="License" value={instance.license} enqueueSnackbar={this.props.enqueueSnackbar} />
-                                <Typography variant="caption" color="textSecondary">ID: <span style={{ marginHorizontal: 125, cursor: "pointer" }} onClick={() => copyToClipboard(instance.id, this.props.enqueueSnackbar, "Model instance UUID copied")}>{instance.id}</span></Typography>
+                                <Typography variant="caption" color="textSecondary">ID: <span style={{ cursor: "pointer" }} onClick={() => copyToClipboard(instance.id, this.props.enqueueSnackbar, "Model instance UUID copied")}>{instance.id}</span></Typography>
                                 <IconButton aria-label="download code" href={instance.source}>
                                     <CloudDownloadIcon />
                                 </IconButton>
