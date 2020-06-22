@@ -71,7 +71,7 @@ function InstanceParameter(props) {
                 <Grid container>
                     <Grid item xs={12}>
                         <Typography variant="body2"><b>{props.label}: </b></Typography>
-                        <Box component="div" my={2} bgcolor="white" overflow="auto" border={1} borderColor="grey.500" borderRadius={10} style={{ padding: 10, cursor: "pointer" }} whiteSpace="nowrap" onClick={() => copyToClipboard(props.value, props.enqueueSnackbar, props.label + " copied")} width="75%">{props.value}</Box>
+                        <Box component="div" my={2} bgcolor="white" overflow="auto" border={1} borderColor="grey.500" borderRadius={10} style={{ padding: 10, cursor: "pointer" }} whiteSpace="nowrap" onClick={() => copyToClipboard(props.value, props.enqueueSnackbar, props.label + " copied")}>{props.value}</Box>
                     </Grid>
                 </Grid>
             )
@@ -170,53 +170,58 @@ class ModelDetailContent extends React.Component {
         return (
             <React.Fragment>
                 {console.log(this.state.instancesWithResults)}
-                <Grid container style={{ minWidth: "800px" }} direction="column" item={true}>
-
-                    <Grid item>
-                        <Box p={2}>
+                <Grid container direction="column">
+                    <Grid item xs={12}>
+                        <Box>
                             <Typography><b>Description: </b></Typography>
-                            <Markdown>{this.props.description}</Markdown><br/><br/>
+                            <Markdown>{this.props.description}</Markdown><br /><br />
                         </Box>
                     </Grid>
-                    <Grid item>
-                        <Grid container xs={9} direction="row" item={true} style={{ justify: "space-between", flex: 1 }}>
-                            <Grid item>
-                                <Box px={2} pb={0} xs={3}>
-                                    <Typography variant="subtitle1"><b>Versions</b></Typography>
-                                </Box>
-                            </Grid>
+                    <Grid item xs={12}>
+                        <Grid container direction="row">
                             <Grid item xs={6}>
+                                <Typography variant="subtitle1"><b>Versions</b></Typography>
+                            </Grid>
+                            <Grid container item justify="flex-end" xs={6}>
                                 <Button variant="contained" style={{ backgroundColor: Theme.buttonPrimary }} onClick={() => this.setState({ openAddInstanceForm: true })}>
                                     Add new version
 								</Button>
                             </Grid>
                         </Grid>
                         {this.state.instances.map(instance => (
-                            <Box m={2} p={2} pb={0} xs={12} style={{ backgroundColor: Theme.lightBackground }} key={instance.id}>
-                                <div style={{
-                                    display: "flex",
-                                    alignItems: "center",
-                                }}>
-                                    <Box display="flex" flexDirection="row">
-                                        <p variant="subtitle2">Version: <span style={{ cursor: "pointer" }} onClick={() => copyToClipboard(instance.version, this.props.enqueueSnackbar, "Model version copied")}>{instance.version}</span></p>
-                                        <Tooltip placement="right" title={this.state.instancesWithResults.includes(instance.id) ? "Cannot Edit" : "Edit"}>
-                                            <IconButton aria-label="edit model instance" onClick={() => this.handleEditClick(instance)}>
-                                                <EditIcon />
-                                            </IconButton>
-                                        </Tooltip>
-                                    </Box>
-                                </div>
-                                <Typography variant="body2" color="textSecondary" style={{ marginBottom: 10 }}>{formatTimeStampToLongString(instance.timestamp)}</Typography>
-                                <InstanceParameter label="Description" value={instance.description} enqueueSnackbar={this.props.enqueueSnackbar} />
-                                <InstanceParameter label="Source" value={instance.source} enqueueSnackbar={this.props.enqueueSnackbar} />
-                                <InstanceParameter label="Parameters" value={instance.parameters} enqueueSnackbar={this.props.enqueueSnackbar} />
-                                <InstanceParameter label="Morphology" value={instance.morphology} enqueueSnackbar={this.props.enqueueSnackbar} />
-                                <InstanceParameter label="Code format" value={instance.code_format} enqueueSnackbar={this.props.enqueueSnackbar} />
-                                <InstanceParameter label="License" value={instance.license} enqueueSnackbar={this.props.enqueueSnackbar} />
-                                <Typography variant="caption" color="textSecondary">ID: <span style={{ cursor: "pointer" }} onClick={() => copyToClipboard(instance.id, this.props.enqueueSnackbar, "Model instance UUID copied")}>{instance.id}</span></Typography>
-                                <IconButton aria-label="download code" href={instance.source}>
-                                    <CloudDownloadIcon />
-                                </IconButton>
+                            <Box my={2} pb={0} style={{ backgroundColor: Theme.lightBackground }} key={instance.id}>
+                                <Grid container style={{ display: "flex", alignItems: "center", backgroundColor: Theme.tableHeader }}>
+                                    <Grid item xs={6}>
+                                        <Box px={2} display="flex" flexDirection="row">
+                                            <p variant="subtitle2">Version: <span style={{ cursor: "pointer", fontWeight: "bold" }} onClick={() => copyToClipboard(instance.version, this.props.enqueueSnackbar, "Model version copied")}>{instance.version}</span></p>
+                                            <Tooltip placement="right" title={this.state.instancesWithResults.includes(instance.id) ? "Cannot Edit" : "Edit"}>
+                                                <IconButton aria-label="edit model instance" onClick={() => this.handleEditClick(instance)}>
+                                                    <EditIcon />
+                                                </IconButton>
+                                            </Tooltip>
+                                            <Tooltip placement="right" title="Download model instance">
+                                                <IconButton aria-label="download code" href={instance.source}>
+                                                    <CloudDownloadIcon />
+                                                </IconButton>
+                                            </Tooltip>
+
+                                        </Box>
+                                    </Grid>
+                                    <Grid container item justify="flex-end" xs={6}>
+                                        <Box px={2} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                            <Typography variant="body2" color="textSecondary">ID: <span style={{ cursor: "pointer" }} onClick={() => copyToClipboard(instance.id, this.props.enqueueSnackbar, "Model instance UUID copied")}>{instance.id}</span></Typography>
+                                        </Box>
+                                    </Grid>
+                                </Grid>
+                                <Box p={2}>
+                                    <Typography variant="body2" color="textSecondary" style={{ marginBottom: 10 }}>{formatTimeStampToLongString(instance.timestamp)}</Typography>
+                                    <InstanceParameter label="Description" value={instance.description} enqueueSnackbar={this.props.enqueueSnackbar} />
+                                    <InstanceParameter label="Source" value={instance.source} enqueueSnackbar={this.props.enqueueSnackbar} />
+                                    <InstanceParameter label="Parameters" value={instance.parameters} enqueueSnackbar={this.props.enqueueSnackbar} />
+                                    <InstanceParameter label="Morphology" value={instance.morphology} enqueueSnackbar={this.props.enqueueSnackbar} />
+                                    <InstanceParameter label="Code format" value={instance.code_format} enqueueSnackbar={this.props.enqueueSnackbar} />
+                                    <InstanceParameter label="License" value={instance.license} enqueueSnackbar={this.props.enqueueSnackbar} />
+                                </Box>
                             </Box>
                         ))}
                     </Grid>

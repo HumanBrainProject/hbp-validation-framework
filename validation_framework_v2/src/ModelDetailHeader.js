@@ -89,7 +89,7 @@ class ModelDetailHeader extends React.Component {
                     <Typography variant="h5" gutterBottom>
                         {this.props.authors}
                     </Typography>
-                    <Typography variant="caption" color="textSecondary" gutterBottom>
+                    <Typography variant="body2" color="textSecondary" gutterBottom>
                         ID: <b><span style={{ marginHorizontal: 125, cursor: "pointer" }} onClick={() => copyToClipboard(this.props.id, this.props.enqueueSnackbar, "Model UUID copied")}>{this.props.id}</span></b>
                         &nbsp;&nbsp;&nbsp;
                         Custodian: <b>{this.props.owner}</b>

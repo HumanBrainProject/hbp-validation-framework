@@ -30,215 +30,213 @@ import { baseUrl } from "./globals";
 // instead we use the local test_data
 var result_data = {}
 if (DevMode) {
-	result_data = require('./dev_data/sample_test_results.json');
+    result_data = require('./dev_data/sample_test_results.json');
 }
 
 const styles = theme => ({
-	root: {
-		margin: 0,
-		padding: theme.spacing(2),
-	},
-	closeButton: {
-		position: 'absolute',
-		right: theme.spacing(1),
-		top: theme.spacing(1),
-		color: theme.palette.grey[500],
-	},
+    root: {
+        margin: 0,
+        padding: theme.spacing(2),
+    },
+    closeButton: {
+        position: 'absolute',
+        right: theme.spacing(1),
+        top: theme.spacing(1),
+        color: theme.palette.grey[500],
+    },
 });
 
 function TabPanel(props) {
-	const { children, value, index, ...other } = props;
+    const { children, value, index, ...other } = props;
 
-	return (
-		<Typography
-			component="div"
-			role="tabpanel"
-			hidden={value !== index}
-			id={`simple-tabpanel-${index}`}
-			aria-labelledby={`simple-tab-${index}`}
-			{...other}
-		>
-			{value === index && <Box p={3}>{children}</Box>}
-		</Typography>
-	);
+    return (
+        <Typography
+            component="div"
+            role="tabpanel"
+            hidden={value !== index}
+            id={`simple-tabpanel-${index}`}
+            aria-labelledby={`simple-tab-${index}`}
+            {...other}
+        >
+            {value === index && <Box p={3}>{children}</Box>}
+        </Typography>
+    );
 }
 
 TabPanel.propTypes = {
-	children: PropTypes.node,
-	index: PropTypes.any.isRequired,
-	value: PropTypes.any.isRequired,
+    children: PropTypes.node,
+    index: PropTypes.any.isRequired,
+    value: PropTypes.any.isRequired,
 };
 
 const MyDialogTitle = withStyles(styles)(props => {
-	const { children, classes, onClose, ...other } = props;
-	return (
-		<MuiDialogTitle disableTypography className={classes.root} {...other}>
-			<Typography variant="h6">{children}</Typography>
-			{onClose ? (
-				<IconButton aria-label="close" className={classes.closeButton} onClick={onClose}>
-					<CloseIcon />
-				</IconButton>
-			) : null}
-		</MuiDialogTitle>
-	);
+    const { children, classes, onClose, ...other } = props;
+    return (
+        <MuiDialogTitle disableTypography className={classes.root} {...other}>
+            <Typography variant="h6">{children}</Typography>
+            {onClose ? (
+                <IconButton aria-label="close" className={classes.closeButton} onClick={onClose}>
+                    <CloseIcon />
+                </IconButton>
+            ) : null}
+        </MuiDialogTitle>
+    );
 });
 
 
 export default class TestDetail extends React.Component {
-	signal = axios.CancelToken.source();
+    signal = axios.CancelToken.source();
 
-	constructor(props) {
-		super(props);
-		this.state = {
-			tabValue: 0,
-			results: [],
-			loadingResult: true,
-			error: null,
-			testData: this.props.testData
-		};
-		if (DevMode) {
-			this.state['results'] = result_data.results;
-			this.state['loadingResult'] = false;
-		}
-		this.updateCurrentTestData = this.updateCurrentTestData.bind(this);
-		this.handleClose = this.handleClose.bind(this);
-		this.handleTabChange = this.handleTabChange.bind(this);
-	}
+    constructor(props) {
+        super(props);
+        this.state = {
+            tabValue: 0,
+            results: [],
+            loadingResult: true,
+            error: null,
+            testData: this.props.testData
+        };
+        if (DevMode) {
+            this.state['results'] = result_data.results;
+            this.state['loadingResult'] = false;
+        }
+        this.updateCurrentTestData = this.updateCurrentTestData.bind(this);
+        this.handleClose = this.handleClose.bind(this);
+        this.handleTabChange = this.handleTabChange.bind(this);
+    }
 
-	componentDidMount() {
-		if (!DevMode) {
-			this.getTestResults();
-		}
-	}
+    componentDidMount() {
+        if (!DevMode) {
+            this.getTestResults();
+        }
+    }
 
-	componentWillUnmount() {
-		this.signal.cancel('REST API call canceled!');
-	}
+    componentWillUnmount() {
+        this.signal.cancel('REST API call canceled!');
+    }
 
-	updateCurrentTestData(updatedTestData) {
-		this.setState({
-			testData: updatedTestData
-		})
-	}
+    updateCurrentTestData(updatedTestData) {
+        this.setState({
+            testData: updatedTestData
+        })
+    }
 
-	handleClose() {
-		this.props.onClose();
-	}
+    handleClose() {
+        this.props.onClose();
+    }
 
-	handleTabChange(event, newValue) {
-		this.setState({ tabValue: newValue })
-	}
+    handleTabChange(event, newValue) {
+        this.setState({ tabValue: newValue })
+    }
 
-	getTestResults = () => {
-		let url = baseUrl + "/results/?order=&test_id=" + this.props.testData.id;
-		let config = {
-			cancelToken: this.signal.token,
-			headers: {
-				'Authorization': 'Bearer ' + this.props.auth.token,
-			}
-		}
-		return axios.get(url, config)
-			.then(res => {
-				this.setState({
-					results: res.data["results"],
-					loadingResult: false,
-					error: null
-				});
-			})
-			.catch(err => {
-				if (axios.isCancel(err)) {
-					console.log('Error: ', err.message);
-				} else {
-					// Something went wrong. Save the error in state and re-render.
-					this.setState({
-						loadingResult: false,
-						error: err
-					});
-				}
-			}
-			);
-	};
+    getTestResults = () => {
+        let url = baseUrl + "/results/?order=&test_id=" + this.props.testData.id;
+        let config = {
+            cancelToken: this.signal.token,
+            headers: {
+                'Authorization': 'Bearer ' + this.props.auth.token,
+            }
+        }
+        return axios.get(url, config)
+            .then(res => {
+                this.setState({
+                    results: res.data["results"],
+                    loadingResult: false,
+                    error: null
+                });
+            })
+            .catch(err => {
+                if (axios.isCancel(err)) {
+                    console.log('Error: ', err.message);
+                } else {
+                    // Something went wrong. Save the error in state and re-render.
+                    this.setState({
+                        loadingResult: false,
+                        error: err
+                    });
+                }
+            }
+            );
+    };
 
-	render() {
-		console.log(this.state.testData)
-		return (
-			<Dialog fullScreen onClose={this.handleClose} aria-labelledby="simple-dialog-title" open={this.props.open}>
-				<MyDialogTitle onClose={this.handleClose} />
-				<DialogContent>
-					<Grid container spacing={3}>
-
-						<TestDetailHeader
-							name={this.state.testData.name}
-							authors={formatAuthors(this.state.testData.author)}
-							id={this.state.testData.id}
-							alias={this.state.testData.alias}
-							creationDate={this.state.testData.creation_date}
-							status={this.state.testData.status}
-							testData={this.state.testData}
-							updateCurrentTestData={this.updateCurrentTestData}
-						></TestDetailHeader>
-						<AppBar position="static">
-							<Tabs value={this.state.tabValue} onChange={this.handleTabChange}
-								style={{ backgroundColor: Theme.tableRowSelectColor, color: Theme.textPrimary }} >
-								<Tab label="Info" />
-								<Tab label="Results" />
-								<Tab label="Figures" />
-							</Tabs>
-						</AppBar>
-						<TabPanel value={this.state.tabValue} index={0}>
-							<Grid container spacing={2}>
-								<Grid item xs={9}>
-									<TestDetailContent
-										dataLocation={this.state.testData.data_location}
-										protocol={this.state.testData.protocol}
-										instances={this.state.testData.codes}
-										id={this.state.testData.id}
-										results={this.state.results}
-									></TestDetailContent>
-								</Grid>
-								<Grid item xs={3}>
-									<TestDetailMetadata
-										species={this.state.testData.species}
-										brainRegion={this.state.testData.brain_region}
-										cellType={this.state.testData.cell_type}
-										dataModality={this.state.testData.data_modality}
-										dataType={this.state.testData.data_type}
-										testType={this.state.testData.test_type}
-										scoreType={this.state.testData.score_type}
-									>
-										<ul>
-											<li>{this.state.testData.id}</li>
-											<li>{this.state.testData.alias}</li>
-										</ul>
-									</TestDetailMetadata>
-								</Grid>
-							</Grid>
-						</TabPanel>
-						<TabPanel value={this.state.tabValue} index={1}>
-							<TestResultOverview
-								id={this.state.testData.id}
-								testJSON={this.state.testData}
-								results={this.state.results}
-								loadingResult={this.state.loadingResult}
-							/>
-						</TabPanel>
-						<TabPanel value={this.state.tabValue} index={2}>
-							<ResultGraphs
-								id={this.state.testData.id}
-								results={this.state.results}
-								loadingResult={this.state.loadingResult}
-							/>
-						</TabPanel>
-					</Grid>
-				</DialogContent>
-			</Dialog>
-		);
-	}
+    render() {
+        console.log(this.state.testData)
+        return (
+            <Dialog fullScreen onClose={this.handleClose} aria-labelledby="simple-dialog-title" open={this.props.open}>
+                <MyDialogTitle onClose={this.handleClose} />
+                <DialogContent>
+                    <Grid container spacing={3}>
+                        <Grid item xs={12}>
+                            <TestDetailHeader
+                                name={this.state.testData.name}
+                                authors={formatAuthors(this.state.testData.author)}
+                                id={this.state.testData.id}
+                                alias={this.state.testData.alias}
+                                creationDate={this.state.testData.creation_date}
+                                status={this.state.testData.status}
+                                testData={this.state.testData}
+                                updateCurrentTestData={this.updateCurrentTestData}
+                            ></TestDetailHeader>
+                        </Grid>
+                        <Grid item xs={12}>
+                            <AppBar position="static">
+                                <Tabs value={this.state.tabValue} onChange={this.handleTabChange}
+                                    style={{ backgroundColor: Theme.tableRowSelectColor, color: Theme.textPrimary }} >
+                                    <Tab label="Info" />
+                                    <Tab label="Results" />
+                                    <Tab label="Figures" />
+                                </Tabs>
+                            </AppBar>
+                            <TabPanel value={this.state.tabValue} index={0}>
+                                <Grid container spacing={3}>
+                                    <Grid item xs={9}>
+                                        <TestDetailContent
+                                            dataLocation={this.state.testData.data_location}
+                                            protocol={this.state.testData.protocol}
+                                            instances={this.state.testData.codes}
+                                            id={this.state.testData.id}
+                                            results={this.state.results}
+                                        />
+                                    </Grid>
+                                    <Grid item xs={3}>
+                                        <TestDetailMetadata
+                                            species={this.state.testData.species}
+                                            brainRegion={this.state.testData.brain_region}
+                                            cellType={this.state.testData.cell_type}
+                                            dataModality={this.state.testData.data_modality}
+                                            dataType={this.state.testData.data_type}
+                                            testType={this.state.testData.test_type}
+                                            scoreType={this.state.testData.score_type}
+                                        />
+                                    </Grid>
+                                </Grid>
+                            </TabPanel>
+                            <TabPanel value={this.state.tabValue} index={1}>
+                                <TestResultOverview
+                                    id={this.state.testData.id}
+                                    testJSON={this.state.testData}
+                                    results={this.state.results}
+                                    loadingResult={this.state.loadingResult}
+                                />
+                            </TabPanel>
+                            <TabPanel value={this.state.tabValue} index={2}>
+                                <ResultGraphs
+                                    id={this.state.testData.id}
+                                    results={this.state.results}
+                                    loadingResult={this.state.loadingResult}
+                                />
+                            </TabPanel>
+                        </Grid>
+                    </Grid>
+                </DialogContent>
+            </Dialog>
+        );
+    }
 }
 
 TestDetail.propTypes = {
-	onClose: PropTypes.func.isRequired,
-	open: PropTypes.bool.isRequired
+    onClose: PropTypes.func.isRequired,
+    open: PropTypes.bool.isRequired
 };
 
 // {

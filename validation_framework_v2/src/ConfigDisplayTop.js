@@ -23,16 +23,16 @@ export default function ConfigDisplayTop(props) {
 	}
 	return (
 		<ExpansionPanel style={{ backgroundColor: Theme.lightBackground }}>
-			<ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
-				<Box fontSize={16} fontWeight="fontWeightBold">View Current Configuration</Box>
+			<ExpansionPanelSummary expandIcon={<ExpandMoreIcon />} style={{ backgroundColor: Theme.tableHeader }}>
+				<Box fontSize={16} my={0} py={0} fontWeight="fontWeightBold">View Current Configuration</Box>
 			</ExpansionPanelSummary>
 			<ExpansionPanelDetails>
-				<Box style={{ width: "100%" }}>
+				<Box style={{ width: "100%" }} my={2} >
 					<Grid container spacing={3}>
-						<Grid item xs={4} sm={3} md={3} lg={2}>
+						<Grid item style = {{minWidth: "150px"}}>
 							<Box component="span" fontWeight="fontWeightBold">Display: </Box>
 						</Grid>
-						<Grid item xs={8} sm={9} md={9} lg={10}>
+						<Grid item>
 							<Box component="span">
 								<Chip label={props.display} style={{ backgroundColor: "#FFFFFF" }} variant="outlined" />
 							</Box>
@@ -41,10 +41,10 @@ export default function ConfigDisplayTop(props) {
 					{
 						showFilters.map((key, index) => (
 							<Grid container spacing={3} key={key}>
-								<Grid item xs={4} sm={3} md={3} lg={2}>
+								<Grid item style = {{minWidth: "150px"}}>
 									<Box component="span" fontWeight="fontWeightBold">{formatLabel(key)}: </Box>
 								</Grid>
-								<Grid item xs={8} sm={9} md={9} lg={10}>
+								<Grid item>
 									<Box component="span">
 										{
 											props.filters[key].length > 0

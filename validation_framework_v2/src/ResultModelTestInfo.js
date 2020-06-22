@@ -23,7 +23,7 @@ function CommonParameter(props) {
     return (
         <TableRow>
             <TableCell style={{ maxWidth: "500px" }}>
-                <Box overflow="auto" style={{ cursor: "pointer" }} whiteSpace="nowrap" onClick={() => copyToClipboard(props.value, props.enqueueSnackbar, "Model " + props.entity + props.label + " copied")}>
+                <Box overflow="auto" style={{ cursor: "pointer" }} whiteSpace="nowrap" onClick={() => copyToClipboard(m_value, props.enqueueSnackbar, "Model " + props.entity + formatLabel(props.label) + " copied")}>
                     <Typography variant="body2">
                         {m_value}
                     </Typography>
@@ -31,7 +31,7 @@ function CommonParameter(props) {
             </TableCell>
             <TableCell align="center" style={{ backgroundColor: Theme.tableHeader }}><Typography variant="body2"><b>{formatLabel(props.label)}</b></Typography></TableCell>
             <TableCell style={{ maxWidth: "500px" }}>
-                <Box overflow="auto" style={{ cursor: "pointer" }} whiteSpace="nowrap" onClick={() => copyToClipboard(props.value, props.enqueueSnackbar, "Test " + props.entity + props.label + " copied")}>
+                <Box overflow="auto" style={{ cursor: "pointer" }} whiteSpace="nowrap" onClick={() => copyToClipboard(t_value, props.enqueueSnackbar, "Test " + props.entity + formatLabel(props.label) + " copied")}>
                     <Typography variant="body2">
                         {t_value}
                     </Typography>
@@ -47,7 +47,7 @@ function OtherParameter(props) {
         <TableRow>
             <TableCell><Typography variant="body2"><b>{formatLabel(props.label)}</b>: </Typography></TableCell>
             <TableCell style={{ maxWidth: "600px" }}>
-                <Box overflow="auto" style={{ cursor: "pointer" }} whiteSpace="nowrap" onClick={() => copyToClipboard(props.value, props.enqueueSnackbar, props.entity + " " + props.label + " copied")}>
+                <Box overflow="auto" style={{ cursor: "pointer" }} whiteSpace="nowrap" onClick={() => copyToClipboard(value, props.enqueueSnackbar, props.entity + " " + formatLabel(props.label) + " copied")}>
                     <Typography variant="body2">
                         {value}
                     </Typography>
