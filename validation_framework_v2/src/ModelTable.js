@@ -6,8 +6,10 @@ import MUIDataTableCustomToolbar from "./MUIDataTableCustomToolbar";
 import CustomToolbarSelect from "./MUIDataTableCustomRowToolbar";
 import ViewSelected from "./ViewSelected";
 import Theme from './theme';
+import { showNotification } from './utils';
+import { withSnackbar } from 'notistack';
 
-export default class ModelTable extends React.Component {
+class ModelTable extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -81,6 +83,7 @@ export default class ModelTable extends React.Component {
             selectedModels.push(ordered_data)
         }
         downloadJSON(JSON.stringify(selectedModels), "selectedModels.json")
+        showNotification(this.props.enqueueSnackbar, "Saved to selectedModels.json", "info")
     }
 
     hideTableRows(selectedRows) {
@@ -91,6 +94,7 @@ export default class ModelTable extends React.Component {
         }
         const updated_data = this.state.data.filter((item, index) => !selectedIndices.includes(index));
         this.setState({ data: updated_data });
+        showNotification(this.props.enqueueSnackbar, "Chosen model(s) have been hidden!", "info")
     }
 
     viewSelectedItems(selectedRows) {
@@ -173,3 +177,5 @@ export default class ModelTable extends React.Component {
         );
     }
 }
+
+export default withSnackbar(ModelTable);

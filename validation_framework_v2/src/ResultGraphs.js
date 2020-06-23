@@ -1,4 +1,5 @@
 import React from 'react';
+import Grid from '@material-ui/core/Grid';
 import { Typography } from '@material-ui/core';
 import Container from '@material-ui/core/Container';
 import ExpansionPanel from "@material-ui/core/ExpansionPanel";
@@ -54,7 +55,7 @@ function ResultsFiguresTestIntance(props) {
                 hovertext: model_version_longlabels,
                 name: model_entry.model_name,
                 type: 'bar',
-                marker:{size:16, color:Theme.plotBarColor}
+                marker: { size: 16, color: Theme.plotBarColor }
             }
         )
     }
@@ -332,33 +333,35 @@ export default class ResultGraphs extends React.Component {
 
         if (test_ids.length > 0) {
             return (
-                <Container>
-                    {test_ids.map((test_id) =>
-                        <ExpansionPanel defaultExpanded={true} key={test_id} style={{ backgroundColor: Theme.tableHeader }}>
-                            <ExpansionPanelSummary
-                                expandIcon={<ExpandMoreIcon />}
-                                aria-controls="panel1a-content"
-                                id={test_id}
-                            >
-                                <Typography variant="subtitle1">Test: <b>{dict_results[test_id].test_alias ? dict_results[test_id].test_alias : dict_results[test_id].test_name}</b></Typography>
-                            </ExpansionPanelSummary>
-                            <ExpansionPanelDetails>
-                                <Container>
+                <Grid container>
+                    <Grid item>
+                        {test_ids.map((test_id) =>
+                            <ExpansionPanel defaultExpanded={true} key={test_id} style={{ backgroundColor: Theme.tableHeader }}>
+                                <ExpansionPanelSummary
+                                    expandIcon={<ExpandMoreIcon />}
+                                    aria-controls="panel1a-content"
+                                    id={test_id}
+                                >
+                                    <Typography variant="subtitle1">Test: <b>{dict_results[test_id].test_alias ? dict_results[test_id].test_alias : dict_results[test_id].test_name}</b></Typography>
+                                </ExpansionPanelSummary>
+                                <ExpansionPanelDetails>
                                     {Object.entries(dict_results[test_id]["test_instances"]).map(([test_inst_id, test_inst_entry]) =>
-
-                                        <ResultsFiguresTestIntance
-                                            test_inst_id={test_inst_id}
-                                            test_inst_entry={test_inst_entry}
-                                            key={test_inst_id}
-                                            handleResultEntryClick={this.handleResultEntryClick}
-                                        />
-
+                                        <Grid container>
+                                            <Grid item>
+                                                <ResultsFiguresTestIntance
+                                                    test_inst_id={test_inst_id}
+                                                    test_inst_entry={test_inst_entry}
+                                                    key={test_inst_id}
+                                                    handleResultEntryClick={this.handleResultEntryClick}
+                                                />
+                                            </Grid>
+                                        </Grid>
                                     )}
-                                </Container>
-                            </ExpansionPanelDetails>
-                        </ExpansionPanel>
-                    )}
-                </Container>
+                                </ExpansionPanelDetails>
+                            </ExpansionPanel>
+                        )}
+                    </Grid>
+                </Grid>
             )
         } else {
             return ""
@@ -393,14 +396,16 @@ export default class ResultGraphs extends React.Component {
             resultDetail = <ResultDetail open={this.state.resultDetailOpen} result={this.state.currentResult} onClose={this.handleResultDetailClose} />;
         }
         return (
-            <div>
-                <div>
-                    {content}
-                </div>
+            <>
+                <Grid container>
+                    <Grid item xs={12}>
+                        {content}
+                    </Grid>
+                </Grid>
                 <div>
                     {resultDetail}
                 </div>
-            </div>
+            </>
         );
     }
 }

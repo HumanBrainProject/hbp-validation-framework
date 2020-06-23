@@ -24,9 +24,10 @@ import LoadingIndicator from "./LoadingIndicator"
 import ResultDetail from './ResultDetail';
 import ErrorDialog from './ErrorDialog';
 import { DevMode, baseUrl, collaboratoryOrigin, updateSettingsTopic, isFramedApp, settingsDelimiter, filterKeys, filterModelKeys, filterTestKeys, displayValid, queryValid, updateHash } from "./globals";
-import { isUUID } from './utils'
+import { isUUID, showNotification } from './utils'
 import ContextMain from './ContextMain';
 import Theme from './theme';
+import { withSnackbar } from 'notistack';
 
 // if working on the appearance/layout set globals.DevMode=true
 // to avoid loading the models and tests over the network every time;
@@ -210,7 +211,8 @@ class ValidationFramework extends React.Component {
 				currentModel: currentModel,
 				modelDetailOpen: true
 			});
-			updateHash("model_id." + currentModel.id);
+            updateHash("model_id." + currentModel.id);
+            showNotification(this.props.enqueueSnackbar, "Model has been added!", "info")
 		}
 	}
 
@@ -227,13 +229,13 @@ class ValidationFramework extends React.Component {
 				currentTest: currentTest,
 				testDetailOpen: true
 			});
-			updateHash("test_id." + currentTest.id);
+            updateHash("test_id." + currentTest.id);
+            showNotification(this.props.enqueueSnackbar, "Test has been added!", "info")
 		}
 	}
 
 	componentDidMount() {
 		document.body.style.backgroundColor = Theme.bodyBackground;
-
 		const token = this.props.auth.tokenParsed;
 		console.log(token);
 
@@ -562,8 +564,6 @@ class ValidationFramework extends React.Component {
 	};
 
 	handleConfigClose(display, filters) {
-		console.log(this.state.filters)
-		console.log(filters)
 		let modelFilters = {};
 		filterModelKeys.forEach(function (key, index) {
 			modelFilters[key] = filters[key]
@@ -597,7 +597,9 @@ class ValidationFramework extends React.Component {
 			if (update_test_flag === null && display !== "Only Models") {
 				update_test_flag = true;
 				this.updateTests(testFilters);
-			}
+            }
+            
+            showNotification(this.props.enqueueSnackbar, "App config updated!", "info")
 		}
 		console.log(update_model_flag)
 		console.log(update_test_flag)
@@ -807,4 +809,4 @@ class ValidationFramework extends React.Component {
 	}
 }
 
-export default hot(ValidationFramework)
+export default withSnackbar(hot(ValidationFramework))

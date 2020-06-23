@@ -22,20 +22,20 @@ function CommonParameter(props) {
     var t_value = formatValue(props.label, props.t_value);
     return (
         <TableRow>
-            <TableCell style={{ maxWidth: "500px" }}>
-                <Box overflow="auto" style={{ cursor: "pointer" }} whiteSpace="nowrap" onClick={() => copyToClipboard(m_value, props.enqueueSnackbar, "Model " + props.entity + formatLabel(props.label) + " copied")}>
-                    <Typography variant="body2">
-                        {m_value}
-                    </Typography>
-                </Box>
+            <TableCell>
+                    <Box overflow="auto" style={{ cursor: "pointer" }} whiteSpace="wrap" onClick={() => copyToClipboard(m_value, props.enqueueSnackbar, "Model " + props.entity + formatLabel(props.label) + " copied")}>
+                        <Typography variant="body2">
+                            {m_value}
+                        </Typography>
+                    </Box>
             </TableCell>
             <TableCell align="center" style={{ backgroundColor: Theme.tableHeader }}><Typography variant="body2"><b>{formatLabel(props.label)}</b></Typography></TableCell>
-            <TableCell style={{ maxWidth: "500px" }}>
-                <Box overflow="auto" style={{ cursor: "pointer" }} whiteSpace="nowrap" onClick={() => copyToClipboard(t_value, props.enqueueSnackbar, "Test " + props.entity + formatLabel(props.label) + " copied")}>
-                    <Typography variant="body2">
-                        {t_value}
-                    </Typography>
-                </Box>
+            <TableCell>
+                    <Box overflow="auto" style={{ cursor: "pointer" }} whiteSpace="wrap" onClick={() => copyToClipboard(t_value, props.enqueueSnackbar, "Test " + props.entity + formatLabel(props.label) + " copied")}>
+                        <Typography variant="body2">
+                            {t_value}
+                        </Typography>
+                    </Box>
             </TableCell>
         </TableRow>
     )
@@ -46,12 +46,12 @@ function OtherParameter(props) {
     return (
         <TableRow>
             <TableCell><Typography variant="body2"><b>{formatLabel(props.label)}</b>: </Typography></TableCell>
-            <TableCell style={{ maxWidth: "600px" }}>
-                <Box overflow="auto" style={{ cursor: "pointer" }} whiteSpace="nowrap" onClick={() => copyToClipboard(value, props.enqueueSnackbar, props.entity + " " + formatLabel(props.label) + " copied")}>
-                    <Typography variant="body2">
-                        {value}
-                    </Typography>
-                </Box>
+            <TableCell>
+                    <Box overflow="auto" style={{ cursor: "pointer" }} whiteSpace="wrap" onClick={() => copyToClipboard(value, props.enqueueSnackbar, props.entity + " " + formatLabel(props.label) + " copied")}>
+                        <Typography variant="body2">
+                            {value}
+                        </Typography>
+                    </Box>
             </TableCell>
         </TableRow>
     )
@@ -61,7 +61,7 @@ class ResultModelTestInfo extends React.Component {
     render() {
         return (
             <Grid container spacing={4}>
-                <Grid item container xs={12}>
+                <Grid item xs={12}>
                     <ExpansionPanel defaultExpanded={true} style={{ backgroundColor: Theme.lightBackground }}>
                         <ExpansionPanelSummary
                             expandIcon={<ExpandMoreIcon />}
@@ -71,14 +71,14 @@ class ResultModelTestInfo extends React.Component {
                             <Typography variant="subtitle1"><b>Model & Test: Common Parameters</b></Typography>
                         </ExpansionPanelSummary>
                         <ExpansionPanelDetails>
-                            <Grid item>
+                            <Grid container item xs={12}>
                                 <TableContainer component={Paper}>
-                                    <Table>
+                                    <Table style={{ width: 'auto', tableLayout: 'auto' }}>
                                         <TableHead>
                                             <TableRow>
-                                                <TableCell align="center" style={{ maxWidth: "500px", backgroundColor: Theme.tableHeader }}><Typography variant="body2"><b>Model</b></Typography></TableCell>
-                                                <TableCell align="center" style={{ backgroundColor: Theme.tableRowSelectColor }}><Typography variant="body2"><b>Parameter</b></Typography></TableCell>
-                                                <TableCell align="center" style={{ maxWidth: "500px", backgroundColor: Theme.tableHeader }}><Typography variant="body2"><b>Test</b></Typography></TableCell>
+                                                <TableCell align="center" style={{ backgroundColor: Theme.tableHeader }}><Typography variant="body2"><b>Model</b></Typography></TableCell>
+                                                <TableCell width="150px" align="center" style={{ backgroundColor: Theme.tableRowSelectColor }}><Typography variant="body2"><b>Parameter</b></Typography></TableCell>
+                                                <TableCell align="center" style={{ backgroundColor: Theme.tableHeader }}><Typography variant="body2"><b>Test</b></Typography></TableCell>
                                             </TableRow>
                                         </TableHead>
                                         <TableBody>
@@ -92,7 +92,7 @@ class ResultModelTestInfo extends React.Component {
                         </ExpansionPanelDetails>
                     </ExpansionPanel>
                 </Grid>
-                <Grid item container xs={12}>
+                <Grid item xs={12}>
                     <ExpansionPanel defaultExpanded={true} style={{ backgroundColor: Theme.lightBackground }}>
                         <ExpansionPanelSummary
                             expandIcon={<ExpandMoreIcon />}
@@ -139,8 +139,8 @@ class ResultModelTestInfo extends React.Component {
                         </ExpansionPanelDetails>
                     </ExpansionPanel>
                 </Grid>
-                <Grid item container xs={12}>
-                    <ExpansionPanel defaultExpanded={false} style={{ backgroundColor: Theme.lightBackground }}>
+                <Grid item xs={12}>
+                    <ExpansionPanel defaultExpanded={true} style={{ backgroundColor: Theme.lightBackground }}>
                         <ExpansionPanelSummary
                             expandIcon={<ExpandMoreIcon />}
                             aria-controls="panel1a-content"
@@ -149,18 +149,17 @@ class ResultModelTestInfo extends React.Component {
                             <Typography variant="subtitle1"><b>Model & Test: Descriptions</b></Typography>
                         </ExpansionPanelSummary>
                         <ExpansionPanelDetails>
-                            <Grid item>
                                 <TableContainer component={Paper}>
                                     <Table>
                                         <TableBody>
                                             <TableRow>
-                                                <TableCell style={{ maxWidth: "500px", backgroundColor: Theme.tableHeader }}><Typography variant="body2"><b>Model Description</b></Typography></TableCell>
+                                                <TableCell style={{ backgroundColor: Theme.tableHeader }}><Typography variant="body2"><b>Model Description</b></Typography></TableCell>
                                             </TableRow>
                                             <TableRow>
                                                 <TableCell><Typography variant="body2">{this.props.model.description ? this.props.model.description : "<< no info >>"}</Typography></TableCell>
                                             </TableRow>
                                             <TableRow>
-                                                <TableCell style={{ maxWidth: "500px", backgroundColor: Theme.tableHeader }}><Typography variant="body2"><b>Test Protocol</b></Typography></TableCell>
+                                                <TableCell style={{ backgroundColor: Theme.tableHeader }}><Typography variant="body2"><b>Test Protocol</b></Typography></TableCell>
                                             </TableRow>
                                             <TableRow>
                                                 <TableCell><Typography variant="body2">{this.props.test.protocol ? this.props.test.protocol : "<< no info >>"}</Typography></TableCell>
@@ -168,11 +167,10 @@ class ResultModelTestInfo extends React.Component {
                                         </TableBody>
                                     </Table>
                                 </TableContainer>
-                            </Grid>
                         </ExpansionPanelDetails>
                     </ExpansionPanel>
                 </Grid>
-                <Grid item container xs={12}>
+                <Grid item xs={12}>
                     <ExpansionPanel defaultExpanded={true} style={{ backgroundColor: Theme.lightBackground }}>
                         <ExpansionPanelSummary
                             expandIcon={<ExpandMoreIcon />}
@@ -182,28 +180,26 @@ class ResultModelTestInfo extends React.Component {
                             <Typography variant="subtitle1"><b>Model & Test Instance: Common Parameters</b></Typography>
                         </ExpansionPanelSummary>
                         <ExpansionPanelDetails>
-                            <Grid item>
-                                <TableContainer component={Paper}>
-                                    <Table>
-                                        <TableHead>
-                                            <TableRow>
-                                                <TableCell align="center" style={{ maxWidth: "500px", backgroundColor: Theme.tableHeader }}><Typography variant="body2"><b>Model Instance</b></Typography></TableCell>
-                                                <TableCell align="center" style={{ backgroundColor: Theme.tableRowSelectColor }}><Typography variant="body2"><b>Parameter</b></Typography></TableCell>
-                                                <TableCell align="center" style={{ maxWidth: "500px", backgroundColor: Theme.tableHeader }}><Typography variant="body2"><b>Test Instance</b></Typography></TableCell>
-                                            </TableRow>
-                                        </TableHead>
-                                        <TableBody>
-                                            {["id", "uri", "version", "timestamp"].map((param) => (
-                                                <CommonParameter label={param} m_value={this.props.model_instance[param]} t_value={this.props.test_instance[param]} key={param} enqueueSnackbar={this.props.enqueueSnackbar} entity="instance " />
-                                            ))}
-                                        </TableBody>
-                                    </Table>
-                                </TableContainer>
-                            </Grid>
+                            <TableContainer component={Paper}>
+                                <Table>
+                                    <TableHead>
+                                        <TableRow>
+                                            <TableCell align="center" style={{ backgroundColor: Theme.tableHeader }}><Typography variant="body2"><b>Model Instance</b></Typography></TableCell>
+                                            <TableCell width="150px" align="center" style={{ backgroundColor: Theme.tableRowSelectColor }}><Typography variant="body2"><b>Parameter</b></Typography></TableCell>
+                                            <TableCell align="center" style={{ backgroundColor: Theme.tableHeader }}><Typography variant="body2"><b>Test Instance</b></Typography></TableCell>
+                                        </TableRow>
+                                    </TableHead>
+                                    <TableBody>
+                                        {["id", "uri", "version", "timestamp"].map((param) => (
+                                            <CommonParameter label={param} m_value={this.props.model_instance[param]} t_value={this.props.test_instance[param]} key={param} enqueueSnackbar={this.props.enqueueSnackbar} entity="instance " />
+                                        ))}
+                                    </TableBody>
+                                </Table>
+                            </TableContainer>
                         </ExpansionPanelDetails>
                     </ExpansionPanel>
                 </Grid>
-                <Grid item container xs={12}>
+                <Grid item xs={12}>
                     <ExpansionPanel defaultExpanded={true} style={{ backgroundColor: Theme.lightBackground }}>
                         <ExpansionPanelSummary
                             expandIcon={<ExpandMoreIcon />}
@@ -219,7 +215,7 @@ class ResultModelTestInfo extends React.Component {
                                         <Table>
                                             <TableHead>
                                                 <TableRow>
-                                                    <TableCell align="center" style={{ maxWidth: "500px", backgroundColor: Theme.tableHeader }} colSpan={2}><Typography variant="body2"><b>Model Instance</b></Typography></TableCell>
+                                                    <TableCell align="center" style={{ backgroundColor: Theme.tableHeader }} colSpan={2}><Typography variant="body2"><b>Model Instance</b></Typography></TableCell>
                                                 </TableRow>
                                             </TableHead>
                                             <TableBody>
@@ -235,7 +231,7 @@ class ResultModelTestInfo extends React.Component {
                                         <Table>
                                             <TableHead>
                                                 <TableRow>
-                                                    <TableCell align="center" style={{ maxWidth: "500px", backgroundColor: Theme.tableHeader }} colSpan={2}><Typography variant="body2"><b>Test Instance</b></Typography></TableCell>
+                                                    <TableCell align="center" style={{ backgroundColor: Theme.tableHeader }} colSpan={2}><Typography variant="body2"><b>Test Instance</b></Typography></TableCell>
                                                 </TableRow>
                                             </TableHead>
                                             <TableBody>
@@ -250,8 +246,8 @@ class ResultModelTestInfo extends React.Component {
                         </ExpansionPanelDetails>
                     </ExpansionPanel>
                 </Grid>
-                <Grid item container xs={12}>
-                    <ExpansionPanel defaultExpanded={false} style={{ backgroundColor: Theme.lightBackground }}>
+                <Grid item xs={12}>
+                    <ExpansionPanel defaultExpanded={true} style={{ backgroundColor: Theme.lightBackground }}>
                         <ExpansionPanelSummary
                             expandIcon={<ExpandMoreIcon />}
                             aria-controls="panel1a-content"
@@ -260,18 +256,17 @@ class ResultModelTestInfo extends React.Component {
                             <Typography variant="subtitle1"><b>Model & Test Instance: Descriptions</b></Typography>
                         </ExpansionPanelSummary>
                         <ExpansionPanelDetails>
-                            <Grid item>
                                 <TableContainer component={Paper}>
                                     <Table>
                                         <TableBody>
                                             <TableRow>
-                                                <TableCell style={{ maxWidth: "500px", backgroundColor: Theme.tableHeader }}><Typography variant="body2"><b>Model Instance Description</b></Typography></TableCell>
+                                                <TableCell style={{ backgroundColor: Theme.tableHeader }}><Typography variant="body2"><b>Model Instance Description</b></Typography></TableCell>
                                             </TableRow>
                                             <TableRow>
                                                 <TableCell><Typography variant="body2">{this.props.model_instance.description ? this.props.model_instance.description : "<< no info >>"}</Typography></TableCell>
                                             </TableRow>
                                             <TableRow>
-                                                <TableCell style={{ maxWidth: "500px", backgroundColor: Theme.tableHeader }}><Typography variant="body2"><b>Test Instance Description</b></Typography></TableCell>
+                                                <TableCell style={{ backgroundColor: Theme.tableHeader }}><Typography variant="body2"><b>Test Instance Description</b></Typography></TableCell>
                                             </TableRow>
                                             <TableRow>
                                                 <TableCell><Typography variant="body2">{this.props.test_instance.description ? this.props.test_instance.description : "<< no info >>"}</Typography></TableCell>
@@ -279,7 +274,6 @@ class ResultModelTestInfo extends React.Component {
                                         </TableBody>
                                     </Table>
                                 </TableContainer>
-                            </Grid>
                         </ExpansionPanelDetails>
                     </ExpansionPanel>
                 </Grid>
