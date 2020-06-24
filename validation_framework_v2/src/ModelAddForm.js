@@ -109,7 +109,7 @@ export default class ModelAddForm extends React.Component {
             });
             return;
         }
-        let url = baseUrl + "/models/?alias=" + newAlias;
+        let url = baseUrl + "/models/" + encodeURI(newAlias);
         let config = {
             cancelToken: aliasAxios.token,
             headers: {
@@ -191,7 +191,7 @@ export default class ModelAddForm extends React.Component {
         let payload = this.createPayload();
         console.log(payload);
         if (this.checkRequirements(payload)) {
-            let url = baseUrl + "/models/?collab_id=" + this.state.app.collab_id;
+            let url = baseUrl + "/models/";
             let config = {
                 cancelToken: this.signal.token,
                 headers: {

@@ -211,8 +211,8 @@ class ValidationFramework extends React.Component {
 				currentModel: currentModel,
 				modelDetailOpen: true
 			});
-            updateHash("model_id." + currentModel.id);
-            showNotification(this.props.enqueueSnackbar, "Model has been added!", "info")
+			updateHash("model_id." + currentModel.id);
+			showNotification(this.props.enqueueSnackbar, "Model has been added!", "info")
 		}
 	}
 
@@ -229,8 +229,8 @@ class ValidationFramework extends React.Component {
 				currentTest: currentTest,
 				testDetailOpen: true
 			});
-            updateHash("test_id." + currentTest.id);
-            showNotification(this.props.enqueueSnackbar, "Test has been added!", "info")
+			updateHash("test_id." + currentTest.id);
+			showNotification(this.props.enqueueSnackbar, "Test has been added!", "info")
 		}
 	}
 
@@ -325,9 +325,9 @@ class ValidationFramework extends React.Component {
 	getModel(key, value) {
 		let url = "";
 		if (key === "model_id") {
-			url = baseUrl + "/models/?id=" + value;
+			url = baseUrl + "/models/" + value;
 		} else if (key === "model_alias") {
-			url = baseUrl + "/models/?alias=" + value;
+			url = baseUrl + "/models/" + encodeURI(value);
 		}
 		let config = {
 			cancelToken: this.signal.token,
@@ -368,9 +368,9 @@ class ValidationFramework extends React.Component {
 	getTest(key, value) {
 		let url = "";
 		if (key === "test_id") {
-			url = baseUrl + "/tests/?id=" + value;
+			url = baseUrl + "/tests/" + value;
 		} else if (key === "test_alias") {
-			url = baseUrl + "/tests/?alias=" + value;
+			url = baseUrl + "/tests/" + encodeURI(value);
 		}
 		let config = {
 			cancelToken: this.signal.token,
@@ -409,7 +409,7 @@ class ValidationFramework extends React.Component {
 	};
 
 	getResult(key, value) {
-		let url = baseUrl + "/results/?order=&id=" + value;
+		let url = baseUrl + "/results/" + value;
 		let config = {
 			cancelToken: this.signal.token,
 			headers: {
@@ -460,7 +460,7 @@ class ValidationFramework extends React.Component {
 					'Authorization': 'Bearer ' + this.props.auth.token,
 				}
 			}
-			let url = baseUrl + "/models/?" + query;
+			let url = baseUrl + "/models/?" + encodeURI(query) + "&size=100000";
 			this.setState({ loadingModel: true });
 			axios.get(url, config)
 				.then(res => {
@@ -501,7 +501,7 @@ class ValidationFramework extends React.Component {
 					'Authorization': 'Bearer ' + this.props.auth.token,
 				}
 			}
-			let url = baseUrl + "/tests/?" + query;
+			let url = baseUrl + "/tests/?" + encodeURI(query) + "&size=100000";
 			this.setState({ loadingTest: true });
 			axios.get(url, config)
 				.then(res => {
@@ -597,8 +597,8 @@ class ValidationFramework extends React.Component {
 			if (update_test_flag === null && display !== "Only Models") {
 				update_test_flag = true;
 				this.updateTests(testFilters);
-            }
-            showNotification(this.props.enqueueSnackbar, "App config updated!", "success")
+			}
+			showNotification(this.props.enqueueSnackbar, "App config updated!", "success")
 		}
 		console.log(update_model_flag)
 		console.log(update_test_flag)

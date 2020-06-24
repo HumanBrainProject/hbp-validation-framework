@@ -68,7 +68,7 @@ export default class ModelInstanceAddForm extends React.Component {
         }
         versionAxios = axios.CancelToken.source();
 
-        let url = baseUrl + "/model-instances/?model_id=" + this.props.modelID + "&version=" + newVersion;
+        let url = baseUrl + "/models/" + this.props.modelID + "/instances/?version=" + newVersion;
         let config = {
             cancelToken: versionAxios.token,
             headers: {
@@ -128,7 +128,7 @@ export default class ModelInstanceAddForm extends React.Component {
         let payload = this.createPayload();
         console.log(payload);
         if (await this.checkRequirements(payload)) {
-            let url = baseUrl + "/model-instances/";
+            let url = baseUrl + "/models/" + this.props.modelID + "/instances/";
             let config = {
                 cancelToken: this.signal.token,
                 headers: {

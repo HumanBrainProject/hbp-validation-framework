@@ -76,7 +76,7 @@ export default class ModelInstanceEditForm extends React.Component {
         }
         versionAxios = axios.CancelToken.source();
 
-        let url = baseUrl + "/model-instances/?model_id=" + this.props.modelID + "&version=" + newVersion;
+        let url = baseUrl + "/models/" + this.props.modelID + "/instances/?version=" + newVersion;
         let config = {
             cancelToken: versionAxios.token,
             headers: {
@@ -138,7 +138,7 @@ export default class ModelInstanceEditForm extends React.Component {
         let payload = this.createPayload();
         console.log(payload);
         if (await this.checkRequirements(payload)) {
-            let url = baseUrl + "/model-instances/";
+            let url = baseUrl + "/models/" + this.props.modelID + "/instances/" + payload[0].id;
             let config = {
                 cancelToken: this.signal.token,
                 headers: {
@@ -150,7 +150,7 @@ export default class ModelInstanceEditForm extends React.Component {
             axios.put(url, payload, config)
                 .then(res => {
                     console.log(res);
-                    delete payload[0].model_id
+                    // delete payload[0].model_id
                     this.props.onClose({
                         id: res.data.uuid[0],
                         ...payload[0],

@@ -111,7 +111,7 @@ export default class TestEditForm extends React.Component {
             });
             return;
         }
-        let url = baseUrl + "/tests/?alias=" + newAlias;
+        let url = baseUrl + "/tests/" + encodeURI(newAlias);
         let config = {
             cancelToken: aliasAxios.token,
             headers: {
@@ -198,7 +198,7 @@ export default class TestEditForm extends React.Component {
         let payload = this.createPayload();
         console.log(payload);
         if (this.checkRequirements(payload)) {
-            let url = baseUrl + "/tests/";
+            let url = baseUrl + "/tests/" + this.state.id;
             let config = {
                 cancelToken: this.signal.token,
                 headers: {

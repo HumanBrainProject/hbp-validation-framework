@@ -130,7 +130,7 @@ export default class ModelDetail extends React.Component {
     }
 
     getModelResults = () => {
-        let url = baseUrl + "/results/?order=&model_id=" + this.props.modelData.id;
+        let url = baseUrl + "/results/?model_id=" + this.props.modelData.id + "&size=100000";
         let config = {
             cancelToken: this.signal.token,
             headers: {

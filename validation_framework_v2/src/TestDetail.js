@@ -130,7 +130,7 @@ export default class TestDetail extends React.Component {
     }
 
     getTestResults = () => {
-        let url = baseUrl + "/results/?order=&test_id=" + this.props.testData.id;
+        let url = baseUrl + "/results/?test_id=" + this.props.testData.id + "&size=100000";
         let config = {
             cancelToken: this.signal.token,
             headers: {

@@ -66,7 +66,7 @@ export default class TestInstanceAddForm extends React.Component {
         }
         versionAxios = axios.CancelToken.source();
 
-        let url = baseUrl + "/test-instances/?test_id=" + this.props.testID + "&version=" + newVersion;
+        let url = baseUrl + "/tests/" + this.props.testID + "/instances/?version=" + newVersion;
         let config = {
             cancelToken: versionAxios.token,
             headers: {
@@ -126,7 +126,7 @@ export default class TestInstanceAddForm extends React.Component {
         let payload = this.createPayload();
         console.log(payload);
         if (await this.checkRequirements(payload)) {
-            let url = baseUrl + "/test-instances/";
+            let url = baseUrl + "/tests/" + this.props.testID + "/instances/";
             let config = {
                 cancelToken: this.signal.token,
                 headers: {

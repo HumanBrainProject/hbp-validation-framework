@@ -102,7 +102,7 @@ export default class TestAddForm extends React.Component {
             });
             return;
         }
-        let url = baseUrl + "/tests/?alias=" + newAlias;
+        let url = baseUrl + "/tests/" + encodeURI(newAlias);
         let config = {
             cancelToken: aliasAxios.token,
             headers: {

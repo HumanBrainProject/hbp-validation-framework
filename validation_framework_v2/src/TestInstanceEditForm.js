@@ -35,11 +35,13 @@ export default class TestInstanceEditForm extends React.Component {
 
         this.state = {
             instances: [{
+                id: "",
                 version: "",
                 repository: "",
                 path: "",
                 description: "",
-                parameters: ""
+                parameters: "",
+                uri: ""
             }],
             auth: authContext
         }
@@ -70,7 +72,7 @@ export default class TestInstanceEditForm extends React.Component {
         }
         versionAxios = axios.CancelToken.source();
 
-        let url = baseUrl + "/test-instances/?test_id=" + this.props.testID + "&version=" + newVersion;
+        let url = baseUrl + "/tests/" + this.props.testID + "/instances/?version=" + newVersion;
         let config = {
             cancelToken: versionAxios.token,
             headers: {
@@ -132,7 +134,7 @@ export default class TestInstanceEditForm extends React.Component {
         let payload = this.createPayload();
         console.log(payload);
         if (await this.checkRequirements(payload)) {
-            let url = baseUrl + "/test-instances/";
+            let url = baseUrl + "/tests/" + this.props.testID + "/instances/" + payload[0].id;
             let config = {
                 cancelToken: this.signal.token,
                 headers: {
@@ -144,7 +146,7 @@ export default class TestInstanceEditForm extends React.Component {
             axios.put(url, payload, config)
                 .then(res => {
                     console.log(res);
-                    delete payload[0].test_id
+                    // delete payload[0].test_id
                     this.props.onClose({
                         id: res.data.uuid[0],
                         ...payload[0],
