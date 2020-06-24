@@ -17,6 +17,7 @@ import fairgraph.brainsimulation
 from .examples import EXAMPLES
 
 fairgraph.core.use_namespace(fairgraph.brainsimulation.DEFAULT_NAMESPACE)
+fairgraph.commons.License.initialize()
 logger = logging.getLogger("validation_service_v2")
 
 
@@ -111,6 +112,13 @@ class ScoreType(str, Enum):
     rsquare = "Rsquare"
     pvalue = "p-value"
     zscore = "z-score"
+
+
+License = Enum(
+    "License",
+    [(name.replace(" ", "_"), name) for name in fairgraph.commons.License.iri_map.keys()],
+)
+
 
 
 class Person(BaseModel):

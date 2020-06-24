@@ -2,7 +2,8 @@
 Controlled vocabulatories
 """
 
-from fastapi import APIRouter
+from enum import Enum
+from fastapi import APIRouter, Query
 
 from ..data_models import (
     Species,
@@ -14,6 +15,7 @@ from ..data_models import (
     ValidationTestType,
     ScoreType,
     ImplementationStatus,
+    License,
 )
 
 
@@ -65,6 +67,36 @@ def list_implementation_status_values():
     return [item.value for item in ImplementationStatus]
 
 
+class LicenseFilterOptions(str, Enum):
+    popular = "popular"
+    all = "all"
+
+
+popular_licenses = [
+    "Apache License 2.0",
+    'BSD 2-Clause "Simplified" License',
+    'BSD 3-Clause "New" or "Revised" License',
+    "Creative Commons Attribution 4.0 International",
+    "Creative Commons Attribution Non Commercial 4.0 International",
+    "Creative Commons Attribution Share Alike 4.0 International",
+    "Creative Commons Zero v1.0 Universal",
+    "GNU General Public License v2.0 or later",
+    "GNU General Public License v3.0 or later",
+    "GNU Lesser General Public License v3.0 or later",
+    "MIT License"
+]
+
+
+@router.get("/vocab/license/")
+def list_licenses(
+    filter: LicenseFilterOptions = Query(None, description="Return all licenses or only the most popular ones"),
+):
+    if filter == LicenseFilterOptions.popular:
+        return popular_licenses
+    else:
+        return [item.value for item in License]
+
+
 @router.get("/vocab/")
 def all_vocabularies():
     return {
@@ -77,4 +109,5 @@ def all_vocabularies():
         "test-type": [item.value for item in ValidationTestType],
         "score-type": [item.value for item in ScoreType],
         "test-status": [item.value for item in ImplementationStatus],
+        "license": popular_licenses,
     }
