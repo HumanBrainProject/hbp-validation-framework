@@ -7,7 +7,7 @@ import ErrorDialog from './ErrorDialog';
 import Tooltip from '@material-ui/core/Tooltip';
 import IconButton from '@material-ui/core/IconButton';
 import { withSnackbar } from 'notistack';
-import { copyToClipboard } from './utils';
+import { copyToClipboard, showNotification } from './utils';
 
 class TestDetailHeader extends React.Component {
     constructor(props) {
@@ -32,6 +32,7 @@ class TestDetailHeader extends React.Component {
         this.setState({ 'openEditForm': false });
         if (test) {
             this.props.updateCurrentTestData(test)
+            showNotification(this.props.enqueueSnackbar, "Test edited!", "success")
         }
     }
 

@@ -9,7 +9,7 @@ import ErrorDialog from './ErrorDialog';
 import Tooltip from '@material-ui/core/Tooltip';
 import IconButton from '@material-ui/core/IconButton';
 import { withSnackbar } from 'notistack';
-import { copyToClipboard } from './utils';
+import { copyToClipboard, showNotification } from './utils';
 
 function AccessibilityIcon(props) {
     if (props.private) {
@@ -50,6 +50,7 @@ class ModelDetailHeader extends React.Component {
         this.setState({ 'openEditForm': false });
         if (model) {
             this.props.updateCurrentModelData(model)
+            showNotification(this.props.enqueueSnackbar, "Model edited!", "success")
         }
     }
 

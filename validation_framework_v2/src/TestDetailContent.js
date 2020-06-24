@@ -11,7 +11,7 @@ import Markdown from './Markdown';
 import TestInstanceAddForm from './TestInstanceAddForm';
 import TestInstanceEditForm from './TestInstanceEditForm';
 import Theme from './theme';
-import { copyToClipboard, formatTimeStampToLongString } from './utils';
+import { copyToClipboard, formatTimeStampToLongString, showNotification } from './utils';
 
 function InstanceParameter(props) {
     if (props.value) {
@@ -62,6 +62,7 @@ class TestDetailContent extends React.Component {
                 instances: instances,
             });
         }
+        showNotification(this.props.enqueueSnackbar, "Test instance added!", "success")
     }
 
     handleEditTestInstanceFormClose(testInstance) {
@@ -73,6 +74,7 @@ class TestDetailContent extends React.Component {
             this.setState({
                 instances: instances.map(obj => [testInstance].find(o => o.id === obj.id) || obj)
             });
+            showNotification(this.props.enqueueSnackbar, "Test instance edited!", "success")
         }
     }
 

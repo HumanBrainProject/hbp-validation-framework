@@ -598,8 +598,7 @@ class ValidationFramework extends React.Component {
 				update_test_flag = true;
 				this.updateTests(testFilters);
             }
-            
-            showNotification(this.props.enqueueSnackbar, "App config updated!", "info")
+            showNotification(this.props.enqueueSnackbar, "App config updated!", "success")
 		}
 		console.log(update_model_flag)
 		console.log(update_test_flag)

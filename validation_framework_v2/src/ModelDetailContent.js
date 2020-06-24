@@ -11,7 +11,7 @@ import ModelInstanceEditForm from './ModelInstanceEditForm';
 import ErrorDialog from './ErrorDialog';
 import Tooltip from '@material-ui/core/Tooltip';
 import Theme from './theme';
-import { formatTimeStampToLongString, copyToClipboard } from './utils';
+import { formatTimeStampToLongString, copyToClipboard, showNotification } from './utils';
 import { withSnackbar } from 'notistack';
 
 function openBlueNaaS(model_inst_url) {
@@ -114,6 +114,7 @@ class ModelDetailContent extends React.Component {
             this.setState({
                 instances: instances,
             });
+            showNotification(this.props.enqueueSnackbar, "Model instance added!", "success")
         }
     }
 
@@ -126,6 +127,7 @@ class ModelDetailContent extends React.Component {
             this.setState({
                 instances: instances.map(obj => [modelInstance].find(o => o.id === obj.id) || obj)
             });
+            showNotification(this.props.enqueueSnackbar, "Model instance edited!", "success")
         }
     }
 
