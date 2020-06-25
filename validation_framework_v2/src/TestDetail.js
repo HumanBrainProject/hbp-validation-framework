@@ -22,8 +22,7 @@ import TestDetailMetadata from './TestDetailMetadata';
 import TestResultOverview from './TestResultOverview';
 import { formatAuthors } from "./utils";
 import ResultGraphs from './ResultGraphs';
-import { DevMode } from "./globals";
-import { baseUrl } from "./globals";
+import { DevMode, baseUrl, querySizeLimit } from "./globals";
 
 // if working on the appearance/layout set globals.DevMode=true
 // to avoid loading the models and tests over the network every time;
@@ -130,7 +129,7 @@ export default class TestDetail extends React.Component {
     }
 
     getTestResults = () => {
-        let url = baseUrl + "/results/?test_id=" + this.props.testData.id + "&size=100000";
+        let url = baseUrl + "/results/?test_id=" + this.props.testData.id + "&size=" + querySizeLimit;
         let config = {
             cancelToken: this.signal.token,
             headers: {
@@ -172,7 +171,7 @@ export default class TestDetail extends React.Component {
                                 authors={formatAuthors(this.state.testData.author)}
                                 id={this.state.testData.id}
                                 alias={this.state.testData.alias}
-                                creationDate={this.state.testData.creation_date}
+                                createdDate={this.state.testData.date_created}
                                 status={this.state.testData.status}
                                 testData={this.state.testData}
                                 updateCurrentTestData={this.updateCurrentTestData}

@@ -22,8 +22,7 @@ import ModelDetailMetadata from './ModelDetailMetadata';
 import ModelResultOverview from './ModelResultOverview';
 import { formatAuthors } from "./utils";
 import ResultGraphs from './ResultGraphs';
-import { DevMode } from "./globals";
-import { baseUrl } from "./globals";
+import { DevMode, baseUrl, querySizeLimit } from "./globals";
 
 // if working on the appearance/layout set globals.DevMode=true
 // to avoid loading the models and tests over the network every time;
@@ -130,7 +129,7 @@ export default class ModelDetail extends React.Component {
     }
 
     getModelResults = () => {
-        let url = baseUrl + "/results/?model_id=" + this.props.modelData.id + "&size=100000";
+        let url = baseUrl + "/results/?model_id=" + this.props.modelData.id + "&size=" + querySizeLimit;
         let config = {
             cancelToken: this.signal.token,
             headers: {
@@ -204,7 +203,7 @@ export default class ModelDetail extends React.Component {
                                             cellType={this.state.modelData.cell_type}
                                             modelScope={this.state.modelData.model_scope}
                                             abstractionLevel={this.state.modelData.abstraction_level}
-                                            collabID={this.state.modelData.app.collab_id}
+                                            projectID={this.state.modelData.project_id}
                                             organization={this.state.modelData.organization}
                                         />
                                     </Grid>

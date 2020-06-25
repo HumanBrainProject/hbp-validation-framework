@@ -74,7 +74,7 @@ class TestDetailHeader extends React.Component {
                     <Typography variant="body2" color="textSecondary" gutterBottom>
                         ID: <b><span style={{ marginHorizontal: 125, cursor: "pointer" }} onClick={() => copyToClipboard(this.props.id, this.props.enqueueSnackbar, "Test UUID copied")}>{this.props.id}</span></b>
                         &nbsp;&nbsp;&nbsp;
-                        Created: <b>{this.props.creationDate}</b>
+                        Created: <b>{this.props.createdDate}</b>
                         &nbsp;&nbsp;&nbsp;
                         {this.props.alias ? "Alias: " : ""} <b>{this.props.alias ? <span style={{ marginHorizontal: 125, cursor: "pointer" }} onClick={() => copyToClipboard(this.props.alias, this.props.enqueueSnackbar, "Test alias copied")}>{this.props.alias}</span> : ""}</b>
                         &nbsp;&nbsp;&nbsp;

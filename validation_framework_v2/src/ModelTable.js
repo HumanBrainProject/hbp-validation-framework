@@ -124,20 +124,22 @@ class ModelTable extends React.Component {
                 <MuiThemeProvider theme={this.getMuiTheme()}>
                     <MUIDataTable
                         title="Models"
-                        columns={[{ name: 'ID', options: { display: false } },
-                        { name: 'Name', options: { display: true } },
-                        { name: 'Alias', options: { display: false } },
-                        { name: 'Author', options: { display: true } },
-                        { name: 'Visibility', options: { display: false } },
-                        { name: 'Collab ID', options: { display: false } },
-                        { name: 'Species', options: { display: false } },
-                        { name: 'Brain region', options: { display: false } },
-                        { name: 'Cell type', options: { display: false } },
-                        { name: 'Model scope', options: { display: false } },
-                        { name: 'Abstraction level', options: { display: false } },
-                        { name: 'Owner', options: { display: false } },
-                        { name: 'Organization', options: { display: false } },
-                        { name: 'jsonObject', options: { display: false, viewColumns: false, filter: false } }
+                        columns={[
+                            { name: 'ID', options: { display: false } },
+                            { name: 'Name', options: { display: true } },
+                            { name: 'Alias', options: { display: false } },
+                            { name: 'Author', options: { display: true } },
+                            { name: 'Visibility', options: { display: false } },
+                            { name: 'Project ID', options: { display: false } },
+                            { name: 'Species', options: { display: false } },
+                            { name: 'Brain region', options: { display: false } },
+                            { name: 'Cell type', options: { display: false } },
+                            { name: 'Model scope', options: { display: false } },
+                            { name: 'Abstraction level', options: { display: false } },
+                            { name: 'Owner', options: { display: false } },
+                            { name: 'Organization', options: { display: false } },
+                            { name: 'Created Date', options: { display: false } },
+                            { name: 'jsonObject', options: { display: false, viewColumns: false, filter: false } }
                         ]}
                         data={this.state.data.map(item => {
                             return [
@@ -146,7 +148,7 @@ class ModelTable extends React.Component {
                                 item.alias,
                                 formatAuthors(item.author),
                                 item.private ? 'Private' : 'Public',
-                                item.app.collab_id,
+                                item.project_id,
                                 item.species,
                                 item.brain_region,
                                 item.cell_type,
@@ -154,6 +156,7 @@ class ModelTable extends React.Component {
                                 item.abstraction_level,
                                 formatAuthors(item.owner),
                                 item.organization,
+                                item.date_created,
                                 item
                             ]
                         })}

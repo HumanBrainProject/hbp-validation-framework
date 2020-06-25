@@ -23,7 +23,7 @@ import ConfigDisplayTop from "./ConfigDisplayTop"
 import LoadingIndicator from "./LoadingIndicator"
 import ResultDetail from './ResultDetail';
 import ErrorDialog from './ErrorDialog';
-import { DevMode, baseUrl, collaboratoryOrigin, updateSettingsTopic, isFramedApp, settingsDelimiter, filterKeys, filterModelKeys, filterTestKeys, displayValid, queryValid, updateHash } from "./globals";
+import { DevMode, baseUrl, querySizeLimit, collaboratoryOrigin, updateSettingsTopic, isFramedApp, settingsDelimiter, filterKeys, filterModelKeys, filterTestKeys, displayValid, queryValid, updateHash } from "./globals";
 import { isUUID, showNotification } from './utils'
 import ContextMain from './ContextMain';
 import Theme from './theme';
@@ -94,7 +94,6 @@ const storeDisplay = (display) => {
 
 const retrieveFilters = (context) => {
 	const searchParams = new URLSearchParams(window.location.search);
-	console.log(searchParams.get("species"))
 	let filters = {};
 	for (let key of filterKeys) {
 		let param = searchParams.get(key);
@@ -297,7 +296,7 @@ class ValidationFramework extends React.Component {
 	}
 
 	retrieveFilterValidValues() {
-		let url = baseUrl + "/authorizedcollabparameterrest/?python_client=true";
+		let url = baseUrl + "/vocab/";
 		let config = {
 			cancelToken: this.signal.token
 		}
@@ -460,11 +459,12 @@ class ValidationFramework extends React.Component {
 					'Authorization': 'Bearer ' + this.props.auth.token,
 				}
 			}
-			let url = baseUrl + "/models/?" + encodeURI(query) + "&size=100000";
+			let url = baseUrl + "/models/?" + encodeURI(query) + "&size=" + querySizeLimit;
 			this.setState({ loadingModel: true });
 			axios.get(url, config)
 				.then(res => {
-					const models = res.data.models;
+					const models = res.data;
+					console.log(models);
 					this.setState({
 						modelData: models,
 						loadingModel: false,
@@ -501,11 +501,12 @@ class ValidationFramework extends React.Component {
 					'Authorization': 'Bearer ' + this.props.auth.token,
 				}
 			}
-			let url = baseUrl + "/tests/?" + encodeURI(query) + "&size=100000";
+			let url = baseUrl + "/tests/?" + encodeURI(query) + "&size=" + querySizeLimit;
 			this.setState({ loadingTest: true });
 			axios.get(url, config)
 				.then(res => {
-					const tests = res.data.tests;
+					const tests = res.data;
+					console.log(tests);
 					this.setState({
 						testData: tests,
 						loadingTest: false,

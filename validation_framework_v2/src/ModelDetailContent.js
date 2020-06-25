@@ -41,9 +41,11 @@ function InstanceParameter(props) {
                             <Box component="div" my={2} bgcolor="white" overflow="auto" border={1} borderColor="grey.500" borderRadius={10} style={{ padding: 10, cursor: "pointer" }} whiteSpace="nowrap" onClick={() => copyToClipboard(props.value, props.enqueueSnackbar, props.label + " copied")}>{props.value}</Box>
                         </Grid>
                         <Grid item xs={3}>
-                            <Button variant="contained" style={{ 'backgroundColor': Theme.buttonPrimary, 'text-transform': 'none' }} onClick={() => openBlueNaaS(props.value)}>
-                                Launch BlueNaaS
-							</Button>
+                            <Box component="div" my={2} >
+                                <Button variant="contained" style={{ 'backgroundColor': Theme.buttonPrimary, 'textTransform': 'none' }} onClick={() => openBlueNaaS(props.value)}>
+                                    Launch BlueNaaS
+							    </Button>
+                            </Box>
                         </Grid>
                     </Grid>
                 </Grid>
@@ -59,9 +61,11 @@ function InstanceParameter(props) {
                             <Box component="div" my={2} bgcolor="white" overflow="auto" border={1} borderColor="grey.500" borderRadius={10} style={{ padding: 10, cursor: "pointer" }} whiteSpace="nowrap" onClick={() => copyToClipboard(props.value, props.enqueueSnackbar, props.label + " copied")}>{props.value}</Box>
                         </Grid>
                         <Grid item xs={3}>
-                            <Button variant="contained" style={{ 'backgroundColor': Theme.buttonPrimary, 'textTransform': 'none' }} onClick={() => viewMorphology(props.value)}>
-                                View Morphology
-						</Button>
+                            <Box component="div" my={2} >
+                                <Button variant="contained" style={{ 'backgroundColor': Theme.buttonPrimary, 'textTransform': 'none' }} onClick={() => viewMorphology(props.value)}>
+                                    View Morphology
+						        </Button>
+                            </Box>
                         </Grid>
                     </Grid>
                 </Grid>

@@ -138,7 +138,7 @@ class TestTable extends React.Component {
                         { name: 'Data type', options: { display: false } },
                         { name: 'Data modality', options: { display: false } },
                         { name: 'Data location', options: { display: false } },
-                        { name: 'Creation date', options: { display: false } },
+                        { name: 'Created date', options: { display: false } },
                         { name: 'jsonObject', options: { display: false, viewColumns: false, filter: false } }
                         ]
                         }
@@ -157,7 +157,7 @@ class TestTable extends React.Component {
                                 item.data_type,
                                 item.data_modality,
                                 item.data_location,
-                                item.creation_date,
+                                item.date_created,
                                 item
                             ]
                         })}

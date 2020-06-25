@@ -27,7 +27,7 @@ export default function ModelDetailMetadata(props) {
 					<MetadataItem value={props.cellType} label="Cell type" />
 					<MetadataItem value={props.modelScope} label="Model scope" />
 					<MetadataItem value={props.abstractionLevel} label="Abstraction level" />
-					<MetadataItem value={props.collabID} label="Collab ID" />
+					<MetadataItem value={props.projectID} label="Project ID" />
 					<MetadataItem value={props.organization} label="Organization" />
 				</List>
 			</Grid>

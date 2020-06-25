@@ -72,12 +72,13 @@ export function formatValue(label, value) {
 
 
 export function formatLabel(label) {
-    // function to format labels by converting underscores to spaces, and
+    // function to format labels by converting underscores and hyphens to spaces, and
     // capitalizing each word; certain specific labels are changed entirely to uppercase
     if (["id", "uri"].indexOf(label) > -1) {
         label = label.toUpperCase();
     } else {
         label = label.replace(/_/g, ' ');
+        label = label.replace(/-/g, ' ');
         label = label
             .toLowerCase()
             .split(' ')
