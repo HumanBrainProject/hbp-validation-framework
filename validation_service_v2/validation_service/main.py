@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from starlette.middleware.sessions import SessionMiddleware
-from starlette.middleware.cors import CORSMiddleware.
+from starlette.middleware.cors import CORSMiddleware
 
 from .resources import models, tests, vocab, results, auth
 from . import settings
