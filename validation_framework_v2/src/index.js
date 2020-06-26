@@ -10,7 +10,7 @@ import ValidationFramework from './ValidationFramework';
 // We start by configuring the Keycloak javascript client
 // It needs to know your app id in order to authenticate users for it
 const keycloak = Keycloak({
-    url: 'https://iam.humanbrainproject.eu/auth',
+    url: 'https://iam.ebrains.eu/auth',
     realm: 'hbp',
     clientId: 'model-catalog' // TODO: change clientID to validation-framework, once client is registered
 });

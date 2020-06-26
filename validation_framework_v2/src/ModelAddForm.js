@@ -118,29 +118,22 @@ export default class ModelAddForm extends React.Component {
         };
         axios.get(url, config)
             .then(res => {
-                console.log(res.data.models);
-                if (res.data.models.length === 0) {
-                    this.setState({
-                        isAliasNotUnique: false,
-                        aliasLoading: false
-                    });
-                } else {
-                    this.setState({
-                        isAliasNotUnique: true,
-                        aliasLoading: false
-                    });
-                }
+                console.log(res.data);
+                this.setState({
+                    isAliasNotUnique: true,
+                    aliasLoading: false
+                });
             })
             .catch(err => {
                 if (axios.isCancel(err)) {
                     console.log('Error: ', err.message);
                 } else {
                     console.log(err);
+                    this.setState({
+                        isAliasNotUnique: false,
+                        aliasLoading: false
+                    });
                 }
-                this.setState({
-                    isAliasNotUnique: true,
-                    aliasLoading: false
-                });
             });
     }
 
@@ -331,10 +324,10 @@ export default class ModelAddForm extends React.Component {
                 <DialogActions>
                     <Button onClick={this.handleCancel} color="default">
                         Cancel
-          </Button>
+                    </Button>
                     <Button onClick={this.handleSubmit} color="primary">
                         Add Model
-          </Button>
+                    </Button>
                 </DialogActions>
             </Dialog>
         );

@@ -251,17 +251,3 @@ class ModelDetailContent extends React.Component {
 }
 
 export default withSnackbar(ModelDetailContent);
-
-
-// {
-//   "code_format" : "nest, dpsnn",
-//   "description" : "",
-//   "hash" : "",
-//   "id" : "9f4d1284-c5c1-43e9-b922-03bbb29de830",
-//   "license" : "All Rights Reserved",
-//   "parameters" : "",
-//   "source" : "https://collab.humanbrainproject.eu/#/collab/11175/nav/83589",
-//   "timestamp" : "2018-10-05T12:32:57.352445+00:00",
-//   "uri" : "https://nexus.humanbrainproject.org/v0/data/modelvalidation/simulation/modelinstance/v0.1.1/9f4d1284-c5c1-43e9-b922-03bbb29de830",
-//   "version" : "00.01.00"
-// }

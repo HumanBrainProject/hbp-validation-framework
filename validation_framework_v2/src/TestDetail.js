@@ -139,7 +139,7 @@ export default class TestDetail extends React.Component {
         return axios.get(url, config)
             .then(res => {
                 this.setState({
-                    results: res.data["results"],
+                    results: res.data,
                     loadingResult: false,
                     error: null
                 });
@@ -191,8 +191,8 @@ export default class TestDetail extends React.Component {
                                     <Grid item xs={9}>
                                         <TestDetailContent
                                             dataLocation={this.state.testData.data_location}
-                                            protocol={this.state.testData.protocol}
-                                            instances={this.state.testData.codes}
+                                            description={this.state.testData.description}
+                                            instances={this.state.testData.instances}
                                             id={this.state.testData.id}
                                             results={this.state.results}
                                         />
@@ -237,24 +237,3 @@ TestDetail.propTypes = {
     onClose: PropTypes.func.isRequired,
     open: PropTypes.bool.isRequired
 };
-
-// {
-//   "alias" : "Test_2019-12-18_15:50:45_integration_py3.7.2_getValTest_1",
-//   "author" : [ … ],
-//   "brain_region" : "basal ganglia",
-//   "cell_type" : "granule cell",
-//   "codes" : [ … ],
-//   "creation_date" : "2019-12-18T14:50:47.764970",
-//   "data_location" : "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/sp6_validation_data/test.txt",
-//   "data_modality" : "electron microscopy",
-//   "data_type" : "Mean, SD",
-//   "id" : "005bb12c-9271-4385-a024-87b079dd1db4",
-//   "name" : "IGNORE - Test Test - Test_2019-12-18_15:50:45_integration_py3.7.2_getValTest_1",
-//   "old_uuid" : null,
-//   "protocol" : "Later",
-//   "score_type" : "Other",
-//   "species" : "Mus musculus",
-//   "status" : "proposal",
-//   "test_type" : "network structure",
-//   "uri" : "https://nexus.humanbrainproject.org/v0/data/modelvalidation/simulation/validationtestdefinition/v0.1.0/005bb12c-9271-4385-a024-87b079dd1db4"
-// }

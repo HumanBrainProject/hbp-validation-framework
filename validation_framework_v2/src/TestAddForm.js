@@ -111,29 +111,22 @@ export default class TestAddForm extends React.Component {
         };
         axios.get(url, config)
             .then(res => {
-                console.log(res.data.tests);
-                if (res.data.tests.length === 0) {
-                    this.setState({
-                        isAliasNotUnique: false,
-                        aliasLoading: false
-                    });
-                } else {
-                    this.setState({
-                        isAliasNotUnique: true,
-                        aliasLoading: false
-                    });
-                }
+                console.log(res.data);
+                this.setState({
+                    isAliasNotUnique: true,
+                    aliasLoading: false
+                });
             })
             .catch(err => {
                 if (axios.isCancel(err)) {
                     console.log('Error: ', err.message);
                 } else {
                     console.log(err);
+                    this.setState({
+                        isAliasNotUnique: false,
+                        aliasLoading: false
+                    });
                 }
-                this.setState({
-                    isAliasNotUnique: true,
-                    aliasLoading: false
-                });
             });
     }
 

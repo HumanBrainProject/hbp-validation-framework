@@ -38,8 +38,13 @@ export default class ConfigForm extends React.Component {
         };
 
         this.handleClose = this.handleClose.bind(this);
+        this.handleCancel = this.handleCancel.bind(this);
         this.handleDisplayChange = this.handleDisplayChange.bind(this);
         this.handleFieldChange = this.handleFieldChange.bind(this);
+    }
+
+    handleCancel() {
+        this.props.onClose(this.state.display, this.state.selected, true);
     }
 
     handleClose() {
@@ -111,6 +116,9 @@ export default class ConfigForm extends React.Component {
                         </Box>
                     </DialogContent>
                     <DialogActions>
+                        <Button onClick={this.handleCancel} color="default">
+                            Cancel
+                        </Button>
                         <Button onClick={this.handleClose} color="primary">
                             Ok
            				</Button>

@@ -139,7 +139,7 @@ export default class ModelDetail extends React.Component {
         return axios.get(url, config)
             .then(res => {
                 this.setState({
-                    results: res.data["results"],
+                    results: res.data,
                     loadingResult: false,
                     error: null
                 });
@@ -236,25 +236,3 @@ ModelDetail.propTypes = {
     onClose: PropTypes.func.isRequired,
     open: PropTypes.bool.isRequired
 };
-
-
-// {
-//   "abstraction_level" : "spiking neurons: biophysical",
-//   "alias" : "test20200116b",
-//   "app" : { … },
-//   "author" : [ … ],
-//   "brain_region" : "cerebellum",
-//   "cell_type" : "Golgi cell",
-//   "description" : "description goes here. Seems like license field is disappearing though",
-//   "id" : "00422555-4bdf-49c6-98cc-26fc4f5cc54c",
-//   "images" : { … },
-//   "instances" : [ … ],
-//   "model_scope" : "single cell",
-//   "name" : "test20200116b",
-//   "old_uuid" : null,
-//   "organization" : "HBP-SP9",
-//   "owner" : [ … ],
-//   "private" : true,
-//   "species" : "Callithrix jacchus",
-//   "uri" : "https://nexus.humanbrainproject.org/v0/data/modelvalidation/simulation/modelproject/v0.1.0/00422555-4bdf-49c6-98cc-26fc4f5cc54c"
-// }

@@ -32,6 +32,7 @@ function InstanceParameter(props) {
 class TestDetailContent extends React.Component {
     constructor(props) {
         super(props);
+        console.log(this.props);
 
         this.state = {
             openAddInstanceForm: false,
@@ -115,6 +116,7 @@ class TestDetailContent extends React.Component {
                 testID={this.props.id}
             />
         }
+        console.log(this.state.instances);
 
         return (
             <React.Fragment>
@@ -123,9 +125,13 @@ class TestDetailContent extends React.Component {
                     <Grid item xs={12}>
                         <Box>
                             <Typography><b>Data Location: </b></Typography>
-                            <Box component="div" my={2} bgcolor="white" overflow="auto" border={1} borderColor="grey.500" borderRadius={10} style={{ padding: 10, cursor: "pointer" }} whiteSpace="nowrap" onClick={() => copyToClipboard(this.props.dataLocation, this.props.enqueueSnackbar, "Data location copied")} width="100%">{this.props.dataLocation}</Box>
-                            <Typography><b>Protocol: </b></Typography>
-                            <Markdown>{this.props.protocol}</Markdown><br /><br />
+                            {this.props.dataLocation.map((dataItem, index) => (
+                                <Box component="div" key={index} my={2} bgcolor="white" overflow="auto" border={1} borderColor="grey.500" borderRadius={10} style={{ padding: 10, cursor: "pointer" }} whiteSpace="nowrap" onClick={() => copyToClipboard(dataItem, this.props.enqueueSnackbar, "Data location copied")} width="100%">
+                                    {dataItem}
+                                </Box>
+                            ))}
+                            <Typography><b>Description: </b></Typography>
+                            <Markdown>{this.props.description}</Markdown><br /><br />
                         </Box>
                     </Grid>
                     <Grid item xs={12}>
@@ -188,16 +194,3 @@ class TestDetailContent extends React.Component {
 }
 
 export default withSnackbar(TestDetailContent);
-
-
-// {
-//   "description" : "",
-//   "id" : "5476dea4-af1f-45b1-b0c8-f7867a3d1d42",
-//   "old_uuid" : null,
-//   "parameters" : null,
-//   "path" : "hbp_validation_framework.sample.SampleTest",
-//   "repository" : "https://github.com/HumanBrainProject/hbp-validation-client.git",
-//   "timestamp" : "2019-12-18T14:50:48.295543",
-//   "uri" : "https://nexus.humanbrainproject.org/v0/data/modelvalidation/simulation/validationscript/v0.1.0/5476dea4-af1f-45b1-b0c8-f7867a3d1d42",
-//   "version" : "1.0"
-// }
