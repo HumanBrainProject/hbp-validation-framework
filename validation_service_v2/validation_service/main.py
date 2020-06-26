@@ -1,8 +1,10 @@
 from fastapi import FastAPI
 from starlette.middleware.sessions import SessionMiddleware
+from starlette.middleware.cors import CORSMiddleware.
 
 from .resources import models, tests, vocab, results, auth
 from . import settings
+
 
 description = """
 The EBRAINS Model Validation Service is a web service to support
@@ -25,8 +27,18 @@ Please [login here](https://validation-v2.brainsimulation.eu/login), then copy t
 
 app = FastAPI(title="EBRAINS Model Validation Service", description=description, version="2.0")
 
+app.add_middleware(
+    SessionMiddleware,
+    secret_key=settings.SESSIONS_SECRET_KEY
+)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
-app.add_middleware(SessionMiddleware, secret_key=settings.SESSIONS_SECRET_KEY)
 app.include_router(auth.router, tags=["Authentication and authorization"])
 app.include_router(models.router, tags=["Models"])
 app.include_router(tests.router, tags=["Validation Tests"])
