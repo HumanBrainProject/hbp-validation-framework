@@ -10,7 +10,7 @@ from fastapi import APIRouter, Depends, Query, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic import ValidationError
 
-from ..auth import get_kg_client, get_user_from_token, is_collab_member
+from ..auth import get_kg_client, get_user_from_token, is_collab_member, is_admin
 from ..data_models import (
     Person,
     Species,
@@ -214,7 +214,7 @@ def update_test(
 async def delete_test(test_id: UUID, token: HTTPAuthorizationCredentials = Depends(auth)):
     # todo: handle non-existent UUID
     test_definition = ValidationTestDefinition.from_uuid(str(test_id), kg_client, api="nexus")
-    if not await is_collab_member(settings.ADMIN_COLLAB_ID, token.credentials):
+    if not await is_admin(token.credentials):
         # todo: replace this check with a group membership check for Collab v2
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN, detail="Deleting tests is restricted to admins"
@@ -368,7 +368,7 @@ async def delete_test_instance_by_id(
 ):
     # todo: handle non-existent UUID, inconsistent test_id and test_instance_id
     test_script = ValidationScript.from_uuid(str(test_instance_id), kg_client, api="nexus")
-    if not await is_collab_member(settings.ADMIN_COLLAB_ID, token.credentials):
+    if not await is_admin(token.credentials):
         # todo: replace this check with a group membership check for Collab v2
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -383,7 +383,7 @@ async def delete_test_instance(
 ):
     # todo: handle non-existent UUID, inconsistent test_id and test_instance_id
     test_script = ValidationScript.from_uuid(str(test_instance_id), kg_client, api="nexus")
-    if not await is_collab_member(settings.ADMIN_COLLAB_ID, token.credentials):
+    if not await is_admin(token.credentials):
         # todo: replace this check with a group membership check for Collab v2
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,

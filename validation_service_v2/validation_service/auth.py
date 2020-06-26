@@ -123,3 +123,8 @@ async def is_collab_member(collab_id, user_token):
         get_collab_permissions = get_collab_permissions_v2
     permissions = await get_collab_permissions(collab_id, user_token)
     return permissions.get("UPDATE", False)
+
+
+async def is_admin(user_token):
+    return await is_collab_member(settings.ADMIN_COLLAB_ID, user_token)
+    # todo: replace this check with a group membership check for Collab v2
