@@ -58,7 +58,7 @@ def _build_sample_validation_test():
         "description": "description goes here",
         "data_location": ["http://example.com/my_data.csv"],
         "data_type": "csv",
-        "data_modality": "electrophysiology",
+        "recording_modality": "electrophysiology",
         "test_type": "single cell activity",
         "score_type": "z-score",
         "instances": [

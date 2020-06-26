@@ -524,7 +524,7 @@ class ValidationTest(BaseModel):
     old_uuid: UUID = None
     data_location: List[HttpUrl]
     data_type: str = None
-    data_modality: RecordingModality = None
+    recording_modality: RecordingModality = None
     test_type: ValidationTestType = None
     score_type: ScoreType = None
     instances: List[ValidationTestInstance] = None
@@ -562,7 +562,7 @@ class ValidationTest(BaseModel):
                 for item in as_list(test_definition.reference_data)
             ],
             data_type=test_definition.data_type,
-            data_modality=test_definition.recording_modality
+            recording_modality=test_definition.recording_modality
             if test_definition.recording_modality
             else None,
             test_type=test_definition.test_type if test_definition.test_type else None,
@@ -596,7 +596,7 @@ class ValidationTest(BaseModel):
             celltype=get_ontology_object(fairgraph.commons.CellType, self.cell_type),
             reference_data=data_files,
             data_type=self.data_type,
-            recording_modality=self.data_modality,
+            recording_modality=self.recording_modality,
             test_type=self.test_type,
             score_type=self.score_type,
             description=self.description,
@@ -628,7 +628,7 @@ class ValidationTestPatch(BaseModel):
     old_uuid: UUID = None
     data_location: List[HttpUrl] = None
     data_type: str = None
-    data_modality: RecordingModality = None
+    recording_modality: RecordingModality = None
     test_type: ValidationTestType = None
     score_type: ScoreType = None
 

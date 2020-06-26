@@ -35,8 +35,8 @@ def check_validation_test(test_definition, expected_instances=0):
         assert test_definition["score_type"] in [item.value for item in ScoreType]
     if test_definition["test_type"]:
         assert test_definition["test_type"] in [item.value for item in ValidationTestType]
-    if test_definition["data_modality"]:
-        assert test_definition["data_modality"] in [item.value for item in RecordingModality]
+    if test_definition["recording_modality"]:
+        assert test_definition["recording_modality"] in [item.value for item in RecordingModality]
     if test_definition["data_location"]:
         for url in test_definition["data_location"]:
             assert_is_valid_url(url)
@@ -304,7 +304,7 @@ def test_update_validation_test(caplog):
         "name": posted_validation_test["name"]
         + " (changed)",  # as long as date_created is not changed, name can be
         "author": [{"given_name": "Tom", "family_name": "Bombadil"}],
-        "data_modality": "fMRI",
+        "recording_modality": "fMRI",
         "description": "The previous description was too short",
     }
     # update
@@ -317,8 +317,8 @@ def test_update_validation_test(caplog):
 
     assert posted_validation_test["id"] == updated_validation_test["id"]
     assert posted_validation_test["instances"] == updated_validation_test["instances"]
-    assert updated_validation_test["data_modality"] != payload["data_modality"]
-    assert updated_validation_test["data_modality"] == changes["data_modality"] == "fMRI"
+    assert updated_validation_test["recording_modality"] != payload["recording_modality"]
+    assert updated_validation_test["recording_modality"] == changes["recording_modality"] == "fMRI"
 
     # delete validation_test
     response = client.delete(f"/tests/{posted_validation_test['id']}", headers=AUTH_HEADER)
@@ -339,7 +339,7 @@ def test_update_validation_test_with_invalid_data():
         "name": posted_validation_test["name"]
         + " (changed)",  # as long as date_created is not changed, name can be
         "author": None,  # invalid
-        "data_modality": "foo",  # invalid
+        "recording_modality": "foo",  # invalid
         "description": None,  # invalid
     }
     response = client.put(
@@ -348,7 +348,7 @@ def test_update_validation_test_with_invalid_data():
     assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
     errmsg = response.json()["detail"]
     assert set([part["loc"][-1] for part in errmsg]) == set(
-        ["author", "data_modality", "description"]
+        ["author", "recording_modality", "description"]
     )
 
     # delete validation_test

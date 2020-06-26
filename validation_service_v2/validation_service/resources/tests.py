@@ -45,7 +45,7 @@ def query_tests(
     species: List[Species] = Query(None),
     cell_type: List[CellType] = Query(None),
     data_type: List[str] = Query(None),
-    data_modality: List[RecordingModality] = Query(None),
+    recording_modality: List[RecordingModality] = Query(None),
     test_type: List[ValidationTestType] = Query(None),
     score_type: List[ScoreType] = Query(None),
     author: List[str] = Query(None),
@@ -62,8 +62,8 @@ def query_tests(
         species = [item.value for item in species]
     if cell_type:
         cell_type = [item.value for item in cell_type]
-    if data_modality:
-        data_modality = [item.value for item in data_modality]
+    if recording_modality:
+        recording_modality = [item.value for item in recording_modality]
     if test_type:
         test_type = [item.value for item in test_type]
     if score_type:
@@ -78,7 +78,7 @@ def query_tests(
         species,
         cell_type,
         data_type,
-        data_modality,
+        recording_modality,
         test_type,
         score_type,
         author,
