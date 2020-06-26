@@ -76,8 +76,8 @@ def _build_sample_validation_test():
 def _build_sample_result(model_instance_id, test_instance_id):
     now = datetime.now(timezone.utc)
     return {
-        "model_version_id": model_instance_id,
-        "test_code_id": test_instance_id,
+        "model_instance_id": model_instance_id,
+        "test_instance_id": test_instance_id,
         "results_storage": [
             f"http://example.com/validation_result_{now.strftime('%Y%m%d-%H%M%S')}"
         ],

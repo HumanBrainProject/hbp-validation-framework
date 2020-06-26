@@ -28,8 +28,8 @@ def assert_is_valid_url(url):
 
 def check_validation_result(result):
     datetime.fromisoformat(result["timestamp"])
-    UUID(result["model_version_id"])
-    UUID(result["test_code_id"])
+    UUID(result["model_instance_id"])
+    UUID(result["test_instance_id"])
     for item in result["results_storage"]:
         assert_is_valid_url(item)
     assert isinstance(result["score"], float)
@@ -65,7 +65,7 @@ def test_list_results_filter_by_model_id():
     model_instance_ids = [inst["id"] for inst in model_project["instances"]]
     for validation_result in validation_results:
         check_validation_result(validation_result)
-        assert validation_result["model_version_id"] in model_instance_ids
+        assert validation_result["model_instance_id"] in model_instance_ids
 
 
 def test_list_results_filter_by_model_alias():
@@ -79,20 +79,20 @@ def test_list_results_filter_by_model_alias():
     model_instance_ids = [inst["id"] for inst in model_project["instances"]]
     for validation_result in validation_results:
         check_validation_result(validation_result)
-        assert validation_result["model_version_id"] in model_instance_ids
+        assert validation_result["model_instance_id"] in model_instance_ids
 
 
-def test_list_results_filter_by_model_version_id():
+def test_list_results_filter_by_model_instance_id():
     model_instance_uuid = "403d865e-417c-45fe-97cf-83a9613ae664"
     response = client.get(
-        f"/results/?size=5&model_version_id={model_instance_uuid}", headers=AUTH_HEADER
+        f"/results/?size=5&model_instance_id={model_instance_uuid}", headers=AUTH_HEADER
     )
     assert response.status_code == 200
     validation_results = response.json()
     assert len(validation_results) == 5
     for validation_result in validation_results:
         check_validation_result(validation_result)
-        assert validation_result["model_version_id"] == model_instance_uuid
+        assert validation_result["model_instance_id"] == model_instance_uuid
 
 
 def test_list_results_filter_by_test_id():
@@ -106,18 +106,18 @@ def test_list_results_filter_by_test_id():
     test_instance_ids = [inst["id"] for inst in test_definition["instances"]]
     for validation_result in validation_results:
         check_validation_result(validation_result)
-        assert validation_result["test_code_id"] in test_instance_ids
+        assert validation_result["test_instance_id"] in test_instance_ids
 
 
-def test_list_results_filter_by_test_code_id():
+def test_list_results_filter_by_test_instance_id():
     test_code_uuid = "1d22e1c0-5a74-49b4-b114-41d233d3250a"
-    response = client.get(f"/results/?size=5&test_code_id={test_code_uuid}", headers=AUTH_HEADER)
+    response = client.get(f"/results/?size=5&test_instance_id={test_code_uuid}", headers=AUTH_HEADER)
     assert response.status_code == 200
     validation_results = response.json()
     assert len(validation_results) == 5
     for validation_result in validation_results:
         check_validation_result(validation_result)
-        assert validation_result["test_code_id"] == test_code_uuid
+        assert validation_result["test_instance_id"] == test_code_uuid
 
 
 def test_list_results_filter_by_test_alias():
@@ -131,7 +131,7 @@ def test_list_results_filter_by_test_alias():
     test_instance_ids = [inst["id"] for inst in test_definition["instances"]]
     for validation_result in validation_results:
         check_validation_result(validation_result)
-        assert validation_result["test_code_id"] in test_instance_ids
+        assert validation_result["test_instance_id"] in test_instance_ids
 
 
 def test_get_result_by_id_no_auth():

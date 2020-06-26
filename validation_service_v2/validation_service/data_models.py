@@ -684,8 +684,8 @@ class ValidationResult(BaseModel):
     id: UUID = None
     uri: HttpUrl = None
     old_uuid: UUID = None
-    model_version_id: UUID
-    test_code_id: UUID
+    model_instance_id: UUID
+    test_instance_id: UUID
     results_storage: List[AnyUrl]  # for now at least, accept "collab:" and "swift:" URLs
     score: float
     passed: bool = None
@@ -701,8 +701,8 @@ class ValidationResult(BaseModel):
             raise ConsistencyError("Missing ValidationActivity")
         if validation_activity is None:
             raise ConsistencyError("Missing ValidationActivity (may have been deleted)")
-        model_version_id = validation_activity.model_instance.uuid
-        test_code_id = validation_activity.test_script.uuid
+        model_instance_id = validation_activity.model_instance.uuid
+        test_instance_id = validation_activity.test_script.uuid
         logger.debug("Serializing validation test result")
         logger.debug("Additional data for {}:\n{}".format(result.id, result.additional_data))
         additional_data_urls = []
@@ -716,8 +716,8 @@ class ValidationResult(BaseModel):
             id=result.uuid,
             uri=result.id,
             old_uuid=result.old_uuid,
-            model_version_id=model_version_id,
-            test_code_id=test_code_id,
+            model_instance_id=model_instance_id,
+            test_instance_id=test_instance_id,
             results_storage=additional_data_urls,  # todo: handle collab storage redirects
             score=result.score,
             passed=result.passed,
@@ -740,10 +740,10 @@ class ValidationResult(BaseModel):
         kg_objects = additional_data[:]
 
         test_code = fairgraph.brainsimulation.ValidationScript.from_id(
-            str(self.test_code_id), kg_client, api="nexus"
+            str(self.test_instance_id), kg_client, api="nexus"
         )
         test_definition = test_code.test_definition.resolve(kg_client, api="nexus")
-        model_instance = _get_model_instance_by_id(self.model_version_id, kg_client)
+        model_instance = _get_model_instance_by_id(self.model_instance_id, kg_client)
         reference_data = fairgraph.core.Collection(
             f"Reference data for {test_definition.name}",
             members=as_list(test_definition.reference_data),
@@ -751,7 +751,7 @@ class ValidationResult(BaseModel):
         kg_objects.append(reference_data)
 
         result = fairgraph.brainsimulation.ValidationResult(
-            name=f"Validation results for model {self.model_version_id} and test {self.test_code_id} with timestamp {timestamp.isoformat()}",
+            name=f"Validation results for model {self.model_instance_id} and test {self.test_instance_id} with timestamp {timestamp.isoformat()}",
             generated_by=None,
             description=None,
             score=self.score,

@@ -95,8 +95,8 @@ def get_full_uri(kg_types, uuid, client):
 
 
 def build_result_filters(
-    model_version_id,
-    test_code_id,
+    model_instance_id,
+    test_instance_id,
     model_id,
     test_id,
     model_alias,
@@ -113,16 +113,16 @@ def build_result_filters(
     }
     filter_query = {"op": "and", "value": []}
 
-    if model_version_id is not None:
-        model_version_id = list(
+    if model_instance_id is not None:
+        model_instance_id = list(
             chain(
                 get_full_uri([ModelInstance, MEModel], uuid, kg_client)
-                for uuid in model_version_id
+                for uuid in model_instance_id
             )
         )
-    if test_code_id is not None:
-        test_code_id = list(
-            chain(get_full_uri(ValidationScript, uuid, kg_client) for uuid in test_code_id)
+    if test_instance_id is not None:
+        test_instance_id = list(
+            chain(get_full_uri(ValidationScript, uuid, kg_client) for uuid in test_instance_id)
         )
     if model_id is not None:
         model_id = list(chain(get_full_uri(ModelProject, uuid, kg_client) for uuid in model_id))
@@ -132,8 +132,8 @@ def build_result_filters(
         )
 
     for value, path in (
-        (model_version_id, "prov:wasGeneratedBy / prov:used"),
-        (test_code_id, "prov:wasGeneratedBy / prov:used"),
+        (model_instance_id, "prov:wasGeneratedBy / prov:used"),
+        (test_instance_id, "prov:wasGeneratedBy / prov:used"),
         (model_id, "prov:wasGeneratedBy / prov:used / ^dcterms:hasPart"),
         (test_id, "prov:wasGeneratedBy / prov:used / nsg:implements"),
         (model_alias, "prov:wasGeneratedBy / prov:used / ^dcterms:hasPart / nsg:alias"),

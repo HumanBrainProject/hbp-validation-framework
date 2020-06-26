@@ -32,10 +32,10 @@ router = APIRouter()
 def query_results(
     passed: List[bool] = Query(None),
     project_id: List[int] = Query(None),
-    model_version_id: List[UUID] = Query(
+    model_instance_id: List[UUID] = Query(
         None
     ),  # todo: rename this 'model_instance_id' for consistency
-    test_code_id: List[UUID] = Query(None),
+    test_instance_id: List[UUID] = Query(None),
     model_id: List[UUID] = Query(None),
     test_id: List[UUID] = Query(None),
     model_alias: List[str] = Query(None),
@@ -47,8 +47,8 @@ def query_results(
     token: HTTPAuthorizationCredentials = Depends(auth),
 ):
     filter_query, context = build_result_filters(
-        model_version_id,
-        test_code_id,
+        model_instance_id,
+        test_instance_id,
         model_id,
         test_id,
         model_alias,
