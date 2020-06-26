@@ -102,14 +102,14 @@ def list_licenses(
 @router.get("/vocab/")
 def all_vocabularies():
     return {
-        "brain-region": [item.value for item in BrainRegion],
+        "brain_region": [item.value for item in BrainRegion],
         "species": [item.value for item in Species],
-        "model-scope": [item.value for item in ModelScope],
-        "cell-type": [item.value for item in CellType],
-        "abstraction-level": [item.value for item in AbstractionLevel],
-        "recording-modality": [item.value for item in RecordingModality],
-        "test-type": [item.value for item in ValidationTestType],
-        "score-type": [item.value for item in ScoreType],
-        "test-status": [item.value for item in ImplementationStatus],
+        "model_scope": [item.value for item in ModelScope],
+        "cell_type": [item.value for item in CellType],
+        "abstraction_level": [item.value for item in AbstractionLevel],
+        "recording_modality": [item.value for item in RecordingModality],
+        "test_type": [item.value for item in ValidationTestType],
+        "score_type": [item.value for item in ScoreType],
+        "test_status": [item.value for item in ImplementationStatus],
         "license": popular_licenses,
     }
