@@ -83,13 +83,15 @@ popular_licenses = [
     "GNU General Public License v2.0 or later",
     "GNU General Public License v3.0 or later",
     "GNU Lesser General Public License v3.0 or later",
-    "MIT License"
+    "MIT License",
 ]
 
 
 @router.get("/vocab/license/")
 def list_licenses(
-    filter: LicenseFilterOptions = Query(None, description="Return all licenses or only the most popular ones"),
+    filter: LicenseFilterOptions = Query(
+        None, description="Return all licenses or only the most popular ones"
+    ),
 ):
     if filter == LicenseFilterOptions.popular:
         return popular_licenses

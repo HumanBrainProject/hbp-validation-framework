@@ -403,6 +403,7 @@ def test_update_model_with_invalid_data():
     response = client.delete(f"/models/{posted_model['id']}", headers=AUTH_HEADER)
     assert response.status_code == 200
 
+
 @pytest.mark.xfail  # need to test with non-admin user
 def test_changing_project_id():
     # if test user isn't a member of the new collab, returns 403

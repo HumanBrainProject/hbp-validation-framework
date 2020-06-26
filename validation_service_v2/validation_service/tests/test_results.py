@@ -111,7 +111,9 @@ def test_list_results_filter_by_test_id():
 
 def test_list_results_filter_by_test_instance_id():
     test_code_uuid = "1d22e1c0-5a74-49b4-b114-41d233d3250a"
-    response = client.get(f"/results/?size=5&test_instance_id={test_code_uuid}", headers=AUTH_HEADER)
+    response = client.get(
+        f"/results/?size=5&test_instance_id={test_code_uuid}", headers=AUTH_HEADER
+    )
     assert response.status_code == 200
     validation_results = response.json()
     assert len(validation_results) == 5

@@ -120,7 +120,6 @@ License = Enum(
 )
 
 
-
 class Person(BaseModel):
     given_name: str
     family_name: str
