@@ -53,7 +53,7 @@ export default class TestEditForm extends React.Component {
             name: "",
             alias: "",
             author: [],
-            protocol: "",
+            description: "",
             data_location: "",
             data_type: "",
             species: "",
@@ -149,7 +149,7 @@ export default class TestEditForm extends React.Component {
     createPayload() {
         let testData = this.props.testData;
         delete testData.images;
-        delete testData.codes;
+        delete testData.instances;
         return {
             id: this.state.id,
             uri: this.state.uri,
@@ -157,7 +157,7 @@ export default class TestEditForm extends React.Component {
             name: this.state.name,
             alias: this.state.alias,
             author: this.state.author,
-            protocol: this.state.protocol,
+            description: this.state.description,
             data_location: this.state.data_location,
             data_type: this.state.data_type,
             species: this.state.species,
@@ -252,11 +252,11 @@ export default class TestEditForm extends React.Component {
         console.log(this.props.testData)
         return (
             <Dialog onClose={this.handleClose}
-                aria-labelledby="Form for editing an existing test in the catalog"
+                aria-labelledby="Form for editing an existing test in the library"
                 open={this.props.open}
                 fullWidth={true}
                 maxWidth="md">
-                <DialogTitle style={{ backgroundColor: Theme.tableHeader }}>Edit a new test to the catalog</DialogTitle>
+                <DialogTitle style={{ backgroundColor: Theme.tableHeader }}>Edit an existing test in the library</DialogTitle>
                 <DialogContent>
                     <Box my={2}>
                         <form>
@@ -292,9 +292,9 @@ export default class TestEditForm extends React.Component {
                                         }} />
                                 </Grid>
                                 <Grid item xs={12}>
-                                    <TextField multiline rows="6" name="protocol" label="Protocol" defaultValue={this.state.protocol}
+                                    <TextField multiline rows="6" name="description" label="Description" defaultValue={this.state.description}
                                         onBlur={this.handleFieldChange} variant="outlined" fullWidth={true}
-                                        helperText="The protocol may be formatted with Markdown" />
+                                        helperText="The description may be formatted with Markdown" />
                                 </Grid>
                                 <Grid item xs={12}>
                                     <TextField name="data_location" label="Data Location (URL)" defaultValue={this.state.data_location}

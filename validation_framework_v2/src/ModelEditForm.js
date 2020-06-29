@@ -57,6 +57,7 @@ export default class ModelEditForm extends React.Component {
             author: [],
             owner: [],
             private: false,
+            project_id: "",
             description: "",
             species: "",
             brain_region: "",
@@ -64,9 +65,6 @@ export default class ModelEditForm extends React.Component {
             model_scope: "",
             abstraction_level: "",
             organization: "",
-            app: {
-                collab_id: ""
-            },
             auth: authContext,
             filters: filtersContext,
             validFilterValues: validFilterValuesContext
@@ -155,39 +153,34 @@ export default class ModelEditForm extends React.Component {
         delete modelData.images;
         delete modelData.instances;
         return {
-            "models":
-                [
-                    {
-                        id: this.state.id,
-                        uri: this.state.uri,
-                        name: this.state.name,
-                        alias: this.state.alias,
-                        author: this.state.author,
-                        owner: this.state.owner,
-                        private: this.state.private,
-                        description: this.state.description,
-                        species: this.state.species,
-                        brain_region: this.state.brain_region,
-                        cell_type: this.state.cell_type,
-                        model_scope: this.state.model_scope,
-                        abstraction_level: this.state.abstraction_level,
-                        organization: this.state.organization,
-                        app: this.state.app,
-                    }
-                ]
+            id: this.state.id,
+            uri: this.state.uri,
+            name: this.state.name,
+            alias: this.state.alias,
+            author: this.state.author,
+            owner: this.state.owner,
+            private: this.state.private,
+            project_id: this.state.project_id,
+            description: this.state.description,
+            species: this.state.species,
+            brain_region: this.state.brain_region,
+            cell_type: this.state.cell_type,
+            model_scope: this.state.model_scope,
+            abstraction_level: this.state.abstraction_level,
+            organization: this.state.organization,
         }
     }
 
     checkRequirements(payload) {
         // rule 1: model name cannot be empty
         let error = null;
-        console.log(payload["models"][0].name)
-        if (!payload["models"][0].name) {
+        console.log(payload.name)
+        if (!payload.name) {
             error = "Model 'name' cannot be empty!"
         }
         else {
             // rule 2: check if alias (if specified) has been changed, and is still unique
-            if (!this.state.aliasLoading && payload["models"][0].alias && this.state.isAliasNotUnique) {
+            if (!this.state.aliasLoading && payload.alias && this.state.isAliasNotUnique) {
                 error = "Model 'alias' has to be unique!"
             }
         }
@@ -219,7 +212,7 @@ export default class ModelEditForm extends React.Component {
                 .then(res => {
                     console.log(res);
                     this.props.onClose({
-                        ...payload["models"][0]
+                        ...payload
                     });
                 })
                 .catch(err => {
@@ -264,7 +257,7 @@ export default class ModelEditForm extends React.Component {
                 open={this.props.open}
                 fullWidth={true}
                 maxWidth="md">
-                <DialogTitle style={{ backgroundColor: Theme.tableHeader }}>Edit a new model to the catalog</DialogTitle>
+                <DialogTitle style={{ backgroundColor: Theme.tableHeader }}>Edit an existing model in the catalog</DialogTitle>
                 <DialogContent>
                     <Box my={2}>
                         <form>
@@ -310,6 +303,16 @@ export default class ModelEditForm extends React.Component {
                                         labelPlacement="bottom"
                                         control={<Switch checked={!this.state.private} onChange={this.handleFieldChange} name="private" />}
                                         label={this.state.private ? "Private" : "Public"} />
+                                </Grid>
+                                <Grid item xs={12}>
+                                    <TextField name="project_id" label="Project ID" defaultValue={this.state.project_id}
+                                        onBlur={this.handleFieldChange} variant="outlined" fullWidth={true}
+                                        helperText="Please specify the Collab ID, if any, associated with this model (optional)." />
+                                </Grid>
+                                <Grid item xs={12}>
+                                    <TextField name="organization" label="Organization" defaultValue={this.state.organization}
+                                        onBlur={this.handleFieldChange} variant="outlined" fullWidth={true}
+                                        helperText="Please specify the organization, if any, associated with this model (optional)." />
                                 </Grid>
                                 <Grid item xs={12}>
                                     <TextField multiline rows="6" name="description" label="Description" defaultValue={this.state.description}

@@ -56,6 +56,7 @@ export default class ModelAddForm extends React.Component {
             author: [],
             owner: [],
             private: false,
+            project_id: "",
             description: "",
             species: "",
             brain_region: "",
@@ -72,9 +73,6 @@ export default class ModelAddForm extends React.Component {
                 code_format: "",
                 license: ""
             }],
-            app: {
-                collab_id: "8123"  // TODO: change for prod! -> temp for testing: Validation Framework collab (v1)
-            },
             auth: authContext,
             filters: filtersContext,
             validFilterValues: validFilterValuesContext
@@ -139,34 +137,33 @@ export default class ModelAddForm extends React.Component {
 
     createPayload() {
         return {
-            "model": {
-                name: this.state.name,
-                alias: this.state.alias,
-                author: this.state.author.length > 0 ? this.state.author : [{ "given_name": "", "family_name": "" }],
-                owner: this.state.owner.length > 0 ? this.state.owner : [{ "given_name": "", "family_name": "" }],
-                private: this.state.private,
-                description: this.state.description,
-                species: this.state.species,
-                brain_region: this.state.brain_region,
-                cell_type: this.state.cell_type,
-                model_scope: this.state.model_scope,
-                abstraction_level: this.state.abstraction_level,
-                organization: this.state.organization,
-            },
-            "model_instance": this.state.instances,
-            "model_image": []
+            name: this.state.name,
+            alias: this.state.alias,
+            author: this.state.author.length > 0 ? this.state.author : [{ "given_name": "", "family_name": "" }],
+            owner: this.state.owner.length > 0 ? this.state.owner : [{ "given_name": "", "family_name": "" }],
+            private: this.state.private,
+            project_id: this.state.project_id,
+            description: this.state.description,
+            species: this.state.species ? this.state.species : null,
+            brain_region: this.state.brain_region ? this.state.brain_region : null,
+            cell_type: this.state.cell_type ? this.state.cell_type : null,
+            model_scope: this.state.model_scope ? this.state.model_scope : null,
+            abstraction_level: this.state.abstraction_level ? this.state.abstraction_level : null,
+            organization: this.state.organization,
+            "instances": this.state.instances,
+            "images": []
         }
     }
 
     checkRequirements(payload) {
         // rule 1: model name cannot be empty
         let error = null;
-        console.log(payload.model.name)
-        if (!payload.model.name) {
+        console.log(payload.name)
+        if (!payload.name) {
             error = "Model 'name' cannot be empty!"
         }
         // rule 2: check if alias (if specified) is unique
-        else if (!this.state.aliasLoading && payload.model.alias && this.state.isAliasNotUnique) {
+        else if (!this.state.aliasLoading && payload.alias && this.state.isAliasNotUnique) {
             error = "Model 'alias' has to be unique!"
         }
         if (error) {
@@ -196,16 +193,15 @@ export default class ModelAddForm extends React.Component {
             axios.post(url, payload, config)
                 .then(res => {
                     console.log(res);
-                    payload.model_instance.id = "<< missing data >>";
+                    payload.instances[0].id = res.data.instances[0].id;
                     this.props.onClose({
-                        ...payload.model,
-                        id: res.data.uuid,
-                        uri: "<< missing data >>",
+                        // TODO: minimize data, add creation date?
+                        ...payload,
+                        id: res.data.id,
+                        uri: res.data.uri,
                         app: this.state.app,
-                        instances: payload.model_instance,
-                        // TODO: add instance ID to 'instances' so that newly 
-                        // created models have data necessary for ModelDetail page; also URI above
-                        images: payload.model_image
+                        instances: payload.instances,
+                        images: payload.images
                     });
                 })
                 .catch(err => {
@@ -229,9 +225,15 @@ export default class ModelAddForm extends React.Component {
         console.log(name + " => " + value);
         if (name === "private") {
             value = !target.checked;
-        }
-        else if (name === "alias") {
+        } else if (name === "alias") {
             this.checkAliasUnique(value)
+        } else if (name === "model_scope") {
+            // if ((value !== "single cell") && (!value.startsWith('network'))) {
+            if (value !== "single cell") {
+                this.setState({
+                    "instances": [{ ...this.state.instances[0], morphology: null }],
+                });
+            }
         }
         this.setState({
             [name]: value
@@ -297,6 +299,16 @@ export default class ModelAddForm extends React.Component {
                                         label={this.state.private ? "Private" : "Public"} />
                                 </Grid>
                                 <Grid item xs={12}>
+                                    <TextField name="project_id" label="Project ID" defaultValue={this.state.project_id}
+                                        onBlur={this.handleFieldChange} variant="outlined" fullWidth={true}
+                                        helperText="Please specify the Collab ID, if any, associated with this model (optional)." />
+                                </Grid>
+                                <Grid item xs={12}>
+                                    <TextField name="organization" label="Organization" defaultValue={this.state.organization}
+                                        onBlur={this.handleFieldChange} variant="outlined" fullWidth={true}
+                                        helperText="Please specify the organization, if any, associated with this model (optional)." />
+                                </Grid>
+                                <Grid item xs={12}>
                                     <TextField multiline rows="6" name="description" label="Description" defaultValue={this.state.description}
                                         onBlur={this.handleFieldChange} variant="outlined" fullWidth={true}
                                         helperText="The description may be formatted with Markdown" />
@@ -313,6 +325,7 @@ export default class ModelAddForm extends React.Component {
                                 <ModelInstanceArrayOfForms
                                     name="instances"
                                     value={this.state.instances}
+                                    model_scope={this.state.model_scope}
                                     onChange={this.handleFieldChange} />
                             </Grid>
                         </form>

@@ -261,11 +261,13 @@ class ValidationFramework extends React.Component {
                 error_message = "URL query parameter must be one of the following:\n" + queryValid.join(", ");
                 this.setState({ errorGet: error_message });
                 proceed = false;
+                updateHash('');
             }
             if (proceed && key.endsWith("_id") && !isUUID(value)) {
                 error_message = "Value for query parameter '" + key + "' is not a valid UUID.\n Value: (" + value + ")";
                 this.setState({ errorGet: error_message });
                 proceed = false;
+                updateHash('');
             }
             if (proceed) {
                 this.setState({ loadingOpen: true });

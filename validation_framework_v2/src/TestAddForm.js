@@ -51,7 +51,7 @@ export default class TestAddForm extends React.Component {
             name: "",
             alias: "",
             author: [],
-            protocol: "",
+            description: "",
             data_location: "",
             data_type: "",
             species: "",
@@ -59,9 +59,9 @@ export default class TestAddForm extends React.Component {
             cell_type: "",
             test_type: "",
             score_type: "",
-            data_modality: "",
+            recording_modality: "",
             status: "",
-            codes: [{
+            instances: [{
                 version: "",
                 repository: "",
                 path: "",
@@ -132,34 +132,32 @@ export default class TestAddForm extends React.Component {
 
     createPayload() {
         return {
-            "test_data": {
-                name: this.state.name,
-                alias: this.state.alias,
-                author: this.state.author.length > 0 ? this.state.author : [{ "given_name": "", "family_name": "" }],
-                protocol: this.state.protocol,
-                data_location: this.state.data_location,
-                data_type: this.state.data_type,
-                species: this.state.species || null,
-                brain_region: this.state.brain_region || null,
-                cell_type: this.state.cell_type || null,
-                test_type: this.state.test_type || null,
-                score_type: this.state.score_type || null,
-                data_modality: this.state.data_modality || null,
-                status: this.state.status || null,
-            },
-            "code_data": this.state.codes[0]
+            name: this.state.name,
+            alias: this.state.alias,
+            author: this.state.author.length > 0 ? this.state.author : [{ "given_name": "", "family_name": "" }],
+            description: this.state.description,
+            data_location: this.state.data_location,
+            data_type: this.state.data_type,
+            species: this.state.species || null,
+            brain_region: this.state.brain_region || null,
+            cell_type: this.state.cell_type || null,
+            test_type: this.state.test_type || null,
+            score_type: this.state.score_type || null,
+            recording_modality: this.state.recording_modality || null,
+            status: this.state.status || null,
+            "instances": this.state.instances
         }
     }
 
     checkRequirements(payload) {
         // rule 1: test name cannot be empty
         let error = null;
-        console.log(payload.test_data.name)
-        if (!payload.test_data.name) {
+        console.log(payload.name)
+        if (!payload.name) {
             error = "Test 'name' cannot be empty!"
         }
         // rule 2: check if alias (if specified) is unique
-        else if (!this.state.aliasLoading && payload.test_data.alias && this.state.isAliasNotUnique) {
+        else if (!this.state.aliasLoading && payload.alias && this.state.isAliasNotUnique) {
             error = "Test 'alias' has to be unique!"
         }
         if (error) {
@@ -189,15 +187,14 @@ export default class TestAddForm extends React.Component {
             axios.post(url, payload, config)
                 .then(res => {
                     console.log(res);
-                    payload.code_data.id = "<< missing data >>";
+                    payload.instances[0].id = res.data.instances[0].id;
                     this.props.onClose({
-                        ...payload.test_data,
-                        id: res.data.uuid,
-                        uri: "<< missing data >>",
-                        creation_date: "<< missing data >>",
-                        codes: [payload.code_data]
-                        // TODO: add instance ID to 'codes' so that newly 
-                        // created tests have data necessary for TestDetail page; also URI, creation_date above
+                        // TODO: minimize data
+                        ...payload,
+                        id: res.data.id,
+                        uri: res.data.uri,
+                        creation_date: res.data.date_created,
+                        instances: payload.instances
                     });
                 })
                 .catch(err => {
@@ -234,7 +231,7 @@ export default class TestAddForm extends React.Component {
         }
         return (
             <Dialog onClose={this.handleClose}
-                aria-labelledby="Form for adding a new test to the catalog"
+                aria-labelledby="Form for adding a new test to the library"
                 open={this.props.open}
                 fullWidth={true}
                 maxWidth="md">
@@ -274,9 +271,9 @@ export default class TestAddForm extends React.Component {
                                         }} />
                                 </Grid>
                                 <Grid item xs={12}>
-                                    <TextField multiline rows="6" name="protocol" label="Protocol" defaultValue={this.state.protocol}
+                                    <TextField multiline rows="6" name="description" label="Description" defaultValue={this.state.description}
                                         onBlur={this.handleFieldChange} variant="outlined" fullWidth={true}
-                                        helperText="The protocol may be formatted with Markdown" />
+                                        helperText="The description may be formatted with Markdown" />
                                 </Grid>
                                 <Grid item xs={12}>
                                     <TextField name="data_location" label="Data Location (URL)" defaultValue={this.state.data_location}
@@ -298,8 +295,8 @@ export default class TestAddForm extends React.Component {
                                     </Grid>
                                 ))}
                                 <TestInstanceArrayOfForms
-                                    name="codes"
-                                    value={this.state.codes}
+                                    name="instances"
+                                    value={this.state.instances}
                                     onChange={this.handleFieldChange} />
                             </Grid>
                         </form>
