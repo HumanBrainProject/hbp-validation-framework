@@ -172,6 +172,7 @@ export default class ModelDetail extends React.Component {
                                 private={this.state.modelData.private}
                                 id={this.state.modelData.id}
                                 alias={this.state.modelData.alias}
+                                createdDate={this.state.modelData.date_created}
                                 owner={formatAuthors(this.state.modelData.owner)}
                                 modelData={this.state.modelData}
                                 updateCurrentModelData={this.updateCurrentModelData}

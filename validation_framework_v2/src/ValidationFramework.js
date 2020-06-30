@@ -649,14 +649,6 @@ class ValidationFramework extends React.Component {
         this.setState({ 'errorUpdate': null });
     };
 
-    // renderError() {
-    //   return (
-    //     <div>
-    //       Uh oh: {this.state.error.message}
-    //     </div>
-    //   );
-    // };
-
     renderLoading() {
         return (
             <Paper style={{ padding: '0 0 0 16px' }}>

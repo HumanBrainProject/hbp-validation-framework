@@ -7,7 +7,7 @@ import ErrorDialog from './ErrorDialog';
 import Tooltip from '@material-ui/core/Tooltip';
 import IconButton from '@material-ui/core/IconButton';
 import { withSnackbar } from 'notistack';
-import { copyToClipboard, showNotification } from './utils';
+import { copyToClipboard, showNotification, formatTimeStampToLongString } from './utils';
 
 class TestDetailHeader extends React.Component {
     constructor(props) {
@@ -73,11 +73,12 @@ class TestDetailHeader extends React.Component {
                     </Typography>
                     <Typography variant="body2" color="textSecondary" gutterBottom>
                         ID: <b><span style={{ marginHorizontal: 125, cursor: "pointer" }} onClick={() => copyToClipboard(this.props.id, this.props.enqueueSnackbar, "Test UUID copied")}>{this.props.id}</span></b>
-                        &nbsp;&nbsp;&nbsp;
-                        Created: <b>{this.props.createdDate}</b>
-                        &nbsp;&nbsp;&nbsp;
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                         {this.props.alias ? "Alias: " : ""} <b>{this.props.alias ? <span style={{ marginHorizontal: 125, cursor: "pointer" }} onClick={() => copyToClipboard(this.props.alias, this.props.enqueueSnackbar, "Test alias copied")}>{this.props.alias}</span> : ""}</b>
-                        &nbsp;&nbsp;&nbsp;
+                    </Typography>
+                    <Typography variant="body2" color="textSecondary" gutterBottom>
+                        Created: <b>{formatTimeStampToLongString(this.props.createdDate)}</b>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                         {this.props.status ? "Status: " : ""} <b>{this.props.status ? this.props.status : ""}</b>
                     </Typography>
                 </Grid>

@@ -1,30 +1,29 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import Grid from '@material-ui/core/Grid';
 import Box from '@material-ui/core/Box';
-import Dialog from '@material-ui/core/Dialog';
-import DialogTitle from '@material-ui/core/DialogTitle';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogActions from '@material-ui/core/DialogActions';
 import Button from '@material-ui/core/Button';
-import TextField from '@material-ui/core/TextField';
+import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogTitle from '@material-ui/core/DialogTitle';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import FormLabel from '@material-ui/core/FormLabel';
+import Grid from '@material-ui/core/Grid';
 import InputAdornment from '@material-ui/core/InputAdornment';
-import RadioButtonUncheckedIcon from '@material-ui/icons/RadioButtonUnchecked';
+import Switch from '@material-ui/core/Switch';
+import TextField from '@material-ui/core/TextField';
 import CancelIcon from '@material-ui/icons/Cancel';
 import CheckCircleIcon from '@material-ui/icons/CheckCircle';
-import FormLabel from '@material-ui/core/FormLabel';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import Switch from '@material-ui/core/Switch';
-import ErrorDialog from './ErrorDialog';
-import ContextMain from './ContextMain';
+import RadioButtonUncheckedIcon from '@material-ui/icons/RadioButtonUnchecked';
 import axios from 'axios';
-import Theme from './theme';
-
-import SingleSelect from './SingleSelect';
-import PersonSelect from './PersonSelect';
-import ModelInstanceArrayOfForms from './ModelInstanceArrayOfForms';
-
+import PropTypes from 'prop-types';
+import React from 'react';
+import ContextMain from './ContextMain';
+import ErrorDialog from './ErrorDialog';
 import { baseUrl, filterModelKeys } from "./globals";
+import LoadingIndicatorModal from './LoadingIndicatorModal';
+import ModelInstanceArrayOfForms from './ModelInstanceArrayOfForms';
+import PersonSelect from './PersonSelect';
+import SingleSelect from './SingleSelect';
+import Theme from './theme';
 
 let aliasAxios = null;
 
@@ -75,7 +74,8 @@ export default class ModelAddForm extends React.Component {
             }],
             auth: authContext,
             filters: filtersContext,
-            validFilterValues: validFilterValuesContext
+            validFilterValues: validFilterValuesContext,
+            loading: false
         }
 
         this.handleErrorAddDialogClose = this.handleErrorAddDialogClose.bind(this);
@@ -178,6 +178,7 @@ export default class ModelAddForm extends React.Component {
     }
 
     handleSubmit() {
+        this.setState({ loading: true })
         let payload = this.createPayload();
         console.log(payload);
         if (this.checkRequirements(payload)) {
@@ -193,29 +194,22 @@ export default class ModelAddForm extends React.Component {
             axios.post(url, payload, config)
                 .then(res => {
                     console.log(res);
-                    payload.instances[0].id = res.data.instances[0].id;
-                    this.props.onClose({
-                        // TODO: minimize data, add creation date?
-                        ...payload,
-                        id: res.data.id,
-                        uri: res.data.uri,
-                        app: this.state.app,
-                        instances: payload.instances,
-                        images: payload.images
-                    });
+                    this.props.onClose(res.data);
                 })
                 .catch(err => {
                     if (axios.isCancel(err)) {
                         console.log('Error: ', err.message);
                     } else {
                         console.log(err);
+                        console.log(err.response);
                         this.setState({
-                            errorAddModel: err,
+                            errorAddModel: err.response,
                         });
                     }
                 }
                 );
         }
+        this.setState({ loading: false })
     }
 
     handleFieldChange(event) {
@@ -242,7 +236,9 @@ export default class ModelAddForm extends React.Component {
 
     render() {
         let errorMessage = "";
+        console.log(this.state.errorAddModel);
         if (this.state.errorAddModel) {
+            console.log(this.state.errorAddModel);
             errorMessage = <ErrorDialog open={Boolean(this.state.errorAddModel)} handleErrorDialogClose={this.handleErrorAddDialogClose} error={this.state.errorAddModel.message || this.state.errorAddModel} />
         }
         return (
@@ -253,6 +249,7 @@ export default class ModelAddForm extends React.Component {
                 maxWidth="md">
                 <DialogTitle style={{ backgroundColor: Theme.tableHeader }}>Add a new model to the catalog</DialogTitle>
                 <DialogContent>
+                    <LoadingIndicatorModal open={this.state.loading} />
                     <Box my={2}>
                         <form>
                             <Grid container spacing={3}>

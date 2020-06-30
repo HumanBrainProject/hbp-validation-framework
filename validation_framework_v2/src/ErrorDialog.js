@@ -5,6 +5,7 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogActions from '@material-ui/core/DialogActions';
 import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
+import { reformatErrorMessage } from './utils'
 
 const addLineBreaks = string =>
 	string.split('\n').map((text, index) => (
@@ -25,7 +26,13 @@ export default function ErrorDialog(props) {
 			<DialogTitle>There seems to be a problem...</DialogTitle>
 			<DialogContent>
 				<Typography variant="body1" gutterBottom>
-					{addLineBreaks(props.error)}
+					{
+						typeof(props.error) === "string"
+							?
+							addLineBreaks(props.error)
+							:
+							addLineBreaks(reformatErrorMessage(props.error))
+					}
 				</Typography>
 			</DialogContent>
 			<DialogActions>

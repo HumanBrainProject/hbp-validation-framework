@@ -120,3 +120,15 @@ export function showNotification(enqueueSnackbar, message, type='default') {
         },
     })
 }
+
+export function reformatErrorMessage(errorResponse) {
+    let output = "Error code = " + errorResponse.status;
+    errorResponse.data.detail.forEach(function (entry, index) {
+        let error_loc = entry.loc.join(" -> ")
+        let error_msg = entry.msg;
+        output += "\n\n";
+        output += "Error source #" + (index+1) + ": " + error_loc;
+        output += "\nError message: " + error_msg;
+    });
+    return output;
+}

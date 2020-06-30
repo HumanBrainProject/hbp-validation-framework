@@ -9,7 +9,7 @@ import ErrorDialog from './ErrorDialog';
 import Tooltip from '@material-ui/core/Tooltip';
 import IconButton from '@material-ui/core/IconButton';
 import { withSnackbar } from 'notistack';
-import { copyToClipboard, showNotification } from './utils';
+import { copyToClipboard, showNotification, formatTimeStampToLongString } from './utils';
 
 function AccessibilityIcon(props) {
     if (props.private) {
@@ -92,10 +92,13 @@ class ModelDetailHeader extends React.Component {
                     </Typography>
                     <Typography variant="body2" color="textSecondary" gutterBottom>
                         ID: <b><span style={{ marginHorizontal: 125, cursor: "pointer" }} onClick={() => copyToClipboard(this.props.id, this.props.enqueueSnackbar, "Model UUID copied")}>{this.props.id}</span></b>
-                        &nbsp;&nbsp;&nbsp;
-                        Custodian: <b>{this.props.owner}</b>
-                        &nbsp;&nbsp;&nbsp;
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                         {this.props.alias ? "Alias: " : ""} <b>{this.props.alias ? <span style={{ marginHorizontal: 125, cursor: "pointer" }} onClick={() => copyToClipboard(this.props.alias, this.props.enqueueSnackbar, "Model alias copied")}>{this.props.alias}</span> : ""}</b>
+                    </Typography>
+                    <Typography variant="body2" color="textSecondary" gutterBottom>
+                        Created: <b>{formatTimeStampToLongString(this.props.createdDate)}</b>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        Custodian: <b>{this.props.owner}</b>
                     </Typography>
                 </Grid>
                 {/* <Grid item> */}
