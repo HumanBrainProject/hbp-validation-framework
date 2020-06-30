@@ -62,7 +62,7 @@ def list_score_types():
     return [item.value for item in ScoreType]
 
 
-@router.get("/vocab/test-status/")
+@router.get("/vocab/implementation-status/")
 def list_implementation_status_values():
     return [item.value for item in ImplementationStatus]
 
@@ -110,6 +110,6 @@ def all_vocabularies():
         "recording_modality": [item.value for item in RecordingModality],
         "test_type": [item.value for item in ValidationTestType],
         "score_type": [item.value for item in ScoreType],
-        "test_status": [item.value for item in ImplementationStatus],
+        "implementation_status": [item.value for item in ImplementationStatus],
         "license": popular_licenses,
     }

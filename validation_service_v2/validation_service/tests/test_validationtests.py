@@ -30,7 +30,7 @@ def check_validation_test(test_definition, expected_instances=0):
         assert test_definition["brain_region"] in [item.value for item in BrainRegion]
     if test_definition["species"]:
         assert test_definition["species"] in [item.value for item in Species]
-    assert test_definition["status"] in [item.value for item in ImplementationStatus]
+    assert test_definition["implementation_status"] in [item.value for item in ImplementationStatus]
     if test_definition["score_type"]:
         assert test_definition["score_type"] in [item.value for item in ScoreType]
     if test_definition["test_type"]:

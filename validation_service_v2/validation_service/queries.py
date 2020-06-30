@@ -54,7 +54,7 @@ def build_validation_test_filters(
     alias,
     id,
     name,
-    status,
+    implementation_status,
     brain_region,
     species,
     cell_type,
@@ -72,7 +72,7 @@ def build_validation_test_filters(
     for value, path in (
         (alias, "nsg:alias"),
         (name, "schema:name"),
-        (status, "nsg:status"),
+        (implementation_status, "nsg:status"),
         (brain_region, "nsg:brainRegion / rdfs:label"),
         (species, "nsg:species / rdfs:label"),
         (cell_type, "nsg:celltype / rdfs:label"),

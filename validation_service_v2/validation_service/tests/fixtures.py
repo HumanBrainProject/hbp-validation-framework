@@ -51,7 +51,7 @@ def _build_sample_validation_test():
             {"given_name": "Frodo", "family_name": "Baggins"},
             {"given_name": "Tom", "family_name": "Bombadil"},
         ],
-        "status": "proposal",
+        "implementation_status": "proposal",
         "species": "Mus musculus",
         "brain_region": "hippocampus",
         "cell_type": "hippocampus CA1 pyramidal cell",

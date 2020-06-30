@@ -514,7 +514,7 @@ class ValidationTest(BaseModel):
     uri: HttpUrl = None
     name: str
     alias: str = None
-    status: ImplementationStatus = ImplementationStatus.proposal
+    implementation_status: ImplementationStatus = ImplementationStatus.proposal
     author: List[Person]
     cell_type: CellType = None
     brain_region: BrainRegion = None
@@ -547,7 +547,7 @@ class ValidationTest(BaseModel):
             uri=test_definition.id,
             name=test_definition.name,
             alias=test_definition.alias,
-            status=test_definition.status or ImplementationStatus.proposal.value,
+            implementation_status=test_definition.status or ImplementationStatus.proposal.value,
             author=[Person.from_kg_object(p, client) for p in as_list(test_definition.authors)],
             cell_type=test_definition.celltype.label if test_definition.celltype else None,
             brain_region=test_definition.brain_region.label
@@ -590,7 +590,7 @@ class ValidationTest(BaseModel):
         test_definition = fairgraph.brainsimulation.ValidationTestDefinition(
             name=self.name,
             alias=self.alias,
-            status=self.status,
+            status=self.implementation_status,
             brain_region=get_ontology_object(fairgraph.commons.BrainRegion, self.brain_region),
             species=get_ontology_object(fairgraph.commons.Species, self.species),
             celltype=get_ontology_object(fairgraph.commons.CellType, self.cell_type),
@@ -618,7 +618,7 @@ class ValidationTestPatch(BaseModel):
     uri: HttpUrl = None
     name: str = None
     alias: str = None
-    status: ImplementationStatus = None
+    implementation_status: ImplementationStatus = None
     author: List[Person] = None
     cell_type: CellType = None
     brain_region: BrainRegion = None
@@ -652,9 +652,9 @@ class ValidationTestPatch(BaseModel):
     def author_not_empty(cls, value):
         return cls._check_not_empty("author", value)
 
-    @validator("status")
+    @validator("implementation_status")
     def status_not_empty(cls, value):
-        return cls._check_not_empty("status", value)
+        return cls._check_not_empty("implementation_status", value)
 
 
 # note: this is essentially copied from resources/models.py
