@@ -29,7 +29,7 @@ export default function ConfigDisplayTop(props) {
 			<ExpansionPanelDetails>
 				<Box style={{ width: "100%" }} my={2} >
 					<Grid container spacing={3}>
-						<Grid item style = {{minWidth: "150px"}}>
+						<Grid item style = {{minWidth: "200px"}}>
 							<Box component="span" fontWeight="fontWeightBold">Display: </Box>
 						</Grid>
 						<Grid item>
@@ -41,7 +41,7 @@ export default function ConfigDisplayTop(props) {
 					{
 						showFilters.map((key, index) => (
 							<Grid container spacing={3} key={key}>
-								<Grid item style = {{minWidth: "150px"}}>
+								<Grid item style = {{minWidth: "200px"}}>
 									<Box component="span" fontWeight="fontWeightBold">{formatLabel(key)}: </Box>
 								</Grid>
 								<Grid item>

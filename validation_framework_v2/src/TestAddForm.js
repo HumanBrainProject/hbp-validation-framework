@@ -1,3 +1,5 @@
+import { Typography } from '@material-ui/core';
+import Avatar from '@material-ui/core/Avatar';
 import Box from '@material-ui/core/Box';
 import Button from '@material-ui/core/Button';
 import Dialog from '@material-ui/core/Dialog';
@@ -7,6 +9,7 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import Grid from '@material-ui/core/Grid';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import TextField from '@material-ui/core/TextField';
+import Tooltip from '@material-ui/core/Tooltip';
 import CancelIcon from '@material-ui/icons/Cancel';
 import CheckCircleIcon from '@material-ui/icons/CheckCircle';
 import RadioButtonUncheckedIcon from '@material-ui/icons/RadioButtonUnchecked';
@@ -20,9 +23,6 @@ import LoadingIndicatorModal from './LoadingIndicatorModal';
 import PersonSelect from './PersonSelect';
 import SingleSelect from './SingleSelect';
 import TestInstanceArrayOfForms from './TestInstanceArrayOfForms';
-import Tooltip from '@material-ui/core/Tooltip';
-import Avatar from '@material-ui/core/Avatar';
-import { Typography } from '@material-ui/core';
 import Theme from './theme';
 
 let aliasAxios = null;
@@ -62,7 +62,7 @@ export default class TestAddForm extends React.Component {
             test_type: "",
             score_type: "",
             recording_modality: "",
-            status: "",
+            implementation_status: "",
             instances: [{
                 version: "",
                 repository: "",
@@ -147,7 +147,7 @@ export default class TestAddForm extends React.Component {
             test_type: this.state.test_type || null,
             score_type: this.state.score_type || null,
             recording_modality: this.state.recording_modality || null,
-            status: this.state.status || null,
+            implementation_status: this.state.implementation_status || null,
             "instances": this.state.instances
         }
     }
@@ -160,9 +160,16 @@ export default class TestAddForm extends React.Component {
             error = "Test 'name' cannot be empty!"
         }
         // rule 2: check if alias (if specified) is unique
-        else if (!this.state.aliasLoading && payload.alias && this.state.isAliasNotUnique) {
-            error = "Test 'alias' has to be unique!"
+        if (!this.state.aliasLoading && payload.alias && this.state.isAliasNotUnique) {
+            error = error ? error + "\n" : "";
+            error += "Test 'alias' has to be unique!"
         }
+        // rule 3: ensure that implementation_status has been specified
+        if (!payload.implementation_status) {
+            error = error ? error + "\n" : "";
+            error += "Test 'implementation status' has to be specified!"
+        }
+
         if (error) {
             console.log(error);
             this.setState({
@@ -175,38 +182,40 @@ export default class TestAddForm extends React.Component {
     }
 
     handleSubmit() {
-        this.setState({ loading: true })
-        let payload = this.createPayload();
-        console.log(payload);
-        if (this.checkRequirements(payload)) {
-            let url = baseUrl + "/tests/";
-            let config = {
-                cancelToken: this.signal.token,
-                headers: {
-                    'Authorization': 'Bearer ' + this.state.auth.token,
-                    'Content-type': 'application/json'
-                }
-            };
-
-            axios.post(url, payload, config)
-                .then(res => {
-                    console.log(res);
-                    this.props.onClose(res.data);
-                })
-                .catch(err => {
-                    if (axios.isCancel(err)) {
-                        console.log('Error: ', err.message);
-                    } else {
-                        console.log(err);
-                        console.log(err.response);
-                        this.setState({
-                            errorAddTest: err.response,
-                        });
+        this.setState({ loading: true }, () => {
+            let payload = this.createPayload();
+            console.log(payload);
+            if (this.checkRequirements(payload)) {
+                let url = baseUrl + "/tests/";
+                let config = {
+                    cancelToken: this.signal.token,
+                    headers: {
+                        'Authorization': 'Bearer ' + this.state.auth.token,
+                        'Content-type': 'application/json'
                     }
-                }
-                );
-        }
-        this.setState({ loading: false })
+                };
+
+                axios.post(url, payload, config)
+                    .then(res => {
+                        console.log(res);
+                        this.props.onClose(res.data);
+                    })
+                    .catch(err => {
+                        if (axios.isCancel(err)) {
+                            console.log('Error: ', err.message);
+                        } else {
+                            console.log(err);
+                            console.log(err.response);
+                            this.setState({
+                                errorAddTest: err.response,
+                            });
+                        }
+                        this.setState({ loading: false })
+                    });
+            } else {
+                this.setState({ loading: false })
+            }
+        })
     }
 
     handleFieldChange(event) {
@@ -229,6 +238,7 @@ export default class TestAddForm extends React.Component {
         if (this.state.errorAddTest) {
             errorMessage = <ErrorDialog open={Boolean(this.state.errorAddTest)} handleErrorDialogClose={this.handleErrorAddDialogClose} error={this.state.errorAddTest.message || this.state.errorAddTest} />
         }
+
         return (
             <Dialog onClose={this.handleClose}
                 aria-labelledby="Form for adding a new test to the library"

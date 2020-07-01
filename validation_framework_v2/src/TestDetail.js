@@ -171,8 +171,8 @@ export default class TestDetail extends React.Component {
                                 authors={formatAuthors(this.state.testData.author)}
                                 id={this.state.testData.id}
                                 alias={this.state.testData.alias}
-                                createdDate={this.state.testData.date_created}
-                                status={this.state.testData.status}
+                                date_created={this.state.testData.date_created}
+                                implementation_status={this.state.testData.implementation_status}
                                 testData={this.state.testData}
                                 updateCurrentTestData={this.updateCurrentTestData}
                             ></TestDetailHeader>
@@ -202,7 +202,7 @@ export default class TestDetail extends React.Component {
                                             species={this.state.testData.species}
                                             brainRegion={this.state.testData.brain_region}
                                             cellType={this.state.testData.cell_type}
-                                            dataModality={this.state.testData.data_modality}
+                                            recording_modality={this.state.testData.recording_modality}
                                             dataType={this.state.testData.data_type}
                                             testType={this.state.testData.test_type}
                                             scoreType={this.state.testData.score_type}

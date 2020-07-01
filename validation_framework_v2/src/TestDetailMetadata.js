@@ -25,7 +25,7 @@ export default function TestDetailMetadata(props) {
 					<MetadataItem value={props.species} label="Species" />
 					<MetadataItem value={props.brainRegion} label="Brain region" />
 					<MetadataItem value={props.cellType} label="Cell type" />
-					<MetadataItem value={props.dataModality} label="Data modality" />
+					<MetadataItem value={props.recording_modality} label="Recording modality" />
 					<MetadataItem value={props.dataType} label="Data type" />
 					<MetadataItem value={props.testType} label="Test type" />
 					<MetadataItem value={props.scoreType} label="Score type" />

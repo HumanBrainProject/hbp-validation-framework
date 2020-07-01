@@ -51,9 +51,13 @@ export default function SingleSelect(props) {
                     input={<Input />}
                     MenuProps={MenuProps}
                 >
-                    <MenuItem key="None" value="">
-                        <ListItemText primary="None" />
-                    </MenuItem>
+                    {
+                        // conditional rendering syntax
+                        (props.label !== "implementation_status") &&
+                        <MenuItem key="None" value="">
+                            <ListItemText primary="None" />
+                        </MenuItem>
+                    }
                     {props.itemNames.map(name => (
                         <MenuItem key={name} value={name}>
                             <ListItemText primary={name} />

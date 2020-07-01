@@ -13,7 +13,7 @@ export default function LoadingIndicatorModal(props) {
                 },
             }}>
             <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '100px', marginBottom: '100px' }}>
-                <ColoredCircularProgress thickness="5.0" />
+                <ColoredCircularProgress thickness={5.0} />
             </div>
         </Dialog>
     )

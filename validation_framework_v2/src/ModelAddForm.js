@@ -163,9 +163,11 @@ export default class ModelAddForm extends React.Component {
             error = "Model 'name' cannot be empty!"
         }
         // rule 2: check if alias (if specified) is unique
-        else if (!this.state.aliasLoading && payload.alias && this.state.isAliasNotUnique) {
-            error = "Model 'alias' has to be unique!"
+        if (!this.state.aliasLoading && payload.alias && this.state.isAliasNotUnique) {
+            error = error ? error + "\n" : "";
+            error += "Model 'alias' has to be unique!"
         }
+
         if (error) {
             console.log(error);
             this.setState({
@@ -178,38 +180,40 @@ export default class ModelAddForm extends React.Component {
     }
 
     handleSubmit() {
-        this.setState({ loading: true })
-        let payload = this.createPayload();
-        console.log(payload);
-        if (this.checkRequirements(payload)) {
-            let url = baseUrl + "/models/";
-            let config = {
-                cancelToken: this.signal.token,
-                headers: {
-                    'Authorization': 'Bearer ' + this.state.auth.token,
-                    'Content-type': 'application/json'
-                }
-            };
-
-            axios.post(url, payload, config)
-                .then(res => {
-                    console.log(res);
-                    this.props.onClose(res.data);
-                })
-                .catch(err => {
-                    if (axios.isCancel(err)) {
-                        console.log('Error: ', err.message);
-                    } else {
-                        console.log(err);
-                        console.log(err.response);
-                        this.setState({
-                            errorAddModel: err.response,
-                        });
+        this.setState({ loading: true }, () => {
+            let payload = this.createPayload();
+            console.log(payload);
+            if (this.checkRequirements(payload)) {
+                let url = baseUrl + "/models/";
+                let config = {
+                    cancelToken: this.signal.token,
+                    headers: {
+                        'Authorization': 'Bearer ' + this.state.auth.token,
+                        'Content-type': 'application/json'
                     }
-                }
-                );
-        }
-        this.setState({ loading: false })
+                };
+
+                axios.post(url, payload, config)
+                    .then(res => {
+                        console.log(res);
+                        this.props.onClose(res.data);
+                    })
+                    .catch(err => {
+                        if (axios.isCancel(err)) {
+                            console.log('Error: ', err.message);
+                        } else {
+                            console.log(err);
+                            console.log(err.response);
+                            this.setState({
+                                errorAddModel: err.response,
+                            });
+                        }
+                        this.setState({ loading: false })
+                    });
+            } else {
+                this.setState({ loading: false })
+            }
+        })
     }
 
     handleFieldChange(event) {
@@ -236,11 +240,10 @@ export default class ModelAddForm extends React.Component {
 
     render() {
         let errorMessage = "";
-        console.log(this.state.errorAddModel);
         if (this.state.errorAddModel) {
-            console.log(this.state.errorAddModel);
             errorMessage = <ErrorDialog open={Boolean(this.state.errorAddModel)} handleErrorDialogClose={this.handleErrorAddDialogClose} error={this.state.errorAddModel.message || this.state.errorAddModel} />
         }
+        
         return (
             <Dialog onClose={this.handleClose}
                 aria-labelledby="Form for adding a new model to the catalog"

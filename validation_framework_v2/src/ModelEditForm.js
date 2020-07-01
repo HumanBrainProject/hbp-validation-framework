@@ -1,29 +1,28 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import Grid from '@material-ui/core/Grid';
 import Box from '@material-ui/core/Box';
-import Dialog from '@material-ui/core/Dialog';
-import DialogTitle from '@material-ui/core/DialogTitle';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogActions from '@material-ui/core/DialogActions';
 import Button from '@material-ui/core/Button';
-import TextField from '@material-ui/core/TextField';
+import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogTitle from '@material-ui/core/DialogTitle';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import FormLabel from '@material-ui/core/FormLabel';
+import Grid from '@material-ui/core/Grid';
 import InputAdornment from '@material-ui/core/InputAdornment';
-import RadioButtonUncheckedIcon from '@material-ui/icons/RadioButtonUnchecked';
+import Switch from '@material-ui/core/Switch';
+import TextField from '@material-ui/core/TextField';
 import CancelIcon from '@material-ui/icons/Cancel';
 import CheckCircleIcon from '@material-ui/icons/CheckCircle';
-import FormLabel from '@material-ui/core/FormLabel';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import Switch from '@material-ui/core/Switch';
-import ErrorDialog from './ErrorDialog';
-import ContextMain from './ContextMain';
+import RadioButtonUncheckedIcon from '@material-ui/icons/RadioButtonUnchecked';
 import axios from 'axios';
-import Theme from './theme';
-
-import SingleSelect from './SingleSelect';
-import PersonSelect from './PersonSelect';
-
+import PropTypes from 'prop-types';
+import React from 'react';
+import ContextMain from './ContextMain';
+import ErrorDialog from './ErrorDialog';
 import { baseUrl, filterModelKeys } from "./globals";
+import LoadingIndicatorModal from './LoadingIndicatorModal';
+import PersonSelect from './PersonSelect';
+import SingleSelect from './SingleSelect';
+import Theme from './theme';
 
 let aliasAxios = null;
 
@@ -67,7 +66,8 @@ export default class ModelEditForm extends React.Component {
             organization: "",
             auth: authContext,
             filters: filtersContext,
-            validFilterValues: validFilterValuesContext
+            validFilterValues: validFilterValuesContext,
+            loading: false
         }
 
         this.handleErrorEditDialogClose = this.handleErrorEditDialogClose.bind(this);
@@ -162,12 +162,13 @@ export default class ModelEditForm extends React.Component {
             private: this.state.private,
             project_id: this.state.project_id,
             description: this.state.description,
-            species: this.state.species,
-            brain_region: this.state.brain_region,
-            cell_type: this.state.cell_type,
-            model_scope: this.state.model_scope,
-            abstraction_level: this.state.abstraction_level,
+            species: this.state.species ? this.state.species : null,
+            brain_region: this.state.brain_region ? this.state.brain_region : null,
+            cell_type: this.state.cell_type ? this.state.cell_type : null,
+            model_scope: this.state.model_scope ? this.state.model_scope : null,
+            abstraction_level: this.state.abstraction_level ? this.state.abstraction_level : null,
             organization: this.state.organization,
+            images: []
         }
     }
 
@@ -178,12 +179,12 @@ export default class ModelEditForm extends React.Component {
         if (!payload.name) {
             error = "Model 'name' cannot be empty!"
         }
-        else {
-            // rule 2: check if alias (if specified) has been changed, and is still unique
-            if (!this.state.aliasLoading && payload.alias && this.state.isAliasNotUnique) {
-                error = "Model 'alias' has to be unique!"
-            }
+        // rule 2: check if alias (if specified) has been changed, and is still unique
+        if (!this.state.aliasLoading && payload.alias && this.state.isAliasNotUnique) {
+            error = error ? error + "\n" : "";
+            error += "Model 'alias' has to be unique!"
         }
+
         if (error) {
             console.log(error);
             this.setState({
@@ -196,37 +197,39 @@ export default class ModelEditForm extends React.Component {
     }
 
     handleSubmit() {
-        let payload = this.createPayload();
-        console.log(payload);
-        if (this.checkRequirements(payload)) {
-            let url = baseUrl + "/models/" + this.state.id;
-            let config = {
-                cancelToken: this.signal.token,
-                headers: {
-                    'Authorization': 'Bearer ' + this.state.auth.token,
-                    'Content-type': 'application/json'
-                }
-            };
-
-            axios.put(url, payload, config)
-                .then(res => {
-                    console.log(res);
-                    this.props.onClose({
-                        ...payload
-                    });
-                })
-                .catch(err => {
-                    if (axios.isCancel(err)) {
-                        console.log('Error: ', err.message);
-                    } else {
-                        console.log(err);
-                        this.setState({
-                            errorEditModel: err,
-                        });
+        this.setState({ loading: true }, () => {
+            let payload = this.createPayload();
+            console.log(payload);
+            if (this.checkRequirements(payload)) {
+                let url = baseUrl + "/models/" + this.state.id;
+                let config = {
+                    cancelToken: this.signal.token,
+                    headers: {
+                        'Authorization': 'Bearer ' + this.state.auth.token,
+                        'Content-type': 'application/json'
                     }
-                }
-                );
-        }
+                };
+
+                axios.put(url, payload, config)
+                    .then(res => {
+                        console.log(res);
+                        this.props.onClose(res.data);
+                    })
+                    .catch(err => {
+                        if (axios.isCancel(err)) {
+                            console.log('Error: ', err.message);
+                        } else {
+                            console.log(err);
+                            this.setState({
+                                errorEditModel: err.response,
+                            });
+                        }
+                        this.setState({ loading: false })
+                    });
+            } else {
+                this.setState({ loading: false })
+            }
+        })
     }
 
     handleFieldChange(event) {
@@ -259,6 +262,7 @@ export default class ModelEditForm extends React.Component {
                 maxWidth="md">
                 <DialogTitle style={{ backgroundColor: Theme.tableHeader }}>Edit an existing model in the catalog</DialogTitle>
                 <DialogContent>
+                    <LoadingIndicatorModal open={this.state.loading} />
                     <Box my={2}>
                         <form>
                             <Grid container spacing={3}>

@@ -1,26 +1,25 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import Grid from '@material-ui/core/Grid';
 import Box from '@material-ui/core/Box';
-import Dialog from '@material-ui/core/Dialog';
-import DialogTitle from '@material-ui/core/DialogTitle';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogActions from '@material-ui/core/DialogActions';
 import Button from '@material-ui/core/Button';
-import TextField from '@material-ui/core/TextField';
+import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogTitle from '@material-ui/core/DialogTitle';
+import Grid from '@material-ui/core/Grid';
 import InputAdornment from '@material-ui/core/InputAdornment';
-import RadioButtonUncheckedIcon from '@material-ui/icons/RadioButtonUnchecked';
+import TextField from '@material-ui/core/TextField';
 import CancelIcon from '@material-ui/icons/Cancel';
 import CheckCircleIcon from '@material-ui/icons/CheckCircle';
-import ErrorDialog from './ErrorDialog';
-import ContextMain from './ContextMain';
+import RadioButtonUncheckedIcon from '@material-ui/icons/RadioButtonUnchecked';
 import axios from 'axios';
-import Theme from './theme';
-
-import SingleSelect from './SingleSelect';
-import PersonSelect from './PersonSelect';
-
+import PropTypes from 'prop-types';
+import React from 'react';
+import ContextMain from './ContextMain';
+import ErrorDialog from './ErrorDialog';
 import { baseUrl, filterTestKeys } from "./globals";
+import LoadingIndicatorModal from './LoadingIndicatorModal';
+import PersonSelect from './PersonSelect';
+import SingleSelect from './SingleSelect';
+import Theme from './theme';
 
 let aliasAxios = null;
 
@@ -61,11 +60,12 @@ export default class TestEditForm extends React.Component {
             cell_type: "",
             test_type: "",
             score_type: "",
-            data_modality: "",
-            status: "",
+            recording_modality: "",
+            implementation_status: "",
             auth: authContext,
             filters: filtersContext,
-            validFilterValues: validFilterValuesContext
+            validFilterValues: validFilterValuesContext,
+            loading: false
         }
 
         this.handleErrorEditDialogClose = this.handleErrorEditDialogClose.bind(this);
@@ -160,13 +160,13 @@ export default class TestEditForm extends React.Component {
             description: this.state.description,
             data_location: this.state.data_location,
             data_type: this.state.data_type,
-            species: this.state.species,
-            brain_region: this.state.brain_region,
-            cell_type: this.state.cell_type,
-            test_type: this.state.test_type,
-            score_type: this.state.score_type,
-            data_modality: this.state.data_modality,
-            status: this.state.status,
+            species: this.state.species || null,
+            brain_region: this.state.brain_region || null,
+            cell_type: this.state.cell_type || null,
+            test_type: this.state.test_type || null,
+            score_type: this.state.score_type || null,
+            recording_modality: this.state.recording_modality || null,
+            implementation_status: this.state.implementation_status || null,
         }
     }
 
@@ -177,12 +177,17 @@ export default class TestEditForm extends React.Component {
         if (!payload.name) {
             error = "Test 'name' cannot be empty!"
         }
-        else {
-            // rule 2: check if alias (if specified) has been changed, and is still unique
-            if (!this.state.aliasLoading && payload.alias && this.state.isAliasNotUnique) {
-                error = "Test 'alias' has to be unique!"
-            }
+        // rule 2: check if alias (if specified) has been changed, and is still unique
+        if (!this.state.aliasLoading && payload.alias && this.state.isAliasNotUnique) {
+            error = error ? error + "\n" : "";
+            error += "Test 'alias' has to be unique!"
         }
+        // rule 3: ensure that implementation_status has been specified
+        if (!payload.implementation_status) {
+            error = error ? error + "\n" : "";
+            error += "Test 'implementation status' has to be specified!"
+        }
+
         if (error) {
             console.log(error);
             this.setState({
@@ -195,37 +200,39 @@ export default class TestEditForm extends React.Component {
     }
 
     handleSubmit() {
-        let payload = this.createPayload();
-        console.log(payload);
-        if (this.checkRequirements(payload)) {
-            let url = baseUrl + "/tests/" + this.state.id;
-            let config = {
-                cancelToken: this.signal.token,
-                headers: {
-                    'Authorization': 'Bearer ' + this.state.auth.token,
-                    'Content-type': 'application/json'
-                }
-            };
-
-            axios.put(url, payload, config)
-                .then(res => {
-                    console.log(res);
-                    this.props.onClose({
-                        ...payload
-                    });
-                })
-                .catch(err => {
-                    if (axios.isCancel(err)) {
-                        console.log('Error: ', err.message);
-                    } else {
-                        console.log(err);
-                        this.setState({
-                            errorEditTest: err,
-                        });
+        this.setState({ loading: true }, () => {
+            let payload = this.createPayload();
+            console.log(payload);
+            if (this.checkRequirements(payload)) {
+                let url = baseUrl + "/tests/" + this.state.id;
+                let config = {
+                    cancelToken: this.signal.token,
+                    headers: {
+                        'Authorization': 'Bearer ' + this.state.auth.token,
+                        'Content-type': 'application/json'
                     }
-                }
-                );
-        }
+                };
+
+                axios.put(url, payload, config)
+                    .then(res => {
+                        console.log(res);
+                        this.props.onClose(res.data);
+                    })
+                    .catch(err => {
+                        if (axios.isCancel(err)) {
+                            console.log('Error: ', err.message);
+                        } else {
+                            console.log(err);
+                            this.setState({
+                                errorEditTest: err.response,
+                            });
+                        }
+                        this.setState({ loading: false })
+                    });
+            } else {
+                this.setState({ loading: false })
+            }
+        })
     }
 
     handleFieldChange(event) {
@@ -258,6 +265,7 @@ export default class TestEditForm extends React.Component {
                 maxWidth="md">
                 <DialogTitle style={{ backgroundColor: Theme.tableHeader }}>Edit an existing test in the library</DialogTitle>
                 <DialogContent>
+                    <LoadingIndicatorModal open={this.state.loading} />
                     <Box my={2}>
                         <form>
                             <Grid container spacing={3}>

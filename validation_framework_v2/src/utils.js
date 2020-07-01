@@ -98,7 +98,7 @@ export function isUUID(uuid) {
     return true;
 }
 
-export function copyToClipboard(value, enqueueSnackbar, message, type='default') {
+export function copyToClipboard(value, enqueueSnackbar, message, type = 'default') {
     // type: default, success, error, warning, info
     navigator.clipboard.writeText(value)
     enqueueSnackbar(message, {
@@ -110,7 +110,7 @@ export function copyToClipboard(value, enqueueSnackbar, message, type='default')
     })
 }
 
-export function showNotification(enqueueSnackbar, message, type='default') {
+export function showNotification(enqueueSnackbar, message, type = 'default') {
     // type: default, success, error, warning, info
     enqueueSnackbar(message, {
         variant: type,
@@ -123,12 +123,17 @@ export function showNotification(enqueueSnackbar, message, type='default') {
 
 export function reformatErrorMessage(errorResponse) {
     let output = "Error code = " + errorResponse.status;
-    errorResponse.data.detail.forEach(function (entry, index) {
-        let error_loc = entry.loc.join(" -> ")
-        let error_msg = entry.msg;
-        output += "\n\n";
-        output += "Error source #" + (index+1) + ": " + error_loc;
-        output += "\nError message: " + error_msg;
-    });
+    if (typeof (errorResponse.data.detail) === "string") {
+        output += "\n\n" + errorResponse.data.detail;
+    } else {
+        // presuming keys 'loc' and 'msg' exist; update func if necessary to handle other cases
+        errorResponse.data.detail.forEach(function (entry, index) {
+            let error_loc = entry.loc.join(" -> ")
+            let error_msg = entry.msg;
+            output += "\n\n";
+            output += "Error source #" + (index + 1) + ": " + error_loc;
+            output += "\nError message: " + error_msg;
+        });
+    }
     return output;
 }

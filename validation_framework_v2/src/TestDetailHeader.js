@@ -77,9 +77,9 @@ class TestDetailHeader extends React.Component {
                         {this.props.alias ? "Alias: " : ""} <b>{this.props.alias ? <span style={{ marginHorizontal: 125, cursor: "pointer" }} onClick={() => copyToClipboard(this.props.alias, this.props.enqueueSnackbar, "Test alias copied")}>{this.props.alias}</span> : ""}</b>
                     </Typography>
                     <Typography variant="body2" color="textSecondary" gutterBottom>
-                        Created: <b>{formatTimeStampToLongString(this.props.createdDate)}</b>
+                        Created: <b>{formatTimeStampToLongString(this.props.date_created)}</b>
                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                        {this.props.status ? "Status: " : ""} <b>{this.props.status ? this.props.status : ""}</b>
+                        {this.props.implementation_status ? "Implementation Status: " : ""} <b>{this.props.implementation_status ? this.props.implementation_status : ""}</b>
                     </Typography>
                 </Grid>
                 {/* <Grid item> */}
