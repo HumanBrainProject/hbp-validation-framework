@@ -306,6 +306,7 @@ def test_update_validation_test(caplog):
         "author": [{"given_name": "Tom", "family_name": "Bombadil"}],
         "recording_modality": "fMRI",
         "description": "The previous description was too short",
+        "implementation_status": "published"
     }
     # update
     response = client.put(
@@ -319,6 +320,7 @@ def test_update_validation_test(caplog):
     assert posted_validation_test["instances"] == updated_validation_test["instances"]
     assert updated_validation_test["recording_modality"] != payload["recording_modality"]
     assert updated_validation_test["recording_modality"] == changes["recording_modality"] == "fMRI"
+    assert updated_validation_test["implementation_status"] == changes["implementation_status"] == "published"
 
     # delete validation_test
     response = client.delete(f"/tests/{posted_validation_test['id']}", headers=AUTH_HEADER)

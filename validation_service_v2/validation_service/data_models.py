@@ -74,7 +74,7 @@ CellType = Enum(
 class ImplementationStatus(str, Enum):
     dev = "in development"
     proposal = "proposal"
-    complete = "complete"
+    published = "published"
 
 
 # class DataType(str, Enum):
