@@ -13,6 +13,7 @@ import { baseUrl } from "./globals";
 import TestInstanceArrayOfForms from './TestInstanceArrayOfForms';
 import ContextMain from './ContextMain';
 import Theme from './theme';
+import LoadingIndicatorModal from './LoadingIndicatorModal';
 
 let versionAxios = null;
 
@@ -41,7 +42,8 @@ export default class TestInstanceAddForm extends React.Component {
                 description: "",
                 parameters: ""
             }],
-            auth: authContext
+            auth: authContext,
+            loading: false
         }
 
         this.handleErrorAddDialogClose = this.handleErrorAddDialogClose.bind(this);
@@ -123,43 +125,39 @@ export default class TestInstanceAddForm extends React.Component {
     }
 
     async handleSubmit() {
-        let payload = this.createPayload();
-        console.log(payload);
-        if (await this.checkRequirements(payload)) {
-            let url = baseUrl + "/tests/" + this.props.testID + "/instances/";
-            let config = {
-                cancelToken: this.signal.token,
-                headers: {
-                    'Authorization': 'Bearer ' + this.state.auth.token,
-                    'Content-type': 'application/json'
-                }
-            };
-
-            axios.post(url, payload, config)
-                .then(res => {
-                    console.log(res);
-                    delete payload[0].test_id
-                    this.props.onClose({
-                        ...payload[0],
-                        id: res.data.uuid[0],
-                        uri: "<< missing data >>",
-                        timestamp: "<< missing data >>",
-                        // TODO: have POST on 'instances' return entire JSON object 
-                        // this will provide above missing fields
-                    });
-                })
-                .catch(err => {
-                    if (axios.isCancel(err)) {
-                        console.log('Error: ', err.message);
-                    } else {
-                        console.log(err);
-                        this.setState({
-                            errorAddTestInstance: err,
-                        });
+        this.setState({ loading: true }, async () => {
+            let payload = this.createPayload();
+            console.log(payload);
+            if (await this.checkRequirements(payload)) {
+                let url = baseUrl + "/tests/" + this.props.testID + "/instances/";
+                let config = {
+                    cancelToken: this.signal.token,
+                    headers: {
+                        'Authorization': 'Bearer ' + this.state.auth.token,
+                        'Content-type': 'application/json'
                     }
-                }
-                );
-        }
+                };
+
+                axios.post(url, payload, config)
+                    .then(res => {
+                        console.log(res);
+                        this.props.onClose(res.data);
+                    })
+                    .catch(err => {
+                        if (axios.isCancel(err)) {
+                            console.log('Error: ', err.message);
+                        } else {
+                            console.log(err);
+                            this.setState({
+                                errorAddTestInstance: err.response,
+                            });
+                        }
+                        this.setState({ loading: false })
+                    });
+            } else {
+                this.setState({ loading: false })
+            }
+        })
     }
 
     handleFieldChange(event) {

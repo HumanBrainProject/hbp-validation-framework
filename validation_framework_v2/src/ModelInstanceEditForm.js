@@ -1,17 +1,18 @@
+import Box from '@material-ui/core/Box';
 import Button from '@material-ui/core/Button';
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Grid from '@material-ui/core/Grid';
-import Box from '@material-ui/core/Box';
 import axios from 'axios';
 import PropTypes from 'prop-types';
 import React from 'react';
+import ContextMain from './ContextMain';
 import ErrorDialog from './ErrorDialog';
 import { baseUrl } from "./globals";
+import LoadingIndicatorModal from './LoadingIndicatorModal';
 import ModelInstanceArrayOfForms from './ModelInstanceArrayOfForms';
-import ContextMain from './ContextMain';
 import Theme from './theme';
 
 let versionAxios = null;
@@ -47,7 +48,8 @@ export default class ModelInstanceEditForm extends React.Component {
                 timestamp: "",
                 uri: ""
             }],
-            auth: authContext
+            auth: authContext,
+            loading: false
         }
 
         this.handleErrorEditDialogClose = this.handleErrorEditDialogClose.bind(this);
@@ -101,23 +103,21 @@ export default class ModelInstanceEditForm extends React.Component {
     }
 
     createPayload() {
-        return [
-            {
-                ...this.state.instances[0]
-            }
-        ]
+        return {
+            ...this.state.instances[0]
+        }
     }
 
     async checkRequirements(payload) {
         // rule 1: model instance version cannot be empty
         let error = null;
-        if (payload[0].version === "") {
+        if (payload.version === "") {
             error = "Model instance 'version' cannot be empty!"
         }
         else {
             // rule 2: if version has been changed, check if new version is unique
-            if (payload[0].version !== this.props.instance.version) {
-                let isUnique = await this.checkVersionUnique(payload[0].version);
+            if (payload.version !== this.props.instance.version) {
+                let isUnique = await this.checkVersionUnique(payload.version);
                 if (!isUnique) {
                     error = "Model instance 'version' has to be unique within a model!"
                 }
@@ -135,41 +135,39 @@ export default class ModelInstanceEditForm extends React.Component {
     }
 
     async handleSubmit() {
-        let payload = this.createPayload();
-        console.log(payload);
-        if (await this.checkRequirements(payload)) {
-            let url = baseUrl + "/models/" + this.props.modelID + "/instances/" + payload[0].id;
-            let config = {
-                cancelToken: this.signal.token,
-                headers: {
-                    'Authorization': 'Bearer ' + this.state.auth.token,
-                    'Content-type': 'application/json'
-                }
-            };
-
-            axios.put(url, payload, config)
-                .then(res => {
-                    console.log(res);
-                    // delete payload[0].model_id
-                    this.props.onClose({
-                        id: res.data.uuid[0],
-                        ...payload[0],
-                        // TODO: have PUT on 'instances' return entire JSON object 
-                        // this will provide above missing fields
-                    });
-                })
-                .catch(err => {
-                    if (axios.isCancel(err)) {
-                        console.log('Error: ', err.message);
-                    } else {
-                        console.log(err);
-                        this.setState({
-                            errorEditModelInstance: err,
-                        });
+        this.setState({ loading: true }, async () => {
+            let payload = this.createPayload();
+            console.log(payload);
+            if (await this.checkRequirements(payload)) {
+                let url = baseUrl + "/models/" + this.props.modelID + "/instances/" + payload.id;
+                let config = {
+                    cancelToken: this.signal.token,
+                    headers: {
+                        'Authorization': 'Bearer ' + this.state.auth.token,
+                        'Content-type': 'application/json'
                     }
-                }
-                );
-        }
+                };
+
+                axios.put(url, payload, config)
+                    .then(res => {
+                        console.log(res);
+                        this.props.onClose(res.data);
+                    })
+                    .catch(err => {
+                        if (axios.isCancel(err)) {
+                            console.log('Error: ', err.message);
+                        } else {
+                            console.log(err);
+                            this.setState({
+                                errorEditModelInstance: err.response,
+                            });
+                        }
+                        this.setState({ loading: false })
+                    });
+            } else {
+                this.setState({ loading: false })
+            }
+        })
     }
 
     handleFieldChange(event) {
@@ -199,12 +197,14 @@ export default class ModelInstanceEditForm extends React.Component {
                 maxWidth="md">
                 <DialogTitle style={{ backgroundColor: Theme.tableHeader }}>Edit an existing model instance</DialogTitle>
                 <DialogContent>
+                    <LoadingIndicatorModal open={this.state.loading} />
                     <Box my={2}>
                         <form>
                             <Grid container spacing={3}>
                                 <ModelInstanceArrayOfForms
                                     name="instances"
                                     value={this.state.instances}
+                                    modelScope={this.props.modelScope}
                                     onChange={this.handleFieldChange} />
                             </Grid>
                         </form>

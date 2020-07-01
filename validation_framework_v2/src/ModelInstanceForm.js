@@ -69,8 +69,8 @@ export default class ModelInstanceForm extends React.Component {
                         onBlur={this.handleFieldChange} variant="outlined" fullWidth={true}
                         helperText="(optional) Parameterization of the model" />
                 </Grid>
-                {(this.props.model_scope === "single cell")
-                    // || (this.props.model_scope.startsWith('network'))
+                {(this.props.modelScope === "single cell")
+                    // || (this.props.modelScope.startsWith('network'))
                     ?
                     <Grid item xs={12}>
                         <TextField name="morphology" label="morphology" defaultValue={this.props.value.morphology}

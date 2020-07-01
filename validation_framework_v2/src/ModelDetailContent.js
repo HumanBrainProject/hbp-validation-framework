@@ -160,6 +160,7 @@ class ModelDetailContent extends React.Component {
                 open={this.state.openAddInstanceForm}
                 onClose={this.handleAddModelInstanceFormClose}
                 modelID={this.props.id}
+                modelScope={this.props.modelScope}
             />
         }
 
@@ -170,6 +171,7 @@ class ModelDetailContent extends React.Component {
                 onClose={this.handleEditModelInstanceFormClose}
                 instance={this.state.currentInstance}
                 modelID={this.props.id}
+                modelScope={this.props.modelScope}
             />
         }
 

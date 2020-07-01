@@ -25,7 +25,7 @@ export default class ModelInstanceArrayOfForms extends React.Component {
 					<ModelInstanceForm
 						key={index}
                         value={instance_data}
-                        model_scope={this.props.model_scope}
+                        modelScope={this.props.modelScope}
 						onChange={this.handleFieldChange(index)} />
 				)}
 			</React.Fragment>

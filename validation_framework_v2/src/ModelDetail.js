@@ -172,7 +172,7 @@ export default class ModelDetail extends React.Component {
                                 private={this.state.modelData.private}
                                 id={this.state.modelData.id}
                                 alias={this.state.modelData.alias}
-                                date_created={this.state.modelData.date_created}
+                                dateCreated={this.state.modelData.date_created}
                                 owner={formatAuthors(this.state.modelData.owner)}
                                 modelData={this.state.modelData}
                                 updateCurrentModelData={this.updateCurrentModelData}
@@ -194,6 +194,7 @@ export default class ModelDetail extends React.Component {
                                             description={this.state.modelData.description}
                                             instances={this.state.modelData.instances}
                                             id={this.state.modelData.id}
+                                            modelScope={this.state.modelData.model_scope}
                                             results={this.state.results}
                                         />
                                     </Grid>

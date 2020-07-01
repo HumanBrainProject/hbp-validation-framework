@@ -96,7 +96,7 @@ class ModelDetailHeader extends React.Component {
                         {this.props.alias ? "Alias: " : ""} <b>{this.props.alias ? <span style={{ marginHorizontal: 125, cursor: "pointer" }} onClick={() => copyToClipboard(this.props.alias, this.props.enqueueSnackbar, "Model alias copied")}>{this.props.alias}</span> : ""}</b>
                     </Typography>
                     <Typography variant="body2" color="textSecondary" gutterBottom>
-                        Created: <b>{formatTimeStampToLongString(this.props.date_created)}</b>
+                        Created: <b>{formatTimeStampToLongString(this.props.dateCreated)}</b>
                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                         Custodian: <b>{this.props.owner}</b>
                     </Typography>

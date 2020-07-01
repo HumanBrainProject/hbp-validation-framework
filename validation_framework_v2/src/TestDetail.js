@@ -171,7 +171,7 @@ export default class TestDetail extends React.Component {
                                 authors={formatAuthors(this.state.testData.author)}
                                 id={this.state.testData.id}
                                 alias={this.state.testData.alias}
-                                date_created={this.state.testData.date_created}
+                                dateCreated={this.state.testData.date_created}
                                 implementation_status={this.state.testData.implementation_status}
                                 testData={this.state.testData}
                                 updateCurrentTestData={this.updateCurrentTestData}

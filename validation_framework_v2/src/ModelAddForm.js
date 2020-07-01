@@ -325,7 +325,7 @@ export default class ModelAddForm extends React.Component {
                                 <ModelInstanceArrayOfForms
                                     name="instances"
                                     value={this.state.instances}
-                                    model_scope={this.state.model_scope}
+                                    modelScope={this.state.model_scope}
                                     onChange={this.handleFieldChange} />
                             </Grid>
                         </form>

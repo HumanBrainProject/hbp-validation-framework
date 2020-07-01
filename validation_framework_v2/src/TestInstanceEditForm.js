@@ -13,6 +13,7 @@ import { baseUrl } from "./globals";
 import TestInstanceArrayOfForms from './TestInstanceArrayOfForms';
 import ContextMain from './ContextMain';
 import Theme from './theme';
+import LoadingIndicatorModal from './LoadingIndicatorModal';
 
 let versionAxios = null;
 
@@ -43,7 +44,8 @@ export default class TestInstanceEditForm extends React.Component {
                 parameters: "",
                 uri: ""
             }],
-            auth: authContext
+            auth: authContext,
+            loading: false
         }
 
         this.handleErrorEditDialogClose = this.handleErrorEditDialogClose.bind(this);
@@ -131,41 +133,39 @@ export default class TestInstanceEditForm extends React.Component {
     }
 
     async handleSubmit() {
-        let payload = this.createPayload();
-        console.log(payload);
-        if (await this.checkRequirements(payload)) {
-            let url = baseUrl + "/tests/" + this.props.testID + "/instances/" + payload[0].id;
-            let config = {
-                cancelToken: this.signal.token,
-                headers: {
-                    'Authorization': 'Bearer ' + this.state.auth.token,
-                    'Content-type': 'application/json'
-                }
-            };
-
-            axios.put(url, payload, config)
-                .then(res => {
-                    console.log(res);
-                    // delete payload[0].test_id
-                    this.props.onClose({
-                        id: res.data.uuid[0],
-                        ...payload[0],
-                        // TODO: have PUT on 'instances' return entire JSON object 
-                        // this will provide above missing fields
-                    });
-                })
-                .catch(err => {
-                    if (axios.isCancel(err)) {
-                        console.log('Error: ', err.message);
-                    } else {
-                        console.log(err);
-                        this.setState({
-                            errorEditTestInstance: err,
-                        });
+        this.setState({ loading: true }, async () => {
+            let payload = this.createPayload();
+            console.log(payload);
+            if (await this.checkRequirements(payload)) {
+                let url = baseUrl + "/tests/" + this.props.testID + "/instances/" + payload[0].id;
+                let config = {
+                    cancelToken: this.signal.token,
+                    headers: {
+                        'Authorization': 'Bearer ' + this.state.auth.token,
+                        'Content-type': 'application/json'
                     }
-                }
-                );
-        }
+                };
+
+                axios.put(url, payload, config)
+                    .then(res => {
+                        console.log(res);
+                        this.props.onClose(res.data);
+                    })
+                    .catch(err => {
+                        if (axios.isCancel(err)) {
+                            console.log('Error: ', err.message);
+                        } else {
+                            console.log(err);
+                            this.setState({
+                                errorEditTestInstance: err.response,
+                            });
+                        }
+                        this.setState({ loading: false })
+                    });
+            } else {
+                this.setState({ loading: false })
+            }
+        })
     }
 
     handleFieldChange(event) {
