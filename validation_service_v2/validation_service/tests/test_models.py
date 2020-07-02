@@ -238,7 +238,7 @@ def test_create_model_with_invalid_data():
         assert response.json() == {
             "detail": [
                 {
-                    "loc": ["body", "model", required_field],
+                    "loc": ["body", required_field],
                     "msg": "field required",
                     "type": "value_error.missing",
                 }
@@ -253,7 +253,7 @@ def test_create_model_with_invalid_data():
         assert response.json() == {
             "detail": [
                 {
-                    "loc": ["body", "model", "instances", 0, required_field],
+                    "loc": ["body", "instances", 0, required_field],
                     "msg": "field required",
                     "type": "value_error.missing",
                 }
@@ -265,7 +265,7 @@ def test_create_model_with_invalid_data():
     response = client.post(f"/models/", json=payload, headers=AUTH_HEADER)
     assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
     err_msg = response.json()["detail"]
-    assert err_msg[0]["loc"] == ["body", "model", "species"]
+    assert err_msg[0]["loc"] == ["body", "species"]
     assert err_msg[0]["msg"].startswith("value is not a valid enumeration member")
     assert err_msg[0]["type"] == "type_error.enum"
     # invalid URL
@@ -276,7 +276,7 @@ def test_create_model_with_invalid_data():
     assert response.json() == {
         "detail": [
             {
-                "loc": ["body", "model", "instances", 0, "source"],
+                "loc": ["body", "instances", 0, "source"],
                 "msg": "invalid or missing URL scheme",
                 "type": "value_error.url.scheme",
             }
@@ -290,7 +290,7 @@ def test_create_model_with_invalid_data():
     assert response.json() == {
         "detail": [
             {
-                "loc": ["body", "model", "owner", 0],
+                "loc": ["body", "owner", 0],
                 "msg": "value is not a valid dict",
                 "type": "type_error.dict",
             }
