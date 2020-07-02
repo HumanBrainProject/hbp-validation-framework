@@ -23,7 +23,7 @@ class ResultDetailHeader extends React.Component {
                         <br />
                     </Grid>
                     <Grid container spacing={2}>
-                        <Grid item xs={4}>
+                        <Grid item xs={5}>
                             <Typography variant="subtitle1" gutterBottom color="textSecondary">Validated Model: </Typography>
                             <Typography variant="h6" gutterBottom>
                                 <span style={{cursor: "pointer" }} onClick={() => copyToClipboard(this.props.modelName, this.props.enqueueSnackbar, "Model name copied")}> {this.props.modelName}</span>
@@ -40,7 +40,7 @@ class ResultDetailHeader extends React.Component {
                                 Instance ID: <b><span style={{ marginHorizontal: 125, cursor: "pointer" }} onClick={() => copyToClipboard(this.props.modelInstID, this.props.enqueueSnackbar, "Model instance UUID copied")}> {this.props.modelInstID}</span></b>
                             </Typography>
                         </Grid>
-                        <Grid item xs={4}>
+                        <Grid item xs={5}>
                             <Typography variant="subtitle1" gutterBottom color="textSecondary">Validation Test: </Typography>
                             <Typography variant="h6" gutterBottom>
                                 <span style={{ marginHorizontal: 125, cursor: "pointer" }} onClick={() => copyToClipboard(this.props.testName, this.props.enqueueSnackbar, "Test name copied")}> {this.props.testName}</span>

@@ -82,7 +82,7 @@ class ResultModelTestInfo extends React.Component {
                                             </TableRow>
                                         </TableHead>
                                         <TableBody>
-                                            {["id", "uri", "name", "alias", "species", "brain_region", "cell_type"].map((param) => (
+                                            {["id", "uri", "name", "alias", "date_created", "species", "brain_region", "cell_type"].map((param) => (
                                                 <CommonParameter label={param} m_value={this.props.model[param]} t_value={this.props.test[param]} key={param} enqueueSnackbar={this.props.enqueueSnackbar} entity="" />
                                             ))}
                                         </TableBody>
@@ -112,7 +112,7 @@ class ResultModelTestInfo extends React.Component {
                                                 </TableRow>
                                             </TableHead>
                                             <TableBody>
-                                                {["author", "owner", "organization", "app", "private", "model_scope", "abstraction_level"].map((param) => (
+                                                {["author", "owner", "project_id", "organization", "private", "model_scope", "abstraction_level"].map((param) => (
                                                     <OtherParameter label={param} value={this.props.model[param]} key={param} enqueueSnackbar={this.props.enqueueSnackbar} entity="Model" />
                                                 ))}
                                             </TableBody>
@@ -128,7 +128,7 @@ class ResultModelTestInfo extends React.Component {
                                                 </TableRow>
                                             </TableHead>
                                             <TableBody>
-                                                {["author", "status", "creation_date", "data_location", "data_type", "data_modality", "test_type", "score_type"].map((param) => (
+                                                {["author", "implementation_status", "data_location", "data_type", "recording_modality", "test_type", "score_type"].map((param) => (
                                                     <OtherParameter label={param} value={this.props.test[param]} key={param} enqueueSnackbar={this.props.enqueueSnackbar} entity="Test" />
                                                 ))}
                                             </TableBody>
@@ -283,122 +283,3 @@ class ResultModelTestInfo extends React.Component {
 }
 
 export default withSnackbar(ResultModelTestInfo);
-
-
-// >> test
-// {
-//     "status": "in development",
-//     "cell_type": "pyramidal cell",
-//     "codes": [...],
-//     "protocol": "Tests the mode and efficacy of back-propagating action potentials on the apical trunk.",
-//     "name": "Hippocampus_CA1_BackpropagatingAPTest",
-//     "data_type": "Mean, SD",
-//     "data_modality": "electrophysiology",
-//     "test_type": "single cell activity",
-//     "author": [
-//         {
-//             "family_name": "Saray",
-//             "given_name": "Sara"
-//         }
-//     ],
-//     "creation_date": "2018-03-08T15:41:11.839826Z",
-//     "uri": "https://nexus.humanbrainproject.org/v0/data/modelvalidation/simulation/validationtestdefinition/v0.1.0/4d1210a6-e674-4cb6-a9cd-981a11d31175",
-//     "species": "Rattus norvegicus",
-//     "alias": "hippo_ca1_bap",
-//     "old_uuid": "3aab7a1c-0836-4412-bcd3-f0b3a4685ee3",
-//     "brain_region": "hippocampus",
-//     "score_type": "Other",
-//     "id": "4d1210a6-e674-4cb6-a9cd-981a11d31175",
-//     "data_location": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/sp6_validation_data/hippounit/feat_backpropagating_AP_target_data.json"
-// }
-
-// >> test_instance
-// {
-//     "version": "1.0",
-//     "repository": "https://github.com/KaliLab/hippounit.git",
-//     "timestamp": "2018-03-08T15:41:11.846933Z",
-//     "path": "hippounit.tests.BackpropagatingAPTest",
-//     "id": "12660f24-b1f3-4fd8-a768-63fa7ed90be7",
-//     "test_definition_id": "4d1210a6-e674-4cb6-a9cd-981a11d31175",
-//     "description": null,
-//     "test_definition": {...},
-//     "parameters": null,
-//     "uri": "https://nexus.humanbrainproject.org/v0/data/modelvalidation/simulation/validationscript/v0.1.0/12660f24-b1f3-4fd8-a768-63fa7ed90be7",
-//     "old_uuid": "8df4d05b-962c-4e3a-bd34-8cf55cd79c76"
-// }
-
-// >> model
-// {
-//     "cell_type": "hippocampus CA1 pyramidal cell",
-//     "name": "Katz_et_al_2009_2stageintegration_code",
-//     "images": null,
-//     "author": [
-//         {
-//             "family_name": "Katz",
-//             "given_name": "Yael"
-//         },
-//         {
-//             "family_name": "Menon",
-//             "given_name": "Vilas"
-//         },
-//         {
-//             "family_name": "Nicholson",
-//             "given_name": "Daniel A."
-//         },
-//         {
-//             "family_name": "Geinisman",
-//             "given_name": "Yuri"
-//         },
-//         {
-//             "family_name": "Kath",
-//             "given_name": "William L."
-//         },
-//         {
-//             "family_name": "Spruston",
-//             "given_name": "Nelson"
-//         },
-//         {
-//             "family_name": "Sáray",
-//             "given_name": "Sára"
-//         }
-//     ],
-//     "app": {
-//         "collab_id": 54781
-//     },
-//     "uri": "https://nexus.humanbrainproject.org/v0/data/modelvalidation/simulation/modelproject/v0.1.0/71192c8c-e46e-4b8b-b874-6eecd03df336",
-//     "private": false,
-//     "model_scope": "single cell",
-//     "species": "Rattus norvegicus",
-//     "alias": "katz_2009",
-//     "old_uuid": "bcd93a30-f338-45e7-9ce2-1e20261615a9",
-//     "abstraction_level": "spiking neurons: biophysical",
-//     "brain_region": "hippocampus",
-//     "owner": [
-//         {
-//             "family_name": "Sáray",
-//             "given_name": "Sára"
-//         }
-//     ],
-//     "organization": "HBP-SP6",
-//     "instances": [...],
-//     "id": "71192c8c-e46e-4b8b-b874-6eecd03df336",
-//     "description": "The Katz et al. (2009) model(ModelDB accession number: 127351) is based on the Golding et al. (2001) model and was build to investigate the functional consequences of the distribution of strength and density of synapses on the apical dendrites, that they observed experimentally, on the mode of dendritic integration."
-// }
-
-// >> model_instance
-// {
-//     "model_uri": "https://nexus.humanbrainproject.org/v0/data/modelvalidation/simulation/modelproject/v0.1.0/71192c8c-e46e-4b8b-b874-6eecd03df336",
-//     "code_format": "hoc, mod",
-//     "description": "",
-//     "model_id": "71192c8c-e46e-4b8b-b874-6eecd03df336",
-//     "timestamp": "2019-06-06T12:55:17.673676+00:00",
-//     "morphology": null,
-//     "hash": "",
-//     "id": "20e69189-ab22-4967-88a0-9e719a547380",
-//     "license": null,
-//     "parameters": "{\"class_name\" : \"Katz_et_al_2009\"}",
-//     "uri": "https://nexus.humanbrainproject.org/v0/data/modelvalidation/simulation/memodel/v0.1.2/20e69189-ab22-4967-88a0-9e719a547380",
-//     "source": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/hippounit_paper_resources/models/Katz_et_al_2009_2stageintegration_code.zip",
-//     "version": "1.0",
-//     "model": {...}
-// }

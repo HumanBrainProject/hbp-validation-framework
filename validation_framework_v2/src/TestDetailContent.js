@@ -38,7 +38,7 @@ class TestDetailContent extends React.Component {
             openAddInstanceForm: false,
             openEditInstanceForm: false,
             instances: this.props.instances,
-            instancesWithResults: [...new Set(this.props.results.map(a => a.test_code_id))],
+            instancesWithResults: [...new Set(this.props.results.map(a => a.test_instance_id))],
             currentInstance: null,
             errorEditTestInstance: null
         }

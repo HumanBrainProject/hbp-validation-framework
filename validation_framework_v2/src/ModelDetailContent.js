@@ -94,7 +94,7 @@ class ModelDetailContent extends React.Component {
             openAddInstanceForm: false,
             openEditInstanceForm: false,
             instances: this.props.instances,
-            instancesWithResults: [...new Set(this.props.results.map(a => a.model_version_id))],
+            instancesWithResults: [...new Set(this.props.results.map(a => a.model_instance_id))],
             currentInstance: null,
             errorEditModelInstance: null
         }

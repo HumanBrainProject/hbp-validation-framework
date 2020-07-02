@@ -5,23 +5,9 @@ import React from 'react';
 import Theme from './theme';
 
 function ResultFile(props) {
-    // See for details: https://github.com/HumanBrainProject/hbp-validation-framework/issues/246
-    let url = "";
-    var filename = "";
-    if ("download_url" in props.r_file) {
-        url = props.r_file.download_url;
-        if ("collab_storage" in props.r_file) {
-            // for files stored in Collab storage
-            filename = props.r_file.collab_storage.path.split('/').pop().split('#')[0].split('?')[0];
-        } else {
-            //  for files not stored in collab storage
-            filename = url.split('/').pop().split('#')[0].split('?')[0];
-        }
-    } else {
-        // collab URL retrieval fails
-        url = props.r_file.original_url;
-        filename = url.split('/').pop().split('#')[0].split('?')[0];
-    }
+    // See for details: https://github.com/HumanBrainProject/hbp-validation-framework/issues/246 - outdated?
+    let url = props.r_file;
+    var filename = url.split('/').pop().split('#')[0].split('?')[0];
     return (
         // <TableRow>
         // 	<TableCell>

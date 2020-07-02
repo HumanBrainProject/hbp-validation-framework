@@ -387,8 +387,6 @@ class ValidationFramework extends React.Component {
         // this.setState({loadingTest: true});
         axios.get(url, config)
             .then(res => {
-                console.log(res);
-
                 this.setState({
                     currentTest: res.data,
                     loadingOpen: false,
@@ -397,8 +395,6 @@ class ValidationFramework extends React.Component {
                 });
             })
             .catch(err => {
-                console.log(err);
-
                 if (axios.isCancel(err)) {
                     console.log('errorGet: ', err.message);
                     this.setState({
@@ -423,7 +419,7 @@ class ValidationFramework extends React.Component {
     };
 
     getResult(key, value) {
-        let url = baseUrl + "/results/" + value;
+        let url = baseUrl + "/results-extended/" + value;
         let config = {
             cancelToken: this.signal.token,
             headers: {
@@ -432,11 +428,8 @@ class ValidationFramework extends React.Component {
         }
         return axios.get(url, config)
             .then(res => {
-                if (res.data.results.length !== 1) {
-                    throw new Error("Specified result_id = '" + value + "' is invalid!");
-                }
                 this.setState({
-                    currentResult: res.data["results"][0],
+                    currentResult: res.data,
                     loadingOpen: false,
                     errorGet: null,
                     resultDetailOpen: true
@@ -450,9 +443,15 @@ class ValidationFramework extends React.Component {
                     });
                 } else {
                     // Something went wrong. Save the error in state and re-render.
+                    let error_message = "";
+                    try {
+                        error_message = err.response.data.detail;
+                    } catch {
+                        error_message = err
+                    }
                     this.setState({
                         loadingOpen: false,
-                        errorGet: err
+                        errorGet: error_message
                     });
                 }
                 updateHash('');
