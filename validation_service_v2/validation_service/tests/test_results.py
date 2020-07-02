@@ -155,6 +155,34 @@ def test_get_result_by_id(caplog):
         check_validation_result(result)
 
 
+def test_list_results_with_test_and_model():
+    response = client.get(f"/results-extended/?size=10", headers=AUTH_HEADER)
+    assert response.status_code == 200
+    validation_results = response.json()
+    assert len(validation_results) == 10
+    for result in validation_results:
+        check_validation_result(result)
+        assert "model" in result
+        assert "model_instance" in result
+        assert "test" in result
+        assert "test_instance" in result
+
+
+def test_get_result_with_test_and_model_by_id(caplog):
+    # caplog.set_level(logging.DEBUG)
+    test_ids = ("612160c9-2a76-44b3-aaf0-18c7fd40b942", "0f83007b-1c0e-4606-8a79-6268ac79ab2a")
+    for result_uuid in test_ids:
+        response = client.get(f"/results-extended/{result_uuid}", headers=AUTH_HEADER)
+        assert response.status_code == 200
+        result = response.json()
+        assert result["id"] == result_uuid
+        check_validation_result(result)
+        assert "model" in result
+        assert "model_instance" in result
+        assert "test" in result
+        assert "test_instance" in result
+
+
 def test_create_and_delete_validation_result(caplog):
     caplog.set_level(logging.INFO)
     # create model and test

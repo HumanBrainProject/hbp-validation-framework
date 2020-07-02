@@ -2,7 +2,6 @@ from uuid import UUID
 from typing import List
 from datetime import datetime
 import logging
-from time import sleep
 
 from fairgraph.base import KGQuery, as_list
 from fairgraph.brainsimulation import ModelProject, ModelInstance as ModelInstanceKG, MEModel
@@ -11,6 +10,7 @@ from fastapi import APIRouter, Depends, Query, Path, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
 from ..auth import get_kg_client, get_user_from_token, is_collab_member, is_admin
+from ..db import kg_client, _get_model_instance_by_id, _get_model_by_id_or_alias
 from ..data_models import (
     Person,
     Species,
@@ -29,10 +29,7 @@ from ..queries import build_model_project_filters, model_alias_exists
 logger = logging.getLogger("validation_service_v2")
 
 auth = HTTPBearer()
-kg_client = get_kg_client()
 router = APIRouter()
-
-RETRY_INTERVAL = 60  # seconds
 
 
 @router.get("/")
@@ -139,62 +136,6 @@ async def query_models(
         ScientificModel.from_kg_object(model_project, kg_client)
         for model_project in as_list(model_projects)
     ]
-
-
-async def _check_model_access(model_project, token):
-    if model_project.private:
-        if not (
-            await is_collab_member(model_project.collab_id, token.credentials)
-            or await is_admin(token.credentials)
-        ):
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail=f"Access to this model is restricted to members of Collab #{model_project.collab_id}",
-            )
-
-
-async def _get_model_by_id_or_alias(model_id, token):
-    try:
-        model_id = UUID(model_id)
-        model_project = ModelProject.from_uuid(str(model_id), kg_client, api="nexus")
-    except ValueError:
-        model_alias = str(model_id)
-        model_project = ModelProject.from_alias(model_alias, kg_client, api="nexus")
-    if not model_project:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Model with ID or alias '{model_id}' not found.",
-        )
-    # todo: fairgraph should accept UUID object as well as str
-    await _check_model_access(model_project, token)
-    return model_project
-
-
-async def _get_model_instance_by_id(instance_id, token):
-    model_instance = ModelInstanceKG.from_uuid(str(instance_id), kg_client, api="nexus")
-    if model_instance is None:
-        model_instance = MEModel.from_uuid(str(instance_id), kg_client, api="nexus")
-    if model_instance is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Model instance with ID '{instance_id}' not found.",
-        )
-
-    model_project = model_instance.project.resolve(kg_client, api="nexus")
-    if not model_project:
-        # we could get an empty response if the model_project has just been
-        # updated and the KG is not consistent, so we wait and try again
-        sleep(RETRY_INTERVAL)
-        model_project = model_instance.project.resolve(kg_client, api="nexus")
-        if not model_project:
-            # in case of a dangling model instance, where the parent model_project
-            # has been deleted but the instance wasn't
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Model instance with ID '{instance_id}' no longer exists.",
-            )
-    await _check_model_access(model_project, token)
-    return model_instance, model_project.uuid
 
 
 @router.get("/models/{model_id}", response_model=ScientificModel)

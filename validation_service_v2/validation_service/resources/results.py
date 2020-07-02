@@ -16,7 +16,7 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic import ValidationError
 
 from ..auth import get_kg_client, get_user_from_token, is_collab_member, is_admin
-from ..data_models import ScoreType, ValidationResult, ConsistencyError
+from ..data_models import ScoreType, ValidationResult, ValidationResultWithTestAndModel, ConsistencyError
 from ..queries import build_result_filters
 from .. import settings
 
@@ -82,6 +82,71 @@ def get_result(result_id: UUID, token: HTTPAuthorizationCredentials = Depends(au
     if result:
         try:
             obj = ValidationResult.from_kg_object(result, kg_client)
+        except ConsistencyError as err:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(err))
+    else:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Validation result {result_id} not found.",
+        )
+    return obj
+
+
+@router.get("/results-extended/", response_model=List[ValidationResultWithTestAndModel])
+async def query_results_extended(
+    passed: List[bool] = Query(None),
+    project_id: List[int] = Query(None),
+    model_instance_id: List[UUID] = Query(
+        None
+    ),  # todo: rename this 'model_instance_id' for consistency
+    test_instance_id: List[UUID] = Query(None),
+    model_id: List[UUID] = Query(None),
+    test_id: List[UUID] = Query(None),
+    model_alias: List[str] = Query(None),
+    test_alias: List[str] = Query(None),
+    score_type: List[ScoreType] = None,
+    size: int = Query(100),
+    from_index: int = Query(0),
+    # from header
+    token: HTTPAuthorizationCredentials = Depends(auth),
+):
+    filter_query, context = build_result_filters(
+        model_instance_id,
+        test_instance_id,
+        model_id,
+        test_id,
+        model_alias,
+        test_alias,
+        score_type,
+        passed,
+        project_id,
+        kg_client,
+    )
+    if len(filter_query["value"]) > 0:
+        logger.info(f"Searching for ValidationResult with the following query: {filter_query}")
+        # note that from_index is not currently supported by KGQuery.resolve
+        query = KGQuery(ValidationResultKG, {"nexus": filter_query}, context)
+        results = query.resolve(kg_client, api="nexus", size=size)
+    else:
+        results = ValidationResultKG.list(kg_client, api="nexus", size=size, from_index=from_index)
+    response = []
+    for result in results:
+        try:
+            obj = await ValidationResultWithTestAndModel.from_kg_object(result, kg_client, token)
+        except ConsistencyError as err:  # todo: count these and report them in the response
+            logger.warning(str(err))
+        else:
+            response.append(obj)
+    return response
+
+
+@router.get("/results-extended/{result_id}", response_model=ValidationResultWithTestAndModel)
+async def get_result_extended(result_id: UUID,
+                     token: HTTPAuthorizationCredentials = Depends(auth)):
+    result = ValidationResultKG.from_uuid(str(result_id), kg_client, api="nexus")
+    if result:
+        try:
+            obj = await ValidationResultWithTestAndModel.from_kg_object(result, kg_client, token)
         except ConsistencyError as err:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(err))
     else:

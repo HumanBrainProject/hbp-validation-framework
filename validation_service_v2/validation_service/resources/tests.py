@@ -11,6 +11,7 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic import ValidationError
 
 from ..auth import get_kg_client, get_user_from_token, is_collab_member, is_admin
+from ..db import kg_client, _get_test_by_id_or_alias, _get_test_instance_by_id
 from ..data_models import (
     Person,
     Species,
@@ -31,7 +32,6 @@ from .. import settings
 logger = logging.getLogger("validation_service_v2")
 
 auth = HTTPBearer()
-kg_client = get_kg_client()
 router = APIRouter()
 
 
@@ -98,42 +98,6 @@ def query_tests(
         ValidationTest.from_kg_object(test_definition, kg_client)
         for test_definition in test_definitions
     ]
-
-
-def _get_test_by_id_or_alias(test_id, token):
-    try:
-        test_id = UUID(test_id)
-        test_definition = ValidationTestDefinition.from_uuid(str(test_id), kg_client, api="nexus")
-    except ValueError:
-        test_alias = test_id
-        test_definition = ValidationTestDefinition.from_alias(test_alias, kg_client, api="nexus")
-    if not test_definition:  # None or empty list
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Test with ID or alias '{test_id}' not found.",
-        )
-    if isinstance(test_definition, list):
-        # this could happen if a duplicate alias has sneaked through
-        raise Exception(
-            f"Found multiple tests (n={len(test_definition)}) with id/alias '{test_id}'"
-        )
-    # todo: fairgraph should accept UUID object as well as str
-    return test_definition
-
-
-def _get_test_instance_by_id(instance_id, token):
-    test_instance = ValidationScript.from_uuid(str(instance_id), kg_client, api="nexus")
-    if test_instance is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Test instance with ID '{instance_id}' not found.",
-        )
-
-    test_definition = test_instance.test_definition.resolve(kg_client, api="nexus")
-    # todo: in case of a dangling test instance, where the parent test_definition
-    #       has been deleted but the instance wasn't, we could get a None here
-    #       which we need to deal with
-    return test_instance
 
 
 @router.get("/tests/{test_id}", response_model=ValidationTest)

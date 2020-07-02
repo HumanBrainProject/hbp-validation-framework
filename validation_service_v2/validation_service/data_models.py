@@ -15,6 +15,8 @@ import fairgraph.core
 import fairgraph.brainsimulation
 
 from .examples import EXAMPLES
+from .db import (_get_model_by_id_or_alias, _get_model_instance_by_id,
+                 _get_test_by_id_or_alias, _get_test_instance_by_id)
 
 fairgraph.core.use_namespace(fairgraph.brainsimulation.DEFAULT_NAMESPACE)
 fairgraph.commons.License.initialize()
@@ -657,9 +659,9 @@ class ValidationTestPatch(BaseModel):
         return cls._check_not_empty("implementation_status", value)
 
 
-# note: this is essentially copied from resources/models.py
-# todo: refactor to eliminate this duplicatin
-def _get_model_instance_by_id(instance_id, kg_client):
+# note: the following function was essentially copied from resources/models.py
+# todo: refactor to eliminate this duplication
+def _get_model_instance_by_id_no_access_check(instance_id, kg_client):
     model_instance = fairgraph.brainsimulation.ModelInstance.from_uuid(
         str(instance_id), kg_client, api="nexus"
     )
@@ -742,7 +744,7 @@ class ValidationResult(BaseModel):
             str(self.test_instance_id), kg_client, api="nexus"
         )
         test_definition = test_code.test_definition.resolve(kg_client, api="nexus")
-        model_instance = _get_model_instance_by_id(self.model_instance_id, kg_client)
+        model_instance = _get_model_instance_by_id_no_access_check(self.model_instance_id, kg_client)
         reference_data = fairgraph.core.Collection(
             f"Reference data for {test_definition.name}",
             members=as_list(test_definition.reference_data),
@@ -771,3 +773,44 @@ class ValidationResult(BaseModel):
         kg_objects.append(result)
         kg_objects.append(activity)
         return kg_objects
+
+
+class ValidationResultWithTestAndModel(ValidationResult):
+    model_instance: ModelInstance
+    test_instance: ValidationTestInstance
+    model: ScientificModel
+    test: ValidationTest
+
+    @classmethod
+    async def from_kg_object(cls, result, client, token):
+        vr = ValidationResult.from_kg_object(result, client)
+
+        model_instance_kg, model_id = await _get_model_instance_by_id(vr.model_instance_id, token)
+        model_project = await _get_model_by_id_or_alias(model_id, token)
+
+        model_instance = ModelInstance.from_kg_object(model_instance_kg, client, model_project.uuid)
+        model = ScientificModel.from_kg_object(model_project, client)
+
+        test_script = _get_test_instance_by_id(vr.test_instance_id, token)
+        test_definition = _get_test_by_id_or_alias(test_script.test_definition.uuid, token)
+
+        test_instance = ValidationTestInstance.from_kg_object(test_script, token)
+        test = ValidationTest.from_kg_object(test_definition, client)
+
+        return cls(
+            id=vr.id,
+            uri=vr.uri,
+            old_uuid=vr.old_uuid,
+            model_instance_id=vr.model_instance_id,
+            test_instance_id=vr.test_instance_id,
+            results_storage=vr.results_storage,
+            score=vr.score,
+            passed=vr.passed,
+            timestamp=vr.timestamp,
+            project_id=vr.project_id,
+            normalized_score=vr.normalized_score,
+            model_instance=model_instance,
+            test_instance=test_instance,
+            model=model,
+            test=test
+        )
