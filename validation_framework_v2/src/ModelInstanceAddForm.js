@@ -79,8 +79,8 @@ export default class ModelInstanceAddForm extends React.Component {
         };
         await axios.get(url, config)
             .then(res => {
-                console.log(res.data.instances);
-                if (res.data.instances.length === 0) {
+                console.log(res.data);
+                if (res.data.length === 0) {
                     isUnique = true;
                 }
             })
@@ -95,20 +95,20 @@ export default class ModelInstanceAddForm extends React.Component {
     }
 
     createPayload() {
-        return [{
+        return {
             model_id: this.props.modelID,
             ...this.state.instances[0]
-        }]
+        }
     }
 
     async checkRequirements(payload) {
         // rule 1: model instance version cannot be empty
         let error = null;
-        if (payload[0].version === "") {
+        if (payload.version === "") {
             error = "Model instance 'version' cannot be empty!"
         } else {
             // rule 2: check if version is unique
-            let isUnique = await this.checkVersionUnique(payload[0].version);
+            let isUnique = await this.checkVersionUnique(payload.version);
             if (!isUnique) {
                 error = "Model instance 'version' has to be unique within a model!"
             }

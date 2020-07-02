@@ -41,8 +41,8 @@ function EntityParameter(props) {
 class ViewSelected extends React.Component {
     render() {
         let title = (this.props.entity === "models") ? "View Model(s)" : "View Test(s)";
-        const model_params = ["name", "id", "alias", "species", "brain_region", "cell_type", "model_scope", "abstraction_level", "author", "owner", "organization", "app", "private"]; // "uri",
-        const test_params = ["name", "id", "alias", "species", "brain_region", "cell_type", "author", "status", "creation_date", "data_type", "data_modality", "test_type", "score_type"]; // "uri", "data_location"
+        const model_params = ["name", "id", "alias", "date_created", "species", "brain_region", "cell_type", "model_scope", "abstraction_level", "author", "owner", "organization", "project_id", "private"]; // "uri",
+        const test_params = ["name", "id", "alias", "date_created", "species", "brain_region", "cell_type", "author", "implementation_status", "data_type", "recording_modality", "test_type", "score_type"]; // "uri", "data_location"
         let params = (this.props.entity === "models") ? model_params : test_params;
 
         return (

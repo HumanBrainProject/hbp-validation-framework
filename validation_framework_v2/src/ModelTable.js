@@ -166,6 +166,7 @@ class ModelTable extends React.Component {
                             rowsPerPage: 20,
                             rowsPerPageOptions: [10, 20, 100],
                             onRowClick: this.props.handleRowClick,
+                            tableBodyMaxHeight: "500px",
                             responsive: 'stacked', // 'scrollMaxHeight', 'scrollFullHeight', 'scrollFullHeightFullWidth', 'stackedFullWidth'
                             downloadOptions: { filename: 'selectedModels.csv', separator: ',', filterOptions: { useDisplayedRowsOnly: true } },
                             customToolbar: () => {

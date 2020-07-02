@@ -20,6 +20,7 @@ import TestAddForm from "./TestAddForm";
 import ConfigForm from "./ConfigForm";
 import Introduction from "./Introduction";
 import ConfigDisplayTop from "./ConfigDisplayTop"
+// import CompareBottomPanel from "./CompareBottomPanel"
 import LoadingIndicator from "./LoadingIndicator"
 import ResultDetail from './ResultDetail';
 import ErrorDialog from './ErrorDialog';
@@ -387,7 +388,7 @@ class ValidationFramework extends React.Component {
         axios.get(url, config)
             .then(res => {
                 console.log(res);
-                
+
                 this.setState({
                     currentTest: res.data,
                     loadingOpen: false,
@@ -579,7 +580,7 @@ class ValidationFramework extends React.Component {
         this.setState({ 'configOpen': true })
     };
 
-    handleConfigClose(display, filters, cancel=false) {
+    handleConfigClose(display, filters, cancel = false) {
         if (cancel) {
             this.setState({ 'configOpen': false });
             return
@@ -734,6 +735,7 @@ class ValidationFramework extends React.Component {
         var testDetail = "";
         var resultDetail = "";
         var addModel = "";
+        // var comparePanel = "";
 
         // const [ contaxtValidFilterValues, setContaxtValidFilterValues ] = this.context.validFilterValues;
         // console.log(contaxtValidFilterValues)
@@ -752,6 +754,7 @@ class ValidationFramework extends React.Component {
             mainContent = <Introduction />;
         } else {
             configContent = <ConfigDisplayTop display={this.state.display} filters={this.state.filters} />
+            // comparePanel = <CompareBottomPanel display={this.state.display} filters={this.state.filters} />
             mainContent = this.renderTables();
         }
 
@@ -777,34 +780,44 @@ class ValidationFramework extends React.Component {
 
         return (
             <React.Fragment>
-                <Grid container direction="row">
-                    <Grid item xs={1} sm={1} md={1} lg={1}>
-                        <IconButton onClick={this.openConfig} aria-label="Configure filters">
-                            <SettingsIcon />
-                        </IconButton>
+                <div>
+                    <Grid container direction="row">
+                        <Grid item xs={1}>
+                            <IconButton onClick={this.openConfig} aria-label="Configure filters">
+                                <SettingsIcon />
+                            </IconButton>
+                        </Grid>
+                        <Grid item xs={11}>
+                            {configContent}
+                        </Grid>
                     </Grid>
-                    <Grid item xs={11} sm={11} md={11} lg={11}>
-                        {configContent}
-                    </Grid>
-                </Grid>
-                <br />
+                    <br />
 
-                <ConfigForm open={this.state.configOpen} onClose={this.handleConfigClose} config={this.state.filters} validFilterValues={this.state.validFilterValues} display={this.state.display} />
-                <div>
-                    {modelDetail}
+                    <ConfigForm open={this.state.configOpen} onClose={this.handleConfigClose} config={this.state.filters} validFilterValues={this.state.validFilterValues} display={this.state.display} />
+                    <div>
+                        {modelDetail}
+                    </div>
+                    <div>
+                        {testDetail}
+                    </div>
+                    <div>
+                        {resultDetail}
+                    </div>
+                    <div>
+                        {addModel}
+                    </div>
+                    <main>
+                        {mainContent}
+                    </main>
+                    <br />
                 </div>
-                <div>
-                    {testDetail}
-                </div>
-                <div>
-                    {resultDetail}
-                </div>
-                <div>
-                    {addModel}
-                </div>
-                <main>
-                    {mainContent}
-                </main>
+                {/* <div style={{ display: "block", height: "80px", width: "100%" }}>
+                    <div style={{ position: "relative", left: "0", bottom: "0", height: "80px", width: "100%", backgroundColor: Theme.lightBackground }}>
+                        <div style={{ height: "100%", width: "100%" }}>
+                            {comparePanel}
+                        </div>
+                    </div>
+                </div> */}
             </React.Fragment>
         );
     };

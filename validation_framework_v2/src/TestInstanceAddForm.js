@@ -77,8 +77,8 @@ export default class TestInstanceAddForm extends React.Component {
         };
         await axios.get(url, config)
             .then(res => {
-                console.log(res.data.test_codes);
-                if (res.data.test_codes.length === 0) {
+                console.log(res.data);
+                if (res.data.length === 0) {
                     isUnique = true;
                 }
             })
@@ -93,22 +93,20 @@ export default class TestInstanceAddForm extends React.Component {
     }
 
     createPayload() {
-        return [
-            {
-                test_definition_id: this.props.testID,
-                ...this.state.instances[0]
-            }
-        ]
+        return {
+            test_id: this.props.testID,
+            ...this.state.instances[0]
+        }
     }
 
     async checkRequirements(payload) {
         // rule 1: test instance version cannot be empty
         let error = null;
-        if (payload[0].version === "") {
+        if (payload.version === "") {
             error = "Test instance 'version' cannot be empty!"
         } else {
             // rule 2: check if version is unique
-            let isUnique = await this.checkVersionUnique(payload[0].version);
+            let isUnique = await this.checkVersionUnique(payload.version);
             if (!isUnique) {
                 error = "Test instance 'version' has to be unique within a test!"
             }
@@ -186,6 +184,7 @@ export default class TestInstanceAddForm extends React.Component {
                 maxWidth="md">
                 <DialogTitle style={{ backgroundColor: Theme.tableHeader }}>Add a new test instance</DialogTitle>
                 <DialogContent>
+                    <LoadingIndicatorModal open={this.state.loading} />
                     <Box my={2}>
                         <form>
                             <Grid container spacing={3}>

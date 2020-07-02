@@ -58,7 +58,7 @@ export function formatValue(label, value) {
     if (["owner", "author"].indexOf(label) > -1) {
         value = formatAuthors(value);
     }
-    if (["timestamp", "creation_date"].indexOf(label) > -1) {
+    if (["timestamp", "creation_date", "date_created"].indexOf(label) > -1) {
         value = formatTimeStampToLongString(value);
     }
     if (label === "app") {

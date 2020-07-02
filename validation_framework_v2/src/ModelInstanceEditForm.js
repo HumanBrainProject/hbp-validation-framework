@@ -87,8 +87,8 @@ export default class ModelInstanceEditForm extends React.Component {
         };
         await axios.get(url, config)
             .then(res => {
-                console.log(res.data.instances);
-                if (res.data.instances.length === 0) {
+                console.log(res.data);
+                if (res.data.length === 0) {
                     isUnique = true;
                 }
             })
