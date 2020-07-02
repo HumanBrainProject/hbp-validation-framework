@@ -464,7 +464,7 @@ class ValidationTestInstance(BaseModel):
     parameters: str = None  # or dict?
     path: str
     timestamp: datetime = None
-    test_definition_id: UUID = None
+    test_id: UUID = None
 
     @classmethod
     def from_kg_object(cls, test_script, client):
@@ -478,7 +478,7 @@ class ValidationTestInstance(BaseModel):
             parameters=test_script.parameters,
             path=test_script.test_class,
             timestamp=ensure_has_timezone(test_script.date_created),
-            test_definition_id=test_script.test_definition.uuid,
+            test_id=test_script.test_definition.uuid,
         )
 
     def to_kg_objects(self, test_definition):
@@ -508,7 +508,7 @@ class ValidationTestInstancePatch(BaseModel):
     parameters: str = None
     path: str = None
     timestamp: datetime = None
-    test_definition_id: UUID = None
+    test_id: UUID = None
 
 
 class ValidationTest(BaseModel):
