@@ -303,7 +303,7 @@ export default class ModelAddForm extends React.Component {
                                 <Grid item xs={12}>
                                     <TextField name="project_id" label="Project ID" defaultValue={this.state.project_id}
                                         onBlur={this.handleFieldChange} variant="outlined" fullWidth={true}
-                                        helperText="Please specify the Collab ID, if any, associated with this model (optional)." />
+                                        helperText="Please specify the Project ID, if any, associated with this model (optional)." />
                                 </Grid>
                                 <Grid item xs={12}>
                                     <TextField name="organization" label="Organization" defaultValue={this.state.organization}
