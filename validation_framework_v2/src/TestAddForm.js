@@ -151,6 +151,11 @@ export default class TestAddForm extends React.Component {
             implementation_status: this.state.implementation_status,
             instances: this.state.instances
         }
+        // to allow tests to be created without instances; e.g. proposals for new tests
+        if (!Object.values(payload.instances[0]).some(element => Boolean(element))) {
+            payload.instances = [];
+        }
+
         return replaceEmptyStringsWithNull(payload);
     }
 
