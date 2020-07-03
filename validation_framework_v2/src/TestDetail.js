@@ -90,7 +90,7 @@ export default class TestDetail extends React.Component {
         super(props);
         this.state = {
             tabValue: 0,
-            results: [],
+            results: null,
             loadingResult: true,
             error: null,
             testData: this.props.testData

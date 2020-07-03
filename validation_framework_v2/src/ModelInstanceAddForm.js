@@ -11,6 +11,7 @@ import React from 'react';
 import ContextMain from './ContextMain';
 import ErrorDialog from './ErrorDialog';
 import { baseUrl } from "./globals";
+import { replaceEmptyStringsWithNull } from "./utils";
 import LoadingIndicatorModal from './LoadingIndicatorModal';
 import ModelInstanceArrayOfForms from './ModelInstanceArrayOfForms';
 import Theme from './theme';
@@ -95,10 +96,11 @@ export default class ModelInstanceAddForm extends React.Component {
     }
 
     createPayload() {
-        return {
+        let payload = {
             model_id: this.props.modelID,
             ...this.state.instances[0]
         }
+        return replaceEmptyStringsWithNull(payload);
     }
 
     async checkRequirements(payload) {

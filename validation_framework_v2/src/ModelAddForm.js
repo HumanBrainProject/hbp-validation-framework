@@ -19,6 +19,7 @@ import React from 'react';
 import ContextMain from './ContextMain';
 import ErrorDialog from './ErrorDialog';
 import { baseUrl, filterModelKeys } from "./globals";
+import { replaceEmptyStringsWithNull } from "./utils";
 import LoadingIndicatorModal from './LoadingIndicatorModal';
 import ModelInstanceArrayOfForms from './ModelInstanceArrayOfForms';
 import PersonSelect from './PersonSelect';
@@ -136,7 +137,7 @@ export default class ModelAddForm extends React.Component {
     }
 
     createPayload() {
-        return {
+        let payload = {
             name: this.state.name,
             alias: this.state.alias,
             author: this.state.author.length > 0 ? this.state.author : [{ "given_name": "", "family_name": "" }],
@@ -144,15 +145,16 @@ export default class ModelAddForm extends React.Component {
             private: this.state.private,
             project_id: this.state.project_id,
             description: this.state.description,
-            species: this.state.species ? this.state.species : null,
-            brain_region: this.state.brain_region ? this.state.brain_region : null,
-            cell_type: this.state.cell_type ? this.state.cell_type : null,
-            model_scope: this.state.model_scope ? this.state.model_scope : null,
-            abstraction_level: this.state.abstraction_level ? this.state.abstraction_level : null,
+            species: this.state.species,
+            brain_region: this.state.brain_region,
+            cell_type: this.state.cell_type,
+            model_scope: this.state.model_scope,
+            abstraction_level: this.state.abstraction_level,
             organization: this.state.organization,
-            "instances": this.state.instances,
-            "images": []
+            instances: this.state.instances,
+            images: []
         }
+        return replaceEmptyStringsWithNull(payload);
     }
 
     checkRequirements(payload) {
@@ -243,7 +245,7 @@ export default class ModelAddForm extends React.Component {
         if (this.state.errorAddModel) {
             errorMessage = <ErrorDialog open={Boolean(this.state.errorAddModel)} handleErrorDialogClose={this.handleErrorAddDialogClose} error={this.state.errorAddModel.message || this.state.errorAddModel} />
         }
-        
+
         return (
             <Dialog onClose={this.handleClose}
                 aria-labelledby="Form for adding a new model to the catalog"

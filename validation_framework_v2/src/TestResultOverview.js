@@ -347,7 +347,8 @@ export default class TestResultOverview extends React.Component {
 
     renderNoResults() {
         return (
-            <Typography variant="h5" component="h3">
+            <Typography variant="h6">
+                <br />
                 No results have yet been registered with this test!
             </Typography>
         )

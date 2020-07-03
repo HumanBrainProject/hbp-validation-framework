@@ -347,7 +347,8 @@ export default class ModelResultOverview extends React.Component {
 
     renderNoResults() {
         return (
-            <Typography variant="h5" component="h3">
+            <Typography variant="h6">
+                <br />
                 No results have yet been registered for this model!
             </Typography>
         )

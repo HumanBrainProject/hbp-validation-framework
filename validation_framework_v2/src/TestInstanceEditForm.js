@@ -10,6 +10,7 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import ErrorDialog from './ErrorDialog';
 import { baseUrl } from "./globals";
+import { replaceEmptyStringsWithNull } from "./utils";
 import TestInstanceArrayOfForms from './TestInstanceArrayOfForms';
 import ContextMain from './ContextMain';
 import Theme from './theme';
@@ -99,9 +100,10 @@ export default class TestInstanceEditForm extends React.Component {
     }
 
     createPayload() {
-        return {
+        let payload = {
             ...this.state.instances[0]
         }
+        return replaceEmptyStringsWithNull(payload);
     }
 
     async checkRequirements(payload) {

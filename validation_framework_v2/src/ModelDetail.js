@@ -90,7 +90,7 @@ export default class ModelDetail extends React.Component {
         super(props);
         this.state = {
             tabValue: 0,
-            results: [],
+            results: null,
             loadingResult: true,
             error: null,
             modelData: this.props.modelData

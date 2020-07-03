@@ -88,6 +88,7 @@ export function formatLabel(label) {
     return label;
 }
 
+
 export function isUUID(uuid) {
     let s = "" + uuid;
 
@@ -97,6 +98,7 @@ export function isUUID(uuid) {
     }
     return true;
 }
+
 
 export function copyToClipboard(value, enqueueSnackbar, message, type = 'default') {
     // type: default, success, error, warning, info
@@ -110,6 +112,7 @@ export function copyToClipboard(value, enqueueSnackbar, message, type = 'default
     })
 }
 
+
 export function showNotification(enqueueSnackbar, message, type = 'default') {
     // type: default, success, error, warning, info
     enqueueSnackbar(message, {
@@ -120,6 +123,7 @@ export function showNotification(enqueueSnackbar, message, type = 'default') {
         },
     })
 }
+
 
 export function reformatErrorMessage(errorResponse) {
     let output = "Error code = " + errorResponse.status;
@@ -136,4 +140,23 @@ export function reformatErrorMessage(errorResponse) {
         });
     }
     return output;
+}
+
+
+export function replaceEmptyStringsWithNull(param) {
+    if (param === null) {
+        return param
+    } else if (typeof(param) === "string") {
+        return param === "" ? null : param;
+    } else if (Array.isArray(param)) {
+        return param.map(element => replaceEmptyStringsWithNull(element));
+    } else if (typeof(param) === "object") {
+        Object.entries(param).map(function ([key, val]) {
+            param[key] = replaceEmptyStringsWithNull(val)
+        });
+        return param
+    } else {
+        // e.g. number, boolean
+        return param;
+    }
 }

@@ -19,6 +19,7 @@ import React from 'react';
 import ContextMain from './ContextMain';
 import ErrorDialog from './ErrorDialog';
 import { baseUrl, filterTestKeys } from "./globals";
+import { replaceEmptyStringsWithNull } from "./utils";
 import LoadingIndicatorModal from './LoadingIndicatorModal';
 import PersonSelect from './PersonSelect';
 import SingleSelect from './SingleSelect';
@@ -134,22 +135,23 @@ export default class TestAddForm extends React.Component {
     }
 
     createPayload() {
-        return {
+        let payload = {
             name: this.state.name,
             alias: this.state.alias,
             author: this.state.author.length > 0 ? this.state.author : [{ "given_name": "", "family_name": "" }],
             description: this.state.description,
             data_location: this.state.data_location,
             data_type: this.state.data_type,
-            species: this.state.species || null,
-            brain_region: this.state.brain_region || null,
-            cell_type: this.state.cell_type || null,
-            test_type: this.state.test_type || null,
-            score_type: this.state.score_type || null,
-            recording_modality: this.state.recording_modality || null,
-            implementation_status: this.state.implementation_status || null,
-            "instances": this.state.instances
+            species: this.state.species,
+            brain_region: this.state.brain_region,
+            cell_type: this.state.cell_type,
+            test_type: this.state.test_type,
+            score_type: this.state.score_type,
+            recording_modality: this.state.recording_modality,
+            implementation_status: this.state.implementation_status,
+            instances: this.state.instances
         }
+        return replaceEmptyStringsWithNull(payload);
     }
 
     checkRequirements(payload) {

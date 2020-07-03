@@ -19,6 +19,7 @@ import React from 'react';
 import ContextMain from './ContextMain';
 import ErrorDialog from './ErrorDialog';
 import { baseUrl, filterModelKeys } from "./globals";
+import { replaceEmptyStringsWithNull } from "./utils";
 import LoadingIndicatorModal from './LoadingIndicatorModal';
 import PersonSelect from './PersonSelect';
 import SingleSelect from './SingleSelect';
@@ -149,10 +150,7 @@ export default class ModelEditForm extends React.Component {
     }
 
     createPayload() {
-        let modelData = this.props.modelData;
-        delete modelData.images;
-        delete modelData.instances;
-        return {
+        let payload = {
             id: this.state.id,
             uri: this.state.uri,
             name: this.state.name,
@@ -162,14 +160,15 @@ export default class ModelEditForm extends React.Component {
             private: this.state.private,
             project_id: this.state.project_id,
             description: this.state.description,
-            species: this.state.species ? this.state.species : null,
-            brain_region: this.state.brain_region ? this.state.brain_region : null,
-            cell_type: this.state.cell_type ? this.state.cell_type : null,
-            model_scope: this.state.model_scope ? this.state.model_scope : null,
-            abstraction_level: this.state.abstraction_level ? this.state.abstraction_level : null,
+            species: this.state.species,
+            brain_region: this.state.brain_region,
+            cell_type: this.state.cell_type,
+            model_scope: this.state.model_scope,
+            abstraction_level: this.state.abstraction_level,
             organization: this.state.organization,
             images: []
         }
+        return replaceEmptyStringsWithNull(payload);
     }
 
     checkRequirements(payload) {
