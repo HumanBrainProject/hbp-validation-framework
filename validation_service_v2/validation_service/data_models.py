@@ -4,6 +4,7 @@ from typing import List
 from datetime import datetime, timezone
 from itertools import chain
 import logging
+from urllib.parse import urlparse, parse_qs
 
 from pydantic import BaseModel, HttpUrl, AnyUrl, validator, ValidationError
 from fastapi.encoders import jsonable_encoder
@@ -681,13 +682,62 @@ class ConsistencyError(Exception):
     pass
 
 
+class File(BaseModel):
+    download_url: AnyUrl = None
+    hash: str = None
+    content_type: str = None
+    file_store: str = None
+    local_path: str = None
+    size: int = None
+    id: str = None
+
+    @classmethod
+    def from_kg_object(cls, file_obj):
+        url = file_obj.location
+        url_parts = urlparse(url)
+        id = None
+        local_path = file_obj.original_file_name
+        if url_parts.netloc == "collab-storage-redirect.brainsimulation.eu":
+            file_store = "collab-v1"
+            local_path = url_parts.path
+        elif url_parts.netloc == "seafile-proxy.brainsimulation.eu":
+            file_store = "drive"
+            local_path = url_parts.path
+            id = parse_qs(url_parts.query).get("username", [None])[0]
+        elif url_parts.netloc == "object.cscs.ch":
+            file_store = "swift"
+        else:
+            file_store = None
+        return cls(
+            download_url=file_obj.location,
+            hash=file_obj.digest,
+            size=file_obj.size,
+            content_type=file_obj.content_type,
+            local_path=local_path,
+            file_store=file_store,
+            id=id
+        )
+
+    def to_kg_object(self):
+        if self.download_url is None:
+            if self.file_store == "drive":
+                self.download_url = f"https://seafile-proxy.brainsimulation.eu{self.local_path}?username={self.id}"
+        return Distribution(
+            self.download_url,
+            size=self.size,
+            digest=self.hash,
+            content_type=self.content_type,
+            original_file_name=self.local_path
+        )
+
+
 class ValidationResult(BaseModel):
     id: UUID = None
     uri: HttpUrl = None
     old_uuid: UUID = None
     model_instance_id: UUID
     test_instance_id: UUID
-    results_storage: List[AnyUrl]  # for now at least, accept "collab:" and "swift:" URLs
+    results_storage: List[File]  # for now at least, accept "collab:" and "swift:" URLs
     score: float
     passed: bool = None
     timestamp: datetime = None
@@ -706,11 +756,11 @@ class ValidationResult(BaseModel):
         test_instance_id = validation_activity.test_script.uuid
         logger.debug("Serializing validation test result")
         logger.debug("Additional data for {}:\n{}".format(result.id, result.additional_data))
-        additional_data_urls = []
+        additional_data = []
         for item in as_list(result.additional_data):
             item = item.resolve(client, api="nexus")
             if item:
-                additional_data_urls.append(item.result_file.location)
+                additional_data.append(File.from_kg_object(item.result_file))
             else:
                 logger.warning("Couldn't resolve {}".format(item))
         return cls(
@@ -719,7 +769,7 @@ class ValidationResult(BaseModel):
             old_uuid=result.old_uuid,
             model_instance_id=model_instance_id,
             test_instance_id=test_instance_id,
-            results_storage=additional_data_urls,  # todo: handle collab storage redirects
+            results_storage=additional_data,  # todo: handle collab storage redirects
             score=result.score,
             passed=result.passed,
             timestamp=ensure_has_timezone(result.timestamp),
@@ -732,11 +782,11 @@ class ValidationResult(BaseModel):
 
         additional_data = [
             fairgraph.analysis.AnalysisResult(
-                name=f"{uri} @ {timestamp.isoformat()}",
-                result_file=Distribution(uri),
+                name=f"{file_obj.download_url} @ {timestamp.isoformat()}",
+                result_file=file_obj.to_kg_object(),
                 timestamp=timestamp,
             )
-            for uri in self.results_storage
+            for file_obj in self.results_storage
         ]
         kg_objects = additional_data[:]
 

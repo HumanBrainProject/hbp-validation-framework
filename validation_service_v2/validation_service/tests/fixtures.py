@@ -79,7 +79,14 @@ def _build_sample_result(model_instance_id, test_instance_id):
         "model_instance_id": model_instance_id,
         "test_instance_id": test_instance_id,
         "results_storage": [
-            f"http://example.com/validation_result_{now.strftime('%Y%m%d-%H%M%S')}"
+            {
+                "download_url": f"http://example.com/validation_result_{now.strftime('%Y%m%d-%H%M%S')}"
+            },
+            {
+                "file_store": "drive",
+                "local_path": "/spiketrainsx2.h5",
+                "id": "adavison"
+            }
         ],
         "score": 0.1234,
         "passed": True,

@@ -31,7 +31,7 @@ def check_validation_result(result):
     UUID(result["model_instance_id"])
     UUID(result["test_instance_id"])
     for item in result["results_storage"]:
-        assert_is_valid_url(item)
+        assert_is_valid_url(item["download_url"])
     assert isinstance(result["score"], float)
     if result["passed"]:
         assert isinstance(result["passed"], bool)
