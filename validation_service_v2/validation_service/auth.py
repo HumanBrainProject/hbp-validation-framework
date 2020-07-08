@@ -116,6 +116,8 @@ async def get_collab_permissions_v2(collab_id, user_token):
 
 
 async def is_collab_member(collab_id, user_token):
+    if collab_id is None:
+        return False
     try:
         int(collab_id)
         get_collab_permissions = get_collab_permissions_v1
