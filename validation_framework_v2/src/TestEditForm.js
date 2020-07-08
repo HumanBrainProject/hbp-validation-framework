@@ -275,7 +275,7 @@ export default class TestEditForm extends React.Component {
                                 </Grid>
                                 <Grid item xs={12}>
                                     <PersonSelect name="authors" label="Author(s)" value={this.state.author}
-                                        onChange={this.handleFieldChange} variant="outlined" fullWidth={true} newChipKeyCodes={[13, 186]}
+                                        onChange={this.handleFieldChange} variant="outlined" fullWidth={true} newChipKeys={['Enter', 'Tab', ';']}
                                         helperText="Enter author names separated by semicolon: firstName1 lastName1; firstName2 lastName2" />
                                 </Grid>
                                 <Grid item xs={9}>
