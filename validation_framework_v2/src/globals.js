@@ -1,7 +1,7 @@
-// NOTE: dummy data (in 'dev_data' directory) for DevMode is from v1 APIs; needs to be updated 
+// NOTE: dummy data (in 'dev_data' directory) for DevMode is from v1 APIs; needs to be updated for v2 usage
 export const DevMode = false; // TODO: change to false for production
 export const baseUrl = "https://validation-v2.brainsimulation.eu";
-export const querySizeLimit = 10; //100000;
+export const querySizeLimit = 1000000;
 export const collaboratoryOrigin = 'https://wiki.humanbrainproject.eu';
 export const hashChangedTopic = '/clb/community-app/hashchange';
 export const updateSettingsTopic = '/clb/community-app/settings';
