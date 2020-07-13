@@ -35,7 +35,7 @@ class ResultPerInstanceComboMT extends React.Component {
             // For number of results icon
             <TableCell key="number">
                 {
-                    results_sublist.length > 0 ?
+                    results_sublist.length > 1 ?
                         // to handle the most recent result for (model_instance, test_instance) combo
                         // Note: results are already ordered from latest to oldest
                         <Grid item align="center" onClick={this.toggleExpanded} style={{ cursor: 'pointer' }}>
