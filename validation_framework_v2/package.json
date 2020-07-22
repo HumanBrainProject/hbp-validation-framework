@@ -23,10 +23,13 @@
     "plotly.js-dist": "^1.52.3",
     "react": "^16.11.0",
     "react-dom": "^16.11.0",
+    "react-markdown": "^4.3.1",
+    "react-mathjax": "^1.0.1",
     "react-plotly.js": "2.4.0",
     "react-plotlyjs": "^0.4.4",
     "react-scripts": "^3.3.0",
     "recharts": "^1.8.5",
+    "remark-math": "^2.0.1",
     "styled-components": "^5.1.0"
   },
   "scripts": {

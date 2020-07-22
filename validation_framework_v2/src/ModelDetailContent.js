@@ -188,7 +188,7 @@ class ModelDetailContent extends React.Component {
                     <Grid item xs={12}>
                         <Box>
                             <Typography><b>Description: </b></Typography>
-                            <Markdown>{this.props.description}</Markdown><br /><br />
+                            <Markdown source={this.props.description} /><br /><br />
                         </Box>
                     </Grid>
                     <Grid item xs={12}>
