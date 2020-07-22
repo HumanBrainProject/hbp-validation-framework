@@ -137,7 +137,7 @@ class TestDetailContent extends React.Component {
                                 </Box>
                             ))}
                             <Typography><b>Description: </b></Typography>
-                            <Markdown>{this.props.description}</Markdown><br /><br />
+                            <Markdown source={this.props.description} /><br /><br />
                         </Box>
                     </Grid>
                     <Grid item xs={12}>
