@@ -152,7 +152,7 @@ export function replaceEmptyStringsWithNull(param) {
         return param.map(element => replaceEmptyStringsWithNull(element));
     } else if (typeof(param) === "object") {
         Object.entries(param).map(function ([key, val]) {
-            param[key] = replaceEmptyStringsWithNull(val)
+            return param[key] = replaceEmptyStringsWithNull(val)
         });
         return param
     } else {
