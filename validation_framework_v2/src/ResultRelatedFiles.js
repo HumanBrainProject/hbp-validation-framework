@@ -23,7 +23,8 @@ class ResultFile extends React.Component {
             url: this.props.r_file.download_url,
             filename: this.props.r_file.download_url.split('/').pop().split('#')[0].split('?')[0],
             index: this.props.index + 1,
-            loaded: false
+            loaded: false,
+            valid: null
         }
 
         this.clickPanel = this.clickPanel.bind(this);
@@ -36,9 +37,16 @@ class ResultFile extends React.Component {
             axios.head("https://cors-anywhere.herokuapp.com/" + this.state.url)
                 .then(res => {
                     // console.log(res.headers)
-                    this.setState({ file_size: res.headers["content-length"] })
+                    this.setState({
+                        file_size: res.headers["content-length"],
+                        valid: true
+                    })
                 })
                 .catch(err => {
+                    this.setState({
+                        file_size: res.headers["content-length"],
+                        valid: false
+                    })
                     console.log(err)
                 });
         }
@@ -53,7 +61,7 @@ class ResultFile extends React.Component {
     render() {
         return (
             <Grid style={{ marginBottom: 10 }}>
-                <ExpansionPanel style={{ backgroundColor: Theme.bodyBackground }} onChange={this.clickPanel}>
+                <ExpansionPanel style={{ backgroundColor: Theme.bodyBackground }} onChange={this.clickPanel} >
                     <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />} style={{ backgroundColor: Theme.lightBackground }}>
                         <Grid container justify="space-between" align-items="center" fontSize={16} my={0} py={0} fontWeight="fontWeightBold">
                             <Grid item>
@@ -65,16 +73,40 @@ class ResultFile extends React.Component {
                             </Grid>
                             <Grid item>
                                 <Link underline="none" style={{ cursor: 'pointer' }} href={this.state.url} target="_blank" rel="noopener noreferrer">
-                                    <Button variant="contained" size="small" style={{ backgroundColor: Theme.buttonPrimary }} onClick={() => this.setState({ openAddInstanceForm: true })}>
-                                        Download
+                                    {this.state.valid &&
+                                        <Button variant="contained" size="small" style={{ backgroundColor: Theme.buttonPrimary }} onClick={() => this.setState({ openAddInstanceForm: true })}>
+                                            Download
 								    </Button>
+                                    }
                                 </Link>
                             </Grid>
                         </Grid>
                     </ExpansionPanelSummary>
                     <ExpansionPanelDetails>
                         <Box style={{ width: "100%" }} my={2} >
-                            {this.state.loaded && <iframe id={"iFrame_" + this.props.index} style={{ width: "100%", height: "400px" }} src={this.state.url} />}
+                            {/* check to avoid loading file if not requested by clicking on the exapansion panel */}
+                            {/* If file is accessible (valid = true) */}
+                            {this.state.loaded && this.state.valid && <iframe id={"iFrame_" + this.props.index} style={{ width: "100%", height: "400px" }} src={this.state.url} />}
+                            {/* If file is inaccessible (valid = false) */}
+                            {this.state.loaded && this.state.valid===false &&
+                                <div>
+                                    <Typography variant="body2"><strong>File URL: </strong>{this.state.url}</Typography>
+                                    <br/>
+                                    <Typography variant="body2" style={{ color: "red" }}>
+                                        This file is currently not accessible!
+                                    </Typography>
+                                </div>
+                            }
+                            {/* If file is still being evaluated (valid = null) */}
+                            {this.state.loaded && this.state.valid===null &&
+                                <div>
+                                    <Typography variant="body2"><strong>File URL: </strong>{this.state.url}</Typography>
+                                    <br/>
+                                    <Typography variant="body2">
+                                        Loading...
+                                    </Typography>
+                                </div>
+                            }
                         </Box>
                     </ExpansionPanelDetails>
                 </ExpansionPanel >
