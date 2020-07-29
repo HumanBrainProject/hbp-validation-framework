@@ -170,7 +170,7 @@ class TestTable extends React.Component {
                             responsive: 'stacked', // 'scrollMaxHeight', 'scrollFullHeight', 'scrollFullHeightFullWidth', 'stackedFullWidth'
                             downloadOptions: { filename: 'selectedTests.csv', separator: ',', filterOptions: { useDisplayedRowsOnly: true } },
                             customToolbar: () => {
-                                return <MUIDataTableCustomToolbar display={this.props.display} changeTableWidth={this.props.changeTableWidth} tableType="tests" addNew={this.props.openAddTestForm} />;
+                                return <MUIDataTableCustomToolbar display={this.props.display} changeTableWidth={this.props.changeTableWidth} tableType="tests" addNew={this.props.openAddTestForm} openCompareResults={this.props.openCompareResults} />;
                             },
                             customToolbarSelect: (selectedRows) => <CustomToolbarSelect selectedRows={selectedRows} downloadSelectedJSON={this.downloadSelectedJSON} hideTableRows={this.hideTableRows} viewSelectedItems={this.viewSelectedItems} />
                         }}

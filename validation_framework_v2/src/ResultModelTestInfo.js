@@ -2,9 +2,9 @@ import React from 'react';
 import Grid from '@material-ui/core/Grid';
 import Box from '@material-ui/core/Box';
 import { Typography } from '@material-ui/core';
-import ExpansionPanel from "@material-ui/core/ExpansionPanel";
-import ExpansionPanelSummary from "@material-ui/core/ExpansionPanelSummary";
-import ExpansionPanelDetails from "@material-ui/core/ExpansionPanelDetails";
+import Accordion from '@material-ui/core/Accordion';
+import AccordionSummary from '@material-ui/core/AccordionSummary'
+import AccordionDetails from '@material-ui/core/AccordionDetails'
 import Paper from '@material-ui/core/Paper';
 import Table from '@material-ui/core/Table';
 import TableHead from '@material-ui/core/TableHead';
@@ -62,15 +62,15 @@ class ResultModelTestInfo extends React.Component {
         return (
             <Grid container spacing={4}>
                 <Grid item xs={12}>
-                    <ExpansionPanel defaultExpanded={true} style={{ backgroundColor: Theme.lightBackground }}>
-                        <ExpansionPanelSummary
+                    <Accordion defaultExpanded={true} style={{ backgroundColor: Theme.lightBackground }}>
+                        <AccordionSummary
                             expandIcon={<ExpandMoreIcon />}
                             aria-controls="panel1a-content"
                             id="panel_model_test_common"
                         >
                             <Typography variant="subtitle1"><b>Model & Test: Common Parameters</b></Typography>
-                        </ExpansionPanelSummary>
-                        <ExpansionPanelDetails>
+                        </AccordionSummary>
+                        <AccordionDetails>
                             <Grid container item xs={12}>
                                 <TableContainer component={Paper}>
                                     <Table style={{ width: 'auto', tableLayout: 'auto' }}>
@@ -89,19 +89,19 @@ class ResultModelTestInfo extends React.Component {
                                     </Table>
                                 </TableContainer>
                             </Grid>
-                        </ExpansionPanelDetails>
-                    </ExpansionPanel>
+                        </AccordionDetails>
+                    </Accordion>
                 </Grid>
                 <Grid item xs={12}>
-                    <ExpansionPanel defaultExpanded={true} style={{ backgroundColor: Theme.lightBackground }}>
-                        <ExpansionPanelSummary
+                    <Accordion defaultExpanded={true} style={{ backgroundColor: Theme.lightBackground }}>
+                        <AccordionSummary
                             expandIcon={<ExpandMoreIcon />}
                             aria-controls="panel1a-content"
                             id="panel_model_test_others"
                         >
                             <Typography variant="subtitle1"><b>Model & Test: Other Parameters</b></Typography>
-                        </ExpansionPanelSummary>
-                        <ExpansionPanelDetails>
+                        </AccordionSummary>
+                        <AccordionDetails>
                             <Grid container spacing={2}>
                                 <Grid item xs={6}>
                                     <TableContainer component={Paper}>
@@ -136,19 +136,19 @@ class ResultModelTestInfo extends React.Component {
                                     </TableContainer>
                                 </Grid>
                             </Grid>
-                        </ExpansionPanelDetails>
-                    </ExpansionPanel>
+                        </AccordionDetails>
+                    </Accordion>
                 </Grid>
                 <Grid item xs={12}>
-                    <ExpansionPanel defaultExpanded={true} style={{ backgroundColor: Theme.lightBackground }}>
-                        <ExpansionPanelSummary
+                    <Accordion defaultExpanded={true} style={{ backgroundColor: Theme.lightBackground }}>
+                        <AccordionSummary
                             expandIcon={<ExpandMoreIcon />}
                             aria-controls="panel1a-content"
                             id="panel_model_test_common"
                         >
                             <Typography variant="subtitle1"><b>Model & Test: Descriptions</b></Typography>
-                        </ExpansionPanelSummary>
-                        <ExpansionPanelDetails>
+                        </AccordionSummary>
+                        <AccordionDetails>
                                 <TableContainer component={Paper}>
                                     <Table>
                                         <TableBody>
@@ -167,19 +167,19 @@ class ResultModelTestInfo extends React.Component {
                                         </TableBody>
                                     </Table>
                                 </TableContainer>
-                        </ExpansionPanelDetails>
-                    </ExpansionPanel>
+                        </AccordionDetails>
+                    </Accordion>
                 </Grid>
                 <Grid item xs={12}>
-                    <ExpansionPanel defaultExpanded={true} style={{ backgroundColor: Theme.lightBackground }}>
-                        <ExpansionPanelSummary
+                    <Accordion defaultExpanded={true} style={{ backgroundColor: Theme.lightBackground }}>
+                        <AccordionSummary
                             expandIcon={<ExpandMoreIcon />}
                             aria-controls="panel1a-content"
                             id="panel_model_test_instance_common"
                         >
                             <Typography variant="subtitle1"><b>Model & Test Instance: Common Parameters</b></Typography>
-                        </ExpansionPanelSummary>
-                        <ExpansionPanelDetails>
+                        </AccordionSummary>
+                        <AccordionDetails>
                             <TableContainer component={Paper}>
                                 <Table>
                                     <TableHead>
@@ -196,19 +196,19 @@ class ResultModelTestInfo extends React.Component {
                                     </TableBody>
                                 </Table>
                             </TableContainer>
-                        </ExpansionPanelDetails>
-                    </ExpansionPanel>
+                        </AccordionDetails>
+                    </Accordion>
                 </Grid>
                 <Grid item xs={12}>
-                    <ExpansionPanel defaultExpanded={true} style={{ backgroundColor: Theme.lightBackground }}>
-                        <ExpansionPanelSummary
+                    <Accordion defaultExpanded={true} style={{ backgroundColor: Theme.lightBackground }}>
+                        <AccordionSummary
                             expandIcon={<ExpandMoreIcon />}
                             aria-controls="panel1a-content"
                             id="panel_model_test_instance_others"
                         >
                             <Typography variant="subtitle1"><b>Model & Test Instance: Other Parameters</b></Typography>
-                        </ExpansionPanelSummary>
-                        <ExpansionPanelDetails>
+                        </AccordionSummary>
+                        <AccordionDetails>
                             <Grid container spacing={2}>
                                 <Grid item xs={6}>
                                     <TableContainer component={Paper}>
@@ -243,19 +243,19 @@ class ResultModelTestInfo extends React.Component {
                                     </TableContainer>
                                 </Grid>
                             </Grid>
-                        </ExpansionPanelDetails>
-                    </ExpansionPanel>
+                        </AccordionDetails>
+                    </Accordion>
                 </Grid>
                 <Grid item xs={12}>
-                    <ExpansionPanel defaultExpanded={true} style={{ backgroundColor: Theme.lightBackground }}>
-                        <ExpansionPanelSummary
+                    <Accordion defaultExpanded={true} style={{ backgroundColor: Theme.lightBackground }}>
+                        <AccordionSummary
                             expandIcon={<ExpandMoreIcon />}
                             aria-controls="panel1a-content"
                             id="panel_model_test_common"
                         >
                             <Typography variant="subtitle1"><b>Model & Test Instance: Descriptions</b></Typography>
-                        </ExpansionPanelSummary>
-                        <ExpansionPanelDetails>
+                        </AccordionSummary>
+                        <AccordionDetails>
                                 <TableContainer component={Paper}>
                                     <Table>
                                         <TableBody>
@@ -274,8 +274,8 @@ class ResultModelTestInfo extends React.Component {
                                         </TableBody>
                                     </Table>
                                 </TableContainer>
-                        </ExpansionPanelDetails>
-                    </ExpansionPanel>
+                        </AccordionDetails>
+                    </Accordion>
                 </Grid>
             </Grid>
         );

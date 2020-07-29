@@ -2,9 +2,9 @@ import React from 'react';
 import Grid from '@material-ui/core/Grid';
 import { Typography } from '@material-ui/core';
 import Container from '@material-ui/core/Container';
-import ExpansionPanel from "@material-ui/core/ExpansionPanel";
-import ExpansionPanelSummary from "@material-ui/core/ExpansionPanelSummary";
-import ExpansionPanelDetails from "@material-ui/core/ExpansionPanelDetails";
+import Accordion from '@material-ui/core/Accordion';
+import AccordionSummary from '@material-ui/core/AccordionSummary'
+import AccordionDetails from '@material-ui/core/AccordionDetails'
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
@@ -76,15 +76,15 @@ function ResultsFiguresTestIntance(props) {
     };
 
     return (
-        <ExpansionPanel defaultExpanded={true} key={props.test_inst_id} style={{ backgroundColor: Theme.lightBackground }}>
-            <ExpansionPanelSummary
+        <Accordion defaultExpanded={true} key={props.test_inst_id} style={{ backgroundColor: Theme.lightBackground }}>
+            <AccordionSummary
                 expandIcon={<ExpandMoreIcon />}
                 aria-controls="panel1a-content"
                 id={props.test_inst_id}
             >
                 <Typography variant="subtitle1">Test Version: <b>{props.test_inst_entry.test_version}</b></Typography>
-            </ExpansionPanelSummary>
-            <ExpansionPanelDetails>
+            </AccordionSummary>
+            <AccordionDetails>
                 <Container>
                     <TableContainer component={Paper}>
                         <Table>
@@ -108,8 +108,8 @@ function ResultsFiguresTestIntance(props) {
                         </Table>
                     </TableContainer>
                 </Container>
-            </ExpansionPanelDetails>
-        </ExpansionPanel>
+            </AccordionDetails>
+        </Accordion>
     )
 }
 
@@ -311,15 +311,15 @@ export default class ResultGraphs extends React.Component {
                 <Grid container>
                     <Grid item>
                         {test_ids.map((test_id) =>
-                            <ExpansionPanel defaultExpanded={true} key={test_id} style={{ backgroundColor: Theme.tableHeader }}>
-                                <ExpansionPanelSummary
+                            <Accordion defaultExpanded={true} key={test_id} style={{ backgroundColor: Theme.tableHeader }}>
+                                <AccordionSummary
                                     expandIcon={<ExpandMoreIcon />}
                                     aria-controls="panel1a-content"
                                     id={test_id}
                                 >
                                     <Typography variant="subtitle1">Test: <b>{dict_results[test_id].test_alias ? dict_results[test_id].test_alias : dict_results[test_id].test_name}</b></Typography>
-                                </ExpansionPanelSummary>
-                                <ExpansionPanelDetails>
+                                </AccordionSummary>
+                                <AccordionDetails>
                                     {Object.entries(dict_results[test_id]["test_instances"]).map(([test_inst_id, test_inst_entry]) =>
                                         <Grid container key={test_inst_id}>
                                             <Grid item>
@@ -332,8 +332,8 @@ export default class ResultGraphs extends React.Component {
                                             </Grid>
                                         </Grid>
                                     )}
-                                </ExpansionPanelDetails>
-                            </ExpansionPanel>
+                                </AccordionDetails>
+                            </Accordion>
                         )}
                     </Grid>
                 </Grid>

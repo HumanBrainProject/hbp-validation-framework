@@ -170,7 +170,7 @@ class ModelTable extends React.Component {
                             responsive: 'stacked', // 'scrollMaxHeight', 'scrollFullHeight', 'scrollFullHeightFullWidth', 'stackedFullWidth'
                             downloadOptions: { filename: 'selectedModels.csv', separator: ',', filterOptions: { useDisplayedRowsOnly: true } },
                             customToolbar: () => {
-                                return <MUIDataTableCustomToolbar display={this.props.display} changeTableWidth={this.props.changeTableWidth} tableType="models" addNew={this.props.openAddModelForm} />;
+                                return <MUIDataTableCustomToolbar display={this.props.display} changeTableWidth={this.props.changeTableWidth} tableType="models" addNew={this.props.openAddModelForm} openCompareResults={this.props.openCompareResults} />;
                             },
                             customToolbarSelect: (selectedRows) => <CustomToolbarSelect selectedRows={selectedRows} downloadSelectedJSON={this.downloadSelectedJSON} hideTableRows={this.hideTableRows} viewSelectedItems={this.viewSelectedItems} />
                         }}

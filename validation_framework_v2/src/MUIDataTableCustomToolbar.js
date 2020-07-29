@@ -3,6 +3,7 @@ import IconButton from "@material-ui/core/IconButton";
 import Tooltip from "@material-ui/core/Tooltip";
 import FlipIcon from "@material-ui/icons/Flip";
 import AddIcon from '@material-ui/icons/Add';
+import AccountTreeIcon from '@material-ui/icons/AccountTree';
 import { withStyles } from "@material-ui/core/styles";
 
 const defaultToolbarStyles = {
@@ -23,6 +24,11 @@ class CustomToolbar extends React.Component {
 							<FlipIcon />
 						</IconButton>
 					</Tooltip>
+					<Tooltip title={"Compare Validation Results"}>
+						<IconButton onClick={this.props.openCompareResults}>
+							<AccountTreeIcon />
+						</IconButton>
+					</Tooltip>
 					<Tooltip title={this.props.tableType === "models" ? "Add New Model" : "Add New Test"}>
 						<IconButton onClick={this.props.addNew}>
 							<AddIcon />
@@ -33,6 +39,11 @@ class CustomToolbar extends React.Component {
 		} else {
 			return (
 				<React.Fragment>
+					<Tooltip title={"Compare Validation Results"}>
+						<IconButton onClick={this.props.openCompareResults}>
+							<AccountTreeIcon />
+						</IconButton>
+					</Tooltip>
 					<Tooltip title={this.props.tableType === "models" ? "Add New Model" : "Add New Test"}>
 						<IconButton onClick={this.props.addNew}>
 							<AddIcon />
