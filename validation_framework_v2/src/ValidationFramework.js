@@ -174,6 +174,7 @@ class ValidationFramework extends React.Component {
         this.modelTableFullWidth = this.modelTableFullWidth.bind(this);
         this.testTableFullWidth = this.testTableFullWidth.bind(this);
         this.openCompareResults = this.openCompareResults.bind(this);
+        this.closeCompareResults = this.closeCompareResults.bind(this);
         this.openAddModelForm = this.openAddModelForm.bind(this);
         this.openAddTestForm = this.openAddTestForm.bind(this);
         this.handleAddModelFormClose = this.handleAddModelFormClose.bind(this);
@@ -194,6 +195,10 @@ class ValidationFramework extends React.Component {
 
     openCompareResults() {
         this.setState({ 'compareResultsOpen': true })
+    }
+
+    closeCompareResults() {
+        this.setState({ 'compareResultsOpen': false })
     }
 
     openAddModelForm() {
@@ -766,7 +771,7 @@ class ValidationFramework extends React.Component {
         }
 
         if (this.state.compareResultsOpen) {
-            compareResults = <CompareMultiResults open={this.state.compareResultsOpen} />
+            compareResults = <CompareMultiResults open={this.state.compareResultsOpen} onClose={this.closeCompareResults} />
         }
 
         if (this.state.addModelFormOpen) {
@@ -801,6 +806,9 @@ class ValidationFramework extends React.Component {
                     </div>
                     <div>
                         {resultDetail}
+                    </div>
+                    <div>
+                        {compareResults}
                     </div>
                     <div>
                         {addModel}
