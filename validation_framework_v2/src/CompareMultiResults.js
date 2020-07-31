@@ -97,6 +97,9 @@ class CompareMultiResults extends React.Component {
                     }
                 }
             },
+            model_inst_ids: [],
+            test_inst_ids: [],
+            results: [],
             total_models: 0,
             total_model_insts: 0,
             total_tests: 0,
@@ -113,42 +116,48 @@ class CompareMultiResults extends React.Component {
         this.handleTestDeleteClick = this.handleTestDeleteClick.bind(this);
         this.evalModelDict = this.evalModelDict.bind(this);
         this.evalTestDict = this.evalTestDict.bind(this);
-        this.updateCounts = this.updateCounts.bind(this);
+        this.fetchModelResults = this.fetchModelResults.bind(this);
+        this.fetchTestResults = this.fetchTestResults.bind(this);
         this.fetchResults = this.fetchResults.bind(this);
         this.launchCompare = this.launchCompare.bind(this);
     }
 
     evalModelDict() {
-        let count_models = Object.keys(this.state.model_dict).length
-        let count_model_insts = 0;
+        let model_inst_ids = [];
         for (let m_key in this.state.model_dict) {
-            count_model_insts = count_model_insts + Object.keys(this.state.model_dict[m_key].selected_instances).length
+            model_inst_ids = model_inst_ids.concat(Object.keys(this.state.model_dict[m_key].selected_instances))
         }
-        return [count_models, count_model_insts]
-    }
 
-    evalTestDict() {
-        let count_tests = Object.keys(this.state.test_dict).length
-        let count_test_insts = 0;
-        for (let t_key in this.state.test_dict) {
-            count_test_insts = count_test_insts + Object.keys(this.state.test_dict[t_key].selected_instances).length
-        }
-        return [count_tests, count_test_insts]
-    }
+        let count_models = Object.keys(this.state.model_dict).length
+        let count_model_insts = model_inst_ids.length;
 
-    updateCounts() {
-        let [count_models, count_model_insts] = this.evalModelDict();
-        let [count_tests, count_test_insts] = this.evalTestDict();
         this.setState({
             total_models: count_models,
             total_model_insts: count_model_insts,
-            total_tests: count_tests,
-            total_test_insts: count_test_insts
+            model_inst_ids: model_inst_ids
         })
+        return Promise.resolve()
     }
 
-    fetchResults() {
-        let url = baseUrl + "/results-extended/?model_id=" + this.props.modelData.id + "&size=" + querySizeLimit;
+    evalTestDict() {
+        let test_inst_ids = [];
+        for (let t_key in this.state.test_dict) {
+            test_inst_ids = test_inst_ids.concat(Object.keys(this.state.test_dict[t_key].selected_instances))
+        }
+
+        let count_tests = Object.keys(this.state.test_dict).length
+        let count_test_insts = test_inst_ids.length;
+
+        this.setState({
+            total_tests: count_tests,
+            total_test_insts: count_test_insts,
+            test_inst_ids: test_inst_ids
+        })
+        return Promise.resolve()
+    }
+
+    fetchModelResults() {
+        let url = baseUrl + "/results/?model_instance_id=" + this.state.model_inst_ids.join('&model_instance_id=') + "&size=" + querySizeLimit;
         let config = {
             cancelToken: this.signal.token,
             headers: {
@@ -157,11 +166,9 @@ class CompareMultiResults extends React.Component {
         }
         return axios.get(url, config)
             .then(res => {
-                this.setState({
-                    results: res.data,
-                    loadingResult: false,
-                    error: null
-                });
+                console.log("A");
+                return res.data;
+                console.log(res);
             })
             .catch(err => {
                 if (axios.isCancel(err)) {
@@ -169,21 +176,97 @@ class CompareMultiResults extends React.Component {
                 } else {
                     // Something went wrong. Save the error in state and re-render.
                     this.setState({
-                        loadingResult: false,
-                        error: err
+                        // loadingResult: false,
+                        // error: err
                     });
                 }
             }
             );
     }
 
-    launchCompare(compare_type) {
-        this.setState({ compareShow: compare_type })
+    fetchTestResults() {
+        let url = baseUrl + "/results/?test_instance_id=" + this.state.test_inst_ids.join('&test_instance_id=') + "&size=" + querySizeLimit;
+        let config = {
+            cancelToken: this.signal.token,
+            headers: {
+                'Authorization': 'Bearer ' + this.state.auth.token,
+            }
+        }
+        return axios.get(url, config)
+            .then(res => {
+                console.log("B");
+                return res.data;
+                console.log(res);
+            })
+            .catch(err => {
+                if (axios.isCancel(err)) {
+                    console.log('Error: ', err.message);
+                } else {
+                    // Something went wrong. Save the error in state and re-render.
+                    this.setState({
+                        // loadingResult: false,
+                        // error: err
+                    });
+                }
+            }
+            );
     }
 
+    async fetchResults() {
+        let results = [];
+        if (this.state.total_model_insts !== 0) {
+            // fetch model results if:
+            // - only models specified (no tests)
+            // - both models and tests specified; we will retrieve results by models and then filter them by tests
+            results = await this.fetchModelResults()
+        }
+        else if (this.state.total_model_insts === 0 && this.state.total_test_insts !== 0) {
+            // fetch test results if:
+            // - only tests specified (no models)
+            results = await this.fetchTestResults()
+        }
+
+        console.log(results);
+        // if both models and tests specified, filter results (obtained from models) by tests
+        let filtered_results = [];
+        let test_inst_ids = this.state.test_inst_ids;
+        if (this.state.total_model_insts !== 0 && this.state.total_test_insts !== 0) {
+            results.forEach(function (result) {
+                if (test_inst_ids.indexOf(result.test_instance_id) > -1) {
+                    filtered_results.push(result)
+                }
+            });
+        }
+
+        console.log(filtered_results);
+        this.setState({
+            results: filtered_results
+        })
+
+    }
+
+    async launchCompare(compare_type) {
+        this.setState({
+            compareShow: compare_type
+        })
+
+        if (compare_type === "common") {
+
+        } else {
+
+        }
+    }
+
+
+
     componentDidMount() {
-        this.updateCounts();
-        this.fetchResults();
+        const promise1 = this.evalModelDict();
+        const promise2 = this.evalTestDict();
+        Promise.allSettled([promise1, promise2]).then(() => {
+            if (this.state.total_model_insts !== 0 || this.state.total_test_insts !== 0) {
+                this.fetchResults()
+            }
+        });
     }
 
     handleModelClick(m_key) {
@@ -214,7 +297,7 @@ class CompareMultiResults extends React.Component {
                     }
                 }
                 this.setState({ model_dict: model_dict })
-                this.updateCounts();
+                this.evalModelDict();
             }
         }
     }
@@ -231,12 +314,16 @@ class CompareMultiResults extends React.Component {
                     }
                 }
                 this.setState({ test_dict: test_dict })
-                this.updateCounts();
+                this.evalTestDict();
             }
         }
     }
 
     render() {
+        console.log(this.state.model_inst_ids)
+        console.log(this.state.test_inst_ids)
+        console.log(this.state.results)
+
         return (
             <Dialog fullScreen onClose={this.props.onClose}
                 aria-labelledby="simple-dialog-title"
@@ -442,13 +529,13 @@ class CompareMultiResults extends React.Component {
                             <Grid container spacing={3} style={{ marginTop: "50px" }}>
                                 <Grid item xs={12} align="center">
                                     <Box display="flex" justifyContent="space-around" alignItems="center" style={{ maxWidth: "800px" }}>
-                                        <Button disabled={!this.state.compareShow} variant="contained" style={{ backgroundColor: Theme.disabledColor, width: "250px" }} onClick={() => this.setState({ compareShow: false })}>
+                                        <Button disabled={Boolean(!this.state.compareShow)} variant="contained" style={{ backgroundColor: Theme.disabledColor, width: "250px" }} onClick={() => this.setState({ compareShow: false })}>
                                             Clear Results
 								        </Button>
-                                        <Button disabled={this.state.compareShow} variant="contained" style={{ backgroundColor: Theme.buttonSecondary, width: "250px" }} onClick={() => this.launchCompare("common")}>
+                                        <Button disabled={Boolean(this.state.compareShow)} variant="contained" style={{ backgroundColor: Theme.buttonSecondary, width: "250px" }} onClick={() => this.launchCompare("common")}>
                                             Compare Results (Common)
 								        </Button>
-                                        <Button disabled={this.state.compareShow} variant="contained" style={{ backgroundColor: Theme.buttonPrimary, width: "250px" }} onClick={() => this.launchCompare("all")}>
+                                        <Button disabled={Boolean(this.state.compareShow)} variant="contained" style={{ backgroundColor: Theme.buttonPrimary, width: "250px" }} onClick={() => this.launchCompare("all")}>
                                             Compare Results (All)
 								        </Button>
                                     </Box>
