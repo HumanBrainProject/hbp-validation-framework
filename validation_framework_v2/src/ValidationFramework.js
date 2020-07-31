@@ -767,7 +767,7 @@ class ValidationFramework extends React.Component {
         }
 
         if (this.state.currentResult) {
-            resultDetail = <ResultDetail open={this.state.resultDetailOpen} result={this.state.currentResult} onClose={this.handleResultDetailClose} auth={this.props.auth} />;
+            resultDetail = <ResultDetail open={this.state.resultDetailOpen} result={this.state.currentResult} onClose={this.handleResultDetailClose} />;
         }
 
         if (this.state.compareResultsOpen) {

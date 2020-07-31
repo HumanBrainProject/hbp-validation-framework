@@ -13,6 +13,7 @@ import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import Box from '@material-ui/core/Box';
 import Theme from './theme';
+import ContextMain from './ContextMain';
 
 import axios from 'axios';
 
@@ -85,15 +86,19 @@ const MyDialogTitle = withStyles(styles)(props => {
 
 export default class ModelDetail extends React.Component {
     signal = axios.CancelToken.source();
+    static contextType = ContextMain;
 
-    constructor(props) {
-        super(props);
+    constructor(props, context) {
+        super(props, context);
+        const [authContext,] = this.context.auth;
+
         this.state = {
             tabValue: 0,
             results: null,
             loadingResult: true,
             error: null,
-            modelData: this.props.modelData
+            modelData: this.props.modelData,
+            auth: authContext
         };
         if (DevMode) {
             this.state['results'] = result_data.results;
@@ -133,7 +138,7 @@ export default class ModelDetail extends React.Component {
         let config = {
             cancelToken: this.signal.token,
             headers: {
-                'Authorization': 'Bearer ' + this.props.auth.token,
+                'Authorization': 'Bearer ' + this.state.auth.token,
             }
         }
         return axios.get(url, config)

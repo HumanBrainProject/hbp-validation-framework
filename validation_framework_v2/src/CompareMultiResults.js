@@ -4,6 +4,8 @@ import Dialog from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
 import MuiDialogTitle from '@material-ui/core/DialogTitle';
 import Grid from '@material-ui/core/Grid';
+import Box from "@material-ui/core/Box";
+import Button from '@material-ui/core/Button';
 import IconButton from '@material-ui/core/IconButton';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
@@ -23,6 +25,9 @@ import StarIcon from '@material-ui/icons/Star';
 import { withSnackbar } from 'notistack';
 import React from 'react';
 import Theme from './theme';
+import ContextMain from './ContextMain';
+import axios from 'axios';
+import { baseUrl, querySizeLimit } from "./globals";
 
 const styles = theme => ({
     root: {
@@ -52,11 +57,18 @@ const MyDialogTitle = withStyles(styles)(props => {
 });
 
 class CompareMultiResults extends React.Component {
-    constructor(props) {
-        super(props);
-        // dict = { uuid : { name: NAME, 
+    signal = axios.CancelToken.source();
+    static contextType = ContextMain;
+
+    constructor(props, context) {
+        super(props, context);
+        const [authContext,] = this.context.auth;
+
+        // dict = { uuid : { name: NAME,
         //                   selected_instances: { inst1_uuid : INST1_NAME,  inst2_uuid : INST2_NAME, ...} }, ... }
         this.state = {
+            // model_dict: {},
+            // test_dict: {},
             model_dict: {
                 "00f2e856-27a8-4b8d-9ec3-4e2581c546e4": {
                     "name": "CA1_pyr_cACpyr_mpg141208_B_idA_20170915151855",
@@ -90,7 +102,9 @@ class CompareMultiResults extends React.Component {
             total_tests: 0,
             total_test_insts: 0,
             open_models: [],
-            open_tests: []
+            open_tests: [],
+            compareShow: false,
+            auth: authContext
         };
 
         this.handleModelClick = this.handleModelClick.bind(this);
@@ -100,6 +114,8 @@ class CompareMultiResults extends React.Component {
         this.evalModelDict = this.evalModelDict.bind(this);
         this.evalTestDict = this.evalTestDict.bind(this);
         this.updateCounts = this.updateCounts.bind(this);
+        this.fetchResults = this.fetchResults.bind(this);
+        this.launchCompare = this.launchCompare.bind(this);
     }
 
     evalModelDict() {
@@ -131,8 +147,43 @@ class CompareMultiResults extends React.Component {
         })
     }
 
+    fetchResults() {
+        let url = baseUrl + "/results-extended/?model_id=" + this.props.modelData.id + "&size=" + querySizeLimit;
+        let config = {
+            cancelToken: this.signal.token,
+            headers: {
+                'Authorization': 'Bearer ' + this.state.auth.token,
+            }
+        }
+        return axios.get(url, config)
+            .then(res => {
+                this.setState({
+                    results: res.data,
+                    loadingResult: false,
+                    error: null
+                });
+            })
+            .catch(err => {
+                if (axios.isCancel(err)) {
+                    console.log('Error: ', err.message);
+                } else {
+                    // Something went wrong. Save the error in state and re-render.
+                    this.setState({
+                        loadingResult: false,
+                        error: err
+                    });
+                }
+            }
+            );
+    }
+
+    launchCompare(compare_type) {
+        this.setState({ compareShow: compare_type })
+    }
+
     componentDidMount() {
         this.updateCounts();
+        this.fetchResults();
     }
 
     handleModelClick(m_key) {
@@ -331,9 +382,104 @@ class CompareMultiResults extends React.Component {
 
                             </Grid>
                         </Grid>
+                        {
+                            (this.state.total_model_insts === 0 && this.state.total_test_insts === 0)
+                            &&
+                            <Grid container spacing={3}>
+                                <Grid item xs={12}>
+                                    <Box display="flex" justifyContent="center" alignItems="center">
+                                        <Typography variant="h6">
+                                            <br /><br />
+                                            Please select models and/or tests to compare!
+                                        </Typography>
+                                    </Box>
+                                </Grid>
+                                <Grid item xs={12} align="center">
+                                    <Box display="flex" justifyContent="center" alignItems="center" style={{ maxWidth: "1000px" }}>
+                                        <Typography variant="subtitle1">
+                                            <br />
+                                            <strong>Note: </strong><br />
+                                            If no tests are selected, then all validation tests associated with the selected models will be automatically chosen.<br />
+                                            Similarly, if no models are selected, then all models associated with the selected tests will be automatically chosen.
+                                        </Typography>
+                                    </Box>
+                                </Grid>
+                            </Grid>
+                        }
+                        {
+                            (this.state.total_model_insts === 0 && this.state.total_test_insts !== 0)
+                            &&
+                            <Grid container spacing={3}>
+                                <Grid item xs={12} align="center">
+                                    <Box display="flex" justifyContent="center" alignItems="center" style={{ maxWidth: "1000px" }}>
+                                        <Typography variant="subtitle1">
+                                            <br />
+                                            <strong>Note: </strong>
+                                            Since no models were selected, all models associated with the selected tests will be automatically chosen.
+                                        </Typography>
+                                    </Box>
+                                </Grid>
+                            </Grid>
+                        }
+                        {
+                            (this.state.total_model_insts !== 0 && this.state.total_test_insts === 0)
+                            &&
+                            <Grid container spacing={3}>
+                                <Grid item xs={12} align="center">
+                                    <Box display="flex" justifyContent="center" alignItems="center" style={{ maxWidth: "1000px" }}>
+                                        <Typography variant="subtitle1">
+                                            <br />
+                                            <strong>Note: </strong>
+                                            Since no tests were selected, all tests associated with the selected models will be automatically chosen.
+                                        </Typography>
+                                    </Box>
+                                </Grid>
+                            </Grid>
+                        }
+                        {
+                            (this.state.total_model_insts !== 0 || this.state.total_test_insts !== 0)
+                            &&
+                            <Grid container spacing={3} style={{ marginTop: "50px" }}>
+                                <Grid item xs={12} align="center">
+                                    <Box display="flex" justifyContent="space-around" alignItems="center" style={{ maxWidth: "800px" }}>
+                                        <Button disabled={!this.state.compareShow} variant="contained" style={{ backgroundColor: Theme.disabledColor, width: "250px" }} onClick={() => this.setState({ compareShow: false })}>
+                                            Clear Results
+								        </Button>
+                                        <Button disabled={this.state.compareShow} variant="contained" style={{ backgroundColor: Theme.buttonSecondary, width: "250px" }} onClick={() => this.launchCompare("common")}>
+                                            Compare Results (Common)
+								        </Button>
+                                        <Button disabled={this.state.compareShow} variant="contained" style={{ backgroundColor: Theme.buttonPrimary, width: "250px" }} onClick={() => this.launchCompare("all")}>
+                                            Compare Results (All)
+								        </Button>
+                                    </Box>
+                                </Grid>
+                            </Grid>
+                        }
+                        {
+                            (this.state.compareShow === "common")
+                            &&
+                            <Grid container spacing={3} style={{ marginTop: "50px" }}>
+                                <Grid item xs={12} align="center">
+                                    <Typography variant="subtitle1">
+                                        <strong>Showing only common results!</strong>
+                                    </Typography>
+                                </Grid>
+                            </Grid>
+                        }
+                        {
+                            (this.state.compareShow === "all")
+                            &&
+                            <Grid container spacing={3} style={{ marginTop: "25px" }}>
+                                <Grid item xs={12} align="center">
+                                    <Typography variant="subtitle1">
+                                        <strong>Showing all results!</strong>
+                                    </Typography>
+                                </Grid>
+                            </Grid>
+                        }
                     </Grid>
                 </DialogContent>
-            </Dialog>
+            </Dialog >
         );
     }
 }
