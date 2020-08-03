@@ -176,7 +176,7 @@ export default class ModelResultOverview extends React.Component {
     }
 
     groupResults = (list_model_versions, results) => {
-        // will be a 3-D dict {test -> test instance -> model instance} with list as values
+        // will be a 3-D dict {test -> test instance -> model instance} with list of results as values
         var dict_results = {};
 
         // sorting list_model_versions by timestamp (oldest to newest)
