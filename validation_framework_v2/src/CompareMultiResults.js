@@ -1,11 +1,11 @@
 import Avatar from '@material-ui/core/Avatar';
+import Box from "@material-ui/core/Box";
+import Button from '@material-ui/core/Button';
 import Collapse from '@material-ui/core/Collapse';
 import Dialog from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
 import MuiDialogTitle from '@material-ui/core/DialogTitle';
 import Grid from '@material-ui/core/Grid';
-import Box from "@material-ui/core/Box";
-import Button from '@material-ui/core/Button';
 import IconButton from '@material-ui/core/IconButton';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
@@ -14,6 +14,13 @@ import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
 import ListItemText from '@material-ui/core/ListItemText';
 import { withStyles } from '@material-ui/core/styles';
+import Table from '@material-ui/core/Table';
+import TableBody from '@material-ui/core/TableBody';
+import TableCell from '@material-ui/core/TableCell';
+import TableContainer from '@material-ui/core/TableContainer';
+import TableHead from '@material-ui/core/TableHead';
+import TableRow from '@material-ui/core/TableRow';
+import Tooltip from '@material-ui/core/Tooltip';
 import Typography from '@material-ui/core/Typography';
 import AccountTreeIcon from '@material-ui/icons/AccountTree';
 import CloseIcon from '@material-ui/icons/Close';
@@ -22,13 +29,15 @@ import ExpandLess from '@material-ui/icons/ExpandLess';
 import ExpandMore from '@material-ui/icons/ExpandMore';
 import LocalActivityIcon from '@material-ui/icons/LocalActivity';
 import StarIcon from '@material-ui/icons/Star';
+import axios from 'axios';
 import { withSnackbar } from 'notistack';
 import React from 'react';
-import Theme from './theme';
 import ContextMain from './ContextMain';
+import { baseUrl, querySizeLimit, updateHash } from "./globals";
 import LoadingIndicator from "./LoadingIndicator";
-import axios from 'axios';
-import { baseUrl, querySizeLimit } from "./globals";
+import Theme from './theme';
+import { formatTimeStampToCompact, roundFloat } from "./utils";
+import ResultDetail from './ResultDetail';
 
 const styles = theme => ({
     root: {
@@ -150,10 +159,51 @@ class ResultPerInstanceComboMT extends React.Component {
     }
 }
 
+class ResultEntryModel extends React.Component {
+    render() {
+        const result_model = this.props.result_entry;
+        const list_tests = this.props.list_tests;
+        const dict_test_versions = this.props.dict_test_versions;
+
+        const handleResultEntryClick = this.props.handleResultEntryClick;
+        if (result_model) {
+            return (
+                <React.Fragment>
+                    {
+                        Object.keys(result_model.model_instances).map((model_inst_id, index_tt) => (
+                            <TableRow key={model_inst_id}>
+                                {
+                                    (index_tt === 0) ?
+                                        <TableCell align="right" bgcolor={Theme.tableDataHeader} rowSpan={Object.keys(result_model.model_instances).length}>{result_model.model_alias ? result_model.model_alias : result_model.model_name}</TableCell>
+                                        : <React.Fragment></React.Fragment>
+                                }
+                                <TableCell align="center" bgcolor={Theme.tableDataHeader}>{result_model.model_instances[model_inst_id].model_version}</TableCell>
+                                {
+                                    list_tests.map((test, index) => (
+                                        dict_test_versions[test.test_id].map((test_inst, index) => (
+                                            <ResultPerInstanceComboMT result_MTcombo={result_model.model_instances[model_inst_id].tests[test.test_id].test_instances[test_inst.test_inst_id].results}
+                                                handleResultEntryClick={handleResultEntryClick}
+                                                key={test_inst.test_inst_id} />
+                                        ))
+                                    ))
+                                }
+                            </TableRow>
+                        ))
+                    }
+                </React.Fragment>
+            );
+        } else {
+            return ""
+        }
+    }
+}
+
 class ResultEntryTest extends React.Component {
     render() {
         const result_test = this.props.result_entry;
-        const model_versions = this.props.model_versions;
+        const list_models = this.props.list_models;
+        const dict_model_versions = this.props.dict_model_versions;
+
         const handleResultEntryClick = this.props.handleResultEntryClick;
         if (result_test) {
             return (
@@ -166,16 +216,15 @@ class ResultEntryTest extends React.Component {
                                         <TableCell align="right" bgcolor={Theme.tableDataHeader} rowSpan={Object.keys(result_test.test_instances).length} style={{ fontWeight: 'bold' }}>{result_test.test_alias ? result_test.test_alias : result_test.test_name}</TableCell>
                                         : <React.Fragment></React.Fragment>
                                 }
-                                <TableCell align="right" bgcolor={Theme.tableDataHeader} style={{ fontWeight: 'bold' }}>{result_test.test_instances[test_inst_id].test_version}</TableCell>
+                                <TableCell align="center" bgcolor={Theme.tableDataHeader} style={{ fontWeight: 'bold' }}>{result_test.test_instances[test_inst_id].test_version}</TableCell>
                                 {
-                                    model_versions.map(function (model_version_entry) {
-                                        return (
-                                            <ResultPerInstanceComboMT result_MTcombo={result_test.test_instances[test_inst_id].results[model_version_entry.model_inst_id]}
-                                                model_versions={model_versions}
+                                    list_models.map((model, index) => (
+                                        dict_model_versions[model.model_id].map((model_inst, index) => (
+                                            <ResultPerInstanceComboMT result_MTcombo={result_test.test_instances[test_inst_id].models[model.model_id].model_instances[model_inst.model_inst_id].results}
                                                 handleResultEntryClick={handleResultEntryClick}
-                                                key={model_version_entry.model_inst_id} />
-                                        );
-                                    })
+                                                key={model_inst.model_inst_id} />
+                                        ))
+                                    ))
                                 }
                             </TableRow>
                         ))
@@ -202,12 +251,14 @@ class CompareMultiResults extends React.Component {
             model_dict: {
                 "00f2e856-27a8-4b8d-9ec3-4e2581c546e4": {
                     "name": "CA1_pyr_cACpyr_mpg141208_B_idA_20170915151855",
+                    "alias": null,
                     "selected_instances": {
                         "b0ba8f05-b049-4cdd-93ea-1ed646671d21": { "version": "1.0", "timestamp": "2018-03-29T14:21:08.597975+00:00" }
                     }
                 },
                 "01006de7-e861-45fb-abf4-3c84e609d33b": {
                     "name": "CA1_int_cNAC_970911C_20180120154902",
+                    "alias": null,
                     "selected_instances": {
                         "ac33b476-2cc1-4876-8945-b9621aed45a2": { "version": "1.0", "timestamp": "2018-03-29T14:19:55.167777+00:00" }
                     }
@@ -216,12 +267,14 @@ class CompareMultiResults extends React.Component {
             test_dict: {
                 "100abccb-6d30-4c1e-a960-bc0489e0d82d": {
                     "name": "Hippocampus_SomaticFeaturesTest_CA1_pyr_cACpyr",
+                    "alias": "hippo_somafeat_CA1_pyr_cACpyr",
                     "selected_instances": {
                         "1d22e1c0-5a74-49b4-b114-41d233d3250a": { "version": "1.0", "timestamp": "2019-03-28T12:54:19.318444+00:00" }
                     }
                 },
                 "e316f735-42d5-43f8-8729-6ac2e626353d": {
                     "name": "Hippocampus_CA1_ObliqueIntegrationTest",
+                    "alias": "hippo_ca1_obl_int",
                     "selected_instances": {
                         "9067289a-11d0-4c13-b6f1-50c84a4f3cb2": { "version": "1.3.5", "timestamp": "2020-05-29T13:08:02.055709+00:00" }
                     }
@@ -239,6 +292,8 @@ class CompareMultiResults extends React.Component {
             compareShow: false,
             auth: authContext,
             loadingResults: true,
+            resultDetailOpen: false,
+            currentResult: null
         };
 
         this.handleModelClick = this.handleModelClick.bind(this);
@@ -252,6 +307,8 @@ class CompareMultiResults extends React.Component {
         this.fetchResults = this.fetchResults.bind(this);
         this.setCompare = this.setCompare.bind(this);
         this.launchCompare = this.launchCompare.bind(this);
+        this.handleResultEntryClick = this.handleResultEntryClick.bind(this)
+        this.handleResultDetailClose = this.handleResultDetailClose.bind(this)
     }
 
     evalModelDict() {
@@ -391,17 +448,93 @@ class CompareMultiResults extends React.Component {
         })
     }
 
-    groupResultsTestsCompare(results) {
-        // will be a 4-D dict {model -> model instance -> test-> test instance} with list of results as values
-        let dict_results = {}
+    handleResultEntryClick(result) {
+        this.setState({
+            'resultDetailOpen': true,
+            'currentResult': result
+        });
+        updateHash("result_id." + result.id);
+    };
 
-        // Get list of all test versions; note that not necessarily all test versions will have associated results
+    handleResultDetailClose() {
+        this.setState({
+            'resultDetailOpen': false,
+            'currentResult': null
+        });
+        updateHash('');
+    };
+
+    getModelVersions() {
+        // Get list of all model versions; note that not necessarily all model versions will have associated results
+        // so not appropriate to locate model versions via individual results
+        // Order these lists as required
+
+        var model_dict = this.state.model_dict;
+        var list_models = []; // list of dicts, one dict per model (with key = model_id)
+        var dict_model_versions = {}; // dict (with key = model_id) of lists of dicts, one list per model, one sub-dict per model instance (with key = model_instance_id)
+        for (let m_key in model_dict) {
+            list_models.push({
+                model_id: m_key,
+                model_name: model_dict[m_key].name,
+                model_alias: model_dict[m_key].alias
+            })
+
+            dict_model_versions[m_key] = [];
+            for (let m_inst_key in model_dict[m_key].selected_instances) {
+                dict_model_versions[m_key].push({
+                    model_inst_id: m_inst_key,
+                    model_version: model_dict[m_key].selected_instances[m_inst_key].version,
+                    timestamp: model_dict[m_key].selected_instances[m_inst_key].timestamp
+                })
+            }
+        }
+
+        // sorting list_models by name/alias
+        list_models.sort(function (a, b) {
+            var t_a_display = a.model_alias ? a.model_alias : a.model_name;
+            var t_b_display = b.model_alias ? b.model_alias : b.model_name;
+            if (t_a_display < t_b_display) { return -1; }
+            if (t_a_display > t_b_display) { return 1; }
+            return 0;
+        })
+
+        // sorting list_model_versions within each model by timestamp, oldest to newest
+        Object.keys(dict_model_versions).forEach(function (model_id) {
+            var temp_sorted = {};
+            dict_model_versions[model_id].sort(function (a, b) {
+                var t_a_timestamp = a.timestamp;
+                var t_b_timestamp = b.timestamp;
+                if (t_a_timestamp < t_b_timestamp) { return -1; }
+                if (t_a_timestamp > t_b_timestamp) { return 1; }
+                return 0;
+            })
+                .forEach(function (key) {
+                    temp_sorted = dict_model_versions[model_id];
+                });
+            dict_model_versions[model_id] = temp_sorted;
+        })
+
+        return [list_models, dict_model_versions]
+    }
+
+    getTestVersions() {
+        // Get lists of all tests and test versions; note that not necessarily all test versions will have associated results
         // so not appropriate to locate test versions via individual results
-        var list_test_versions = [];
+        // Order these lists as required
+
         var test_dict = this.state.test_dict;
+        var list_tests = []; // list of dicts, one dict per test (with key = test_id)
+        var dict_test_versions = {}; // dict (with key = test_id) of lists of dicts, one list per test, one sub-dict per test instance (with key = test_instance_id)
         for (let t_key in test_dict) {
+            list_tests.push({
+                test_id: t_key,
+                test_name: test_dict[t_key].name,
+                test_alias: test_dict[t_key].alias
+            })
+
+            dict_test_versions[t_key] = [];
             for (let t_inst_key in test_dict[t_key].selected_instances) {
-                list_test_versions.push({
+                dict_test_versions[t_key].push({
                     test_inst_id: t_inst_key,
                     test_version: test_dict[t_key].selected_instances[t_inst_key].version,
                     timestamp: test_dict[t_key].selected_instances[t_inst_key].timestamp
@@ -409,12 +542,222 @@ class CompareMultiResults extends React.Component {
             }
         }
 
-        // sorting list_test_versions by timestamp (oldest to newest)
-        list_test_versions.sort(function (a, b) {
-            if (a.timestamp < b.timestamp) { return -1; }
-            if (a.timestamp > b.timestamp) { return 1; }
+        // sorting list_tests by name/alias
+        list_tests.sort(function (a, b) {
+            var t_a_display = a.test_alias ? a.test_alias : a.test_name;
+            var t_b_display = b.test_alias ? b.test_alias : b.test_name;
+            if (t_a_display < t_b_display) { return -1; }
+            if (t_a_display > t_b_display) { return 1; }
             return 0;
+        })
+
+        // sorting list_test_versions within each test by timestamp, oldest to newest
+        Object.keys(dict_test_versions).forEach(function (test_id) {
+            var temp_sorted = {};
+            dict_test_versions[test_id].sort(function (a, b) {
+                var t_a_timestamp = a.timestamp;
+                var t_b_timestamp = b.timestamp;
+                if (t_a_timestamp < t_b_timestamp) { return -1; }
+                if (t_a_timestamp > t_b_timestamp) { return 1; }
+                return 0;
+            })
+                .forEach(function (key) {
+                    temp_sorted = dict_test_versions[test_id];
+                });
+            dict_test_versions[test_id] = temp_sorted;
+        })
+
+        return [list_tests, dict_test_versions]
+    }
+
+    addEmptyResults(results_grouped, list_models, dict_model_versions, list_tests, dict_test_versions) {
+        // insert empty lists for (test_instance, model_instance) combos without results
+        // handles output of groupResultsModelsCompare()
+        // required only for compareShow === "all"
+        console.log(results_grouped);
+        // loop every test
+        list_tests.map(function (test, index) {
+            console.log(test.test_id);
+            // loop every test instance
+            dict_test_versions[test.test_id].map(function (test_inst, index) {
+                console.log(test_inst.test_inst_id);
+                // loop every model
+                list_models.map(function (model, index) {
+                    console.log(model.model_id);
+                    // loop every model instance
+                    dict_model_versions[model.model_id].map(function (model_inst, index) {
+                        console.log(model_inst.model_inst_id);
+                        // check if model exists for this test instance
+                        if (!(model.model_id in results_grouped[test.test_id]["test_instances"][test_inst.test_inst_id]["models"])) {
+                            results_grouped[test.test_id]["test_instances"][test_inst.test_inst_id]["models"][model.model_id] = {
+                                model_id: model.model_id,
+                                model_name: model.model_name,
+                                model_alias: model.model_alias,
+                                model_instances: {}
+                            };
+                        }
+                        // check if model instance exists for this test instance
+                        if (!(model_inst.model_inst_id in results_grouped[test.test_id]["test_instances"][test_inst.test_inst_id]["models"][model.model_id]["model_instances"])) {
+                            results_grouped[test.test_id]["test_instances"][test_inst.test_inst_id]["models"][model.model_id]["model_instances"][model_inst.model_inst_id] = {
+                                model_inst_id: model_inst.model_inst_id,
+                                model_version: model_inst.model_version,
+                                timestamp: model_inst.timestamp,
+                                results: []
+                            };
+                        }
+                    })
+                })
+            })
+        })
+        return results_grouped;
+    }
+
+    groupResultsModelsCompare(results) {
+        // will be a 4-D dict {test -> test instance -> model -> model instance} with list of results as values
+        let dict_results = {}
+
+        results.forEach(function (result, index) {
+            // check if this test was already encountered
+            if (!(result.test.id in dict_results)) {
+                dict_results[result.test.id] = {
+                    test_id: result.test.id,
+                    test_name: result.test.name,
+                    test_alias: result.test.alias,
+                    test_instances: {}
+                };
+            }
+            // check if this test instance was already encountered
+            if (!(result.test_instance_id in dict_results[result.test.id]["test_instances"])) {
+                dict_results[result.test.id]["test_instances"][result.test_instance_id] = {
+                    test_inst_id: result.test_instance_id,
+                    test_version: result.test_instance.version,
+                    timestamp: result.test_instance.timestamp,
+                    models: {}
+                };
+            }
+            // check if model exists for this test instance
+            if (!(result.model.id in dict_results[result.test.id]["test_instances"][result.test_instance_id]["models"])) {
+                dict_results[result.test.id]["test_instances"][result.test_instance_id]["models"][result.model.id] = {
+                    model_id: result.model.id,
+                    model_name: result.model.name,
+                    model_alias: result.model.alias,
+                    model_instances: {}
+                };
+            }
+            // check if this model instance was already encountered
+            if (!(result.model_instance_id in dict_results[result.test.id]["test_instances"][result.test_instance_id]["models"][result.model.id]["model_instances"])) {
+                dict_results[result.test.id]["test_instances"][result.test_instance_id]["models"][result.model.id]["model_instances"][result.model_instance_id] = {
+                    model_inst_id: result.model_instance_id,
+                    model_version: result.model_instance.version,
+                    timestamp: result.model_instance.timestamp,
+                    results: []
+                };
+            }
+            // add result to list of test instance results for above test instance
+            dict_results[result.test.id]["test_instances"][result.test_instance_id]["models"][result.model.id]["model_instances"][result.model_instance_id]["results"].push(
+                {
+                    result_id: result.id,
+                    score: result.score,
+                    timestamp: result.timestamp,
+                    test_id: result.test.id,
+                    test_name: result.test.name,
+                    test_alias: result.test.alias,
+                    test_inst_id: result.test_instance_id,
+                    test_version: result.test_instance.version,
+                    result_json: result
+                })
         });
+
+        // sorting entries by test name/alias (whichever is displayed)
+        var temp_sorted = {};
+        Object.keys(dict_results).sort(function (a, b) {
+            var t_a_display = dict_results[a].test_alias ? dict_results[a].test_alias : dict_results[a].test_name;
+            var t_b_display = dict_results[b].test_alias ? dict_results[b].test_alias : dict_results[b].test_name;
+            if (t_a_display < t_b_display) { return -1; }
+            if (t_a_display > t_b_display) { return 1; }
+            return 0;
+        })
+            .forEach(function (key) {
+                temp_sorted[key] = dict_results[key];
+            });
+        dict_results = temp_sorted;
+
+        // sorting test versions within test by timestamp, oldest to newest
+        Object.keys(dict_results).forEach(function (test_id) {
+            var temp_sorted = {};
+            Object.keys(dict_results[test_id]["test_instances"]).sort(function (a, b) {
+                var t_a_timestamp = dict_results[test_id]["test_instances"][a].timestamp;
+                var t_b_timestamp = dict_results[test_id]["test_instances"][b].timestamp;
+                if (t_a_timestamp < t_b_timestamp) { return -1; }
+                if (t_a_timestamp > t_b_timestamp) { return 1; }
+                return 0;
+            })
+                .forEach(function (key) {
+                    temp_sorted[key] = dict_results[test_id]["test_instances"][key];
+                });
+            dict_results[test_id]["test_instances"] = temp_sorted;
+        })
+
+        // sorting entries by model name/alias (whichever is displayed)
+        Object.keys(dict_results).forEach(function (test_id) {
+            Object.keys(dict_results[test_id]["test_instances"]).forEach(function (test_inst_id) {
+                var temp_sorted = {};
+                Object.keys(dict_results[test_id]["test_instances"][test_inst_id]["models"]).sort(function (a, b) {
+                    var t_a_display = dict_results[test_id]["test_instances"][test_inst_id]["models"][a].test_alias ? dict_results[test_id]["test_instances"][test_inst_id]["models"][a].test_alias : dict_results[test_id]["test_instances"][test_inst_id]["models"][a].test_name;
+                    var t_b_display = dict_results[test_id]["test_instances"][test_inst_id]["models"][b].test_alias ? dict_results[test_id]["test_instances"][test_inst_id]["models"][b].test_alias : dict_results[test_id]["test_instances"][test_inst_id]["models"][b].test_name;
+                    if (t_a_display < t_b_display) { return -1; }
+                    if (t_a_display > t_b_display) { return 1; }
+                    return 0;
+                })
+                    .forEach(function (key) {
+                        temp_sorted[key] = dict_results[test_id]["test_instances"][test_inst_id]["models"][key];
+                    });
+                dict_results[test_id]["test_instances"][test_inst_id]["models"] = temp_sorted;
+            })
+        })
+
+        // sorting model versions within test by timestamp, oldest to newest
+        Object.keys(dict_results).forEach(function (test_id) {
+            Object.keys(dict_results[test_id]["test_instances"]).forEach(function (test_inst_id) {
+                Object.keys(dict_results[test_id]["test_instances"][test_inst_id]["models"]).forEach(function (model_id) {
+                    var temp_sorted = {};
+                    Object.keys(dict_results[test_id]["test_instances"][test_inst_id]["models"][model_id]["model_instances"]).sort(function (a, b) {
+                        var t_a_timestamp = dict_results[test_id]["test_instances"][test_inst_id]["models"][model_id]["model_instances"][a].timestamp;
+                        var t_b_timestamp = dict_results[test_id]["test_instances"][test_inst_id]["models"][model_id]["model_instances"][b].timestamp;
+                        if (t_a_timestamp < t_b_timestamp) { return -1; }
+                        if (t_a_timestamp > t_b_timestamp) { return 1; }
+                        return 0;
+                    })
+                        .forEach(function (key) {
+                            temp_sorted[key] = dict_results[test_id]["test_instances"][test_inst_id]["models"][model_id]["model_instances"][key];
+                        });
+                    dict_results[test_id]["test_instances"][test_inst_id]["models"][model_id]["model_instances"] = temp_sorted;
+                })
+            })
+        })
+
+        // sort each list of dicts (each dict being a result), newest to oldest
+        Object.keys(dict_results).forEach(function (test_id) {
+            Object.keys(dict_results[test_id]["test_instances"]).forEach(function (test_inst_id) {
+                Object.keys(dict_results[test_id]["test_instances"][test_inst_id]["models"]).forEach(function (model_id) {
+                    Object.keys(dict_results[test_id]["test_instances"][test_inst_id]["models"][model_id]["model_instances"]).forEach(function (model_instance_id) {
+                        dict_results[test_id]["test_instances"][test_inst_id]["models"][model_id]["model_instances"][model_instance_id]["results"].sort(function (a, b) {
+                            if (a.timestamp < b.timestamp) { return 1; }
+                            if (a.timestamp > b.timestamp) { return -1; }
+                            return 0;
+                        });
+                    });
+                });
+            });
+        });
+
+        console.log(dict_results);
+        return dict_results
+    }
+
+    groupResultsTestsCompare(results) {
+        // will be a 4-D dict {model -> model instance -> test -> test instance} with list of results as values
+        let dict_results = {}
 
         results.forEach(function (result, index) {
             // check if this model was already encountered
@@ -446,8 +789,6 @@ class CompareMultiResults extends React.Component {
             }
             // check if this test instance was already encountered
             if (!(result.test_instance_id in dict_results[result.model.id]["model_instances"][result.model_instance_id]["tests"][result.test.id]["test_instances"])) {
-                console.log("++++++++++")
-                console.log(result.test_instance_id);
                 dict_results[result.model.id]["model_instances"][result.model_instance_id]["tests"][result.test.id]["test_instances"][result.test_instance_id] = {
                     test_inst_id: result.test_instance_id,
                     test_version: result.test_instance.version,
@@ -469,20 +810,6 @@ class CompareMultiResults extends React.Component {
                     result_json: result
                 })
         });
-
-        // insert empty entries for (model_instance, test_instance) combos without results - only for all results
-        // results.forEach(function (result) {
-        //     list_test_versions.forEach(function (t_inst) {
-        //         if (!(t_inst["test_inst_id"] in dict_results[result.model.id]["model_instances"][result.model_instance_id]["tests"][result.test.id]["test_instances"])) {
-        //             dict_results[result.model.id]["model_instances"][result.model_instance_id]["tests"][result.test.id]["test_instances"][t_inst["test_inst_id"]] = {
-        //                 test_inst_id: t_inst["test_inst_id"],
-        //                 test_version: t_inst["test_version"],
-        //                 timestamp: t_inst["timestamp"],
-        //                 results: []
-        //             };
-        //         }
-        //     })
-        // })
 
         // sorting entries by model name/alias (whichever is displayed)
         var temp_sorted = {};
@@ -571,6 +898,114 @@ class CompareMultiResults extends React.Component {
         return dict_results
     }
 
+    renderModelsResultsSummaryTable(dict_results, list_models, dict_model_versions) {
+        return (
+            <React.Fragment>
+                <Grid container item direction="column">
+                    <TableContainer>
+                        <Table aria-label="spanning table" style={{ width: "auto", tableLayout: "auto", border: 2, borderColor: 'lightgrey', borderStyle: 'solid' }}>
+                            <TableHead>
+                                <TableRow>
+                                    <TableCell align="center" colSpan={2} rowSpan={2} bgcolor={Theme.tableRowSelectColor}>Validation Test \ Model</TableCell>
+                                    {
+                                        list_models.map((model, index) => (
+                                            <TableCell align="center" colSpan={dict_model_versions[model.model_id].length * 3} key={model.model_id} bgcolor={Theme.tableRowSelectColor}>{model.model_alias || model.model_name}</TableCell>
+                                        ))
+                                    }
+                                </TableRow>
+                                <TableRow>
+                                    {
+                                        list_models.map((model, index) => (
+                                            dict_model_versions[model.model_id].map((model_inst, index) => (
+                                                <TableCell align="center" colSpan={3} key={model_inst.model_inst_id} bgcolor={Theme.tableHeader}>{model_inst.model_version}</TableCell>
+                                            ))
+                                        ))
+                                    }
+                                </TableRow>
+                                <TableRow>
+                                    <TableCell align="center" bgcolor={Theme.tableHeader} style={{ width: 200, maxWidth: 200 }}>Test Name</TableCell>
+                                    <TableCell align="center" bgcolor={Theme.tableHeader} style={{ width: 200, maxWidth: 200 }}>Test Version</TableCell>
+                                    {
+                                        list_models.map((model, index) => (
+                                            dict_model_versions[model.model_id].map((model_inst, index) => (
+                                                <React.Fragment key={index}>
+                                                    <TableCell align="center" bgcolor={Theme.tableDataHeader} style={{ width: 20, maxWidth: 20 }}></TableCell>
+                                                    <TableCell align="right" bgcolor={Theme.tableDataHeader} style={{ width: 75, maxWidth: 75 }}>Score</TableCell>
+                                                    <TableCell align="center" bgcolor={Theme.tableDataHeader} style={{ width: 200, maxWidth: 200 }}>Date (Time)</TableCell>
+                                                </React.Fragment>
+                                            ))
+                                        ))
+                                    }
+                                </TableRow>
+                            </TableHead>
+                            <TableBody>
+                                {
+                                    Object.keys(dict_results).map((test_id, index_t) => (
+                                        <ResultEntryTest result_entry={dict_results[test_id]} list_models={list_models} dict_model_versions={dict_model_versions} handleResultEntryClick={this.handleResultEntryClick} key={test_id} />
+                                    ))
+                                }
+                            </TableBody>
+                        </Table>
+                    </TableContainer>
+                </Grid>
+            </React.Fragment>
+        )
+    }
+
+    renderTestsResultsSummaryTable(dict_results, list_tests, dict_test_versions) {
+        return (
+            <React.Fragment>
+                <Grid container item direction="column">
+                    <TableContainer>
+                        <Table aria-label="spanning table" style={{ width: "auto", tableLayout: "auto", border: 2, borderColor: 'lightgrey', borderStyle: 'solid' }}>
+                            <TableHead>
+                                <TableRow>
+                                    <TableCell align="center" colSpan={2} rowSpan={2} bgcolor={Theme.tableRowSelectColor}>Model \ Validation Test</TableCell>
+                                    {
+                                        list_tests.map((test, index) => (
+                                            <TableCell align="center" colSpan={dict_test_versions[test.test_id].length * 3} key={test.test_id} bgcolor={Theme.tableRowSelectColor}>{test.test_alias || test.test_name}</TableCell>
+                                        ))
+                                    }
+                                </TableRow>
+                                <TableRow>
+                                    {
+                                        list_tests.map((test, index) => (
+                                            dict_test_versions[test.test_id].map((test_inst, index) => (
+                                                <TableCell align="center" colSpan={3} key={test_inst.test_inst_id} bgcolor={Theme.tableHeader}>{test_inst.test_version}</TableCell>
+                                            ))
+                                        ))
+                                    }
+                                </TableRow>
+                                <TableRow>
+                                    <TableCell align="center" bgcolor={Theme.tableHeader} style={{ width: 200, maxWidth: 200 }}>Model Name</TableCell>
+                                    <TableCell align="center" bgcolor={Theme.tableHeader} style={{ width: 200, maxWidth: 200 }}>Model Version</TableCell>
+                                    {
+                                        list_tests.map((test, index) => (
+                                            dict_test_versions[test.test_id].map((test_inst, index) => (
+                                                <React.Fragment key={index}>
+                                                    <TableCell align="center" bgcolor={Theme.tableDataHeader} style={{ width: 20, maxWidth: 20 }}></TableCell>
+                                                    <TableCell align="right" bgcolor={Theme.tableDataHeader} style={{ width: 75, maxWidth: 75 }}>Score</TableCell>
+                                                    <TableCell align="center" bgcolor={Theme.tableDataHeader} style={{ width: 200, maxWidth: 200 }}>Date (Time)</TableCell>
+                                                </React.Fragment>
+                                            ))
+                                        ))
+                                    }
+                                </TableRow>
+                            </TableHead>
+                            <TableBody>
+                                {
+                                    Object.keys(dict_results).map((model_id, index_m) => (
+                                        <ResultEntryModel result_entry={dict_results[model_id]} list_tests={list_tests} dict_test_versions={dict_test_versions} handleResultEntryClick={this.handleResultEntryClick} key={model_id} />
+                                    ))
+                                }
+                            </TableBody>
+                        </Table>
+                    </TableContainer>
+                </Grid>
+            </React.Fragment>
+        )
+    }
+
     launchCompare() {
         let results = this.state.results;
         let required_results = [];
@@ -617,14 +1052,26 @@ class CompareMultiResults extends React.Component {
         }
         console.log(required_results)
 
-        // plot the selected results
+        // render tables for the selected results
         var content = "";
         if (required_results.length === 0) {
             content = this.renderNoResults();
         } else {
-            const results_grouped = this.groupResultsTestsCompare(required_results);
-            content = "AA";
-            // content = this.renderResultsSummaryTable(results_grouped, model_versions);
+            if (this.state.compareShow === "common_tests") {
+                const [list_tests, dict_test_versions] = this.getTestVersions();
+                const results_grouped = this.groupResultsTestsCompare(required_results);
+                content = this.renderTestsResultsSummaryTable(results_grouped, list_tests, dict_test_versions);
+            } else {
+                // case for this.state.compareShow = "common_tests" or "all"
+                const [list_models, dict_model_versions] = this.getModelVersions();
+                let results_grouped = this.groupResultsModelsCompare(required_results);
+                if (this.state.compareShow === "all") {
+                    // insert empty entries for (model_instance, test_instance) combos without results - only for compareShow === "all"
+                    const [list_tests, dict_test_versions] = this.getTestVersions();
+                    results_grouped = this.addEmptyResults(results_grouped, list_models, dict_model_versions, list_tests, dict_test_versions)
+                }
+                content = this.renderModelsResultsSummaryTable(results_grouped, list_models, dict_model_versions);
+            }
         }
         return content;
     }
@@ -702,6 +1149,8 @@ class CompareMultiResults extends React.Component {
 
     render() {
         var content = "";
+        var resultDetail = "";
+
         console.log(this.state.model_inst_ids)
         console.log(this.state.test_inst_ids)
         console.log(this.state.results)
@@ -710,7 +1159,12 @@ class CompareMultiResults extends React.Component {
             content = <Grid item xs={12} align="center"><LoadingIndicator position="relative" /></Grid>
         } else if (this.state.compareShow) {
             content = this.launchCompare();
-            console.log(content);
+        }
+
+        if (this.state.currentResult) {
+            resultDetail = <ResultDetail open={this.state.resultDetailOpen} result={this.state.currentResult} onClose={this.handleResultDetailClose} />;
+        } else {
+            resultDetail = "";
         }
 
         return (
@@ -970,8 +1424,15 @@ class CompareMultiResults extends React.Component {
                         {
                             this.state.compareShow
                             &&
-                            content
+                            <Grid container spacing={3} style={{ marginTop: "50px" }}>
+                                <Grid item xs={12} align="center">
+                                    {content}
+                                </Grid>
+                            </Grid>
                         }
+                        <div>
+                            {resultDetail}
+                        </div>
                     </Grid>
                 </DialogContent>
             </Dialog >

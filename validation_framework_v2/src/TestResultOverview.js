@@ -122,16 +122,15 @@ class ResultEntryModel extends React.Component {
                             <TableRow key={model_inst_id}>
                                 {
                                     (index_tt === 0) ?
-                                        <TableCell align="center" bgcolor={Theme.tableDataHeader} rowSpan={Object.keys(result_model.model_instances).length}>{result_model.model_alias ? result_model.model_alias : result_model.model_name}</TableCell>
+                                        <TableCell align="right" bgcolor={Theme.tableDataHeader} rowSpan={Object.keys(result_model.model_instances).length} style={{ fontWeight: 'bold' }}>{result_model.model_alias ? result_model.model_alias : result_model.model_name}</TableCell>
                                         : <React.Fragment></React.Fragment>
                                 }
-                                <TableCell align="center" bgcolor={Theme.tableDataHeader}>{result_model.model_instances[model_inst_id].model_version}</TableCell>
+                                <TableCell align="center" bgcolor={Theme.tableDataHeader} style={{ fontWeight: 'bold' }}>{result_model.model_instances[model_inst_id].model_version}</TableCell>
                                 {
                                     test_versions.map(function (test_version_entry) {
                                         return (
                                             <ResultPerInstanceComboMT result_MTcombo={result_model.model_instances[model_inst_id].results[test_version_entry.test_inst_id]}
-                                                test_versions={test_versions}
-                                                handleResultEntryClick={handleResultEntryClick} ick={handleResultEntryClick}
+                                                handleResultEntryClick={handleResultEntryClick}
                                                 key={test_version_entry.test_inst_id} />
                                         );
                                     })
@@ -187,7 +186,7 @@ export default class TestResultOverview extends React.Component {
         });
 
         results.forEach(function (result, index) {
-             // check if this model was already encountered
+            // check if this model was already encountered
             if (!(result.model.id in dict_results)) {
                 dict_results[result.model.id] = {
                     model_id: result.model.id,
