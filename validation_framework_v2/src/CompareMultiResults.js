@@ -1,3 +1,4 @@
+import AppBar from '@material-ui/core/AppBar';
 import Avatar from '@material-ui/core/Avatar';
 import Box from "@material-ui/core/Box";
 import Button from '@material-ui/core/Button';
@@ -14,12 +15,14 @@ import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
 import ListItemText from '@material-ui/core/ListItemText';
 import { withStyles } from '@material-ui/core/styles';
+import Tab from '@material-ui/core/Tab';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
 import TableContainer from '@material-ui/core/TableContainer';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
+import Tabs from '@material-ui/core/Tabs';
 import Tooltip from '@material-ui/core/Tooltip';
 import Typography from '@material-ui/core/Typography';
 import AccountTreeIcon from '@material-ui/icons/AccountTree';
@@ -31,11 +34,13 @@ import LocalActivityIcon from '@material-ui/icons/LocalActivity';
 import StarIcon from '@material-ui/icons/Star';
 import axios from 'axios';
 import { withSnackbar } from 'notistack';
+import PropTypes from 'prop-types';
 import React from 'react';
 import ContextMain from './ContextMain';
 import { baseUrl, querySizeLimit, updateHash } from "./globals";
 import LoadingIndicator from "./LoadingIndicator";
 import ResultDetail from './ResultDetail';
+import ResultGraphs from './ResultGraphs';
 import Theme from './theme';
 import { formatTimeStampToCompact, roundFloat } from "./utils";
 
@@ -233,6 +238,29 @@ class ResultEntryTest extends React.Component {
     }
 }
 
+function TabPanel(props) {
+    const { children, value, index, ...other } = props;
+
+    return (
+        <Typography
+            component="div"
+            role="tabpanel"
+            hidden={value !== index}
+            id={`simple-tabpanel-${index}`}
+            aria-labelledby={`simple-tab-${index}`}
+            {...other}
+        >
+            {value === index && <Box p={3}>{children}</Box>}
+        </Typography>
+    );
+}
+
+TabPanel.propTypes = {
+    children: PropTypes.node,
+    index: PropTypes.any.isRequired,
+    value: PropTypes.any.isRequired,
+};
+
 class CompareMultiResults extends React.Component {
     signal = axios.CancelToken.source();
     static contextType = ContextMain;
@@ -289,7 +317,8 @@ class CompareMultiResults extends React.Component {
             auth: authContext,
             loadingResults: true,
             resultDetailOpen: false,
-            currentResult: null
+            currentResult: null,
+            tabValue: 0
         };
 
         this.handleModelClick = this.handleModelClick.bind(this);
@@ -305,6 +334,11 @@ class CompareMultiResults extends React.Component {
         this.launchCompare = this.launchCompare.bind(this);
         this.handleResultEntryClick = this.handleResultEntryClick.bind(this)
         this.handleResultDetailClose = this.handleResultDetailClose.bind(this)
+        this.handleTabChange = this.handleTabChange.bind(this);
+    }
+
+    handleTabChange(event, newValue) {
+        this.setState({ tabValue: newValue })
     }
 
     evalModelDict() {
@@ -1075,30 +1109,37 @@ class CompareMultiResults extends React.Component {
         }
         console.log(required_results)
 
-        // render tables for the selected results
-        var content = "";
+        // render tables and figures for the selected results
+        var content_table = "";
+        var content_figures = "";
         if (required_results.length === 0) {
-            content = this.renderNoResults();
+            content_table = this.renderNoResults();
+            content_figures = this.renderNoResults();
         } else {
+            let results_grouped = null;
             if (this.state.compareShow === "common_tests") {
                 const [list_models, dict_model_versions] = this.getModelVersions(required_results);
-                const results_grouped = this.groupResultsTestsCompare(required_results);
+                results_grouped = this.groupResultsTestsCompare(required_results);
                 console.log(results_grouped);
-                content = this.renderTestsResultsSummaryTable(results_grouped, list_models, dict_model_versions);
+                content_table = this.renderTestsResultsSummaryTable(results_grouped, list_models, dict_model_versions);
             } else {
                 // case for this.state.compareShow = "common_models" or "all"
                 const [list_tests, dict_test_versions] = this.getTestVersions(required_results);
-                let results_grouped = this.groupResultsModelsCompare(required_results);
+                results_grouped = this.groupResultsModelsCompare(required_results);
                 console.log(results_grouped);
                 if (this.state.compareShow === "all") {
                     // insert empty entries for (model_instance, test_instance) combos without results - only for compareShow === "all"
                     results_grouped = this.addEmptyResults(results_grouped)
                 }
                 console.log(results_grouped);
-                content = this.renderModelsResultsSummaryTable(results_grouped, list_tests, dict_test_versions);
+                content_table = this.renderModelsResultsSummaryTable(results_grouped, list_tests, dict_test_versions);
             }
+            content_figures = <ResultGraphs
+                results={required_results}
+                loadingResult={false}
+            />
         }
-        return content;
+        return [content_table, content_figures];
     }
 
     componentDidMount() {
@@ -1187,7 +1228,8 @@ class CompareMultiResults extends React.Component {
     }
 
     render() {
-        var content = "";
+        var content_table = "";
+        var content_figures = "";
         var resultDetail = "";
 
         console.log(this.state.model_inst_ids)
@@ -1195,9 +1237,10 @@ class CompareMultiResults extends React.Component {
         console.log(this.state.results)
 
         if (this.state.loadingResults && this.state.compareShow) {
-            content = <Grid item xs={12} align="center"><LoadingIndicator position="relative" /></Grid>
+            content_table = <Grid item xs={12} align="center"><LoadingIndicator position="relative" /></Grid>
+            content_figures = <Grid item xs={12} align="center"><LoadingIndicator position="relative" /></Grid>
         } else if (this.state.compareShow) {
-            content = this.launchCompare();
+            [content_table, content_figures] = this.launchCompare();
         }
 
         if (this.state.currentResult) {
@@ -1463,9 +1506,21 @@ class CompareMultiResults extends React.Component {
                         {
                             this.state.compareShow
                             &&
-                            <Grid container spacing={3} style={{ marginTop: "50px" }}>
+                            <Grid container spacing={3} style={{ marginTop: "25px" }}>
                                 <Grid item xs={12} align="center">
-                                    {content}
+                                    <AppBar position="static">
+                                        <Tabs value={this.state.tabValue} onChange={this.handleTabChange} centered indicatorColor="secondary"
+                                            style={{ backgroundColor: Theme.tableRowSelectColor, color: Theme.textPrimary }} >
+                                            <Tab label="Table" />
+                                            <Tab label="Figures" />
+                                        </Tabs>
+                                    </AppBar>
+                                    <TabPanel value={this.state.tabValue} index={0}>
+                                        {content_table}
+                                    </TabPanel>
+                                    <TabPanel value={this.state.tabValue} index={1}>
+                                        {content_figures}
+                                    </TabPanel>
                                 </Grid>
                             </Grid>
                         }
