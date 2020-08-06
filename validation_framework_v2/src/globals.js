@@ -2,7 +2,7 @@
 export const DevMode = false; // TODO: change to false for production
 export const baseUrl = "https://validation-v2.brainsimulation.eu";
 export const querySizeLimit = 1000000;
-export const collaboratoryOrigin = 'https://wiki.humanbrainproject.eu';
+export const collaboratoryOrigin = 'https://wiki.ebrains.eu';
 export const hashChangedTopic = '/clb/community-app/hashchange';
 export const updateSettingsTopic = '/clb/community-app/settings';
 export const isParent = (window.opener == null);
