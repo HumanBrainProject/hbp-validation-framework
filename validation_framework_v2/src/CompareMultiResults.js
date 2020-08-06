@@ -177,10 +177,22 @@ class ResultEntryModel extends React.Component {
                             <TableRow key={model_inst_id}>
                                 {
                                     (index_tt === 0) ?
-                                        <TableCell align="right" bgcolor={Theme.tableDataHeader} rowSpan={Object.keys(result_model.model_instances).length} style={{ fontWeight: 'bold' }}>{result_model.model_alias ? result_model.model_alias : result_model.model_name}</TableCell>
+                                        <TableCell align="right" bgcolor={Theme.tableDataHeader} rowSpan={Object.keys(result_model.model_instances).length} style={{ fontWeight: 'bold' }}>
+                                            <Tooltip title="Model" placement="top">
+                                                <span>
+                                                    {result_model.model_alias ? result_model.model_alias : result_model.model_name}
+                                                </span>
+                                            </Tooltip>
+                                        </TableCell>
                                         : <React.Fragment></React.Fragment>
                                 }
-                                <TableCell align="center" bgcolor={Theme.tableDataHeader} style={{ fontWeight: 'bold' }}>{result_model.model_instances[model_inst_id].model_version}</TableCell>
+                                <TableCell align="center" bgcolor={Theme.tableDataHeader} style={{ fontWeight: 'bold' }}>
+                                    <Tooltip title="Model Version" placement="top">
+                                        <span>
+                                            {result_model.model_instances[model_inst_id].model_version}
+                                        </span>
+                                    </Tooltip>
+                                </TableCell>
                                 {
                                     Object.keys(result_model.model_instances[model_inst_id].tests).map((test_id, index) => (
                                         Object.keys(result_model.model_instances[model_inst_id].tests[test_id].test_instances).map((test_inst_id, index) => (
@@ -214,10 +226,22 @@ class ResultEntryTest extends React.Component {
                             <TableRow key={test_inst_id}>
                                 {
                                     (index_tt === 0) ?
-                                        <TableCell align="right" bgcolor={Theme.tableDataHeader} rowSpan={Object.keys(result_test.test_instances).length} style={{ fontWeight: 'bold' }}>{result_test.test_alias ? result_test.test_alias : result_test.test_name}</TableCell>
+                                        <TableCell align="right" bgcolor={Theme.tableDataHeader} rowSpan={Object.keys(result_test.test_instances).length} style={{ fontWeight: 'bold' }}>
+                                            <Tooltip title="Test" placement="top">
+                                                <span>
+                                                    {result_test.test_alias ? result_test.test_alias : result_test.test_name}
+                                                </span>
+                                            </Tooltip>
+                                        </TableCell>
                                         : <React.Fragment></React.Fragment>
                                 }
-                                <TableCell align="center" bgcolor={Theme.tableDataHeader} style={{ fontWeight: 'bold' }}>{result_test.test_instances[test_inst_id].test_version}</TableCell>
+                                <TableCell align="center" bgcolor={Theme.tableDataHeader} style={{ fontWeight: 'bold' }}>
+                                    <Tooltip title="Test Version" placement="top">
+                                        <span>
+                                            {result_test.test_instances[test_inst_id].test_version}
+                                        </span>
+                                    </Tooltip>
+                                </TableCell>
                                 {
                                     Object.keys(result_test.test_instances[test_inst_id].models).map((model_id, index) => (
                                         Object.keys(result_test.test_instances[test_inst_id].models[model_id].model_instances).map((model_inst_id, index) => (
@@ -463,6 +487,8 @@ class CompareMultiResults extends React.Component {
                     filtered_results.push(result)
                 }
             });
+        } else {
+            filtered_results = results;
         }
 
         console.log(filtered_results);
@@ -508,9 +534,9 @@ class CompareMultiResults extends React.Component {
                     model_name: result.model.name,
                     model_alias: result.model.alias
                 })
+                dict_model_versions[result.model.id] = [];
             }
-
-            dict_model_versions[result.model.id] = [];
+            
             if (dict_model_versions[result.model.id].map(item => item.model_inst_id).indexOf(result.model_instance.id) === -1) {
                 dict_model_versions[result.model.id].push({
                     model_inst_id: result.model_instance.id,
@@ -561,9 +587,9 @@ class CompareMultiResults extends React.Component {
                     test_name: result.test.name,
                     test_alias: result.test.alias
                 })
+                dict_test_versions[result.test.id] = [];
             }
 
-            dict_test_versions[result.test.id] = [];
             if (dict_test_versions[result.test.id].map(item => item.test_inst_id).indexOf(result.test_instance.id) === -1) {
                 dict_test_versions[result.test.id].push({
                     test_inst_id: result.test_instance.id,
@@ -950,6 +976,8 @@ class CompareMultiResults extends React.Component {
     }
 
     renderModelsResultsSummaryTable(dict_results, list_tests, dict_test_versions) {
+        console.log(dict_test_versions);
+        console.log(dict_test_versions[list_tests[0].test_id].length);
         return (
             <React.Fragment >
                 <Grid container item direction="column">
@@ -960,7 +988,13 @@ class CompareMultiResults extends React.Component {
                                     <TableCell align="center" colSpan={2} rowSpan={2} bgcolor={Theme.tableRowSelectColor}>Model \ Validation Test</TableCell>
                                     {
                                         list_tests.map((test, index) => (
-                                            <TableCell align="center" colSpan={dict_test_versions[test.test_id].length * 3} key={test.test_id} bgcolor={Theme.tableRowSelectColor}>{test.test_alias || test.test_name}</TableCell>
+                                            <TableCell align="center" colSpan={dict_test_versions[test.test_id].length * 3} key={test.test_id} bgcolor={Theme.tableRowSelectColor}>
+                                                <Tooltip title="Test" placement="top">
+                                                    <span>
+                                                        {test.test_alias || test.test_name}
+                                                    </span>
+                                                </Tooltip>
+                                            </TableCell>
                                         ))
                                     }
                                 </TableRow>
@@ -968,7 +1002,13 @@ class CompareMultiResults extends React.Component {
                                     {
                                         list_tests.map((test, index) => (
                                             dict_test_versions[test.test_id].map((test_inst, index) => (
-                                                <TableCell align="center" colSpan={3} key={test_inst.test_inst_id} bgcolor={Theme.tableHeader}>{test_inst.test_version}</TableCell>
+                                                <TableCell align="center" colSpan={3} key={test_inst.test_inst_id} bgcolor={Theme.tableHeader}>
+                                                    <Tooltip title="Test Version" placement="top">
+                                                        <span>
+                                                            {test_inst.test_version}
+                                                        </span>
+                                                    </Tooltip>
+                                                </TableCell>
                                             ))
                                         ))
                                     }
@@ -1016,7 +1056,13 @@ class CompareMultiResults extends React.Component {
                                     <TableCell align="center" colSpan={2} rowSpan={2} bgcolor={Theme.tableRowSelectColor}>Validation Test \ Model</TableCell>
                                     {
                                         list_models.map((model, index) => (
-                                            <TableCell align="center" colSpan={dict_model_versions[model.model_id].length * 3} key={model.model_id} bgcolor={Theme.tableRowSelectColor}>{model.model_alias || model.model_name}</TableCell>
+                                            <TableCell align="center" colSpan={dict_model_versions[model.model_id].length * 3} key={model.model_id} bgcolor={Theme.tableRowSelectColor}>
+                                                <Tooltip title="Model" placement="top">
+                                                    <span>
+                                                        {model.model_alias || model.model_name}
+                                                    </span>
+                                                </Tooltip>
+                                            </TableCell>
                                         ))
                                     }
                                 </TableRow>
@@ -1024,7 +1070,13 @@ class CompareMultiResults extends React.Component {
                                     {
                                         list_models.map((model, index) => (
                                             dict_model_versions[model.model_id].map((model_inst, index) => (
-                                                <TableCell align="center" colSpan={3} key={model_inst.model_inst_id} bgcolor={Theme.tableHeader}>{model_inst.model_version}</TableCell>
+                                                <TableCell align="center" colSpan={3} key={model_inst.model_inst_id} bgcolor={Theme.tableHeader}>
+                                                    <Tooltip title="Model Version" placement="top">
+                                                        <span>
+                                                            {model_inst.model_version}
+                                                        </span>
+                                                    </Tooltip>
+                                                </TableCell>
                                             ))
                                         ))
                                     }
@@ -1457,10 +1509,10 @@ class CompareMultiResults extends React.Component {
                                         <Button disabled={Boolean(!this.state.compareShow)} variant="contained" style={{ backgroundColor: Theme.disabledColor, width: "225px" }} onClick={() => this.setState({ compareShow: false })}>
                                             Clear Results
 								        </Button>
-                                        <Button disabled={this.state.compareShow === "common_models"} variant="contained" style={{ backgroundColor: Theme.buttonSecondary, width: "225px" }} onClick={() => this.setCompare("common_models")}>
+                                        <Button disabled={(this.state.compareShow === "common_models") || (this.state.total_model_insts === 0)} variant="contained" style={{ backgroundColor: Theme.buttonSecondary, width: "225px" }} onClick={() => this.setCompare("common_models")}>
                                             Compare Models
 								        </Button>
-                                        <Button disabled={this.state.compareShow === "common_tests"} variant="contained" style={{ backgroundColor: Theme.buttonSecondary, width: "225px" }} onClick={() => this.setCompare("common_tests")}>
+                                        <Button disabled={(this.state.compareShow === "common_tests") || (this.state.total_test_insts === 0)} variant="contained" style={{ backgroundColor: Theme.buttonSecondary, width: "225px" }} onClick={() => this.setCompare("common_tests")}>
                                             Compare Tests
 								        </Button>
                                         <Button disabled={this.state.compareShow === "all"} variant="contained" style={{ backgroundColor: Theme.buttonPrimary, width: "225px" }} onClick={() => this.setCompare("all")}>

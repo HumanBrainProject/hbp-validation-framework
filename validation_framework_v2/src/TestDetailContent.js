@@ -3,17 +3,17 @@ import Box from '@material-ui/core/Box';
 import Grid from '@material-ui/core/Grid';
 import IconButton from '@material-ui/core/IconButton';
 import Tooltip from '@material-ui/core/Tooltip';
-import EditIcon from '@material-ui/icons/Edit';
 import AddToQueueIcon from '@material-ui/icons/AddToQueue';
+import EditIcon from '@material-ui/icons/Edit';
 import RemoveFromQueueIcon from '@material-ui/icons/RemoveFromQueue';
 import { withSnackbar } from 'notistack';
 import React from 'react';
+import ContextMain from './ContextMain';
 import ErrorDialog from './ErrorDialog';
 import Markdown from './Markdown';
 import TestInstanceAddForm from './TestInstanceAddForm';
 import TestInstanceEditForm from './TestInstanceEditForm';
 import Theme from './theme';
-import ContextMain from './ContextMain';
 import { copyToClipboard, formatTimeStampToLongString, showNotification } from './utils';
 
 function InstanceParameter(props) {
@@ -32,12 +32,31 @@ function InstanceParameter(props) {
     // return <Typography variant="body2"><b>{props.label}: </b>{props.value}</Typography>
 }
 
+function CompareIcon(props) {
+    if (props.compareFlag) {
+        return (
+            <Tooltip title="Remove test instance from compare" placement="top">
+                <IconButton aria-label="compare test" onClick={() => props.removeTestInstanceCompare(props.instance_id)}>
+                    <RemoveFromQueueIcon color="action" />
+                </IconButton>
+            </Tooltip>
+        )
+    } else {
+        return (
+            <Tooltip title="Add test instance to compare" placement="top">
+                <IconButton aria-label="compare test" onClick={() => props.addTestInstanceCompare(props.instance_id)}>
+                    <AddToQueueIcon color="action" />
+                </IconButton>
+            </Tooltip>
+        )
+    }
+}
+
 class TestDetailContent extends React.Component {
     static contextType = ContextMain;
-    I
+
     constructor(props, context) {
         super(props, context);
-        console.log(this.props);
 
         this.state = {
             openAddInstanceForm: false,
@@ -51,6 +70,7 @@ class TestDetailContent extends React.Component {
         this.handleEditTestInstanceFormClose = this.handleEditTestInstanceFormClose.bind(this);
         this.handleEditClick = this.handleEditClick.bind(this);
         this.handleErrorEditDialogClose = this.handleErrorEditDialogClose.bind(this);
+        this.checkInstanceInCompare = this.checkInstanceInCompare.bind(this);
     }
 
     componentDidUpdate(prevProps) {
@@ -73,8 +93,8 @@ class TestDetailContent extends React.Component {
             this.setState({
                 instances: instances,
             });
+            showNotification(this.props.enqueueSnackbar, "Test instance added!", "success")
         }
-        showNotification(this.props.enqueueSnackbar, "Test instance added!", "success")
     }
 
     handleEditTestInstanceFormClose(testInstance) {
@@ -103,6 +123,20 @@ class TestDetailContent extends React.Component {
         }
     }
 
+    checkInstanceInCompare(test_id, test_inst_id) {
+        let [compareTests,] = this.context.compareTests;
+        // check if test exists in compare
+        if (!(test_id in compareTests)) {
+            return false;
+        }
+        // check if this test instance already added to compare
+        if (test_inst_id in compareTests[test_id].selected_instances) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     render() {
         let errorMessage = "";
         if (this.state.errorEditTestInstance) {
@@ -127,7 +161,6 @@ class TestDetailContent extends React.Component {
                 testID={this.props.id}
             />
         }
-        console.log(this.state.instances);
 
         return (
             <React.Fragment>
@@ -172,12 +205,13 @@ class TestDetailContent extends React.Component {
                                                     <p variant="subtitle2">Version: <span style={{ cursor: "pointer", fontWeight: "bold" }} onClick={() => copyToClipboard(instance.version, this.props.enqueueSnackbar, "Test version copied")}>{instance.version}</span></p>
                                                     {
                                                         this.state.instancesWithResults &&
-                                                        <Tooltip placement="right" title={this.state.instancesWithResults.includes(instance.id) ? "Cannot Edit" : "Edit"}>
+                                                        <Tooltip placement="top" title={this.state.instancesWithResults.includes(instance.id) ? "Cannot Edit" : "Edit"}>
                                                             <IconButton aria-label="edit test instance" onClick={() => this.handleEditClick(instance)}>
                                                                 <EditIcon />
                                                             </IconButton>
                                                         </Tooltip>
                                                     }
+                                                    <CompareIcon compareFlag={this.checkInstanceInCompare(this.props.id, instance.id)} instance_id={instance.id} addTestInstanceCompare={this.props.addTestInstanceCompare} removeTestInstanceCompare={this.props.removeTestInstanceCompare} />
                                                 </Box>
                                             </Grid>
                                             <Grid container item justify="flex-end" xs={6}>

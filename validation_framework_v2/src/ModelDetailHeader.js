@@ -1,19 +1,19 @@
-import React from 'react';
+import { Typography } from '@material-ui/core';
 import Grid from '@material-ui/core/Grid';
+import IconButton from '@material-ui/core/IconButton';
+import Tooltip from '@material-ui/core/Tooltip';
+import AddToQueueIcon from '@material-ui/icons/AddToQueue';
+import EditIcon from '@material-ui/icons/Edit';
 import LockIcon from '@material-ui/icons/Lock';
 import PublicIcon from '@material-ui/icons/Public';
-import EditIcon from '@material-ui/icons/Edit';
-import AddToQueueIcon from '@material-ui/icons/AddToQueue';
 import RemoveFromQueueIcon from '@material-ui/icons/RemoveFromQueue';
-import { Typography } from '@material-ui/core';
-import ModelEditForm from './ModelEditForm';
-import ErrorDialog from './ErrorDialog';
-import Tooltip from '@material-ui/core/Tooltip';
-import IconButton from '@material-ui/core/IconButton';
-import ContextMain from './ContextMain';
-import Theme from './theme';
 import { withSnackbar } from 'notistack';
-import { copyToClipboard, showNotification, formatTimeStampToLongString } from './utils';
+import React from 'react';
+import ContextMain from './ContextMain';
+import ErrorDialog from './ErrorDialog';
+import ModelEditForm from './ModelEditForm';
+import Theme from './theme';
+import { copyToClipboard, formatTimeStampToLongString, showNotification } from './utils';
 
 function AccessibilityIcon(props) {
     if (props.private) {

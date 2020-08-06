@@ -111,6 +111,8 @@ class ModelDetail extends React.Component {
         this.checkCompareStatus = this.checkCompareStatus.bind(this);
         this.addModelCompare = this.addModelCompare.bind(this);
         this.removeModelCompare = this.removeModelCompare.bind(this);
+        this.addModelInstanceCompare = this.addModelInstanceCompare.bind(this);
+        this.removeModelInstanceCompare = this.removeModelInstanceCompare.bind(this);
         this.handleClose = this.handleClose.bind(this);
         this.handleTabChange = this.handleTabChange.bind(this);
     }
@@ -194,6 +196,56 @@ class ModelDetail extends React.Component {
         showNotification(this.props.enqueueSnackbar, "Model removed from compare!", "info")
     }
 
+    addModelInstanceCompare(model_inst_id) {
+        console.log("Add instance to compare.")
+        let [compareModels, setCompareModels] = this.context.compareModels;
+        console.log(compareModels);
+        let model = this.state.modelData;
+        // check if model already added to compare
+        if (!(model.id in compareModels)) {
+            compareModels[model.id] = {
+                "name": model.name,
+                "alias": model.alias,
+                "selected_instances": {}
+            }
+        }
+        // add model instance to compare
+        let model_inst = model.instances.find(item => item.id === model_inst_id);
+        // check if model instance already added to compare
+        if (!(model_inst_id in compareModels[model.id].selected_instances)) {
+            compareModels[model.id].selected_instances[model_inst_id] = {
+                "version": model_inst.version,
+                "timestamp": model_inst.timestamp
+            }
+        }
+        // check if all model instances are now in compare
+        this.setState({ compareFlag: this.checkCompareStatus() })
+        console.log(compareModels);
+        setCompareModels(compareModels);
+        showNotification(this.props.enqueueSnackbar, "Model instance added to compare!", "info")
+    }
+
+    removeModelInstanceCompare(model_inst_id) {
+        console.log("Remove instance from compare.")
+        let [compareModels, setCompareModels] = this.context.compareModels;
+        console.log(compareModels);
+        let model = this.state.modelData;
+        if (model.id in compareModels) {
+            if (model_inst_id in compareModels[model.id].selected_instances) {
+                delete compareModels[model.id].selected_instances[model_inst_id];
+            }
+        }
+        // remove model if it does not contain any other instances for compare
+        if (Object.keys(compareModels[model.id].selected_instances).length === 0) {
+            delete compareModels[model.id];
+            this.setState({ compareFlag: false })
+        }
+        console.log(compareModels);
+        setCompareModels(compareModels);
+        this.forceUpdate();
+        showNotification(this.props.enqueueSnackbar, "Model instance removed from compare!", "info")
+    }
+
     handleClose() {
         this.props.onClose();
     }
@@ -273,6 +325,8 @@ class ModelDetail extends React.Component {
                                             id={this.state.modelData.id}
                                             modelScope={this.state.modelData.model_scope}
                                             results={this.state.results}
+                                            addModelInstanceCompare={this.addModelInstanceCompare}
+                                            removeModelInstanceCompare={this.removeModelInstanceCompare}
                                         />
                                     </Grid>
                                     <Grid item xs={3}>

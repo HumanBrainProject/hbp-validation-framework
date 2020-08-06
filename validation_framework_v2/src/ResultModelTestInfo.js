@@ -1,21 +1,22 @@
-import React from 'react';
-import Grid from '@material-ui/core/Grid';
-import Box from '@material-ui/core/Box';
 import { Typography } from '@material-ui/core';
 import Accordion from '@material-ui/core/Accordion';
-import AccordionSummary from '@material-ui/core/AccordionSummary'
-import AccordionDetails from '@material-ui/core/AccordionDetails'
+import AccordionDetails from '@material-ui/core/AccordionDetails';
+import AccordionSummary from '@material-ui/core/AccordionSummary';
+import Box from '@material-ui/core/Box';
+import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
 import Table from '@material-ui/core/Table';
-import TableHead from '@material-ui/core/TableHead';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
 import TableContainer from '@material-ui/core/TableContainer';
+import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
-import Theme from './theme';
-import { formatValue, formatLabel, copyToClipboard } from "./utils";
 import { withSnackbar } from 'notistack';
+import React from 'react';
+import Markdown from './Markdown';
+import Theme from './theme';
+import { copyToClipboard, formatLabel, formatValue } from "./utils";
 
 function CommonParameter(props) {
     var m_value = formatValue(props.label, props.m_value);
@@ -23,19 +24,19 @@ function CommonParameter(props) {
     return (
         <TableRow>
             <TableCell>
-                    <Box overflow="auto" style={{ cursor: "pointer" }} whiteSpace="wrap" onClick={() => copyToClipboard(m_value, props.enqueueSnackbar, "Model " + props.entity + formatLabel(props.label) + " copied")}>
-                        <Typography variant="body2">
-                            {m_value}
-                        </Typography>
-                    </Box>
+                <Box overflow="auto" style={{ cursor: "pointer" }} whiteSpace="wrap" onClick={() => copyToClipboard(m_value, props.enqueueSnackbar, "Model " + props.entity + formatLabel(props.label) + " copied")}>
+                    <Typography variant="body2">
+                        {m_value}
+                    </Typography>
+                </Box>
             </TableCell>
             <TableCell align="center" style={{ backgroundColor: Theme.tableHeader }}><Typography variant="body2"><b>{formatLabel(props.label)}</b></Typography></TableCell>
             <TableCell>
-                    <Box overflow="auto" style={{ cursor: "pointer" }} whiteSpace="wrap" onClick={() => copyToClipboard(t_value, props.enqueueSnackbar, "Test " + props.entity + formatLabel(props.label) + " copied")}>
-                        <Typography variant="body2">
-                            {t_value}
-                        </Typography>
-                    </Box>
+                <Box overflow="auto" style={{ cursor: "pointer" }} whiteSpace="wrap" onClick={() => copyToClipboard(t_value, props.enqueueSnackbar, "Test " + props.entity + formatLabel(props.label) + " copied")}>
+                    <Typography variant="body2">
+                        {t_value}
+                    </Typography>
+                </Box>
             </TableCell>
         </TableRow>
     )
@@ -47,11 +48,11 @@ function OtherParameter(props) {
         <TableRow>
             <TableCell><Typography variant="body2"><b>{formatLabel(props.label)}</b>: </Typography></TableCell>
             <TableCell>
-                    <Box overflow="auto" style={{ cursor: "pointer" }} whiteSpace="wrap" onClick={() => copyToClipboard(value, props.enqueueSnackbar, props.entity + " " + formatLabel(props.label) + " copied")}>
-                        <Typography variant="body2">
-                            {value}
-                        </Typography>
-                    </Box>
+                <Box overflow="auto" style={{ cursor: "pointer" }} whiteSpace="wrap" onClick={() => copyToClipboard(value, props.enqueueSnackbar, props.entity + " " + formatLabel(props.label) + " copied")}>
+                    <Typography variant="body2">
+                        {value}
+                    </Typography>
+                </Box>
             </TableCell>
         </TableRow>
     )
@@ -149,24 +150,41 @@ class ResultModelTestInfo extends React.Component {
                             <Typography variant="subtitle1"><b>Model & Test: Descriptions</b></Typography>
                         </AccordionSummary>
                         <AccordionDetails>
-                                <TableContainer component={Paper}>
-                                    <Table>
-                                        <TableBody>
-                                            <TableRow>
-                                                <TableCell style={{ backgroundColor: Theme.tableHeader }}><Typography variant="body2"><b>Model Description</b></Typography></TableCell>
-                                            </TableRow>
-                                            <TableRow>
-                                                <TableCell><Typography variant="body2">{this.props.model.description ? this.props.model.description : "<< no info >>"}</Typography></TableCell>
-                                            </TableRow>
-                                            <TableRow>
-                                                <TableCell style={{ backgroundColor: Theme.tableHeader }}><Typography variant="body2"><b>Test Protocol</b></Typography></TableCell>
-                                            </TableRow>
-                                            <TableRow>
-                                                <TableCell><Typography variant="body2">{this.props.test.protocol ? this.props.test.protocol : "<< no info >>"}</Typography></TableCell>
-                                            </TableRow>
-                                        </TableBody>
-                                    </Table>
-                                </TableContainer>
+                            <TableContainer component={Paper}>
+                                <Table>
+                                    <TableBody>
+                                        <TableRow>
+                                            <TableCell style={{ backgroundColor: Theme.tableHeader }}><Typography variant="body2"><b>Model Description</b></Typography></TableCell>
+                                        </TableRow>
+                                        <TableRow>
+                                            <TableCell>
+
+                                                <Typography variant="body2">
+                                                    {
+                                                        this.props.model.description
+                                                            ? <Markdown source={this.props.model.description} />
+                                                            : "<< no info >>"
+                                                    }
+                                                </Typography>
+                                            </TableCell>
+                                        </TableRow>
+                                        <TableRow>
+                                            <TableCell style={{ backgroundColor: Theme.tableHeader }}><Typography variant="body2"><b>Test Protocol</b></Typography></TableCell>
+                                        </TableRow>
+                                        <TableRow>
+                                            <TableCell>
+                                                <Typography variant="body2">
+                                                    {
+                                                        this.props.test.description
+                                                            ? <Markdown source={this.props.test.description} />
+                                                            : "<< no info >>"
+                                                    }
+                                                </Typography>
+                                            </TableCell>
+                                        </TableRow>
+                                    </TableBody>
+                                </Table>
+                            </TableContainer>
                         </AccordionDetails>
                     </Accordion>
                 </Grid>
@@ -256,24 +274,24 @@ class ResultModelTestInfo extends React.Component {
                             <Typography variant="subtitle1"><b>Model & Test Instance: Descriptions</b></Typography>
                         </AccordionSummary>
                         <AccordionDetails>
-                                <TableContainer component={Paper}>
-                                    <Table>
-                                        <TableBody>
-                                            <TableRow>
-                                                <TableCell style={{ backgroundColor: Theme.tableHeader }}><Typography variant="body2"><b>Model Instance Description</b></Typography></TableCell>
-                                            </TableRow>
-                                            <TableRow>
-                                                <TableCell><Typography variant="body2">{this.props.model_instance.description ? this.props.model_instance.description : "<< no info >>"}</Typography></TableCell>
-                                            </TableRow>
-                                            <TableRow>
-                                                <TableCell style={{ backgroundColor: Theme.tableHeader }}><Typography variant="body2"><b>Test Instance Description</b></Typography></TableCell>
-                                            </TableRow>
-                                            <TableRow>
-                                                <TableCell><Typography variant="body2">{this.props.test_instance.description ? this.props.test_instance.description : "<< no info >>"}</Typography></TableCell>
-                                            </TableRow>
-                                        </TableBody>
-                                    </Table>
-                                </TableContainer>
+                            <TableContainer component={Paper}>
+                                <Table>
+                                    <TableBody>
+                                        <TableRow>
+                                            <TableCell style={{ backgroundColor: Theme.tableHeader }}><Typography variant="body2"><b>Model Instance Description</b></Typography></TableCell>
+                                        </TableRow>
+                                        <TableRow>
+                                            <TableCell><Typography variant="body2">{this.props.model_instance.description ? this.props.model_instance.description : "<< no info >>"}</Typography></TableCell>
+                                        </TableRow>
+                                        <TableRow>
+                                            <TableCell style={{ backgroundColor: Theme.tableHeader }}><Typography variant="body2"><b>Test Instance Description</b></Typography></TableCell>
+                                        </TableRow>
+                                        <TableRow>
+                                            <TableCell><Typography variant="body2">{this.props.test_instance.description ? this.props.test_instance.description : "<< no info >>"}</Typography></TableCell>
+                                        </TableRow>
+                                    </TableBody>
+                                </Table>
+                            </TableContainer>
                         </AccordionDetails>
                     </Accordion>
                 </Grid>
