@@ -32,10 +32,18 @@ function AccessibilityIcon(props) {
 }
 
 function CompareIcon(props) {
-    if (props.compareFlag) {
+    if (props.compareFlag === null) {
+        return (
+            <Tooltip title="Cannot add to compare (no model instances)" placement="top">
+                <IconButton aria-label="compare model" style={{ backgroundColor: Theme.disabledColor, marginLeft: 10 }}>
+                    <AddToQueueIcon color="disabled" />
+                </IconButton>
+            </Tooltip>
+        )
+    } else if (props.compareFlag) {
         return (
             <Tooltip title="Remove model from compare" placement="top">
-                <IconButton aria-label="edit model" onClick={() => props.removeModelCompare()} style={{ backgroundColor: Theme.disabledColor, marginLeft: 10 }}>
+                <IconButton aria-label="compare model" onClick={() => props.removeModelCompare()} style={{ backgroundColor: Theme.disabledColor, marginLeft: 10 }}>
                     <RemoveFromQueueIcon color="action" />
                 </IconButton>
             </Tooltip>
@@ -43,7 +51,7 @@ function CompareIcon(props) {
     } else {
         return (
             <Tooltip title="Add model to compare" placement="top">
-                <IconButton aria-label="edit model" onClick={() => props.addModelCompare()} style={{ backgroundColor: Theme.buttonSecondary, marginLeft: 10 }}>
+                <IconButton aria-label="compare model" onClick={() => props.addModelCompare()} style={{ backgroundColor: Theme.buttonSecondary, marginLeft: 10 }}>
                     <AddToQueueIcon color="action" />
                 </IconButton>
             </Tooltip>

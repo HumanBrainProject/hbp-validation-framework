@@ -1,5 +1,7 @@
 import React from 'react';
 import Grid from '@material-ui/core/Grid';
+import LockIcon from '@material-ui/icons/Lock';
+import PublicIcon from '@material-ui/icons/Public';
 import EditIcon from '@material-ui/icons/Edit';
 import AddToQueueIcon from '@material-ui/icons/AddToQueue';
 import RemoveFromQueueIcon from '@material-ui/icons/RemoveFromQueue';
@@ -12,6 +14,34 @@ import ContextMain from './ContextMain';
 import Theme from './theme';
 import { withSnackbar } from 'notistack';
 import { copyToClipboard, showNotification, formatTimeStampToLongString } from './utils';
+
+function CompareIcon(props) {
+    if (props.compareFlag === null) {
+        return (
+            <Tooltip title="Cannot add to compare (no test instances)" placement="top">
+                <IconButton aria-label="compare model" style={{ backgroundColor: Theme.disabledColor, marginLeft: 10 }}>
+                    <AddToQueueIcon color="disabled" />
+                </IconButton>
+            </Tooltip>
+        )
+    } else if (props.compareFlag) {
+        return (
+            <Tooltip title="Remove test from compare" placement="top">
+                <IconButton aria-label="compare test" onClick={() => props.removeTestCompare()} style={{ backgroundColor: Theme.disabledColor, marginLeft: 10 }}>
+                    <RemoveFromQueueIcon color="action" />
+                </IconButton>
+            </Tooltip>
+        )
+    } else {
+        return (
+            <Tooltip title="Add test to compare" placement="top">
+                <IconButton aria-label="compare test" onClick={() => props.addTestCompare()} style={{ backgroundColor: Theme.buttonSecondary, marginLeft: 10 }}>
+                    <AddToQueueIcon color="action" />
+                </IconButton>
+            </Tooltip>
+        )
+    }
+}
 
 class TestDetailHeader extends React.Component {
     static contextType = ContextMain;
@@ -68,11 +98,12 @@ class TestDetailHeader extends React.Component {
                 <Grid item>
                     <Typography variant="h4" gutterBottom>
                         <span style={{ marginHorizontal: 125, cursor: "pointer" }} onClick={() => copyToClipboard(this.props.name, this.props.enqueueSnackbar, "Test name copied")}> {this.props.name}</span>
-                        <Tooltip placement="right" title="Edit Model">
-                            <IconButton aria-label="edit model" onClick={() => this.handleEditClick()}>
+                        <Tooltip placement="right" title="Edit Test">
+                            <IconButton aria-label="edit test" onClick={() => this.handleEditClick()}>
                                 <EditIcon />
                             </IconButton>
                         </Tooltip>
+                        <CompareIcon compareFlag={this.props.compareFlag} addTestCompare={this.props.addTestCompare} removeTestCompare={this.props.removeTestCompare} />
                     </Typography>
                     <Typography variant="h5" gutterBottom>
                         {this.props.authors}

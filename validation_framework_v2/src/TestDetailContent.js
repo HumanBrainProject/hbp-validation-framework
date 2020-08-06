@@ -161,7 +161,7 @@ class TestDetailContent extends React.Component {
                                 ?
                                 <Typography variant="h6">
                                     <br />
-                                    No model instances have yet been registered for this model!
+                                    No test instances have yet been registered for this test!
                                 </Typography>
                                 :
                                 this.state.instances.map(instance => (

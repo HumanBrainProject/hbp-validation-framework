@@ -101,7 +101,7 @@ class ModelDetail extends React.Component {
             error: null,
             modelData: this.props.modelData,
             auth: authContext,
-            compareFlag: this.checkCompareStatus()
+            compareFlag: this.props.modelData.instances.length === 0 ? null : this.checkCompareStatus()
         };
         if (DevMode) {
             this.state['results'] = result_data.results;

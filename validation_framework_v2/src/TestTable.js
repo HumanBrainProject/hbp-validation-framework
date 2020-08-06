@@ -134,28 +134,33 @@ class TestTable extends React.Component {
         let [compareTests, setCompareTests] = this.context.compareTests;
         console.log(compareTests);
         for (let test of selectedTests) {
-            // check if test already added to compare
-            if (!(test.id in compareTests)) {
-                compareTests[test.id] = {
-                    "name": test.name,
-                    "alias": test.alias,
-                    "selected_instances": {}
-                }
-            }
-            // loop through every instance of this test
-            for (let test_inst of test.instances) {
-                // check if test instance already added to compare
-                if (!(test_inst.id in compareTests[test.id].selected_instances)) {
-                    compareTests[test.id].selected_instances[test_inst.id] = {
-                        "version": test_inst.version,
-                        "timestamp": test_inst.timestamp
+            // Note: only tests with instances can be added to compare
+            if (test.instances.length > 0) {
+                // check if test already added to compare
+                if (!(test.id in compareTests)) {
+                    compareTests[test.id] = {
+                        "name": test.name,
+                        "alias": test.alias,
+                        "selected_instances": {}
                     }
                 }
+                // loop through every instance of this test
+                for (let test_inst of test.instances) {
+                    // check if test instance already added to compare
+                    if (!(test_inst.id in compareTests[test.id].selected_instances)) {
+                        compareTests[test.id].selected_instances[test_inst.id] = {
+                            "version": test_inst.version,
+                            "timestamp": test_inst.timestamp
+                        }
+                    }
+                }
+                showNotification(this.props.enqueueSnackbar, "Test '" + test.name + "' added to compare!", "info")
+            } else {
+                showNotification(this.props.enqueueSnackbar, "Skipped: test '" + test.name + "' (0 instances)!", "error")
             }
         }
         console.log(compareTests);
         setCompareTests(compareTests);
-        showNotification(this.props.enqueueSnackbar, "Chosen test(s) added to compare!", "info")
     }
 
     handleViewSelectedClose() {

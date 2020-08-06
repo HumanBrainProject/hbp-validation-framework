@@ -268,10 +268,6 @@ class CompareMultiResults extends React.Component {
     constructor(props, context) {
         super(props, context);
         const [authContext,] = this.context.auth;
-        console.log(context.compareModels);
-        console.log(context.compareModels[0]);
-        console.log(context.compareTests);
-        console.log(context.compareTests[0]);
 
         this.state = {
             model_dict: context.compareModels[0],

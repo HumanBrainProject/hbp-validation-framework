@@ -14,6 +14,8 @@ import Tab from '@material-ui/core/Tab';
 import Box from '@material-ui/core/Box';
 import Theme from './theme';
 import ContextMain from './ContextMain';
+import { showNotification } from './utils';
+import { withSnackbar } from 'notistack';
 
 import axios from 'axios';
 
@@ -84,7 +86,7 @@ const MyDialogTitle = withStyles(styles)(props => {
 });
 
 
-export default class TestDetail extends React.Component {
+class TestDetail extends React.Component {
     signal = axios.CancelToken.source();
     static contextType = ContextMain;
 
@@ -98,13 +100,17 @@ export default class TestDetail extends React.Component {
             loadingResult: true,
             error: null,
             testData: this.props.testData,
-            auth: authContext
+            auth: authContext,
+            compareFlag: this.props.testData.instances.length === 0 ? null : this.checkCompareStatus()
         };
         if (DevMode) {
             this.state['results'] = result_data.results;
             this.state['loadingResult'] = false;
         }
         this.updateCurrentTestData = this.updateCurrentTestData.bind(this);
+        this.checkCompareStatus = this.checkCompareStatus.bind(this);
+        this.addTestCompare = this.addTestCompare.bind(this);
+        this.removeTestCompare = this.removeTestCompare.bind(this);
         this.handleClose = this.handleClose.bind(this);
         this.handleTabChange = this.handleTabChange.bind(this);
     }
@@ -123,6 +129,69 @@ export default class TestDetail extends React.Component {
         this.setState({
             testData: updatedTestData
         })
+    }
+
+    checkCompareStatus() {
+        // required since test could have been added to compare via table listing
+        let [compareTests,] = this.context.compareTests;
+        // check if test exists in compare
+        if (!(this.props.testData.id in compareTests)) {
+            return false;
+        }
+        let test_inst_ids = this.props.testData.instances.map(item => item.id).sort()
+        let compare_test_inst_ids = Object.keys(compareTests[this.props.testData.id].selected_instances).sort()
+        // check if all the test instances already added to compare
+        console.log(test_inst_ids.toString());
+        console.log(compare_test_inst_ids.toString());
+        if (test_inst_ids.toString() === compare_test_inst_ids.toString()) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    addTestCompare() {
+        console.log("Add item to compare.")
+        let [compareTests, setCompareTests] = this.context.compareTests;
+        console.log(compareTests);
+        let test = this.state.testData;
+        // check if test already added to compare
+        if (!(test.id in compareTests)) {
+            compareTests[test.id] = {
+                "name": test.name,
+                "alias": test.alias,
+                "selected_instances": {}
+            }
+        }
+        // loop through every instance of this test
+        for (let test_inst of test.instances) {
+            // check if test instance already added to compare
+            if (!(test_inst.id in compareTests[test.id].selected_instances)) {
+                compareTests[test.id].selected_instances[test_inst.id] = {
+                    "version": test_inst.version,
+                    "timestamp": test_inst.timestamp
+                }
+            }
+        }
+        console.log(compareTests);
+        setCompareTests(compareTests);
+        this.setState({ compareFlag: true })
+        showNotification(this.props.enqueueSnackbar, "Test added to compare!", "info")
+    }
+
+    removeTestCompare() {
+        console.log("Remove item from compare.")
+        let [compareTests, setCompareTests] = this.context.compareTests;
+        console.log(compareTests);
+        let test = this.state.testData;
+        // remove if test exists for compare
+        if (test.id in compareTests) {
+            delete compareTests[test.id];
+        }
+        console.log(compareTests);
+        setCompareTests(compareTests);
+        this.setState({ compareFlag: false })
+        showNotification(this.props.enqueueSnackbar, "Test removed from compare!", "info")
     }
 
     handleClose() {
@@ -180,6 +249,9 @@ export default class TestDetail extends React.Component {
                                 implementation_status={this.state.testData.implementation_status}
                                 testData={this.state.testData}
                                 updateCurrentTestData={this.updateCurrentTestData}
+                                compareFlag={this.state.compareFlag}
+                                addTestCompare={this.addTestCompare}
+                                removeTestCompare={this.removeTestCompare}
                             ></TestDetailHeader>
                         </Grid>
                         <Grid item xs={12}>
@@ -242,3 +314,5 @@ TestDetail.propTypes = {
     onClose: PropTypes.func.isRequired,
     open: PropTypes.bool.isRequired
 };
+
+export default withSnackbar(TestDetail);
