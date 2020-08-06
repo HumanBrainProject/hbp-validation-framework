@@ -268,42 +268,46 @@ class CompareMultiResults extends React.Component {
     constructor(props, context) {
         super(props, context);
         const [authContext,] = this.context.auth;
+        console.log(context.compareModels);
+        console.log(context.compareModels[0]);
+        console.log(context.compareTests);
+        console.log(context.compareTests[0]);
 
         this.state = {
-            // model_dict: {},
-            // test_dict: {},
-            model_dict: {
-                "00f2e856-27a8-4b8d-9ec3-4e2581c546e4": {
-                    "name": "CA1_pyr_cACpyr_mpg141208_B_idA_20170915151855",
-                    "alias": null,
-                    "selected_instances": {
-                        "b0ba8f05-b049-4cdd-93ea-1ed646671d21": { "version": "1.0", "timestamp": "2018-03-29T14:21:08.597975+00:00" }
-                    }
-                },
-                "01006de7-e861-45fb-abf4-3c84e609d33b": {
-                    "name": "CA1_int_cNAC_970911C_20180120154902",
-                    "alias": null,
-                    "selected_instances": {
-                        "ac33b476-2cc1-4876-8945-b9621aed45a2": { "version": "1.0", "timestamp": "2018-03-29T14:19:55.167777+00:00" }
-                    }
-                }
-            },
-            test_dict: {
-                "100abccb-6d30-4c1e-a960-bc0489e0d82d": {
-                    "name": "Hippocampus_SomaticFeaturesTest_CA1_pyr_cACpyr",
-                    "alias": "hippo_somafeat_CA1_pyr_cACpyr",
-                    "selected_instances": {
-                        "1d22e1c0-5a74-49b4-b114-41d233d3250a": { "version": "1.0", "timestamp": "2019-03-28T12:54:19.318444+00:00" }
-                    }
-                },
-                "e316f735-42d5-43f8-8729-6ac2e626353d": {
-                    "name": "Hippocampus_CA1_ObliqueIntegrationTest",
-                    "alias": "hippo_ca1_obl_int",
-                    "selected_instances": {
-                        "9067289a-11d0-4c13-b6f1-50c84a4f3cb2": { "version": "1.3.5", "timestamp": "2020-05-29T13:08:02.055709+00:00" }
-                    }
-                }
-            },
+            model_dict: context.compareModels[0],
+            test_dict: context.compareTests[0],
+            // model_dict: {
+            //     "00f2e856-27a8-4b8d-9ec3-4e2581c546e4": {
+            //         "name": "CA1_pyr_cACpyr_mpg141208_B_idA_20170915151855",
+            //         "alias": null,
+            //         "selected_instances": {
+            //             "b0ba8f05-b049-4cdd-93ea-1ed646671d21": { "version": "1.0", "timestamp": "2018-03-29T14:21:08.597975+00:00" }
+            //         }
+            //     },
+            //     "01006de7-e861-45fb-abf4-3c84e609d33b": {
+            //         "name": "CA1_int_cNAC_970911C_20180120154902",
+            //         "alias": null,
+            //         "selected_instances": {
+            //             "ac33b476-2cc1-4876-8945-b9621aed45a2": { "version": "1.0", "timestamp": "2018-03-29T14:19:55.167777+00:00" }
+            //         }
+            //     }
+            // },
+            // test_dict: {
+            //     "100abccb-6d30-4c1e-a960-bc0489e0d82d": {
+            //         "name": "Hippocampus_SomaticFeaturesTest_CA1_pyr_cACpyr",
+            //         "alias": "hippo_somafeat_CA1_pyr_cACpyr",
+            //         "selected_instances": {
+            //             "1d22e1c0-5a74-49b4-b114-41d233d3250a": { "version": "1.0", "timestamp": "2019-03-28T12:54:19.318444+00:00" }
+            //         }
+            //     },
+            //     "e316f735-42d5-43f8-8729-6ac2e626353d": {
+            //         "name": "Hippocampus_CA1_ObliqueIntegrationTest",
+            //         "alias": "hippo_ca1_obl_int",
+            //         "selected_instances": {
+            //             "9067289a-11d0-4c13-b6f1-50c84a4f3cb2": { "version": "1.3.5", "timestamp": "2020-05-29T13:08:02.055709+00:00" }
+            //         }
+            //     }
+            // },
             model_inst_ids: [],
             test_inst_ids: [],
             results: [],
@@ -1398,7 +1402,7 @@ class CompareMultiResults extends React.Component {
                             (this.state.total_model_insts === 0 && this.state.total_test_insts === 0)
                             &&
                             <Grid container spacing={3}>
-                                <Grid item xs={12}>
+                                <Grid item xs={12} align="center">
                                     <Box display="flex" justifyContent="center" alignItems="center">
                                         <Typography variant="h6">
                                             <br /><br />

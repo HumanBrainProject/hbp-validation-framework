@@ -3,11 +3,15 @@ import Grid from '@material-ui/core/Grid';
 import LockIcon from '@material-ui/icons/Lock';
 import PublicIcon from '@material-ui/icons/Public';
 import EditIcon from '@material-ui/icons/Edit';
+import AddToQueueIcon from '@material-ui/icons/AddToQueue';
+import RemoveFromQueueIcon from '@material-ui/icons/RemoveFromQueue';
 import { Typography } from '@material-ui/core';
 import ModelEditForm from './ModelEditForm';
 import ErrorDialog from './ErrorDialog';
 import Tooltip from '@material-ui/core/Tooltip';
 import IconButton from '@material-ui/core/IconButton';
+import ContextMain from './ContextMain';
+import Theme from './theme';
 import { withSnackbar } from 'notistack';
 import { copyToClipboard, showNotification, formatTimeStampToLongString } from './utils';
 
@@ -27,9 +31,31 @@ function AccessibilityIcon(props) {
     }
 }
 
+function CompareIcon(props) {
+    if (props.compareFlag) {
+        return (
+            <Tooltip title="Remove model from compare" placement="top">
+                <IconButton aria-label="edit model" onClick={() => props.removeModelCompare()} style={{ backgroundColor: Theme.disabledColor, marginLeft: 10 }}>
+                    <RemoveFromQueueIcon color="action" />
+                </IconButton>
+            </Tooltip>
+        )
+    } else {
+        return (
+            <Tooltip title="Add model to compare" placement="top">
+                <IconButton aria-label="edit model" onClick={() => props.addModelCompare()} style={{ backgroundColor: Theme.buttonSecondary, marginLeft: 10 }}>
+                    <AddToQueueIcon color="action" />
+                </IconButton>
+            </Tooltip>
+        )
+    }
+}
+
 class ModelDetailHeader extends React.Component {
-    constructor(props) {
-        super(props);
+    static contextType = ContextMain;
+
+    constructor(props, context) {
+        super(props, context);
 
         this.state = {
             openEditForm: false,
@@ -82,10 +108,11 @@ class ModelDetailHeader extends React.Component {
                         <AccessibilityIcon private={this.props.private} />
                         <span style={{ marginHorizontal: 125, cursor: "pointer" }} onClick={() => copyToClipboard(this.props.name, this.props.enqueueSnackbar, "Model name copied")}> {this.props.name}</span>
                         <Tooltip placement="right" title="Edit Model">
-                            <IconButton aria-label="edit model" onClick={() => this.handleEditClick()}>
+                            <IconButton aria-label="edit model" onClick={() => this.handleEditClick()} style={{ backgroundColor: Theme.buttonSecondary, marginLeft: 10 }}>
                                 <EditIcon />
                             </IconButton>
                         </Tooltip>
+                        <CompareIcon compareFlag={this.props.compareFlag} addModelCompare={this.props.addModelCompare} removeModelCompare={this.props.removeModelCompare} />
                     </Typography>
                     <Typography variant="h5" gutterBottom>
                         {this.props.authors}

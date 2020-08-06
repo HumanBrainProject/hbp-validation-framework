@@ -4,6 +4,8 @@ import Grid from '@material-ui/core/Grid';
 import IconButton from '@material-ui/core/IconButton';
 import Tooltip from '@material-ui/core/Tooltip';
 import EditIcon from '@material-ui/icons/Edit';
+import AddToQueueIcon from '@material-ui/icons/AddToQueue';
+import RemoveFromQueueIcon from '@material-ui/icons/RemoveFromQueue';
 import { withSnackbar } from 'notistack';
 import React from 'react';
 import ErrorDialog from './ErrorDialog';
@@ -11,6 +13,7 @@ import Markdown from './Markdown';
 import TestInstanceAddForm from './TestInstanceAddForm';
 import TestInstanceEditForm from './TestInstanceEditForm';
 import Theme from './theme';
+import ContextMain from './ContextMain';
 import { copyToClipboard, formatTimeStampToLongString, showNotification } from './utils';
 
 function InstanceParameter(props) {
@@ -30,8 +33,10 @@ function InstanceParameter(props) {
 }
 
 class TestDetailContent extends React.Component {
-    constructor(props) {
-        super(props);
+    static contextType = ContextMain;
+    I
+    constructor(props, context) {
+        super(props, context);
         console.log(this.props);
 
         this.state = {

@@ -320,18 +320,22 @@ export default class ResultGraphs extends React.Component {
                                     <Typography variant="subtitle1">Test: <b>{dict_results[test_id].test_alias ? dict_results[test_id].test_alias : dict_results[test_id].test_name}</b></Typography>
                                 </AccordionSummary>
                                 <AccordionDetails>
-                                    {Object.entries(dict_results[test_id]["test_instances"]).map(([test_inst_id, test_inst_entry]) =>
-                                        <Grid container key={test_inst_id}>
+                                    <Grid container spacing={3}>
+                                        {Object.entries(dict_results[test_id]["test_instances"]).map(([test_inst_id, test_inst_entry]) =>
                                             <Grid item>
-                                                <ResultsFiguresTestIntance
-                                                    test_inst_id={test_inst_id}
-                                                    test_inst_entry={test_inst_entry}
-                                                    key={test_inst_id}
-                                                    handleResultEntryClick={this.handleResultEntryClick}
-                                                />
+                                                <Grid container key={test_inst_id}>
+                                                    <Grid item>
+                                                        <ResultsFiguresTestIntance
+                                                            test_inst_id={test_inst_id}
+                                                            test_inst_entry={test_inst_entry}
+                                                            key={test_inst_id}
+                                                            handleResultEntryClick={this.handleResultEntryClick}
+                                                        />
+                                                    </Grid>
+                                                </Grid>
                                             </Grid>
-                                        </Grid>
-                                    )}
+                                        )}
+                                    </Grid>
                                 </AccordionDetails>
                             </Accordion>
                         )}

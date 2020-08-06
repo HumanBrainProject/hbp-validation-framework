@@ -1,17 +1,23 @@
 import React from 'react';
 import Grid from '@material-ui/core/Grid';
 import EditIcon from '@material-ui/icons/Edit';
+import AddToQueueIcon from '@material-ui/icons/AddToQueue';
+import RemoveFromQueueIcon from '@material-ui/icons/RemoveFromQueue';
 import { Typography } from '@material-ui/core';
 import TestEditForm from './TestEditForm';
 import ErrorDialog from './ErrorDialog';
 import Tooltip from '@material-ui/core/Tooltip';
 import IconButton from '@material-ui/core/IconButton';
+import ContextMain from './ContextMain';
+import Theme from './theme';
 import { withSnackbar } from 'notistack';
 import { copyToClipboard, showNotification, formatTimeStampToLongString } from './utils';
 
 class TestDetailHeader extends React.Component {
-    constructor(props) {
-        super(props);
+    static contextType = ContextMain;
+
+    constructor(props, context) {
+        super(props, context);
 
         this.state = {
             openEditForm: false,

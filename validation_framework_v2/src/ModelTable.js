@@ -6,12 +6,16 @@ import MUIDataTableCustomToolbar from "./MUIDataTableCustomToolbar";
 import CustomToolbarSelect from "./MUIDataTableCustomRowToolbar";
 import ViewSelected from "./ViewSelected";
 import Theme from './theme';
+import ContextMain from './ContextMain';
 import { showNotification } from './utils';
 import { withSnackbar } from 'notistack';
 
 class ModelTable extends React.Component {
-    constructor(props) {
-        super(props);
+    static contextType = ContextMain;
+
+    constructor(props, context) {
+        super(props, context);
+
         this.state = {
             data: this.props.modelData,
             selectedData: [],
@@ -21,6 +25,7 @@ class ModelTable extends React.Component {
         this.downloadSelectedJSON = this.downloadSelectedJSON.bind(this);
         this.hideTableRows = this.hideTableRows.bind(this);
         this.viewSelectedItems = this.viewSelectedItems.bind(this);
+        this.addModelCompare = this.addModelCompare.bind(this);
         this.handleViewSelectedClose = this.handleViewSelectedClose.bind(this);
     }
 
@@ -114,6 +119,45 @@ class ModelTable extends React.Component {
         })
     }
 
+    addModelCompare(selectedRows) {
+        console.log("Add item(s) to compare.")
+        var selectedModels = [];
+        for (var item in selectedRows.data) {
+            let data = this.state.data[selectedRows.data[item].index]
+            let ordered_data = {};
+            Object.keys(data).sort().forEach(function (key) {
+                ordered_data[key] = data[key];
+            });
+            selectedModels.push(ordered_data)
+        }
+
+        let [compareModels, setCompareModels] = this.context.compareModels;
+        console.log(compareModels);
+        for (let model of selectedModels) {
+            // check if model already added to compare
+            if (!(model.id in compareModels)) {
+                compareModels[model.id] = {
+                    "name": model.name,
+                    "alias": model.alias,
+                    "selected_instances": {}
+                }
+            }
+            // loop through every instance of this model
+            for (let model_inst of model.instances) {
+                // check if model instance already added to compare
+                if (!(model_inst.id in compareModels[model.id].selected_instances)) {
+                    compareModels[model.id].selected_instances[model_inst.id] = {
+                        "version": model_inst.version,
+                        "timestamp": model_inst.timestamp
+                    }
+                }
+            }
+        }
+        console.log(compareModels);
+        setCompareModels(compareModels);
+        showNotification(this.props.enqueueSnackbar, "Chosen model(s) added to compare!", "info")
+    }
+
     handleViewSelectedClose() {
         this.setState({ viewSelectedOpen: false })
     }
@@ -172,7 +216,7 @@ class ModelTable extends React.Component {
                             customToolbar: () => {
                                 return <MUIDataTableCustomToolbar display={this.props.display} changeTableWidth={this.props.changeTableWidth} tableType="models" addNew={this.props.openAddModelForm} openCompareResults={this.props.openCompareResults} />;
                             },
-                            customToolbarSelect: (selectedRows) => <CustomToolbarSelect selectedRows={selectedRows} downloadSelectedJSON={this.downloadSelectedJSON} hideTableRows={this.hideTableRows} viewSelectedItems={this.viewSelectedItems} />
+                            customToolbarSelect: (selectedRows) => <CustomToolbarSelect selectedRows={selectedRows} downloadSelectedJSON={this.downloadSelectedJSON} hideTableRows={this.hideTableRows} viewSelectedItems={this.viewSelectedItems} addCompare={this.addModelCompare} />
                         }}
                     />
                 </MuiThemeProvider>

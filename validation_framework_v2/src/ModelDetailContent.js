@@ -4,6 +4,8 @@ import Box from '@material-ui/core/Box';
 import IconButton from '@material-ui/core/IconButton';
 import CloudDownloadIcon from '@material-ui/icons/CloudDownload';
 import EditIcon from '@material-ui/icons/Edit';
+import AddToQueueIcon from '@material-ui/icons/AddToQueue';
+import RemoveFromQueueIcon from '@material-ui/icons/RemoveFromQueue';
 import Markdown from './Markdown';
 import { Typography, Button } from '@material-ui/core';
 import ModelInstanceAddForm from './ModelInstanceAddForm';
@@ -11,6 +13,7 @@ import ModelInstanceEditForm from './ModelInstanceEditForm';
 import ErrorDialog from './ErrorDialog';
 import Tooltip from '@material-ui/core/Tooltip';
 import Theme from './theme';
+import ContextMain from './ContextMain';
 import { formatTimeStampToLongString, copyToClipboard, showNotification } from './utils';
 import { withSnackbar } from 'notistack';
 
@@ -87,8 +90,10 @@ function InstanceParameter(props) {
 }
 
 class ModelDetailContent extends React.Component {
-    constructor(props) {
-        super(props);
+    static contextType = ContextMain;
+
+    constructor(props, context) {
+        super(props, context);
 
         this.state = {
             openAddInstanceForm: false,
