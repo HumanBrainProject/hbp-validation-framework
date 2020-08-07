@@ -115,7 +115,7 @@ class ModelDetailHeader extends React.Component {
                     <Typography variant="h4" gutterBottom>
                         <AccessibilityIcon private={this.props.private} />
                         <span style={{ marginHorizontal: 125, cursor: "pointer" }} onClick={() => copyToClipboard(this.props.name, this.props.enqueueSnackbar, "Model name copied")}> {this.props.name}</span>
-                        <Tooltip placement="right" title="Edit Model">
+                        <Tooltip placement="top" title="Edit Model">
                             <IconButton aria-label="edit model" onClick={() => this.handleEditClick()} style={{ backgroundColor: Theme.buttonSecondary, marginLeft: 10 }}>
                                 <EditIcon />
                             </IconButton>

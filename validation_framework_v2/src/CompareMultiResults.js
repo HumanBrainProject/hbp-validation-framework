@@ -36,6 +36,7 @@ import axios from 'axios';
 import { withSnackbar } from 'notistack';
 import PropTypes from 'prop-types';
 import React from 'react';
+import CompareMultiGraphs from './CompareMultiGraphs';
 import ContextMain from './ContextMain';
 import { baseUrl, querySizeLimit, updateHash } from "./globals";
 import LoadingIndicator from "./LoadingIndicator";
@@ -297,34 +298,38 @@ class CompareMultiResults extends React.Component {
             model_dict: context.compareModels[0],
             test_dict: context.compareTests[0],
             // model_dict: {
-            //     "00f2e856-27a8-4b8d-9ec3-4e2581c546e4": {
-            //         "name": "CA1_pyr_cACpyr_mpg141208_B_idA_20170915151855",
+            //     "01da73a6-8715-431b-aaa7-efcd9358c786": {
+            //         "name": "CA1_pyr_cACpyr_mpg141208_B_idA_20190328144006",
             //         "alias": null,
             //         "selected_instances": {
-            //             "b0ba8f05-b049-4cdd-93ea-1ed646671d21": { "version": "1.0", "timestamp": "2018-03-29T14:21:08.597975+00:00" }
+            //             "d6340679-9534-40ef-bd35-651be3ce0609": { "version": "1.0", "timestamp": "2019-06-18T15:15:18.595899+00:00" },
+            //             "5a9cd261-6018-48e0-a803-74dca89e88c6": { "version": "2.0", "timestamp": "2020-02-19T10:44:48.820740+00:00" }
             //         }
             //     },
-            //     "01006de7-e861-45fb-abf4-3c84e609d33b": {
-            //         "name": "CA1_int_cNAC_970911C_20180120154902",
+            //     "03e67e24-6df5-405a-8299-7d797ecee58b": {
+            //         "name": "CA1_pyr_cACpyr_mpg150305_A_idB_20190305112012",
             //         "alias": null,
             //         "selected_instances": {
-            //             "ac33b476-2cc1-4876-8945-b9621aed45a2": { "version": "1.0", "timestamp": "2018-03-29T14:19:55.167777+00:00" }
+            //             "a21af2da-dedd-4f94-afe9-7564f76368b4": { "version": "1.0", "timestamp": "2019-06-18T15:15:28.260093+00:00" },
+            //             "cadba67c-06b2-4819-8f4d-43bcb501d7b8": { "version": "2.0", "timestamp": "2020-02-19T10:45:21.300875+00:00" }
             //         }
             //     }
             // },
             // test_dict: {
+            //     "dd0842c0-c016-42be-98a6-18d32c2e9a3b": {
+            //         "name": "Hippocampus_CA1_PSPAttenuationTest",
+            //         "alias": "hippo_ca1_psp_attenuation",
+            //         "selected_instances": {
+            //             "d20c56a6-b9ff-4fe5-a687-1a9e1a2c0489": { "version": "1.0", "timestamp": "2018-03-08T15:51:44.177419+00:00" },
+            //             "621d76cb-8591-4c8d-adff-c913899a6420": { "version": "1.3.5", "timestamp": "2020-05-29T13:07:58.738175+00:00" }
+            //         }
+            //     },
             //     "100abccb-6d30-4c1e-a960-bc0489e0d82d": {
             //         "name": "Hippocampus_SomaticFeaturesTest_CA1_pyr_cACpyr",
             //         "alias": "hippo_somafeat_CA1_pyr_cACpyr",
             //         "selected_instances": {
-            //             "1d22e1c0-5a74-49b4-b114-41d233d3250a": { "version": "1.0", "timestamp": "2019-03-28T12:54:19.318444+00:00" }
-            //         }
-            //     },
-            //     "e316f735-42d5-43f8-8729-6ac2e626353d": {
-            //         "name": "Hippocampus_CA1_ObliqueIntegrationTest",
-            //         "alias": "hippo_ca1_obl_int",
-            //         "selected_instances": {
-            //             "9067289a-11d0-4c13-b6f1-50c84a4f3cb2": { "version": "1.3.5", "timestamp": "2020-05-29T13:08:02.055709+00:00" }
+            //             "1d22e1c0-5a74-49b4-b114-41d233d3250a": { "version": "1.0", "timestamp": "2019-03-28T12:54:19.318444+00:00" },
+            //             "b645536f-fd2c-4a84-9e3e-9372018fbe5d": { "version": "1.3.5", "timestamp": "2020-05-29T13:07:38.909226+00:00" }
             //         }
             //     }
             // },
@@ -536,7 +541,7 @@ class CompareMultiResults extends React.Component {
                 })
                 dict_model_versions[result.model.id] = [];
             }
-            
+
             if (dict_model_versions[result.model.id].map(item => item.model_inst_id).indexOf(result.model_instance.id) === -1) {
                 dict_model_versions[result.model.id].push({
                     model_inst_id: result.model_instance.id,
@@ -1164,9 +1169,12 @@ class CompareMultiResults extends React.Component {
         // render tables and figures for the selected results
         var content_table = "";
         var content_figures = "";
+        var content_summary = "";
+
         if (required_results.length === 0) {
             content_table = this.renderNoResults();
             content_figures = this.renderNoResults();
+            content_summary = this.renderNoResults();
         } else {
             let results_grouped = null;
             if (this.state.compareShow === "common_tests") {
@@ -1190,8 +1198,11 @@ class CompareMultiResults extends React.Component {
                 results={required_results}
                 loadingResult={false}
             />
+            content_summary = <CompareMultiGraphs
+                results={required_results}
+            />
         }
-        return [content_table, content_figures];
+        return [content_table, content_figures, content_summary];
     }
 
     componentDidMount() {
@@ -1282,6 +1293,7 @@ class CompareMultiResults extends React.Component {
     render() {
         var content_table = "";
         var content_figures = "";
+        var content_summary = "";
         var resultDetail = "";
 
         console.log(this.state.model_inst_ids)
@@ -1291,8 +1303,9 @@ class CompareMultiResults extends React.Component {
         if (this.state.loadingResults && this.state.compareShow) {
             content_table = <Grid item xs={12} align="center"><LoadingIndicator position="relative" /></Grid>
             content_figures = <Grid item xs={12} align="center"><LoadingIndicator position="relative" /></Grid>
+            content_summary = <Grid item xs={12} align="center"><LoadingIndicator position="relative" /></Grid>
         } else if (this.state.compareShow) {
-            [content_table, content_figures] = this.launchCompare();
+            [content_table, content_figures, content_summary] = this.launchCompare();
         }
 
         if (this.state.currentResult) {
@@ -1565,6 +1578,7 @@ class CompareMultiResults extends React.Component {
                                             style={{ backgroundColor: Theme.tableRowSelectColor, color: Theme.textPrimary }} >
                                             <Tab label="Table" />
                                             <Tab label="Figures" />
+                                            <Tab label="Summary" />
                                         </Tabs>
                                     </AppBar>
                                     <TabPanel value={this.state.tabValue} index={0}>
@@ -1572,6 +1586,9 @@ class CompareMultiResults extends React.Component {
                                     </TabPanel>
                                     <TabPanel value={this.state.tabValue} index={1}>
                                         {content_figures}
+                                    </TabPanel>
+                                    <TabPanel value={this.state.tabValue} index={2}>
+                                        {content_summary}
                                     </TabPanel>
                                 </Grid>
                             </Grid>

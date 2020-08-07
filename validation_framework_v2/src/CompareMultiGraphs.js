@@ -24,18 +24,17 @@ import ResultDetail from './ResultDetail';
 
 function ResultsFiguresTestIntance(props) {
     const Plot = createPlotlyComponent(Plotly);
+
+    var model_labels = [];
+    var model_version_labels = [];
+    var model_version_result_ids = [];
+    var model_version_scores = [];
     var traces = [];
     var layout = {};
     var label_resultJSON_map = {};
+    var customdata = [];
 
     for (let model_entry of Object.values(props.test_inst_entry["models"])) {
-        // a seperate trace for each model (all instances of same model within the same trace)
-        var model_labels = [];
-        var model_version_labels = [];
-        var model_version_result_ids = [];
-        var model_version_scores = [];
-        var customdata = [];
-
         for (let model_inst_entry of Object.values(model_entry["model_instances"])) {
             model_inst_entry["results"].forEach(function (result_entry, r_ind) {
                 model_labels.push(model_entry.model_name);
@@ -57,10 +56,10 @@ function ResultsFiguresTestIntance(props) {
                 // Note: hovertext is only being used hold a unique identifier for onClick()
                 hovertext: model_version_result_ids,
                 customdata: customdata,
-                hovertemplate: 'Model: <b>' + model_entry.model_name + '</b><br>' +
-                    'Version: <b>%{customdata[0]}</b><br>' +
-                    'Result #: <b>%{customdata[1]}</b><br>' +
-                    'Score: <b>%{y}</b><extra></extra>',
+                hovertemplate:  'Model: <b>'+model_entry.model_name+'</b><br>' +
+                                'Version: <b>%{customdata[0]}</b><br>' +
+                                'Result #: <b>%{customdata[1]}</b><br>' +
+                                'Score: <b>%{y}</b><extra></extra>',
                 name: model_entry.model_name,
                 type: 'bar',
                 // marker: { size: 16, color: Theme.plotBarColor }
@@ -92,12 +91,6 @@ function ResultsFiguresTestIntance(props) {
         autosize: true,
         barmode: 'group'
     };
-
-    console.log(model_labels);
-    console.log(model_version_labels);
-    console.log(model_version_scores);
-    console.log(traces);
-
 
     return (
         <Accordion defaultExpanded={true} key={props.test_inst_id} style={{ backgroundColor: Theme.lightBackground }}>
@@ -137,7 +130,7 @@ function ResultsFiguresTestIntance(props) {
     )
 }
 
-export default class ResultGraphs extends React.Component {
+export default class CompareMultiGraphs extends React.Component {
     constructor(props) {
         super(props);
 

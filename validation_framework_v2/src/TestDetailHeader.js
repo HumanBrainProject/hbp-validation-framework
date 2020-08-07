@@ -96,8 +96,8 @@ class TestDetailHeader extends React.Component {
                 <Grid item>
                     <Typography variant="h4" gutterBottom>
                         <span style={{ marginHorizontal: 125, cursor: "pointer" }} onClick={() => copyToClipboard(this.props.name, this.props.enqueueSnackbar, "Test name copied")}> {this.props.name}</span>
-                        <Tooltip placement="right" title="Edit Test">
-                            <IconButton aria-label="edit test" onClick={() => this.handleEditClick()}>
+                        <Tooltip placement="top" title="Edit Test">
+                            <IconButton aria-label="edit test" onClick={() => this.handleEditClick()} style={{ backgroundColor: Theme.buttonSecondary, marginLeft: 10 }}>
                                 <EditIcon />
                             </IconButton>
                         </Tooltip>
