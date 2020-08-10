@@ -27,9 +27,10 @@ function ResultsFiguresTestIntance(props) {
     var traces = [];
     var layout = {};
     var label_resultJSON_map = {};
+    var customdata = [];
 
     for (let model_entry of Object.values(props.test_inst_entry["models"])) {
-        // a seperate trace for each model (all instances of same model within the same trace)
+        // a seperate bar group for each model (all instances of same model within the same bar group)
         var model_labels = [];
         var model_version_labels = [];
         var model_version_result_ids = [];
@@ -40,6 +41,7 @@ function ResultsFiguresTestIntance(props) {
             model_inst_entry["results"].forEach(function (result_entry, r_ind) {
                 model_labels.push(model_entry.model_name);
                 model_version_labels.push(model_inst_entry.model_version + " (#" + r_ind + ")");
+                // customdata is used for setting hover description
                 customdata.push([model_inst_entry.model_version, r_ind])
                 model_version_result_ids.push(result_entry["result_id"]);
                 model_version_scores.push(result_entry.score);
@@ -56,6 +58,7 @@ function ResultsFiguresTestIntance(props) {
                 // text:model_labels,
                 // Note: hovertext is only being used hold a unique identifier for onClick()
                 hovertext: model_version_result_ids,
+                // customdata is used for setting hover description
                 customdata: customdata,
                 hovertemplate: 'Model: <b>' + model_entry.model_name + '</b><br>' +
                     'Version: <b>%{customdata[0]}</b><br>' +
@@ -92,12 +95,6 @@ function ResultsFiguresTestIntance(props) {
         autosize: true,
         barmode: 'group'
     };
-
-    console.log(model_labels);
-    console.log(model_version_labels);
-    console.log(model_version_scores);
-    console.log(traces);
-
 
     return (
         <Accordion defaultExpanded={true} key={props.test_inst_id} style={{ backgroundColor: Theme.lightBackground }}>
