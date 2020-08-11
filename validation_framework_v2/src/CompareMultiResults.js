@@ -168,6 +168,8 @@ class ResultPerInstanceComboMT extends React.Component {
 class ResultEntryModel extends React.Component {
     render() {
         const result_model = this.props.result_entry;
+        const list_tests = this.props.list_tests;
+        const dict_test_versions = this.props.dict_test_versions;
 
         const handleResultEntryClick = this.props.handleResultEntryClick;
         if (result_model) {
@@ -195,13 +197,21 @@ class ResultEntryModel extends React.Component {
                                     </Tooltip>
                                 </TableCell>
                                 {
-                                    Object.keys(result_model.model_instances[model_inst_id].tests).map((test_id, index) => (
-                                        Object.keys(result_model.model_instances[model_inst_id].tests[test_id].test_instances).map((test_inst_id, index) => (
-                                            <ResultPerInstanceComboMT result_MTcombo={result_model.model_instances[model_inst_id].tests[test_id].test_instances[test_inst_id].results}
-                                                handleResultEntryClick={handleResultEntryClick}
-                                                key={test_inst_id} />
-                                        ))
-                                    ))
+                                    // Not every model instance will have a result associated with every test instance (i.e. columns)
+                                    // thus we need to fill in the results in the correct columns (corresponding to matching test instances) 
+                                    list_tests.map(function (test) {
+                                        return dict_test_versions[test.test_id].map(function (test_inst) {
+                                            if (Object.keys(result_model.model_instances[model_inst_id].tests).includes(test.test_id)
+                                                && Object.keys(result_model.model_instances[model_inst_id].tests[test.test_id].test_instances).includes(test_inst.test_inst_id)) {
+                                                return <ResultPerInstanceComboMT result_MTcombo={result_model.model_instances[model_inst_id].tests[test.test_id].test_instances[test_inst.test_inst_id].results}
+                                                    handleResultEntryClick={handleResultEntryClick}
+                                                    key={test_inst.test_inst_id} />
+                                            } else {
+                                                // no result for this combination of model instance and test instance
+                                                return <TableCell colSpan={3} key={test_inst.test_inst_id}></TableCell>
+                                            }
+                                        })
+                                    })
                                 }
                             </TableRow>
                         ))
@@ -217,6 +227,8 @@ class ResultEntryModel extends React.Component {
 class ResultEntryTest extends React.Component {
     render() {
         const result_test = this.props.result_entry;
+        const list_models = this.props.list_models;
+        const dict_model_versions = this.props.dict_model_versions;
 
         const handleResultEntryClick = this.props.handleResultEntryClick;
         if (result_test) {
@@ -244,13 +256,21 @@ class ResultEntryTest extends React.Component {
                                     </Tooltip>
                                 </TableCell>
                                 {
-                                    Object.keys(result_test.test_instances[test_inst_id].models).map((model_id, index) => (
-                                        Object.keys(result_test.test_instances[test_inst_id].models[model_id].model_instances).map((model_inst_id, index) => (
-                                            <ResultPerInstanceComboMT result_MTcombo={result_test.test_instances[test_inst_id].models[model_id].model_instances[model_inst_id].results}
-                                                handleResultEntryClick={handleResultEntryClick}
-                                                key={model_inst_id} />
-                                        ))
-                                    ))
+                                    // Not every test instance will have a result associated with every model instance (i.e. columns)
+                                    // thus we need to fill in the results in the correct columns (corresponding to matching model instances) 
+                                    list_models.map(function (model) {
+                                        return dict_model_versions[model.model_id].map(function (model_inst) {
+                                            if (Object.keys(result_test.test_instances[test_inst_id].models).includes(model.model_id)
+                                                && Object.keys(result_test.test_instances[test_inst_id].models[model.model_id].model_instances).includes(model_inst.model_inst_id)) {
+                                                return <ResultPerInstanceComboMT result_MTcombo={result_test.test_instances[test_inst_id].models[model.model_id].model_instances[model_inst.model_inst_id].results}
+                                                    handleResultEntryClick={handleResultEntryClick}
+                                                    key={model_inst.model_inst_id} />
+                                            } else {
+                                                // no result for this combination of test instance and model instance
+                                                return <TableCell colSpan={3} key={model_inst.model_inst_id}></TableCell>
+                                            }
+                                        })
+                                    })
                                 }
                             </TableRow>
                         ))
@@ -295,44 +315,44 @@ class CompareMultiResults extends React.Component {
         const [authContext,] = this.context.auth;
 
         this.state = {
-            // model_dict: context.compareModels[0],
-            // test_dict: context.compareTests[0],
-            model_dict: {
-                "01da73a6-8715-431b-aaa7-efcd9358c786": {
-                    "name": "CA1_pyr_cACpyr_mpg141208_B_idA_20190328144006",
-                    "alias": null,
-                    "selected_instances": {
-                        "d6340679-9534-40ef-bd35-651be3ce0609": { "version": "1.0", "timestamp": "2019-06-18T15:15:18.595899+00:00" },
-                        "5a9cd261-6018-48e0-a803-74dca89e88c6": { "version": "2.0", "timestamp": "2020-02-19T10:44:48.820740+00:00" }
-                    }
-                },
-                "03e67e24-6df5-405a-8299-7d797ecee58b": {
-                    "name": "CA1_pyr_cACpyr_mpg150305_A_idB_20190305112012",
-                    "alias": null,
-                    "selected_instances": {
-                        "a21af2da-dedd-4f94-afe9-7564f76368b4": { "version": "1.0", "timestamp": "2019-06-18T15:15:28.260093+00:00" },
-                        "cadba67c-06b2-4819-8f4d-43bcb501d7b8": { "version": "2.0", "timestamp": "2020-02-19T10:45:21.300875+00:00" }
-                    }
-                }
-            },
-            test_dict: {
-                "dd0842c0-c016-42be-98a6-18d32c2e9a3b": {
-                    "name": "Hippocampus_CA1_PSPAttenuationTest",
-                    "alias": "hippo_ca1_psp_attenuation",
-                    "selected_instances": {
-                        "d20c56a6-b9ff-4fe5-a687-1a9e1a2c0489": { "version": "1.0", "timestamp": "2018-03-08T15:51:44.177419+00:00" },
-                        "621d76cb-8591-4c8d-adff-c913899a6420": { "version": "1.3.5", "timestamp": "2020-05-29T13:07:58.738175+00:00" }
-                    }
-                },
-                "100abccb-6d30-4c1e-a960-bc0489e0d82d": {
-                    "name": "Hippocampus_SomaticFeaturesTest_CA1_pyr_cACpyr",
-                    "alias": "hippo_somafeat_CA1_pyr_cACpyr",
-                    "selected_instances": {
-                        "1d22e1c0-5a74-49b4-b114-41d233d3250a": { "version": "1.0", "timestamp": "2019-03-28T12:54:19.318444+00:00" },
-                        "b645536f-fd2c-4a84-9e3e-9372018fbe5d": { "version": "1.3.5", "timestamp": "2020-05-29T13:07:38.909226+00:00" }
-                    }
-                }
-            },
+            model_dict: context.compareModels[0],
+            test_dict: context.compareTests[0],
+            // model_dict: {
+            //     "01da73a6-8715-431b-aaa7-efcd9358c786": {
+            //         "name": "CA1_pyr_cACpyr_mpg141208_B_idA_20190328144006",
+            //         "alias": null,
+            //         "selected_instances": {
+            //             "d6340679-9534-40ef-bd35-651be3ce0609": { "version": "1.0", "timestamp": "2019-06-18T15:15:18.595899+00:00" },
+            //             "5a9cd261-6018-48e0-a803-74dca89e88c6": { "version": "2.0", "timestamp": "2020-02-19T10:44:48.820740+00:00" }
+            //         }
+            //     },
+            //     "03e67e24-6df5-405a-8299-7d797ecee58b": {
+            //         "name": "CA1_pyr_cACpyr_mpg150305_A_idB_20190305112012",
+            //         "alias": null,
+            //         "selected_instances": {
+            //             "a21af2da-dedd-4f94-afe9-7564f76368b4": { "version": "1.0", "timestamp": "2019-06-18T15:15:28.260093+00:00" },
+            //             "cadba67c-06b2-4819-8f4d-43bcb501d7b8": { "version": "2.0", "timestamp": "2020-02-19T10:45:21.300875+00:00" }
+            //         }
+            //     }
+            // },
+            // test_dict: {
+            //     "dd0842c0-c016-42be-98a6-18d32c2e9a3b": {
+            //         "name": "Hippocampus_CA1_PSPAttenuationTest",
+            //         "alias": "hippo_ca1_psp_attenuation",
+            //         "selected_instances": {
+            //             "d20c56a6-b9ff-4fe5-a687-1a9e1a2c0489": { "version": "1.0", "timestamp": "2018-03-08T15:51:44.177419+00:00" },
+            //             "621d76cb-8591-4c8d-adff-c913899a6420": { "version": "1.3.5", "timestamp": "2020-05-29T13:07:58.738175+00:00" }
+            //         }
+            //     },
+            //     "100abccb-6d30-4c1e-a960-bc0489e0d82d": {
+            //         "name": "Hippocampus_SomaticFeaturesTest_CA1_pyr_cACpyr",
+            //         "alias": "hippo_somafeat_CA1_pyr_cACpyr",
+            //         "selected_instances": {
+            //             "1d22e1c0-5a74-49b4-b114-41d233d3250a": { "version": "1.0", "timestamp": "2019-03-28T12:54:19.318444+00:00" },
+            //             "b645536f-fd2c-4a84-9e3e-9372018fbe5d": { "version": "1.3.5", "timestamp": "2020-05-29T13:07:38.909226+00:00" }
+            //         }
+            //     }
+            // },
             model_inst_ids: [],
             test_inst_ids: [],
             results: [],
@@ -364,6 +384,8 @@ class CompareMultiResults extends React.Component {
         this.handleResultEntryClick = this.handleResultEntryClick.bind(this)
         this.handleResultDetailClose = this.handleResultDetailClose.bind(this)
         this.handleTabChange = this.handleTabChange.bind(this);
+        this.clearModels = this.clearModels.bind(this);
+        this.clearTests = this.clearTests.bind(this);
     }
 
     handleTabChange(event, newValue) {
@@ -981,8 +1003,9 @@ class CompareMultiResults extends React.Component {
     }
 
     renderModelsResultsSummaryTable(dict_results, list_tests, dict_test_versions) {
+        console.log(dict_results);
+        console.log(list_tests);
         console.log(dict_test_versions);
-        console.log(dict_test_versions[list_tests[0].test_id].length);
         return (
             <React.Fragment >
                 <Grid container item direction="column">
@@ -1105,7 +1128,7 @@ class CompareMultiResults extends React.Component {
                             <TableBody>
                                 {
                                     Object.keys(dict_results).map((test_id, index_t) => (
-                                        <ResultEntryTest result_entry={dict_results[test_id]} handleResultEntryClick={this.handleResultEntryClick} key={test_id} />
+                                        <ResultEntryTest result_entry={dict_results[test_id]} list_models={list_models} dict_model_versions={dict_model_versions} handleResultEntryClick={this.handleResultEntryClick} key={test_id} />
                                     ))
                                 }
                             </TableBody>
@@ -1250,7 +1273,18 @@ class CompareMultiResults extends React.Component {
                     results: results
                     // compareShow: false
                 })
-                this.evalModelDict();
+                this.evalModelDict().then(() => {
+                    if (Object.keys(model_dict).length === 0) {
+                        if (this.state.compareShow === "models") {
+                            this.setState({ compareShow: false })
+                        }
+                        if (Object.keys(this.state.test_dict).length > 0) {
+                            this.fetchResults()
+                        } else {
+                            this.setState({ compareShow: false })
+                        }
+                    }
+                });
             }
         }
     }
@@ -1274,7 +1308,18 @@ class CompareMultiResults extends React.Component {
                     results: results
                     // compareShow: false
                 })
-                this.evalTestDict();
+                this.evalTestDict().then(() => {
+                    if (Object.keys(test_dict).length === 0) {
+                        if (this.state.compareShow === "tests") {
+                            this.setState({ compareShow: false })
+                        }
+                        if (Object.keys(this.state.model_dict).length > 0) {
+                            this.fetchResults()
+                        } else {
+                            this.setState({ compareShow: false })
+                        }
+                    }
+                });
             }
         }
     }
@@ -1288,6 +1333,52 @@ class CompareMultiResults extends React.Component {
                 </Typography>
             </Grid>
         )
+    }
+
+    clearModels() {
+        let model_dict = this.state.model_dict;
+        let results = this.state.results;
+
+        Object.keys(model_dict).map(function (m_key) {
+            Object.keys(model_dict[m_key].selected_instances).map(function (m_inst_key) {
+                delete model_dict[m_key].selected_instances[m_inst_key]
+                results = results.filter(function (result) { return result.model_instance.id !== m_inst_key; });
+            })
+            delete model_dict[m_key]
+        })
+
+        this.setState({
+            model_dict: model_dict,
+            results: results
+        })
+        this.evalModelDict().then(() => {
+            if (Object.keys(model_dict).length === 0) {
+                this.fetchResults()
+            }
+        });
+    }
+
+    clearTests() {
+        let test_dict = this.state.test_dict;
+        let results = this.state.results;
+
+        Object.keys(test_dict).map(function (t_key) {
+            Object.keys(test_dict[t_key].selected_instances).map(function (t_inst_key) {
+                delete test_dict[t_key].selected_instances[t_inst_key]
+                results = results.filter(function (result) { return result.test_instance.id !== t_inst_key; });
+            })
+            delete test_dict[t_key]
+        })
+
+        this.setState({
+            test_dict: test_dict,
+            results: results
+        })
+        this.evalTestDict().then(() => {
+            if (Object.keys(test_dict).length === 0) {
+                this.fetchResults()
+            }
+        });
     }
 
     render() {
@@ -1392,6 +1483,14 @@ class CompareMultiResults extends React.Component {
                                             </div>
                                         )
                                     }
+                                    {
+                                        (this.state.total_model_insts !== 0) &&
+                                        <Box display="flex" justifyContent="center" alignItems="center" style={{ marginTop: 15, marginBottom: 10 }}>
+                                            <Button disabled={this.state.loadingResults || this.state.total_model_insts === 0} variant="contained" style={{ backgroundColor: Theme.disabledColor, width: "225px" }} onClick={this.clearModels}>
+                                                Clear Models
+								        </Button>
+                                        </Box>
+                                    }
                                 </Grid>
 
                                 {/* Test listing */}
@@ -1454,6 +1553,14 @@ class CompareMultiResults extends React.Component {
                                                 </List>
                                             </div>
                                         )
+                                    }
+                                    {
+                                        (this.state.total_test_insts !== 0) &&
+                                        <Box display="flex" justifyContent="center" alignItems="center" style={{ marginTop: 15, marginBottom: 10 }}>
+                                            <Button disabled={this.state.loadingResults || this.state.total_test_insts === 0} variant="contained" style={{ backgroundColor: Theme.disabledColor, width: "225px" }} onClick={this.clearTests}>
+                                                Clear Tests
+								        </Button>
+                                        </Box>
                                     }
                                 </Grid>
 

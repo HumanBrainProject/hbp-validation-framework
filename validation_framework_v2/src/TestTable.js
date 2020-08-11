@@ -80,7 +80,7 @@ class TestTable extends React.Component {
         console.log("Download JSON.");
         var selectedTests = [];
         for (var item in selectedRows.data) {
-            let data = this.state.data[selectedRows.data[item].index]
+            let data = this.state.data[selectedRows.data[item].dataIndex]
             let ordered_data = {};
             Object.keys(data).sort().forEach(function (key) {
                 ordered_data[key] = data[key];
@@ -95,7 +95,7 @@ class TestTable extends React.Component {
         console.log("Hide row(s)!");
         var selectedIndices = [];
         for (var item in selectedRows.data) {
-            selectedIndices.push(selectedRows.data[item].index)
+            selectedIndices.push(selectedRows.data[item].dataIndex)
         }
         const updated_data = this.state.data.filter((item, index) => !selectedIndices.includes(index));
         this.setState({ data: updated_data });
@@ -106,7 +106,7 @@ class TestTable extends React.Component {
         console.log("View item(s).")
         var selectedTests = [];
         for (var item in selectedRows.data) {
-            let data = this.state.data[selectedRows.data[item].index]
+            let data = this.state.data[selectedRows.data[item].dataIndex]
             let ordered_data = {};
             Object.keys(data).sort().forEach(function (key) {
                 ordered_data[key] = data[key];
@@ -123,7 +123,7 @@ class TestTable extends React.Component {
         console.log("Add item(s) to compare.")
         var selectedTests = [];
         for (var item in selectedRows.data) {
-            let data = this.state.data[selectedRows.data[item].index]
+            let data = this.state.data[selectedRows.data[item].dataIndex]
             let ordered_data = {};
             Object.keys(data).sort().forEach(function (key) {
                 ordered_data[key] = data[key];
@@ -218,7 +218,7 @@ class TestTable extends React.Component {
                             responsive: 'stacked', // 'scrollMaxHeight', 'scrollFullHeight', 'scrollFullHeightFullWidth', 'stackedFullWidth'
                             downloadOptions: { filename: 'selectedTests.csv', separator: ',', filterOptions: { useDisplayedRowsOnly: true } },
                             customToolbar: () => {
-                                return <MUIDataTableCustomToolbar display={this.props.display} changeTableWidth={this.props.changeTableWidth} tableType="tests" addNew={this.props.openAddTestForm} openCompareResults={this.props.openCompareResults} />;
+                                return <MUIDataTableCustomToolbar display={this.props.display} changeTableWidth={this.props.changeTableWidth} tableType="tests" addNew={this.props.openAddTestForm} />;
                             },
                             customToolbarSelect: (selectedRows) => <CustomToolbarSelect selectedRows={selectedRows} downloadSelectedJSON={this.downloadSelectedJSON} hideTableRows={this.hideTableRows} viewSelectedItems={this.viewSelectedItems} addCompare={this.addTestCompare} />
                         }}

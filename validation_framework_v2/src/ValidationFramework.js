@@ -4,8 +4,10 @@ import { hot } from 'react-hot-loader/root'
 import CssBaseline from '@material-ui/core/CssBaseline';
 import Container from '@material-ui/core/Container';
 import Grid from '@material-ui/core/Grid';
+import Tooltip from "@material-ui/core/Tooltip";
 import IconButton from '@material-ui/core/IconButton';
 import SettingsIcon from '@material-ui/icons/Settings';
+import AccountTreeIcon from '@material-ui/icons/AccountTree';
 import Typography from '@material-ui/core/Typography';
 import Paper from '@material-ui/core/Paper';
 import axios from 'axios';
@@ -787,9 +789,16 @@ class ValidationFramework extends React.Component {
                 <div>
                     <Grid container direction="row">
                         <Grid item xs={1}>
-                            <IconButton onClick={this.openConfig} aria-label="Configure filters">
-                                <SettingsIcon />
-                            </IconButton>
+                            <Tooltip title={"Change Configuration"}>
+                                <IconButton onClick={this.openConfig} aria-label="Configure filters">
+                                    <SettingsIcon />
+                                </IconButton>
+                            </Tooltip>
+                            <Tooltip title={"Compare Validation Results"}>
+                                <IconButton onClick={this.openCompareResults} aria-label="Compare results">
+                                    <AccountTreeIcon />
+                                </IconButton>
+                            </Tooltip>
                         </Grid>
                         <Grid item xs={11}>
                             {configContent}

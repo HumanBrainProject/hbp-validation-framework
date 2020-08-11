@@ -1,26 +1,25 @@
-import React from 'react';
-import Grid from '@material-ui/core/Grid';
 import { Typography } from '@material-ui/core';
-import Container from '@material-ui/core/Container';
 import Accordion from '@material-ui/core/Accordion';
-import AccordionSummary from '@material-ui/core/AccordionSummary'
-import AccordionDetails from '@material-ui/core/AccordionDetails'
+import AccordionDetails from '@material-ui/core/AccordionDetails';
+import AccordionSummary from '@material-ui/core/AccordionSummary';
+import Container from '@material-ui/core/Container';
+import Grid from '@material-ui/core/Grid';
+import Paper from '@material-ui/core/Paper';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
 import TableContainer from '@material-ui/core/TableContainer';
 import TableRow from '@material-ui/core/TableRow';
-import Paper from '@material-ui/core/Paper';
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
-import Plotly from "plotly.js"
+import Plotly from "plotly.js";
+import React from 'react';
 import createPlotlyComponent from 'react-plotly.js/factory';
+import { updateHash } from "./globals";
+import LoadingIndicator from "./LoadingIndicator";
+import ResultDetail from './ResultDetail';
 import Theme from './theme';
 
-import { formatTimeStampToCompact } from "./utils";
-import { updateHash } from "./globals";
 
-import LoadingIndicator from "./LoadingIndicator"
-import ResultDetail from './ResultDetail';
 
 function ResultsFiguresTestIntance(props) {
     const Plot = createPlotlyComponent(Plotly);
@@ -51,8 +50,20 @@ function ResultsFiguresTestIntance(props) {
         traces.push(
             {
                 x: [
-                    model_labels,
-                    model_version_labels
+                    model_labels.map(function (item) {
+                        if (item.length <= 35) {
+                            return item
+                        } else {
+                            return item.substr(0, 17) + "..." + item.substr(item.length - 15, item.length)
+                        }
+                    }),
+                    model_version_labels.map(function (item) {
+                        if (item.length <= 15) {
+                            return item
+                        } else {
+                            return item.substr(0, 7) + "..." + item.substr(item.length - 5, item.length)
+                        }
+                    })
                 ],
                 y: model_version_scores,
                 // text:model_labels,
@@ -75,23 +86,23 @@ function ResultsFiguresTestIntance(props) {
     layout = {
         // bargap: 0.1,
         // bargroupgap: 0.5,
-        showlegend: false,
-        // legend: {
-        //     x: 1,
-        //     y: 0.5
-        // },
+        showlegend: true,
+        legend: {
+            orientation: "h",
+            y: -1
+        },
         hovermode: 'closest',
         // width: 640,
         // height: 480,
         // title: 'Plot Title',
         xaxis: {//tickvals: ["1", "2", "3", "4", "5"],
             //ticktext : ["a", "b", "c", "d" ,"e"],
-            title: "Model Instance",
+            title: "<b>Model Instance</b>",
             automargin: true,
             // tickangle: -45,
             // textangle: "auto"
         },
-        yaxis: { title: "Score" },
+        yaxis: { title: "<b>Score</b>" },
         autosize: true,
         barmode: 'group'
     };

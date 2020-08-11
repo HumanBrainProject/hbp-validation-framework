@@ -49,25 +49,37 @@ function ResultsFiguresSummary_XaxisModels(props) {
             var customdata = [];
             for (let model_id in dict_results[test_id]["test_instances"][test_inst_id]["models"]) {
                 for (let model_inst_id in dict_results[test_id]["test_instances"][test_inst_id]["models"][model_id]["model_instances"]) {
-                    dict_results[test_id]["test_instances"][test_inst_id]["models"][model_id]["model_instances"][model_inst_id]["results"].forEach(function (result_entry, r_ind) {
-                        model_labels.push(dict_results[test_id]["test_instances"][test_inst_id]["models"][model_id]["model_name"]);
-                        model_version_labels.push(dict_results[test_id]["test_instances"][test_inst_id]["models"][model_id]["model_instances"][model_inst_id]["model_version"]);
-                        // customdata is used for setting hover description
-                        customdata.push([dict_results[test_id]["test_instances"][test_inst_id]["models"][model_id]["model_name"],
-                        dict_results[test_id]["test_instances"][test_inst_id]["models"][model_id]["model_instances"][model_inst_id]["model_version"],
-                        dict_results[test_id]["test_name"],
-                        dict_results[test_id]["test_instances"][test_inst_id]["test_version"]])
-                        model_version_result_ids.push(result_entry["result_id"]);
-                        model_version_scores.push(result_entry.score);
-                        label_resultJSON_map[result_entry["result_id"]] = result_entry.result_json;
-                    });
+                    // since we have ordered the results from newest to oldest in `groupResults_XaxisModels()`, we simply take the very first result as latest
+                    let result_entry = dict_results[test_id]["test_instances"][test_inst_id]["models"][model_id]["model_instances"][model_inst_id]["results"][0]
+                    model_labels.push(dict_results[test_id]["test_instances"][test_inst_id]["models"][model_id]["model_name"]);
+                    model_version_labels.push(dict_results[test_id]["test_instances"][test_inst_id]["models"][model_id]["model_instances"][model_inst_id]["model_version"]);
+                    // customdata is used for setting hover description
+                    customdata.push([dict_results[test_id]["test_instances"][test_inst_id]["models"][model_id]["model_name"],
+                    dict_results[test_id]["test_instances"][test_inst_id]["models"][model_id]["model_instances"][model_inst_id]["model_version"],
+                    dict_results[test_id]["test_name"],
+                    dict_results[test_id]["test_instances"][test_inst_id]["test_version"]])
+                    model_version_result_ids.push(result_entry["result_id"]);
+                    model_version_scores.push(result_entry.score);
+                    label_resultJSON_map[result_entry["result_id"]] = result_entry.result_json;
                 }
             }
             traces.push(
                 {
                     x: [
-                        model_labels,
-                        model_version_labels
+                        model_labels.map(function (item) {
+                            if (item.length <= 35) {
+                                return item
+                            } else {
+                                return item.substr(0, 17) + "..." + item.substr(item.length - 15, item.length)
+                            }
+                        }),
+                        model_version_labels.map(function (item) {
+                            if (item.length <= 15) {
+                                return item
+                            } else {
+                                return item.substr(0, 7) + "..." + item.substr(item.length - 5, item.length)
+                            }
+                        })
                     ],
                     y: model_version_scores,
                     // text:model_labels,
@@ -95,21 +107,22 @@ function ResultsFiguresSummary_XaxisModels(props) {
         // bargroupgap: 0.5,
         showlegend: true,
         legend: {
-            x: 1,
-            y: 0.5
+            orientation: "h",
+            y: -0.4
         },
         hovermode: 'closest',
         // width: 640,
         // height: 480,
         // title: 'Plot Title',
-        xaxis: {//tickvals: ["1", "2", "3", "4", "5"],
+        xaxis: {
+            //tickvals: ["1", "2", "3", "4", "5"],
             //ticktext : ["a", "b", "c", "d" ,"e"],
-            title: "Model Instance",
+            title: "<b>Model Instance</b>",
             automargin: true,
             // tickangle: -45,
             // textangle: "auto"
         },
-        yaxis: { title: "Score" },
+        yaxis: { title: "<b>Score</b>" },
         autosize: true,
         barmode: 'group'
     };
@@ -148,25 +161,37 @@ function ResultsFiguresSummary_XaxisTests(props) {
             var customdata = [];
             for (let test_id in dict_results[model_id]["model_instances"][model_inst_id]["tests"]) {
                 for (let test_inst_id in dict_results[model_id]["model_instances"][model_inst_id]["tests"][test_id]["test_instances"]) {
-                    dict_results[model_id]["model_instances"][model_inst_id]["tests"][test_id]["test_instances"][test_inst_id]["results"].forEach(function (result_entry, r_ind) {
-                        test_labels.push(dict_results[model_id]["model_instances"][model_inst_id]["tests"][test_id]["test_name"]);
-                        test_version_labels.push(dict_results[model_id]["model_instances"][model_inst_id]["tests"][test_id]["test_instances"][test_inst_id]["test_version"]);
-                        // customdata is used for setting hover description
-                        customdata.push([dict_results[model_id]["model_instances"][model_inst_id]["tests"][test_id]["test_name"],
-                        dict_results[model_id]["model_instances"][model_inst_id]["tests"][test_id]["test_instances"][test_inst_id]["test_version"],
-                        dict_results[model_id]["model_name"],
-                        dict_results[model_id]["model_instances"][model_inst_id]["model_version"]])
-                        test_version_result_ids.push(result_entry["result_id"]);
-                        test_version_scores.push(result_entry.score);
-                        label_resultJSON_map[result_entry["result_id"]] = result_entry.result_json;
-                    });
+                    // since we have ordered the results from newest to oldest in `groupResults_XaxisTests()`, we simply take the very first result as latest
+                    let result_entry = dict_results[model_id]["model_instances"][model_inst_id]["tests"][test_id]["test_instances"][test_inst_id]["results"][0]
+                    test_labels.push(dict_results[model_id]["model_instances"][model_inst_id]["tests"][test_id]["test_name"]);
+                    test_version_labels.push(dict_results[model_id]["model_instances"][model_inst_id]["tests"][test_id]["test_instances"][test_inst_id]["test_version"]);
+                    // customdata is used for setting hover description
+                    customdata.push([dict_results[model_id]["model_instances"][model_inst_id]["tests"][test_id]["test_name"],
+                    dict_results[model_id]["model_instances"][model_inst_id]["tests"][test_id]["test_instances"][test_inst_id]["test_version"],
+                    dict_results[model_id]["model_name"],
+                    dict_results[model_id]["model_instances"][model_inst_id]["model_version"]])
+                    test_version_result_ids.push(result_entry["result_id"]);
+                    test_version_scores.push(result_entry.score);
+                    label_resultJSON_map[result_entry["result_id"]] = result_entry.result_json;
                 }
             }
             traces.push(
                 {
                     x: [
-                        test_labels,
-                        test_version_labels
+                        test_labels.map(function (item) {
+                            if (item.length <= 35) {
+                                return item
+                            } else {
+                                return item.substr(0, 17) + "..." + item.substr(item.length - 15, item.length)
+                            }
+                        }),
+                        test_version_labels.map(function (item) {
+                            if (item.length <= 15) {
+                                return item
+                            } else {
+                                return item.substr(0, 7) + "..." + item.substr(item.length - 5, item.length)
+                            }
+                        })
                     ],
                     y: test_version_scores,
                     // text:test_labels,
@@ -194,8 +219,8 @@ function ResultsFiguresSummary_XaxisTests(props) {
         // bargroupgap: 0.5,
         showlegend: true,
         legend: {
-            x: 1,
-            y: 0.5
+            orientation: "h",
+            y: -0.4
         },
         hovermode: 'closest',
         // width: 640,
@@ -203,12 +228,12 @@ function ResultsFiguresSummary_XaxisTests(props) {
         // title: 'Plot Title',
         xaxis: {//tickvals: ["1", "2", "3", "4", "5"],
             //ticktext : ["a", "b", "c", "d" ,"e"],
-            title: "Test Instance",
+            title: "<b>Test Instance</b>",
             automargin: true,
             // tickangle: -45,
             // textangle: "auto"
         },
-        yaxis: { title: "Score" },
+        yaxis: { title: "<b>Score</b>" },
         autosize: true,
         barmode: 'group'
     };

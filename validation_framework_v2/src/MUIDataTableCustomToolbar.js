@@ -24,11 +24,6 @@ class CustomToolbar extends React.Component {
 							<FlipIcon />
 						</IconButton>
 					</Tooltip>
-					<Tooltip title={"Compare Validation Results"}>
-						<IconButton onClick={this.props.openCompareResults}>
-							<AccountTreeIcon />
-						</IconButton>
-					</Tooltip>
 					<Tooltip title={this.props.tableType === "models" ? "Add New Model" : "Add New Test"}>
 						<IconButton onClick={this.props.addNew}>
 							<AddIcon />
@@ -39,11 +34,6 @@ class CustomToolbar extends React.Component {
 		} else {
 			return (
 				<React.Fragment>
-					<Tooltip title={"Compare Validation Results"}>
-						<IconButton onClick={this.props.openCompareResults}>
-							<AccountTreeIcon />
-						</IconButton>
-					</Tooltip>
 					<Tooltip title={this.props.tableType === "models" ? "Add New Model" : "Add New Test"}>
 						<IconButton onClick={this.props.addNew}>
 							<AddIcon />
