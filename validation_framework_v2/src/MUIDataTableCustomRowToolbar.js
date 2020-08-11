@@ -4,6 +4,7 @@ import Tooltip from "@material-ui/core/Tooltip";
 import PageviewIcon from "@material-ui/icons/Pageview";
 import SaveAltIcon from "@material-ui/icons/SaveAlt";
 import VisibilityOffIcon from '@material-ui/icons/VisibilityOff';
+import AddToQueueIcon from '@material-ui/icons/AddToQueue';
 import { withStyles } from "@material-ui/core/styles";
 
 const defaultToolbarSelectStyles = {
@@ -33,6 +34,11 @@ class CustomToolbarSelect extends React.Component {
 				<Tooltip title={"Hide Entry"}>
 					<IconButton className={classes.iconButton} onClick={() => this.props.hideTableRows(this.props.selectedRows)}>
 						<VisibilityOffIcon />
+					</IconButton>
+				</Tooltip>
+				<Tooltip title={"Add to Compare"}>
+					<IconButton className={classes.iconButton} onClick={() => this.props.addCompare(this.props.selectedRows)}>
+						<AddToQueueIcon />
 					</IconButton>
 				</Tooltip>
 			</div>

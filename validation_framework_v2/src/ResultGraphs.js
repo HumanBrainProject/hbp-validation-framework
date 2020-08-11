@@ -1,90 +1,122 @@
-import React from 'react';
-import Grid from '@material-ui/core/Grid';
 import { Typography } from '@material-ui/core';
+import Accordion from '@material-ui/core/Accordion';
+import AccordionDetails from '@material-ui/core/AccordionDetails';
+import AccordionSummary from '@material-ui/core/AccordionSummary';
 import Container from '@material-ui/core/Container';
-import ExpansionPanel from "@material-ui/core/ExpansionPanel";
-import ExpansionPanelSummary from "@material-ui/core/ExpansionPanelSummary";
-import ExpansionPanelDetails from "@material-ui/core/ExpansionPanelDetails";
+import Grid from '@material-ui/core/Grid';
+import Paper from '@material-ui/core/Paper';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
 import TableContainer from '@material-ui/core/TableContainer';
 import TableRow from '@material-ui/core/TableRow';
-import Paper from '@material-ui/core/Paper';
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
-import Plotly from "plotly.js"
+import Plotly from "plotly.js";
+import React from 'react';
 import createPlotlyComponent from 'react-plotly.js/factory';
+import { updateHash } from "./globals";
+import LoadingIndicator from "./LoadingIndicator";
+import ResultDetail from './ResultDetail';
 import Theme from './theme';
 
-import { formatTimeStampToCompact } from "./utils";
-import { updateHash } from "./globals";
 
-import LoadingIndicator from "./LoadingIndicator"
-import ResultDetail from './ResultDetail';
 
 function ResultsFiguresTestIntance(props) {
     const Plot = createPlotlyComponent(Plotly);
-
-    var model_labels = [];
-    var model_version_labels = [];
-    var model_version_longlabels = [];
-    var model_version_scores = [];
     var traces = [];
     var layout = {};
     var label_resultJSON_map = {};
+    var customdata = [];
 
     for (let model_entry of Object.values(props.test_inst_entry["models"])) {
+        // a seperate bar group for each model (all instances of same model within the same bar group)
+        var model_labels = [];
+        var model_version_labels = [];
+        var model_version_result_ids = [];
+        var model_version_scores = [];
+        var customdata = [];
+
         for (let model_inst_entry of Object.values(model_entry["model_instances"])) {
             model_inst_entry["results"].forEach(function (result_entry, r_ind) {
                 model_labels.push(model_entry.model_name);
                 model_version_labels.push(model_inst_entry.model_version + " (#" + r_ind + ")");
-                var longlabel = model_entry.model_name + "-" + model_inst_entry.model_version + " (" + formatTimeStampToCompact(result_entry["timestamp"]) + ") - " + result_entry["result_id"].substr(0, 8);
-                model_version_longlabels.push(longlabel);
+                // customdata is used for setting hover description
+                customdata.push([model_inst_entry.model_version, r_ind])
+                model_version_result_ids.push(result_entry["result_id"]);
                 model_version_scores.push(result_entry.score);
-                label_resultJSON_map[longlabel] = result_entry.result_json;
+                label_resultJSON_map[result_entry["result_id"]] = result_entry.result_json;
             });
         }
         traces.push(
             {
                 x: [
-                    model_labels,
-                    model_version_labels
+                    model_labels.map(function (item) {
+                        if (item.length <= 35) {
+                            return item
+                        } else {
+                            return item.substr(0, 17) + "..." + item.substr(item.length - 15, item.length)
+                        }
+                    }),
+                    model_version_labels.map(function (item) {
+                        if (item.length <= 15) {
+                            return item
+                        } else {
+                            return item.substr(0, 7) + "..." + item.substr(item.length - 5, item.length)
+                        }
+                    })
                 ],
                 y: model_version_scores,
                 // text:model_labels,
-                hovertext: model_version_longlabels,
+                // Note: hovertext is only being used hold a unique identifier for onClick()
+                hovertext: model_version_result_ids,
+                // customdata is used for setting hover description
+                customdata: customdata,
+                hovertemplate: 'Model: <b>' + model_entry.model_name + '</b><br>' +
+                    'Version: <b>%{customdata[0]}</b><br>' +
+                    'Result #: <b>%{customdata[1]}</b><br>' +
+                    'Score: <b>%{y}</b><extra></extra>',
                 name: model_entry.model_name,
                 type: 'bar',
-                marker: { size: 16, color: Theme.plotBarColor }
+                // marker: { size: 16, color: Theme.plotBarColor }
+                width: 0.2
             }
         )
     }
 
     layout = {
+        // bargap: 0.1,
+        // bargroupgap: 0.5,
         showlegend: true,
-        // hovermode: 'closest',
+        legend: {
+            orientation: "h",
+            y: -1
+        },
+        hovermode: 'closest',
         // width: 640,
         // height: 480,
         // title: 'Plot Title',
         xaxis: {//tickvals: ["1", "2", "3", "4", "5"],
             //ticktext : ["a", "b", "c", "d" ,"e"],
-            title: "Model Instance",
-            automargin: true
+            title: "<b>Model Instance</b>",
+            automargin: true,
+            // tickangle: -45,
+            // textangle: "auto"
         },
-        yaxis: { title: "Score" },
-        autosize: true
+        yaxis: { title: "<b>Score</b>" },
+        autosize: true,
+        barmode: 'group'
     };
 
     return (
-        <ExpansionPanel defaultExpanded={true} key={props.test_inst_id} style={{ backgroundColor: Theme.lightBackground }}>
-            <ExpansionPanelSummary
+        <Accordion defaultExpanded={true} key={props.test_inst_id} style={{ backgroundColor: Theme.lightBackground }}>
+            <AccordionSummary
                 expandIcon={<ExpandMoreIcon />}
                 aria-controls="panel1a-content"
                 id={props.test_inst_id}
             >
                 <Typography variant="subtitle1">Test Version: <b>{props.test_inst_entry.test_version}</b></Typography>
-            </ExpansionPanelSummary>
-            <ExpansionPanelDetails>
+            </AccordionSummary>
+            <AccordionDetails>
                 <Container>
                     <TableContainer component={Paper}>
                         <Table>
@@ -108,8 +140,8 @@ function ResultsFiguresTestIntance(props) {
                         </Table>
                     </TableContainer>
                 </Container>
-            </ExpansionPanelDetails>
-        </ExpansionPanel>
+            </AccordionDetails>
+        </Accordion>
     )
 }
 
@@ -311,29 +343,33 @@ export default class ResultGraphs extends React.Component {
                 <Grid container>
                     <Grid item>
                         {test_ids.map((test_id) =>
-                            <ExpansionPanel defaultExpanded={true} key={test_id} style={{ backgroundColor: Theme.tableHeader }}>
-                                <ExpansionPanelSummary
+                            <Accordion defaultExpanded={true} key={test_id} style={{ backgroundColor: Theme.tableHeader }}>
+                                <AccordionSummary
                                     expandIcon={<ExpandMoreIcon />}
                                     aria-controls="panel1a-content"
                                     id={test_id}
                                 >
                                     <Typography variant="subtitle1">Test: <b>{dict_results[test_id].test_alias ? dict_results[test_id].test_alias : dict_results[test_id].test_name}</b></Typography>
-                                </ExpansionPanelSummary>
-                                <ExpansionPanelDetails>
-                                    {Object.entries(dict_results[test_id]["test_instances"]).map(([test_inst_id, test_inst_entry]) =>
-                                        <Grid container key={test_inst_id}>
-                                            <Grid item>
-                                                <ResultsFiguresTestIntance
-                                                    test_inst_id={test_inst_id}
-                                                    test_inst_entry={test_inst_entry}
-                                                    key={test_inst_id}
-                                                    handleResultEntryClick={this.handleResultEntryClick}
-                                                />
+                                </AccordionSummary>
+                                <AccordionDetails>
+                                    <Grid container spacing={3}>
+                                        {Object.entries(dict_results[test_id]["test_instances"]).map(([test_inst_id, test_inst_entry]) =>
+                                            <Grid item key={test_inst_id}>
+                                                <Grid container>
+                                                    <Grid item>
+                                                        <ResultsFiguresTestIntance
+                                                            test_inst_id={test_inst_id}
+                                                            test_inst_entry={test_inst_entry}
+                                                            key={test_inst_id}
+                                                            handleResultEntryClick={this.handleResultEntryClick}
+                                                        />
+                                                    </Grid>
+                                                </Grid>
                                             </Grid>
-                                        </Grid>
-                                    )}
-                                </ExpansionPanelDetails>
-                            </ExpansionPanel>
+                                        )}
+                                    </Grid>
+                                </AccordionDetails>
+                            </Accordion>
                         )}
                     </Grid>
                 </Grid>

@@ -1,8 +1,8 @@
 import { Button, Typography } from '@material-ui/core';
 import Box from '@material-ui/core/Box';
-import ExpansionPanel from '@material-ui/core/ExpansionPanel';
-import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
-import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
+import Accordion from '@material-ui/core/Accordion';
+import AccordionSummary from '@material-ui/core/AccordionSummary'
+import AccordionDetails from '@material-ui/core/AccordionDetails'
 import Grid from '@material-ui/core/Grid';
 import Link from '@material-ui/core/Link';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
@@ -44,7 +44,6 @@ class ResultFile extends React.Component {
                 })
                 .catch(err => {
                     this.setState({
-                        file_size: res.headers["content-length"],
                         valid: false
                     })
                     console.log(err)
@@ -61,8 +60,8 @@ class ResultFile extends React.Component {
     render() {
         return (
             <Grid style={{ marginBottom: 10 }}>
-                <ExpansionPanel style={{ backgroundColor: Theme.bodyBackground }} onChange={this.clickPanel} >
-                    <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />} style={{ backgroundColor: Theme.lightBackground }}>
+                <Accordion style={{ backgroundColor: Theme.bodyBackground }} onChange={this.clickPanel} >
+                    <AccordionSummary expandIcon={<ExpandMoreIcon />} style={{ backgroundColor: Theme.lightBackground }}>
                         <Grid container justify="space-between" align-items="center" fontSize={16} my={0} py={0} fontWeight="fontWeightBold">
                             <Grid item>
                                 <Typography variant="body2">
@@ -81,35 +80,37 @@ class ResultFile extends React.Component {
                                 </Link>
                             </Grid>
                         </Grid>
-                    </ExpansionPanelSummary>
-                    <ExpansionPanelDetails>
+                    </AccordionSummary>
+                    <AccordionDetails>
                         <Box style={{ width: "100%" }} my={2} >
                             {/* check to avoid loading file if not requested by clicking on the exapansion panel */}
                             {/* If file is accessible (valid = true) */}
-                            {this.state.loaded && this.state.valid && <iframe id={"iFrame_" + this.props.index} style={{ width: "100%", height: "400px" }} src={this.state.url} />}
+                            {this.state.loaded && this.state.valid &&
+                                <iframe title={"iFrame_" + this.props.index} id={"iFrame_" + this.props.index} style={{ width: "100%", height: "400px" }} src={this.state.url} />
+                            }
                             {/* If file is inaccessible (valid = false) */}
-                            {this.state.loaded && this.state.valid===false &&
+                            {this.state.loaded && this.state.valid === false &&
                                 <div>
                                     <Typography variant="body2"><strong>File URL: </strong>{this.state.url}</Typography>
-                                    <br/>
+                                    <br />
                                     <Typography variant="body2" style={{ color: "red" }}>
                                         This file is currently not accessible!
                                     </Typography>
                                 </div>
                             }
                             {/* If file is still being evaluated (valid = null) */}
-                            {this.state.loaded && this.state.valid===null &&
+                            {this.state.loaded && this.state.valid === null &&
                                 <div>
                                     <Typography variant="body2"><strong>File URL: </strong>{this.state.url}</Typography>
-                                    <br/>
+                                    <br />
                                     <Typography variant="body2">
                                         Loading...
                                     </Typography>
                                 </div>
                             }
                         </Box>
-                    </ExpansionPanelDetails>
-                </ExpansionPanel >
+                    </AccordionDetails>
+                </Accordion >
             </Grid>
         )
     }

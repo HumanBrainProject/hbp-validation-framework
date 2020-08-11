@@ -125,12 +125,11 @@ class ResultEntryTest extends React.Component {
                                         <TableCell align="right" bgcolor={Theme.tableDataHeader} rowSpan={Object.keys(result_test.test_instances).length} style={{ fontWeight: 'bold' }}>{result_test.test_alias ? result_test.test_alias : result_test.test_name}</TableCell>
                                         : <React.Fragment></React.Fragment>
                                 }
-                                <TableCell align="right" bgcolor={Theme.tableDataHeader} style={{ fontWeight: 'bold' }}>{result_test.test_instances[test_inst_id].test_version}</TableCell>
+                                <TableCell align="center" bgcolor={Theme.tableDataHeader} style={{ fontWeight: 'bold' }}>{result_test.test_instances[test_inst_id].test_version}</TableCell>
                                 {
                                     model_versions.map(function (model_version_entry) {
                                         return (
                                             <ResultPerInstanceComboMT result_MTcombo={result_test.test_instances[test_inst_id].results[model_version_entry.model_inst_id]}
-                                                model_versions={model_versions}
                                                 handleResultEntryClick={handleResultEntryClick}
                                                 key={model_version_entry.model_inst_id} />
                                         );
@@ -176,7 +175,7 @@ export default class ModelResultOverview extends React.Component {
     }
 
     groupResults = (list_model_versions, results) => {
-        // will be a 3-D dict {test -> test instance -> model instance} with list as values
+        // will be a 3-D dict {test -> test instance -> model instance} with list of results as values
         var dict_results = {};
 
         // sorting list_model_versions by timestamp (oldest to newest)

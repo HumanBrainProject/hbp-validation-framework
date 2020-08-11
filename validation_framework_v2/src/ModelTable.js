@@ -6,12 +6,16 @@ import MUIDataTableCustomToolbar from "./MUIDataTableCustomToolbar";
 import CustomToolbarSelect from "./MUIDataTableCustomRowToolbar";
 import ViewSelected from "./ViewSelected";
 import Theme from './theme';
+import ContextMain from './ContextMain';
 import { showNotification } from './utils';
 import { withSnackbar } from 'notistack';
 
 class ModelTable extends React.Component {
-    constructor(props) {
-        super(props);
+    static contextType = ContextMain;
+
+    constructor(props, context) {
+        super(props, context);
+
         this.state = {
             data: this.props.modelData,
             selectedData: [],
@@ -21,6 +25,7 @@ class ModelTable extends React.Component {
         this.downloadSelectedJSON = this.downloadSelectedJSON.bind(this);
         this.hideTableRows = this.hideTableRows.bind(this);
         this.viewSelectedItems = this.viewSelectedItems.bind(this);
+        this.addModelCompare = this.addModelCompare.bind(this);
         this.handleViewSelectedClose = this.handleViewSelectedClose.bind(this);
     }
 
@@ -72,10 +77,11 @@ class ModelTable extends React.Component {
     })
 
     downloadSelectedJSON(selectedRows) {
+        console.log(selectedRows);
         console.log("Download JSON.");
         var selectedModels = [];
         for (var item in selectedRows.data) {
-            let data = this.state.data[selectedRows.data[item].index]
+            let data = this.state.data[selectedRows.data[item].dataIndex]
             let ordered_data = {};
             Object.keys(data).sort().forEach(function (key) {
                 ordered_data[key] = data[key];
@@ -90,7 +96,7 @@ class ModelTable extends React.Component {
         console.log("Hide row(s)!");
         var selectedIndices = [];
         for (var item in selectedRows.data) {
-            selectedIndices.push(selectedRows.data[item].index)
+            selectedIndices.push(selectedRows.data[item].dataIndex)
         }
         const updated_data = this.state.data.filter((item, index) => !selectedIndices.includes(index));
         this.setState({ data: updated_data });
@@ -101,7 +107,7 @@ class ModelTable extends React.Component {
         console.log("View item(s).")
         var selectedModels = [];
         for (var item in selectedRows.data) {
-            let data = this.state.data[selectedRows.data[item].index]
+            let data = this.state.data[selectedRows.data[item].dataIndex]
             let ordered_data = {};
             Object.keys(data).sort().forEach(function (key) {
                 ordered_data[key] = data[key];
@@ -112,6 +118,50 @@ class ModelTable extends React.Component {
             viewSelectedOpen: true,
             selectedData: selectedModels
         })
+    }
+
+    addModelCompare(selectedRows) {
+        console.log("Add item(s) to compare.")
+        var selectedModels = [];
+        for (var item in selectedRows.data) {
+            let data = this.state.data[selectedRows.data[item].dataIndex]
+            let ordered_data = {};
+            Object.keys(data).sort().forEach(function (key) {
+                ordered_data[key] = data[key];
+            });
+            selectedModels.push(ordered_data)
+        }
+
+        let [compareModels, setCompareModels] = this.context.compareModels;
+        console.log(compareModels);
+        for (let model of selectedModels) {
+            // Note: only models with instances can be added to compare
+            if (model.instances.length > 0) {
+                // check if model already added to compare
+                if (!(model.id in compareModels)) {
+                    compareModels[model.id] = {
+                        "name": model.name,
+                        "alias": model.alias,
+                        "selected_instances": {}
+                    }
+                }
+                // loop through every instance of this model
+                for (let model_inst of model.instances) {
+                    // check if model instance already added to compare
+                    if (!(model_inst.id in compareModels[model.id].selected_instances)) {
+                        compareModels[model.id].selected_instances[model_inst.id] = {
+                            "version": model_inst.version,
+                            "timestamp": model_inst.timestamp
+                        }
+                    }
+                }
+                showNotification(this.props.enqueueSnackbar, "Model '" + model.name + "' added to compare!", "info")
+            } else {
+                showNotification(this.props.enqueueSnackbar, "Skipped: model '" + model.name + "' (0 instances)!", "error")
+            }
+        }
+        console.log(compareModels);
+        setCompareModels(compareModels);
     }
 
     handleViewSelectedClose() {
@@ -172,7 +222,7 @@ class ModelTable extends React.Component {
                             customToolbar: () => {
                                 return <MUIDataTableCustomToolbar display={this.props.display} changeTableWidth={this.props.changeTableWidth} tableType="models" addNew={this.props.openAddModelForm} />;
                             },
-                            customToolbarSelect: (selectedRows) => <CustomToolbarSelect selectedRows={selectedRows} downloadSelectedJSON={this.downloadSelectedJSON} hideTableRows={this.hideTableRows} viewSelectedItems={this.viewSelectedItems} />
+                            customToolbarSelect: (selectedRows) => <CustomToolbarSelect selectedRows={selectedRows} downloadSelectedJSON={this.downloadSelectedJSON} hideTableRows={this.hideTableRows} viewSelectedItems={this.viewSelectedItems} addCompare={this.addModelCompare} />
                         }}
                     />
                 </MuiThemeProvider>
