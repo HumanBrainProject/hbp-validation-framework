@@ -1486,7 +1486,7 @@ class CompareMultiResults extends React.Component {
                                     {
                                         (this.state.total_model_insts !== 0) &&
                                         <Box display="flex" justifyContent="center" alignItems="center" style={{ marginTop: 15, marginBottom: 10 }}>
-                                            <Button disabled={this.state.loadingResults || this.state.total_model_insts === 0} variant="contained" style={{ backgroundColor: Theme.disabledColor, width: "225px" }} onClick={this.clearModels}>
+                                            <Button disabled={this.state.total_model_insts === 0} variant="contained" style={{ backgroundColor: Theme.disabledColor, width: "225px" }} onClick={this.clearModels}>
                                                 Clear Models
 								        </Button>
                                         </Box>
@@ -1557,7 +1557,7 @@ class CompareMultiResults extends React.Component {
                                     {
                                         (this.state.total_test_insts !== 0) &&
                                         <Box display="flex" justifyContent="center" alignItems="center" style={{ marginTop: 15, marginBottom: 10 }}>
-                                            <Button disabled={this.state.loadingResults || this.state.total_test_insts === 0} variant="contained" style={{ backgroundColor: Theme.disabledColor, width: "225px" }} onClick={this.clearTests}>
+                                            <Button disabled={this.state.total_test_insts === 0} variant="contained" style={{ backgroundColor: Theme.disabledColor, width: "225px" }} onClick={this.clearTests}>
                                                 Clear Tests
 								        </Button>
                                         </Box>
