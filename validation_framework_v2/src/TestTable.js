@@ -6,12 +6,16 @@ import MUIDataTableCustomToolbar from "./MUIDataTableCustomToolbar";
 import CustomToolbarSelect from "./MUIDataTableCustomRowToolbar";
 import ViewSelected from "./ViewSelected";
 import Theme from './theme';
+import ContextMain from './ContextMain';
 import { showNotification } from './utils';
 import { withSnackbar } from 'notistack';
 
 class TestTable extends React.Component {
-    constructor(props) {
-        super(props);
+    static contextType = ContextMain;
+
+    constructor(props, context) {
+        super(props, context);
+
         this.state = {
             data: this.props.testData,
             selectedData: [],
@@ -21,12 +25,12 @@ class TestTable extends React.Component {
         this.downloadSelectedJSON = this.downloadSelectedJSON.bind(this);
         this.hideTableRows = this.hideTableRows.bind(this);
         this.viewSelectedItems = this.viewSelectedItems.bind(this);
+        this.addTestCompare = this.addTestCompare.bind(this);
         this.handleViewSelectedClose = this.handleViewSelectedClose.bind(this);
     }
 
     getMuiTheme = () => createMuiTheme({
         overrides: {
-
             // handles table title bar color
             MUIDataTableToolbar: {
                 root: {
@@ -40,7 +44,7 @@ class TestTable extends React.Component {
                     backgroundColor: Theme.tableDataHeader
                 }
             },
-            // // handles data row color; clashes and blocks MuiTableRow
+            // handles data row color; clashes and blocks MuiTableRow
             // MUIDataTableBodyCell: {
             // 	root: {
             // 		backgroundColor: Theme.tableDataRow,
@@ -76,7 +80,7 @@ class TestTable extends React.Component {
         console.log("Download JSON.");
         var selectedTests = [];
         for (var item in selectedRows.data) {
-            let data = this.state.data[selectedRows.data[item].index]
+            let data = this.state.data[selectedRows.data[item].dataIndex]
             let ordered_data = {};
             Object.keys(data).sort().forEach(function (key) {
                 ordered_data[key] = data[key];
@@ -91,7 +95,7 @@ class TestTable extends React.Component {
         console.log("Hide row(s)!");
         var selectedIndices = [];
         for (var item in selectedRows.data) {
-            selectedIndices.push(selectedRows.data[item].index)
+            selectedIndices.push(selectedRows.data[item].dataIndex)
         }
         const updated_data = this.state.data.filter((item, index) => !selectedIndices.includes(index));
         this.setState({ data: updated_data });
@@ -102,7 +106,7 @@ class TestTable extends React.Component {
         console.log("View item(s).")
         var selectedTests = [];
         for (var item in selectedRows.data) {
-            let data = this.state.data[selectedRows.data[item].index]
+            let data = this.state.data[selectedRows.data[item].dataIndex]
             let ordered_data = {};
             Object.keys(data).sort().forEach(function (key) {
                 ordered_data[key] = data[key];
@@ -113,6 +117,50 @@ class TestTable extends React.Component {
             viewSelectedOpen: true,
             selectedData: selectedTests
         })
+    }
+
+    addTestCompare(selectedRows) {
+        console.log("Add item(s) to compare.")
+        var selectedTests = [];
+        for (var item in selectedRows.data) {
+            let data = this.state.data[selectedRows.data[item].dataIndex]
+            let ordered_data = {};
+            Object.keys(data).sort().forEach(function (key) {
+                ordered_data[key] = data[key];
+            });
+            selectedTests.push(ordered_data)
+        }
+
+        let [compareTests, setCompareTests] = this.context.compareTests;
+        console.log(compareTests);
+        for (let test of selectedTests) {
+            // Note: only tests with instances can be added to compare
+            if (test.instances.length > 0) {
+                // check if test already added to compare
+                if (!(test.id in compareTests)) {
+                    compareTests[test.id] = {
+                        "name": test.name,
+                        "alias": test.alias,
+                        "selected_instances": {}
+                    }
+                }
+                // loop through every instance of this test
+                for (let test_inst of test.instances) {
+                    // check if test instance already added to compare
+                    if (!(test_inst.id in compareTests[test.id].selected_instances)) {
+                        compareTests[test.id].selected_instances[test_inst.id] = {
+                            "version": test_inst.version,
+                            "timestamp": test_inst.timestamp
+                        }
+                    }
+                }
+                showNotification(this.props.enqueueSnackbar, "Test '" + test.name + "' added to compare!", "info")
+            } else {
+                showNotification(this.props.enqueueSnackbar, "Skipped: test '" + test.name + "' (0 instances)!", "error")
+            }
+        }
+        console.log(compareTests);
+        setCompareTests(compareTests);
     }
 
     handleViewSelectedClose() {
@@ -172,7 +220,7 @@ class TestTable extends React.Component {
                             customToolbar: () => {
                                 return <MUIDataTableCustomToolbar display={this.props.display} changeTableWidth={this.props.changeTableWidth} tableType="tests" addNew={this.props.openAddTestForm} />;
                             },
-                            customToolbarSelect: (selectedRows) => <CustomToolbarSelect selectedRows={selectedRows} downloadSelectedJSON={this.downloadSelectedJSON} hideTableRows={this.hideTableRows} viewSelectedItems={this.viewSelectedItems} />
+                            customToolbarSelect: (selectedRows) => <CustomToolbarSelect selectedRows={selectedRows} downloadSelectedJSON={this.downloadSelectedJSON} hideTableRows={this.hideTableRows} viewSelectedItems={this.viewSelectedItems} addCompare={this.addTestCompare} />
                         }}
                     />
                 </MuiThemeProvider>

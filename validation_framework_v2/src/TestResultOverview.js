@@ -109,7 +109,7 @@ class ResultPerInstanceComboMT extends React.Component {
     }
 }
 
-class ResultEntryTest extends React.Component {
+class ResultEntryModel extends React.Component {
     render() {
         const result_model = this.props.result_entry;
         const test_versions = this.props.test_versions;
@@ -122,16 +122,15 @@ class ResultEntryTest extends React.Component {
                             <TableRow key={model_inst_id}>
                                 {
                                     (index_tt === 0) ?
-                                        <TableCell align="center" bgcolor={Theme.tableDataHeader} rowSpan={Object.keys(result_model.model_instances).length}>{result_model.model_alias ? result_model.model_alias : result_model.model_name}</TableCell>
+                                        <TableCell align="right" bgcolor={Theme.tableDataHeader} rowSpan={Object.keys(result_model.model_instances).length} style={{ fontWeight: 'bold' }}>{result_model.model_alias ? result_model.model_alias : result_model.model_name}</TableCell>
                                         : <React.Fragment></React.Fragment>
                                 }
-                                <TableCell align="center" bgcolor={Theme.tableDataHeader}>{result_model.model_instances[model_inst_id].model_version}</TableCell>
+                                <TableCell align="center" bgcolor={Theme.tableDataHeader} style={{ fontWeight: 'bold' }}>{result_model.model_instances[model_inst_id].model_version}</TableCell>
                                 {
                                     test_versions.map(function (test_version_entry) {
                                         return (
                                             <ResultPerInstanceComboMT result_MTcombo={result_model.model_instances[model_inst_id].results[test_version_entry.test_inst_id]}
-                                                test_versions={test_versions}
-                                                handleResultEntryClick={handleResultEntryClick} ick={handleResultEntryClick}
+                                                handleResultEntryClick={handleResultEntryClick}
                                                 key={test_version_entry.test_inst_id} />
                                         );
                                     })
@@ -176,7 +175,7 @@ export default class TestResultOverview extends React.Component {
     }
 
     groupResults = (list_test_versions, results) => {
-        // will be a 3-D dict {model -> model instance -> test instance} with list as values
+        // will be a 3-D dict {model -> model instance -> test instance} with list of results as values
         var dict_results = {}
 
         // sorting list_test_versions by timestamp (oldest to newest)
@@ -186,8 +185,8 @@ export default class TestResultOverview extends React.Component {
             return 0;
         });
 
-        // check if this model was already encountered
         results.forEach(function (result, index) {
+            // check if this model was already encountered
             if (!(result.model.id in dict_results)) {
                 dict_results[result.model.id] = {
                     model_id: result.model.id,
@@ -205,7 +204,7 @@ export default class TestResultOverview extends React.Component {
                     results: {}
                 };
             }
-            // check if model instance exists for this model instance
+            // check if test instance exists for this model instance
             if (!(result.test_instance_id in dict_results[result.model.id]["model_instances"][result.model_instance_id]["results"])) {
                 dict_results[result.model.id]["model_instances"][result.model_instance_id]["results"][result.test_instance_id] = [];
             }
@@ -324,7 +323,7 @@ export default class TestResultOverview extends React.Component {
                                         test_versions.map((item, index) => (
                                             <React.Fragment key={index}>
                                                 <TableCell align="center" bgcolor={Theme.tableDataHeader} style={{ width: 20, maxWidth: 20 }}></TableCell>
-                                                <TableCell align="center" bgcolor={Theme.tableDataHeader} style={{ width: 75, maxWidth: 75 }}>Score</TableCell>
+                                                <TableCell align="right" bgcolor={Theme.tableDataHeader} style={{ width: 75, maxWidth: 75 }}>Score</TableCell>
                                                 <TableCell align="center" bgcolor={Theme.tableDataHeader} style={{ width: 200, maxWidth: 200 }}>Date (Time)</TableCell>
                                             </React.Fragment>
                                         ))
@@ -333,8 +332,8 @@ export default class TestResultOverview extends React.Component {
                             </TableHead>
                             <TableBody>
                                 {
-                                    Object.keys(dict_results).map((test_id, index_t) => (
-                                        <ResultEntryTest result_entry={dict_results[test_id]} test_versions={test_versions} handleResultEntryClick={this.handleResultEntryClick} key={test_id} />
+                                    Object.keys(dict_results).map((model_id, index_m) => (
+                                        <ResultEntryModel result_entry={dict_results[model_id]} test_versions={test_versions} handleResultEntryClick={this.handleResultEntryClick} key={model_id} />
                                     ))
                                 }
                             </TableBody>

@@ -13,6 +13,9 @@ import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import Box from '@material-ui/core/Box';
 import Theme from './theme';
+import ContextMain from './ContextMain';
+import { showNotification } from './utils';
+import { withSnackbar } from 'notistack';
 
 import axios from 'axios';
 
@@ -83,23 +86,33 @@ const MyDialogTitle = withStyles(styles)(props => {
 });
 
 
-export default class ModelDetail extends React.Component {
+class ModelDetail extends React.Component {
     signal = axios.CancelToken.source();
+    static contextType = ContextMain;
 
-    constructor(props) {
-        super(props);
+    constructor(props, context) {
+        super(props, context);
+        const [authContext,] = this.context.auth;
+
         this.state = {
             tabValue: 0,
             results: null,
             loadingResult: true,
             error: null,
-            modelData: this.props.modelData
+            modelData: this.props.modelData,
+            auth: authContext,
+            compareFlag: this.props.modelData.instances.length === 0 ? null : this.checkCompareStatus()
         };
         if (DevMode) {
             this.state['results'] = result_data.results;
             this.state['loadingResult'] = false;
         }
         this.updateCurrentModelData = this.updateCurrentModelData.bind(this);
+        this.checkCompareStatus = this.checkCompareStatus.bind(this);
+        this.addModelCompare = this.addModelCompare.bind(this);
+        this.removeModelCompare = this.removeModelCompare.bind(this);
+        this.addModelInstanceCompare = this.addModelInstanceCompare.bind(this);
+        this.removeModelInstanceCompare = this.removeModelInstanceCompare.bind(this);
         this.handleClose = this.handleClose.bind(this);
         this.handleTabChange = this.handleTabChange.bind(this);
     }
@@ -120,6 +133,119 @@ export default class ModelDetail extends React.Component {
         })
     }
 
+    checkCompareStatus() {
+        // required since model could have been added to compare via table listing
+        let [compareModels,] = this.context.compareModels;
+        // check if model exists in compare
+        if (!(this.props.modelData.id in compareModels)) {
+            return false;
+        }
+        let model_inst_ids = this.props.modelData.instances.map(item => item.id).sort()
+        let compare_model_inst_ids = Object.keys(compareModels[this.props.modelData.id].selected_instances).sort()
+        // check if all the model instances already added to compare
+        console.log(model_inst_ids.toString());
+        console.log(compare_model_inst_ids.toString());
+        if (model_inst_ids.toString() === compare_model_inst_ids.toString()) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    addModelCompare() {
+        console.log("Add item to compare.")
+        let [compareModels, setCompareModels] = this.context.compareModels;
+        console.log(compareModels);
+        let model = this.state.modelData;
+        // check if model already added to compare
+        if (!(model.id in compareModels)) {
+            compareModels[model.id] = {
+                "name": model.name,
+                "alias": model.alias,
+                "selected_instances": {}
+            }
+        }
+        // loop through every instance of this model
+        for (let model_inst of model.instances) {
+            // check if model instance already added to compare
+            if (!(model_inst.id in compareModels[model.id].selected_instances)) {
+                compareModels[model.id].selected_instances[model_inst.id] = {
+                    "version": model_inst.version,
+                    "timestamp": model_inst.timestamp
+                }
+            }
+        }
+        console.log(compareModels);
+        setCompareModels(compareModels);
+        this.setState({ compareFlag: true })
+        showNotification(this.props.enqueueSnackbar, "Model added to compare!", "info")
+    }
+
+    removeModelCompare() {
+        console.log("Remove item from compare.")
+        let [compareModels, setCompareModels] = this.context.compareModels;
+        console.log(compareModels);
+        let model = this.state.modelData;
+        // remove if model exists for compare
+        if (model.id in compareModels) {
+            delete compareModels[model.id];
+        }
+        console.log(compareModels);
+        setCompareModels(compareModels);
+        this.setState({ compareFlag: false })
+        showNotification(this.props.enqueueSnackbar, "Model removed from compare!", "info")
+    }
+
+    addModelInstanceCompare(model_inst_id) {
+        console.log("Add instance to compare.")
+        let [compareModels, setCompareModels] = this.context.compareModels;
+        console.log(compareModels);
+        let model = this.state.modelData;
+        // check if model already added to compare
+        if (!(model.id in compareModels)) {
+            compareModels[model.id] = {
+                "name": model.name,
+                "alias": model.alias,
+                "selected_instances": {}
+            }
+        }
+        // add model instance to compare
+        let model_inst = model.instances.find(item => item.id === model_inst_id);
+        // check if model instance already added to compare
+        if (!(model_inst_id in compareModels[model.id].selected_instances)) {
+            compareModels[model.id].selected_instances[model_inst_id] = {
+                "version": model_inst.version,
+                "timestamp": model_inst.timestamp
+            }
+        }
+        // check if all model instances are now in compare
+        this.setState({ compareFlag: this.checkCompareStatus() })
+        console.log(compareModels);
+        setCompareModels(compareModels);
+        showNotification(this.props.enqueueSnackbar, "Model instance added to compare!", "info")
+    }
+
+    removeModelInstanceCompare(model_inst_id) {
+        console.log("Remove instance from compare.")
+        let [compareModels, setCompareModels] = this.context.compareModels;
+        console.log(compareModels);
+        let model = this.state.modelData;
+        if (model.id in compareModels) {
+            if (model_inst_id in compareModels[model.id].selected_instances) {
+                delete compareModels[model.id].selected_instances[model_inst_id];
+            }
+        }
+        // remove model if it does not contain any other instances for compare
+        if (Object.keys(compareModels[model.id].selected_instances).length === 0) {
+            delete compareModels[model.id];
+            this.setState({ compareFlag: false })
+        }
+        console.log(compareModels);
+        setCompareModels(compareModels);
+        this.forceUpdate();
+        showNotification(this.props.enqueueSnackbar, "Model instance removed from compare!", "info")
+    }
+
     handleClose() {
         this.props.onClose();
     }
@@ -133,7 +259,7 @@ export default class ModelDetail extends React.Component {
         let config = {
             cancelToken: this.signal.token,
             headers: {
-                'Authorization': 'Bearer ' + this.props.auth.token,
+                'Authorization': 'Bearer ' + this.state.auth.token,
             }
         }
         return axios.get(url, config)
@@ -176,6 +302,9 @@ export default class ModelDetail extends React.Component {
                                 owner={formatAuthors(this.state.modelData.owner)}
                                 modelData={this.state.modelData}
                                 updateCurrentModelData={this.updateCurrentModelData}
+                                compareFlag={this.state.compareFlag}
+                                addModelCompare={this.addModelCompare}
+                                removeModelCompare={this.removeModelCompare}
                             ></ModelDetailHeader>
                         </Grid>
                         <Grid item xs={12}>
@@ -196,6 +325,8 @@ export default class ModelDetail extends React.Component {
                                             id={this.state.modelData.id}
                                             modelScope={this.state.modelData.model_scope}
                                             results={this.state.results}
+                                            addModelInstanceCompare={this.addModelInstanceCompare}
+                                            removeModelInstanceCompare={this.removeModelInstanceCompare}
                                         />
                                     </Grid>
                                     <Grid item xs={3}>
@@ -238,3 +369,5 @@ ModelDetail.propTypes = {
     onClose: PropTypes.func.isRequired,
     open: PropTypes.bool.isRequired
 };
+
+export default withSnackbar(ModelDetail);

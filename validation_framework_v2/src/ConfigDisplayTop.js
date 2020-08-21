@@ -2,9 +2,9 @@ import React from 'react';
 import Box from '@material-ui/core/Box';
 import Chip from '@material-ui/core/Chip';
 import Grid from '@material-ui/core/Grid';
-import ExpansionPanel from '@material-ui/core/ExpansionPanel';
-import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
-import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
+import Accordion from '@material-ui/core/Accordion';
+import AccordionSummary from '@material-ui/core/AccordionSummary'
+import AccordionDetails from '@material-ui/core/AccordionDetails';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import SettingsIcon from '@material-ui/icons/Settings';
 import Theme from './theme';
@@ -22,11 +22,11 @@ export default function ConfigDisplayTop(props) {
 		showFilters = filterKeys;
 	}
 	return (
-		<ExpansionPanel style={{ backgroundColor: Theme.lightBackground }}>
-			<ExpansionPanelSummary expandIcon={<ExpandMoreIcon />} style={{ backgroundColor: Theme.tableHeader }}>
+		<Accordion style={{ backgroundColor: Theme.lightBackground }}>
+			<AccordionSummary expandIcon={<ExpandMoreIcon />} style={{ backgroundColor: Theme.tableHeader }}>
 				<Box fontSize={16} my={0} py={0} fontWeight="fontWeightBold">View Current Configuration</Box>
-			</ExpansionPanelSummary>
-			<ExpansionPanelDetails>
+			</AccordionSummary>
+			<AccordionDetails>
 				<Box style={{ width: "100%" }} my={2} >
 					<Grid container spacing={3}>
 						<Grid item style = {{minWidth: "200px"}}>
@@ -63,7 +63,7 @@ export default function ConfigDisplayTop(props) {
 					<br />
 					To re-configure the app, click on the configure icon <SettingsIcon />  at the top left of the page.
        			</Box>
-			</ExpansionPanelDetails>
-		</ExpansionPanel >
+			</AccordionDetails>
+		</Accordion >
 	);
 }

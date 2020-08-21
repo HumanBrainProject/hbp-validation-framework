@@ -1,18 +1,21 @@
-import React from 'react';
-import Grid from '@material-ui/core/Grid';
+import { Button, Typography } from '@material-ui/core';
 import Box from '@material-ui/core/Box';
+import Grid from '@material-ui/core/Grid';
 import IconButton from '@material-ui/core/IconButton';
+import Tooltip from '@material-ui/core/Tooltip';
+import AddToQueueIcon from '@material-ui/icons/AddToQueue';
 import CloudDownloadIcon from '@material-ui/icons/CloudDownload';
 import EditIcon from '@material-ui/icons/Edit';
+import RemoveFromQueueIcon from '@material-ui/icons/RemoveFromQueue';
+import { withSnackbar } from 'notistack';
+import React from 'react';
+import ContextMain from './ContextMain';
+import ErrorDialog from './ErrorDialog';
 import Markdown from './Markdown';
-import { Typography, Button } from '@material-ui/core';
 import ModelInstanceAddForm from './ModelInstanceAddForm';
 import ModelInstanceEditForm from './ModelInstanceEditForm';
-import ErrorDialog from './ErrorDialog';
-import Tooltip from '@material-ui/core/Tooltip';
 import Theme from './theme';
-import { formatTimeStampToLongString, copyToClipboard, showNotification } from './utils';
-import { withSnackbar } from 'notistack';
+import { copyToClipboard, formatTimeStampToLongString, showNotification } from './utils';
 
 function openBlueNaaS(model_inst_url) {
     let match = model_inst_url.match(/https:\/\/object\.cscs\.ch\/v1\/AUTH_([^]+?)\//gi)
@@ -86,9 +89,31 @@ function InstanceParameter(props) {
     // return <Typography variant="body2"><b>{props.label}: </b>{props.value}</Typography>
 }
 
+function CompareIcon(props) {
+    if (props.compareFlag) {
+        return (
+            <Tooltip title="Remove model instance from compare" placement="top">
+                <IconButton aria-label="compare model" onClick={() => props.removeModelInstanceCompare(props.instance_id)}>
+                    <RemoveFromQueueIcon color="action" />
+                </IconButton>
+            </Tooltip>
+        )
+    } else {
+        return (
+            <Tooltip title="Add model instance to compare" placement="top">
+                <IconButton aria-label="compare model" onClick={() => props.addModelInstanceCompare(props.instance_id)}>
+                    <AddToQueueIcon color="action" />
+                </IconButton>
+            </Tooltip>
+        )
+    }
+}
+
 class ModelDetailContent extends React.Component {
-    constructor(props) {
-        super(props);
+    static contextType = ContextMain;
+
+    constructor(props, context) {
+        super(props, context);
 
         this.state = {
             openAddInstanceForm: false,
@@ -102,6 +127,7 @@ class ModelDetailContent extends React.Component {
         this.handleEditModelInstanceFormClose = this.handleEditModelInstanceFormClose.bind(this);
         this.handleEditClick = this.handleEditClick.bind(this);
         this.handleErrorEditDialogClose = this.handleErrorEditDialogClose.bind(this);
+        this.checkInstanceInCompare = this.checkInstanceInCompare.bind(this);
     }
 
     componentDidUpdate(prevProps) {
@@ -151,6 +177,20 @@ class ModelDetailContent extends React.Component {
                 openEditInstanceForm: true,
                 currentInstance: instance
             })
+        }
+    }
+
+    checkInstanceInCompare(model_id, model_inst_id) {
+        let [compareModels,] = this.context.compareModels;
+        // check if model exists in compare
+        if (!(model_id in compareModels)) {
+            return false;
+        }
+        // check if this model instance already added to compare
+        if (model_inst_id in compareModels[model_id].selected_instances) {
+            return true;
+        } else {
+            return false;
         }
     }
 
@@ -218,17 +258,18 @@ class ModelDetailContent extends React.Component {
                                                     <p variant="subtitle2">Version: <span style={{ cursor: "pointer", fontWeight: "bold" }} onClick={() => copyToClipboard(instance.version, this.props.enqueueSnackbar, "Model version copied")}>{instance.version}</span></p>
                                                     {
                                                         this.state.instancesWithResults &&
-                                                        <Tooltip placement="right" title={this.state.instancesWithResults.includes(instance.id) ? "Cannot Edit" : "Edit"}>
+                                                        <Tooltip placement="top" title={this.state.instancesWithResults.includes(instance.id) ? "Cannot Edit" : "Edit"}>
                                                             <IconButton aria-label="edit model instance" onClick={() => this.handleEditClick(instance)}>
                                                                 <EditIcon />
                                                             </IconButton>
                                                         </Tooltip>
                                                     }
-                                                    <Tooltip placement="right" title="Download model instance">
+                                                    <Tooltip placement="top" title="Download model instance">
                                                         <IconButton aria-label="download code" href={instance.source}>
                                                             <CloudDownloadIcon />
                                                         </IconButton>
                                                     </Tooltip>
+                                                    <CompareIcon compareFlag={this.checkInstanceInCompare(this.props.id, instance.id)} instance_id={instance.id} addModelInstanceCompare={this.props.addModelInstanceCompare} removeModelInstanceCompare={this.props.removeModelInstanceCompare} />
                                                 </Box>
                                             </Grid>
                                             <Grid container item justify="flex-end" xs={6}>

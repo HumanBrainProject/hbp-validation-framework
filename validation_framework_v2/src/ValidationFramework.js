@@ -4,8 +4,10 @@ import { hot } from 'react-hot-loader/root'
 import CssBaseline from '@material-ui/core/CssBaseline';
 import Container from '@material-ui/core/Container';
 import Grid from '@material-ui/core/Grid';
+import Tooltip from "@material-ui/core/Tooltip";
 import IconButton from '@material-ui/core/IconButton';
 import SettingsIcon from '@material-ui/icons/Settings';
+import AccountTreeIcon from '@material-ui/icons/AccountTree';
 import Typography from '@material-ui/core/Typography';
 import Paper from '@material-ui/core/Paper';
 import axios from 'axios';
@@ -15,12 +17,12 @@ import ModelTable from "./ModelTable";
 import TestTable from "./TestTable";
 import ModelDetail from "./ModelDetail";
 import TestDetail from "./TestDetail";
+import CompareMultiResults from "./CompareMultiResults";
 import ModelAddForm from "./ModelAddForm";
 import TestAddForm from "./TestAddForm";
 import ConfigForm from "./ConfigForm";
 import Introduction from "./Introduction";
 import ConfigDisplayTop from "./ConfigDisplayTop"
-// import CompareBottomPanel from "./CompareBottomPanel"
 import LoadingIndicator from "./LoadingIndicator"
 import ResultDetail from './ResultDetail';
 import ErrorDialog from './ErrorDialog';
@@ -138,6 +140,7 @@ class ValidationFramework extends React.Component {
             'modelDetailOpen': false,
             'testDetailOpen': false,
             'resultDetailOpen': false,
+            'compareResultsOpen': false,
             'addModelFormOpen': false,
             'addTestFormOpen': false,
             'configOpen': false,
@@ -174,6 +177,8 @@ class ValidationFramework extends React.Component {
         this.getTest = this.getTest.bind(this);
         this.modelTableFullWidth = this.modelTableFullWidth.bind(this);
         this.testTableFullWidth = this.testTableFullWidth.bind(this);
+        this.openCompareResults = this.openCompareResults.bind(this);
+        this.closeCompareResults = this.closeCompareResults.bind(this);
         this.openAddModelForm = this.openAddModelForm.bind(this);
         this.openAddTestForm = this.openAddTestForm.bind(this);
         this.handleAddModelFormClose = this.handleAddModelFormClose.bind(this);
@@ -190,6 +195,14 @@ class ValidationFramework extends React.Component {
         this.setState({
             testsTableWide: !this.state.testsTableWide
         });
+    }
+
+    openCompareResults() {
+        this.setState({ 'compareResultsOpen': true })
+    }
+
+    closeCompareResults() {
+        this.setState({ 'compareResultsOpen': false })
     }
 
     openAddModelForm() {
@@ -663,62 +676,52 @@ class ValidationFramework extends React.Component {
     }
 
     renderTables() {
+        let model_table = <React.Fragment>
+            {this.state.loadingModel ?
+                <Paper style={{ padding: '0 0 0 16px' }}>
+                    <br />
+                    <Typography variant="h6">Models</Typography>
+                    <LoadingIndicator />
+                    <br /><br />
+                </Paper>
+                :
+                <ModelTable modelData={this.state.modelData} display={this.state.display} changeTableWidth={this.modelTableFullWidth} openCompareResults={this.openCompareResults} openAddModelForm={this.openAddModelForm} handleRowClick={this.handleModelRowClick} />
+            }
+        </React.Fragment>
+
+        let test_table = <React.Fragment>
+            {this.state.loadingTest ?
+                <Paper style={{ padding: '0 0 0 16px' }}>
+                    <br />
+                    <Typography variant="h6">Tests</Typography>
+                    <LoadingIndicator />
+                    <br /><br />
+                </Paper>
+                :
+                <TestTable testData={this.state.testData} display={this.state.display} changeTableWidth={this.testTableFullWidth} openCompareResults={this.openCompareResults} openAddTestForm={this.openAddTestForm} handleRowClick={this.handleTestRowClick} />
+            }
+        </React.Fragment>
+
         let content = "";
         if ((this.state.modelsTableWide && !this.state.testsTableWide) || (this.state.display === "Only Models")) {
             content = <Grid container>
                 <Grid item xs={12}>
-                    {this.state.loadingModel ?
-                        <Paper style={{ padding: '0 0 0 16px' }}>
-                            <br />
-                            <Typography variant="h6">Models</Typography>
-                            <LoadingIndicator />
-                            <br /><br />
-                        </Paper>
-                        :
-                        <ModelTable modelData={this.state.modelData} display={this.state.display} changeTableWidth={this.modelTableFullWidth} openAddModelForm={this.openAddModelForm} handleRowClick={this.handleModelRowClick} />
-                    }
+                    {model_table}
                 </Grid>
             </Grid>
         } else if ((!this.state.modelsTableWide && this.state.testsTableWide) || (this.state.display === "Only Tests")) {
             content = <Grid container>
                 <Grid item xs={12}>
-                    {this.state.loadingTest ?
-                        <Paper style={{ padding: '0 0 0 16px' }}>
-                            <br />
-                            <Typography variant="h6">Tests</Typography>
-                            <LoadingIndicator />
-                            <br /><br />
-                        </Paper>
-                        :
-                        <TestTable testData={this.state.testData} display={this.state.display} auth={this.props.auth} changeTableWidth={this.testTableFullWidth} openAddTestForm={this.openAddTestForm} handleRowClick={this.handleTestRowClick} />
-                    }
+                    {test_table}
                 </Grid>
             </Grid>
         } else {
             content = <Grid container spacing={2}>
                 <Grid item xs={6}>
-                    {this.state.loadingModel ?
-                        <Paper style={{ padding: '0 0 0 16px' }}>
-                            <br />
-                            <Typography variant="h6">Models</Typography>
-                            <LoadingIndicator />
-                            <br /><br />
-                        </Paper>
-                        :
-                        <ModelTable modelData={this.state.modelData} display={this.state.display} auth={this.props.auth} changeTableWidth={this.modelTableFullWidth} openAddModelForm={this.openAddModelForm} handleRowClick={this.handleModelRowClick} />
-                    }
+                    {model_table}
                 </Grid>
                 <Grid item xs={6}>
-                    {this.state.loadingTest ?
-                        <Paper style={{ padding: '0 0 0 16px' }}>
-                            <br />
-                            <Typography variant="h6">Tests</Typography>
-                            <LoadingIndicator />
-                            <br /><br />
-                        </Paper>
-                        :
-                        <TestTable testData={this.state.testData} display={this.state.display} auth={this.props.auth} changeTableWidth={this.testTableFullWidth} openAddTestForm={this.openAddTestForm} handleRowClick={this.handleTestRowClick} />
-                    }
+                    {test_table}
                 </Grid>
             </Grid>
         }
@@ -735,8 +738,9 @@ class ValidationFramework extends React.Component {
         var modelDetail = "";
         var testDetail = "";
         var resultDetail = "";
+        var compareResults = "";
         var addModel = "";
-        // var comparePanel = "";
+        var addTest = "";
 
         // const [ contaxtValidFilterValues, setContaxtValidFilterValues ] = this.context.validFilterValues;
         // console.log(contaxtValidFilterValues)
@@ -755,7 +759,6 @@ class ValidationFramework extends React.Component {
             mainContent = <Introduction />;
         } else {
             configContent = <ConfigDisplayTop display={this.state.display} filters={this.state.filters} />
-            // comparePanel = <CompareBottomPanel display={this.state.display} filters={this.state.filters} />
             mainContent = this.renderTables();
         }
 
@@ -768,7 +771,11 @@ class ValidationFramework extends React.Component {
         }
 
         if (this.state.currentResult) {
-            resultDetail = <ResultDetail open={this.state.resultDetailOpen} result={this.state.currentResult} onClose={this.handleResultDetailClose} auth={this.props.auth} />;
+            resultDetail = <ResultDetail open={this.state.resultDetailOpen} result={this.state.currentResult} onClose={this.handleResultDetailClose} />;
+        }
+
+        if (this.state.compareResultsOpen) {
+            compareResults = <CompareMultiResults open={this.state.compareResultsOpen} onClose={this.closeCompareResults} />
         }
 
         if (this.state.addModelFormOpen) {
@@ -776,7 +783,7 @@ class ValidationFramework extends React.Component {
         }
 
         if (this.state.addTestFormOpen) {
-            addModel = <TestAddForm open={this.state.addTestFormOpen} onClose={this.handleAddTestFormClose} />
+            addTest = <TestAddForm open={this.state.addTestFormOpen} onClose={this.handleAddTestFormClose} />
         }
 
         return (
@@ -784,9 +791,16 @@ class ValidationFramework extends React.Component {
                 <div>
                     <Grid container direction="row">
                         <Grid item xs={1}>
-                            <IconButton onClick={this.openConfig} aria-label="Configure filters">
-                                <SettingsIcon />
-                            </IconButton>
+                            <Tooltip title={"Change Configuration"}>
+                                <IconButton onClick={this.openConfig} aria-label="Configure filters">
+                                    <SettingsIcon />
+                                </IconButton>
+                            </Tooltip>
+                            <Tooltip title={"Compare Validation Results"}>
+                                <IconButton onClick={this.openCompareResults} aria-label="Compare results">
+                                    <AccountTreeIcon />
+                                </IconButton>
+                            </Tooltip>
                         </Grid>
                         <Grid item xs={11}>
                             {configContent}
@@ -805,20 +819,19 @@ class ValidationFramework extends React.Component {
                         {resultDetail}
                     </div>
                     <div>
+                        {compareResults}
+                    </div>
+                    <div>
                         {addModel}
+                    </div>
+                    <div>
+                        {addTest}
                     </div>
                     <main>
                         {mainContent}
                     </main>
                     <br />
                 </div>
-                {/* <div style={{ display: "block", height: "80px", width: "100%" }}>
-                    <div style={{ position: "relative", left: "0", bottom: "0", height: "80px", width: "100%", backgroundColor: Theme.lightBackground }}>
-                        <div style={{ height: "100%", width: "100%" }}>
-                            {comparePanel}
-                        </div>
-                    </div>
-                </div> */}
             </React.Fragment>
         );
     };
