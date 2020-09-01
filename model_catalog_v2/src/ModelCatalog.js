@@ -302,7 +302,7 @@ export default class ModelCatalog extends React.Component {
               <FilterListIcon />
             </IconButton>
             <AddModelButton onClick={this.openAddModelForm} />
-            <ConfigForm open={this.state.configOpen} onClose={this.handleConfigClose} config={this.state.filters} />
+            <ConfigForm open={this.state.configOpen} onClose={this.handleConfigClose} config={this.state.filters} baseUrl={baseUrl}/>
             <AddModelForm open={this.state.addModelFormOpen} onClose={this.handleAddModelFormClose} auth={this.props.auth} />
           </Grid>
           <Grid item xs={10}>

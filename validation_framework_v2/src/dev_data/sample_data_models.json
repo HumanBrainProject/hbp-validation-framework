@@ -1,0 +1,50 @@
+{
+    "models": [
+        {
+            "cell_type": "hippocampus CA1 pyramidal cell",
+            "name": "Hippocampus CA1 model with STDP mechanism",
+            "images": null,
+            "author": [
+                {
+                    "family_name": "Dainauskas",
+                    "given_name": "Justinas"
+                }
+            ],
+            "app": {
+                "collab_id": 69441
+            },
+            "uri": "https://nexus.humanbrainproject.org/v0/data/modelvalidation/simulation/modelproject/v0.1.0/890670b5-1350-475d-a030-e95b5aeac548",
+            "private": false,
+            "model_scope": "single cell",
+            "species": null,
+            "alias": "CA1_Poirazi_STDP",
+            "old_uuid": null,
+            "abstraction_level": "spiking neurons: biophysical",
+            "brain_region": "hippocampus",
+            "owner": [
+                {
+                    "family_name": "Saudargiene",
+                    "given_name": "Ausra"
+                }
+            ],
+            "organization": "HBP-SP6",
+            "instances": [
+                {
+                    "license": "",
+                    "code_format": "py",
+                    "description": "",
+                    "parameters": "",
+                    "timestamp": "2020-03-31T11:14:50.083055",
+                    "uri": "https://nexus.humanbrainproject.org/v0/data/modelvalidation/simulation/memodel/v0.1.2/b51d3247-0b01-4866-8b51-9e039db1ea65",
+                    "source": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/CA1_synaptic_plasticity/stdpmodel.zip",
+                    "version": "1.0",
+                    "morphology": null,
+                    "hash": "",
+                    "id": "b51d3247-0b01-4866-8b51-9e039db1ea65"
+                }
+            ],
+            "id": "890670b5-1350-475d-a030-e95b5aeac548",
+            "description": "To be filled..."
+        }
+    ]
+}
