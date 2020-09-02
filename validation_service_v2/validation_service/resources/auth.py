@@ -22,7 +22,7 @@ async def auth_via_ebrains(request: Request):
         "access_token": token["access_token"],
         "user": {
             "name": user["name"],
-            "user_id_v1": user["mitreid-sub"],
+            "user_id_v1": user.get("mitreid-sub"),
             "username": user["preferred_username"],
             "given_name": user["given_name"],
             "family_name": user["family_name"]
