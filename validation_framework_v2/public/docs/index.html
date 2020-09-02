@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <meta name="viewport" content="width=device-width,initial-scale=1;maximum-scale=1; minimum-scale=1;">
+  <title>EBRAINS Model Catalog</title>
+  <link rel="apple-touch-icon" sizes="180x180" href="static/img/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="static/img/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="static/img/favicon-16x16.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="static/img/favicon-192x192.png">
+  <link rel="icon" type="image/png" sizes="256x256" href="static/img/favicon-256x256.png">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"
+    integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"
+    integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/open-iconic/1.1.1/font/css/open-iconic-bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+    integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+    crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"
+    integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49"
+    crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"
+    integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy"
+    crossorigin="anonymous"></script>
+
+  <link rel="stylesheet" href="ebrains-minimal.css">
+
+</head>
+
+<body>
+  <script src="cookieDisclaimer.js"></script>
+  <main>
+    <header>
+
+
+      <nav class="navbar navbar-default navbar-light bg-light navbar-expand-lg">
+
+        <a href="https://ebrains.eu/" aria-label="EBRAINS homepage"
+          class="logo nuxt-link-exact-active nuxt-link-active">
+          <img src="static/img/ebrains_logo.svg" alt="ebrains" height="60">
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup"
+          aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse navitems" id="navbarNavAltMarkup">
+          <ul class="navbar-nav app-links">
+            <li><a class="nav-item nav-link line" href="https://model-catalog.brainsimulation.eu/">
+              <span class="oi oi-book " title="Go to the Catalog" aria-hidden="true"></span>
+            </a></li>
+            <li><a class="nav-item nav-link line active" href="index.html" alt="About the Model Catalog">Introduction</a></li>
+            <li><a class="nav-item nav-link line" href="find.html"
+                alt="Find, understand and use interesting models">Find</a>
+            </li>
+            <li><a class="nav-item nav-link line " href="share.html" alt="Share models with others">Share</a>
+            </li>
+            <li><a class="nav-item nav-link line " href="reuse.html"
+                alt="Use an existing model with the EBRAINS research infrastructure">Use</a></li>
+            <li><a class="nav-item nav-link line" href="validation.html"
+                alt="Compare models to each other and to experimental data">Validate</a></li>
+            <li><a class="nav-item nav-link line" href="develop.html" alt="Resources for developers">Develop</a></li>
+          </ul>
+        </div>
+      </nav>
+      <div class="section title">
+        <div class="container">
+          <div class="row">
+            <div class="col-sm align-self-center">
+              <h1>EBRAINS Model Catalog</h1>
+              <div>A framework for collaborative and reproducible modelling in neuroscience.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+    <div class="section">
+      <div class="container">
+        <h3>What is the EBRAINS Model Catalog?</h3>
+        <p>The <a href="https://model-catalog.brainsimulation.eu/">EBRAINS Model Catalog</a> contains information about models developed and/or used within the EBRAINS research
+          infrastructure.</p>
+        <p>It allows you to find information about neuroscience models and about results obtained using those models, in
+          particular about how those models have been validated against experimental findings.</p>
+      </div>
+    </div>
+    <div class="section">
+      <div class="container">
+        <div class="row">
+          <div class="col-sm align-self-center ">
+            <h5>Find</h5>
+            <h3>Find, understand and use interesting models</h3>
+            <p>The Model Catalog lets you filter the list of models by:</p>
+            <ul>
+              <li>what is being modelled (species, brain region, cell type)</li>
+              <li>the scope of the model (subcellular, single cell, network, whole brain)</li>
+              <li>the abstraction level of the model (cognitive, neural field, biophysical, spiking point neuron,
+                systems biology)</li>
+            </ul>
+            <p>You can also search by author or model name.</p>
+
+            <p>The catalog contains a detailed description of each model, a download link for each version of the model,
+              and information about the validation of each model (i.e. comparing simulation results to experimental
+              data).</p>
+            <p>Some models have links to other EBRAINS applications where the models can be simulated and/or or explored
+              in more detail.</p>
+            <p><a class="more" href="find.html">Learn more...</a></p>
+          </div>
+          <div class="col-sm">
+            <img class="align-self-center" src="static/figures/index/model_list.png">
+            <img class="align-self-center" src="static/figures/index/example_model.png">
+          </div>
+
+        </div>
+      </div>
+    </div>
+    <div class="section">
+      <div class="container">
+        <div class="row">
+          <div class="col-sm ">
+            <img class="align-self-center" src="static/figures/index/kg_search.png">
+          </div>
+          <div class="col-sm align-self-center ">
+            <h5>Share</h5>
+            <h3>Share models with others</h3>
+            <p>If you are developing your own model and wish to share it through the EBRAINS Knowledge Graph, adding it
+              to the Model Catalog is the first step.</p>
+            <p>You don't need to wait until the model is published in a journal article,
+              entries can be marked as private and shared only with your chosen collaborators.</p>
+            <p>When you're ready to share publicly, our team of professional data and model curators
+              will check the model is ready to be shared (code archived, terms of reuse specified, ...)
+              then release it to the public KG Search interface.</p>
+            <p>(Coming soon: models released through the EBRAINS Knowledge Graph will received their own DOI through
+              DataCite).</p>
+            <p><a class="more" href="share.html">Learn more...</a></p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="container">
+        <div class="row">
+          <div class="col-sm align-self-center ">
+            <h5>Use</h5>
+            <h3>Use an existing model with the EBRAINS research infrastructure</h3>
+            <p>Whether you're developing your own model or want to use an existing published model with EBRAINS tools
+              and services, registering it with the Model Catalog is the first step.</p>
+            <p>Two services are already directly linked from the Model Catalog:</p>
+            <ul>
+              <li>NEURON As A Service (aka BlueNAAS),
+                for simulations detailed single neuron models in the browser</li>
+              <li>Morphology Viewer, for visualizing the morphology of such models.</li>
+            </ul>
+            <p>More services will be linked soon.</p>
+            <p>Using the Model Catalog Python client, you can access models from within a Jupyter notebook
+              (e.g. in the EBRAINS Jupyter Lab), giving you access to a still wider range of tools and services.</p>
+            <p><a class="more" href="reuse.html">Learn more...</a></p>
+          </div>
+          <div class="col-sm">
+            <img class="align-self-center" src="static/figures/index/launch_bluenaas.png">
+            <img class="align-self-center" src="static/figures/index/bluenaas.png">
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+    <div class="section">
+      <div class="container">
+        <div class="row">
+          <div class="col-sm">
+            <img class="align-self-center" src="static/figures/index/example_test_output.png">
+          </div>
+          <div class="col-sm align-self-center ">
+            <h5>Validate</h5>
+            <h3>Compare models to each other and to experimental data</h3>
+            <p>As mentioned above, one of the main aims of the EBRAINS Model Catalog is to show how models compare to
+              experiments.</p>
+            <p>We use the SciUnit framework to formalize the comparison of models and experiments as "validation tests",
+              and show both information about these tests and the results of the tests in the Model Catalog.</p>
+            <p>Running the same set of validation tests with different, but related models,
+              is a powerful tool for comparing models and deciding which is best for your purpose.</p>
+            <p><a class="more" href="validation.html">Learn more...</a></p>
+          </div>
+
+        </div>
+      </div </div>
+
+      <div class="section">
+        <div class="container">
+          <h5>Links</h5>
+          <h3>How is the EBRAINS Model Catalog different to other model databases?</h3>
+          <p>A number of other model databases are available in neuroscience, including ModelDB, BioModels, and Open
+            Source Brain.</p>
+          <p>The EBRAINS Model Catalog is complementary to these other databases, providing validation results and
+            making it possible to use models with other EBRAINS tools and services.</p>
+          <p>Where a model is also available in one of these other databases, it is cross-linked.</p>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="container">
+          <h5>Knowledge Graph</h5>
+          <h3>How does the EBRAINS Model Catalog relate to the EBRAINS Knowledge Graph Search user interface?</h3>
+          <p>The Model Catalog can be used for models at all stages of development, from initial experimentation through
+            to published models.</p>
+          <p>Models that satisfy certain quality control criteria: verified source code, a detailed description,
+            and a complete set of metadata, can also be found through the EBRAINS Knowledge Graph Search application,
+            where additional information, in particular about links to related experimental datasets, can be found.</p>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="container">
+          <div class="row">
+            <div class="col-sm">
+              <img class="align-self-center" src="static/figures/index/python_client_example.png">
+            </div>
+            <div class="col-sm align-self-center ">
+              <h5>Develop</h5>
+              <h3>Develop tools and workflows based on the Model Catalog</h3>
+              <p>The Model Catalog Python client provides programmatic access to the database of models, validation
+                tests
+                and test results, and lets you build the catalog into your model development and simulation workflow.
+              </p>
+              <p><a class="more" href="develop.html">Learn more...</a></p>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="container">
+          <h5>Contact</h5>
+          <h3>Any questions?</h3>
+
+          <p>If you have questions that are not answered here, contact us by e-mail: <a
+              href="mailto:support@ebrains.eu">support@ebrains.eu</a></p>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="container">
+          <h3>Acknowledgements</h3>
+          <p>This open source software code was developed in part or in whole in the Human Brain Project, funded from
+            the European Union’s Horizon 2020 Framework Programme for Research and Innovation under Specific Grant
+            Agreements No. 720270, 785907 and xyzabc (Human Brain Project SGA1, SGA2 and SGA3). <img
+              src="static/img/eu_cofunded_logo.png" alt="" class="eu-logo"></p>
+
+        </div>
+      </div>
+  </main>
+  <footer class="site-footer">
+    <div class="footer__content"> <a href="https://ebrains.eu/" aria-label="EBRAINS homepage"
+        class="logo nuxt-link-exact-active nuxt-link-active">
+        <img src="static/img/ebrains_logo.svg" alt="ebrains" height="60">
+      </a>
+
+      <p class="small-text">
+      </p>
+    </div>
+    <div class="footer__end">
+      <div class="footer__copyright">
+        Copyright © 2020 EBRAINS. All rights reserved.
+      </div>
+    </div>
+  </footer>
+</body>
+
+</html>
