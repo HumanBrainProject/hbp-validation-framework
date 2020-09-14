@@ -13,6 +13,8 @@ import TextField from '@material-ui/core/TextField';
 import CancelIcon from '@material-ui/icons/Cancel';
 import CheckCircleIcon from '@material-ui/icons/CheckCircle';
 import RadioButtonUncheckedIcon from '@material-ui/icons/RadioButtonUnchecked';
+import HelpIcon from '@material-ui/icons/Help';
+import IconButton from '@material-ui/core/IconButton';
 import axios from 'axios';
 import PropTypes from 'prop-types';
 import React from 'react';
@@ -40,6 +42,7 @@ export default class ModelAddForm extends React.Component {
         this.createPayload = this.createPayload.bind(this);
         this.checkRequirements = this.checkRequirements.bind(this);
         this.checkAliasUnique = this.checkAliasUnique.bind(this);
+        this.getProjectList = this.getProjectList.bind(this);
 
         const [authContext,] = this.context.auth;
         const [validFilterValuesContext,] = this.context.validFilterValues;
@@ -76,9 +79,10 @@ export default class ModelAddForm extends React.Component {
             auth: authContext,
             filters: filtersContext,
             validFilterValues: validFilterValuesContext,
-            loading: false
+            loading: false,
+            projects: []
         }
-
+        this.getProjectList();
         this.handleErrorAddDialogClose = this.handleErrorAddDialogClose.bind(this);
     }
 
@@ -133,6 +137,26 @@ export default class ModelAddForm extends React.Component {
                         aliasLoading: false
                     });
                 }
+            });
+    }
+
+    getProjectList() {
+        const url = baseUrl + "/projects";
+        const config = {headers: {'Authorization': 'Bearer ' + this.state.auth.token}};
+        axios.get(url, config)
+            .then(res => {
+                let editableProjects = [];
+                res.data.forEach(proj => {
+                    if (proj.permissions.UPDATE) {
+                        editableProjects.push(proj.project_id);
+                    }
+                })
+                this.setState({
+                    projects: editableProjects
+                });
+            })
+            .catch(err => {
+                console.log('Error: ', err.message);
             });
     }
 
@@ -252,7 +276,12 @@ export default class ModelAddForm extends React.Component {
                 open={this.props.open}
                 fullWidth={true}
                 maxWidth="md">
-                <DialogTitle style={{ backgroundColor: Theme.tableHeader }}>Add a new model to the catalog</DialogTitle>
+                <DialogTitle disableTypography style={{ backgroundColor: Theme.tableHeader, display: 'flex', justifyContent: 'space-between' }}>
+                    <h2>Add a new model to the catalog</h2>
+                    <IconButton href="https://model-catalog.brainsimulation.eu/docs/share.html">
+                        <HelpIcon />
+                    </IconButton>
+                </DialogTitle>
                 <DialogContent>
                     <LoadingIndicatorModal open={this.state.loading} />
                     <Box my={2}>
@@ -301,9 +330,12 @@ export default class ModelAddForm extends React.Component {
                                         label={this.state.private ? "Private" : "Public"} />
                                 </Grid>
                                 <Grid item xs={12}>
-                                    <TextField name="project_id" label="Project ID" defaultValue={this.state.project_id}
-                                        onBlur={this.handleFieldChange} variant="outlined" fullWidth={true}
-                                        helperText="Please specify the Project ID, if any, associated with this model (optional)." />
+                                    <SingleSelect
+                                        itemNames={this.state.projects}
+                                        label="Project ID"
+                                        value={this.state.project_id}
+                                        helperText="Please choose the Collab you will use to set access permissions. You may need to create a new Collab."
+                                        handleChange={this.handleFieldChange} />
                                 </Grid>
                                 <Grid item xs={12}>
                                     <TextField name="organization" label="Organization" defaultValue={this.state.organization}
