@@ -42,7 +42,7 @@ async def list_projects(
     user_info = await oauth.ebrains.userinfo(
         token={"access_token": token.credentials, "token_type": "bearer"}
     )
-    roles = user_info.get("roles", []).get("team", [])
+    roles = user_info.get("roles", {}).get("team", [])
     projects = []
     for role in roles:
         if role.startswith("collab-"):
