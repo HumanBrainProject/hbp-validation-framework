@@ -43,17 +43,17 @@ async def list_projects(
         token={"access_token": token.credentials, "token_type": "bearer"}
     )
     roles = user_info.get("roles", {}).get("team", [])
-    projects = []
+    projects = {}
     for role in roles:
         if role.startswith("collab-"):
             project_id = "-".join(role.split("-")[1:-1])
-            permissions = {"VIEW": False, "UPDATE": False}
+            if project_id not in projects:
+                projects[project_id] = {
+                    "project_id": project_id,
+                    "permissions": {"VIEW": False, "UPDATE": False}
+                }
             if role.endswith("viewer"):  # todo: what about public collabs?
-                permissions = {"VIEW": True, "UPDATE": False}
+                projects[project_id]["permissions"]["VIEW"] = True
             elif role.endswith("editor") or role.endswith("administrator"):
-                permissions = {"VIEW": True, "UPDATE": True}
-            projects.append({
-                "project_id": project_id,
-                "permissions": permissions
-            })
-    return projects
+                projects[project_id]["permissions"] = {"VIEW": True, "UPDATE": True}
+    return list(projects.values())
