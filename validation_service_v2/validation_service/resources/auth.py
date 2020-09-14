@@ -1,10 +1,11 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from starlette.requests import Request
 from ..auth import oauth
 from ..settings import BASE_URL
 
 router = APIRouter()
-
+auth = HTTPBearer()
 
 @router.get("/login")
 async def login_via_ebrains(request: Request):
@@ -31,3 +32,28 @@ async def auth_via_ebrains(request: Request):
     }
     full_response = {"token": token, "user": user}
     return full_response
+
+
+@router.get("/projects")
+async def list_projects(
+    request: Request,
+    token: HTTPAuthorizationCredentials = Depends(auth),
+):
+    user_info = await oauth.ebrains.userinfo(
+        token={"access_token": token.credentials, "token_type": "bearer"}
+    )
+    roles = user_info.get("roles", []).get("team", [])
+    projects = []
+    for role in roles:
+        if role.startswith("collab-"):
+            project_id = "-".join(role.split("-")[1:-1])
+            permissions = {"VIEW": False, "UPDATE": False}
+            if role.endswith("viewer"):  # todo: what about public collabs?
+                permissions = {"VIEW": True, "UPDATE": False}
+            elif role.endswith("editor") or role.endswith("administrator"):
+                permissions = {"VIEW": True, "UPDATE": True}
+            projects.append({
+                "project_id": project_id,
+                "permissions": permissions
+            })
+    return projects
