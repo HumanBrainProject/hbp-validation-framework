@@ -16,7 +16,7 @@ class CustomToolbar extends React.Component {
 	};
 
 	render() {
-		if (this.props.display === "Models & Tests") {
+		if (this.props.display === "Models and Tests") {
 			return (
 				<React.Fragment>
 					<Tooltip title={"Table Width"}>
@@ -48,4 +48,3 @@ class CustomToolbar extends React.Component {
 export default withStyles(defaultToolbarStyles, { name: "CustomToolbar" })(
 	CustomToolbar
 );
-

@@ -64,7 +64,8 @@ const filtersEmpty = (filterDict) => {
     return is_empty;
 };
 
-const storeFilters = (filterDict) => {
+const storeSettings = (filterDict, display) => {
+    // todo: also store table column settings}
     if (isFramedApp) {
         let data = {};
         for (let key of filterKeys) {
@@ -72,20 +73,6 @@ const storeFilters = (filterDict) => {
                 data[key] = filterDict[key].join(settingsDelimiter);
             }
         }
-        data["reload"] = false;
-        window.parent.postMessage(
-            {
-                topic: updateSettingsTopic,
-                data: data
-            },
-            collaboratoryOrigin);
-        console.log("Stored filter settings");
-    }
-};
-
-const storeDisplay = (display) => {
-    if (isFramedApp) {
-        let data = {};
         data["display"] = display;
         data["reload"] = false;
         window.parent.postMessage(
@@ -94,7 +81,8 @@ const storeDisplay = (display) => {
                 data: data
             },
             collaboratoryOrigin);
-        console.log("Stored display settings");
+        console.log("Stored filter and display settings");
+        console.log(data);
     }
 };
 
@@ -121,7 +109,7 @@ const retrieveDisplay = () => {
     if (displayValid.includes(param)) {
         return param;
     } else {
-        return displayValid[1]; //"Models & Tests"
+        return displayValid[1]; //"Models and Tests"
     }
 }
 
@@ -623,9 +611,12 @@ class ValidationFramework extends React.Component {
 
         console.log(update_model_flag)
         console.log(update_test_flag)
+
+        let update_settings = false;
+
         if (update_model_flag === null || update_test_flag === null) {
+            update_settings = true;
             this.setState({ 'filters': filters });
-            storeFilters(filters);
 
             if (update_model_flag === null && display !== "Only Tests") {
                 update_model_flag = true;
@@ -641,6 +632,7 @@ class ValidationFramework extends React.Component {
         console.log(update_test_flag)
 
         if (display !== this.state.display) { // compare new (display) with existing (this.state.display)
+            update_settings = true;
             // if model changes made above, no need to do again
             if ((!update_model_flag) && (this.state.display === "Only Tests")) {
                 this.updateModels(modelFilters);
@@ -649,10 +641,13 @@ class ValidationFramework extends React.Component {
             if ((!update_test_flag) && (this.state.display === "Only Models")) {
                 this.updateTests(testFilters);
             }
-            storeDisplay(display);
             this.setState({ 'display': display });
             this.setState({ modelsTableWide: false });
             this.setState({ testsTableWide: false });
+        }
+
+        if (update_settings) {
+            storeSettings(filters, display);
         }
         this.setState({ 'configOpen': false });
     };

@@ -18,7 +18,7 @@ export const filterModelKeys = [...new Set([...filterCommonKeys, ...filterModelO
 export const filterTestKeys = [...new Set([...filterCommonKeys, ...filterTestOnlyKeys])];
 export const filterModelInstanceKeys = ["license"];
 export const filterTestInstanceKeys = [];
-export const displayValid = ["Only Models", "Models & Tests", "Only Tests"];
+export const displayValid = ["Only Models", "Models and Tests", "Only Tests"];
 export const queryValid = ["model_id", "model_alias", "test_id", "test_alias", "result_id"];
 export const ADMIN_PROJECT_ID = "model-validation";
 

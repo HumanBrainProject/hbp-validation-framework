@@ -18,21 +18,9 @@ export default class ConfigForm extends React.Component {
 
     constructor(props) {
         super(props);
-        let selectedConfig = {};
-        if (props.display === 'Only Models') {
-            filterModelKeys.forEach(function (key, index) {
-                selectedConfig[key] = props.config[key];
-            });
-        } else if (props.display === 'Only Tests') {
-            filterTestKeys.forEach(function (key, index) {
-                selectedConfig[key] = props.config[key];
-            });
-        } else {
-            selectedConfig = props.config;
-        }
 
         this.state = {
-            selected: selectedConfig,
+            config: props.config,
             display: props.display,
             error: null,
         };
@@ -44,11 +32,11 @@ export default class ConfigForm extends React.Component {
     }
 
     handleCancel() {
-        this.props.onClose(this.state.display, this.state.selected, true);
+        this.props.onClose(this.state.display, this.state.config, true);
     }
 
     handleClose() {
-        this.props.onClose(this.state.display, this.state.selected);
+        this.props.onClose(this.state.display, this.state.config);
     }
 
     handleDisplayChange(display) {
@@ -56,9 +44,9 @@ export default class ConfigForm extends React.Component {
     }
 
     handleFieldChange(event) {
-        const newStateSelected = { ...this.state.selected }
-        newStateSelected[event.target.name] = event.target.value;
-        this.setState({ selected: newStateSelected });
+        const newConfig = { ...this.state.config }
+        newConfig[event.target.name] = event.target.value;
+        this.setState({ config: newConfig });
     }
 
     renderError() {
@@ -108,7 +96,7 @@ export default class ConfigForm extends React.Component {
                                     <MultipleSelect
                                         itemNames={this.props.validFilterValues == null ? [] : this.props.validFilterValues[filter]}
                                         label={filter}
-                                        value={this.state.selected[filter]}
+                                        value={this.state.config[filter]}
                                         handleChange={this.handleFieldChange}
                                         key={filter} />
                                 ))}
