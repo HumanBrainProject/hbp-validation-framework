@@ -22,7 +22,8 @@ import ModelAddForm from "./ModelAddForm";
 import TestAddForm from "./TestAddForm";
 import ConfigForm from "./ConfigForm";
 import Introduction from "./Introduction";
-import ConfigDisplayTop from "./ConfigDisplayTop"
+//import ConfigDisplayTop from "./ConfigDisplayTop"
+import ConfigDisplayTop from "./ConfigDisplaySimple"
 import LoadingIndicator from "./LoadingIndicator"
 import ResultDetail from './ResultDetail';
 import ErrorDialog from './ErrorDialog';
