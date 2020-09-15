@@ -25,7 +25,10 @@ import ModelDetailMetadata from './ModelDetailMetadata';
 import ModelResultOverview from './ModelResultOverview';
 import { formatAuthors } from "./utils";
 import ResultGraphs from './ResultGraphs';
-import { DevMode, baseUrl, querySizeLimit } from "./globals";
+import { DevMode, baseUrl, querySizeLimit, ADMIN_PROJECT_ID } from "./globals";
+
+
+
 
 // if working on the appearance/layout set globals.DevMode=true
 // to avoid loading the models and tests over the network every time;
@@ -101,6 +104,7 @@ class ModelDetail extends React.Component {
             error: null,
             modelData: this.props.modelData,
             auth: authContext,
+            canEdit: false,
             compareFlag: this.props.modelData.instances.length === 0 ? null : this.checkCompareStatus()
         };
         if (DevMode) {
@@ -115,11 +119,13 @@ class ModelDetail extends React.Component {
         this.removeModelInstanceCompare = this.removeModelInstanceCompare.bind(this);
         this.handleClose = this.handleClose.bind(this);
         this.handleTabChange = this.handleTabChange.bind(this);
+        this.checkEditAccess = this.checkEditAccess.bind(this);
     }
 
     componentDidMount() {
         if (!DevMode) {
             this.getModelResults();
+            this.checkEditAccess();
         }
     }
 
@@ -284,6 +290,25 @@ class ModelDetail extends React.Component {
             );
     };
 
+    checkEditAccess() {
+        const url = baseUrl + "/projects";
+        const config = {headers: {'Authorization': 'Bearer ' + this.state.auth.token}};
+        let model = this.state.modelData;
+        axios.get(url, config)
+            .then(res => {
+                res.data.forEach(proj => {
+                    if (((proj.project_id == model.project_id) || proj.project_id == ADMIN_PROJECT_ID) && (proj.permissions.UPDATE)) {
+                        this.setState({
+                            canEdit: true
+                        });
+                    }
+                })
+            })
+            .catch(err => {
+                console.log('Error: ', err.message);
+            });
+    }
+
     render() {
         console.log(this.state.modelData)
         return (
@@ -301,6 +326,7 @@ class ModelDetail extends React.Component {
                                 dateCreated={this.state.modelData.date_created}
                                 owner={formatAuthors(this.state.modelData.owner)}
                                 modelData={this.state.modelData}
+                                canEdit={this.state.canEdit}
                                 updateCurrentModelData={this.updateCurrentModelData}
                                 compareFlag={this.state.compareFlag}
                                 addModelCompare={this.addModelCompare}
@@ -324,6 +350,7 @@ class ModelDetail extends React.Component {
                                             instances={this.state.modelData.instances}
                                             id={this.state.modelData.id}
                                             modelScope={this.state.modelData.model_scope}
+                                            canEdit={this.state.canEdit}
                                             results={this.state.results}
                                             addModelInstanceCompare={this.addModelInstanceCompare}
                                             removeModelInstanceCompare={this.removeModelInstanceCompare}

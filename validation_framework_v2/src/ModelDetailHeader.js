@@ -15,6 +15,7 @@ import ModelEditForm from './ModelEditForm';
 import Theme from './theme';
 import { copyToClipboard, formatTimeStampToLongString, showNotification } from './utils';
 
+
 function AccessibilityIcon(props) {
     if (props.private) {
         return (
@@ -58,6 +59,21 @@ function CompareIcon(props) {
         )
     }
 }
+
+function EditButton(props) {
+    if (props.canEdit) {
+        return (
+            <Tooltip placement="top" title="Edit Model">
+                <IconButton aria-label="edit model" onClick={() => props.handleEditClick()} style={{ backgroundColor: Theme.buttonSecondary, marginLeft: 10 }}>
+                    <EditIcon />
+                </IconButton>
+            </Tooltip>
+        )
+    } else {
+        return "";
+    }
+}
+
 
 class ModelDetailHeader extends React.Component {
     static contextType = ContextMain;
@@ -115,11 +131,7 @@ class ModelDetailHeader extends React.Component {
                     <Typography variant="h4" gutterBottom>
                         <AccessibilityIcon private={this.props.private} />
                         <span style={{ marginHorizontal: 125, cursor: "pointer" }} onClick={() => copyToClipboard(this.props.name, this.props.enqueueSnackbar, "Model name copied")}> {this.props.name}</span>
-                        <Tooltip placement="top" title="Edit Model">
-                            <IconButton aria-label="edit model" onClick={() => this.handleEditClick()} style={{ backgroundColor: Theme.buttonSecondary, marginLeft: 10 }}>
-                                <EditIcon />
-                            </IconButton>
-                        </Tooltip>
+                        <EditButton canEdit={this.props.canEdit} handleEditClick={this.handleEditClick} />
                         <CompareIcon compareFlag={this.props.compareFlag} addModelCompare={this.props.addModelCompare} removeModelCompare={this.props.removeModelCompare} />
                     </Typography>
                     <Typography variant="h5" gutterBottom>

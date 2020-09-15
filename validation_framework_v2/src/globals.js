@@ -10,16 +10,17 @@ export const isIframe = (window !== window.parent);
 export const isFramedApp = isIframe && isParent;
 export const settingsDelimiter = ",";
 
-export const filterCommonKeys = ["species", "brain_region", "cell_type"]
-export const filterModelOnlyKeys = ["model_scope", "abstraction_level"]
-export const filterTestOnlyKeys = ["test_type", "score_type", "recording_modality", "implementation_status"]
-export const filterKeys = [...new Set([...filterCommonKeys, ...filterModelOnlyKeys, ...filterTestOnlyKeys])]
-export const filterModelKeys = [...new Set([...filterCommonKeys, ...filterModelOnlyKeys])]
-export const filterTestKeys = [...new Set([...filterCommonKeys, ...filterTestOnlyKeys])]
-export const filterModelInstanceKeys = ["license"]
-export const filterTestInstanceKeys = []
+export const filterCommonKeys = ["species", "brain_region", "cell_type"];
+export const filterModelOnlyKeys = ["model_scope", "abstraction_level"];
+export const filterTestOnlyKeys = ["test_type", "score_type", "recording_modality", "implementation_status"];
+export const filterKeys = [...new Set([...filterCommonKeys, ...filterModelOnlyKeys, ...filterTestOnlyKeys])];
+export const filterModelKeys = [...new Set([...filterCommonKeys, ...filterModelOnlyKeys])];
+export const filterTestKeys = [...new Set([...filterCommonKeys, ...filterTestOnlyKeys])];
+export const filterModelInstanceKeys = ["license"];
+export const filterTestInstanceKeys = [];
 export const displayValid = ["Only Models", "Models & Tests", "Only Tests"];
-export const queryValid = ["model_id", "model_alias", "test_id", "test_alias", "result_id"]
+export const queryValid = ["model_id", "model_alias", "test_id", "test_alias", "result_id"];
+export const ADMIN_PROJECT_ID = "model-validation";
 
 export const updateHash = (value) => {
 	window.location.hash = value;

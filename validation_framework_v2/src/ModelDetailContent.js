@@ -221,6 +221,14 @@ class ModelDetailContent extends React.Component {
             />
         }
 
+        let addNewVersionButton = "";
+        if (this.props.canEdit) {
+            addNewVersionButton = (
+                <Button variant="contained" style={{ backgroundColor: Theme.buttonPrimary }} onClick={() => this.setState({ openAddInstanceForm: true })}>
+                    Add new version
+                </Button>)
+        }
+
         return (
             <React.Fragment>
                 {console.log(this.state.instancesWithResults)}
@@ -237,9 +245,7 @@ class ModelDetailContent extends React.Component {
                                 <Typography variant="subtitle1"><b>Versions</b></Typography>
                             </Grid>
                             <Grid container item justify="flex-end" xs={6}>
-                                <Button variant="contained" style={{ backgroundColor: Theme.buttonPrimary }} onClick={() => this.setState({ openAddInstanceForm: true })}>
-                                    Add new version
-								</Button>
+                                {addNewVersionButton}
                             </Grid>
                         </Grid>
                         {
@@ -257,7 +263,7 @@ class ModelDetailContent extends React.Component {
                                                 <Box px={2} display="flex" flexDirection="row">
                                                     <p variant="subtitle2">Version: <span style={{ cursor: "pointer", fontWeight: "bold" }} onClick={() => copyToClipboard(instance.version, this.props.enqueueSnackbar, "Model version copied")}>{instance.version}</span></p>
                                                     {
-                                                        this.state.instancesWithResults &&
+                                                        this.state.instancesWithResults && this.props.canEdit &&
                                                         <Tooltip placement="top" title={this.state.instancesWithResults.includes(instance.id) ? "Cannot Edit" : "Edit"}>
                                                             <IconButton aria-label="edit model instance" onClick={() => this.handleEditClick(instance)}>
                                                                 <EditIcon />
