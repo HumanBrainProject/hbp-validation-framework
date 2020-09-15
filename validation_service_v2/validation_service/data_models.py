@@ -152,6 +152,7 @@ class ModelInstance(BaseModel):
     timestamp: datetime = None
     morphology: HttpUrl = None
     model_id: UUID = None  # id of parent model
+    alternatives: List[HttpUrl] = None  # alternative representations, e.g. EBRAINS Search, ModelDB
 
     class Config:
         extra = "allow"  # we temporarily store the IDs of sub-objects (e.g. ModelScript)
@@ -171,6 +172,7 @@ class ModelInstance(BaseModel):
             "parameters": instance.parameters,
             "timestamp": ensure_has_timezone(instance.timestamp),
             "model_id": model_id,
+            "alternatives": []
         }
         if instance.main_script:
             main_script = instance.main_script.resolve(client, api="nexus")
@@ -185,6 +187,12 @@ class ModelInstance(BaseModel):
                     "script_id": main_script.id,  # internal use only
                 }
             )
+        if instance.alternate_of:
+            for alt in as_list(instance.alternate_of):
+                alt_obj = alt.resolve(client, api="nexus")
+                if alt_obj and alt_obj.identifier:
+                    url = f"https://kg.ebrains.eu/search/instances/Model/{alt_obj.identifier}"
+                    instance_data["alternatives"].append(url)
         if hasattr(instance, "morphology"):
             morph = instance.morphology.resolve(client, api="nexus")
             instance_data["morphology"] = morph.morphology_file
