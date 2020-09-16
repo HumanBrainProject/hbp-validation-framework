@@ -16,6 +16,8 @@ import ModelInstanceAddForm from './ModelInstanceAddForm';
 import ModelInstanceEditForm from './ModelInstanceEditForm';
 import Theme from './theme';
 import { copyToClipboard, formatTimeStampToLongString, showNotification } from './utils';
+import Avatar from '@material-ui/core/Avatar';
+
 
 function openBlueNaaS(model_inst_url) {
     let match = model_inst_url.match(/https:\/\/object\.cscs\.ch\/v1\/AUTH_([^]+?)\//gi)
@@ -106,6 +108,22 @@ function CompareIcon(props) {
                 </IconButton>
             </Tooltip>
         )
+    }
+}
+
+
+function AlternateRepresentationLinkOut(props) {
+    if (props.instance.alternatives.length > 0) {
+        const url = props.instance.alternatives[0];  // for now, assume there's only one, fix this later
+        return (
+            <Tooltip title="View this version in the KG Search app" placement="top">
+                <IconButton href={url} target="_blank" rel="noopener">
+                    <Avatar alt="KG Search" src="/docs/static/img/ebrains_logo.png" />
+                </IconButton>
+            </Tooltip>
+        )
+    } else {
+        return "";
     }
 }
 
@@ -253,7 +271,7 @@ class ModelDetailContent extends React.Component {
                                 ?
                                 <Typography variant="h6">
                                     <br />
-                                    No model instances have yet been registered for this model!
+                                    No model instances have yet been registered for this model.
                                 </Typography>
                                 :
                                 this.state.instances.map(instance => (
@@ -276,6 +294,7 @@ class ModelDetailContent extends React.Component {
                                                         </IconButton>
                                                     </Tooltip>
                                                     <CompareIcon compareFlag={this.checkInstanceInCompare(this.props.id, instance.id)} instance_id={instance.id} addModelInstanceCompare={this.props.addModelInstanceCompare} removeModelInstanceCompare={this.props.removeModelInstanceCompare} />
+                                                    <AlternateRepresentationLinkOut instance={instance} />
                                                 </Box>
                                             </Grid>
                                             <Grid container item justify="flex-end" xs={6}>
