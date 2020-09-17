@@ -6,6 +6,8 @@ from itertools import chain
 import logging
 from urllib.parse import urlparse, parse_qs
 
+from dateutil import parser as date_parser
+
 from pydantic import BaseModel, HttpUrl, AnyUrl, validator, ValidationError
 from fastapi.encoders import jsonable_encoder
 from fastapi import HTTPException, status
@@ -22,6 +24,10 @@ from .db import (_get_model_by_id_or_alias, _get_model_instance_by_id,
 fairgraph.core.use_namespace(fairgraph.brainsimulation.DEFAULT_NAMESPACE)
 fairgraph.commons.License.initialize()
 logger = logging.getLogger("validation_service_v2")
+
+
+def uuid_from_uri(uri):
+    return uri.split("/")[-1]
 
 
 def ensure_has_timezone(timestamp):
@@ -726,6 +732,33 @@ class File(BaseModel):
             id=id
         )
 
+    @classmethod
+    def from_kg_query(cls, result):
+        url = result["http://schema.org/downloadURL"]["@id"]
+        url_parts = urlparse(url)
+        id = None
+        local_path = result.get("original_file_name")
+        if url_parts.netloc == "collab-storage-redirect.brainsimulation.eu":
+            file_store = "collab-v1"
+            local_path = url_parts.path
+        elif url_parts.netloc == "seafile-proxy.brainsimulation.eu":
+            file_store = "drive"
+            local_path = url_parts.path
+            id = parse_qs(url_parts.query).get("username", [None])[0]
+        elif url_parts.netloc == "object.cscs.ch":
+            file_store = "swift"
+        else:
+            file_store = None
+        return cls(
+            download_url=url,
+            hash=result.get("digest"),
+            size=result.get("size"),
+            content_type=result.get("content_type"),
+            local_path=local_path,
+            file_store=file_store,
+            id=id
+        )
+
     def to_kg_object(self):
         if self.download_url is None:
             if self.file_store == "drive":
@@ -783,6 +816,27 @@ class ValidationResult(BaseModel):
             timestamp=ensure_has_timezone(result.timestamp),
             project_id=result.collab_id,
             normalized_score=result.normalized_score,
+        )
+
+    @classmethod
+    def from_kg_query(cls, result):
+        additional_data = []
+        for item in sorted(result["results_storage"], key=lambda item: item["http://schema.org/downloadURL"]["@id"] ):
+            additional_data.append(
+                File.from_kg_query(item)
+            )
+        return cls(
+            id=uuid_from_uri(result["uri"]),
+            uri=result["uri"],
+            old_uuid=result["old_uuid"],
+            model_instance_id=uuid_from_uri(result["model_instance"][0]["model_instance_id"]),
+            test_instance_id=uuid_from_uri(result["test_instance"][0]["test_instance_id"]),
+            results_storage=additional_data,  # todo: handle collab storage redirects
+            score=result["score"],
+            passed=result["passed"],
+            timestamp=ensure_has_timezone(date_parser.parse(result["timestamp"])),
+            project_id=result["project_id"],
+            normalized_score=result["normalized_score"],
         )
 
     def to_kg_objects(self, kg_client):

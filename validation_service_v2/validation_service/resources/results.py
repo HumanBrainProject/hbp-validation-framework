@@ -2,12 +2,13 @@ from uuid import UUID
 from enum import Enum
 from typing import List
 from datetime import datetime
+from urllib.parse import quote_plus, urlencode
 import os
 import logging
+import itertools
+from requests.exceptions import HTTPError
 
-import requests
-
-from fairgraph.client import KGClient
+from fairgraph.client import KGClient, SCOPE_MAP
 from fairgraph.base import KGQuery, KGProxy, as_list
 from fairgraph.brainsimulation import ValidationResult as ValidationResultKG, ValidationActivity
 
@@ -46,6 +47,12 @@ def query_results(
     # from header
     token: HTTPAuthorizationCredentials = Depends(auth),
 ):
+    return _query_results(passed, project_id, model_instance_id, test_instance_id, model_id, test_id, model_alias, test_alias, score_type,  size,
+from_index, token)
+
+
+def _query_results(passed, project_id, model_instance_id, test_instance_id, model_id, test_id, model_alias, test_alias, score_type,  size,
+from_index, token):
     filter_query, context = build_result_filters(
         model_instance_id,
         test_instance_id,
@@ -74,6 +81,56 @@ def query_results(
         else:
             response.append(obj)
     return response
+
+
+def expand_combinations(D):
+    keys, values = zip(*D.items())
+    return [dict(zip(keys, v)) for v in itertools.product(*[as_list(v) for v in values])]
+
+
+def _query_results2(passed, project_id, model_instance_id, test_instance_id, model_id, test_id, model_alias, test_alias, score_type,  size,
+from_index, token):
+    # todo : more sophisticated handling of size and from_index
+    path = "/modelvalidation/simulation/validationresult/v0.1.0"
+    query_id = "test"  # "vf"
+    scope = SCOPE_MAP["latest"]
+    query_parameters = {
+        "start": 0,   #from_index,
+        "size": 100000,  #size,
+        "vocab": "https://schema.hbp.eu/myQuery/",
+        "scope": scope
+    }
+    for filter_name in ("passed", "project_id", "model_instance_id", "test_instance_id",
+                        "model_id", "test_id", "model_alias", "test_alias", "score_type"):
+        value = locals()[filter_name]
+        if value is not None:
+            query_parameters[filter_name] = value
+    query_parameters_list = expand_combinations(query_parameters)
+    response = []
+    for query_parameters in query_parameters_list:
+        query_string = urlencode(query_parameters, doseq=True)
+        url = f"{path}/{query_id}/instances?" + query_string
+        print(url)
+        try:
+            kg_response = kg_client._kg_query_client.get(url)
+        except HTTPError as err:
+            if err.response.status_code == 403:
+                kg_response = None
+            else:
+                raise
+        if kg_response and "results" in kg_response:
+            for result in kg_response["results"]:
+                try:
+                    obj = ValidationResult.from_kg_query(result)
+                except ConsistencyError as err:  # todo: count these and report them in the response
+                    logger.warning(str(err))
+                else:
+                    response.append(obj)
+                if len(response) >= size + from_index:
+                    break
+            if len(response) >= size + from_index:
+                break
+    return response[from_index:from_index + size]
 
 
 @router.get("/results/{result_id}", response_model=ValidationResult)
