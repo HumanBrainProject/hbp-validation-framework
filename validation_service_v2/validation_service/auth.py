@@ -94,13 +94,15 @@ async def get_collab_permissions_v2(collab_id, user_token):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail=userinfo["error_description"]
         )
-    target_team_name = f"collab-{collab_id}"
+    target_team_names = (f"collab-{collab_id}-{role}"
+                         for role in ("viewer", "editor", "administrator"))
     matching_teams = [
-        team for team in userinfo["roles"]["team"] if team.startswith(target_team_name)
+        team for team in userinfo["roles"]["team"] if team in target_team_names
     ]
     if len(matching_teams) == 0:
         permissions = {"VIEW": False, "UPDATE": False}
-    elif len(matching_teams) > 1:
+    elif len(matching_teams) > 1:  # this assumes a user only ever has one role,
+                                   # cannot have both 'viewer' and 'editor' roles, for example
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid collab id")
     else:
         matching_team = matching_teams[0]
