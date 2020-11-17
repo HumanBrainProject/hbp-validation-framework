@@ -77,12 +77,15 @@ export function formatLabel(label) {
     if (["id", "uri"].indexOf(label) > -1) {
         label = label.toUpperCase();
     } else {
+        if (label === "project_id") {
+            label = "collab_id"
+        }
         label = label.replace(/_/g, ' ');
         label = label.replace(/-/g, ' ');
         label = label
             .toLowerCase()
             .split(' ')
-            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+            .map(word => (word === "id") ? "ID" : word.charAt(0).toUpperCase() + word.slice(1))
             .join(' ');
     }
     return label;

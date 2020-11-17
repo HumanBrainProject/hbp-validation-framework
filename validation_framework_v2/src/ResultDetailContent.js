@@ -42,7 +42,7 @@ class ResultDetailContent extends React.Component {
                             <ResultParameter label="Score" value={props.score} />
                             <ResultParameter label="Normalized Score" value={props.normalized_score} />
                             <ResultParameter label="TimeStamp" value={formatTimeStampToLongString(props.timestamp)} />
-                            <ResultParameter label="Project" value={props.project_id} />
+                            <ResultParameter label="Collab ID" value={props.project_id} />
                             <ResultParameter label="Pass / Fail" value={props.passed} />
                             <ResultParameter label="KG URI" value={props.uri} />
                         </TableBody>
@@ -54,7 +54,7 @@ class ResultDetailContent extends React.Component {
                     <ResultParameter label="Score" value={this.props.score} enqueueSnackbar={this.props.enqueueSnackbar} />
                     <ResultParameter label="Normalized Score" value={this.props.normalized_score} enqueueSnackbar={this.props.enqueueSnackbar} />
                     <ResultParameter label="TimeStamp" value={formatTimeStampToLongString(this.props.timestamp)} enqueueSnackbar={this.props.enqueueSnackbar} />
-                    <ResultParameter label="Project" value={this.props.project_id} enqueueSnackbar={this.props.enqueueSnackbar} />
+                    <ResultParameter label="Collab ID" value={this.props.project_id} enqueueSnackbar={this.props.enqueueSnackbar} />
                     <ResultParameter label="Pass / Fail" value={this.props.passed} enqueueSnackbar={this.props.enqueueSnackbar} />
                     <ResultParameter label="KG URI" value={this.props.uri} enqueueSnackbar={this.props.enqueueSnackbar} />
                 </Grid>

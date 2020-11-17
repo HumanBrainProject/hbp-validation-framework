@@ -21,7 +21,7 @@ class CustomToolbarSelect extends React.Component {
 		const { classes } = this.props;
 		return (
 			<div className={"custom-toolbar-select"}>
-				<Tooltip title={"View / Compare"}>
+				<Tooltip title={"Quick View"}>
 					<IconButton className={classes.iconButton} onClick={() => this.props.viewSelectedItems(this.props.selectedRows)}>
 						<PageviewIcon />
 					</IconButton>
