@@ -1,10 +1,14 @@
+import os
 from uuid import UUID
 from enum import Enum
 from typing import List
 from datetime import datetime, timezone
 from itertools import chain
 import logging
-from urllib.parse import urlparse, parse_qs
+import json
+import tempfile
+import hashlib
+from urllib.parse import urlparse, parse_qs, quote
 
 from dateutil import parser as date_parser
 
@@ -20,6 +24,8 @@ import fairgraph.brainsimulation
 from .examples import EXAMPLES
 from .db import (_get_model_by_id_or_alias, _get_model_instance_by_id,
                  _get_test_by_id_or_alias, _get_test_instance_by_id)
+from .auth import get_user_from_token
+
 
 fairgraph.core.use_namespace(fairgraph.brainsimulation.DEFAULT_NAMESPACE)
 fairgraph.commons.License.initialize()
@@ -132,6 +138,7 @@ License = Enum(
 class Person(BaseModel):
     given_name: str
     family_name: str
+    orcid: str = None   # todo: add this to KG model
 
     @classmethod
     def from_kg_object(cls, p, client):
@@ -763,7 +770,7 @@ class File(BaseModel):
     def to_kg_object(self):
         if self.download_url is None:
             if self.file_store == "drive":
-                self.download_url = f"https://seafile-proxy.brainsimulation.eu{self.local_path}?username={self.id}"
+                self.download_url = f"https://seafile-proxy.brainsimulation.eu{quote(self.local_path)}?username={self.id}"
         return Distribution(
             self.download_url,
             size=self.size,
@@ -927,3 +934,127 @@ class ValidationResultWithTestAndModel(ValidationResult):
             model=model,
             test=test
         )
+
+
+class SoftwareDependency(BaseModel):
+    name: str
+    version: str = None
+
+
+class ComputingEnvironment(BaseModel):
+    name: str
+    type: str = None   # todo: make this an Enum
+    hardware: str = None
+    dependencies: List[SoftwareDependency]
+
+
+class Simulation(BaseModel):
+    id: UUID = None
+    uri: HttpUrl = None
+    description: str = None
+    model_instance_id: UUID
+    configuration: dict = None
+    outputs: List[File]
+    timestamp: datetime = None
+    end_timestamp: datetime = None
+    environment: ComputingEnvironment = None
+    started_by: Person = None
+
+    def _get_person(self, kg_client, token):
+        if self.started_by is None:
+            user_info = get_user_from_token(token.credentials)
+            family_name = user_info["family_name"]
+            given_name = user_info["given_name"]
+        else:
+            family_name = self.started_by.family_name
+            given_name = self.started_by.given_name
+        person = fairgraph.core.Person(family_name=family_name, given_name=given_name)
+        return person
+
+    @classmethod
+    def from_kg_object(cls, sim_activity, kg_client):
+        outputs = [output.resolve(kg_client, api="nexus")
+                   for output in as_list(sim_activity.result)]
+        config_obj = sim_activity.config.resolve(kg_client, api="nexus")
+        if config_obj and config_obj.config_file:
+            config = kg_client._nexus_client._http_client.get(config_obj.config_file.location)
+        else:
+            config = None
+        return cls(
+            id=sim_activity.uuid,
+            uri=sim_activity.id,
+            description=sim_activity.description,
+            model_instance_id=sim_activity.model_instance.uuid,
+            configuration=config,
+            outputs=[File.from_kg_object(output.result_file) for output in outputs],
+            timestamp=sim_activity.timestamp,
+            end_timestamp=sim_activity.end_timestamp,
+            #environment=None  # todo
+            started_by=Person.from_kg_object(sim_activity.started_by, kg_client)
+        )
+
+    def to_kg_objects(self, kg_client, token):
+        kg_objects ={}
+
+        person = self._get_person(kg_client, token)
+        kg_objects['person'] = [person]
+
+        start_timestamp = ensure_has_timezone(self.timestamp) or datetime.now(timezone.utc)
+        end_timestamp = ensure_has_timezone(self.end_timestamp)
+
+        tmp_config_file = tempfile.NamedTemporaryFile(mode="w", encoding="utf-8", delete=False)
+        json.dump(self.configuration, tmp_config_file)
+        tmp_config_file.close()
+        config_identifier = hashlib.sha1(json.dumps(self.configuration).encode("utf-8")).hexdigest()
+        sim_config = fairgraph.brainsimulation.SimulationConfiguration(
+            name=config_identifier,
+            identifier=config_identifier,
+            description=f"configuration for {self.description}",
+            config_file=tmp_config_file.name
+        )
+        kg_objects['config'] = [sim_config]
+
+        model_instance = fairgraph.brainsimulation.ModelInstance.from_id(str(self.model_instance_id), kg_client, api="nexus")
+
+        sim_outputs = []
+        for output_file in self.outputs:
+            output_identifier = hashlib.sha1(
+                json.dumps({
+                    "model_instance": model_instance.uuid,
+                    "sim_config": sim_config.identifier,
+                    "start_timestamp": start_timestamp.isoformat()
+                }).encode("utf-8")).hexdigest()
+            sim_output = fairgraph.brainsimulation.SimulationOutput(
+                name=f"Output from simulation of model instance {model_instance.uuid} with config {sim_config.name} at {start_timestamp}",
+                identifier=output_identifier,
+                result_file=output_file.to_kg_object(),
+                generated_by=None,  # to be added after saving
+                derived_from=model_instance,
+                #data_type=None,
+                #variable=None,
+                #target=None,
+                description=f"Output from {self.description}",
+                timestamp=end_timestamp or start_timestamp,
+                #brain_region=None,
+                #species=None,
+                #celltype=None,
+            )
+            sim_outputs.append(sim_output)
+        kg_objects['outputs'] = sim_outputs
+
+        sim_activity = fairgraph.brainsimulation.Simulation(
+            #name=
+            description=self.description,
+            #identifier=
+            model_instance=_get_model_instance_by_id_no_access_check(self.model_instance_id, kg_client),
+            config=sim_config,
+            timestamp=start_timestamp,
+            result=sim_outputs,
+            started_by=person,
+            end_timestamp=end_timestamp,
+            #computing_environment=
+        )
+        kg_objects['activity'] = sim_activity
+
+        return kg_objects
+        #os.remove(tmp_config_file.name)

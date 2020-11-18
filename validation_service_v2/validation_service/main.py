@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from starlette.middleware.sessions import SessionMiddleware
 from starlette.middleware.cors import CORSMiddleware
 
-from .resources import models, tests, vocab, results, auth
+from .resources import models, tests, vocab, results, auth, simulations
 from . import settings
 
 
@@ -43,4 +43,5 @@ app.include_router(auth.router, tags=["Authentication and authorization"])
 app.include_router(models.router, tags=["Models"])
 app.include_router(tests.router, tags=["Validation Tests"])
 app.include_router(results.router, tags=["Validation Results"])
+app.include_router(simulations.router, tags=["Simulations"])
 app.include_router(vocab.router, tags=["Controlled vocabularies"])

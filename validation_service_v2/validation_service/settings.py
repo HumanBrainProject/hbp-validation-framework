@@ -4,7 +4,7 @@ NEXUS_ENDPOINT = "https://nexus.humanbrainproject.org/v0"
 OIDC_HOST = "https://services.humanbrainproject.eu/oidc"
 HBP_IDENTITY_SERVICE_URL_V1 = "https://services.humanbrainproject.eu/idm/v1/api"
 HBP_IDENTITY_SERVICE_URL_V2 = (
-    "https://iam.humanbrainproject.eu/auth/realms/hbp/protocol/openid-connect"
+    "https://iam.ebrains.eu/auth/realms/hbp/protocol/openid-connect"
 )
 HBP_COLLAB_SERVICE_URL = "https://services.humanbrainproject.eu/collab/v0/"
 KG_SERVICE_ACCOUNT_REFRESH_TOKEN = os.environ["KG_SERVICE_ACCOUNT_REFRESH_TOKEN"]
