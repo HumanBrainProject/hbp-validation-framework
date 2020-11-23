@@ -12,6 +12,7 @@ import hashlib
 from urllib.parse import urlparse, parse_qs, quote
 
 from dateutil import parser as date_parser
+import requests
 
 from pydantic import BaseModel, HttpUrl, AnyUrl, validator, ValidationError
 from fastapi.encoders import jsonable_encoder
@@ -33,6 +34,9 @@ fairgraph.software.use_namespace(fairgraph.brainsimulation.DEFAULT_NAMESPACE)
 fairgraph.computing.use_namespace(fairgraph.brainsimulation.DEFAULT_NAMESPACE)
 fairgraph.commons.License.initialize(join(dirname(__file__), "spdx_licences.json"))
 logger = logging.getLogger("validation_service_v2")
+
+
+EBRAINS_DRIVE_API = "https://drive.ebrains.eu/api2/"
 
 
 def uuid_from_uri(uri):
@@ -729,6 +733,8 @@ class File(BaseModel):
             file_store = "drive"
             local_path = url_parts.path
             id = parse_qs(url_parts.query).get("username", [None])[0]
+        elif url_parts.netloc == "drive.ebrains.eu":
+            file_store = "drive"
         elif url_parts.netloc == "object.cscs.ch":
             file_store = "swift"
         else:
@@ -756,6 +762,8 @@ class File(BaseModel):
             file_store = "drive"
             local_path = url_parts.path
             id = parse_qs(url_parts.query).get("username", [None])[0]
+        elif url_parts.netloc == "drive.ebrains.eu":
+            file_store = "drive"
         elif url_parts.netloc == "object.cscs.ch":
             file_store = "swift"
         else:
@@ -770,10 +778,13 @@ class File(BaseModel):
             id=id
         )
 
-    def to_kg_object(self):
+    def to_kg_object(self, token=None):
         if self.download_url is None:
             if self.file_store == "drive":
-                self.download_url = f"https://seafile-proxy.brainsimulation.eu{quote(self.local_path)}?username={self.id}"
+                if token:
+                    self.download_url = self.get_share_link(token)
+                else:
+                    self.download_url = f"https://seafile-proxy.brainsimulation.eu{quote(self.local_path)}?username={self.id}"
         return Distribution(
             self.download_url,
             size=self.size,
@@ -782,6 +793,20 @@ class File(BaseModel):
             content_type=self.content_type,
             original_file_name=self.local_path
         )
+
+    def get_share_link(self, token):
+        if self.local_path:
+            base_dir = "/mnt/user/drive/My Libraries/My Library/"
+            if self.local_path.startswith(base_dir):
+                session = requests.Session()
+                session.headers['Authorization'] = f"Bearer {token.credentials}"
+                repo_id = session.get(f"{EBRAINS_DRIVE_API}default-repo").json()["repo_id"]
+                relative_path = os.path.relpath(self.local_path, base_dir)
+                response = session.put(f"https://drive.ebrains.eu/api2/repos/{repo_id}/file/shared-link/",
+                                       json={"p": relative_path})
+                if response.status_code == requests.codes.created:
+                    return response.headers["Location"]
+        return None
 
 
 class ValidationResult(BaseModel):
@@ -1092,7 +1117,7 @@ class Simulation(BaseModel):
             sim_output = fairgraph.brainsimulation.SimulationOutput(
                 name=f"Output {i}/{n} from simulation of model instance {model_instance.uuid} with config {sim_config.name} at {start_timestamp}",
                 identifier=output_identifier,
-                result_file=output_file.to_kg_object(),
+                result_file=output_file.to_kg_object(token),
                 generated_by=None,  # to be added after saving
                 derived_from=model_instance,
                 #data_type=None,
