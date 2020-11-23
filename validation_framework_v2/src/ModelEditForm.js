@@ -308,7 +308,7 @@ export default class ModelEditForm extends React.Component {
                                         label={this.state.private ? "Private" : "Public"} />
                                 </Grid>
                                 <Grid item xs={12}>
-                                    <TextField name="project_id" label="Project ID" defaultValue={this.state.project_id}
+                                    <TextField name="project_id" label="Collab ID" defaultValue={this.state.project_id}
                                         onBlur={this.handleFieldChange} variant="outlined" fullWidth={true}
                                         helperText="Please specify the Collab ID, if any, associated with this model (optional)." />
                                 </Grid>

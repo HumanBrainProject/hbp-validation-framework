@@ -121,6 +121,7 @@ export default class ResultDetail extends React.Component {
                             </AppBar>
                             <TabPanel value={this.state.tabValue} index={0}>
                                 <ResultDetailContent
+                                    score={result.score}
                                     normalized_score={result.normalized_score}
                                     timestamp={result.timestamp}
                                     project_id={result.project_id}
