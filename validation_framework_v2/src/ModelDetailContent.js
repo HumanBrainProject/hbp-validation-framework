@@ -35,7 +35,7 @@ function viewMorphology(model_inst_morph_url) {
 
 function InstanceParameter(props) {
     if (props.value) {
-        if (props.label === "Source" && props.value.match(/\?bluenaas=true/gi)) {	// contains '?bluenaas=true' in URL
+        if (props.label === "Source" && props.value.match(/bluenaas=true/gi)) {	// contains 'bluenaas=true' in URL
             return (
                 <Grid container>
                     <Grid item xs={12}>
