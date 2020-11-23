@@ -9,18 +9,26 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import axios from 'axios';
 import React from 'react';
 import Theme from './theme';
+import ContextMain from './ContextMain';
+import { copyToClipboard } from './utils';
+import { withSnackbar } from 'notistack';
 
 var filesize = require("filesize");
 
 class ResultFile extends React.Component {
     signal = axios.CancelToken.source();
+    static contextType = ContextMain;
 
     constructor(props, context) {
         super(props, context);
+        const [authContext,] = this.context.auth;
+
         this.state = {
+            auth: authContext,
             file_size: this.props.r_file.size,
             // content_type: this.props.r_file.content_type,
             url: this.props.r_file.download_url,
+            download_url: this.props.r_file.download_url,
             filename: this.props.r_file.download_url.split('/').pop().split('#')[0].split('?')[0],
             index: this.props.index + 1,
             loaded: false,
@@ -31,25 +39,58 @@ class ResultFile extends React.Component {
     }
 
     componentDidMount() {
-        if (!this.state.file_size) {
-            // the file entry should ideally have metadata such as file size; if not we try to retrieve online
-            // Since CSCS storage gives CORS related issues, we use an intermediate server to resolve this
-            axios.head("https://cors-anywhere.herokuapp.com/" + this.state.url)
-                .then(res => {
-                    // console.log(res.headers)
+        // files in Collaboratory v2 storage need a suffix to the URL for direct downloads
+        if (this.state.url.includes("drive.ebrains.eu")) {
+            if (this.state.url.endsWith("?dl=1")) {
+                this.setState({ 
+                    url: this.state.url.slice(0, -5),
+                    download_url: this.state.url 
+                })
+            } else {
+                this.setState({ download_url: this.state.url + "?dl=1" })
+            }
+        }
+
+        // check if file urls are valid
+        let config = {
+            cancelToken: this.signal.token,
+        }
+        let query_url = ""
+        if (this.state.url.includes("drive.ebrains.eu")) {
+            config["headers"] = {
+                'Authorization': 'Bearer ' + this.state.auth.token,
+            }
+            const url_parts = this.state.url.match('.*\/lib\/(.*)\/file(\/.*)');
+            query_url = "https://drive.ebrains.eu/api2/repos/" + url_parts[1] + "/file/detail/?p=" + url_parts[2];
+        } else {
+            query_url = this.state.url
+        }
+        // Since Collaboratory v2 storage and CSCS storage gives CORS related issues,
+        // we use an intermediate proxy server to resolve this
+        query_url = "https://cors-anywhere.herokuapp.com/" + query_url
+
+        axios.head(query_url, config)
+            .then(res => {
+                this.setState({
+                    valid: true
+                })
+                if (!this.state.file_size) {
                     this.setState({
                         file_size: res.headers["content-length"],
-                        valid: true
                     })
+                }
+            })
+            .catch(err => {
+                this.setState({
+                    valid: false
                 })
-                .catch(err => {
+                if (!this.state.file_size) {
                     this.setState({
-                        file_size: err.headers["content-length"],
-                        valid: false
+                        file_size: "?",
                     })
-                    console.log(err)
-                });
-        }
+                }
+                console.log(err)
+            });
     }
 
     clickPanel(event, expanded) {
@@ -59,6 +100,8 @@ class ResultFile extends React.Component {
     }
 
     render() {
+        console.log(this.props.r_file);
+        var fsize = isNaN(this.state.file_size) ? this.state.file_size : filesize(this.state.file_size)
         return (
             <Grid style={{ marginBottom: 10 }}>
                 <Accordion style={{ backgroundColor: Theme.bodyBackground }} onChange={this.clickPanel} >
@@ -68,15 +111,15 @@ class ResultFile extends React.Component {
                                 <Typography variant="body2">
                                     {this.state.index + ") "}
                                     <strong>{this.state.filename}</strong>
-                                    {this.state.file_size && " (" + filesize(this.state.file_size) + ")"}
+                                    {this.state.file_size && " (" + fsize + ")"}
                                 </Typography>
                             </Grid>
                             <Grid item>
-                                <Link underline="none" style={{ cursor: 'pointer' }} href={this.state.url} target="_blank" rel="noopener noreferrer">
+                                <Link underline="none" style={{ cursor: 'pointer' }} href={this.state.download_url} target="_blank" rel="noopener noreferrer">
                                     {this.state.valid &&
-                                        <Button variant="contained" size="small" style={{ backgroundColor: Theme.buttonPrimary }} onClick={() => this.setState({ openAddInstanceForm: true })}>
+                                        <Button variant="contained" size="small" style={{ backgroundColor: Theme.buttonPrimary }}>
                                             Download
-								    </Button>
+								        </Button>
                                     }
                                 </Link>
                             </Grid>
@@ -84,16 +127,18 @@ class ResultFile extends React.Component {
                     </AccordionSummary>
                     <AccordionDetails>
                         <Box style={{ width: "100%" }} my={2} >
+                            <Typography variant="body2" style={{ cursor: "pointer" }} onClick={() => copyToClipboard(this.state.url, this.props.enqueueSnackbar, "File URL copied")}><strong>File URL: </strong>{this.state.url}</Typography>
+                            <br />
                             {/* check to avoid loading file if not requested by clicking on the exapansion panel */}
                             {/* If file is accessible (valid = true) */}
                             {this.state.loaded && this.state.valid &&
-                                <iframe title={"iFrame_" + this.props.index} id={"iFrame_" + this.props.index} style={{ width: "100%", height: "400px" }} src={this.state.url} />
+                                <div>
+                                    <iframe title={"iFrame_" + this.props.index} id={"iFrame_" + this.props.index} style={{ width: "100%", height: "400px" }} src={this.state.url} />
+                                </div>
                             }
                             {/* If file is inaccessible (valid = false) */}
                             {this.state.loaded && this.state.valid === false &&
                                 <div>
-                                    <Typography variant="body2"><strong>File URL: </strong>{this.state.url}</Typography>
-                                    <br />
                                     <Typography variant="body2" style={{ color: "red" }}>
                                         This file is currently not accessible!
                                     </Typography>
@@ -102,8 +147,6 @@ class ResultFile extends React.Component {
                             {/* If file is still being evaluated (valid = null) */}
                             {this.state.loaded && this.state.valid === null &&
                                 <div>
-                                    <Typography variant="body2"><strong>File URL: </strong>{this.state.url}</Typography>
-                                    <br />
                                     <Typography variant="body2">
                                         Loading...
                                     </Typography>
@@ -117,7 +160,7 @@ class ResultFile extends React.Component {
     }
 }
 
-export default class ResultRelatedFiles extends React.Component {
+class ResultRelatedFiles extends React.Component {
     render() {
         if (this.props.result_files.length === 0) {
             return (
@@ -142,7 +185,7 @@ export default class ResultRelatedFiles extends React.Component {
 					</TableContainer> */}
 
                         {this.props.result_files.map((r_file, ind) => (
-                            <ResultFile r_file={r_file} key={ind} index={ind} />
+                            <ResultFile r_file={r_file} key={ind} index={ind} enqueueSnackbar={this.props.enqueueSnackbar} />
                         ))}
                     </Grid>
                 </Grid>
@@ -150,3 +193,5 @@ export default class ResultRelatedFiles extends React.Component {
         }
     }
 }
+
+export default withSnackbar(ResultRelatedFiles);
