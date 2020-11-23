@@ -16,7 +16,7 @@ FROM debian:buster-slim
 MAINTAINER Andrew Davison <andrew.davison@cnrs.fr>
 
 ENV DEBIAN_FRONTEND noninteractive
-RUN apt-get update --fix-missing; apt-get -y -q install python-pkg-resources python3-pkg-resources python3-pip supervisor build-essential nginx-extras git
+RUN apt-get update --fix-missing; apt-get -y -q install python-pkg-resources python3-pkg-resources python3-pip supervisor build-essential nginx-extras git wget
 RUN unset DEBIAN_FRONTEND
 
 RUN pip3 install --upgrade pip
@@ -32,6 +32,7 @@ COPY requirements.txt $SITEDIR/
 RUN pip3 install -r $SITEDIR/requirements.txt
 
 COPY validation_service $SITEDIR/validation_service
+RUN wget https://raw.githubusercontent.com/spdx/license-list-data/master/json/licenses.json -O $SITEDIR/validation_service/spdx_licences.json
 
 ENV PYTHONPATH  /home/docker:/home/docker/site:/usr/lib/python2.7/dist-packages/:/usr/local/lib/python3.7/dist-packages:/usr/lib/python3.7/dist-packages
 

@@ -1,4 +1,5 @@
 import os
+from os.path import join, dirname
 from uuid import UUID
 from enum import Enum
 from typing import List
@@ -30,7 +31,7 @@ from .auth import get_user_from_token
 fairgraph.core.use_namespace(fairgraph.brainsimulation.DEFAULT_NAMESPACE)
 fairgraph.software.use_namespace(fairgraph.brainsimulation.DEFAULT_NAMESPACE)
 fairgraph.computing.use_namespace(fairgraph.brainsimulation.DEFAULT_NAMESPACE)
-fairgraph.commons.License.initialize()
+fairgraph.commons.License.initialize(join(dirname(__file__), "spdx_licences.json"))
 logger = logging.getLogger("validation_service_v2")
 
 
