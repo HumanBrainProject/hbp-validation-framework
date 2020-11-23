@@ -1059,7 +1059,6 @@ class Simulation(BaseModel):
         config_identifier = hashlib.sha1(json.dumps(self.configuration).encode("utf-8")).hexdigest()
         sim_config = fairgraph.brainsimulation.SimulationConfiguration.by_name(config_identifier, kg_client, api="nexus")
         if not sim_config:
-            raise Exception("debugging")
             tmp_config_file = tempfile.NamedTemporaryFile(mode="w", encoding="utf-8", delete=False)
             json.dump(self.configuration, tmp_config_file)
             tmp_config_file.close()
