@@ -2,4 +2,4 @@ uvicorn
 fastapi
 itsdangerous
 Authlib
-httpx==0.12.0
+httpx
