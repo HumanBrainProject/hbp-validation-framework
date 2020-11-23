@@ -1026,6 +1026,12 @@ class Simulation(BaseModel):
             config = kg_client._nexus_client._http_client.get(config_obj.config_file.location)
         else:
             config = None
+        if config is None:  # debugging
+            config = {
+                "error": {
+                    "msg": f"Unable to retrieve config. config_obj={config_obj} config_file={config_obj.config_file.location}"
+                }
+            }
         env_obj = sim_activity.computing_environment.resolve(kg_client, api="nexus")
         if env_obj:
             env = ComputingEnvironment.from_kg_object(env_obj, kg_client)
