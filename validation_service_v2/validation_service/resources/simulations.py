@@ -61,7 +61,7 @@ def create_simulation(simulation: Simulation, token: HTTPAuthorizationCredential
     logger.info("Beginning post simulation")
     kg_objects = simulation.to_kg_objects(kg_client, token)
     logger.info("Created objects")
-    for label in ('person', 'config', 'outputs', 'activity'):
+    for label in ('person', 'config', 'outputs', 'hardware', 'dependencies', 'env', 'activity'):
         for obj in as_list(kg_objects[label]):
             obj.save(kg_client)
     for obj in as_list(kg_objects['outputs']):

@@ -28,6 +28,8 @@ from .auth import get_user_from_token
 
 
 fairgraph.core.use_namespace(fairgraph.brainsimulation.DEFAULT_NAMESPACE)
+fairgraph.software.use_namespace(fairgraph.brainsimulation.DEFAULT_NAMESPACE)
+fairgraph.computing.use_namespace(fairgraph.brainsimulation.DEFAULT_NAMESPACE)
 fairgraph.commons.License.initialize()
 logger = logging.getLogger("validation_service_v2")
 
@@ -775,6 +777,7 @@ class File(BaseModel):
             self.download_url,
             size=self.size,
             digest=self.hash,
+            digest_method="SHA-1",
             content_type=self.content_type,
             original_file_name=self.local_path
         )
@@ -947,6 +950,48 @@ class ComputingEnvironment(BaseModel):
     hardware: str = None
     dependencies: List[SoftwareDependency]
 
+    @classmethod
+    def from_kg_object(cls, env_obj, kg_client):
+        hardware_obj = env_obj.hardware.resolve(kg_client, api="nexus")
+        dependencies = []
+        for dep in as_list(env_obj.software):
+            dep = dep.resolve(kg_client, api="nexus")
+            dependencies.append(
+                SoftwareDependency(name=dep.name, version=dep.version)
+            )
+        return cls(
+            name=hardware_obj.name,
+            type=hardware_obj.description,
+            hardware=env_obj.config,
+            dependencies=dependencies
+        )
+
+    def to_kg_objects(self):
+        kg_objects = {}
+        dependencies = [fairgraph.software.Software(name=dep.name, version=dep.version)
+                        for dep in self.dependencies]
+        kg_objects['dependencies'] = dependencies
+
+        hardware_obj = fairgraph.computing.HardwareSystem(name=self.name, description=self.type)
+        kg_objects['hardware'] = hardware_obj
+
+        identifier = hashlib.sha1(
+            json.dumps({
+                "hardware": self.hardware,
+                "type": self.type,
+                "name": self.name,
+                "dependencies": [(dep.name, dep.version) for dep in self.dependencies]
+            }).encode("utf-8")
+        ).hexdigest()
+        env_obj = fairgraph.computing.ComputingEnvironment(
+            name=identifier,
+            hardware=hardware_obj,
+            config=self.hardware,
+            software=dependencies
+        )
+        kg_objects['env'] = env_obj
+        return kg_objects
+
 
 class Simulation(BaseModel):
     id: UUID = None
@@ -980,6 +1025,11 @@ class Simulation(BaseModel):
             config = kg_client._nexus_client._http_client.get(config_obj.config_file.location)
         else:
             config = None
+        env_obj = sim_activity.computing_environment.resolve(kg_client, api="nexus")
+        if env_obj:
+            env = ComputingEnvironment.from_kg_object(env_obj, kg_client)
+        else:
+            env = None
         return cls(
             id=sim_activity.uuid,
             uri=sim_activity.id,
@@ -989,35 +1039,44 @@ class Simulation(BaseModel):
             outputs=[File.from_kg_object(output.result_file) for output in outputs],
             timestamp=sim_activity.timestamp,
             end_timestamp=sim_activity.end_timestamp,
-            #environment=None  # todo
+            environment=env,
             started_by=Person.from_kg_object(sim_activity.started_by, kg_client)
         )
 
     def to_kg_objects(self, kg_client, token):
         kg_objects ={}
 
+        # get person who launched this simulation
         person = self._get_person(kg_client, token)
         kg_objects['person'] = [person]
 
+        # get timestamps
         start_timestamp = ensure_has_timezone(self.timestamp) or datetime.now(timezone.utc)
         end_timestamp = ensure_has_timezone(self.end_timestamp)
 
-        tmp_config_file = tempfile.NamedTemporaryFile(mode="w", encoding="utf-8", delete=False)
-        json.dump(self.configuration, tmp_config_file)
-        tmp_config_file.close()
+        # check if sim config already exists
         config_identifier = hashlib.sha1(json.dumps(self.configuration).encode("utf-8")).hexdigest()
-        sim_config = fairgraph.brainsimulation.SimulationConfiguration(
-            name=config_identifier,
-            identifier=config_identifier,
-            description=f"configuration for {self.description}",
-            config_file=tmp_config_file.name
-        )
+        sim_config = fairgraph.brainsimulation.SimulationConfiguration.by_name(config_identifier, kg_client, api="nexus")
+        if not sim_config:
+            raise Exception("debugging")
+            tmp_config_file = tempfile.NamedTemporaryFile(mode="w", encoding="utf-8", delete=False)
+            json.dump(self.configuration, tmp_config_file)
+            tmp_config_file.close()
+
+            sim_config = fairgraph.brainsimulation.SimulationConfiguration(
+                name=config_identifier,
+                identifier=config_identifier,
+                description=f"configuration for {self.description}",
+                config_file=tmp_config_file.name
+            )
         kg_objects['config'] = [sim_config]
 
+        # get model instance
         model_instance = fairgraph.brainsimulation.ModelInstance.from_id(str(self.model_instance_id), kg_client, api="nexus")
 
         sim_outputs = []
-        for output_file in self.outputs:
+        n = len(self.outputs)
+        for i, output_file in enumerate(self.outputs, start=1):
             output_identifier = hashlib.sha1(
                 json.dumps({
                     "model_instance": model_instance.uuid,
@@ -1025,7 +1084,7 @@ class Simulation(BaseModel):
                     "start_timestamp": start_timestamp.isoformat()
                 }).encode("utf-8")).hexdigest()
             sim_output = fairgraph.brainsimulation.SimulationOutput(
-                name=f"Output from simulation of model instance {model_instance.uuid} with config {sim_config.name} at {start_timestamp}",
+                name=f"Output {i}/{n} from simulation of model instance {model_instance.uuid} with config {sim_config.name} at {start_timestamp}",
                 identifier=output_identifier,
                 result_file=output_file.to_kg_object(),
                 generated_by=None,  # to be added after saving
@@ -1042,6 +1101,12 @@ class Simulation(BaseModel):
             sim_outputs.append(sim_output)
         kg_objects['outputs'] = sim_outputs
 
+        if self.environment:
+            env_objs = self.environment.to_kg_objects()
+        else:
+            env_objs = None
+        kg_objects.update(env_objs)
+
         sim_activity = fairgraph.brainsimulation.Simulation(
             #name=
             description=self.description,
@@ -1052,7 +1117,7 @@ class Simulation(BaseModel):
             result=sim_outputs,
             started_by=person,
             end_timestamp=end_timestamp,
-            #computing_environment=
+            computing_environment=env_objs['env']
         )
         kg_objects['activity'] = sim_activity
 
