@@ -796,13 +796,24 @@ class File(BaseModel):
 
     def get_share_link(self, token):
         if self.local_path:
-            base_dir = "/mnt/user/drive/My Libraries/My Library/"
-            if self.local_path.startswith(base_dir):
-                session = requests.Session()
-                session.headers['Authorization'] = f"Bearer {token.credentials}"
+            home_dir = "/mnt/user/drive/My Libraries/My Library/"
+            group_dir = "/mnt/user/drive/Shared with groups/"
+            session = requests.Session()
+            session.headers['Authorization'] = f"Bearer {token.credentials}"
+            if self.local_path.startswith(home_dir):
                 repo_id = session.get(f"{EBRAINS_DRIVE_API}default-repo").json()["repo_id"]
-                relative_path = os.path.relpath(self.local_path, base_dir)
-                response = session.put(f"https://drive.ebrains.eu/api2/repos/{repo_id}/file/shared-link/",
+                relative_path = os.path.relpath(self.local_path, home_dir)
+            elif self.local_path.startswith(group_dir):
+                collab_name = self.local_path.split("/")[5]
+                repo_list = session.get(f"{EBRAINS_DRIVE_API}repos/").json()
+                repo_map = {r["name"]: r["id"] for r in repo_list}
+                repo_id = session.get(f"{EBRAINS_DRIVE_API}repos/{repo_map[collab_name]}/").json()["id"]
+                relative_path = os.path.relpath(self.local_path, f"{group_dir}{collab_name}/")
+            else:
+                repo_id = None
+                relative_path = None
+            if repo_id:
+                response = session.put(f"{EBRAINS_DRIVE_API}repos/{repo_id}/file/shared-link/",
                                        json={"p": relative_path})
                 if response.status_code == requests.codes.created:
                     return response.headers["Location"]
