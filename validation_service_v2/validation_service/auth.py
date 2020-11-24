@@ -86,6 +86,19 @@ async def get_collab_permissions_v1(collab_id, user_token):
     return response
 
 
+async def get_collab_info(collab_id, user_token):
+    collab_info_url = f"{settings.HBP_COLLAB_SERVICE_URL_V2}collabs/{collab_id}"
+    headers = {"Authorization": f"Bearer {user_token}"}
+    res = requests.get(collab_info_url, headers=headers)
+    try:
+        response = res.json()
+    except json.decoder.JSONDecodeError:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid collab id"
+        )
+    return response
+
+
 async def get_collab_permissions_v2(collab_id, user_token):
     userinfo = await oauth.ebrains.userinfo(
         token={"access_token": user_token, "token_type": "bearer"}
@@ -94,26 +107,24 @@ async def get_collab_permissions_v2(collab_id, user_token):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail=userinfo["error_description"]
         )
-    target_team_names = (f"collab-{collab_id}-{role}"
-                         for role in ("viewer", "editor", "administrator"))
-    matching_teams = [
-        team for team in userinfo["roles"]["team"] if team in target_team_names
-    ]
-    if len(matching_teams) == 0:
-        permissions = {"VIEW": False, "UPDATE": False}
-    elif len(matching_teams) > 1:  # this assumes a user only ever has one role,
-                                   # cannot have both 'viewer' and 'editor' roles, for example
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid collab id")
+    target_team_names = {role: f"collab-{collab_id}-{role}"
+                         for role in ("viewer", "editor", "administrator")}
+
+    highest_collab_role = None
+    for role, team_name in target_team_names.items():
+        if team_name in userinfo["roles"]["team"]:
+            highest_collab_role = role
+    if highest_collab_role == "viewer":
+        permissions = {"VIEW": True, "UPDATE": False}
+    elif highest_collab_role in ("editor", "administrator"):
+        permissions = {"VIEW": True, "UPDATE": True}
     else:
-        matching_team = matching_teams[0]
-        if matching_team.endswith("viewer"):  # todo: what about public collabs?
+        assert highest_collab_role is None
+        collab_info = await get_collab_info(collab_id, user_token)
+        if collab_info["isPublic"]:
             permissions = {"VIEW": True, "UPDATE": False}
-        elif matching_team.endswith("editor") or matching_team.endswith("administrator"):
-            permissions = {"VIEW": True, "UPDATE": True}
         else:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid collab id"
-            )
+            permissions = {"VIEW": False, "UPDATE": False}
     return permissions
 
 

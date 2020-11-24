@@ -7,6 +7,7 @@ HBP_IDENTITY_SERVICE_URL_V2 = (
     "https://iam.humanbrainproject.eu/auth/realms/hbp/protocol/openid-connect"
 )
 HBP_COLLAB_SERVICE_URL = "https://services.humanbrainproject.eu/collab/v0/"
+HBP_COLLAB_SERVICE_URL_V2 = "https://wiki.ebrains.eu/rest/v1/"
 KG_SERVICE_ACCOUNT_REFRESH_TOKEN = os.environ["KG_SERVICE_ACCOUNT_REFRESH_TOKEN"]
 KG_SERVICE_ACCOUNT_CLIENT_ID = os.environ.get("KG_SERVICE_ACCOUNT_CLIENT_ID")
 KG_SERVICE_ACCOUNT_SECRET = os.environ.get("KG_SERVICE_ACCOUNT_SECRET")
