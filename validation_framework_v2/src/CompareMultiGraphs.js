@@ -28,6 +28,202 @@ const ToggleSwitch = withStyles({
     track: {},
 })(Switch);
 
+function shortenLabels(traces) {
+    // shorter group labels; preferable max length = 20
+    traces = shortenLabelsUniquely(traces, 0, 20);
+    // shorten instance labels; preferable max length = 10
+    traces = shortenLabelsUniquely(traces, 1, 10);
+    return traces
+}
+
+function shortenLabelsUniquely(traces, type, pref_length) {
+    // we shorten labels so that long labels do not
+    // overlap each other in the generated figures
+
+    // simply clipping the labels to some pre-defined length
+    // can result in non-unique labels. As Plotly uses the 
+    // labels to merge items into groups, this can cause
+    // unrelated items to be merged into same group.
+
+    // this method tries to shorten the labels, while trying
+    // to keep them distinct for proper grouping.
+    
+    // Approach:
+    // remove common prefix, and also suffix (if required to shorten length further)
+
+    // sorting the labels orders them, so any prefix 
+    // that is common to all labels, will also be common to 
+    // the first and last labels. Thus we only need to compare
+    // the first and last labels to determine the common prefix.
+    // The same can be done for common suffix by reversing labels.
+
+    // to avoid copy by reference - deep copy
+    const traces_original = JSON.parse(JSON.stringify(traces));
+
+    function mergeUnique(arr1, arr2){
+        return arr1.concat(arr2.filter(function (item) {
+            return arr1.indexOf(item) === -1;
+        }));
+    }
+
+    // check if any labels too long, if yes then find them
+    var labels = [];
+    traces.forEach(function(entry) {
+        labels = mergeUnique(labels, entry["x"][type]);
+    });
+    console.log(labels);
+    // get subset of labels that are above pref_length
+    // these need to be manipulated appropriately
+    // we use this subset  to have more chance of 
+    // obtaining a common prefix/suffix
+    var labels_long = labels.filter(function(label) {
+        return label.length > pref_length;
+    });
+    console.log(labels_long);
+    if (labels_long.length === 0) {
+        return traces;
+    }
+    
+    // find common prefix for long labels
+    function findPrefix(strings) {
+        console.log(strings)
+        if(!strings.length) {
+            return null;
+        }
+        var sorted = strings.slice(0).sort(), // copy the array before sorting!
+            string1 = sorted[0],
+            string2 = sorted[sorted.length-1],
+            i = 0,
+            l = Math.min(string1.length, string2.length);
+        
+        while(i < l && string1[i] === string2[i]) {
+            i++;
+        }
+        return string1.slice(0, i);
+    }
+
+    var common_prefix = findPrefix(labels_long);
+    console.log("common_prefix = ", common_prefix);
+
+    if (common_prefix) {
+        // update the original traces object wherever required
+        traces.forEach(function(item1, ind1) {
+            var trace_item = item1;
+            var labels_final = trace_item["x"][type].map(function(item2) {
+                if (item2.length > pref_length) {
+                    if (item2.startsWith(common_prefix)) {
+                        return item2.slice(common_prefix.length)
+                    } else {
+                        return item2;
+                    }
+                } else {
+                    return item2;
+                }
+            });
+            console.log(labels_final);
+            this[ind1]["x"][type] = labels_final;
+        }, traces);
+    }
+
+    // check if any labels too long (after removing prefix) 
+    // if yes then find them
+    var labels = [];
+    traces.forEach(function(entry) {
+        labels = mergeUnique(labels, entry["x"][type]);
+    });
+    console.log(labels);
+    var labels_long = labels.filter(function(label) {
+        return label.length > pref_length;
+    });
+    console.log(labels_long);
+    if (labels_long.length === 0) {
+        return traces;
+    }
+
+    // else, try to remove suffix
+    function reverse(string){
+        return string.split('').reverse().join('');
+    }
+    
+    function findSuffix(strings){
+        if(!strings || strings.length === 0){
+            print("NULL")
+            return null;   
+        }
+        return reverse(findPrefix(strings.map(reverse)));
+    }
+
+    var common_suffix = findSuffix(labels_long);
+    console.log("common_suffix = ", common_suffix);
+
+    if (common_suffix) {
+        // update the original traces object wherever required
+        traces.forEach(function(item1, ind1) {
+            var trace_item = item1;
+            var labels_final = trace_item["x"][type].map(function(item2) {
+                if (item2.length > pref_length) {
+                    if (item2.endsWith(common_suffix)) {
+                        return item2.slice(0, -common_suffix.length)
+                    } else {
+                        return item2;
+                    }
+                } else {
+                    return item2;
+                }
+            });
+            console.log(labels_final);
+            this[ind1]["x"][type] = labels_final;
+        }, traces);
+    }
+
+    // check if any labels too long (after removing prefix and suffix) 
+    // if yes then find them
+    var labels = [];
+    traces.forEach(function(entry) {
+        labels = mergeUnique(labels, entry["x"][type]);
+    });
+    console.log(labels);
+    var labels_long = labels.filter(function(label) {
+        return label.length > pref_length;
+    });
+    console.log(labels_long);
+    if (labels_long.length === 0) {
+        return traces;
+    }
+
+    // else try to create an acronym from labels
+    console.log(traces_original);
+    var traces_acronym = traces_original;
+    traces_acronym.forEach(function(item1, ind1) {
+        var trace_item = item1;
+        var labels_final = trace_item["x"][type].map(function(item2) {
+            if (item2.length > pref_length) {
+                return item2.split(/[\s-_]+/).reduce((response,word)=> response+=word.slice(0,1),'')
+            } else {
+                return item2;
+            }
+        });
+        console.log(labels_final);
+        this[ind1]["x"][type] = labels_final;
+    }, traces_acronym);
+
+    // acronym labels are fine only if all are distinct
+    var labels_count_before = labels.length;
+    var labels = [];
+    traces.forEach(function(entry) {
+        labels = mergeUnique(labels, entry["x"][type]);
+    });
+    var labels_count_after = labels.length;
+
+    if (labels_count_before === labels_count_after) {
+        console.log("Acronyms OK");
+        return traces_acronym;
+    } else {
+        console.log("Acronyms not OK");
+        return traces;
+    }
+}
+
 function ResultsFiguresSummary_XaxisModels(props) {
     console.log(props.dict_results);
     let dict_results = props.dict_results;
@@ -44,21 +240,22 @@ function ResultsFiguresSummary_XaxisModels(props) {
             // a seperate bar group for each model (all instances of same model within the same bar group)
             var model_labels = [];
             var model_version_labels = [];
-            var model_version_result_ids = [];
             var model_version_scores = [];
             var customdata = [];
             for (let model_id in dict_results[test_id]["test_instances"][test_inst_id]["models"]) {
                 for (let model_inst_id in dict_results[test_id]["test_instances"][test_inst_id]["models"][model_id]["model_instances"]) {
                     // since we have ordered the results from newest to oldest in `groupResults_XaxisModels()`, we simply take the very first result as latest
                     let result_entry = dict_results[test_id]["test_instances"][test_inst_id]["models"][model_id]["model_instances"][model_inst_id]["results"][0]
-                    model_labels.push(dict_results[test_id]["test_instances"][test_inst_id]["models"][model_id]["model_name"]);
+                    model_labels.push(dict_results[test_id]["test_instances"][test_inst_id]["models"][model_id]["model_alias"] ? dict_results[test_id]["test_instances"][test_inst_id]["models"][model_id]["model_alias"] : dict_results[test_id]["test_instances"][test_inst_id]["models"][model_id]["model_name"]);
                     model_version_labels.push(dict_results[test_id]["test_instances"][test_inst_id]["models"][model_id]["model_instances"][model_inst_id]["model_version"]);
                     // customdata is used for setting hover description
-                    customdata.push([dict_results[test_id]["test_instances"][test_inst_id]["models"][model_id]["model_name"],
-                    dict_results[test_id]["test_instances"][test_inst_id]["models"][model_id]["model_instances"][model_inst_id]["model_version"],
-                    dict_results[test_id]["test_name"],
-                    dict_results[test_id]["test_instances"][test_inst_id]["test_version"]])
-                    model_version_result_ids.push(result_entry["result_id"]);
+                    customdata.push([   
+                                        dict_results[test_id]["test_instances"][test_inst_id]["models"][model_id]["model_name"],
+                                        dict_results[test_id]["test_instances"][test_inst_id]["models"][model_id]["model_instances"][model_inst_id]["model_version"],
+                                        dict_results[test_id]["test_name"],
+                                        dict_results[test_id]["test_instances"][test_inst_id]["test_version"],
+                                        result_entry["result_id"]
+                                    ])
                     model_version_scores.push(result_entry.score);
                     label_resultJSON_map[result_entry["result_id"]] = result_entry.result_json;
                 }
@@ -66,32 +263,18 @@ function ResultsFiguresSummary_XaxisModels(props) {
             traces.push(
                 {
                     x: [
-                        model_labels.map(function (item) {
-                            if (item.length <= 35) {
-                                return item
-                            } else {
-                                return item.substr(0, 17) + "..." + item.substr(item.length - 15, item.length)
-                            }
-                        }),
-                        model_version_labels.map(function (item) {
-                            if (item.length <= 15) {
-                                return item
-                            } else {
-                                return item.substr(0, 7) + "..." + item.substr(item.length - 5, item.length)
-                            }
-                        })
+                        model_labels,
+                        model_version_labels
                     ],
                     y: model_version_scores,
                     // text:model_labels,
-                    // Note: hovertext is only being used hold a unique identifier for onClick()
-                    hovertext: model_version_result_ids,
                     // customdata is used for setting hover description
                     customdata: customdata,
-                    hovertemplate: 'Model: <b>%{customdata[0]}</b><br>' +
-                        'Model Version: <b>%{customdata[1]}</b><br>' +
-                        'Test: <b>%{customdata[2]}</b><br>' +
-                        'Test Version: <b>%{customdata[3]}</b><br>' +
-                        'Score: <b>%{y}</b><extra></extra>',
+                    hovertemplate:  'Model: <b>%{customdata[0]}</b><br>' +
+                                    'Model Version: <b>%{customdata[1]}</b><br>' +
+                                    'Test: <b>%{customdata[2]}</b><br>' +
+                                    'Test Version: <b>%{customdata[3]}</b><br>' +
+                                    'Score: <b>%{y}</b><extra></extra>',
                     name: dict_results[test_id]["test_name"] + " (" + dict_results[test_id]["test_instances"][test_inst_id]["test_version"] + ")",
                     type: 'bar',
                     // marker: { size: 16, color: Theme.plotBarColor }
@@ -128,11 +311,14 @@ function ResultsFiguresSummary_XaxisModels(props) {
     };
 
     console.log(traces);
+    traces = shortenLabels(traces);
+    console.log(traces);
+    
     return (
         <Plot
             data={traces}
             layout={layout}
-            onClick={(data) => props.handleResultEntryClick(label_resultJSON_map[data["points"][0]["hovertext"]])}
+            onClick={(data) => props.handleResultEntryClick(label_resultJSON_map[data["points"][0]["customdata"][4]])}
             config={{
                 displaylogo: false,
             }}
@@ -156,21 +342,22 @@ function ResultsFiguresSummary_XaxisTests(props) {
             // a seperate bar group for each test (all instances of same test within the same bar group)
             var test_labels = [];
             var test_version_labels = [];
-            var test_version_result_ids = [];
             var test_version_scores = [];
             var customdata = [];
             for (let test_id in dict_results[model_id]["model_instances"][model_inst_id]["tests"]) {
                 for (let test_inst_id in dict_results[model_id]["model_instances"][model_inst_id]["tests"][test_id]["test_instances"]) {
                     // since we have ordered the results from newest to oldest in `groupResults_XaxisTests()`, we simply take the very first result as latest
                     let result_entry = dict_results[model_id]["model_instances"][model_inst_id]["tests"][test_id]["test_instances"][test_inst_id]["results"][0]
-                    test_labels.push(dict_results[model_id]["model_instances"][model_inst_id]["tests"][test_id]["test_name"]);
+                    test_labels.push(dict_results[model_id]["model_instances"][model_inst_id]["tests"][test_id]["test_alias"] ? dict_results[model_id]["model_instances"][model_inst_id]["tests"][test_id]["test_alias"] : dict_results[model_id]["model_instances"][model_inst_id]["tests"][test_id]["test_name"]);
                     test_version_labels.push(dict_results[model_id]["model_instances"][model_inst_id]["tests"][test_id]["test_instances"][test_inst_id]["test_version"]);
                     // customdata is used for setting hover description
-                    customdata.push([dict_results[model_id]["model_instances"][model_inst_id]["tests"][test_id]["test_name"],
-                    dict_results[model_id]["model_instances"][model_inst_id]["tests"][test_id]["test_instances"][test_inst_id]["test_version"],
-                    dict_results[model_id]["model_name"],
-                    dict_results[model_id]["model_instances"][model_inst_id]["model_version"]])
-                    test_version_result_ids.push(result_entry["result_id"]);
+                    customdata.push([   
+                                        dict_results[model_id]["model_instances"][model_inst_id]["tests"][test_id]["test_name"],
+                                        dict_results[model_id]["model_instances"][model_inst_id]["tests"][test_id]["test_instances"][test_inst_id]["test_version"],
+                                        dict_results[model_id]["model_name"],
+                                        dict_results[model_id]["model_instances"][model_inst_id]["model_version"],
+                                        result_entry["result_id"]
+                                    ])
                     test_version_scores.push(result_entry.score);
                     label_resultJSON_map[result_entry["result_id"]] = result_entry.result_json;
                 }
@@ -178,32 +365,18 @@ function ResultsFiguresSummary_XaxisTests(props) {
             traces.push(
                 {
                     x: [
-                        test_labels.map(function (item) {
-                            if (item.length <= 35) {
-                                return item
-                            } else {
-                                return item.substr(0, 17) + "..." + item.substr(item.length - 15, item.length)
-                            }
-                        }),
-                        test_version_labels.map(function (item) {
-                            if (item.length <= 15) {
-                                return item
-                            } else {
-                                return item.substr(0, 7) + "..." + item.substr(item.length - 5, item.length)
-                            }
-                        })
+                        test_labels,
+                        test_version_labels
                     ],
                     y: test_version_scores,
                     // text:test_labels,
-                    // Note: hovertext is only being used hold a unique identifier for onClick()
-                    hovertext: test_version_result_ids,
                     // customdata is used for setting hover description
                     customdata: customdata,
-                    hovertemplate: 'Model: <b>%{customdata[2]}</b><br>' +
-                        'Model Version: <b>%{customdata[3]}</b><br>' +
-                        'Test: <b>%{customdata[0]}</b><br>' +
-                        'Test Version: <b>%{customdata[1]}</b><br>' +
-                        'Score: <b>%{y}</b><extra></extra>',
+                    hovertemplate:  'Model: <b>%{customdata[2]}</b><br>' +
+                                    'Model Version: <b>%{customdata[3]}</b><br>' +
+                                    'Test: <b>%{customdata[0]}</b><br>' +
+                                    'Test Version: <b>%{customdata[1]}</b><br>' +
+                                    'Score: <b>%{y}</b><extra></extra>',
                     name: dict_results[model_id]["model_name"] + " (" + dict_results[model_id]["model_instances"][model_inst_id]["model_version"] + ")",
                     type: 'bar',
                     // marker: { size: 16, color: Theme.plotBarColor }
@@ -226,7 +399,8 @@ function ResultsFiguresSummary_XaxisTests(props) {
         // width: 640,
         // height: 480,
         // title: 'Plot Title',
-        xaxis: {//tickvals: ["1", "2", "3", "4", "5"],
+        xaxis: {
+            //tickvals: ["1", "2", "3", "4", "5"],
             //ticktext : ["a", "b", "c", "d" ,"e"],
             title: "<b>Test Instance</b>",
             automargin: true,
@@ -239,11 +413,14 @@ function ResultsFiguresSummary_XaxisTests(props) {
     };
 
     console.log(traces);
+    traces = shortenLabels(traces);
+    console.log(traces);
+
     return (
         <Plot
             data={traces}
             layout={layout}
-            onClick={(data) => props.handleResultEntryClick(label_resultJSON_map[data["points"][0]["hovertext"]])}
+            onClick={(data) => props.handleResultEntryClick(label_resultJSON_map[data["points"][0]["customdata"][4]])}
             config={{
                 displaylogo: false,
             }}
