@@ -331,8 +331,9 @@ export default class ModelAddForm extends React.Component {
                                 </Grid>
                                 <Grid item xs={12}>
                                     <SingleSelect
+                                        name="project_id"
                                         itemNames={this.state.projects}
-                                        label="Collab ID"
+                                        label="Collab"
                                         value={this.state.project_id}
                                         helperText="Please choose the Collab you will use to set access permissions. You may need to create a new Collab."
                                         handleChange={this.handleFieldChange} />

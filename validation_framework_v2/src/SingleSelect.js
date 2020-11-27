@@ -36,7 +36,7 @@ export default function SingleSelect(props) {
     const classes = useStyles();
     const fieldId = "select-" + props.label.replace(" ", "-");
     const fieldLabelId = fieldId + "-label";
-    const fieldName = props.label.toLowerCase().replace(" ", "_")
+    const fieldName = props.name || props.label.toLowerCase().replace(" ", "_");
 
     return (
         <div>

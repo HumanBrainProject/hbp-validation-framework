@@ -17,12 +17,12 @@ function parseName(fullName) {
 }
 
 function formatNames(nameList) {
-    console.log("nameList = " + nameList);
+    //console.log("nameList = " + nameList);
     let formattedNames = nameList.map(function (obj) {
         let nameStr = obj.family_name + ", " + obj.given_name;
         return nameStr;
     });
-    console.log("formattedNames = " + formattedNames);
+    //console.log("formattedNames = " + formattedNames);
     return formattedNames;
 }
 
@@ -71,7 +71,7 @@ export default class PersonSelect extends React.Component {
     };
 
     render() {
-        console.log("Child")
+        //console.log("Child")
         this.input = (
             <ChipInput id={this.props.id} name={this.props.name} label={this.props.label}
                 onAdd={this.handleAddPerson} onDelete={this.handleRemovePerson}
