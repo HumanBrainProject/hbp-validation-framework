@@ -39,6 +39,7 @@ export default class ModelEditForm extends React.Component {
         this.createPayload = this.createPayload.bind(this);
         this.checkRequirements = this.checkRequirements.bind(this);
         this.checkAliasUnique = this.checkAliasUnique.bind(this);
+        this.getProjectList = this.getProjectList.bind(this);
 
         const [authContext,] = this.context.auth;
         const [validFilterValuesContext,] = this.context.validFilterValues;
@@ -68,9 +69,10 @@ export default class ModelEditForm extends React.Component {
             auth: authContext,
             filters: filtersContext,
             validFilterValues: validFilterValuesContext,
-            loading: false
+            loading: false,
+            projects: []
         }
-
+        this.getProjectList();
         this.handleErrorEditDialogClose = this.handleErrorEditDialogClose.bind(this);
     }
 
@@ -146,6 +148,28 @@ export default class ModelEditForm extends React.Component {
                     isAliasNotUnique: true,
                     aliasLoading: false
                 });
+            });
+    }
+
+
+    getProjectList() {
+        const url = baseUrl + "/projects";
+        const config = {headers: {'Authorization': 'Bearer ' + this.state.auth.token}};
+        axios.get(url, config)
+            .then(res => {
+                let editableProjects = [];
+                res.data.forEach(proj => {
+                    if (proj.permissions.UPDATE) {
+                        editableProjects.push(proj.project_id);
+                    }
+                });
+                editableProjects.sort();
+                this.setState({
+                    projects: editableProjects
+                });
+            })
+            .catch(err => {
+                console.log('Error: ', err.message);
             });
     }
 
@@ -308,10 +332,14 @@ export default class ModelEditForm extends React.Component {
                                         label={this.state.private ? "Private" : "Public"} />
                                 </Grid>
                                 <Grid item xs={12}>
-                                    <TextField name="project_id" label="Collab ID" defaultValue={this.state.project_id}
-                                        onBlur={this.handleFieldChange} variant="outlined" fullWidth={true}
-                                        helperText="Please specify the Collab ID, if any, associated with this model (optional)." />
-                                </Grid>
+                                    <SingleSelect
+                                            name="project_id"
+                                            itemNames={this.state.projects}
+                                            label="Collab"
+                                            value={this.state.project_id}
+                                            helperText="Please choose the Collab you will use to set access permissions. You may need to create a new Collab."
+                                            handleChange={this.handleFieldChange} />
+                                    </Grid>
                                 <Grid item xs={12}>
                                     <TextField name="organization" label="Organization" defaultValue={this.state.organization}
                                         onBlur={this.handleFieldChange} variant="outlined" fullWidth={true}

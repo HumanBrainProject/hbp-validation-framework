@@ -150,7 +150,8 @@ export default class ModelAddForm extends React.Component {
                     if (proj.permissions.UPDATE) {
                         editableProjects.push(proj.project_id);
                     }
-                })
+                });
+                editableProjects.sort();
                 this.setState({
                     projects: editableProjects
                 });
