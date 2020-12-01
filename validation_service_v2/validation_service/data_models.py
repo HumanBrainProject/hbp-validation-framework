@@ -785,6 +785,15 @@ class File(BaseModel):
                     self.download_url = self.get_share_link(token)
                 else:
                     self.download_url = f"https://seafile-proxy.brainsimulation.eu{quote(self.local_path)}?username={self.id}"
+            elif self.file_store == "swift":
+                self.download_url = f"https://{self.file_store}-proxy.brainsimulation.eu{quote(self.local_path)}?username={self.id}"
+            elif "gpfs" in self.file_store:
+                self.download_url = f"https://{self.file_store}-proxy.brainsimulation.eu{quote(self.local_path)}?username={self.id}"
+            else:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail=f"Unsupported file store: {self.file_store}",
+                )
         return Distribution(
             self.download_url,
             size=self.size,
