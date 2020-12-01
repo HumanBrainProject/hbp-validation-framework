@@ -16,7 +16,7 @@ from fastapi import APIRouter, Depends, Header, Query, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic import ValidationError
 
-from ..auth import get_kg_client, get_user_from_token
+from ..auth import get_kg_client, get_person_from_token
 from ..data_models import Simulation, ConsistencyError
 from .. import settings
 
@@ -31,13 +31,33 @@ router = APIRouter()
 
 @router.get("/simulations/", response_model=List[Simulation])
 def query_simulations(
+    model_instance_id: UUID = None,
     size: int = Query(100),
     from_index: int = Query(0),
     # from header
     token: HTTPAuthorizationCredentials = Depends(auth),
 ):
-    pass
-
+    user = get_person_from_token(kg_client, token)
+    kwargs = {
+        "size": size,
+        "from_index": from_index,
+        "api": "nexus"
+    }
+    if user:
+        kwargs["user"] = user
+    else:
+        return []
+    if model_instance_id:
+        model_instance = fairgraph.brainsimulation.ModelInstance.from_uuid(str(model_instance_id), kg_client, api="nexus")
+        if model_instance:
+            kwargs["model_instance_id"] = model_instance.id
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Model instance with id {model_instance_id} not found.",
+            )
+    simulations = fairgraph.brainsimulation.Simulation.list(kg_client, **kwargs)
+    return [Simulation.from_kg_object(sim, kg_client) for sim in simulations]
 
 
 @router.get("/simulations/{simulation_id}", response_model=Simulation)

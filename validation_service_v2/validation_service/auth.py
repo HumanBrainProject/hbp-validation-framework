@@ -3,6 +3,7 @@ import logging
 import json
 
 from fairgraph.client import KGClient
+import fairgraph
 
 from fastapi import HTTPException, status
 from authlib.integrations.starlette_client import OAuth
@@ -69,6 +70,21 @@ def get_user_from_token(token):
     # logger.debug("User information retrieved")
     else:
         return res1.json()
+
+
+def get_person_from_token(kg_client, token):
+    user_info = get_user_from_token(token.credentials)
+    family_name = user_info["family_name"]
+    given_name = user_info["given_name"]
+    person = fairgraph.core.Person.list(kg_client, family_name=family_name, given_name=given_name, api="nexus")
+    if person:
+        if isinstance(person, list):
+            logger.error("Found more than one person with this name")
+            return None
+        else:
+            return person
+    else:
+        return None
 
 
 async def get_collab_permissions_v1(collab_id, user_token):
