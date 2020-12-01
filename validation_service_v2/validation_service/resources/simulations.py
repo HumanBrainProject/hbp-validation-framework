@@ -44,7 +44,7 @@ def query_simulations(
         "api": "nexus"
     }
     if user:
-        kwargs["user"] = user
+        kwargs["started_by"] = user
     else:
         return []
     if model_instance_id:

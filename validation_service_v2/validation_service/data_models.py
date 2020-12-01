@@ -781,10 +781,9 @@ class File(BaseModel):
     def to_kg_object(self, token=None):
         if self.download_url is None:
             if self.file_store == "drive":
+                self.download_url = f"https://seafile-proxy.brainsimulation.eu{quote(self.local_path)}?username={self.id}"
                 if token:
-                    self.download_url = self.get_share_link(token)
-                else:
-                    self.download_url = f"https://seafile-proxy.brainsimulation.eu{quote(self.local_path)}?username={self.id}"
+                    self.download_url = self.get_share_link(token) or self.download_url
             elif self.file_store == "swift":
                 self.download_url = f"https://{self.file_store}-proxy.brainsimulation.eu{quote(self.local_path)}?username={self.id}"
             elif "gpfs" in self.file_store:
