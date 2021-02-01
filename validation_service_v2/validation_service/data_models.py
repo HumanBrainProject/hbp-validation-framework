@@ -205,7 +205,7 @@ class ModelInstance(BaseModel):
                     "source": main_script.code_location,
                     "license": main_script.license,
                     "script_id": main_script.id,  # internal use only
-                    "hash": main_script.distribution.digest
+                    "hash": getattr(main_script.distribution, "digest", None)
                 }
             )
         if instance.alternate_of:
