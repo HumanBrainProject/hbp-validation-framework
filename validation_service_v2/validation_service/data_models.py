@@ -3,7 +3,7 @@ from os.path import join, dirname
 from uuid import UUID
 from enum import Enum
 from typing import List
-from datetime import datetime, timezone
+from datetime import datetime, timezone, date
 from itertools import chain
 import logging
 import json
@@ -12,6 +12,8 @@ import hashlib
 from urllib.parse import urlparse, parse_qs, quote
 
 from dateutil import parser as date_parser
+from pydantic.errors import ColorError
+from pyld.jsonld import _compare_shortest_least
 import requests
 
 from pydantic import BaseModel, HttpUrl, AnyUrl, validator, ValidationError
@@ -1095,7 +1097,7 @@ class Simulation(BaseModel):
         )
 
     def to_kg_objects(self, kg_client, token):
-        kg_objects ={}
+        kg_objects = {}
 
         # get person who launched this simulation
         person = self._get_person(kg_client, token)
@@ -1173,3 +1175,210 @@ class Simulation(BaseModel):
 
         return kg_objects
         #os.remove(tmp_config_file.name)
+
+
+
+class PersonWithAffiliation(BaseModel):
+    firstname: str
+    lastname: str
+    affiliation: str = None
+
+    @classmethod
+    def from_kg_object(cls, p, client):
+        if isinstance(p, KGProxy):
+            pr = p.resolve(client, api="nexus")
+        else:
+            pr = p
+        if pr.affiliation:
+            affiliation = pr.affiliation.resolve(client, api="nexus").name
+        else:
+            affiliation = None
+        return cls(firstname=pr.given_name, lastname=pr.family_name, affiliation=affiliation)
+
+    def to_kg_object(self):
+        p = fairgraph.core.Person(family_name=self.lastname, given_name=self.firstname)
+        if self.affiliation and not (p.affiliation and p.affiliation.name == self.affiliation):
+            org = fairgraph.core.Organization(name=self.affiliation)
+            p.affiliation = org
+        return p
+
+
+class LivePaperDataItem(BaseModel):
+    url: HttpUrl
+    label: str = None
+    view_url: HttpUrl = None
+
+    @classmethod
+    def from_kg_object(cls, data_item, kg_client):
+        if isinstance(data_item, KGProxy):
+            data_item = data_item.resolve(kg_client, api="nexus")
+        if isinstance(data_item, fairgraph.livepapers.LivePaperResourceItem):
+            return cls(
+                url=data_item.distribution.location,
+                label=data_item.name,
+                view_url=data_item.view_url
+            )
+        else:  # todo: handle this better
+            return cls(url=data_item.id)
+
+    def to_kg_object(self):
+        # todo: handle case where data item is a KG object
+        # for now, we only handle LivePaperResourceItem
+        return fairgraph.livepapers.LivePaperResourceItem(
+            distribution=Distribution(self.url),
+            name=self.label,
+            view_url=self.view_url,
+            identifier=hashlib.sha1(self.url.encode("utf-8")).hexdigest()
+        )
+
+
+class LivePaperSection(BaseModel):
+    order: int
+    type: str   # todo: make this an Enum
+    title: str
+    icon: str = None
+    description: str = None
+    data: str
+    dataFormatted: List[LivePaperDataItem]
+
+    @classmethod
+    def from_kg_object(cls, section, kg_client):
+        if isinstance(section, KGProxy):
+            section = section.resolve(kg_client, api="nexus")
+        return cls(
+            order=int(section.order),
+            type=section.section_type,
+            title=section.name,
+            icon=section.icon,
+            description=section.description,
+            data=section.data_raw,
+            dataFormatted=[LivePaperDataItem.from_kg_object(item, kg_client)
+                           for item in as_list(section.data)]
+        )
+
+    def to_kg_objects(self, kg_live_paper):
+        data_items = [obj.to_kg_object() for obj in self.dataFormatted]
+        section = fairgraph.livepapers.LivePaperResourceSection(
+            order=self.order,
+            section_type=self.type,
+            name=self.title,
+            icon=self.icon,
+            description=self.description,
+            data=data_items,
+            data_raw=self.data,
+            part_of=kg_live_paper)
+        return data_items + [section]
+
+
+
+def inverse_license_lookup(iri):
+    for key, value in fairgraph.commons.License.iri_map.items():
+        if value == iri:
+            return key
+
+
+class LivePaper(BaseModel):
+    lp_tool_version: str = "0.1"
+    id: UUID = None
+    created_date: datetime
+    authors: List[PersonWithAffiliation]
+    corresponding_author: PersonWithAffiliation
+    created_author: List[PersonWithAffiliation] = None
+    approved_author: PersonWithAffiliation = None
+    year: date
+    paper_title: str
+    journal: str
+    url: HttpUrl = None
+    citation: str = None
+    doi: HttpUrl = None
+    abstract: str = None
+    license: str = None
+    resources_description: str = None
+    collab_id: str = None
+    resources: List[LivePaperSection]
+
+    @classmethod
+    def from_kg_object(cls, lp, kg_client):
+        def get_people(obj):
+            if obj is None:
+                return None
+            return [PersonWithAffiliation.from_kg_object(p, kg_client) for p in as_list(obj)]
+
+        def get_person(obj):
+            if obj is None:
+                return None
+            return PersonWithAffiliation.from_kg_object(obj, kg_client)
+
+        return cls(
+            created_date=lp.date_created,
+            authors=get_people(lp.original_authors),
+            corresponding_author=get_person(lp.corresponding_author),
+            created_author=get_people(lp.live_paper_authors),
+            approved_author=get_person(lp.corresponding_author),
+            year=lp.date_published,
+            paper_title=lp.title,
+            journal=lp.journal,
+            url=lp.url.location,
+            citation=lp.citation,
+            doi=lp.doi,
+            abstract=lp.abstract,
+            #license=inverse_license_lookup(lp.license),
+            license=lp.license.label,
+            collab_id=lp.collab_id,
+            resources_description=lp.description,
+            resources=[LivePaperSection.from_kg_object(sec, kg_client)
+                       for sec in as_list(lp.resource_section.resolve(kg_client, api="nexus"))],
+            id=lp.uuid
+        )
+
+    def to_kg_objects(self):
+        original_authors = [p.to_kg_object() for p in self.authors]
+        if self.corresponding_author:
+            corresponding_author = self.corresponding_author.to_kg_object()
+        else:
+            corresponding_author = None
+        live_paper_authors = [p.to_kg_object() for p in as_list(self.created_author)]
+        lp = fairgraph.livepapers.LivePaper(
+            name=self.paper_title,
+            title=self.paper_title,
+            description=self.resources_description,
+            date_created=self.created_date,
+            #date_modified=self.
+            #version=self.version
+            original_authors=original_authors,
+            corresponding_author=corresponding_author,
+            live_paper_authors=live_paper_authors,
+            collab_id=self.collab_id,
+            date_published=self.year,
+            journal=self.journal,
+            url=Distribution(location=self.url),
+            citation=self.citation,
+            doi=self.doi,
+            abstract=self.abstract,
+            license=fairgraph.commons.License(self.license)
+        )
+        sections = sum([section.to_kg_objects(lp) for section in self.resources], [])
+        authors = set(original_authors + [corresponding_author] + live_paper_authors)
+        return {
+            "people": authors,
+            "sections": sections,
+            "paper": [lp]
+        }
+
+
+class LivePaperSummary(BaseModel):
+    id: UUID
+    detail_path: str
+    created_date: datetime
+    title: str
+    collab_id: str = None
+
+    @classmethod
+    def from_kg_object(cls, lp, kg_client):
+        return cls(
+            created_date=lp.date_created,
+            title=lp.title,
+            collab_id=lp.collab_id,
+            id=lp.uuid,
+            detail_path=f"/livepapers/{lp.uuid}"
+        )
