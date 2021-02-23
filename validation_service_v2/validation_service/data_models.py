@@ -1378,7 +1378,7 @@ class LivePaper(BaseModel):
 class LivePaperSummary(BaseModel):
     id: UUID
     detail_path: str
-    created_date: datetime
+    modified_date: datetime
     title: str
     collab_id: str = None
 
