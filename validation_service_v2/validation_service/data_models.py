@@ -1375,7 +1375,7 @@ class LivePaper(BaseModel):
             license=fairgraph.commons.License(self.license)
         )
         sections = sum([section.to_kg_objects(lp) for section in self.resources], [])
-        authors = set(original_authors + live_paper_authors)
+        authors = set(original_authors + live_paper_authors + [custodian])
         return {
             "people": authors,
             "sections": sections,
