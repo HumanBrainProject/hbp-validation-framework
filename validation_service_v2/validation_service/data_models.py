@@ -1311,11 +1311,14 @@ class LivePaper(BaseModel):
             return PersonWithAffiliation.from_kg_object(obj, kg_client)
 
         original_authors = get_people(lp.original_authors)
+        ca_index = lp.corresponding_author_index
+        if ca_index is None:
+            ca_index = -1
         return cls(
             modified_date=lp.date_modified or lp.date_created,
             version=lp.version,
             authors=original_authors,
-            corresponding_author=original_authors[getattr(lp, "corresponding_author_index", -1)],
+            corresponding_author=original_authors[ca_index],
             created_author=get_people(lp.live_paper_authors),
             approved_author=get_person(lp.custodian),
             year=lp.date_published,
