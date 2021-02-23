@@ -67,7 +67,7 @@ def create_live_paper(
             obj.save(kg_client)
     logger.info("Saved objects")
 
-    return LivePaperSummary.from_kg_object(kg_objects["paper"][0])
+    return LivePaperSummary.from_kg_object(kg_objects["paper"][0], kg_client)
 
 
 @router.put("/livepapers/{lp_id}", status_code=status.HTTP_200_OK)
