@@ -1359,6 +1359,7 @@ class LivePaper(BaseModel):
             version=self.version,
             original_authors=original_authors,
             corresponding_author_index=corresponding_author_index,
+            custodian=self.approved_author,
             live_paper_authors=live_paper_authors,
             collab_id=self.collab_id,
             date_published=self.year,
