@@ -2,6 +2,7 @@
 import logging
 from uuid import UUID
 from typing import List
+from datetime import datetime
 
 
 from fastapi import APIRouter, Depends, Header, Query, HTTPException, status
@@ -60,6 +61,7 @@ def create_live_paper(
             status_code=status.HTTP_409_CONFLICT,
             detail=f"Another live paper with the same name already exists.",
         )
+    kg_objects["paper"][0].date_created = datetime.now()
     for category in ("people", "paper", "sections"):  # the order is important
         for obj in kg_objects[category]:
             if hasattr(obj, "affiliation") and obj.affiliation:
