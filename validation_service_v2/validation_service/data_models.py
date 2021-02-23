@@ -1346,6 +1346,10 @@ class LivePaper(BaseModel):
                 corresponding_author_index = -1
         else:
             corresponding_author_index = -1
+        if self.approved_author:
+            custodian = self.approved_author.to_kg_object()
+        else:
+            custodian = None
         live_paper_authors = [p.to_kg_object() for p in as_list(self.created_author)]
         if self.url:
             url = Distribution(location=self.url)
@@ -1359,7 +1363,7 @@ class LivePaper(BaseModel):
             version=self.version,
             original_authors=original_authors,
             corresponding_author_index=corresponding_author_index,
-            custodian=self.approved_author,
+            custodian=custodian,
             live_paper_authors=live_paper_authors,
             collab_id=self.collab_id,
             date_published=self.year,
