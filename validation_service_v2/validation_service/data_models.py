@@ -1280,7 +1280,8 @@ def inverse_license_lookup(iri):
 class LivePaper(BaseModel):
     lp_tool_version: str = "0.1"
     id: UUID = None
-    created_date: datetime
+    modified_date: datetime
+    version: str = None
     authors: List[PersonWithAffiliation]
     corresponding_author: PersonWithAffiliation
     created_author: List[PersonWithAffiliation] = None
@@ -1309,20 +1310,21 @@ class LivePaper(BaseModel):
                 return None
             return PersonWithAffiliation.from_kg_object(obj, kg_client)
 
+        original_authors = get_people(lp.original_authors)
         return cls(
-            created_date=lp.date_created,
-            authors=get_people(lp.original_authors),
-            corresponding_author=get_person(lp.corresponding_author),
+            modified_date=lp.date_modified or lp.date_created,
+            version=lp.version,
+            authors=original_authors,
+            corresponding_author=original_authors[getattr(lp, "corresponding_author_index", -1)],
             created_author=get_people(lp.live_paper_authors),
-            approved_author=get_person(lp.corresponding_author),
+            approved_author=get_person(lp.custodian),
             year=lp.date_published,
             paper_title=lp.title,
             journal=lp.journal,
-            url=lp.url.location,
+            url=getattr(lp.url, "location", None),
             citation=lp.citation,
             doi=lp.doi,
             abstract=lp.abstract,
-            #license=inverse_license_lookup(lp.license),
             license=lp.license.label,
             collab_id=lp.collab_id,
             resources_description=lp.description,
@@ -1334,31 +1336,38 @@ class LivePaper(BaseModel):
     def to_kg_objects(self):
         original_authors = [p.to_kg_object() for p in self.authors]
         if self.corresponding_author:
-            corresponding_author = self.corresponding_author.to_kg_object()
+            try:
+                corresponding_author_index = self.authors.index(self.corresponding_author)
+            except ValueError as err:
+                logger.error(str(err))
+                corresponding_author_index = -1
         else:
-            corresponding_author = None
+            corresponding_author_index = -1
         live_paper_authors = [p.to_kg_object() for p in as_list(self.created_author)]
+        if self.url:
+            url = Distribution(location=self.url)
+        else:
+            url = None
         lp = fairgraph.livepapers.LivePaper(
             name=self.paper_title,
             title=self.paper_title,
             description=self.resources_description,
-            date_created=self.created_date,
-            #date_modified=self.
-            #version=self.version
+            date_modified=self.modified_date,
+            version=self.version,
             original_authors=original_authors,
-            corresponding_author=corresponding_author,
+            corresponding_author_index=corresponding_author_index,
             live_paper_authors=live_paper_authors,
             collab_id=self.collab_id,
             date_published=self.year,
             journal=self.journal,
-            url=Distribution(location=self.url),
+            url=url,
             citation=self.citation,
             doi=self.doi,
             abstract=self.abstract,
             license=fairgraph.commons.License(self.license)
         )
         sections = sum([section.to_kg_objects(lp) for section in self.resources], [])
-        authors = set(original_authors + [corresponding_author] + live_paper_authors)
+        authors = set(original_authors + live_paper_authors)
         return {
             "people": authors,
             "sections": sections,
@@ -1374,9 +1383,9 @@ class LivePaperSummary(BaseModel):
     collab_id: str = None
 
     @classmethod
-    def from_kg_object(cls, lp, kg_client):
+    def from_kg_object(cls, lp):
         return cls(
-            created_date=lp.date_created,
+            modified_date=lp.date_modified or lp.date_created,
             title=lp.title,
             collab_id=lp.collab_id,
             id=lp.uuid,

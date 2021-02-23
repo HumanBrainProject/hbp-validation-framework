@@ -27,7 +27,7 @@ router = APIRouter()
 def query_live_papers(token: HTTPAuthorizationCredentials = Depends(auth)):
     lps = fairgraph.livepapers.LivePaper.list(kg_client, api="nexus", size=1000)
     return [
-        LivePaperSummary.from_kg_object(lp, kg_client)
+        LivePaperSummary.from_kg_object(lp)
         for lp in as_list(lps)
     ]
 
@@ -67,7 +67,7 @@ def create_live_paper(
             obj.save(kg_client)
     logger.info("Saved objects")
 
-    return LivePaperSummary.from_kg_object(kg_objects["paper"][0], kg_client)
+    return LivePaperSummary.from_kg_object(kg_objects["paper"][0])
 
 
 @router.put("/livepapers/{lp_id}", status_code=status.HTTP_200_OK)
