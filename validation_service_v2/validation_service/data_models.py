@@ -1396,7 +1396,7 @@ class LivePaperSummary(BaseModel):
     def from_kg_object(cls, lp):
         return cls(
             modified_date=lp.date_modified or lp.date_created,
-            title=lp.live_paper_title,
+            title=lp.name,
             collab_id=lp.collab_id,
             id=lp.uuid,
             detail_path=f"/livepapers/{lp.uuid}"
