@@ -137,6 +137,8 @@ async def get_collab_permissions_v2(collab_id, user_token):
     else:
         assert highest_collab_role is None
         collab_info = await get_collab_info(collab_id, user_token)
+        if "isPublic" not in collab_info:
+            raise Exception(str(collab_info))
         if collab_info["isPublic"]:
             permissions = {"VIEW": True, "UPDATE": False}
         else:
