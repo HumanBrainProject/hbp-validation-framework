@@ -7,7 +7,10 @@ from datetime import datetime
 
 from fastapi import APIRouter, Depends, Header, Query, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from ..auth import get_kg_client, get_person_from_token
+from ..auth import (
+    get_kg_client, get_person_from_token, is_collab_member, is_admin,
+    can_view_collab, get_editable_collabs
+)
 from ..data_models import LivePaper, LivePaperSummary, ConsistencyError
 import fairgraph.livepapers
 from fairgraph.base import as_list
@@ -21,22 +24,46 @@ router = APIRouter()
 
 
 # todo:
-#  - auth
 #  - handle KG objects as data items
 
 @router.get("/livepapers/", response_model=List[LivePaperSummary])
-def query_live_papers(token: HTTPAuthorizationCredentials = Depends(auth)):
+async def query_live_papers(
+    editable: bool = False,
+    token: HTTPAuthorizationCredentials = Depends(auth)
+):
     lps = fairgraph.livepapers.LivePaper.list(kg_client, api="nexus", size=1000)
+    if editable:
+        # include only those papers the user can edit
+        editable_collabs = await get_editable_collabs(token.credentials)
+        accessible_lps = [
+            lp for lp in lps if lp.collab_id in editable_collabs
+        ]
+    else:
+        # include all papers the user can view
+        accessible_lps = []
+        for lp in lps:
+            if await can_view_collab(lp.collab_id, token.credentials):
+                accessible_lps.append(lp)
     return [
         LivePaperSummary.from_kg_object(lp)
-        for lp in as_list(lps)
+        for lp in as_list(accessible_lps)
     ]
 
 
 @router.get("/livepapers/{lp_id}", response_model=LivePaper)
-def get_live_paper(lp_id: UUID, token: HTTPAuthorizationCredentials = Depends(auth)):
+async def get_live_paper(lp_id: UUID, token: HTTPAuthorizationCredentials = Depends(auth)):
     lp = fairgraph.livepapers.LivePaper.from_uuid(str(lp_id), kg_client, api="nexus")
+
     if lp:
+        if not (
+            await can_view_collab(lp.collab_id, token.credentials)
+            or await is_admin(token.credentials)
+        ):
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail=f"This account cannot view Collab #{lp.collab_id}",
+            )
+
         try:
             obj = LivePaper.from_kg_object(lp, kg_client)
         except ConsistencyError as err:
@@ -50,11 +77,26 @@ def get_live_paper(lp_id: UUID, token: HTTPAuthorizationCredentials = Depends(au
 
 
 @router.post("/livepapers/", response_model=LivePaperSummary, status_code=status.HTTP_201_CREATED)
-def create_live_paper(
+async def create_live_paper(
     live_paper: LivePaper,
     token: HTTPAuthorizationCredentials = Depends(auth)
 ):
     logger.info("Beginning post live paper")
+    if live_paper.id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Cannot provide id when creating a live paper. Use PUT to update an existing paper.",
+        )
+
+    if not (
+        await is_collab_member(live_paper.collab_id, token.credentials)
+        or await is_admin(token.credentials)
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=f"This account is not a member of Collab #{live_paper.collab_id}",
+        )
+
     kg_objects = live_paper.to_kg_objects()
     if kg_objects["paper"][0].exists(kg_client):
         raise HTTPException(
@@ -73,14 +115,33 @@ def create_live_paper(
 
 
 @router.put("/livepapers/{lp_id}", status_code=status.HTTP_200_OK)
-def update_live_paper(
+async def update_live_paper(
     lp_id: UUID,
     live_paper: LivePaper,
     token: HTTPAuthorizationCredentials = Depends(auth)
 ):
     logger.info("Beginning put live paper")
+
+    if not (
+        await is_collab_member(live_paper.collab_id, token.credentials)
+        or await is_admin(token.credentials)
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=f"This account is not a member of Collab #{live_paper.collab_id}",
+        )
+    # todo: in case collab id is changed, check if the user has edit permissions for the
+    #       original collab as well
+
     kg_objects = live_paper.to_kg_objects()
     logger.info("Created objects")
+
+    if not kg_objects["paper"][0].exists(kg_client):
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Live paper with id {lp_id} not found.",
+        )
+    assert UUID(kg_objects["paper"][0].uuid) == lp_id
 
     for category in ("people", "paper", "sections"):  # the order is important
         for obj in kg_objects[category]:

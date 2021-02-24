@@ -1296,7 +1296,7 @@ class LivePaper(BaseModel):
     abstract: str = None
     license: str = None
     resources_description: str = None
-    collab_id: str = None
+    collab_id: str
     resources: List[LivePaperSection]
 
     @classmethod
