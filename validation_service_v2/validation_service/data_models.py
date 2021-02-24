@@ -1287,7 +1287,8 @@ class LivePaper(BaseModel):
     created_author: List[PersonWithAffiliation] = None
     approved_author: PersonWithAffiliation = None
     year: date
-    paper_title: str
+    live_paper_title: str
+    associated_paper_title: str
     journal: str
     url: HttpUrl = None
     citation: str = None
@@ -1322,7 +1323,8 @@ class LivePaper(BaseModel):
             created_author=get_people(lp.live_paper_authors),
             approved_author=get_person(lp.custodian),
             year=lp.date_published,
-            paper_title=lp.title,
+            associated_paper_title=lp.title,
+            live_paper_title=lp.name,
             journal=lp.journal,
             url=getattr(lp.url, "location", None),
             citation=lp.citation,
@@ -1356,8 +1358,8 @@ class LivePaper(BaseModel):
         else:
             url = None
         lp = fairgraph.livepapers.LivePaper(
-            name=self.paper_title,
-            title=self.paper_title,
+            name=self.live_paper_title,
+            title=self.associated_paper_title,
             description=self.resources_description,
             date_modified=self.modified_date,
             version=self.version,
@@ -1394,7 +1396,7 @@ class LivePaperSummary(BaseModel):
     def from_kg_object(cls, lp):
         return cls(
             modified_date=lp.date_modified or lp.date_created,
-            title=lp.title,
+            title=lp.live_paper_title,
             collab_id=lp.collab_id,
             id=lp.uuid,
             detail_path=f"/livepapers/{lp.uuid}"
