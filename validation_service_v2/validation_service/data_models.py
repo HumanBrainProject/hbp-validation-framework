@@ -1337,7 +1337,7 @@ class LivePaper(BaseModel):
             id=lp.uuid
         )
 
-    def to_kg_objects(self):
+    def to_kg_objects(self, kg_client):
         original_authors = [p.to_kg_object() for p in self.authors]
         if self.corresponding_author:
             try:
@@ -1376,7 +1376,7 @@ class LivePaper(BaseModel):
             license=fairgraph.commons.License(self.license)
         )
         if self.id:
-            lp.id = str(self.id)
+            lp.id = lp.__class__.uri_from_uuid(self.id, kg_client)
         sections = sum([section.to_kg_objects(lp) for section in self.resources], [])
         authors = set(original_authors + live_paper_authors + [custodian])
         return {

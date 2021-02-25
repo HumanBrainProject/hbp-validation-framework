@@ -97,7 +97,7 @@ async def create_live_paper(
             detail=f"This account is not a member of Collab #{live_paper.collab_id}",
         )
 
-    kg_objects = live_paper.to_kg_objects()
+    kg_objects = live_paper.to_kg_objects(kg_client)
     if kg_objects["paper"][0].exists(kg_client):
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
@@ -133,7 +133,7 @@ async def update_live_paper(
     # todo: in case collab id is changed, check if the user has edit permissions for the
     #       original collab as well
 
-    kg_objects = live_paper.to_kg_objects()
+    kg_objects = live_paper.to_kg_objects(kg_client)
     logger.info("Created objects")
 
     if not kg_objects["paper"][0].exists(kg_client):
