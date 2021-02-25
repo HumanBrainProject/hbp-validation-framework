@@ -1270,7 +1270,6 @@ class LivePaperSection(BaseModel):
         return data_items + [section]
 
 
-
 def inverse_license_lookup(iri):
     for key, value in fairgraph.commons.License.iri_map.items():
         if value == iri:
@@ -1376,6 +1375,8 @@ class LivePaper(BaseModel):
             abstract=self.abstract,
             license=fairgraph.commons.License(self.license)
         )
+        if self.id:
+            lp.id = str(self.id)
         sections = sum([section.to_kg_objects(lp) for section in self.resources], [])
         authors = set(original_authors + live_paper_authors + [custodian])
         return {
