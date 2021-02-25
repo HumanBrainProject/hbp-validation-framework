@@ -133,6 +133,14 @@ async def update_live_paper(
     # todo: in case collab id is changed, check if the user has edit permissions for the
     #       original collab as well
 
+    if live_paper.id is None:
+        live_paper.id = lp_id
+    elif live_paper.id != lp_id:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=f"Inconsistent ids: {lp_id} != {live_paper.id}",
+        )
+
     kg_objects = live_paper.to_kg_objects(kg_client)
     logger.info("Created objects")
 
