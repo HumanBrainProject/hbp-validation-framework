@@ -1204,31 +1204,45 @@ class PersonWithAffiliation(BaseModel):
 
 
 class LivePaperDataItem(BaseModel):
-    url: HttpUrl
+    url: HttpUrl = None
     label: str = None
     view_url: HttpUrl = None
+    type: str = None
+    identifier: UUID = None
 
     @classmethod
     def from_kg_object(cls, data_item, kg_client):
         if isinstance(data_item, KGProxy):
             data_item = data_item.resolve(kg_client, api="nexus")
-        if isinstance(data_item, fairgraph.livepapers.LivePaperResourceItem):
+        if data_item.resource_type in (None, "URL"):
             return cls(
                 url=data_item.distribution.location,
                 label=data_item.name,
-                view_url=data_item.view_url
+                view_url=data_item.view_url,
+                type=data_item.resource_type or "URL"
             )
-        else:  # todo: handle this better
-            return cls(url=data_item.id)
+        else:
+            return cls(
+                label=data_item.name,
+                type=data_item.resource_type,
+                identifier=data_item.identifier
+            )
 
     def to_kg_object(self):
-        # todo: handle case where data item is a KG object
-        # for now, we only handle LivePaperResourceItem
+        if self.identifier:
+            identifier = self.identifier
+        else:
+            identifier=hashlib.sha1(self.url.encode("utf-8")).hexdigest()
+        if self.url:
+            distr = Distribution(self.url)
+        else:
+            distr = None
         return fairgraph.livepapers.LivePaperResourceItem(
-            distribution=Distribution(self.url),
+            distribution=distr,
             name=self.label,
             view_url=self.view_url,
-            identifier=hashlib.sha1(self.url.encode("utf-8")).hexdigest()
+            identifier=identifier,
+            resource_type=self.type
         )
 
 
