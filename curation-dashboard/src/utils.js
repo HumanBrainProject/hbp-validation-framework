@@ -1,5 +1,6 @@
 import React from 'react';
 import Tooltip from '@material-ui/core/Tooltip';
+import { codeLocationPatterns } from "./globals";
 
 
 export function formatAuthors(authors) {
@@ -23,4 +24,17 @@ export function formatTimeStamp(ISOtimestamp) {
     } else {
         return "";
     }
+}
+
+
+export function classifyCodeLocation(url) {
+    if (url) {
+        for (const [pattern, label] of Object.entries(codeLocationPatterns)) {
+            if (url.startsWith(pattern)) {
+                return label;
+            }
+        }
+        return "Other";
+    }
+    return null;
 }

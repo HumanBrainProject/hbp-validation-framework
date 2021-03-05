@@ -11,7 +11,7 @@ function descendingComparatorNumber(a, b, orderBy) {
 }
 
 function descendingComparatorString(a, b, orderBy) {
-    const aa = (a[orderBy] !== null) ? a[orderBy].toLowerCase() : "";  // handle null as empty string, and case-insensitive sorting
+    const aa = (a[orderBy] !== null) ? a[orderBy].toLowerCase() : "";  // treat null as empty string, use case-insensitive sorting
     const bb = (b[orderBy] !== null) ? b[orderBy].toLowerCase() : "";
     if (bb < aa) {
         return -1;

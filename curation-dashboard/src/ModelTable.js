@@ -1,7 +1,7 @@
 import React from 'react';
 import axios from 'axios';
 
-import { makeStyles } from '@material-ui/core/styles';
+import { withStyles, makeStyles } from '@material-ui/core/styles';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
@@ -17,10 +17,12 @@ import LockIcon from '@material-ui/icons/Lock';
 import PublicIcon from '@material-ui/icons/Public';
 import IconButton from '@material-ui/core/IconButton';
 import Avatar from '@material-ui/core/Avatar';
+import Link from '@material-ui/core/Link';
 
 import { baseUrl } from "./globals";
-import { formatAuthors, formatTimeStamp } from "./utils";
+import { formatAuthors, formatTimeStamp, classifyCodeLocation } from "./utils";
 import { getComparator, stableSort } from "./sorting";
+import { checkModel } from "./curationChecks";
 
 
 const useStyles = makeStyles({
@@ -42,7 +44,7 @@ const useStyles = makeStyles({
 
 
 function getModels(auth) {
-    const url = baseUrl + "/models/?size=50";
+    const url = baseUrl + "/models/?size=10000";
     const config = {
         headers: {
             'Authorization': 'Bearer ' + auth.token,
@@ -102,7 +104,7 @@ function getLicenses(model) {
     for (let instance of model.instances) {
         allVersions.add(instance.license);
     }
-    return Array.from(allVersions).join(", ");
+    return Array.from(allVersions);
 }
 
 
@@ -111,42 +113,19 @@ function getCodeFormats(model) {
     for (let instance of model.instances) {
         allFormats.add(instance.code_format);
     }
-    return Array.from(allFormats).join(", ");
+    return Array.from(allFormats);
 }
 
+
 function getCodeLocations(model) {
-    const patterns = {
-        "https://object.cscs.ch": "CSCS",
-        "swift://cscs.ch": "CSCS*",
-        "https://ksproxy.cscs.ch": "CSCS*",
-        "https://kg.humanbrainproject.org/proxy/export": "CSCS*",
-        "https://github.com": "Github",
-        "https://senselab.med.yale.edu": "ModelDB",
-        "http://modeldb.yale.edu": "ModelDB",
-        "http://example.com": "For testing",
-        "https://collab.humanbrainproject.eu": "Collab-v1",
-        "collab://": "Collab-v1",
-        "https://drive.ebrains.eu": "Drive",
-        "https://zenodo.org": "Zenodo",
-        "https://www.ebi.ac.uk": "BioModels"
-    };
     const allLocations = new Set();
     for (let instance of model.instances) {
-        let foundPattern = false;
-        if (instance.source) {
-            for (const [pattern, label] of Object.entries(patterns)) {
-                if (instance.source.startsWith(pattern)) {
-                    allLocations.add(label);
-                    foundPattern = true;
-                    break;
-                }
-            }
-        }
-        if (!foundPattern) {
-            allLocations.add("Other");
+        const locationType = classifyCodeLocation(instance.source);
+        if (locationType) {
+            allLocations.add(locationType);
         }
     }
-    return Array.from(allLocations).join(", ");
+    return Array.from(allLocations);
 }
 
 function AlternativeLink(url) {
@@ -157,14 +136,86 @@ function AlternativeLink(url) {
     )
 }
 
-function linkAlternatives(model) {
-    let icons = [];
+
+const HtmlTooltip = withStyles((theme) => ({
+    tooltip: {
+      backgroundColor: '#f5f5f9',
+      color: 'rgba(0, 0, 0, 0.87)',
+      maxWidth: 600,
+      fontSize: theme.typography.pxToRem(16),
+      border: '1px solid #dadde9',
+    },
+  }))(Tooltip);
+
+
+function getAlternatives(model) {
+    let urls = [];
     for (let instance of model.instances) {
         for (let url of instance.alternatives) {
-            icons.push(AlternativeLink(url))
+            urls.push(url);
         }
     }
-    return icons;
+    return urls;
+}
+
+
+function sumFailures(checks) {
+    let nFailures = 0;
+    for (const field of Object.keys(checks)) {
+        if (!checks[field].passed) {
+            nFailures += 1;
+        }
+    }
+    return nFailures;
+}
+
+
+function addAdditionalFields(originalModels) {
+    let models = [...originalModels];
+    models.forEach((model) => {
+        model.numVersions = model.instances.length;
+        model.alternatives = getAlternatives(model);
+        model.alternativesStr = model.alternatives.join(", ");  // for sorting
+        model.licenses = getLicenses(model);
+        model.licensesStr = model.licenses.join(", ");
+        model.codeFormats = getCodeFormats(model);
+        model.codeFormatsStr = model.codeFormats.join(", ");  // for sorting
+        model.codeLocations = getCodeLocations(model);
+        model.codeLocationsStr = model.codeLocations.join(", ");  // for sorting
+        model.authorsForSorting = formatAuthors(model.author);
+        model.ownersForSorting = formatAuthors(model.owner);
+        model.descriptionLength = model.description.length;
+        model.usesLaTeX = model.description.includes('$');
+        model.checks = checkModel(model);
+        model.numFailedChecks = sumFailures(model.checks);
+    });
+    console.log("Added additional fields");
+    return models;
+}
+
+
+function formatFailedChecks(checks) {
+    let lines = [];
+    for (const [name, check] of Object.entries(checks)) {
+        if (!check.passed) {
+            lines.push(`${name}: ${check.error}`);
+        }
+    }
+    if (lines.length > 0) {
+        return (
+            <React.Fragment>
+                <ul>
+                    {
+                        lines.map(line => {
+                            return <li>{line}</li>
+                        })
+                    }
+                </ul>
+            </React.Fragment>
+        );
+    } else {
+        return "All checks passed!";
+    }
 }
 
 
@@ -183,11 +234,12 @@ export default function ModelTable(props) {
             .then(res => {
                 console.log("Got models");
                 console.log(res.data);
-                setModels(res.data);
+                setModels(addAdditionalFields(res.data));
                 setLoading(false);
             })
             .catch(err => {
-                setErrorMessage('Error: ', err.message);
+                console.log(err.message);
+                setErrorMessage('Error loading models: ', err.message);
                 setLoading(false);
             });
     }, []);
@@ -231,21 +283,21 @@ export default function ModelTable(props) {
 
     const columns = [
         { label: "", sortAttr: "private", type: "boolean" },
-        { label: "", sortAttr: null }, // index
-        { label: "ID", sortAttr: "id", type: "string"  },
+        { label: "Failed checks", sortAttr: "numFailedChecks", type: "number" },
+        { label: "ID", sortAttr: "id", type: "string" },
         { label: "Name", sortAttr: "name", type: "string" },
         { label: "Creation date", sortAttr: "date_created", type: "string" },
-        { label: "No. of versions", sortAttr: null, type: "string" },
-        { label: "KG links", sortAttr: null, type: "string" },
-        { label: "License(s)", sortAttr: null, type: "string" },
-        { label: "Code format(s)", sortAttr: null, type: "string" },
-        { label: "Code location", sortAttr: null, type: "string" },
+        { label: "No. of versions", sortAttr: "numVersions", type: "number" },
+        { label: "KG links", sortAttr: "alternativesStr", type: "string" },
+        { label: "License(s)", sortAttr: "licensesStr", type: "string" },
+        { label: "Code format(s)", sortAttr: "codeFormatsStr", type: "string" },
+        { label: "Code location", sortAttr: "codeLocationsStr", type: "string" },
         { label: "Alias", sortAttr: "alias", type: "string" },
-        { label: "Author(s)", sortAttr: null, type: "string" },
-        { label: "Owner(s)", sortAttr: null, type: "string" },
+        { label: "Author(s)", sortAttr: "authorsForSorting", type: "string" },
+        { label: "Owner(s)", sortAttr: "onwersForSorting", type: "string" },
         { label: "Collab", sortAttr: "project_id", type: "string" },
-        { label: "Description length", sortAttr: null, type: "number" },
-        { label: "Uses LaTeX", sortAttr: null, type: "boolean" },
+        { label: "Description length", sortAttr: "descriptionLength", type: "number" },
+        { label: "Uses LaTeX", sortAttr: "usesLaTeX", type: "boolean" },
         { label: "Cell type", sortAttr: "cell_type", type: "string" },
         { label: "Model scope", sortAttr: "model_scope", type: "string" },
         { label: "Abstraction level", sortAttr: "abstraction_level", type: "string" },
@@ -279,23 +331,31 @@ export default function ModelTable(props) {
                         {stableSort(models, getComparator(order, orderBy, sortType)).map((model, index) => (
                             <TableRow key={model.id}>
                                 <TableCell>{AccessibilityIcon(model.private)}</TableCell>
-                                <TableCell>{index}</TableCell>
+                                <TableCell>
+                                    <HtmlTooltip title={formatFailedChecks(model.checks)}><span>{model.numFailedChecks}</span></HtmlTooltip>
+                                </TableCell>
                                 <TableCell>
                                     <Tooltip title={model.uri}><span>{model.id.slice(0, 7)}...</span></Tooltip>
                                 </TableCell>
-                                <TableCell>{model.name}</TableCell>
+                                <TableCell>
+                                    <Link href={`https://model-catalog.brainsimulation.eu/#model_id.${model.id}`} target="_blank">
+                                        {model.name}
+                                    </Link>
+                                </TableCell>
                                 <TableCell>{formatTimeStamp(model.date_created)}</TableCell>
-                                <TableCell>{model.instances.length}</TableCell>
-                                <TableCell>{linkAlternatives(model)}</TableCell>
-                                <TableCell>{getLicenses(model)}</TableCell>
-                                <TableCell>{getCodeFormats(model)}</TableCell>
-                                <TableCell>{getCodeLocations(model)}</TableCell>
+                                <TableCell>{model.numVersions}</TableCell>
+                                <TableCell>
+                                    {model.alternatives && model.alternatives.map((url) => AlternativeLink(url))}
+                                </TableCell>
+                                <TableCell>{model.licensesStr}</TableCell>
+                                <TableCell>{model.codeFormatsStr}</TableCell>
+                                <TableCell>{model.codeLocationsStr}</TableCell>
                                 <TableCell>{AliasIcon(model.alias)}</TableCell>
                                 <TableCell>{formatAuthorsShort(model.author)}</TableCell>
                                 <TableCell>{formatAuthorsShort(model.owner)}</TableCell>
                                 <TableCell>{model.project_id}</TableCell>
-                                <TableCell>{model.description.length}</TableCell>
-                                <TableCell>{model.description.includes('$') ? '$$' : ''}</TableCell>
+                                <TableCell>{model.descriptionLength}</TableCell>
+                                <TableCell>{model.usesLaTeX ? '$$' : ''}</TableCell>
                                 <TableCell>{model.cell_type}</TableCell>
                                 <TableCell>{model.model_scope}</TableCell>
                                 <TableCell>{model.abstraction_level}</TableCell>
