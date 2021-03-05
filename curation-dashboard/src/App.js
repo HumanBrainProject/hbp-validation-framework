@@ -38,6 +38,7 @@ function Copyright() {
 export default function App(props) {
   const classes = useStyles();
 
+  if (props.auth.authorized) {
   return (
     <React.Fragment>
       <CssBaseline />
@@ -57,15 +58,12 @@ export default function App(props) {
 
       {/* Footer */}
       <footer className={classes.footer}>
-        <Typography variant="h6" align="center" gutterBottom>
-          Footer
-        </Typography>
-        <Typography variant="subtitle1" align="center" color="textSecondary" component="p">
-          Something here to give the footer a purpose!
-        </Typography>
         <Copyright />
       </footer>
       {/* End footer */}
     </React.Fragment>
   );
+  } else {
+     return (<div><p>The dashboard is currently only accessible to the model curation team.</p></div>);
+  }
 }

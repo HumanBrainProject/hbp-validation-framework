@@ -14,9 +14,22 @@ const YOUR_APP_SCOPES = 'team email profile';   // full list at https://iam.ebra
 export default function initAuth(main) {
     console.log('DOM content is loaded, initialising Keycloak client...');
     keycloak
-        .init({ flow: 'implicit' })
-        .success(() => checkAuth(main))
-        .error(console.log);
+        .init({ flow: 'implicit', promiseType: 'native' })
+        .then(() => checkAuth(main))
+        .catch(console.log);
+}
+
+
+function checkPermissions(keycloak) {
+    return keycloak.loadUserInfo()
+        .then((userInfo) => {
+            console.log(userInfo);
+            if (userInfo.roles.team.includes("collab-model-validation-editor") || userInfo.roles.team.includes("collab-model-validation-administrator")) {
+                keycloak.authorized = true;
+            } else {
+                keycloak.authorized = false;
+            }
+        })
 }
 
 
@@ -55,7 +68,9 @@ function checkAuth(main) {
         }
         if (isAuthenticated) {
             console.log('...which is authenticated, starting business logic...');
-            return main(keycloak);
+            checkPermissions(keycloak).then(() => {
+                return main(keycloak);
+            });
         }
     }
 
