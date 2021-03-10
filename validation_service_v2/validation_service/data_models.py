@@ -36,6 +36,7 @@ fairgraph.software.use_namespace(fairgraph.brainsimulation.DEFAULT_NAMESPACE)
 fairgraph.computing.use_namespace(fairgraph.brainsimulation.DEFAULT_NAMESPACE)
 fairgraph.commons.License.initialize(join(dirname(__file__), "spdx_licences.json"))
 fairgraph.uniminds.ModelInstance.set_strict_mode(False, "abstraction_level")
+fairgraph.brainsimulation.MEModel.set_strict_mode(False, "model_of")
 logger = logging.getLogger("validation_service_v2")
 
 
