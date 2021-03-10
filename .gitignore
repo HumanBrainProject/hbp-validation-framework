@@ -79,6 +79,7 @@ validation_service/app/static/
 # Javascript
 
 */node_modules
+*/*/node_modules
 
 # Migrations #
 ##############
