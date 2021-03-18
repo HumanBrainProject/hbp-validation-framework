@@ -103,28 +103,34 @@ export function isUUID(uuid) {
 }
 
 
-export function copyToClipboard(value, enqueueSnackbar, message, type = 'default') {
+export function copyToClipboard(value, enqueueSnackbar, closeSnackbar, message, type = 'default') {
     // type: default, success, error, warning, info
     navigator.clipboard.writeText(value)
-    enqueueSnackbar(message, {
+    const key = enqueueSnackbar(message, {
         variant: type,
         anchorOrigin: {
             vertical: 'bottom',
             horizontal: 'right',
         },
-    })
+        onClick: () => {
+          closeSnackbar(key);
+        },
+    });
 }
 
 
-export function showNotification(enqueueSnackbar, message, type = 'default') {
+export function showNotification(enqueueSnackbar, closeSnackbar, message, type = 'default') {
     // type: default, success, error, warning, info
-    enqueueSnackbar(message, {
+    const key = enqueueSnackbar(message, {
         variant: type,
         anchorOrigin: {
             vertical: 'bottom',
             horizontal: 'right',
         },
-    })
+        onClick: () => {
+          closeSnackbar(key);
+        },
+    });
 }
 
 

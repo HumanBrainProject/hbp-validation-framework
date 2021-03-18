@@ -26,15 +26,14 @@ function ResultsFiguresTestIntance(props) {
     var traces = [];
     var layout = {};
     var label_resultJSON_map = {};
-    var customdata = [];
 
     for (let model_entry of Object.values(props.test_inst_entry["models"])) {
         // a seperate bar group for each model (all instances of same model within the same bar group)
-        var model_labels = [];
-        var model_version_labels = [];
-        var model_version_result_ids = [];
-        var model_version_scores = [];
-        var customdata = [];
+        let model_labels = [];
+        let model_version_labels = [];
+        let model_version_result_ids = [];
+        let model_version_scores = [];
+        let customdata = [];
 
         for (let model_inst_entry of Object.values(model_entry["model_instances"])) {
             model_inst_entry["results"].forEach(function (result_entry, r_ind) {

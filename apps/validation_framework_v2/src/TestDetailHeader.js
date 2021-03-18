@@ -66,7 +66,7 @@ class TestDetailHeader extends React.Component {
         this.setState({ 'openEditForm': false });
         if (test) {
             this.props.updateCurrentTestData(test)
-            showNotification(this.props.enqueueSnackbar, "Test edited!", "success")
+            showNotification(this.props.enqueueSnackbar, this.props.closeSnackbar, "Test edited!", "success")
         }
     }
 
@@ -95,7 +95,7 @@ class TestDetailHeader extends React.Component {
             <React.Fragment>
                 <Grid item>
                     <Typography variant="h4" gutterBottom>
-                        <span style={{ marginHorizontal: 125, cursor: "pointer" }} onClick={() => copyToClipboard(this.props.name, this.props.enqueueSnackbar, "Test name copied")}> {this.props.name}</span>
+                        <span style={{ marginHorizontal: 125, cursor: "pointer" }} onClick={() => copyToClipboard(this.props.name, this.props.enqueueSnackbar, this.props.closeSnackbar, "Test name copied")}> {this.props.name}</span>
                         <Tooltip placement="top" title="Edit Test">
                             <IconButton aria-label="edit test" onClick={() => this.handleEditClick()} style={{ backgroundColor: Theme.buttonSecondary, marginLeft: 10 }}>
                                 <EditIcon />
@@ -107,9 +107,9 @@ class TestDetailHeader extends React.Component {
                         {this.props.authors}
                     </Typography>
                     <Typography variant="body2" color="textSecondary" gutterBottom>
-                        ID: <b><span style={{ marginHorizontal: 125, cursor: "pointer" }} onClick={() => copyToClipboard(this.props.id, this.props.enqueueSnackbar, "Test UUID copied")}>{this.props.id}</span></b>
+                        ID: <b><span style={{ marginHorizontal: 125, cursor: "pointer" }} onClick={() => copyToClipboard(this.props.id, this.props.enqueueSnackbar, this.props.closeSnackbar, "Test UUID copied")}>{this.props.id}</span></b>
                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                        {this.props.alias ? "Alias: " : ""} <b>{this.props.alias ? <span style={{ marginHorizontal: 125, cursor: "pointer" }} onClick={() => copyToClipboard(this.props.alias, this.props.enqueueSnackbar, "Test alias copied")}>{this.props.alias}</span> : ""}</b>
+                        {this.props.alias ? "Alias: " : ""} <b>{this.props.alias ? <span style={{ marginHorizontal: 125, cursor: "pointer" }} onClick={() => copyToClipboard(this.props.alias, this.props.enqueueSnackbar, this.props.closeSnackbar, "Test alias copied")}>{this.props.alias}</span> : ""}</b>
                     </Typography>
                     <Typography variant="body2" color="textSecondary" gutterBottom>
                         Created: <b>{formatTimeStampToLongString(this.props.dateCreated)}</b>

@@ -89,7 +89,7 @@ class ModelTable extends React.Component {
             selectedModels.push(ordered_data)
         }
         downloadJSON(JSON.stringify(selectedModels), "selectedModels.json")
-        showNotification(this.props.enqueueSnackbar, "Saved to selectedModels.json", "info")
+        showNotification(this.props.enqueueSnackbar, this.props.closeSnackbar, "Saved to selectedModels.json", "info")
     }
 
     hideTableRows(selectedRows) {
@@ -100,7 +100,7 @@ class ModelTable extends React.Component {
         }
         const updated_data = this.state.data.filter((item, index) => !selectedIndices.includes(index));
         this.setState({ data: updated_data });
-        showNotification(this.props.enqueueSnackbar, "Chosen model(s) have been hidden!", "info")
+        showNotification(this.props.enqueueSnackbar, this.props.closeSnackbar, "Chosen model(s) have been hidden!", "info")
     }
 
     viewSelectedItems(selectedRows) {
@@ -155,9 +155,9 @@ class ModelTable extends React.Component {
                         }
                     }
                 }
-                showNotification(this.props.enqueueSnackbar, "Model '" + model.name + "' added to compare!", "info")
+                showNotification(this.props.enqueueSnackbar, this.props.closeSnackbar, "Model '" + model.name + "' added to compare!", "info")
             } else {
-                showNotification(this.props.enqueueSnackbar, "Skipped: model '" + model.name + "' (0 instances)!", "error")
+                showNotification(this.props.enqueueSnackbar, this.props.closeSnackbar, "Skipped: model '" + model.name + "' (0 instances)!", "error")
             }
         }
         console.log(compareModels);
