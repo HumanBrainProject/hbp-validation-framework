@@ -24,7 +24,7 @@ function CommonParameter(props) {
     return (
         <TableRow>
             <TableCell>
-                <Box overflow="auto" style={{ cursor: "pointer" }} whiteSpace="wrap" onClick={() => copyToClipboard(m_value, props.enqueueSnackbar, "Model " + props.entity + formatLabel(props.label) + " copied")}>
+                <Box overflow="auto" style={{ cursor: "pointer" }} whiteSpace="wrap" onClick={() => copyToClipboard(m_value, props.enqueueSnackbar, props.closeSnackbar, "Model " + props.entity + formatLabel(props.label) + " copied")}>
                     <Typography variant="body2">
                         {m_value}
                     </Typography>
@@ -32,7 +32,7 @@ function CommonParameter(props) {
             </TableCell>
             <TableCell align="center" style={{ backgroundColor: Theme.tableHeader }}><Typography variant="body2"><b>{formatLabel(props.label)}</b></Typography></TableCell>
             <TableCell>
-                <Box overflow="auto" style={{ cursor: "pointer" }} whiteSpace="wrap" onClick={() => copyToClipboard(t_value, props.enqueueSnackbar, "Test " + props.entity + formatLabel(props.label) + " copied")}>
+                <Box overflow="auto" style={{ cursor: "pointer" }} whiteSpace="wrap" onClick={() => copyToClipboard(t_value, props.enqueueSnackbar, props.closeSnackbar, "Test " + props.entity + formatLabel(props.label) + " copied")}>
                     <Typography variant="body2">
                         {t_value}
                     </Typography>
@@ -48,7 +48,7 @@ function OtherParameter(props) {
         <TableRow>
             <TableCell><Typography variant="body2"><b>{formatLabel(props.label)}</b>: </Typography></TableCell>
             <TableCell>
-                <Box overflow="auto" style={{ cursor: "pointer" }} whiteSpace="wrap" onClick={() => copyToClipboard(value, props.enqueueSnackbar, props.entity + " " + formatLabel(props.label) + " copied")}>
+                <Box overflow="auto" style={{ cursor: "pointer" }} whiteSpace="wrap" onClick={() => copyToClipboard(value, props.enqueueSnackbar, props.closeSnackbar, props.entity + " " + formatLabel(props.label) + " copied")}>
                     <Typography variant="body2">
                         {value}
                     </Typography>
@@ -84,7 +84,7 @@ class ResultModelTestInfo extends React.Component {
                                         </TableHead>
                                         <TableBody>
                                             {["id", "uri", "name", "alias", "date_created", "species", "brain_region", "cell_type"].map((param) => (
-                                                <CommonParameter label={param} m_value={this.props.model[param]} t_value={this.props.test[param]} key={param} enqueueSnackbar={this.props.enqueueSnackbar} entity="" />
+                                                <CommonParameter label={param} m_value={this.props.model[param]} t_value={this.props.test[param]} key={param} enqueueSnackbar={this.props.enqueueSnackbar} closeSnackbar={this.props.closeSnackbar} entity="" />
                                             ))}
                                         </TableBody>
                                     </Table>
@@ -114,7 +114,7 @@ class ResultModelTestInfo extends React.Component {
                                             </TableHead>
                                             <TableBody>
                                                 {["author", "owner", "project_id", "organization", "private", "model_scope", "abstraction_level"].map((param) => (
-                                                    <OtherParameter label={param} value={this.props.model[param]} key={param} enqueueSnackbar={this.props.enqueueSnackbar} entity="Model" />
+                                                    <OtherParameter label={param} value={this.props.model[param]} key={param} enqueueSnackbar={this.props.enqueueSnackbar} closeSnackbar={this.props.closeSnackbar} entity="Model" />
                                                 ))}
                                             </TableBody>
                                         </Table>
@@ -130,7 +130,7 @@ class ResultModelTestInfo extends React.Component {
                                             </TableHead>
                                             <TableBody>
                                                 {["author", "implementation_status", "data_location", "data_type", "recording_modality", "test_type", "score_type"].map((param) => (
-                                                    <OtherParameter label={param} value={this.props.test[param]} key={param} enqueueSnackbar={this.props.enqueueSnackbar} entity="Test" />
+                                                    <OtherParameter label={param} value={this.props.test[param]} key={param} enqueueSnackbar={this.props.enqueueSnackbar} closeSnackbar={this.props.closeSnackbar} entity="Test" />
                                                 ))}
                                             </TableBody>
                                         </Table>
@@ -209,7 +209,7 @@ class ResultModelTestInfo extends React.Component {
                                     </TableHead>
                                     <TableBody>
                                         {["id", "uri", "version", "timestamp"].map((param) => (
-                                            <CommonParameter label={param} m_value={this.props.model_instance[param]} t_value={this.props.test_instance[param]} key={param} enqueueSnackbar={this.props.enqueueSnackbar} entity="instance " />
+                                            <CommonParameter label={param} m_value={this.props.model_instance[param]} t_value={this.props.test_instance[param]} key={param} enqueueSnackbar={this.props.enqueueSnackbar} closeSnackbar={this.props.closeSnackbar} entity="instance " />
                                         ))}
                                     </TableBody>
                                 </Table>
@@ -238,7 +238,7 @@ class ResultModelTestInfo extends React.Component {
                                             </TableHead>
                                             <TableBody>
                                                 {["morphology", "source", "code_format", "parameters", "hash", "license"].map((param) => (
-                                                    <OtherParameter label={param} value={this.props.model_instance[param]} key={param} enqueueSnackbar={this.props.enqueueSnackbar} entity="Model instance" />
+                                                    <OtherParameter label={param} value={this.props.model_instance[param]} key={param} enqueueSnackbar={this.props.enqueueSnackbar} closeSnackbar={this.props.closeSnackbar} entity="Model instance" />
                                                 ))}
                                             </TableBody>
                                         </Table>
@@ -254,7 +254,7 @@ class ResultModelTestInfo extends React.Component {
                                             </TableHead>
                                             <TableBody>
                                                 {["repository", "path", "parameters"].map((param) => (
-                                                    <OtherParameter label={param} value={this.props.test_instance[param]} key={param} enqueueSnackbar={this.props.enqueueSnackbar} entity="Test instance" />
+                                                    <OtherParameter label={param} value={this.props.test_instance[param]} key={param} enqueueSnackbar={this.props.enqueueSnackbar} closeSnackbar={this.props.closeSnackbar} entity="Test instance" />
                                                 ))}
                                             </TableBody>
                                         </Table>

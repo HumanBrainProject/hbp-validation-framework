@@ -218,7 +218,7 @@ class ValidationFramework extends React.Component {
                 modelDetailOpen: true
             });
             updateHash("model_id." + currentModel.id);
-            showNotification(this.props.enqueueSnackbar, "Model has been added!", "info")
+            showNotification(this.props.enqueueSnackbar, this.props.closeSnackbar, "Model has been added!", "info")
         }
     }
 
@@ -236,7 +236,7 @@ class ValidationFramework extends React.Component {
                 testDetailOpen: true
             });
             updateHash("test_id." + currentTest.id);
-            showNotification(this.props.enqueueSnackbar, "Test has been added!", "info")
+            showNotification(this.props.enqueueSnackbar, this.props.closeSnackbar, "Test has been added!", "info")
         }
     }
 
@@ -775,7 +775,7 @@ class ValidationFramework extends React.Component {
                 update_test_flag = true;
                 this.updateTests(testFilters);
             }
-            showNotification(this.props.enqueueSnackbar, "App config updated!", "success")
+            showNotification(this.props.enqueueSnackbar, this.props.closeSnackbar, "App config updated!", "success")
         }
         console.log(update_model_flag)
         console.log(update_test_flag)

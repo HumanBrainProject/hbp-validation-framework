@@ -129,7 +129,7 @@ class ResultFile extends React.Component {
                     </AccordionSummary>
                     <AccordionDetails>
                         <Box style={{ width: "100%" }} my={2} >
-                            <Typography variant="body2" style={{ cursor: "pointer" }} onClick={() => copyToClipboard(this.state.url, this.props.enqueueSnackbar, "File URL copied")}><strong>File URL: </strong>{this.state.url}</Typography>
+                            <Typography variant="body2" style={{ cursor: "pointer" }} onClick={() => copyToClipboard(this.state.url, this.props.enqueueSnackbar, this.props.closeSnackbar, "File URL copied")}><strong>File URL: </strong>{this.state.url}</Typography>
                             <br />
                             {/* check to avoid loading file if not requested by clicking on the exapansion panel */}
                             {/* If file is accessible (valid = true) */}
@@ -187,7 +187,7 @@ class ResultRelatedFiles extends React.Component {
 					</TableContainer> */}
 
                         {this.props.result_files.map((r_file, ind) => (
-                            <ResultFile r_file={r_file} key={ind} index={ind} enqueueSnackbar={this.props.enqueueSnackbar} />
+                            <ResultFile r_file={r_file} key={ind} index={ind} enqueueSnackbar={this.props.enqueueSnackbar} closeSnackbar={this.props.closeSnackbar} />
                         ))}
                     </Grid>
                 </Grid>

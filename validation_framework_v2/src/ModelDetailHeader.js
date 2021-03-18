@@ -100,7 +100,7 @@ class ModelDetailHeader extends React.Component {
         this.setState({ 'openEditForm': false });
         if (model) {
             this.props.updateCurrentModelData(model)
-            showNotification(this.props.enqueueSnackbar, "Model edited!", "success")
+            showNotification(this.props.enqueueSnackbar, this.props.closeSnackbar, "Model edited!", "success")
         }
     }
 
@@ -130,7 +130,7 @@ class ModelDetailHeader extends React.Component {
                 <Grid item>
                     <Typography variant="h4" gutterBottom>
                         <AccessibilityIcon private={this.props.private} />
-                        <span style={{ marginHorizontal: 125, cursor: "pointer" }} onClick={() => copyToClipboard(this.props.name, this.props.enqueueSnackbar, "Model name copied")}> {this.props.name}</span>
+                        <span style={{ marginHorizontal: 125, cursor: "pointer" }} onClick={() => copyToClipboard(this.props.name, this.props.enqueueSnackbar, this.props.closeSnackbar, "Model name copied")}> {this.props.name}</span>
                         <EditButton canEdit={this.props.canEdit} handleEditClick={this.handleEditClick} />
                         <CompareIcon compareFlag={this.props.compareFlag} addModelCompare={this.props.addModelCompare} removeModelCompare={this.props.removeModelCompare} />
                     </Typography>
@@ -138,9 +138,9 @@ class ModelDetailHeader extends React.Component {
                         {this.props.authors}
                     </Typography>
                     <Typography variant="body2" color="textSecondary" gutterBottom>
-                        ID: <b><span style={{ marginHorizontal: 125, cursor: "pointer" }} onClick={() => copyToClipboard(this.props.id, this.props.enqueueSnackbar, "Model UUID copied")}>{this.props.id}</span></b>
+                        ID: <b><span style={{ marginHorizontal: 125, cursor: "pointer" }} onClick={() => copyToClipboard(this.props.id, this.props.enqueueSnackbar, this.props.closeSnackbar, "Model UUID copied")}>{this.props.id}</span></b>
                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                        {this.props.alias ? "Alias: " : ""} <b>{this.props.alias ? <span style={{ marginHorizontal: 125, cursor: "pointer" }} onClick={() => copyToClipboard(this.props.alias, this.props.enqueueSnackbar, "Model alias copied")}>{this.props.alias}</span> : ""}</b>
+                        {this.props.alias ? "Alias: " : ""} <b>{this.props.alias ? <span style={{ marginHorizontal: 125, cursor: "pointer" }} onClick={() => copyToClipboard(this.props.alias, this.props.enqueueSnackbar, this.props.closeSnackbar, "Model alias copied")}>{this.props.alias}</span> : ""}</b>
                     </Typography>
                     <Typography variant="body2" color="textSecondary" gutterBottom>
                         Created: <b>{formatTimeStampToLongString(this.props.dateCreated)}</b>

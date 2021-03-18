@@ -184,7 +184,7 @@ class ModelDetail extends React.Component {
         console.log(compareModels);
         setCompareModels(compareModels);
         this.setState({ compareFlag: true })
-        showNotification(this.props.enqueueSnackbar, "Model added to compare!", "info")
+        showNotification(this.props.enqueueSnackbar, this.props.closeSnackbar, "Model added to compare!", "info")
     }
 
     removeModelCompare() {
@@ -199,7 +199,7 @@ class ModelDetail extends React.Component {
         console.log(compareModels);
         setCompareModels(compareModels);
         this.setState({ compareFlag: false })
-        showNotification(this.props.enqueueSnackbar, "Model removed from compare!", "info")
+        showNotification(this.props.enqueueSnackbar, this.props.closeSnackbar, "Model removed from compare!", "info")
     }
 
     addModelInstanceCompare(model_inst_id) {
@@ -228,7 +228,7 @@ class ModelDetail extends React.Component {
         this.setState({ compareFlag: this.checkCompareStatus() })
         console.log(compareModels);
         setCompareModels(compareModels);
-        showNotification(this.props.enqueueSnackbar, "Model instance added to compare!", "info")
+        showNotification(this.props.enqueueSnackbar, this.props.closeSnackbar, "Model instance added to compare!", "info")
     }
 
     removeModelInstanceCompare(model_inst_id) {
@@ -249,7 +249,7 @@ class ModelDetail extends React.Component {
         console.log(compareModels);
         setCompareModels(compareModels);
         this.forceUpdate();
-        showNotification(this.props.enqueueSnackbar, "Model instance removed from compare!", "info")
+        showNotification(this.props.enqueueSnackbar, this.props.closeSnackbar, "Model instance removed from compare!", "info")
     }
 
     handleClose() {

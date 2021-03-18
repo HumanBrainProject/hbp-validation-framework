@@ -23,7 +23,7 @@ function ResultParameter(props) {
         return (
             <Grid item xs={12}>
                 <Typography variant="body2"><b>{props.label}: </b></Typography>
-                <Box component="div" my={2} bgcolor="white" overflow="auto" border={1} borderColor="grey.500" borderRadius={10} style={{ padding: 10, cursor: "pointer" }} whiteSpace="nowrap" onClick={() => copyToClipboard(props.value, props.enqueueSnackbar, props.label + " copied")} width="75%">{props.value}</Box>
+                <Box component="div" my={2} bgcolor="white" overflow="auto" border={1} borderColor="grey.500" borderRadius={10} style={{ padding: 10, cursor: "pointer" }} whiteSpace="nowrap" onClick={() => copyToClipboard(props.value, props.enqueueSnackbar, props.closeSnackbar, props.label + " copied")} width="75%">{props.value}</Box>
             </Grid>
         )
     } else {
@@ -51,12 +51,12 @@ class ResultDetailContent extends React.Component {
             </Grid> */}
 
                 <Grid item xs={12}>
-                    <ResultParameter label="Score" value={this.props.score} enqueueSnackbar={this.props.enqueueSnackbar} />
-                    <ResultParameter label="Normalized Score" value={this.props.normalized_score} enqueueSnackbar={this.props.enqueueSnackbar} />
-                    <ResultParameter label="TimeStamp" value={formatTimeStampToLongString(this.props.timestamp)} enqueueSnackbar={this.props.enqueueSnackbar} />
-                    <ResultParameter label="Collab ID" value={this.props.project_id} enqueueSnackbar={this.props.enqueueSnackbar} />
-                    <ResultParameter label="Pass / Fail" value={this.props.passed} enqueueSnackbar={this.props.enqueueSnackbar} />
-                    <ResultParameter label="KG URI" value={this.props.uri} enqueueSnackbar={this.props.enqueueSnackbar} />
+                    <ResultParameter label="Score" value={this.props.score} enqueueSnackbar={this.props.enqueueSnackbar} closeSnackbar={this.props.closeSnackbar} />
+                    <ResultParameter label="Normalized Score" value={this.props.normalized_score} enqueueSnackbar={this.props.enqueueSnackbar} closeSnackbar={this.props.closeSnackbar} />
+                    <ResultParameter label="TimeStamp" value={formatTimeStampToLongString(this.props.timestamp)} enqueueSnackbar={this.props.enqueueSnackbar} closeSnackbar={this.props.closeSnackbar} />
+                    <ResultParameter label="Collab ID" value={this.props.project_id} enqueueSnackbar={this.props.enqueueSnackbar} closeSnackbar={this.props.closeSnackbar} />
+                    <ResultParameter label="Pass / Fail" value={this.props.passed} enqueueSnackbar={this.props.enqueueSnackbar} closeSnackbar={this.props.closeSnackbar} />
+                    <ResultParameter label="KG URI" value={this.props.uri} enqueueSnackbar={this.props.enqueueSnackbar} closeSnackbar={this.props.closeSnackbar} />
                 </Grid>
 
             </Grid>
