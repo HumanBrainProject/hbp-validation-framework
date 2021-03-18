@@ -3,7 +3,6 @@ import IconButton from "@material-ui/core/IconButton";
 import Tooltip from "@material-ui/core/Tooltip";
 import FlipIcon from "@material-ui/icons/Flip";
 import AddIcon from '@material-ui/icons/Add';
-import AccountTreeIcon from '@material-ui/icons/AccountTree';
 import { withStyles } from "@material-ui/core/styles";
 
 const defaultToolbarStyles = {

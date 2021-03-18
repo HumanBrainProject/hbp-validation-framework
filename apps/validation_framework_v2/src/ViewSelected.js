@@ -22,7 +22,7 @@ function EntityParameter(props) {
             <TableRow>
                 <TableCell align="center" style={{ backgroundColor: Theme.tableRowSelectColor }}><Typography variant="body2"><b>{formatLabel(props.label)}</b></Typography></TableCell>
                 {props.data.map((entity, ind) => (
-                    <TableCell key={ind} style={{ backgroundColor: Theme.tableRowSelectColor, cursor: "pointer" }} onClick={() => copyToClipboard(formatValue(props.label, entity[props.label]), props.enqueueSnackbar, formatLabel(props.label) + " copied")}><Typography variant="body2"><b>{formatValue(props.label, entity[props.label])}</b></Typography></TableCell>
+                    <TableCell key={ind} style={{ backgroundColor: Theme.tableRowSelectColor, cursor: "pointer" }} onClick={() => copyToClipboard(formatValue(props.label, entity[props.label]), props.enqueueSnackbar, props.closeSnackbar, formatLabel(props.label) + " copied")}><Typography variant="body2"><b>{formatValue(props.label, entity[props.label])}</b></Typography></TableCell>
                 ))}
             </TableRow>
         )
@@ -31,7 +31,7 @@ function EntityParameter(props) {
             <TableRow>
                 <TableCell align="center" style={{ backgroundColor: Theme.tableDataHeader }}><Typography variant="body2"><b>{formatLabel(props.label)}</b></Typography></TableCell>
                 {props.data.map((entity, ind) => (
-                    <TableCell key={ind} style={{ cursor: "pointer" }} onClick={() => copyToClipboard(formatValue(props.label, entity[props.label]), props.enqueueSnackbar, formatLabel(props.label) + " copied")}><Typography variant="body2">{formatValue(props.label, entity[props.label])}</Typography></TableCell>
+                    <TableCell key={ind} style={{ cursor: "pointer" }} onClick={() => copyToClipboard(formatValue(props.label, entity[props.label]), props.enqueueSnackbar, props.closeSnackbar, formatLabel(props.label) + " copied")}><Typography variant="body2">{formatValue(props.label, entity[props.label])}</Typography></TableCell>
                 ))}
             </TableRow>
         )
@@ -58,7 +58,7 @@ class ViewSelected extends React.Component {
                             <Table>
                                 <TableBody>
                                     {params.map((param) => (
-                                        <EntityParameter label={param} data={this.props.selectedData} key={param} enqueueSnackbar={this.props.enqueueSnackbar} />
+                                        <EntityParameter label={param} data={this.props.selectedData} key={param} enqueueSnackbar={this.props.enqueueSnackbar} closeSnackbar={this.props.closeSnackbar} />
                                     ))}
                                 </TableBody>
                             </Table>

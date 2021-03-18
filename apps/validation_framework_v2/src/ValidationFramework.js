@@ -163,7 +163,9 @@ class ValidationFramework extends React.Component {
         this.updateModels = this.updateModels.bind(this);
         this.updateTests = this.updateTests.bind(this);
         this.getModel = this.getModel.bind(this);
+        this.getModelFromInstance = this.getModelFromInstance.bind(this);
         this.getTest = this.getTest.bind(this);
+        this.getTestFromInstance = this.getTestFromInstance.bind(this);
         this.modelTableFullWidth = this.modelTableFullWidth.bind(this);
         this.testTableFullWidth = this.testTableFullWidth.bind(this);
         this.openCompareResults = this.openCompareResults.bind(this);
@@ -216,7 +218,7 @@ class ValidationFramework extends React.Component {
                 modelDetailOpen: true
             });
             updateHash("model_id." + currentModel.id);
-            showNotification(this.props.enqueueSnackbar, "Model has been added!", "info")
+            showNotification(this.props.enqueueSnackbar, this.props.closeSnackbar, "Model has been added!", "info")
         }
     }
 
@@ -234,7 +236,7 @@ class ValidationFramework extends React.Component {
                 testDetailOpen: true
             });
             updateHash("test_id." + currentTest.id);
-            showNotification(this.props.enqueueSnackbar, "Test has been added!", "info")
+            showNotification(this.props.enqueueSnackbar, this.props.closeSnackbar, "Test has been added!", "info")
         }
     }
 
@@ -278,10 +280,18 @@ class ValidationFramework extends React.Component {
                 this.setState({ loadingOpen: true });
                 if (key.startsWith("model")) {
                     // get a specific model
-                    this.getModel(key, value);
+                    if (key === "model_instance_id") {
+                        this.getModelFromInstance(value);
+                    } else {
+                        this.getModel(key, value);
+                    }                 
                 } else if (key.startsWith("test")) {
                     // get a specific test
-                    this.getTest(key, value);
+                    if (key === "test_instance_id") {
+                        this.getTestFromInstance(value);
+                    } else {
+                        this.getTest(key, value);
+                    }        
                 } else if (key === "result_id") {
                     // get a specific result
                     this.getResult(key, value);
@@ -375,6 +385,76 @@ class ValidationFramework extends React.Component {
             );
     };
 
+    getModelFromInstance(value) {
+        let url = baseUrl + "/models/query/instances/" + encodeURI(value);
+        console.log(url);
+        let config = {
+            cancelToken: this.signal.token,
+            headers: {
+                'Authorization': 'Bearer ' + this.props.auth.token,
+            }
+        }
+        // this.setState({loadingModel: true});
+        axios.get(url, config)
+            .then(res => {
+                url = baseUrl + "/models/" + encodeURI(res.data.model_id);
+                axios.get(url, config) 
+                    .then(m_res => {
+                        this.setState({
+                            currentModel: m_res.data,
+                            loadingOpen: false,
+                            errorGet: null,
+                            modelDetailOpen: true
+                        });
+                        updateHash('model_id.'+res.data.model_id);
+                    })
+                    .catch(err => {
+                        if (axios.isCancel(err)) {
+                            console.log('errorGet: ', err.message);
+                            this.setState({
+                                loadingOpen: false,
+                            });
+                        } else {
+                            // Something went wrong. Save the error in state and re-render.
+                            let error_message = "";
+                            try {
+                                error_message = err.response.data.detail;
+                            } catch {
+                                error_message = err
+                            }
+                            this.setState({
+                                loadingOpen: false,
+                                errorGet: error_message
+                            });
+                        }
+                        updateHash('');
+                    }
+                    );
+            })
+            .catch(err => {
+                if (axios.isCancel(err)) {
+                    console.log('errorGet: ', err.message);
+                    this.setState({
+                        loadingOpen: false,
+                    });
+                } else {
+                    // Something went wrong. Save the error in state and re-render.
+                    let error_message = "";
+                    try {
+                        error_message = err.response.data.detail;
+                    } catch {
+                        error_message = err
+                    }
+                    this.setState({
+                        loadingOpen: false,
+                        errorGet: error_message
+                    });
+                }
+                updateHash('');
+            }
+            );
+    };
+
     getTest(key, value) {
         let url = "";
         if (key === "test_id") {
@@ -397,6 +477,75 @@ class ValidationFramework extends React.Component {
                     errorGet: null,
                     testDetailOpen: true
                 });
+            })
+            .catch(err => {
+                if (axios.isCancel(err)) {
+                    console.log('errorGet: ', err.message);
+                    this.setState({
+                        loadingOpen: false,
+                    });
+                } else {
+                    // Something went wrong. Save the error in state and re-render.
+                    let error_message = "";
+                    try {
+                        error_message = err.response.data.detail;
+                    } catch {
+                        error_message = err
+                    }
+                    this.setState({
+                        loadingOpen: false,
+                        errorGet: error_message
+                    });
+                }
+                updateHash('');
+            }
+            );
+    };
+
+    getTestFromInstance(value) {
+        let url = baseUrl + "/tests/query/instances/" + encodeURI(value);
+        let config = {
+            cancelToken: this.signal.token,
+            headers: {
+                'Authorization': 'Bearer ' + this.props.auth.token,
+            }
+        }
+        // this.setState({loadingModel: true});
+        axios.get(url, config)
+            .then(res => {
+                url = baseUrl + "/tests/" + encodeURI(res.data.test_id);
+                axios.get(url, config) 
+                    .then(t_res => {
+                        this.setState({
+                            currentTest: t_res.data,
+                            loadingOpen: false,
+                            errorGet: null,
+                            testDetailOpen: true
+                        });
+                        updateHash('test_id.'+res.data.test_id);
+                    })
+                    .catch(err => {
+                        if (axios.isCancel(err)) {
+                            console.log('errorGet: ', err.message);
+                            this.setState({
+                                loadingOpen: false,
+                            });
+                        } else {
+                            // Something went wrong. Save the error in state and re-render.
+                            let error_message = "";
+                            try {
+                                error_message = err.response.data.detail;
+                            } catch {
+                                error_message = err
+                            }
+                            this.setState({
+                                loadingOpen: false,
+                                errorGet: error_message
+                            });
+                        }
+                        updateHash('');
+                    }
+                    );
             })
             .catch(err => {
                 if (axios.isCancel(err)) {
@@ -626,7 +775,7 @@ class ValidationFramework extends React.Component {
                 update_test_flag = true;
                 this.updateTests(testFilters);
             }
-            showNotification(this.props.enqueueSnackbar, "App config updated!", "success")
+            showNotification(this.props.enqueueSnackbar, this.props.closeSnackbar, "App config updated!", "success")
         }
         console.log(update_model_flag)
         console.log(update_test_flag)

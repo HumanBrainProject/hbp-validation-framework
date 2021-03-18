@@ -178,7 +178,7 @@ class TestDetail extends React.Component {
         console.log(compareTests);
         setCompareTests(compareTests);
         this.setState({ compareFlag: true })
-        showNotification(this.props.enqueueSnackbar, "Test added to compare!", "info")
+        showNotification(this.props.enqueueSnackbar, this.props.closeSnackbar, "Test added to compare!", "info")
     }
 
     removeTestCompare() {
@@ -193,7 +193,7 @@ class TestDetail extends React.Component {
         console.log(compareTests);
         setCompareTests(compareTests);
         this.setState({ compareFlag: false })
-        showNotification(this.props.enqueueSnackbar, "Test removed from compare!", "info")
+        showNotification(this.props.enqueueSnackbar, this.props.closeSnackbar, "Test removed from compare!", "info")
     }
 
     addTestInstanceCompare(test_inst_id) {
@@ -222,7 +222,7 @@ class TestDetail extends React.Component {
         this.setState({ compareFlag: this.checkCompareStatus() })
         console.log(compareTests);
         setCompareTests(compareTests);
-        showNotification(this.props.enqueueSnackbar, "Test instance added to compare!", "info")
+        showNotification(this.props.enqueueSnackbar, this.props.closeSnackbar, "Test instance added to compare!", "info")
     }
 
     removeTestInstanceCompare(test_inst_id) {
@@ -243,7 +243,7 @@ class TestDetail extends React.Component {
         console.log(compareTests);
         setCompareTests(compareTests);
         this.forceUpdate();
-        showNotification(this.props.enqueueSnackbar, "Test instance removed from compare!", "info")
+        showNotification(this.props.enqueueSnackbar, this.props.closeSnackbar, "Test instance removed from compare!", "info")
     }
 
     handleClose() {

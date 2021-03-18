@@ -317,42 +317,6 @@ class CompareMultiResults extends React.Component {
         this.state = {
             model_dict: context.compareModels[0],
             test_dict: context.compareTests[0],
-            // model_dict: {
-            //     "01da73a6-8715-431b-aaa7-efcd9358c786": {
-            //         "name": "CA1_pyr_cACpyr_mpg141208_B_idA_20190328144006",
-            //         "alias": null,
-            //         "selected_instances": {
-            //             "d6340679-9534-40ef-bd35-651be3ce0609": { "version": "1.0", "timestamp": "2019-06-18T15:15:18.595899+00:00" },
-            //             "5a9cd261-6018-48e0-a803-74dca89e88c6": { "version": "2.0", "timestamp": "2020-02-19T10:44:48.820740+00:00" }
-            //         }
-            //     },
-            //     "03e67e24-6df5-405a-8299-7d797ecee58b": {
-            //         "name": "CA1_pyr_cACpyr_mpg150305_A_idB_20190305112012",
-            //         "alias": null,
-            //         "selected_instances": {
-            //             "a21af2da-dedd-4f94-afe9-7564f76368b4": { "version": "1.0", "timestamp": "2019-06-18T15:15:28.260093+00:00" },
-            //             "cadba67c-06b2-4819-8f4d-43bcb501d7b8": { "version": "2.0", "timestamp": "2020-02-19T10:45:21.300875+00:00" }
-            //         }
-            //     }
-            // },
-            // test_dict: {
-            //     "dd0842c0-c016-42be-98a6-18d32c2e9a3b": {
-            //         "name": "Hippocampus_CA1_PSPAttenuationTest",
-            //         "alias": "hippo_ca1_psp_attenuation",
-            //         "selected_instances": {
-            //             "d20c56a6-b9ff-4fe5-a687-1a9e1a2c0489": { "version": "1.0", "timestamp": "2018-03-08T15:51:44.177419+00:00" },
-            //             "621d76cb-8591-4c8d-adff-c913899a6420": { "version": "1.3.5", "timestamp": "2020-05-29T13:07:58.738175+00:00" }
-            //         }
-            //     },
-            //     "100abccb-6d30-4c1e-a960-bc0489e0d82d": {
-            //         "name": "Hippocampus_SomaticFeaturesTest_CA1_pyr_cACpyr",
-            //         "alias": "hippo_somafeat_CA1_pyr_cACpyr",
-            //         "selected_instances": {
-            //             "1d22e1c0-5a74-49b4-b114-41d233d3250a": { "version": "1.0", "timestamp": "2019-03-28T12:54:19.318444+00:00" },
-            //             "b645536f-fd2c-4a84-9e3e-9372018fbe5d": { "version": "1.3.5", "timestamp": "2020-05-29T13:07:38.909226+00:00" }
-            //         }
-            //     }
-            // },
             model_inst_ids: [],
             test_inst_ids: [],
             results: [],
@@ -662,7 +626,7 @@ class CompareMultiResults extends React.Component {
         let test_dict = this.state.test_dict;
 
         // loop every model
-        Object.keys(model_dict).map(function (m_key, index) {
+        Object.keys(model_dict).forEach(function (m_key, index) {
             // console.log(m_key);
             // check if model exists in results
             if (!(m_key in results_grouped)) {
@@ -674,7 +638,7 @@ class CompareMultiResults extends React.Component {
                 };
             }
             // loop every model instance
-            Object.keys(model_dict[m_key].selected_instances).map(function (m_inst_key, index) {
+            Object.keys(model_dict[m_key].selected_instances).forEach(function (m_inst_key, index) {
                 // console.log(m_inst_key);
                 // check if model instance exists for this model in results
                 if (!(m_inst_key in results_grouped[m_key]["model_instances"])) {
@@ -686,7 +650,7 @@ class CompareMultiResults extends React.Component {
                     };
                 }
                 // loop every test
-                Object.keys(test_dict).map(function (t_key, index) {
+                Object.keys(test_dict).forEach(function (t_key, index) {
                     // console.log(t_key);
                     // check if test exists in results for this model instance
                     if (!(t_key in results_grouped[m_key]["model_instances"][m_inst_key]["tests"])) {
@@ -698,7 +662,7 @@ class CompareMultiResults extends React.Component {
                         };
                     }
                     // loop every test instance
-                    Object.keys(test_dict[t_key].selected_instances).map(function (t_inst_key, index) {
+                    Object.keys(test_dict[t_key].selected_instances).forEach(function (t_inst_key, index) {
                         // console.log(t_inst_key);
                         // check if test instance exists for this test in results
                         if (!(t_inst_key in results_grouped[m_key]["model_instances"][m_inst_key]["tests"][t_key]["test_instances"])) {
@@ -1142,10 +1106,23 @@ class CompareMultiResults extends React.Component {
     launchCompare() {
         let results = this.state.results;
         let required_results = [];
-
+        console.log(this.state.compareShow);
+        console.log(results);
         if (this.state.compareShow === "common_models") {
+            let test_inst_ids = [];
+            if (this.state.test_inst_ids.length === 0) {
+                results.forEach(function(item) {
+                    if (test_inst_ids.indexOf(item.test_instance_id) === -1) {
+                        test_inst_ids.push(item.test_instance_id);
+                    }
+                });
+            } else {
+                test_inst_ids = this.state.test_inst_ids;
+            }
+            console.log(test_inst_ids)
             // filter to get test instances that exist in results for every model instance
-            for (let t_inst_key of this.state.test_inst_ids) {
+            for (let t_inst_key of test_inst_ids) {
+                console.log(t_inst_key);
                 let t_inst_results = [];
                 let t_inst_for_m_inst = [];
                 results.forEach(function (result) {
@@ -1163,8 +1140,19 @@ class CompareMultiResults extends React.Component {
                 }
             }
         } else if (this.state.compareShow === "common_tests") {
+            let model_inst_ids = [];
+            if (this.state.model_inst_ids.length === 0) {
+                results.forEach(function(item) {
+                    if (model_inst_ids.indexOf(item.model_instance_id) === -1) {
+                        model_inst_ids.push(item.model_instance_id);
+                    }
+                });
+            } else {
+                model_inst_ids = this.state.model_inst_ids;
+            }
+            console.log(model_inst_ids)
             // filter to get model instances that exist in results for every test instance
-            for (let m_inst_key of this.state.model_inst_ids) {
+            for (let m_inst_key of model_inst_ids) {
                 console.log(m_inst_key);
                 let m_inst_results = [];
                 let m_inst_for_t_inst = [];
@@ -1339,8 +1327,8 @@ class CompareMultiResults extends React.Component {
         let model_dict = this.state.model_dict;
         let results = this.state.results;
 
-        Object.keys(model_dict).map(function (m_key) {
-            Object.keys(model_dict[m_key].selected_instances).map(function (m_inst_key) {
+        Object.keys(model_dict).forEach(function (m_key) {
+            Object.keys(model_dict[m_key].selected_instances).forEach(function (m_inst_key) {
                 delete model_dict[m_key].selected_instances[m_inst_key]
                 results = results.filter(function (result) { return result.model_instance.id !== m_inst_key; });
             })
@@ -1349,7 +1337,9 @@ class CompareMultiResults extends React.Component {
 
         this.setState({
             model_dict: model_dict,
-            results: results
+            results: results,
+            compareShow: false,
+            loadingResults: false
         })
         this.evalModelDict().then(() => {
             if (Object.keys(model_dict).length === 0) {
@@ -1362,8 +1352,8 @@ class CompareMultiResults extends React.Component {
         let test_dict = this.state.test_dict;
         let results = this.state.results;
 
-        Object.keys(test_dict).map(function (t_key) {
-            Object.keys(test_dict[t_key].selected_instances).map(function (t_inst_key) {
+        Object.keys(test_dict).forEach(function (t_key) {
+            Object.keys(test_dict[t_key].selected_instances).forEach(function (t_inst_key) {
                 delete test_dict[t_key].selected_instances[t_inst_key]
                 results = results.filter(function (result) { return result.test_instance.id !== t_inst_key; });
             })
@@ -1372,7 +1362,9 @@ class CompareMultiResults extends React.Component {
 
         this.setState({
             test_dict: test_dict,
-            results: results
+            results: results,
+            compareShow: false,
+            loadingResults: false
         })
         this.evalTestDict().then(() => {
             if (Object.keys(test_dict).length === 0) {
