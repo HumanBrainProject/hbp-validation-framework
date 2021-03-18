@@ -220,7 +220,7 @@ export default class ModelInstanceEditForm extends React.Component {
                         Cancel
           </Button>
                     <Button onClick={this.handleSubmit} color="primary">
-                        Edit Model Instance
+                        Save changes
           </Button>
                 </DialogActions>
             </Dialog>
