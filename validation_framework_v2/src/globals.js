@@ -19,7 +19,7 @@ export const filterTestKeys = [...new Set([...filterCommonKeys, ...filterTestOnl
 export const filterModelInstanceKeys = ["license"];
 export const filterTestInstanceKeys = [];
 export const displayValid = ["Only Models", "Models and Tests", "Only Tests"];
-export const queryValid = ["model_id", "model_alias", "test_id", "test_alias", "result_id"];
+export const queryValid = ["model_id", "model_alias", "model_instance_id", "test_id", "test_alias", "test_instance_id", "result_id"];
 export const ADMIN_PROJECT_ID = "model-validation";
 
 export const updateHash = (value) => {

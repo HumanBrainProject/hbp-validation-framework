@@ -626,7 +626,7 @@ class CompareMultiResults extends React.Component {
         let test_dict = this.state.test_dict;
 
         // loop every model
-        Object.keys(model_dict).map(function (m_key, index) {
+        Object.keys(model_dict).forEach(function (m_key, index) {
             // console.log(m_key);
             // check if model exists in results
             if (!(m_key in results_grouped)) {
@@ -638,7 +638,7 @@ class CompareMultiResults extends React.Component {
                 };
             }
             // loop every model instance
-            Object.keys(model_dict[m_key].selected_instances).map(function (m_inst_key, index) {
+            Object.keys(model_dict[m_key].selected_instances).forEach(function (m_inst_key, index) {
                 // console.log(m_inst_key);
                 // check if model instance exists for this model in results
                 if (!(m_inst_key in results_grouped[m_key]["model_instances"])) {
@@ -650,7 +650,7 @@ class CompareMultiResults extends React.Component {
                     };
                 }
                 // loop every test
-                Object.keys(test_dict).map(function (t_key, index) {
+                Object.keys(test_dict).forEach(function (t_key, index) {
                     // console.log(t_key);
                     // check if test exists in results for this model instance
                     if (!(t_key in results_grouped[m_key]["model_instances"][m_inst_key]["tests"])) {
@@ -662,7 +662,7 @@ class CompareMultiResults extends React.Component {
                         };
                     }
                     // loop every test instance
-                    Object.keys(test_dict[t_key].selected_instances).map(function (t_inst_key, index) {
+                    Object.keys(test_dict[t_key].selected_instances).forEach(function (t_inst_key, index) {
                         // console.log(t_inst_key);
                         // check if test instance exists for this test in results
                         if (!(t_inst_key in results_grouped[m_key]["model_instances"][m_inst_key]["tests"][t_key]["test_instances"])) {
@@ -1327,8 +1327,8 @@ class CompareMultiResults extends React.Component {
         let model_dict = this.state.model_dict;
         let results = this.state.results;
 
-        Object.keys(model_dict).map(function (m_key) {
-            Object.keys(model_dict[m_key].selected_instances).map(function (m_inst_key) {
+        Object.keys(model_dict).forEach(function (m_key) {
+            Object.keys(model_dict[m_key].selected_instances).forEach(function (m_inst_key) {
                 delete model_dict[m_key].selected_instances[m_inst_key]
                 results = results.filter(function (result) { return result.model_instance.id !== m_inst_key; });
             })
@@ -1352,8 +1352,8 @@ class CompareMultiResults extends React.Component {
         let test_dict = this.state.test_dict;
         let results = this.state.results;
 
-        Object.keys(test_dict).map(function (t_key) {
-            Object.keys(test_dict[t_key].selected_instances).map(function (t_inst_key) {
+        Object.keys(test_dict).forEach(function (t_key) {
+            Object.keys(test_dict[t_key].selected_instances).forEach(function (t_inst_key) {
                 delete test_dict[t_key].selected_instances[t_inst_key]
                 results = results.filter(function (result) { return result.test_instance.id !== t_inst_key; });
             })

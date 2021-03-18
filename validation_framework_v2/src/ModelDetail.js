@@ -297,7 +297,7 @@ class ModelDetail extends React.Component {
         axios.get(url, config)
             .then(res => {
                 res.data.forEach(proj => {
-                    if (((proj.project_id == model.project_id) || proj.project_id == ADMIN_PROJECT_ID) && (proj.permissions.UPDATE)) {
+                    if (((proj.project_id === model.project_id) || proj.project_id === ADMIN_PROJECT_ID) && (proj.permissions.UPDATE)) {
                         this.setState({
                             canEdit: true
                         });

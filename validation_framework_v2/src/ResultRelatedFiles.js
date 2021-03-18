@@ -60,14 +60,16 @@ class ResultFile extends React.Component {
             config["headers"] = {
                 'Authorization': 'Bearer ' + this.state.auth.token,
             }
-            const url_parts = this.state.url.match('.*\/lib\/(.*)\/file(\/.*)');
+            const url_parts = this.state.url.match('.*/lib/(.*)/file(/.*)');
             query_url = "https://drive.ebrains.eu/api2/repos/" + url_parts[1] + "/file/detail/?p=" + url_parts[2];
         } else {
             query_url = this.state.url
         }
         // Since Collaboratory v2 storage and CSCS storage gives CORS related issues,
         // we use an intermediate proxy server to resolve this
-        query_url = "https://cors-anywhere.herokuapp.com/" + query_url
+        // previously used https://cors-anywhere.herokuapp.com/ - but now has request limits
+        // other options: https://cors-fixer.herokuapp.com/, https://cors-handler.herokuapp.com/ 
+        query_url = "https://cors-clear.herokuapp.com/" + query_url
 
         axios.head(query_url, config)
             .then(res => {

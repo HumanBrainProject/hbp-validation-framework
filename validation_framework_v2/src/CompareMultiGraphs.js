@@ -127,12 +127,12 @@ function shortenLabelsUniquely(traces, type, pref_length) {
 
     // check if any labels too long (after removing prefix) 
     // if yes then find them
-    var labels = [];
+    labels = [];
     traces.forEach(function(entry) {
         labels = mergeUnique(labels, entry["x"][type]);
     });
     console.log(labels);
-    var labels_long = labels.filter(function(label) {
+    labels_long = labels.filter(function(label) {
         return label.length > pref_length;
     });
     console.log(labels_long);
@@ -147,7 +147,7 @@ function shortenLabelsUniquely(traces, type, pref_length) {
     
     function findSuffix(strings){
         if(!strings || strings.length === 0){
-            print("NULL")
+            console.log("NULL")
             return null;   
         }
         return reverse(findPrefix(strings.map(reverse)));
@@ -178,12 +178,12 @@ function shortenLabelsUniquely(traces, type, pref_length) {
 
     // check if any labels too long (after removing prefix and suffix) 
     // if yes then find them
-    var labels = [];
+    labels = [];
     traces.forEach(function(entry) {
         labels = mergeUnique(labels, entry["x"][type]);
     });
     console.log(labels);
-    var labels_long = labels.filter(function(label) {
+    labels_long = labels.filter(function(label) {
         return label.length > pref_length;
     });
     console.log(labels_long);
@@ -209,7 +209,7 @@ function shortenLabelsUniquely(traces, type, pref_length) {
 
     // acronym labels are fine only if all are distinct
     var labels_count_before = labels.length;
-    var labels = [];
+    labels = [];
     traces.forEach(function(entry) {
         labels = mergeUnique(labels, entry["x"][type]);
     });
@@ -224,7 +224,7 @@ function shortenLabelsUniquely(traces, type, pref_length) {
     }
 }
 
-function ResultsFiguresSummary_XaxisModels(props) {
+function ResultsFiguresSummaryXaxisModels(props) {
     console.log(props.dict_results);
     let dict_results = props.dict_results;
 
@@ -232,7 +232,6 @@ function ResultsFiguresSummary_XaxisModels(props) {
     var traces = [];
     var layout = {};
     var label_resultJSON_map = {};
-    var customdata = [];
 
     // a separate trace for each test instance
     for (let test_id in dict_results) {
@@ -326,7 +325,7 @@ function ResultsFiguresSummary_XaxisModels(props) {
     )
 }
 
-function ResultsFiguresSummary_XaxisTests(props) {
+function ResultsFiguresSummaryXaxisTests(props) {
     console.log(props.dict_results);
     let dict_results = props.dict_results;
 
@@ -334,7 +333,6 @@ function ResultsFiguresSummary_XaxisTests(props) {
     var traces = [];
     var layout = {};
     var label_resultJSON_map = {};
-    var customdata = [];
 
     // a separate trace for each model instance
     for (let model_id in dict_results) {
@@ -816,12 +814,12 @@ export default class CompareMultiGraphs extends React.Component {
                         {
                             this.state.summary_xaxis_models
                                 ?
-                                <ResultsFiguresSummary_XaxisModels
+                                <ResultsFiguresSummaryXaxisModels
                                     dict_results={dict_results}
                                     handleResultEntryClick={this.handleResultEntryClick}
                                 />
                                 :
-                                <ResultsFiguresSummary_XaxisTests
+                                <ResultsFiguresSummaryXaxisTests
                                     dict_results={dict_results}
                                     handleResultEntryClick={this.handleResultEntryClick}
                                 />
