@@ -22,6 +22,11 @@ export const displayValid = ["Only Models", "Models and Tests", "Only Tests"];
 export const queryValid = ["model_id", "model_alias", "model_instance_id", "test_id", "test_alias", "test_instance_id", "result_id"];
 export const ADMIN_PROJECT_ID = "model-validation";
 
+// To access ModelDB APIs; doesn't work with localhost during development
+export const corsProxy = "https://corsproxy-sa.herokuapp.com/";
+// previously used https://cors-anywhere.herokuapp.com/ - but now has request limits
+// other options: https://cors-clear.herokuapp.com/, https://cors-fixer.herokuapp.com/, https://cors-handler.herokuapp.com/
+
 export const updateHash = (value) => {
 	window.location.hash = value;
 	if (isFramedApp) {
