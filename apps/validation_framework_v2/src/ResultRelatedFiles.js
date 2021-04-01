@@ -12,6 +12,7 @@ import Theme from './theme';
 import ContextMain from './ContextMain';
 import { copyToClipboard } from './utils';
 import { withSnackbar } from 'notistack';
+import { corsProxy } from "./globals";
 
 var filesize = require("filesize");
 
@@ -67,9 +68,7 @@ class ResultFile extends React.Component {
         }
         // Since Collaboratory v2 storage and CSCS storage gives CORS related issues,
         // we use an intermediate proxy server to resolve this
-        // previously used https://cors-anywhere.herokuapp.com/ - but now has request limits
-        // other options: https://cors-fixer.herokuapp.com/, https://cors-handler.herokuapp.com/ 
-        query_url = "https://cors-clear.herokuapp.com/" + query_url
+        query_url = corsProxy + query_url;
 
         axios.head(query_url, config)
             .then(res => {

@@ -19,8 +19,6 @@ import LoadingIndicator from "./LoadingIndicator";
 import ResultDetail from './ResultDetail';
 import Theme from './theme';
 
-
-
 function ResultsFiguresTestIntance(props) {
     const Plot = createPlotlyComponent(Plotly);
     var traces = [];
