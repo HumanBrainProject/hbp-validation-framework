@@ -86,6 +86,23 @@ async def get_live_paper(lp_id: UUID, token: HTTPAuthorizationCredentials = Depe
     return obj
 
 
+@router.get("/livepapers-published/{lp_id}", response_model=LivePaper)
+async def get_live_paper(lp_id: UUID):
+    lp = fairgraph.livepapers.LivePaper.from_uuid(str(lp_id), kg_client, api="query", scope="latest")
+    # too: change this to scope="released" once we're ready
+    if lp:
+        try:
+            obj = LivePaper.from_kg_object(lp, kg_client)
+        except ConsistencyError as err:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(err))
+    else:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Live Paper {lp_id} not found.",
+        )
+    return obj
+
+
 @router.post("/livepapers/", response_model=LivePaperSummary, status_code=status.HTTP_201_CREATED)
 async def create_live_paper(
     live_paper: LivePaper,
