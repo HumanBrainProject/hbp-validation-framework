@@ -1345,7 +1345,7 @@ class LivePaper(BaseModel):
             citation=lp.citation,
             doi=lp.doi,
             abstract=lp.abstract,
-            license=lp.license.get("label", None),
+            license=getattr(lp.license, "label", None),
             collab_id=lp.collab_id,
             resources_description=lp.description,
             resources=[LivePaperSection.from_kg_object(sec, kg_client)
