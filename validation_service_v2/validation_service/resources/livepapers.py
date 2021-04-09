@@ -50,6 +50,16 @@ async def query_live_papers(
     ]
 
 
+@router.get("/livepapers-published/", response_model=List[LivePaperSummary])
+async def query_released_live_papers():
+    lps = fairgraph.livepapers.LivePaper.list(kg_client, api="query", scope="latest", size=1000)
+    # to do: change "latest" to "release" once we're out of testing
+    return [
+        LivePaperSummary.from_kg_object(lp)
+        for lp in as_list(lps)
+    ]
+
+
 @router.get("/livepapers/{lp_id}", response_model=LivePaper)
 async def get_live_paper(lp_id: UUID, token: HTTPAuthorizationCredentials = Depends(auth)):
     lp = fairgraph.livepapers.LivePaper.from_uuid(str(lp_id), kg_client, api="nexus")
