@@ -284,14 +284,14 @@ class ValidationFramework extends React.Component {
                         this.getModelFromInstance(value);
                     } else {
                         this.getModel(key, value);
-                    }                 
+                    }
                 } else if (key.startsWith("test")) {
                     // get a specific test
                     if (key === "test_instance_id") {
                         this.getTestFromInstance(value);
                     } else {
                         this.getTest(key, value);
-                    }        
+                    }
                 } else if (key === "result_id") {
                     // get a specific result
                     this.getResult(key, value);
@@ -398,7 +398,7 @@ class ValidationFramework extends React.Component {
         axios.get(url, config)
             .then(res => {
                 url = baseUrl + "/models/" + encodeURI(res.data.model_id);
-                axios.get(url, config) 
+                axios.get(url, config)
                     .then(m_res => {
                         this.setState({
                             currentModel: m_res.data,
@@ -514,7 +514,7 @@ class ValidationFramework extends React.Component {
         axios.get(url, config)
             .then(res => {
                 url = baseUrl + "/tests/" + encodeURI(res.data.test_id);
-                axios.get(url, config) 
+                axios.get(url, config)
                     .then(t_res => {
                         this.setState({
                             currentTest: t_res.data,
@@ -613,7 +613,7 @@ class ValidationFramework extends React.Component {
     };
 
     updateModels(filters) {
-        if (filtersEmpty(filters) && isFramedApp) { // TODO: remove `isFramedApp` to avoid auto load of all entries on entry page-
+        if (filtersEmpty(filters)) {
             this.setState({
                 modelData: [],
                 loadingModel: false,
@@ -655,7 +655,7 @@ class ValidationFramework extends React.Component {
     };
 
     updateTests(filters) {
-        if (filtersEmpty(filters) && isFramedApp) { // TODO: remove `isFramedApp` to avoid auto load of all entries on entry page
+        if (filtersEmpty(filters)) {
             this.setState({
                 testData: [],
                 loadingTest: false,
@@ -899,7 +899,7 @@ class ValidationFramework extends React.Component {
         if (this.state.errorUpdate) {
             return <ErrorDialog open={Boolean(this.state.errorUpdate)} handleErrorDialogClose={this.handleErrorUpdateDialogClose} error={this.state.errorUpdate.message || this.state.errorUpdate} />
         }
-        if (filtersEmpty(this.state.filters) && isFramedApp) { // TODO: remove `isFramedApp` to avoid auto load of all entries on entry page
+        if (filtersEmpty(this.state.filters)) {
             configContent = "";
             mainContent = <Introduction />;
         } else {
