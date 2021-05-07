@@ -10,9 +10,6 @@ const defaultToolbarStyles = {
 };
 
 class CustomToolbar extends React.Component {
-	changeTableWidth = () => {
-		console.log("clicked on icon!");
-	};
 
 	render() {
 		if (this.props.display === "Models and Tests") {

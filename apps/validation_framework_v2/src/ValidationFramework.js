@@ -142,7 +142,41 @@ class ValidationFramework extends React.Component {
             'validFilterValues': this.retrieveFilterValidValues(),
             'display': retrieveDisplay(),
             'modelsTableWide': false,
-            'testsTableWide': false
+            'testsTableWide': false,
+            'modelsTableColumns': [
+                { name: 'ID', options: { display: false } },
+                { name: 'Name', options: { display: true } },
+                { name: 'Alias', options: { display: false } },
+                { name: 'Author', options: { display: true } },
+                { name: 'Visibility', options: { display: false } },
+                { name: 'Project ID', options: { display: false } },
+                { name: 'Species', options: { display: false } },
+                { name: 'Brain region', options: { display: false } },
+                { name: 'Cell type', options: { display: false } },
+                { name: 'Model scope', options: { display: false } },
+                { name: 'Abstraction level', options: { display: false } },
+                { name: 'Owner', options: { display: false } },
+                { name: 'Organization', options: { display: false } },
+                { name: 'Created Date', options: { display: false } },
+                { name: 'jsonObject', options: { display: false, viewColumns: false, filter: false } }
+            ],
+            'testsTableColumns': [
+                { name: 'ID', options: { display: false } },
+                { name: 'Name', options: { display: true } },
+                { name: 'Alias', options: { display: false } },
+                { name: 'Author', options: { display: true } },
+                { name: 'Status', options: { display: false } },
+                { name: 'Species', options: { display: false } },
+                { name: 'Brain region', options: { display: false } },
+                { name: 'Cell type', options: { display: false } },
+                { name: 'Test type', options: { display: false } },
+                { name: 'Score type', options: { display: false } },
+                { name: 'Data type', options: { display: false } },
+                { name: 'Data modality', options: { display: false } },
+                { name: 'Data location', options: { display: false } },
+                { name: 'Created date', options: { display: false } },
+                { name: 'jsonObject', options: { display: false, viewColumns: false, filter: false } }
+            ]
         };
         if (DevMode) {
             this.state['modelData'] = sample_model_data.models
@@ -174,6 +208,7 @@ class ValidationFramework extends React.Component {
         this.openAddTestForm = this.openAddTestForm.bind(this);
         this.handleAddModelFormClose = this.handleAddModelFormClose.bind(this);
         this.handleAddTestFormClose = this.handleAddTestFormClose.bind(this);
+        this.handleColumnsChange = this.handleColumnsChange.bind(this);
     }
 
     modelTableFullWidth() {
@@ -186,6 +221,17 @@ class ValidationFramework extends React.Component {
         this.setState({
             testsTableWide: !this.state.testsTableWide
         });
+    }
+
+    handleColumnsChange(key, columnName, action) {
+        console.log(`Changed column ${columnName} in table ${key}: ${action}`);
+        let newColumns = [... this.state[key]];
+        newColumns.forEach((col) => {
+            if (col.name === columnName) {
+                col.options.display = (action === 'add');
+            }
+        });
+        this.setState({key: newColumns})
     }
 
     openCompareResults() {
@@ -830,7 +876,16 @@ class ValidationFramework extends React.Component {
                     <br /><br />
                 </Paper>
                 :
-                <ModelTable modelData={this.state.modelData} display={this.state.display} changeTableWidth={this.modelTableFullWidth} openCompareResults={this.openCompareResults} openAddModelForm={this.openAddModelForm} handleRowClick={this.handleModelRowClick} />
+                <ModelTable
+                    modelData={this.state.modelData}
+                    display={this.state.display}
+                    changeTableWidth={this.modelTableFullWidth}
+                    openCompareResults={this.openCompareResults}
+                    openAddModelForm={this.openAddModelForm}
+                    handleRowClick={this.handleModelRowClick}
+                    columns={this.state.modelsTableColumns}
+                    onColumnsChange={(columnName, action) => this.handleColumnsChange('modelsTableColumns', columnName, action)}
+                />
             }
         </React.Fragment>
 
@@ -843,7 +898,15 @@ class ValidationFramework extends React.Component {
                     <br /><br />
                 </Paper>
                 :
-                <TestTable testData={this.state.testData} display={this.state.display} changeTableWidth={this.testTableFullWidth} openCompareResults={this.openCompareResults} openAddTestForm={this.openAddTestForm} handleRowClick={this.handleTestRowClick} />
+                <TestTable
+                    testData={this.state.testData} display={this.state.display}
+                    changeTableWidth={this.testTableFullWidth}
+                    openCompareResults={this.openCompareResults}
+                    openAddTestForm={this.openAddTestForm}
+                    handleRowClick={this.handleTestRowClick}
+                    columns={this.state.testsTableColumns}
+                    onColumnsChange={(columnName, action) => this.handleColumnsChange('testsTableColumns', columnName, action)}
+                />
             }
         </React.Fragment>
 

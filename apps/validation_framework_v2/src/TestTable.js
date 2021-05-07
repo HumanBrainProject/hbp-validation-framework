@@ -173,23 +173,7 @@ class TestTable extends React.Component {
                 <MuiThemeProvider theme={this.getMuiTheme()}>
                     <MUIDataTable
                         title="Tests"
-                        columns={[{ name: 'ID', options: { display: false } },
-                        { name: 'Name', options: { display: true } },
-                        { name: 'Alias', options: { display: false } },
-                        { name: 'Author', options: { display: true } },
-                        { name: 'Status', options: { display: false } },
-                        { name: 'Species', options: { display: false } },
-                        { name: 'Brain region', options: { display: false } },
-                        { name: 'Cell type', options: { display: false } },
-                        { name: 'Test type', options: { display: false } },
-                        { name: 'Score type', options: { display: false } },
-                        { name: 'Data type', options: { display: false } },
-                        { name: 'Data modality', options: { display: false } },
-                        { name: 'Data location', options: { display: false } },
-                        { name: 'Created date', options: { display: false } },
-                        { name: 'jsonObject', options: { display: false, viewColumns: false, filter: false } }
-                        ]
-                        }
+                        columns={this.props.columns}
                         data={this.state.data.map(item => {
                             return [
                                 item.id,
@@ -215,6 +199,7 @@ class TestTable extends React.Component {
                             rowsPerPage: 20,
                             rowsPerPageOptions: [10, 20, 100],
                             onRowClick: this.props.handleRowClick,
+                            onColumnViewChange: this.props.onColumnsChange,  // name changed to "onViewColumnsChange" in recent versions of mui-datatables
                             responsive: 'stacked', // 'scrollMaxHeight', 'scrollFullHeight', 'scrollFullHeightFullWidth', 'stackedFullWidth'
                             downloadOptions: { filename: 'selectedTests.csv', separator: ',', filterOptions: { useDisplayedRowsOnly: true } },
                             customToolbar: () => {
