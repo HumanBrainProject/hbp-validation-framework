@@ -26,11 +26,10 @@ function configureApp() {
 describe('The Model Catalog Homepage', () => {
 
     beforeEach(() => {
-        const password = Cypress.env('PASSWORD');
-
         cy.visit('/')
         cy.url().then((url) => {
             if (url.startsWith("https://iam.ebrains.eu/")) {
+                const password = Cypress.env('PASSWORD');
                 cy.get('input[name=username]').type("adavisontesting")
                 cy.get('input[name=password]').type(`${password}{enter}`)
             }
@@ -39,7 +38,7 @@ describe('The Model Catalog Homepage', () => {
 
     it('Shows a link the documentation if no filters are set', () => {
       cy.contains('More information').click()
-      cy.url().should('equal', 'https://model-catalog.brainsimulation.eu/docs/')
+      cy.url().should('equal', 'https://model-catalog.brainsimulation.eu/doc/')
     })
 
     it('Can be configured', configureApp)

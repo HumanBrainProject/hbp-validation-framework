@@ -1,4 +1,5 @@
 {
-    "baseUrl": "https://model-catalog.brainsimulation.eu",
-    "chromeWebSecurity": false
+    "baseUrl": "https://localhost:3000",
+    "chromeWebSecurity": false,
+    "watchForFileChanges": false
 }
