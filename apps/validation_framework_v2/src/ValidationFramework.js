@@ -28,7 +28,7 @@ import ConfigDisplayTop from "./ConfigDisplaySimple"
 import LoadingIndicator from "./LoadingIndicator"
 import ResultDetail from './ResultDetail';
 import ErrorDialog from './ErrorDialog';
-import { DevMode, baseUrl, collaboratoryOrigin, updateSettingsTopic, isFramedApp, settingsDelimiter, filterKeys, filterModelKeys, filterTestKeys, displayValid, queryValid, updateHash } from "./globals";
+import { DevMode, collaboratoryOrigin, updateSettingsTopic, isFramedApp, settingsDelimiter, filterKeys, filterModelKeys, filterTestKeys, displayValid, queryValid, updateHash } from "./globals";
 import { isUUID, showNotification } from './utils'
 import ContextMain from './ContextMain';
 import Theme from './theme';
@@ -132,7 +132,6 @@ class ValidationFramework extends React.Component {
             'errorUpdate': null,
             'errorGet': null,
             'filters': retrieveFilters(context),
-            'validFilterValues': this.retrieveFilterValidValues(),
             'display': retrieveDisplay(),
             'modelsTableWide': false,
             'testsTableWide': false
@@ -143,7 +142,6 @@ class ValidationFramework extends React.Component {
             this.state['loadingModel'] = false
             this.state['loadingTest'] = false
         }
-        this.retrieveFilterValidValues = this.retrieveFilterValidValues(this);
         this.handleModelDetailClose = this.handleModelDetailClose.bind(this);
         this.handleTestDetailClose = this.handleTestDetailClose.bind(this);
         this.handleResultDetailClose = this.handleResultDetailClose.bind(this);
@@ -167,6 +165,12 @@ class ValidationFramework extends React.Component {
         this.openAddTestForm = this.openAddTestForm.bind(this);
         this.handleAddModelFormClose = this.handleAddModelFormClose.bind(this);
         this.handleAddTestFormClose = this.handleAddTestFormClose.bind(this);
+        this.updateCurrentModel= this.updateCurrentModel.bind(this);
+        this.handleAddModelInstance = this.handleAddModelInstance.bind(this);
+        this.handleEditModelInstance = this.handleEditModelInstance.bind(this);
+        this.updateCurrentTest= this.updateCurrentTest.bind(this);
+        this.handleAddTestInstance = this.handleAddTestInstance.bind(this);
+        this.handleEditTestInstance = this.handleEditTestInstance.bind(this);
     }
 
     modelTableFullWidth() {
@@ -206,13 +210,45 @@ class ValidationFramework extends React.Component {
             console.log(this.state.modelData)
             models.unshift(currentModel);
             this.setState({
-                data: models,
+                modelData: models,
                 currentModel: currentModel,
                 modelDetailOpen: true
             });
             updateHash("model_id." + currentModel.id);
             showNotification(this.props.enqueueSnackbar, this.props.closeSnackbar, "Model has been added!", "info")
         }
+    }
+
+    updateCurrentModel(updatedModel) {
+        let updatedModelData = [...this.state.modelData];
+        for (let i = 0; i < updatedModelData.length; i++) {
+            if (updatedModelData[i].id === updatedModel.id) {
+                updatedModelData[i] = updatedModel;
+                break;
+            }
+        }
+        console.log("Updated current model");
+        console.log(updatedModel);
+        this.setState({
+            modelData: updatedModelData,
+            currentModel: updatedModel
+        });
+    }
+
+    handleAddModelInstance(newModelInstance) {
+        let updatedCurrentModel = this.state.currentModel; // need to copy?
+        updatedCurrentModel.instances.push(newModelInstance);
+        this.updateCurrentModel(updatedCurrentModel);
+    }
+
+    handleEditModelInstance(updatedModelInstance) {
+        let updatedCurrentModel = this.state.currentModel;
+        for (let i = 0; i < updatedCurrentModel.instances.length; i++) {
+            if (updatedCurrentModel.instances[i].id === updatedModelInstance.id) {
+                updatedCurrentModel.instances[i] = updatedModelInstance;
+            }
+        }
+        this.updateCurrentModel(updatedCurrentModel);
     }
 
     handleAddTestFormClose(currentTest) {
@@ -224,13 +260,45 @@ class ValidationFramework extends React.Component {
             console.log(this.state.testData)
             tests.unshift(currentTest);
             this.setState({
-                data: tests,
+                testData: tests,
                 currentTest: currentTest,
                 testDetailOpen: true
             });
             updateHash("test_id." + currentTest.id);
             showNotification(this.props.enqueueSnackbar, this.props.closeSnackbar, "Test has been added!", "info")
         }
+    }
+
+    updateCurrentTest(updatedTest) {
+        let updatedTestData = [...this.state.testData];
+        for (let i = 0; i < updatedTestData.length; i++) {
+            if (updatedTestData[i].id === updatedTest.id) {
+                updatedTestData[i] = updatedTest;
+                break;
+            }
+        }
+        console.log("Updated current test");
+        console.log(updatedTest);
+        this.setState({
+            testData: updatedTestData,
+            currentTest: updatedTest
+        });
+    }
+
+    handleAddTestInstance(newTestInstance) {
+        let updatedCurrentTest = this.state.currentTest; // need to copy?
+        updatedCurrentTest.instances.push(newTestInstance);
+        this.updateCurrentTest(updatedCurrentTest);
+    }
+
+    handleEditTestInstance(updatedTestInstance) {
+        let updatedCurrentTest = this.state.currentTest;
+        for (let i = 0; i < updatedCurrentTest.instances.length; i++) {
+            if (updatedCurrentTest.instances[i].id === updatedTestInstance.id) {
+                updatedCurrentTest.instances[i] = updatedTestInstance;
+            }
+        }
+        this.updateCurrentTest(updatedCurrentTest);
     }
 
     componentDidMount() {
@@ -242,6 +310,24 @@ class ValidationFramework extends React.Component {
         setAuthContext(this.props.auth)
         // console.log("Here: ", authContext);
         // console.log("Here: ", setAuthContext);
+
+        datastore.getValidFilterValues()
+            .then(vocab => {
+                console.log("Retrieved valid filter values");
+                const [, setContextValidFilterValues] = this.context.validFilterValues;
+                setContextValidFilterValues(vocab);
+            })
+            .catch(err => {
+                if (axios.isCancel(err)) {
+                    console.log('Error: ', err.message);
+                } else {
+                    // Something went wrong. Save the error in state and re-render.
+                    this.setState({
+                        error: err
+                    });
+                }
+            }
+        );
 
         this.props.auth.loadUserInfo()
             .success(() => {
@@ -305,28 +391,6 @@ class ValidationFramework extends React.Component {
         this.signal.cancel('REST API call canceled!');
     }
 
-    retrieveFilterValidValues() {
-        return datastore.getValidFilterValues()
-            .then(res => {
-                this.setState({
-                    validFilterValues: res.data
-                });
-                const [, setContextValidFilterValues] = this.context.validFilterValues;
-                setContextValidFilterValues(res.data);
-            })
-            .catch(err => {
-                if (axios.isCancel(err)) {
-                    console.log('Error: ', err.message);
-                } else {
-                    // Something went wrong. Save the error in state and re-render.
-                    this.setState({
-                        error: err
-                    });
-                }
-            }
-            );
-    }
-
     getModel(key, value) {
         let identifier = "";
         if (key === "model_id") {
@@ -335,9 +399,9 @@ class ValidationFramework extends React.Component {
             identifier = encodeURI(value);
         }
         datastore.getModel(identifier, this.signal)
-            .then(res => {
+            .then(model => {
                 this.setState({
-                    currentModel: res.data,
+                    currentModel: model,
                     loadingOpen: false,
                     errorGet: null,
                     modelDetailOpen: true
@@ -371,14 +435,14 @@ class ValidationFramework extends React.Component {
         datastore.getModelInstanceFromID(value, this.signal)
             .then(res => {
                 datastore.getModel(encodeURI(res.data.model_id), this.signal)
-                    .then(m_res => {
+                    .then(model => {
                         this.setState({
-                            currentModel: m_res.data,
+                            currentModel: model,
                             loadingOpen: false,
                             errorGet: null,
                             modelDetailOpen: true
                         });
-                        updateHash('model_id.'+res.data.model_id);
+                        updateHash('model_id.' + model.id);
                     })
                     .catch(err => {
                         if (axios.isCancel(err)) {
@@ -435,9 +499,9 @@ class ValidationFramework extends React.Component {
             identifier = encodeURI(value);
         }
         datastore.getTest(identifier, this.signal)
-            .then(res => {
+            .then(test => {
                 this.setState({
-                    currentTest: res.data,
+                    currentTest: test,
                     loadingOpen: false,
                     errorGet: null,
                     testDetailOpen: true
@@ -471,14 +535,14 @@ class ValidationFramework extends React.Component {
         datastore.getTestInstanceFromID(encodeURI(value), this.signal)
             .then(res => {
                 datastore.getTest(encodeURI(res.data.test_id), this.signal)
-                    .then(t_res => {
+                    .then(test => {
                         this.setState({
-                            currentTest: t_res.data,
+                            currentTest: test,
                             loadingOpen: false,
                             errorGet: null,
                             testDetailOpen: true
                         });
-                        updateHash('test_id.'+res.data.test_id);
+                        updateHash('test_id.'+test.id);
                     })
                     .catch(err => {
                         if (axios.isCancel(err)) {
@@ -529,9 +593,9 @@ class ValidationFramework extends React.Component {
 
     getResult(key, value) {
         return datastore.getResult(value, this.signal)
-            .then(res => {
+            .then(result => {
                 this.setState({
-                    currentResult: res.data,
+                    currentResult: result,
                     loadingOpen: false,
                     errorGet: null,
                     resultDetailOpen: true
@@ -571,8 +635,7 @@ class ValidationFramework extends React.Component {
         } else {
             this.setState({ loadingModel: true });
             datastore.queryModels(filters, this.signal)
-                .then(res => {
-                    const models = res.data;
+                .then(models => {
                     console.log(models);
                     this.setState({
                         modelData: models,
@@ -605,8 +668,7 @@ class ValidationFramework extends React.Component {
         } else {
             this.setState({ loadingTest: true });
             datastore.queryTests(filters, this.signal)
-                .then(res => {
-                    const tests = res.data;
+                .then(tests => {
                     console.log(tests);
                     this.setState({
                         testData: tests,
@@ -763,7 +825,14 @@ class ValidationFramework extends React.Component {
                     <br /><br />
                 </Paper>
                 :
-                <ModelTable modelData={this.state.modelData} display={this.state.display} changeTableWidth={this.modelTableFullWidth} openCompareResults={this.openCompareResults} openAddModelForm={this.openAddModelForm} handleRowClick={this.handleModelRowClick} />
+                <ModelTable
+                    modelData={this.state.modelData}
+                    display={this.state.display}
+                    changeTableWidth={this.modelTableFullWidth}
+                    openCompareResults={this.openCompareResults}
+                    openAddModelForm={this.openAddModelForm}
+                    handleRowClick={this.handleModelRowClick}
+                />
             }
         </React.Fragment>
 
@@ -820,9 +889,6 @@ class ValidationFramework extends React.Component {
         var addModel = "";
         var addTest = "";
 
-        // const [ contaxtValidFilterValues, setContaxtValidFilterValues ] = this.context.validFilterValues;
-        // console.log(contaxtValidFilterValues)
-
         if (this.state.loadingOpen) {
             return this.renderLoading();
         }
@@ -841,11 +907,23 @@ class ValidationFramework extends React.Component {
         }
 
         if (this.state.currentModel) {// && this.state.display!=="Only Tests") {
-            modelDetail = <ModelDetail open={this.state.modelDetailOpen} modelData={this.state.currentModel} onClose={this.handleModelDetailClose} auth={this.props.auth} />;
+            modelDetail = <ModelDetail open={this.state.modelDetailOpen}
+                                       modelData={this.state.currentModel}
+                                       onClose={this.handleModelDetailClose}
+                                       auth={this.props.auth}
+                                       updateCurrentModelData={this.updateCurrentModel}
+                                       onAddModelInstance={this.handleAddModelInstance}
+                                       onEditModelInstance={this.handleEditModelInstance} />;
         }
 
         if (this.state.currentTest) {// && this.state.display!=="Only Models") {
-            testDetail = <TestDetail open={this.state.testDetailOpen} testData={this.state.currentTest} onClose={this.handleTestDetailClose} auth={this.props.auth} />;
+            testDetail = <TestDetail open={this.state.testDetailOpen}
+                                     testData={this.state.currentTest}
+                                     onClose={this.handleTestDetailClose}
+                                     auth={this.props.auth}
+                                     updateCurrentTestData={this.updateCurrentTest}
+                                     onAddTestInstance={this.handleAddTestInstance}
+                                     onEditTestInstance={this.handleEditTestInstance} />;
         }
 
         if (this.state.currentResult) {
@@ -886,7 +964,11 @@ class ValidationFramework extends React.Component {
                     </Grid>
                     <br />
 
-                    <ConfigForm open={this.state.configOpen} onClose={this.handleConfigClose} config={this.state.filters} validFilterValues={this.state.validFilterValues} display={this.state.display} />
+                    <ConfigForm
+                        open={this.state.configOpen}
+                        onClose={this.handleConfigClose}
+                        config={this.state.filters}
+                        display={this.state.display} />
                     <div>
                         {modelDetail}
                     </div>

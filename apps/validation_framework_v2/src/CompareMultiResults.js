@@ -393,12 +393,12 @@ class CompareMultiResults extends React.Component {
 
     fetchModelResults() {
         return datastore.getResultsByModelInstances(this.state.model_inst_ids)
-            .then(res => {
+            .then(results => {
                 this.setState({
                     loadingResults: false,
                 });
-                console.log(res);
-                return res.data;
+                console.log(results);
+                return results;
             })
             .catch(err => {
                 if (axios.isCancel(err)) {
@@ -416,12 +416,12 @@ class CompareMultiResults extends React.Component {
 
     fetchTestResults() {
         return datastore.getResultsByTestInstance(this.state.test_inst_ids, this.signal)
-            .then(res => {
+            .then(results => {
                 this.setState({
                     loadingResults: false,
                 });
-                console.log(res);
-                return res.data;
+                console.log(results);
+                return results;
             })
             .catch(err => {
                 if (axios.isCancel(err)) {

@@ -1,4 +1,5 @@
 import React from 'react'
+import { filterKeys } from './globals';
 
 const ContextMain = React.createContext()
 
@@ -6,7 +7,7 @@ const ContextMainProvider = props => {
     // Context state
     const [auth, setAuth] = React.useState({});
     const [filters, setFilters] = React.useState({});
-    const [validFilterValues, setValidFilterValues] = React.useState({});
+    const [validFilterValues, setValidFilterValues] = React.useState(null);
     const [compareModels, setCompareModels] = React.useState({});
     const [compareTests, setCompareTests] = React.useState({});
 

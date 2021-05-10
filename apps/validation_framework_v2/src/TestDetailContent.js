@@ -10,6 +10,7 @@ import { withSnackbar } from 'notistack';
 import React from 'react';
 import ContextMain from './ContextMain';
 import ErrorDialog from './ErrorDialog';
+import LoadingIndicator from './LoadingIndicator';
 import Markdown from './Markdown';
 import TestInstanceAddForm from './TestInstanceAddForm';
 import TestInstanceEditForm from './TestInstanceEditForm';
@@ -61,7 +62,6 @@ class TestDetailContent extends React.Component {
         this.state = {
             openAddInstanceForm: false,
             openEditInstanceForm: false,
-            instances: this.props.instances,
             instancesWithResults: this.props.results ? [...new Set(this.props.results.map(a => a.test_instance_id))] : null,
             currentInstance: null,
             errorEditTestInstance: null
@@ -88,11 +88,7 @@ class TestDetailContent extends React.Component {
         console.log(newTestInstance)
         this.setState({ 'openAddInstanceForm': false });
         if (newTestInstance) {
-            let instances = this.state.instances;
-            instances.push(newTestInstance)
-            this.setState({
-                instances: instances,
-            });
+            this.props.onAddTestInstance(newTestInstance);
             showNotification(this.props.enqueueSnackbar, this.props.closeSnackbar, "Test instance added!", "success")
         }
     }
@@ -102,10 +98,7 @@ class TestDetailContent extends React.Component {
         console.log(testInstance)
         this.setState({ 'openEditInstanceForm': false });
         if (testInstance) {
-            let instances = this.state.instances;
-            this.setState({
-                instances: instances.map(obj => [testInstance].find(o => o.id === obj.id) || obj)
-            });
+            this.props.onEditTestInstance(testInstance);
             showNotification(this.props.enqueueSnackbar, this.props.closeSnackbar, "Test instance edited!", "success")
         }
     }
@@ -162,6 +155,18 @@ class TestDetailContent extends React.Component {
             />
         }
 
+        let noInstances = "";
+        if (this.props.loading) {
+            noInstances = <LoadingIndicator />
+        } else {
+            noInstances = (
+                <Typography variant="h6">
+                    <br />
+                    No test instances have yet been registered for this test!
+                </Typography>
+            )
+        }
+
         return (
             <React.Fragment>
                 {console.log(this.state.instancesWithResults)}
@@ -186,18 +191,15 @@ class TestDetailContent extends React.Component {
                             <Grid container item justify="flex-end" xs={6}>
                                 <Button variant="contained" style={{ backgroundColor: Theme.buttonPrimary }} onClick={() => this.setState({ openAddInstanceForm: true })}>
                                     Add new version
-								</Button>
+                                </Button>
                             </Grid>
                         </Grid>
                         {
-                            (this.state.instances.length === 0)
+                            (this.props.instances.length === 0)
                                 ?
-                                <Typography variant="h6">
-                                    <br />
-                                    No test instances have yet been registered for this test!
-                                </Typography>
+                                noInstances
                                 :
-                                this.state.instances.map(instance => (
+                                this.props.instances.map(instance => (
                                     <Box my={2} pb={0} style={{ backgroundColor: Theme.lightBackground }} key={instance.id}>
                                         <Grid container style={{ display: "flex", alignItems: "center", backgroundColor: Theme.tableHeader }}>
                                             <Grid item xs={6}>

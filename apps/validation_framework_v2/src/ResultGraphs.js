@@ -163,45 +163,45 @@ export default class ResultGraphs extends React.Component {
 
         // check if test exists
         results.forEach(function (result, index) {
-            if (!(result.test.id in dict_results)) {
-                dict_results[result.test.id] = {
-                    test_id: result.test.id,
-                    test_name: result.test.name,
-                    test_alias: result.test.alias,
+            if (!(result.test_id in dict_results)) {
+                dict_results[result.test_id] = {
+                    test_id: result.test_id,
+                    test_name: result.test_name,
+                    test_alias: result.test_alias,
                     test_instances: {}
                 };
             }
             // check if test instance exists inside test
-            if (!(result.test_instance_id in dict_results[result.test.id]["test_instances"])) {
-                dict_results[result.test.id]["test_instances"][result.test_instance_id] = {
+            if (!(result.test_instance_id in dict_results[result.test_id]["test_instances"])) {
+                dict_results[result.test_id]["test_instances"][result.test_instance_id] = {
                     test_inst_id: result.test_instance_id,
-                    test_version: result.test_instance.version,
-                    timestamp: result.test_instance.timestamp,
-                    data_type: result.test.data_type,
-                    score_type: result.test.score_type,
+                    test_version: result.test_version,
+                    //timestamp: result.test_instance.timestamp,
+                    data_type: result.data_type,
+                    score_type: result.score_type,
                     models: {}
                 };
             }
             // check if model exists for this test instance
-            if (!(result.model.id in dict_results[result.test.id]["test_instances"][result.test_instance_id]["models"])) {
-                dict_results[result.test.id]["test_instances"][result.test_instance_id]["models"][result.model.id] = {
-                    model_id: result.model.id,
-                    model_name: result.model.name,
-                    model_alias: result.model.alias,
+            if (!(result.model_id in dict_results[result.test_id]["test_instances"][result.test_instance_id]["models"])) {
+                dict_results[result.test_id]["test_instances"][result.test_instance_id]["models"][result.model_id] = {
+                    model_id: result.model_id,
+                    model_name: result.model_name,
+                    model_alias: result.model_alias,
                     model_instances: {}
                 };
             }
             // check if model instance exists for this model
-            if (!(result.model_instance_id in dict_results[result.test.id]["test_instances"][result.test_instance_id]["models"][result.model.id]["model_instances"])) {
-                dict_results[result.test.id]["test_instances"][result.test_instance_id]["models"][result.model.id]["model_instances"][result.model_instance_id] = {
+            if (!(result.model_instance_id in dict_results[result.test_id]["test_instances"][result.test_instance_id]["models"][result.model_id]["model_instances"])) {
+                dict_results[result.test_id]["test_instances"][result.test_instance_id]["models"][result.model_id]["model_instances"][result.model_instance_id] = {
                     model_inst_id: result.model_instance_id,
-                    model_version: result.model_instance.version,
-                    timestamp: result.model_instance.timestamp,
+                    model_version: result.model_version,
+                    //timestamp: result.model_instance.timestamp,
                     results: []
                 };
             }
             // add result to list of model instance results for above test instance
-            dict_results[result.test.id]["test_instances"][result.test_instance_id]["models"][result.model.id]["model_instances"][result.model_instance_id]["results"].push(
+            dict_results[result.test_id]["test_instances"][result.test_instance_id]["models"][result.model_id]["model_instances"][result.model_instance_id]["results"].push(
                 {
                     result_id: result.id,
                     score: result.score,
@@ -214,8 +214,8 @@ export default class ResultGraphs extends React.Component {
         // // insert empty lists for (test_instance, model_instance) combos without results
         // results.forEach(function (result) {
         //   list_model_versions.forEach(function (m_inst) {
-        //     if (!(m_inst["model_inst_id"] in dict_results[result.test.id]["test_instances"][result.test_instance_id]["results"])) {
-        //       dict_results[result.test.id]["test_instances"][result.test_instance_id]["results"][m_inst["model_inst_id"]] = [];
+        //     if (!(m_inst["model_inst_id"] in dict_results[result.test_id]["test_instances"][result.test_instance_id]["results"])) {
+        //       dict_results[result.test_id]["test_instances"][result.test_instance_id]["results"][m_inst["model_inst_id"]] = [];
         //     }
         //   })
         // })

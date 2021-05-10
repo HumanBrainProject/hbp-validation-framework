@@ -1,4 +1,5 @@
 import React from 'react';
+import axios from 'axios';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import MuiDialogTitle from '@material-ui/core/DialogTitle';
@@ -12,12 +13,15 @@ import AppBar from '@material-ui/core/AppBar';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import Box from '@material-ui/core/Box';
-import Theme from './theme';
 
+import Theme from './theme';
+import ContextMain from './ContextMain';
 import ResultDetailHeader from './ResultDetailHeader';
 import ResultDetailContent from './ResultDetailContent';
 import ResultRelatedFiles from './ResultRelatedFiles';
 import ResultModelTestInfo from './ResultModelTestInfo';
+import { datastore } from './datastore';
+
 
 const styles = theme => ({
     root: {
@@ -71,12 +75,66 @@ const MyDialogTitle = withStyles(styles)(props => {
 
 
 export default class ResultDetail extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = { tabValue: 0 };
+    signal = axios.CancelToken.source();
+    static contextType = ContextMain;
+
+    constructor(props, context) {
+        super(props, context);
+
+        const [authContext,] = this.context.auth;
+
+        this.state = {
+            tabValue: 0,
+            auth: authContext,
+            loading: true
+        };
 
         this.handleClose = this.handleClose.bind(this);
         this.handleTabChange = this.handleTabChange.bind(this);
+        this.getResult = this.getResult.bind(this);
+
+        if (!this.props.result.model) {
+            this.getResult(this.props.result.id);
+        } else {
+            this.state["loading"] = false;
+        }
+    }
+
+    getResult(resultId) {
+        return datastore.getResult(resultId, this.signal)
+            .then(result => {
+                this.props.onUpdate(result);
+                console.log("Got result");
+                console.log(result);
+                this.setState({
+                    loading: false
+                });
+            })
+            .catch(err => {
+                if (axios.isCancel(err)) {
+                    console.log('errorGet: ', err.message);
+                    this.setState({
+                        loading: false,
+                    });
+                } else {
+                    // Something went wrong. Save the error in state and re-render.
+                    let error_message = "";
+                    try {
+                        error_message = err.response.data.detail;
+                    } catch {
+                        error_message = err
+                    }
+                    this.setState({
+                        loading: false,
+                        errorGet: error_message
+                    });
+                }
+            }
+            );
+    };
+
+    componentWillUnmount() {
+        this.signal.cancel('REST API call canceled!');
     }
 
     handleClose() {
@@ -88,7 +146,13 @@ export default class ResultDetail extends React.Component {
     }
 
     render() {
-        const result = this.props.result;
+        let result = this.props.result;
+        if (!result.model) {
+            result.model = {};
+            result.model_instance = {};
+            result.test = {};
+            result.test_instance = {};
+        }
         return (
             <Dialog fullScreen onClose={this.handleClose} aria-labelledby="simple-dialog-title" open={this.props.open}>
                 <MyDialogTitle onClose={this.handleClose} />
@@ -108,6 +172,7 @@ export default class ResultDetail extends React.Component {
                                 testAlias={result.test.alias}
                                 testInstID={result.test_instance.id}
                                 testVersion={result.test_instance.version}
+                                loading={this.state.loading}
                             />
                         </Grid>
                         <Grid item xs={12}>

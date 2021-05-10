@@ -9,10 +9,13 @@ import MultipleSelect from './MultipleSelect';
 import Box from '@material-ui/core/Box';
 import Theme from './theme';
 
-import ThreeWaySwitch from './ThreeWaySwitch'
+import ThreeWaySwitch from './ThreeWaySwitch';
 import { displayValid, filterKeys, filterModelKeys, filterTestKeys } from "./globals";
+import ContextMain from './ContextMain';
+
 
 export default class ConfigForm extends React.Component {
+    static contextType = ContextMain;
 
     constructor(props) {
         super(props);
@@ -76,6 +79,9 @@ export default class ConfigForm extends React.Component {
             } else {
                 showFilters = filterKeys;
             }
+            const [validFilterValues,] = this.context.validFilterValues;
+            console.log("validFilterValues");
+            console.log(validFilterValues);
             return (
                 <Dialog onClose={this.handleClose}
                     aria-labelledby="simple-dialog-title"
@@ -92,7 +98,7 @@ export default class ConfigForm extends React.Component {
                                     onChange={this.handleDisplayChange} />
                                 {showFilters.map(filter => (
                                     <MultipleSelect
-                                        itemNames={this.props.validFilterValues == null ? [] : this.props.validFilterValues[filter]}
+                                        itemNames={validFilterValues === null ? [] : validFilterValues[filter]}
                                         label={filter}
                                         value={this.state.config[filter]}
                                         handleChange={this.handleFieldChange}

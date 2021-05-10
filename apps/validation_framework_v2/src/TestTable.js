@@ -1,14 +1,16 @@
 import React from 'react';
 import MUIDataTable from "mui-datatables";
 import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
-import { formatAuthors, downloadJSON } from "./utils";
+
+import { datastore } from './datastore';
+import { formatAuthors, downloadJSON, showNotification } from "./utils";
 import MUIDataTableCustomToolbar from "./MUIDataTableCustomToolbar";
 import CustomToolbarSelect from "./MUIDataTableCustomRowToolbar";
 import ViewSelected from "./ViewSelected";
 import Theme from './theme';
 import ContextMain from './ContextMain';
-import { showNotification } from './utils';
 import { withSnackbar } from 'notistack';
+
 
 class TestTable extends React.Component {
     static contextType = ContextMain;
@@ -119,7 +121,7 @@ class TestTable extends React.Component {
         })
     }
 
-    addTestCompare(selectedRows) {
+    async addTestCompare(selectedRows) {
         console.log("Add item(s) to compare.")
         var selectedTests = [];
         for (var item in selectedRows.data) {
@@ -135,6 +137,9 @@ class TestTable extends React.Component {
         console.log(compareTests);
         for (let test of selectedTests) {
             // Note: only tests with instances can be added to compare
+            if (test.instances === null) {
+                test = await datastore.getTest(test.id);
+            }
             if (test.instances.length > 0) {
                 // check if test already added to compare
                 if (!(test.id in compareTests)) {

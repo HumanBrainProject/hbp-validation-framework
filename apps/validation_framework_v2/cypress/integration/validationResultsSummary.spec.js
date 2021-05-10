@@ -23,7 +23,7 @@ describe('The model validation result and figures tabs', () => {
         cy.get('td').contains("hippo_somafeat_CA1_pyr_patch")
 
         cy.get('td').contains("3.33").click()
-        cy.url().should('equal', 'https://model-catalog.brainsimulation.eu/#result_id.c0f5decd-0d3b-4e82-a725-78d0e076d7c2')
+        cy.url().should('equal', Cypress.config().baseUrl + '/#result_id.c0f5decd-0d3b-4e82-a725-78d0e076d7c2')
       })
 
     it('Shows graphs comparing validation results in the "Figures" tab', () => {
