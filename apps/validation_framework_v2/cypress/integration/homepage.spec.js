@@ -38,7 +38,7 @@ describe('The Model Catalog Homepage', () => {
 
     it('Shows a link the documentation if no filters are set', () => {
       cy.contains('More information').click()
-      cy.url().should('equal', 'https://model-catalog.brainsimulation.eu/doc/')
+      cy.url().should('equal', Cypress.config().baseUrl + '/docs/')
     })
 
     it('Can be configured', configureApp)

@@ -59,7 +59,7 @@ describe('The validation test result and figures tabs', () => {
         cy.get('h4').should('contain', 'Hippocampus_SomaticFeaturesTest_CA1_pyr_cACpyr')
         cy.get('.MuiTabs-flexContainer').children().contains("Results").click()
 
-        cy.wait(60000)
+        cy.wait(90000)
         cy.get('table th').contains("Model Name")
     })
 
