@@ -1,4 +1,4 @@
-/*
+
 describe('The model validation result and figures tabs', () => {
 
     beforeEach(() => {
@@ -38,7 +38,6 @@ describe('The model validation result and figures tabs', () => {
     })
 
 })
-*/
 
 describe('The validation test result and figures tabs', () => {
 
