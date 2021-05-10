@@ -36,9 +36,10 @@ import axios from 'axios';
 import { withSnackbar } from 'notistack';
 import PropTypes from 'prop-types';
 import React from 'react';
+import { datastore } from './datastore';
 import CompareMultiGraphs from './CompareMultiGraphs';
 import ContextMain from './ContextMain';
-import { baseUrl, querySizeLimit, updateHash } from "./globals";
+import { updateHash } from "./globals";
 import LoadingIndicator from "./LoadingIndicator";
 import ResultDetail from './ResultDetail';
 import ResultGraphs from './ResultGraphs';
@@ -198,7 +199,7 @@ class ResultEntryModel extends React.Component {
                                 </TableCell>
                                 {
                                     // Not every model instance will have a result associated with every test instance (i.e. columns)
-                                    // thus we need to fill in the results in the correct columns (corresponding to matching test instances) 
+                                    // thus we need to fill in the results in the correct columns (corresponding to matching test instances)
                                     list_tests.map(function (test) {
                                         return dict_test_versions[test.test_id].map(function (test_inst) {
                                             if (Object.keys(result_model.model_instances[model_inst_id].tests).includes(test.test_id)
@@ -257,7 +258,7 @@ class ResultEntryTest extends React.Component {
                                 </TableCell>
                                 {
                                     // Not every test instance will have a result associated with every model instance (i.e. columns)
-                                    // thus we need to fill in the results in the correct columns (corresponding to matching model instances) 
+                                    // thus we need to fill in the results in the correct columns (corresponding to matching model instances)
                                     list_models.map(function (model) {
                                         return dict_model_versions[model.model_id].map(function (model_inst) {
                                             if (Object.keys(result_test.test_instances[test_inst_id].models).includes(model.model_id)
@@ -391,14 +392,7 @@ class CompareMultiResults extends React.Component {
     }
 
     fetchModelResults() {
-        let url = baseUrl + "/results-extended/?model_instance_id=" + this.state.model_inst_ids.join('&model_instance_id=') + "&size=" + querySizeLimit;
-        let config = {
-            cancelToken: this.signal.token,
-            headers: {
-                'Authorization': 'Bearer ' + this.state.auth.token,
-            }
-        }
-        return axios.get(url, config)
+        return datastore.getResultsByModelInstances(this.state.model_inst_ids)
             .then(res => {
                 this.setState({
                     loadingResults: false,
@@ -421,14 +415,7 @@ class CompareMultiResults extends React.Component {
     }
 
     fetchTestResults() {
-        let url = baseUrl + "/results-extended/?test_instance_id=" + this.state.test_inst_ids.join('&test_instance_id=') + "&size=" + querySizeLimit;
-        let config = {
-            cancelToken: this.signal.token,
-            headers: {
-                'Authorization': 'Bearer ' + this.state.auth.token,
-            }
-        }
-        return axios.get(url, config)
+        return datastore.getResultsByTestInstance(this.state.test_inst_ids, this.signal)
             .then(res => {
                 this.setState({
                     loadingResults: false,

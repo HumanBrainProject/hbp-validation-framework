@@ -11,6 +11,7 @@ import React from 'react';
 import ContextMain from './ContextMain';
 import ErrorDialog from './ErrorDialog';
 import { baseUrl } from "./globals";
+import { datastore } from "./datastore";
 import { replaceEmptyStringsWithNull } from "./utils";
 import LoadingIndicatorModal from './LoadingIndicatorModal';
 import ModelInstanceArrayOfForms from './ModelInstanceArrayOfForms';
@@ -71,14 +72,7 @@ export default class ModelInstanceAddForm extends React.Component {
         }
         versionAxios = axios.CancelToken.source();
 
-        let url = baseUrl + "/models/" + this.props.modelID + "/instances/?version=" + newVersion;
-        let config = {
-            cancelToken: versionAxios.token,
-            headers: {
-                'Authorization': 'Bearer ' + this.state.auth.token,
-            }
-        };
-        await axios.get(url, config)
+        await datastore.getModelInstanceFromVersion(this.props.modelID, newVersion, versionAxios)
             .then(res => {
                 console.log(res.data);
                 if (res.data.length === 0) {

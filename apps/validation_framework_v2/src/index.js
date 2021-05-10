@@ -3,6 +3,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 
 import { SnackbarProvider } from 'notistack';
+import { datastore } from './datastore';
 import { ContextMainProvider } from './ContextMain';
 import ValidationFramework from './ValidationFramework';
 
@@ -120,6 +121,7 @@ function verifyMessage(event) {
 }
 
 function doBusinessLogic(auth) {
+    datastore.auth = auth;
     ReactDOM.render(
         <ContextMainProvider>
             <SnackbarProvider maxSnack={3}>

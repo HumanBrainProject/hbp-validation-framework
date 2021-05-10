@@ -16,6 +16,8 @@ import RadioButtonUncheckedIcon from '@material-ui/icons/RadioButtonUnchecked';
 import axios from 'axios';
 import PropTypes from 'prop-types';
 import React from 'react';
+
+import { datastore } from './datastore';
 import ContextMain from './ContextMain';
 import ErrorDialog from './ErrorDialog';
 import { baseUrl, filterTestKeys } from "./globals";
@@ -90,6 +92,14 @@ export default class TestAddForm extends React.Component {
     }
 
     checkAliasUnique(newAlias) {
+        if (!newAlias) {
+            this.setState({
+                isAliasNotUnique: true,
+                aliasLoading: false
+            });
+            return;
+        }
+
         console.log(aliasAxios);
         if (aliasAxios) {
             aliasAxios.cancel();
@@ -99,38 +109,13 @@ export default class TestAddForm extends React.Component {
             aliasLoading: true,
         });
         console.log(newAlias);
-        if (!newAlias) {
-            this.setState({
-                isAliasNotUnique: true,
-                aliasLoading: false
-            });
-            return;
-        }
-        let url = baseUrl + "/tests/" + encodeURI(newAlias);
-        let config = {
-            cancelToken: aliasAxios.token,
-            headers: {
-                'Authorization': 'Bearer ' + this.state.auth.token,
-            }
-        };
-        axios.get(url, config)
-            .then(res => {
-                console.log(res.data);
+
+        datastore.testAliasIsUnique(newAlias, aliasAxios)
+            .then(isUnique => {
                 this.setState({
-                    isAliasNotUnique: true,
+                    isAliasNotUnique: !isUnique,
                     aliasLoading: false
                 });
-            })
-            .catch(err => {
-                if (axios.isCancel(err)) {
-                    console.log('Error: ', err.message);
-                } else {
-                    console.log(err);
-                    this.setState({
-                        isAliasNotUnique: false,
-                        aliasLoading: false
-                    });
-                }
             });
     }
 

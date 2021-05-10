@@ -7,14 +7,12 @@ import DialogActions from '@material-ui/core/DialogActions';
 import Button from '@material-ui/core/Button';
 import MultipleSelect from './MultipleSelect';
 import Box from '@material-ui/core/Box';
-import axios from 'axios';
 import Theme from './theme';
 
 import ThreeWaySwitch from './ThreeWaySwitch'
 import { displayValid, filterKeys, filterModelKeys, filterTestKeys } from "./globals";
 
 export default class ConfigForm extends React.Component {
-    signal = axios.CancelToken.source();
 
     constructor(props) {
         super(props);

@@ -16,6 +16,8 @@ import RadioButtonUncheckedIcon from '@material-ui/icons/RadioButtonUnchecked';
 import axios from 'axios';
 import PropTypes from 'prop-types';
 import React from 'react';
+
+import { datastore } from "./datastore";
 import ContextMain from './ContextMain';
 import ErrorDialog from './ErrorDialog';
 import { baseUrl, filterModelKeys } from "./globals";
@@ -91,12 +93,13 @@ export default class ModelEditForm extends React.Component {
     }
 
     checkAliasUnique(newAlias) {
-        console.log(aliasAxios);
-        if (aliasAxios) {
-            aliasAxios.cancel();
+        if (!newAlias) {
+            this.setState({
+                isAliasNotUnique: true,
+                aliasLoading: false
+            });
+            return;
         }
-        aliasAxios = axios.CancelToken.source();
-
         if (newAlias === this.props.modelData.alias) {
             this.setState({
                 isAliasNotUnique: false,
@@ -105,65 +108,29 @@ export default class ModelEditForm extends React.Component {
             return
         }
 
+        console.log(aliasAxios);
+        if (aliasAxios) {
+            aliasAxios.cancel();
+        }
+        aliasAxios = axios.CancelToken.source();
+
         this.setState({
             aliasLoading: true,
         });
         console.log(newAlias);
-        if (!newAlias) {
-            this.setState({
-                isAliasNotUnique: true,
-                aliasLoading: false
-            });
-            return;
-        }
-        let url = baseUrl + "/models/" + encodeURI(newAlias);
-        let config = {
-            cancelToken: aliasAxios.token,
-            headers: {
-                'Authorization': 'Bearer ' + this.state.auth.token,
-            }
-        };
-        axios.get(url, config)
-            .then(res => {
-                console.log(res.data.models);
-                if (res.data.models.length === 0) {
-                    this.setState({
-                        isAliasNotUnique: false,
-                        aliasLoading: false
-                    });
-                } else {
-                    this.setState({
-                        isAliasNotUnique: true,
-                        aliasLoading: false
-                    });
-                }
-            })
-            .catch(err => {
-                if (axios.isCancel(err)) {
-                    console.log('Error: ', err.message);
-                } else {
-                    console.log(err);
-                }
+
+        datastore.modelAliasIsUnique(newAlias, aliasAxios)
+            .then(isUnique => {
                 this.setState({
-                    isAliasNotUnique: true,
+                    isAliasNotUnique: !isUnique,
                     aliasLoading: false
                 });
             });
     }
 
-
     getProjectList() {
-        const url = baseUrl + "/projects";
-        const config = {headers: {'Authorization': 'Bearer ' + this.state.auth.token}};
-        axios.get(url, config)
-            .then(res => {
-                let editableProjects = [];
-                res.data.forEach(proj => {
-                    if (proj.permissions.UPDATE) {
-                        editableProjects.push(proj.project_id);
-                    }
-                });
-                editableProjects.sort();
+        datastore.getProjects()
+            .then(editableProjects => {
                 this.setState({
                     projects: editableProjects
                 });

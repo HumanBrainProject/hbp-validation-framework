@@ -10,6 +10,7 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import ErrorDialog from './ErrorDialog';
 import { baseUrl } from "./globals";
+import { datastore } from "./datastore";
 import { replaceEmptyStringsWithNull } from "./utils";
 import TestInstanceArrayOfForms from './TestInstanceArrayOfForms';
 import ContextMain from './ContextMain';
@@ -69,14 +70,7 @@ export default class TestInstanceAddForm extends React.Component {
         }
         versionAxios = axios.CancelToken.source();
 
-        let url = baseUrl + "/tests/" + this.props.testID + "/instances/?version=" + newVersion;
-        let config = {
-            cancelToken: versionAxios.token,
-            headers: {
-                'Authorization': 'Bearer ' + this.state.auth.token,
-            }
-        };
-        await axios.get(url, config)
+        await datastore.getTestInstanceFromVersion(this.props.testID, newVersion, versionAxios)
             .then(res => {
                 console.log(res.data);
                 if (res.data.length === 0) {

@@ -16,6 +16,7 @@ import React from 'react';
 import ContextMain from './ContextMain';
 import ErrorDialog from './ErrorDialog';
 import { baseUrl, filterTestKeys } from "./globals";
+import { datastore } from "./datastore";
 import { replaceEmptyStringsWithNull } from "./utils";
 import LoadingIndicatorModal from './LoadingIndicatorModal';
 import PersonSelect from './PersonSelect';
@@ -112,36 +113,11 @@ export default class TestEditForm extends React.Component {
             });
             return;
         }
-        let url = baseUrl + "/tests/" + encodeURI(newAlias);
-        let config = {
-            cancelToken: aliasAxios.token,
-            headers: {
-                'Authorization': 'Bearer ' + this.state.auth.token,
-            }
-        };
-        axios.get(url, config)
-            .then(res => {
-                console.log(res.data.tests);
-                if (res.data.tests.length === 0) {
-                    this.setState({
-                        isAliasNotUnique: false,
-                        aliasLoading: false
-                    });
-                } else {
-                    this.setState({
-                        isAliasNotUnique: true,
-                        aliasLoading: false
-                    });
-                }
-            })
-            .catch(err => {
-                if (axios.isCancel(err)) {
-                    console.log('Error: ', err.message);
-                } else {
-                    console.log(err);
-                }
+
+        datastore.testAliasIsUnique(newAlias, aliasAxios)
+            .then(isUnique => {
                 this.setState({
-                    isAliasNotUnique: true,
+                    isAliasNotUnique: !isUnique,
                     aliasLoading: false
                 });
             });

@@ -12,22 +12,21 @@ import AppBar from '@material-ui/core/AppBar';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import Box from '@material-ui/core/Box';
-import Theme from './theme';
-import ContextMain from './ContextMain';
-import { showNotification } from './utils';
+
 import { withSnackbar } from 'notistack';
 
 import axios from 'axios';
 
+import { DevMode, ADMIN_PROJECT_ID } from "./globals";
+import { datastore } from './datastore';
+import Theme from './theme';
+import ContextMain from './ContextMain';
+import { showNotification, formatAuthors } from './utils';
 import ModelDetailHeader from './ModelDetailHeader';
 import ModelDetailContent from './ModelDetailContent';
 import ModelDetailMetadata from './ModelDetailMetadata';
 import ModelResultOverview from './ModelResultOverview';
-import { formatAuthors } from "./utils";
 import ResultGraphs from './ResultGraphs';
-import { DevMode, baseUrl, querySizeLimit, ADMIN_PROJECT_ID } from "./globals";
-
-
 
 
 // if working on the appearance/layout set globals.DevMode=true
@@ -260,15 +259,8 @@ class ModelDetail extends React.Component {
         this.setState({ tabValue: newValue })
     }
 
-    getModelResults = () => {
-        let url = baseUrl + "/results-extended/?model_id=" + this.props.modelData.id + "&size=" + querySizeLimit;
-        let config = {
-            cancelToken: this.signal.token,
-            headers: {
-                'Authorization': 'Bearer ' + this.state.auth.token,
-            }
-        }
-        return axios.get(url, config)
+    getModelResults() {
+        return datastore.getResultsByModel(this.props.modelData.id)
             .then(res => {
                 this.setState({
                     results: res.data,
@@ -291,13 +283,12 @@ class ModelDetail extends React.Component {
     };
 
     checkEditAccess() {
-        const url = baseUrl + "/projects";
-        const config = {headers: {'Authorization': 'Bearer ' + this.state.auth.token}};
         let model = this.state.modelData;
-        axios.get(url, config)
-            .then(res => {
-                res.data.forEach(proj => {
-                    if (((proj.project_id === model.project_id) || proj.project_id === ADMIN_PROJECT_ID) && (proj.permissions.UPDATE)) {
+        console.log(datastore);
+        datastore.getProjects()
+            .then(projects => {
+                projects.forEach(proj => {
+                    if ((proj.project_id === model.project_id) || (proj.project_id === ADMIN_PROJECT_ID)) {
                         this.setState({
                             canEdit: true
                         });

@@ -19,13 +19,14 @@ import { withSnackbar } from 'notistack';
 
 import axios from 'axios';
 
+import { datastore } from "./datastore";
 import TestDetailHeader from './TestDetailHeader';
 import TestDetailContent from './TestDetailContent';
 import TestDetailMetadata from './TestDetailMetadata';
 import TestResultOverview from './TestResultOverview';
 import { formatAuthors } from "./utils";
 import ResultGraphs from './ResultGraphs';
-import { DevMode, baseUrl, querySizeLimit } from "./globals";
+import { DevMode } from "./globals";
 
 // if working on the appearance/layout set globals.DevMode=true
 // to avoid loading the models and tests over the network every time;
@@ -255,14 +256,7 @@ class TestDetail extends React.Component {
     }
 
     getTestResults = () => {
-        let url = baseUrl + "/results-extended/?test_id=" + this.props.testData.id + "&size=" + querySizeLimit;
-        let config = {
-            cancelToken: this.signal.token,
-            headers: {
-                'Authorization': 'Bearer ' + this.state.auth.token,
-            }
-        }
-        return axios.get(url, config)
+        return datastore.getResultsByTest(this.props.testData.id, this.signal)
             .then(res => {
                 this.setState({
                     results: res.data,

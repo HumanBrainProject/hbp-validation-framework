@@ -13,6 +13,7 @@ import Paper from '@material-ui/core/Paper';
 import axios from 'axios';
 import _ from 'lodash';
 
+import { datastore } from "./datastore";
 import ModelTable from "./ModelTable";
 import TestTable from "./TestTable";
 import ModelDetail from "./ModelDetail";
@@ -27,7 +28,7 @@ import ConfigDisplayTop from "./ConfigDisplaySimple"
 import LoadingIndicator from "./LoadingIndicator"
 import ResultDetail from './ResultDetail';
 import ErrorDialog from './ErrorDialog';
-import { DevMode, baseUrl, querySizeLimit, collaboratoryOrigin, updateSettingsTopic, isFramedApp, settingsDelimiter, filterKeys, filterModelKeys, filterTestKeys, displayValid, queryValid, updateHash } from "./globals";
+import { DevMode, baseUrl, collaboratoryOrigin, updateSettingsTopic, isFramedApp, settingsDelimiter, filterKeys, filterModelKeys, filterTestKeys, displayValid, queryValid, updateHash } from "./globals";
 import { isUUID, showNotification } from './utils'
 import ContextMain from './ContextMain';
 import Theme from './theme';
@@ -43,15 +44,7 @@ if (DevMode) {
     sample_test_data = require('./dev_data/sample_data_tests.json');
 }
 
-const buildQuery = (filterDict) => {
-    let q = "";
-    for (var key in filterDict) {
-        for (var value of filterDict[key]) {
-            q += `&${key}=${value}`
-        }
-    }
-    return q.slice(1);
-};
+
 
 const filtersEmpty = (filterDict) => {
     // return true if no filters are set
@@ -313,11 +306,7 @@ class ValidationFramework extends React.Component {
     }
 
     retrieveFilterValidValues() {
-        let url = baseUrl + "/vocab/";
-        let config = {
-            cancelToken: this.signal.token
-        }
-        return axios.get(url, config)
+        return datastore.getValidFilterValues()
             .then(res => {
                 this.setState({
                     validFilterValues: res.data
@@ -339,20 +328,13 @@ class ValidationFramework extends React.Component {
     }
 
     getModel(key, value) {
-        let url = "";
+        let identifier = "";
         if (key === "model_id") {
-            url = baseUrl + "/models/" + value;
+            identifier = value;
         } else if (key === "model_alias") {
-            url = baseUrl + "/models/" + encodeURI(value);
+            identifier = encodeURI(value);
         }
-        let config = {
-            cancelToken: this.signal.token,
-            headers: {
-                'Authorization': 'Bearer ' + this.props.auth.token,
-            }
-        }
-        // this.setState({loadingModel: true});
-        axios.get(url, config)
+        datastore.getModel(identifier, this.signal)
             .then(res => {
                 this.setState({
                     currentModel: res.data,
@@ -386,19 +368,9 @@ class ValidationFramework extends React.Component {
     };
 
     getModelFromInstance(value) {
-        let url = baseUrl + "/models/query/instances/" + encodeURI(value);
-        console.log(url);
-        let config = {
-            cancelToken: this.signal.token,
-            headers: {
-                'Authorization': 'Bearer ' + this.props.auth.token,
-            }
-        }
-        // this.setState({loadingModel: true});
-        axios.get(url, config)
+        datastore.getModelInstanceFromID(value, this.signal)
             .then(res => {
-                url = baseUrl + "/models/" + encodeURI(res.data.model_id);
-                axios.get(url, config)
+                datastore.getModel(encodeURI(res.data.model_id), this.signal)
                     .then(m_res => {
                         this.setState({
                             currentModel: m_res.data,
@@ -456,20 +428,13 @@ class ValidationFramework extends React.Component {
     };
 
     getTest(key, value) {
-        let url = "";
+        let identifier = "";
         if (key === "test_id") {
-            url = baseUrl + "/tests/" + value;
+            identifier = value;
         } else if (key === "test_alias") {
-            url = baseUrl + "/tests/" + encodeURI(value);
+            identifier = encodeURI(value);
         }
-        let config = {
-            cancelToken: this.signal.token,
-            headers: {
-                'Authorization': 'Bearer ' + this.props.auth.token,
-            }
-        }
-        // this.setState({loadingTest: true});
-        axios.get(url, config)
+        datastore.getTest(identifier, this.signal)
             .then(res => {
                 this.setState({
                     currentTest: res.data,
@@ -503,18 +468,9 @@ class ValidationFramework extends React.Component {
     };
 
     getTestFromInstance(value) {
-        let url = baseUrl + "/tests/query/instances/" + encodeURI(value);
-        let config = {
-            cancelToken: this.signal.token,
-            headers: {
-                'Authorization': 'Bearer ' + this.props.auth.token,
-            }
-        }
-        // this.setState({loadingModel: true});
-        axios.get(url, config)
+        datastore.getTestInstanceFromID(encodeURI(value), this.signal)
             .then(res => {
-                url = baseUrl + "/tests/" + encodeURI(res.data.test_id);
-                axios.get(url, config)
+                datastore.getTest(encodeURI(res.data.test_id), this.signal)
                     .then(t_res => {
                         this.setState({
                             currentTest: t_res.data,
@@ -572,14 +528,7 @@ class ValidationFramework extends React.Component {
     };
 
     getResult(key, value) {
-        let url = baseUrl + "/results-extended/" + value;
-        let config = {
-            cancelToken: this.signal.token,
-            headers: {
-                'Authorization': 'Bearer ' + this.props.auth.token,
-            }
-        }
-        return axios.get(url, config)
+        return datastore.getResult(value, this.signal)
             .then(res => {
                 this.setState({
                     currentResult: res.data,
@@ -620,16 +569,8 @@ class ValidationFramework extends React.Component {
                 errorUpdate: null
             });
         } else {
-            let query = buildQuery(filters);
-            let config = {
-                cancelToken: this.signal.token,
-                headers: {
-                    'Authorization': 'Bearer ' + this.props.auth.token,
-                }
-            }
-            let url = baseUrl + "/models/?" + encodeURI(query) + "&size=" + querySizeLimit;
             this.setState({ loadingModel: true });
-            axios.get(url, config)
+            datastore.queryModels(filters, this.signal)
                 .then(res => {
                     const models = res.data;
                     console.log(models);
@@ -662,16 +603,8 @@ class ValidationFramework extends React.Component {
                 errorUpdate: null
             });
         } else {
-            let query = buildQuery(filters);
-            let config = {
-                cancelToken: this.signal.token,
-                headers: {
-                    'Authorization': 'Bearer ' + this.props.auth.token,
-                }
-            }
-            let url = baseUrl + "/tests/?" + encodeURI(query) + "&size=" + querySizeLimit;
             this.setState({ loadingTest: true });
-            axios.get(url, config)
+            datastore.queryTests(filters, this.signal)
                 .then(res => {
                     const tests = res.data;
                     console.log(tests);

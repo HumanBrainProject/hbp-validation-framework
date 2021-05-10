@@ -18,6 +18,8 @@ import IconButton from '@material-ui/core/IconButton';
 import axios from 'axios';
 import PropTypes from 'prop-types';
 import React from 'react';
+
+import { datastore } from './datastore';
 import ContextMain from './ContextMain';
 import ErrorDialog from './ErrorDialog';
 import { baseUrl, filterModelKeys } from "./globals";
@@ -31,7 +33,6 @@ import Theme from './theme';
 let aliasAxios = null;
 
 export default class ModelAddForm extends React.Component {
-    signal = axios.CancelToken.source();
     static contextType = ContextMain;
 
     constructor(props, context) {
@@ -96,6 +97,13 @@ export default class ModelAddForm extends React.Component {
     }
 
     checkAliasUnique(newAlias) {
+        if (!newAlias) {
+            this.setState({
+                isAliasNotUnique: true,
+                aliasLoading: false
+            });
+            return;
+        }
         console.log(aliasAxios);
         if (aliasAxios) {
             aliasAxios.cancel();
@@ -105,53 +113,19 @@ export default class ModelAddForm extends React.Component {
             aliasLoading: true,
         });
         console.log(newAlias);
-        if (!newAlias) {
-            this.setState({
-                isAliasNotUnique: true,
-                aliasLoading: false
-            });
-            return;
-        }
-        let url = baseUrl + "/models/" + encodeURI(newAlias);
-        let config = {
-            cancelToken: aliasAxios.token,
-            headers: {
-                'Authorization': 'Bearer ' + this.state.auth.token,
-            }
-        };
-        axios.get(url, config)
-            .then(res => {
-                console.log(res.data);
+
+        datastore.modelAliasIsUnique(newAlias, aliasAxios)
+            .then(isUnique => {
                 this.setState({
-                    isAliasNotUnique: true,
+                    isAliasNotUnique: !isUnique,
                     aliasLoading: false
                 });
-            })
-            .catch(err => {
-                if (axios.isCancel(err)) {
-                    console.log('Error: ', err.message);
-                } else {
-                    console.log(err);
-                    this.setState({
-                        isAliasNotUnique: false,
-                        aliasLoading: false
-                    });
-                }
             });
     }
 
     getProjectList() {
-        const url = baseUrl + "/projects";
-        const config = {headers: {'Authorization': 'Bearer ' + this.state.auth.token}};
-        axios.get(url, config)
-            .then(res => {
-                let editableProjects = [];
-                res.data.forEach(proj => {
-                    if (proj.permissions.UPDATE) {
-                        editableProjects.push(proj.project_id);
-                    }
-                });
-                editableProjects.sort();
+        datastore.getProjects()
+            .then(editableProjects => {
                 this.setState({
                     projects: editableProjects
                 });
