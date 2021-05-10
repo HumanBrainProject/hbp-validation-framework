@@ -21,6 +21,7 @@ from ..data_models import (
     ValidationTestType,
     ScoreType,
     ValidationTest,
+    ValidationTestSummary,
     ValidationTestInstance,
     ValidationTestPatch,
     ValidationTestInstancePatch,
@@ -51,6 +52,7 @@ def query_tests(
     author: List[str] = Query(None),
     size: int = Query(100),
     from_index: int = Query(0),
+    summary: bool = Query(False, description="Return only summary information about each validation test"),
     # from header
     token: HTTPAuthorizationCredentials = Depends(auth),
 ):
@@ -94,8 +96,13 @@ def query_tests(
         test_definitions = ValidationTestDefinition.list(
             kg_client, api="nexus", size=size, from_index=from_index
         )
+    if summary:
+        cls = ValidationTestSummary
+    else:
+        cls = ValidationTest
+
     return [
-        ValidationTest.from_kg_object(test_definition, kg_client)
+        cls.from_kg_object(test_definition, kg_client)
         for test_definition in test_definitions
     ]
 

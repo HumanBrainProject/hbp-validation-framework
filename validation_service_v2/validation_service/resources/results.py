@@ -17,7 +17,7 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic import ValidationError
 
 from ..auth import get_kg_client, get_user_from_token, is_collab_member, is_admin
-from ..data_models import ScoreType, ValidationResult, ValidationResultWithTestAndModel, ConsistencyError
+from ..data_models import ScoreType, ValidationResult, ValidationResultWithTestAndModel, ValidationResultSummary, ConsistencyError
 from ..queries import build_result_filters
 from .. import settings
 
@@ -105,6 +105,8 @@ from_index, token):
         value = locals()[filter_name]
         if value is not None:
             query_parameters[filter_name] = value
+    # if we search for multiple values of model_id (for example) we have to send each query separately
+    # so we use expand_combinations to get the different queries
     query_parameters_list = expand_combinations(query_parameters)
     response = []
     for query_parameters in query_parameters_list:
@@ -212,6 +214,70 @@ async def get_result_extended(result_id: UUID,
             detail=f"Validation result {result_id} not found.",
         )
     return obj
+
+
+
+@router.get("/results-summary/", response_model=List[ValidationResultSummary])
+async def query_results_summary(
+    passed: List[bool] = Query(None),
+    project_id: List[int] = Query(None),
+    model_instance_id: List[UUID] = Query(
+        None
+    ),  # todo: rename this 'model_instance_id' for consistency
+    test_instance_id: List[UUID] = Query(None),
+    model_id: List[UUID] = Query(None),
+    test_id: List[UUID] = Query(None),
+    model_alias: List[str] = Query(None),
+    test_alias: List[str] = Query(None),
+    score_type: List[ScoreType] = None,
+    size: int = Query(100),
+    from_index: int = Query(0),
+    # from header
+    token: HTTPAuthorizationCredentials = Depends(auth),
+):
+
+    path = "/modelvalidation/simulation/validationresult/v0.1.0"
+    query_id = "vf-summary"
+    scope = SCOPE_MAP["latest"]
+    query_parameters = {
+        "start": 0,   #from_index,
+        "size": 100000,  #size,
+        "vocab": "https://schema.hbp.eu/myQuery/",
+        "scope": scope
+    }
+    for filter_name in ("passed", "project_id", "model_instance_id", "test_instance_id",
+                        "model_id", "test_id", "model_alias", "test_alias", "score_type"):
+        value = locals()[filter_name]
+        if value is not None:
+            query_parameters[filter_name] = value
+    # if we search for multiple values of model_id (for example) we have to send each query separately
+    # so we use expand_combinations to get the different queries
+    query_parameters_list = expand_combinations(query_parameters)
+    response = []
+    for query_parameters in query_parameters_list:
+        query_string = urlencode(query_parameters, doseq=True)
+        url = f"{path}/{query_id}/instances?" + query_string
+        print(url)
+        try:
+            kg_response = kg_client._kg_query_client.get(url)
+        except HTTPError as err:
+            if err.response.status_code == 403:
+                kg_response = None
+            else:
+                raise
+        if kg_response and "results" in kg_response:
+            for result in kg_response["results"]:
+                try:
+                    obj = ValidationResultSummary.from_kg_query(result)
+                except ConsistencyError as err:  # todo: count these and report them in the response
+                    logger.warning(str(err))
+                else:
+                    response.append(obj)
+                if len(response) >= size + from_index:
+                    break
+            if len(response) >= size + from_index:
+                break
+    return response[from_index:from_index + size]
 
 
 @router.post("/results/", response_model=ValidationResult, status_code=status.HTTP_201_CREATED)

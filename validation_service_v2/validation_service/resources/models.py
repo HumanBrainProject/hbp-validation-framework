@@ -19,6 +19,7 @@ from ..data_models import (
     ModelScope,
     AbstractionLevel,
     ScientificModel,
+    ScientificModelSummary,
     ScientificModelPatch,
     ModelInstance,
     ModelInstancePatch,
@@ -62,6 +63,7 @@ async def query_models(
         None, description="Find models belonging to a specific project/projects"
     ),
     private: bool = Query(None, description="Limit the search to public or private models"),
+    summary: bool = Query(False, description="Return only summary information about each model"),
     size: int = Query(100, description="Maximum number of responses"),
     from_index: int = Query(0, description="Index of the first response returned"),
     # from header
@@ -132,8 +134,12 @@ async def query_models(
         model_projects = ModelProject.list(
             kg_client, api="nexus", size=size, from_index=from_index
         )
+    if summary:
+        cls = ScientificModelSummary
+    else:
+        cls = ScientificModel
     return [
-        ScientificModel.from_kg_object(model_project, kg_client)
+        cls.from_kg_object(model_project, kg_client)
         for model_project in as_list(model_projects)
     ]
 
