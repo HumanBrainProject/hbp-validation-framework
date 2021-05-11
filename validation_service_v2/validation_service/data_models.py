@@ -443,6 +443,61 @@ class ScientificModel(BaseModel):
         return kg_objects
 
 
+class ScientificModelSummary(BaseModel):
+    """
+
+    """
+
+    id: UUID = None
+    uri: HttpUrl = None
+    name: str
+    alias: str = None
+    author: List[Person]
+    owner: List[Person]
+    project_id: str = None
+    organization: str = None
+    private: bool = True
+    cell_type: CellType = None
+    model_scope: ModelScope = None
+    abstraction_level: AbstractionLevel = None
+    brain_region: BrainRegion = None
+    species: Species = None
+    description: str
+    date_created: datetime = None
+
+    @classmethod
+    def from_kg_object(cls, model_project, client):
+        try:
+            obj = cls(
+                id=model_project.uuid,
+                uri=model_project.id,
+                name=model_project.name,
+                alias=model_project.alias,
+                author=[Person.from_kg_object(p, client) for p in as_list(model_project.authors)],
+                owner=[Person.from_kg_object(p, client) for p in as_list(model_project.owners)],
+                project_id=model_project.collab_id,
+                organization=model_project.organization.resolve(client, api="nexus").name
+                if model_project.organization
+                else None,
+                private=model_project.private,
+                cell_type=model_project.celltype.label if model_project.celltype else None,
+                model_scope=model_project.model_of.label if model_project.model_of else None,
+                abstraction_level=model_project.abstraction_level.label
+                if model_project.abstraction_level
+                else None,
+                brain_region=model_project.brain_region.label
+                if model_project.brain_region
+                else None,
+                species=model_project.species.label if model_project.species else None,
+                description=model_project.description,
+                date_created=model_project.date_created,
+            )
+        except ValidationError as err:
+            logger.error(f"Validation error for data from model project: {model_project}")
+            raise
+        return obj
+
+
 class ScientificModelPatch(BaseModel):
     id: UUID = None
     uri: HttpUrl = None
@@ -567,14 +622,15 @@ class ValidationTest(BaseModel):
     # todo: add "publication" field
 
     @classmethod
-    def from_kg_object(cls, test_definition, client, recently_saved_scripts=[]):
+    def from_kg_object(cls, test_definition, client, recently_saved_scripts=None):
         # due to the time it takes for Nexus to become consistent, we add newly saved scripts
         # to the result of the KG query in case they are not yet included
         scripts = {
             scr.id: scr for scr in as_list(test_definition.scripts.resolve(client, api="nexus"))
         }
-        for script in recently_saved_scripts:
-            scripts[id] = script
+        if recently_saved_scripts:
+            for script in recently_saved_scripts:
+                scripts[id] = script
         instances = [
             ValidationTestInstance.from_kg_object(inst, client) for inst in scripts.values()
         ]
@@ -647,6 +703,49 @@ class ValidationTest(BaseModel):
             kg_objects.extend(instance.to_kg_objects(test_definition))
 
         return kg_objects
+
+
+class ValidationTestSummary(BaseModel):
+    id: UUID = None
+    uri: HttpUrl = None
+    name: str
+    alias: str = None
+    implementation_status: ImplementationStatus = ImplementationStatus.proposal
+    author: List[Person]
+    cell_type: CellType = None
+    brain_region: BrainRegion = None
+    species: Species = None
+    description: str  # was 'protocol', renamed for consistency with models
+    date_created: datetime = None
+    data_type: str = None
+    recording_modality: RecordingModality = None
+    test_type: ValidationTestType = None
+    score_type: ScoreType = None
+
+    @classmethod
+    def from_kg_object(cls, test_definition, client):
+        obj = cls(
+            id=test_definition.uuid,
+            uri=test_definition.id,
+            name=test_definition.name,
+            alias=test_definition.alias,
+            implementation_status=test_definition.status or ImplementationStatus.proposal.value,
+            author=[Person.from_kg_object(p, client) for p in as_list(test_definition.authors)],
+            cell_type=test_definition.celltype.label if test_definition.celltype else None,
+            brain_region=test_definition.brain_region.label
+            if test_definition.brain_region
+            else None,
+            species=test_definition.species.label if test_definition.species else None,
+            description=test_definition.description,
+            date_created=test_definition.date_created,
+            data_type=test_definition.data_type,
+            recording_modality=test_definition.recording_modality
+            if test_definition.recording_modality
+            else None,
+            test_type=test_definition.test_type if test_definition.test_type else None,
+            score_type=test_definition.score_type if test_definition.score_type else None
+        )
+        return obj
 
 
 class ValidationTestPatch(BaseModel):
@@ -832,6 +931,44 @@ class File(BaseModel):
         return None
 
 
+class ValidationResultSummary(BaseModel):
+    id: UUID = None
+    model_instance_id: UUID
+    test_instance_id: UUID
+    test_version: str
+    score: float
+    score_type: str = None
+    data_type: str = None
+    timestamp: datetime = None
+    model_id: UUID
+    model_name: str
+    model_alias: str = None
+    model_version: str = None
+    test_id: UUID
+    test_name: str
+    test_alias: str = None
+
+    @classmethod
+    def from_kg_query(cls, result):
+        return cls(
+            id=uuid_from_uri(result["uri"]),
+            model_instance_id=uuid_from_uri(result["model_instance"][0]["model_instance_id"]),
+            test_instance_id=uuid_from_uri(result["test_instance"][0]["test_instance_id"]),
+            test_version=result["test_instance"][0]["test_instance_version"],
+            score=result["score"],
+            score_type=result["test_instance"][0]["test"][0]["score_type"],
+            data_type=result["test_instance"][0]["test"][0]["data_type"],
+            timestamp=ensure_has_timezone(date_parser.parse(result["timestamp"])),
+            model_id=uuid_from_uri(result["model_instance"][0]["model"][0]["model_id"]),  # beware possibility of multiple models with different schema versions here
+            model_name=result["model_instance"][0]["model"][0]["model_name"],
+            model_alias=result["model_instance"][0]["model"][0]["model_alias"],
+            model_version=result["model_instance"][0]["model_instance_version"],
+            test_id=uuid_from_uri(result["test_instance"][0]["test"][0]["test_id"]),
+            test_name=result["test_instance"][0]["test"][0]["test_name"],
+            test_alias=result["test_instance"][0]["test"][0]["test_alias"],
+        )
+
+
 class ValidationResult(BaseModel):
     id: UUID = None
     uri: HttpUrl = None
@@ -848,7 +985,10 @@ class ValidationResult(BaseModel):
     @classmethod
     def from_kg_object(cls, result, client):
         if result.generated_by:
-            validation_activity = result.generated_by.resolve(client, api="nexus")
+            try:
+                validation_activity = result.generated_by.resolve(client, api="nexus")
+            except Exception as err:
+                raise ConsistencyError from err
         else:
             raise ConsistencyError("Missing ValidationActivity")
         if validation_activity is None:
