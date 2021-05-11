@@ -178,23 +178,7 @@ class ModelTable extends React.Component {
                 <MuiThemeProvider theme={this.getMuiTheme()}>
                     <MUIDataTable
                         title="Models"
-                        columns={[
-                            { name: 'ID', options: { display: false } },
-                            { name: 'Name', options: { display: true } },
-                            { name: 'Alias', options: { display: false } },
-                            { name: 'Author', options: { display: true } },
-                            { name: 'Visibility', options: { display: false } },
-                            { name: 'Project ID', options: { display: false } },
-                            { name: 'Species', options: { display: false } },
-                            { name: 'Brain region', options: { display: false } },
-                            { name: 'Cell type', options: { display: false } },
-                            { name: 'Model scope', options: { display: false } },
-                            { name: 'Abstraction level', options: { display: false } },
-                            { name: 'Owner', options: { display: false } },
-                            { name: 'Organization', options: { display: false } },
-                            { name: 'Created Date', options: { display: false } },
-                            { name: 'jsonObject', options: { display: false, viewColumns: false, filter: false } }
-                        ]}
+                        columns={this.props.columns}
                         data={this.state.data.map(item => {
                             return [
                                 item.id,
@@ -220,6 +204,7 @@ class ModelTable extends React.Component {
                             rowsPerPage: 20,
                             rowsPerPageOptions: [10, 20, 100],
                             onRowClick: this.props.handleRowClick,
+                            onColumnViewChange: this.props.onColumnsChange,  // name changed to "onViewColumnsChange" in recent versions of mui-datatables
                             tableBodyMaxHeight: "500px",
                             responsive: 'stacked', // 'scrollMaxHeight', 'scrollFullHeight', 'scrollFullHeightFullWidth', 'stackedFullWidth'
                             downloadOptions: { filename: 'selectedModels.csv', separator: ',', filterOptions: { useDisplayedRowsOnly: true } },
