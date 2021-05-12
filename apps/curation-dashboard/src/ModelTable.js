@@ -1,4 +1,5 @@
 import React from 'react';
+import axios from 'axios';
 
 import { withStyles, makeStyles } from '@material-ui/core/styles';
 import Table from '@material-ui/core/Table';
@@ -19,11 +20,9 @@ import Avatar from '@material-ui/core/Avatar';
 import Link from '@material-ui/core/Link';
 
 import { baseUrl } from "./globals";
-import { datastore } from "./datastore";
 import { formatAuthors, formatTimeStamp, classifyCodeLocation } from "./utils";
 import { getComparator, stableSort } from "./sorting";
 import { checkModel } from "./curationChecks";
-import ContextMain from '../../validation_framework_v2/src/ContextMain';
 
 
 const useStyles = makeStyles({
@@ -42,6 +41,18 @@ const useStyles = makeStyles({
         width: 1,
     },
 });
+
+
+function getModels(auth) {
+    const url = baseUrl + "/models/?size=10000";
+    const config = {
+        headers: {
+            'Authorization': 'Bearer ' + auth.token,
+        }
+    }
+
+    return axios.get(url, config);
+}
 
 
 function AliasIcon(alias) {
@@ -219,7 +230,7 @@ export default function ModelTable(props) {
 
     React.useEffect(() => {
         setLoading(true);
-        datastore.getModels()
+        getModels(props.auth)
             .then(res => {
                 console.log("Got models");
                 console.log(res.data);
