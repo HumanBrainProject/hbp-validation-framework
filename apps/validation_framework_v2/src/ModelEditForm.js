@@ -20,7 +20,7 @@ import React from 'react';
 import { datastore } from "./datastore";
 import ContextMain from './ContextMain';
 import ErrorDialog from './ErrorDialog';
-import { baseUrl, filterModelKeys } from "./globals";
+import { filterModelKeys } from "./globals";
 import { replaceEmptyStringsWithNull } from "./utils";
 import LoadingIndicatorModal from './LoadingIndicatorModal';
 import PersonSelect from './PersonSelect';
@@ -191,19 +191,10 @@ export default class ModelEditForm extends React.Component {
             let payload = this.createPayload();
             console.log(payload);
             if (this.checkRequirements(payload)) {
-                let url = baseUrl + "/models/" + this.state.id;
-                let config = {
-                    cancelToken: this.signal.token,
-                    headers: {
-                        'Authorization': 'Bearer ' + this.state.auth.token,
-                        'Content-type': 'application/json'
-                    }
-                };
-
-                axios.put(url, payload, config)
-                    .then(res => {
-                        console.log(res);
-                        this.props.onClose(res.data);
+                datastore.updateModel(payload, this.signal)
+                    .then(model => {
+                        console.log(model);
+                        this.props.onClose(model);
                     })
                     .catch(err => {
                         if (axios.isCancel(err)) {

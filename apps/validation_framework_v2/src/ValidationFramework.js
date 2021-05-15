@@ -222,7 +222,7 @@ class ValidationFramework extends React.Component {
 
     handleColumnsChange(key, columnName, action) {
         console.log(`Changed column ${columnName} in table ${key}: ${action}`);
-        let newColumns = [... this.state[key]];
+        let newColumns = [...this.state[key]];
         newColumns.forEach((col) => {
             if (col.name === columnName) {
                 col.options.display = (action === 'add');

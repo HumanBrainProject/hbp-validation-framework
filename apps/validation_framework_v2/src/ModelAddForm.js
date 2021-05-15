@@ -22,7 +22,7 @@ import React from 'react';
 import { datastore } from './datastore';
 import ContextMain from './ContextMain';
 import ErrorDialog from './ErrorDialog';
-import { baseUrl, filterModelKeys } from "./globals";
+import { filterModelKeys } from "./globals";
 import { replaceEmptyStringsWithNull } from "./utils";
 import LoadingIndicatorModal from './LoadingIndicatorModal';
 import ModelInstanceArrayOfForms from './ModelInstanceArrayOfForms';
@@ -185,19 +185,10 @@ export default class ModelAddForm extends React.Component {
             let payload = this.createPayload();
             console.log(payload);
             if (this.checkRequirements(payload)) {
-                let url = baseUrl + "/models/";
-                let config = {
-                    cancelToken: this.signal.token,
-                    headers: {
-                        'Authorization': 'Bearer ' + this.state.auth.token,
-                        'Content-type': 'application/json'
-                    }
-                };
-
-                axios.post(url, payload, config)
-                    .then(res => {
-                        console.log(res);
-                        this.props.onClose(res.data);
+                datastore.createModel(payload, this.signal)
+                    .then(model => {
+                        console.log(model);
+                        this.props.onClose(model);
                     })
                     .catch(err => {
                         if (axios.isCancel(err)) {

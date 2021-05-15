@@ -96,11 +96,6 @@ class ModelDetail extends React.Component {
         super(props, context);
         const [authContext,] = this.context.auth;
 
-        let modelData = this.props.modelData;
-        if (modelData.instances === null) {
-            modelData.instances = [];
-        }
-
         this.state = {
             tabValue: 0,
             results: null,

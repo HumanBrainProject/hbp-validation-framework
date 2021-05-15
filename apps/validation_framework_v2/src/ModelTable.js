@@ -137,7 +137,7 @@ class ModelTable extends React.Component {
         console.log(compareModels);
         for (let model of selectedModels) {
             // Note: only models with instances can be added to compare
-            if (model.instances === null) {
+            if (!model.loadedVersions) {
                 model = await datastore.getModel(model.id);
             }
             if (model.instances.length > 0) {

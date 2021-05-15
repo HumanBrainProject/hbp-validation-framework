@@ -9,7 +9,6 @@ import axios from 'axios';
 import PropTypes from 'prop-types';
 import React from 'react';
 import ErrorDialog from './ErrorDialog';
-import { baseUrl } from "./globals";
 import { datastore } from "./datastore";
 import { replaceEmptyStringsWithNull } from "./utils";
 import TestInstanceArrayOfForms from './TestInstanceArrayOfForms';
@@ -131,19 +130,10 @@ export default class TestInstanceEditForm extends React.Component {
             let payload = this.createPayload();
             console.log(payload);
             if (await this.checkRequirements(payload)) {
-                let url = baseUrl + "/tests/" + this.props.testID + "/instances/" + payload.id;
-                let config = {
-                    cancelToken: this.signal.token,
-                    headers: {
-                        'Authorization': 'Bearer ' + this.state.auth.token,
-                        'Content-type': 'application/json'
-                    }
-                };
-
-                axios.put(url, payload, config)
-                    .then(res => {
-                        console.log(res);
-                        this.props.onClose(res.data);
+                datastore.updateTestInstance(this.props.testID, payload, this.signal)
+                    .then(testInstance => {
+                        console.log(testInstance);
+                        this.props.onClose(testInstance);
                     })
                     .catch(err => {
                         if (axios.isCancel(err)) {

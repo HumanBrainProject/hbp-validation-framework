@@ -10,7 +10,6 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import ContextMain from './ContextMain';
 import ErrorDialog from './ErrorDialog';
-import { baseUrl } from "./globals";
 import { datastore } from "./datastore";
 import { replaceEmptyStringsWithNull } from "./utils";
 import LoadingIndicatorModal from './LoadingIndicatorModal';
@@ -135,19 +134,10 @@ export default class ModelInstanceEditForm extends React.Component {
             let payload = this.createPayload();
             console.log(payload);
             if (await this.checkRequirements(payload)) {
-                let url = baseUrl + "/models/" + this.props.modelID + "/instances/" + payload.id;
-                let config = {
-                    cancelToken: this.signal.token,
-                    headers: {
-                        'Authorization': 'Bearer ' + this.state.auth.token,
-                        'Content-type': 'application/json'
-                    }
-                };
-
-                axios.put(url, payload, config)
-                    .then(res => {
-                        console.log(res);
-                        this.props.onClose(res.data);
+                datastore.updateModelInstance(this.props.modelID, payload, this.signal)
+                    .then(modelInstance => {
+                        console.log(modelInstance);
+                        this.props.onClose(modelInstance);
                     })
                     .catch(err => {
                         if (axios.isCancel(err)) {

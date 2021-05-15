@@ -10,7 +10,6 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import ContextMain from './ContextMain';
 import ErrorDialog from './ErrorDialog';
-import { baseUrl } from "./globals";
 import { datastore } from "./datastore";
 import { replaceEmptyStringsWithNull } from "./utils";
 import LoadingIndicatorModal from './LoadingIndicatorModal';
@@ -125,19 +124,10 @@ export default class ModelInstanceAddForm extends React.Component {
             let payload = this.createPayload();
             console.log(payload);
             if (await this.checkRequirements(payload)) {
-                let url = baseUrl + "/models/" + this.props.modelID + "/instances/";
-                let config = {
-                    cancelToken: this.signal.token,
-                    headers: {
-                        'Authorization': 'Bearer ' + this.state.auth.token,
-                        'Content-type': 'application/json'
-                    }
-                };
-
-                axios.post(url, payload, config)
-                    .then(res => {
-                        console.log(res);
-                        this.props.onClose(res.data);
+                datastore.createModelInstance(this.props.modelID, payload, this.signal)
+                    .then(modelInstance => {
+                        console.log(modelInstance);
+                        this.props.onClose(modelInstance);
                     })
                     .catch(err => {
                         if (axios.isCancel(err)) {

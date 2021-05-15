@@ -20,7 +20,7 @@ import React from 'react';
 import { datastore } from './datastore';
 import ContextMain from './ContextMain';
 import ErrorDialog from './ErrorDialog';
-import { baseUrl, filterTestKeys } from "./globals";
+import { filterTestKeys } from "./globals";
 import { replaceEmptyStringsWithNull } from "./utils";
 import LoadingIndicatorModal from './LoadingIndicatorModal';
 import PersonSelect from './PersonSelect';
@@ -178,19 +178,10 @@ export default class TestAddForm extends React.Component {
             let payload = this.createPayload();
             console.log(payload);
             if (this.checkRequirements(payload)) {
-                let url = baseUrl + "/tests/";
-                let config = {
-                    cancelToken: this.signal.token,
-                    headers: {
-                        'Authorization': 'Bearer ' + this.state.auth.token,
-                        'Content-type': 'application/json'
-                    }
-                };
-
-                axios.post(url, payload, config)
-                    .then(res => {
-                        console.log(res);
-                        this.props.onClose(res.data);
+                datastore.post(payload, this.signal)
+                    .then(test => {
+                        console.log(test);
+                        this.props.onClose(test);
                     })
                     .catch(err => {
                         if (axios.isCancel(err)) {

@@ -137,7 +137,7 @@ class TestTable extends React.Component {
         console.log(compareTests);
         for (let test of selectedTests) {
             // Note: only tests with instances can be added to compare
-            if (test.instances === null) {
+            if (!test.loadedVersions) {
                 test = await datastore.getTest(test.id);
             }
             if (test.instances.length > 0) {

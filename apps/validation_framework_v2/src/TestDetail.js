@@ -96,9 +96,6 @@ class TestDetail extends React.Component {
         const [authContext,] = this.context.auth;
 
         let testData = this.props.testData;
-        if (!testData.instances) {
-            testData.instances = [];
-        }
         if (!testData.data_location) {
             testData.data_location = [];
         }

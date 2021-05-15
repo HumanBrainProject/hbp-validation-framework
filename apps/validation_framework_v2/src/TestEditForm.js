@@ -15,7 +15,7 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import ContextMain from './ContextMain';
 import ErrorDialog from './ErrorDialog';
-import { baseUrl, filterTestKeys } from "./globals";
+import { filterTestKeys } from "./globals";
 import { datastore } from "./datastore";
 import { replaceEmptyStringsWithNull } from "./utils";
 import LoadingIndicatorModal from './LoadingIndicatorModal';
@@ -179,16 +179,7 @@ export default class TestEditForm extends React.Component {
             let payload = this.createPayload();
             console.log(payload);
             if (this.checkRequirements(payload)) {
-                let url = baseUrl + "/tests/" + this.state.id;
-                let config = {
-                    cancelToken: this.signal.token,
-                    headers: {
-                        'Authorization': 'Bearer ' + this.state.auth.token,
-                        'Content-type': 'application/json'
-                    }
-                };
-
-                axios.put(url, payload, config)
+                datastore.updateTest(payload, this.signal)
                     .then(res => {
                         console.log(res);
                         this.props.onClose(res.data);
