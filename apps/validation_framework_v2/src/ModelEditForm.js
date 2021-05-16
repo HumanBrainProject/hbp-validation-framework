@@ -329,7 +329,7 @@ export default class ModelEditForm extends React.Component {
                         Cancel
           </Button>
                     <Button onClick={this.handleSubmit} color="primary">
-                        Edit Model
+                        Save changes
           </Button>
                 </DialogActions>
             </Dialog>

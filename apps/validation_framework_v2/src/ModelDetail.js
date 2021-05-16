@@ -313,11 +313,13 @@ class ModelDetail extends React.Component {
 
     checkEditAccess() {
         let model = this.props.modelData;
-        console.log(datastore);
+        console.log("Checking edit access");
         datastore.getProjects()
             .then(projects => {
-                projects.forEach(proj => {
-                    if ((proj.project_id === model.project_id) || (proj.project_id === ADMIN_PROJECT_ID)) {
+                console.log(projects);
+                projects.forEach(projectID => {
+                    console.log(projectID, model.project_id);
+                    if ((projectID === model.project_id) || (projectID === ADMIN_PROJECT_ID)) {
                         this.setState({
                             canEdit: true
                         });

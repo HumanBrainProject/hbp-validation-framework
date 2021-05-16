@@ -190,7 +190,7 @@ export default class TestInstanceAddForm extends React.Component {
                         Cancel
           </Button>
                     <Button onClick={this.handleSubmit} color="primary">
-                        Add Test Instance
+                        Add Test Version
           </Button>
                 </DialogActions>
             </Dialog>

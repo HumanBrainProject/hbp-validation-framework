@@ -137,7 +137,9 @@ class DataStore {
                        const model = res.data;
                        model.loadedResults = true;
                        model.loadedVersions = true;
-                       model.instances = [];
+                       if (model.instances === null) {
+                          model.instances = [];
+                       }
                        model.results = [];
                        this.models[model.id] = model;
                        return model;
@@ -149,11 +151,16 @@ class DataStore {
         return this.put(url, modelData, source)
                    .then(res => {
                        const model = res.data;
-                       model.loadedResults = modelData.loadedResults;
-                       model.loadedVersions = modelData.loadedVersions;
-                       model.instances = modelData.instances;
-                       model.results = modelData.results
+                       console.log("Updated model:");
+                       console.log(model);
+                       model.loadedVersions = true;
+                       model.loadedResults = false;
+                       if (model.instances === null) {
+                           model.instances = [];
+                       }
                        this.models[model.id] = model;
+                       console.log("Updated model:");
+                       console.log(model);
                        return model;
                    })
     }

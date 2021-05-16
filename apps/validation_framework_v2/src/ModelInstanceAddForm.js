@@ -193,7 +193,7 @@ export default class ModelInstanceAddForm extends React.Component {
                         Cancel
           </Button>
                     <Button onClick={this.handleSubmit} color="primary">
-                        Add Model Instance
+                        Add Model Version
           </Button>
                 </DialogActions>
             </Dialog>

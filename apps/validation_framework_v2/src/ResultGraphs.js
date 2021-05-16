@@ -94,7 +94,7 @@ function ResultsFiguresTestIntance(props) {
         // title: 'Plot Title',
         xaxis: {//tickvals: ["1", "2", "3", "4", "5"],
             //ticktext : ["a", "b", "c", "d" ,"e"],
-            title: "<b>Model Instance</b>",
+            title: "<b>Model Version</b>",
             automargin: true,
             // tickangle: -45,
             // textangle: "auto"
