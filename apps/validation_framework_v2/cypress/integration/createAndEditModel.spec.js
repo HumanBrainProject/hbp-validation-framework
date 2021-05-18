@@ -33,7 +33,7 @@ function addModelEntry() {
         alias: `test-${now}`,
         project_id: "myspace-testing",
         private: true,
-        description: "The description goes here",
+        description: "The description goes here{enter}",
         species: "Callithrix jacchus",
         brain_region: "stratum pyramidale",
         cell_type: "interneuron",
@@ -77,7 +77,7 @@ function addModelEntry() {
     cy.wait(15000)
     return modelData;
 }
-/*
+
 describe('Adding a model to the catalog', () => {
 
     beforeEach(() => {
@@ -94,7 +94,7 @@ describe('Adding a model to the catalog', () => {
 
     it("Provides a button to add a new model", () => {
         // open Add New Model dialog and enter information
-        modelData = addModelEntry();
+        const modelData = addModelEntry();
         // should now be on model detail page
         cy.get('h4').should('contain', modelData.name)
         cy.get('h5').should('contain', modelData.owners)
@@ -106,7 +106,7 @@ describe('Adding a model to the catalog', () => {
         cy.get('td').contains(modelData.name)
     })
 })
-*/
+
 
 describe('Editing a model', () => {
     let modelData = {};
