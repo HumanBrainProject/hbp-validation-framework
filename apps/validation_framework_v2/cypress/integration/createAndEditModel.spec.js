@@ -164,7 +164,7 @@ describe('Editing a model', () => {
 
         // edit the version we just added
         cy.get('button[aria-label="edit model instance"]').last().click()
-        cy.get('input[name=source]').type(".0")
+        cy.get('input[name=source]').clear().type("https://example.com/path/to/my/code/v2.0")
         cy.get('button').contains('Save changes').click()
         cy.wait(60000) // why does this take so long?
         cy.get('.MuiBox-root').contains("https://example.com/path/to/my/code/v2.0")
