@@ -1547,6 +1547,7 @@ class LivePaperSummary(BaseModel):
     detail_path: str
     modified_date: datetime
     title: str
+    year: date
     collab_id: str = None
 
     @classmethod
@@ -1554,6 +1555,7 @@ class LivePaperSummary(BaseModel):
         return cls(
             modified_date=lp.date_modified or lp.date_created,
             title=lp.name,
+            year=lp.date_published,
             collab_id=lp.collab_id,
             id=lp.uuid,
             detail_path=f"/livepapers/{lp.uuid}"
