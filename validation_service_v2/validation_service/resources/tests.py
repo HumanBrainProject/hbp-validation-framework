@@ -103,7 +103,7 @@ def query_tests(
 
     return [
         cls.from_kg_object(test_definition, kg_client)
-        for test_definition in test_definitions
+        for test_definition in as_list(test_definitions)
     ]
 
 
