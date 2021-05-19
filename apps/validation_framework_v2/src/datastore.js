@@ -271,7 +271,9 @@ class DataStore {
                        const test = res.data;
                        test.loadedResults = true;
                        test.loadedVersions = true;
-                       test.instances = [];
+                       if (test.instances === null) {
+                           test.instances = [];
+                       }
                        test.results = [];
                        this.tests[test.id] = test;
                        return test;
@@ -283,10 +285,13 @@ class DataStore {
         return this.put(url, testData, source)
                    .then(res => {
                        const test = res.data;
-                       test.loadedResults = testData.loadedResults;
-                       test.loadedVersions = testData.loadedVersions;
-                       test.instances = testData.instances;
-                       test.results = testData.results;
+                       console.log("Updated test");
+                       console.log(test);
+                       test.loadedVersions = true;
+                       test.loadedResults = false;
+                       if (test.instances === null) {
+                           test.instances = [];
+                       }
                        this.tests[test.id] = test;
                        return test;
                    })

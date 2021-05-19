@@ -178,7 +178,7 @@ export default class TestAddForm extends React.Component {
             let payload = this.createPayload();
             console.log(payload);
             if (this.checkRequirements(payload)) {
-                datastore.post(payload, this.signal)
+                datastore.createTest(payload, this.signal)
                     .then(test => {
                         console.log(test);
                         this.props.onClose(test);

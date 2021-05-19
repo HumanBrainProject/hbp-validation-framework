@@ -180,9 +180,9 @@ export default class TestEditForm extends React.Component {
             console.log(payload);
             if (this.checkRequirements(payload)) {
                 datastore.updateTest(payload, this.signal)
-                    .then(res => {
-                        console.log(res);
-                        this.props.onClose(res.data);
+                    .then(test => {
+                        console.log(test);
+                        this.props.onClose(test);
                     })
                     .catch(err => {
                         if (axios.isCancel(err)) {
