@@ -4,7 +4,8 @@ stages:
 build_image:
   stage: build
   only:
-    refs: development
+    refs:
+      - development
   script:
     - docker build -f apps/deployment/Dockerfile.dev -t docker-registry.ebrains.eu/model-catalog/model-catalog-v2:dev ./apps
     - docker login -u $DOCKER_REGISTRY_USER -p $DOCKER_REGISTRY_SECRET docker-registry.ebrains.eu
