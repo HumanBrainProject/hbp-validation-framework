@@ -158,7 +158,7 @@ describe('Editing a validation test', () => {
         cy.get('input[name=path]').type(newVersion.path)
         // click the submit button
         cy.get('button').contains('Add Test Version').click()
-        cy.wait(6000)
+        cy.wait(8000)
         cy.get(".MuiGrid-item p[variant=subtitle2]").contains("0.2.0")
 
         // edit the version we just added
