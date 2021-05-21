@@ -104,8 +104,8 @@ export default class ResultDetail extends React.Component {
         return datastore.getResult(resultId, this.signal)
             .then(result => {
                 this.props.onUpdate(result);
-                console.log("Got result");
-                console.log(result);
+
+
                 this.setState({
                     loading: false
                 });

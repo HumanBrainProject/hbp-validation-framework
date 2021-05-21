@@ -32,8 +32,8 @@ export default class ModelInstanceAddForm extends React.Component {
         this.checkVersionUnique = this.checkVersionUnique.bind(this);
 
         const [authContext,] = this.context.auth;
-        // console.log(authContext);
-        // console.log(authContext.token);
+        //
+        //
 
         this.state = {
             instances: [{
@@ -73,7 +73,7 @@ export default class ModelInstanceAddForm extends React.Component {
 
         await datastore.getModelInstanceFromVersion(this.props.modelID, newVersion, versionAxios)
             .then(res => {
-                console.log(res.data);
+
                 if (res.data.length === 0) {
                     isUnique = true;
                 }
@@ -82,7 +82,7 @@ export default class ModelInstanceAddForm extends React.Component {
                 if (axios.isCancel(err)) {
                     console.log('Error: ', err.message);
                 } else {
-                    console.log(err);
+                    cons0le.log(err);
                 }
             });
         return isUnique
@@ -109,7 +109,7 @@ export default class ModelInstanceAddForm extends React.Component {
             }
         }
         if (error) {
-            console.log(error);
+            cons0le.log(error);
             this.setState({
                 errorAddModelInstance: error,
             });
@@ -122,18 +122,18 @@ export default class ModelInstanceAddForm extends React.Component {
     async handleSubmit() {
         this.setState({ loading: true }, async () => {
             let payload = this.createPayload();
-            console.log(payload);
+
             if (await this.checkRequirements(payload)) {
                 datastore.createModelInstance(this.props.modelID, payload, this.signal)
                     .then(modelInstance => {
-                        console.log(modelInstance);
+
                         this.props.onClose(modelInstance);
                     })
                     .catch(err => {
                         if (axios.isCancel(err)) {
                             console.log('Error: ', err.message);
                         } else {
-                            console.log(err);
+                            cons0le.log(err);
                             this.setState({
                                 errorAddModelInstance: err.response,
                             });
@@ -150,7 +150,7 @@ export default class ModelInstanceAddForm extends React.Component {
         const target = event.target;
         let value = target.value;
         const name = target.name;
-        console.log(name + " => " + value);
+
         if (name === "version") {
             this.checkVersionUnique(value)
         }

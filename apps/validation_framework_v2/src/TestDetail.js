@@ -150,8 +150,8 @@ class TestDetail extends React.Component {
         let test_inst_ids = testData.instances.map(item => item.id).sort()
         let compare_test_inst_ids = Object.keys(compareTests[testData.id].selected_instances).sort()
         // check if all the test instances already added to compare
-        console.log(test_inst_ids.toString());
-        console.log(compare_test_inst_ids.toString());
+
+
         if (test_inst_ids.toString() === compare_test_inst_ids.toString()) {
             return true;
         } else {
@@ -162,7 +162,7 @@ class TestDetail extends React.Component {
     addTestCompare() {
         console.log("Add item to compare.")
         let [compareTests, setCompareTests] = this.context.compareTests;
-        console.log(compareTests);
+
         let test = this.props.testData;
         // check if test already added to compare
         if (!(test.id in compareTests)) {
@@ -182,7 +182,7 @@ class TestDetail extends React.Component {
                 }
             }
         }
-        console.log(compareTests);
+
         setCompareTests(compareTests);
         this.setState({ compareFlag: true })
         showNotification(this.props.enqueueSnackbar, this.props.closeSnackbar, "Test added to compare!", "info")
@@ -191,13 +191,13 @@ class TestDetail extends React.Component {
     removeTestCompare() {
         console.log("Remove item from compare.")
         let [compareTests, setCompareTests] = this.context.compareTests;
-        console.log(compareTests);
+
         let test = this.props.testData;
         // remove if test exists for compare
         if (test.id in compareTests) {
             delete compareTests[test.id];
         }
-        console.log(compareTests);
+
         setCompareTests(compareTests);
         this.setState({ compareFlag: false })
         showNotification(this.props.enqueueSnackbar, this.props.closeSnackbar, "Test removed from compare!", "info")
@@ -206,7 +206,7 @@ class TestDetail extends React.Component {
     addTestInstanceCompare(test_inst_id) {
         console.log("Add instance to compare.")
         let [compareTests, setCompareTests] = this.context.compareTests;
-        console.log(compareTests);
+
         let test = this.props.testData;
         // check if test already added to compare
         if (!(test.id in compareTests)) {
@@ -227,7 +227,7 @@ class TestDetail extends React.Component {
         }
         // check if all test instances are now in compare
         this.setState({ compareFlag: this.checkCompareStatus() })
-        console.log(compareTests);
+
         setCompareTests(compareTests);
         showNotification(this.props.enqueueSnackbar, this.props.closeSnackbar, "Test instance added to compare!", "info")
     }
@@ -235,7 +235,7 @@ class TestDetail extends React.Component {
     removeTestInstanceCompare(test_inst_id) {
         console.log("Remove instance from compare.")
         let [compareTests, setCompareTests] = this.context.compareTests;
-        console.log(compareTests);
+
         let test = this.props.testData;
         if (test.id in compareTests) {
             if (test_inst_id in compareTests[test.id].selected_instances) {
@@ -247,7 +247,7 @@ class TestDetail extends React.Component {
             delete compareTests[test.id];
             this.setState({ compareFlag: false })
         }
-        console.log(compareTests);
+
         setCompareTests(compareTests);
         this.forceUpdate();
         showNotification(this.props.enqueueSnackbar, this.props.closeSnackbar, "Test instance removed from compare!", "info")
@@ -264,8 +264,8 @@ class TestDetail extends React.Component {
     getExtendedData() {
         return datastore.getTest(this.props.testData.id, this.signal)
             .then(test => {
-                console.log("Retrieved full test data");
-                console.log(test);
+
+
                 this.props.updateCurrentTestData(test);
                 this.setState({
                     loadingExtended: false,
@@ -311,7 +311,7 @@ class TestDetail extends React.Component {
     };
 
     render() {
-        console.log(this.props.testData)
+
         return (
             <Dialog fullScreen onClose={this.handleClose} aria-labelledby="simple-dialog-title" open={this.props.open}>
                 <MyDialogTitle onClose={this.handleClose} />

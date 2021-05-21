@@ -71,7 +71,7 @@ function shortenLabelsUniquely(traces, type, pref_length) {
     traces.forEach(function(entry) {
         labels = mergeUnique(labels, entry["x"][type]);
     });
-    console.log(labels);
+
     // get subset of labels that are above pref_length
     // these need to be manipulated appropriately
     // we use this subset  to have more chance of
@@ -79,14 +79,14 @@ function shortenLabelsUniquely(traces, type, pref_length) {
     var labels_long = labels.filter(function(label) {
         return label.length > pref_length;
     });
-    console.log(labels_long);
+
     if (labels_long.length === 0) {
         return traces;
     }
 
     // find common prefix for long labels
     function findPrefix(strings) {
-        console.log(strings)
+
         if(!strings.length) {
             return null;
         }
@@ -120,7 +120,7 @@ function shortenLabelsUniquely(traces, type, pref_length) {
                     return item2;
                 }
             });
-            console.log(labels_final);
+
             this[ind1]["x"][type] = labels_final;
         }, traces);
     }
@@ -131,11 +131,11 @@ function shortenLabelsUniquely(traces, type, pref_length) {
     traces.forEach(function(entry) {
         labels = mergeUnique(labels, entry["x"][type]);
     });
-    console.log(labels);
+
     labels_long = labels.filter(function(label) {
         return label.length > pref_length;
     });
-    console.log(labels_long);
+
     if (labels_long.length === 0) {
         return traces;
     }
@@ -171,7 +171,7 @@ function shortenLabelsUniquely(traces, type, pref_length) {
                     return item2;
                 }
             });
-            console.log(labels_final);
+
             this[ind1]["x"][type] = labels_final;
         }, traces);
     }
@@ -182,17 +182,17 @@ function shortenLabelsUniquely(traces, type, pref_length) {
     traces.forEach(function(entry) {
         labels = mergeUnique(labels, entry["x"][type]);
     });
-    console.log(labels);
+
     labels_long = labels.filter(function(label) {
         return label.length > pref_length;
     });
-    console.log(labels_long);
+
     if (labels_long.length === 0) {
         return traces;
     }
 
     // else try to create an acronym from labels
-    console.log(traces_original);
+
     var traces_acronym = traces_original;
     traces_acronym.forEach(function(item1, ind1) {
         var trace_item = item1;
@@ -203,7 +203,7 @@ function shortenLabelsUniquely(traces, type, pref_length) {
                 return item2;
             }
         });
-        console.log(labels_final);
+
         this[ind1]["x"][type] = labels_final;
     }, traces_acronym);
 
@@ -225,7 +225,7 @@ function shortenLabelsUniquely(traces, type, pref_length) {
 }
 
 function ResultsFiguresSummaryXaxisModels(props) {
-    console.log(props.dict_results);
+
     let dict_results = props.dict_results;
 
     const Plot = createPlotlyComponent(Plotly);
@@ -309,9 +309,9 @@ function ResultsFiguresSummaryXaxisModels(props) {
         barmode: 'group'
     };
 
-    console.log(traces);
+
     traces = shortenLabels(traces);
-    console.log(traces);
+
 
     return (
         <Plot
@@ -326,7 +326,7 @@ function ResultsFiguresSummaryXaxisModels(props) {
 }
 
 function ResultsFiguresSummaryXaxisTests(props) {
-    console.log(props.dict_results);
+
     let dict_results = props.dict_results;
 
     const Plot = createPlotlyComponent(Plotly);
@@ -410,9 +410,9 @@ function ResultsFiguresSummaryXaxisTests(props) {
         barmode: 'group'
     };
 
-    console.log(traces);
+
     traces = shortenLabels(traces);
-    console.log(traces);
+
 
     return (
         <Plot

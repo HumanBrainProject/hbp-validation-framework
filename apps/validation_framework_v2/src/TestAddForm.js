@@ -100,7 +100,7 @@ export default class TestAddForm extends React.Component {
             return;
         }
 
-        console.log(aliasAxios);
+
         if (aliasAxios) {
             aliasAxios.cancel();
         }
@@ -108,7 +108,7 @@ export default class TestAddForm extends React.Component {
         this.setState({
             aliasLoading: true,
         });
-        console.log(newAlias);
+
 
         datastore.testAliasIsUnique(newAlias, aliasAxios)
             .then(isUnique => {
@@ -147,7 +147,7 @@ export default class TestAddForm extends React.Component {
     checkRequirements(payload) {
         // rule 1: test name cannot be empty
         let error = null;
-        console.log(payload.name)
+
         if (!payload.name) {
             error = "Test 'name' cannot be empty!"
         }
@@ -163,7 +163,7 @@ export default class TestAddForm extends React.Component {
         }
 
         if (error) {
-            console.log(error);
+            cons0le.log(error);
             this.setState({
                 errorAddTest: error,
             });
@@ -176,19 +176,19 @@ export default class TestAddForm extends React.Component {
     handleSubmit() {
         this.setState({ loading: true }, () => {
             let payload = this.createPayload();
-            console.log(payload);
+
             if (this.checkRequirements(payload)) {
                 datastore.createTest(payload, this.signal)
                     .then(test => {
-                        console.log(test);
+
                         this.props.onClose(test);
                     })
                     .catch(err => {
                         if (axios.isCancel(err)) {
                             console.log('Error: ', err.message);
                         } else {
-                            console.log(err);
-                            console.log(err.response);
+                            cons0le.log(err);
+
                             this.setState({
                                 errorAddTest: err.response,
                             });
@@ -205,7 +205,7 @@ export default class TestAddForm extends React.Component {
         const target = event.target;
         let value = target.value;
         const name = target.name;
-        console.log(name + " => " + value);
+
         if (name === "alias") {
             this.checkAliasUnique(value)
         } else if (name === "data_location") {

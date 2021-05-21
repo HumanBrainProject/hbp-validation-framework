@@ -85,7 +85,7 @@ class TestDetailContent extends React.Component {
 
     handleAddTestInstanceFormClose(newTestInstance) {
         console.log("close add")
-        console.log(newTestInstance)
+
         this.setState({ 'openAddInstanceForm': false });
         if (newTestInstance) {
             this.props.onAddTestInstance(newTestInstance);
@@ -95,7 +95,7 @@ class TestDetailContent extends React.Component {
 
     handleEditTestInstanceFormClose(testInstance) {
         console.log("close edit")
-        console.log(testInstance)
+
         this.setState({ 'openEditInstanceForm': false });
         if (testInstance) {
             this.props.onEditTestInstance(testInstance);
@@ -169,7 +169,7 @@ class TestDetailContent extends React.Component {
 
         return (
             <React.Fragment>
-                {console.log(this.state.instancesWithResults)}
+                {}
                 <Grid container direction="column">
                     <Grid item xs={12}>
                         <Box>

@@ -79,7 +79,6 @@ export default class ModelEditForm extends React.Component {
     }
 
     componentDidMount() {
-        console.log({ ...this.props.modelData });
         this.setState({ ...this.props.modelData })
     }
 
@@ -108,7 +107,7 @@ export default class ModelEditForm extends React.Component {
             return
         }
 
-        console.log(aliasAxios);
+
         if (aliasAxios) {
             aliasAxios.cancel();
         }
@@ -117,7 +116,7 @@ export default class ModelEditForm extends React.Component {
         this.setState({
             aliasLoading: true,
         });
-        console.log(newAlias);
+
 
         datastore.modelAliasIsUnique(newAlias, aliasAxios)
             .then(isUnique => {
@@ -165,7 +164,7 @@ export default class ModelEditForm extends React.Component {
     checkRequirements(payload) {
         // rule 1: model name cannot be empty
         let error = null;
-        console.log(payload.name)
+
         if (!payload.name) {
             error = "Model 'name' cannot be empty!"
         }
@@ -176,7 +175,7 @@ export default class ModelEditForm extends React.Component {
         }
 
         if (error) {
-            console.log(error);
+            cons0le.log(error);
             this.setState({
                 errorEditModel: error,
             });
@@ -189,18 +188,18 @@ export default class ModelEditForm extends React.Component {
     handleSubmit() {
         this.setState({ loading: true }, () => {
             let payload = this.createPayload();
-            console.log(payload);
+
             if (this.checkRequirements(payload)) {
                 datastore.updateModel(payload, this.signal)
                     .then(model => {
-                        console.log(model);
+
                         this.props.onClose(model);
                     })
                     .catch(err => {
                         if (axios.isCancel(err)) {
                             console.log('Error: ', err.message);
                         } else {
-                            console.log(err);
+                            cons0le.log(err);
                             this.setState({
                                 errorEditModel: err.response,
                             });
@@ -217,7 +216,7 @@ export default class ModelEditForm extends React.Component {
         const target = event.target;
         let value = target.value;
         const name = target.name;
-        console.log(name + " => " + value);
+
         if (name === "private") {
             value = !target.checked;
         }
@@ -234,7 +233,7 @@ export default class ModelEditForm extends React.Component {
         if (this.state.errorEditModel) {
             errorMessage = <ErrorDialog open={Boolean(this.state.errorEditModel)} handleErrorDialogClose={this.handleErrorEditDialogClose} error={this.state.errorEditModel.message || this.state.errorEditModel} />
         }
-        console.log(this.props.modelData)
+
         return (
             <Dialog onClose={this.handleClose}
                 aria-labelledby="Form for editing an existing model in the catalog"

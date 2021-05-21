@@ -149,8 +149,8 @@ class ModelDetail extends React.Component {
         let model_inst_ids = modelData.instances.map(item => item.id).sort()
         let compare_model_inst_ids = Object.keys(compareModels[modelData.id].selected_instances).sort()
         // check if all the model instances already added to compare
-        console.log(model_inst_ids.toString());
-        console.log(compare_model_inst_ids.toString());
+
+
         if (model_inst_ids.toString() === compare_model_inst_ids.toString()) {
             return true;
         } else {
@@ -161,7 +161,7 @@ class ModelDetail extends React.Component {
     addModelCompare() {
         console.log("Add item to compare.")
         let [compareModels, setCompareModels] = this.context.compareModels;
-        console.log(compareModels);
+
         let model = this.props.modelData;
         // check if model already added to compare
         if (!(model.id in compareModels)) {
@@ -181,7 +181,7 @@ class ModelDetail extends React.Component {
                 }
             }
         }
-        console.log(compareModels);
+
         setCompareModels(compareModels);
         this.setState({ compareFlag: true })
         showNotification(this.props.enqueueSnackbar, this.props.closeSnackbar, "Model added to compare!", "info")
@@ -190,13 +190,13 @@ class ModelDetail extends React.Component {
     removeModelCompare() {
         console.log("Remove item from compare.")
         let [compareModels, setCompareModels] = this.context.compareModels;
-        console.log(compareModels);
+
         let model = this.props.modelData;
         // remove if model exists for compare
         if (model.id in compareModels) {
             delete compareModels[model.id];
         }
-        console.log(compareModels);
+
         setCompareModels(compareModels);
         this.setState({ compareFlag: false })
         showNotification(this.props.enqueueSnackbar, this.props.closeSnackbar, "Model removed from compare!", "info")
@@ -205,7 +205,7 @@ class ModelDetail extends React.Component {
     addModelInstanceCompare(model_inst_id) {
         console.log("Add instance to compare.")
         let [compareModels, setCompareModels] = this.context.compareModels;
-        console.log(compareModels);
+
         let model = this.props.modelData;
         // check if model already added to compare
         if (!(model.id in compareModels)) {
@@ -226,7 +226,7 @@ class ModelDetail extends React.Component {
         }
         // check if all model instances are now in compare
         this.setState({ compareFlag: this.checkCompareStatus() })
-        console.log(compareModels);
+
         setCompareModels(compareModels);
         showNotification(this.props.enqueueSnackbar, this.props.closeSnackbar, "Model instance added to compare!", "info")
     }
@@ -234,7 +234,7 @@ class ModelDetail extends React.Component {
     removeModelInstanceCompare(model_inst_id) {
         console.log("Remove instance from compare.")
         let [compareModels, setCompareModels] = this.context.compareModels;
-        console.log(compareModels);
+
         let model = this.props.modelData;
         if (model.id in compareModels) {
             if (model_inst_id in compareModels[model.id].selected_instances) {
@@ -246,7 +246,7 @@ class ModelDetail extends React.Component {
             delete compareModels[model.id];
             this.setState({ compareFlag: false })
         }
-        console.log(compareModels);
+
         setCompareModels(compareModels);
         this.forceUpdate();
         showNotification(this.props.enqueueSnackbar, this.props.closeSnackbar, "Model instance removed from compare!", "info")
@@ -263,8 +263,6 @@ class ModelDetail extends React.Component {
     getExtendedData() {
         return datastore.getModel(this.props.modelData.id, this.signal)
             .then(model => {
-                console.log("Retrieved full model data");
-                console.log(model);
                 this.props.updateCurrentModelData(model);
                 this.setState({
                     loadingExtended: false,
@@ -289,8 +287,8 @@ class ModelDetail extends React.Component {
     getModelResults() {
         return datastore.getResultsByModel(this.props.modelData.id)
             .then(results => {
-                console.log(`Got results for model ${this.props.modelData.id}`);
-                console.log(results);
+
+
                 this.setState({
                     results: results,
                     loadingResult: false,
@@ -316,9 +314,9 @@ class ModelDetail extends React.Component {
         console.log("Checking edit access");
         datastore.getProjects()
             .then(projects => {
-                console.log(projects);
+
                 projects.forEach(projectID => {
-                    console.log(projectID, model.project_id);
+
                     if ((projectID === model.project_id) || (projectID === ADMIN_PROJECT_ID)) {
                         this.setState({
                             canEdit: true
@@ -332,7 +330,7 @@ class ModelDetail extends React.Component {
     }
 
     render() {
-        console.log(this.props.modelData)
+
         return (
             <Dialog fullScreen onClose={this.handleClose} aria-labelledby="simple-dialog-title" open={this.props.open}>
                 <MyDialogTitle onClose={this.handleClose} />

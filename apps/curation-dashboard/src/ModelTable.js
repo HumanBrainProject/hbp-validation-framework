@@ -233,12 +233,12 @@ export default function ModelTable(props) {
         getModels(props.auth)
             .then(res => {
                 console.log("Got models");
-                console.log(res.data);
+
                 setModels(addAdditionalFields(res.data));
                 setLoading(false);
             })
             .catch(err => {
-                console.log(err.message);
+
                 setErrorMessage('Error loading models: ', err.message);
                 setLoading(false);
             });

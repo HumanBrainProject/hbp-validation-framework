@@ -81,7 +81,7 @@ export default class ConfigForm extends React.Component {
             }
             const [validFilterValues,] = this.context.validFilterValues;
             console.log("validFilterValues");
-            console.log(validFilterValues);
+
             return (
                 <Dialog onClose={this.handleClose}
                     aria-labelledby="simple-dialog-title"

@@ -160,7 +160,7 @@ class ModelDetailContent extends React.Component {
 
     handleAddModelInstanceFormClose(newModelInstance) {
         console.log("close add")
-        console.log(newModelInstance)
+
         this.setState({ 'openAddInstanceForm': false });
         if (newModelInstance) {
             this.props.onAddModelInstance(newModelInstance);
@@ -170,7 +170,7 @@ class ModelDetailContent extends React.Component {
 
     handleEditModelInstanceFormClose(modelInstance) {
         console.log("close edit")
-        console.log(modelInstance)
+
         this.setState({ 'openEditInstanceForm': false });
         if (modelInstance) {
             this.props.onEditModelInstance(modelInstance);
@@ -254,7 +254,7 @@ class ModelDetailContent extends React.Component {
 
         return (
             <React.Fragment>
-                {console.log(this.state.instancesWithResults)}
+                {}
                 <Grid container direction="column">
                     <Grid item xs={12}>
                         <Box>

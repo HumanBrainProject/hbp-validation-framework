@@ -75,7 +75,7 @@ const storeSettings = (filterDict, display) => {
             },
             collaboratoryOrigin);
         console.log("Stored filter and display settings");
-        console.log(data);
+
     }
 };
 
@@ -90,7 +90,7 @@ const retrieveFilters = (context) => {
             filters[key] = [];
         }
     }
-    console.log(filters)
+
     const [, setContextFilters] = context.filters;
     setContextFilters(filters);
     return filters;
@@ -221,7 +221,7 @@ class ValidationFramework extends React.Component {
     }
 
     handleColumnsChange(key, columnName, action) {
-        console.log(`Changed column ${columnName} in table ${key}: ${action}`);
+
         let newColumns = [...this.state[key]];
         newColumns.forEach((col) => {
             if (col.name === columnName) {
@@ -249,11 +249,11 @@ class ValidationFramework extends React.Component {
 
     handleAddModelFormClose(currentModel) {
         console.log("close add")
-        console.log(currentModel)
+
         this.setState({ 'addModelFormOpen': false });
         if (currentModel) {
             let models = this.state.modelData;
-            console.log(this.state.modelData)
+
             models.unshift(currentModel);
             this.setState({
                 modelData: models,
@@ -273,8 +273,8 @@ class ValidationFramework extends React.Component {
                 break;
             }
         }
-        console.log("Updated current model");
-        console.log(updatedModel);
+
+
         this.setState({
             modelData: updatedModelData,
             currentModel: updatedModel
@@ -299,11 +299,11 @@ class ValidationFramework extends React.Component {
 
     handleAddTestFormClose(currentTest) {
         console.log("close add")
-        console.log(currentTest)
+
         this.setState({ 'addTestFormOpen': false });
         if (currentTest) {
             let tests = this.state.testData;
-            console.log(this.state.testData)
+
             tests.unshift(currentTest);
             this.setState({
                 testData: tests,
@@ -323,8 +323,8 @@ class ValidationFramework extends React.Component {
                 break;
             }
         }
-        console.log("Updated current test");
-        console.log(updatedTest);
+
+
         this.setState({
             testData: updatedTestData,
             currentTest: updatedTest
@@ -350,12 +350,10 @@ class ValidationFramework extends React.Component {
     componentDidMount() {
         document.body.style.backgroundColor = Theme.bodyBackground;
         const token = this.props.auth.tokenParsed;
-        console.log(token);
+
 
         const [, setAuthContext] = this.context.auth;
         setAuthContext(this.props.auth)
-        // console.log("Here: ", authContext);
-        // console.log("Here: ", setAuthContext);
 
         datastore.getValidFilterValues()
             .then(vocab => {
@@ -378,7 +376,7 @@ class ValidationFramework extends React.Component {
         this.props.auth.loadUserInfo()
             .success(() => {
                 const userInfo = this.props.auth.userInfo;
-                console.log(userInfo);
+
             })
             .error(console.log);
 
@@ -682,7 +680,7 @@ class ValidationFramework extends React.Component {
             this.setState({ loadingModel: true });
             datastore.queryModels(filters, this.signal)
                 .then(models => {
-                    console.log(models);
+
                     this.setState({
                         modelData: models,
                         loadingModel: false,
@@ -715,7 +713,7 @@ class ValidationFramework extends React.Component {
             this.setState({ loadingTest: true });
             datastore.queryTests(filters, this.signal)
                 .then(tests => {
-                    console.log(tests);
+
                     this.setState({
                         testData: tests,
                         loadingTest: false,
@@ -799,8 +797,8 @@ class ValidationFramework extends React.Component {
             update_test_flag = false;
         }
 
-        console.log(update_model_flag)
-        console.log(update_test_flag)
+
+
 
         let update_settings = false;
 
@@ -818,8 +816,8 @@ class ValidationFramework extends React.Component {
             }
             showNotification(this.props.enqueueSnackbar, this.props.closeSnackbar, "App config updated!", "success")
         }
-        console.log(update_model_flag)
-        console.log(update_test_flag)
+
+
 
         if (display !== this.state.display) { // compare new (display) with existing (this.state.display)
             update_settings = true;

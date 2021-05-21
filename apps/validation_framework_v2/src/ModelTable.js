@@ -78,8 +78,8 @@ class ModelTable extends React.Component {
     })
 
     downloadSelectedJSON(selectedRows) {
-        console.log(selectedRows);
-        console.log("Download JSON.");
+
+
         var selectedModels = [];
         for (var item in selectedRows.data) {
             let data = this.state.data[selectedRows.data[item].dataIndex]
@@ -94,7 +94,7 @@ class ModelTable extends React.Component {
     }
 
     hideTableRows(selectedRows) {
-        console.log("Hide row(s)!");
+
         var selectedIndices = [];
         for (var item in selectedRows.data) {
             selectedIndices.push(selectedRows.data[item].dataIndex)
@@ -134,7 +134,7 @@ class ModelTable extends React.Component {
         }
 
         let [compareModels, setCompareModels] = this.context.compareModels;
-        console.log(compareModels);
+
         for (let model of selectedModels) {
             // Note: only models with instances can be added to compare
             if (!model.loadedVersions) {
@@ -164,7 +164,7 @@ class ModelTable extends React.Component {
                 showNotification(this.props.enqueueSnackbar, this.props.closeSnackbar, "Skipped: model '" + model.name + "' (0 instances)!", "error")
             }
         }
-        console.log(compareModels);
+
         setCompareModels(compareModels);
     }
 

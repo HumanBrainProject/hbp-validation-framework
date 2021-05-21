@@ -151,16 +151,16 @@ class DataStore {
         return this.put(url, modelData, source)
                    .then(res => {
                        const model = res.data;
-                       console.log("Updated model:");
-                       console.log(model);
+
+
                        model.loadedVersions = true;
                        model.loadedResults = false;
                        if (model.instances === null) {
                            model.instances = [];
                        }
                        this.models[model.id] = model;
-                       console.log("Updated model:");
-                       console.log(model);
+
+
                        return model;
                    })
     }
@@ -191,7 +191,7 @@ class DataStore {
     }
 
     async getTest(identifier, source=null) {
-        console.log(`getTest: ${identifier}`);
+
         if (this.tests[identifier] && this.tests[identifier].loadedVersions) {
             return this.tests[identifier];
         } else {
@@ -206,8 +206,8 @@ class DataStore {
                     test.loadedResults = false;
                     test.results = [];
                     this.tests[identifier] = test;
-                    console.log("got test:");
-                    console.log(this.tests[identifier]);
+
+                    (this.tests[identifier]);
                     return this.tests[identifier];
                 });
         }
@@ -224,8 +224,8 @@ class DataStore {
             const url = this.baseUrl + "/tests/?" + encodeURI(query) + "&size=" + querySizeLimit + "&summary=true";
             return this.get(url, source)
                 .then((res) => {
-                    console.log("got tests:");
-                    console.log(res.data);
+
+
                     this.queries.tests[query] = [];
                     res.data.forEach((test) => {
                         test.loadedVersions = false;
@@ -285,8 +285,8 @@ class DataStore {
         return this.put(url, testData, source)
                    .then(res => {
                        const test = res.data;
-                       console.log("Updated test");
-                       console.log(test);
+
+
                        test.loadedVersions = true;
                        test.loadedResults = false;
                        if (test.instances === null) {
@@ -346,7 +346,7 @@ class DataStore {
     }
 
     async getResultsByModel(modelId, source=null) {
-        console.log(this.models[modelId]);
+
         if (this.models[modelId].loadedResults) {
             return this.models[modelId].results.map((resultId) => {return this.results[resultId]});
         } else {

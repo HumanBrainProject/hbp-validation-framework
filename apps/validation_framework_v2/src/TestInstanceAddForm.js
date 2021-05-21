@@ -32,8 +32,8 @@ export default class TestInstanceAddForm extends React.Component {
         this.checkVersionUnique = this.checkVersionUnique.bind(this);
 
         const [authContext,] = this.context.auth;
-        // console.log(authContext);
-        // console.log(authContext.token);
+        //
+        //
 
         this.state = {
             instances: [{
@@ -71,7 +71,7 @@ export default class TestInstanceAddForm extends React.Component {
 
         await datastore.getTestInstanceFromVersion(this.props.testID, newVersion, versionAxios)
             .then(res => {
-                console.log(res.data);
+
                 if (res.data.length === 0) {
                     isUnique = true;
                 }
@@ -80,7 +80,7 @@ export default class TestInstanceAddForm extends React.Component {
                 if (axios.isCancel(err)) {
                     console.log('Error: ', err.message);
                 } else {
-                    console.log(err);
+                    cons0le.log(err);
                 }
             });
         return isUnique
@@ -107,7 +107,7 @@ export default class TestInstanceAddForm extends React.Component {
             }
         }
         if (error) {
-            console.log(error);
+            cons0le.log(error);
             this.setState({
                 errorAddTestInstance: error,
             });
@@ -120,18 +120,18 @@ export default class TestInstanceAddForm extends React.Component {
     async handleSubmit() {
         this.setState({ loading: true }, async () => {
             let payload = this.createPayload();
-            console.log(payload);
+
             if (await this.checkRequirements(payload)) {
                 datastore.createTestInstance(this.props.testID, payload, this.state)
                     .then(testInstance => {
-                        console.log(testInstance);
+
                         this.props.onClose(testInstance);
                     })
                     .catch(err => {
                         if (axios.isCancel(err)) {
                             console.log('Error: ', err.message);
                         } else {
-                            console.log(err);
+                            cons0le.log(err);
                             this.setState({
                                 errorAddTestInstance: err.response,
                             });
@@ -148,7 +148,7 @@ export default class TestInstanceAddForm extends React.Component {
         const target = event.target;
         let value = target.value;
         const name = target.name;
-        console.log(name + " => " + value);
+
         if (name === "version") {
             this.checkVersionUnique(value)
         }
