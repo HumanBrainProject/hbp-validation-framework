@@ -5,7 +5,7 @@
 
 function configureApp() {
     // wait for /vocab call to complete
-    cy.wait(1000)
+    cy.wait(5000)
     // click on the cog to open config dialog
     cy.get('button[title="Change Configuration"]').click()
     // select "Only Test"
