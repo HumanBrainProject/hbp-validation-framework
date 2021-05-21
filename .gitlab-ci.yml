@@ -3,7 +3,7 @@ stages:
   - build
 
 run_cypress_tests:
-  image: node:latest
+  image: cypress/browsers:node12.14.1-chrome85-ff81
   stage: test
   script:
     - cd apps/validation_framework_v2
@@ -12,7 +12,7 @@ run_cypress_tests:
     # start the server in the background
     - npm run start:ci &
     # run Cypress tests
-    - npm run e2e
+    - npx cypress run --browser chrome
   tags:
     - docker-runner
 
