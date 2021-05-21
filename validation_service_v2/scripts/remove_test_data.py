@@ -25,6 +25,6 @@ test_tests = [test for test in all_tests if test["name"].startswith("[-TEST-]")]
 for test in test_tests:
     try:
         tl.delete_test(test_id=test["id"])
-        print("OK -test ", test["id"])
+        print("OK - test ", test["id"])
     except Exception as err:
         print("ERROR - test ", test["id"], str(err))
