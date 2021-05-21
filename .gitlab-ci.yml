@@ -13,6 +13,8 @@ run_cypress_tests:
     - npm run start:ci &
     # run Cypress tests
     - npm run e2e
+  tags:
+    - docker-runner
 
 build_image:
   stage: build
