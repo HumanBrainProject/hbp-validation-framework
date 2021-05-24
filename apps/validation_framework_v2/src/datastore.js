@@ -207,7 +207,6 @@ class DataStore {
                     test.results = [];
                     this.tests[identifier] = test;
 
-                    (this.tests[identifier]);
                     return this.tests[identifier];
                 });
         }

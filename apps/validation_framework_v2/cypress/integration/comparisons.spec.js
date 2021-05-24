@@ -31,6 +31,7 @@ describe('Comparing models starting from the homepage', () => {
         cy.get('body').click(200, 0)
         // click "OK" to apply the filters
         cy.get('button span').contains("Ok").click()
+        cy.wait(10000)
     })
 
     it('should allow us to choose the models to compare using Compare All', () => {

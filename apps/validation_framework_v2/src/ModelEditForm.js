@@ -175,7 +175,7 @@ export default class ModelEditForm extends React.Component {
         }
 
         if (error) {
-            cons0le.log(error);
+            console.log(error);
             this.setState({
                 errorEditModel: error,
             });
@@ -199,7 +199,7 @@ export default class ModelEditForm extends React.Component {
                         if (axios.isCancel(err)) {
                             console.log('Error: ', err.message);
                         } else {
-                            cons0le.log(err);
+                            console.log(err);
                             this.setState({
                                 errorEditModel: err.response,
                             });

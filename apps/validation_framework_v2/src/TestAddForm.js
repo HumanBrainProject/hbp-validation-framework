@@ -163,7 +163,7 @@ export default class TestAddForm extends React.Component {
         }
 
         if (error) {
-            cons0le.log(error);
+            console.log(error);
             this.setState({
                 errorAddTest: error,
             });
@@ -187,7 +187,7 @@ export default class TestAddForm extends React.Component {
                         if (axios.isCancel(err)) {
                             console.log('Error: ', err.message);
                         } else {
-                            cons0le.log(err);
+                            console.log(err);
 
                             this.setState({
                                 errorAddTest: err.response,

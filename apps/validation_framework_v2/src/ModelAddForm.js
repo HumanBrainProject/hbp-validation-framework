@@ -170,7 +170,7 @@ export default class ModelAddForm extends React.Component {
         }
 
         if (error) {
-            cons0le.log(error);
+            console.log(error);
             this.setState({
                 errorAddModel: error,
             });
@@ -194,7 +194,7 @@ export default class ModelAddForm extends React.Component {
                         if (axios.isCancel(err)) {
                             console.log('Error: ', err.message);
                         } else {
-                            cons0le.log(err);
+                            console.log(err);
 
                             this.setState({
                                 errorAddModel: err.response,

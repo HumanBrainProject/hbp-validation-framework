@@ -82,7 +82,7 @@ export default class ModelInstanceAddForm extends React.Component {
                 if (axios.isCancel(err)) {
                     console.log('Error: ', err.message);
                 } else {
-                    cons0le.log(err);
+                    console.log(err);
                 }
             });
         return isUnique
@@ -109,7 +109,7 @@ export default class ModelInstanceAddForm extends React.Component {
             }
         }
         if (error) {
-            cons0le.log(error);
+            console.log(error);
             this.setState({
                 errorAddModelInstance: error,
             });
@@ -133,7 +133,7 @@ export default class ModelInstanceAddForm extends React.Component {
                         if (axios.isCancel(err)) {
                             console.log('Error: ', err.message);
                         } else {
-                            cons0le.log(err);
+                            console.log(err);
                             this.setState({
                                 errorAddModelInstance: err.response,
                             });
