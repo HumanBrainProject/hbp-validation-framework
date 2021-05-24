@@ -23,7 +23,7 @@ export default function initAuth(main) {
 function checkPermissions(keycloak) {
     return keycloak.loadUserInfo()
         .then((userInfo) => {
-            console.log(userInfo);
+
             if (userInfo.roles.team.includes("collab-model-validation-editor") || userInfo.roles.team.includes("collab-model-validation-administrator")) {
                 keycloak.authorized = true;
             } else {

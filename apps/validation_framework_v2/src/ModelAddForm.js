@@ -18,9 +18,11 @@ import IconButton from '@material-ui/core/IconButton';
 import axios from 'axios';
 import PropTypes from 'prop-types';
 import React from 'react';
+
+import { datastore } from './datastore';
 import ContextMain from './ContextMain';
 import ErrorDialog from './ErrorDialog';
-import { baseUrl, filterModelKeys } from "./globals";
+import { filterModelKeys } from "./globals";
 import { replaceEmptyStringsWithNull } from "./utils";
 import LoadingIndicatorModal from './LoadingIndicatorModal';
 import ModelInstanceArrayOfForms from './ModelInstanceArrayOfForms';
@@ -31,7 +33,6 @@ import Theme from './theme';
 let aliasAxios = null;
 
 export default class ModelAddForm extends React.Component {
-    signal = axios.CancelToken.source();
     static contextType = ContextMain;
 
     constructor(props, context) {
@@ -96,15 +97,6 @@ export default class ModelAddForm extends React.Component {
     }
 
     checkAliasUnique(newAlias) {
-        console.log(aliasAxios);
-        if (aliasAxios) {
-            aliasAxios.cancel();
-        }
-        aliasAxios = axios.CancelToken.source();
-        this.setState({
-            aliasLoading: true,
-        });
-        console.log(newAlias);
         if (!newAlias) {
             this.setState({
                 isAliasNotUnique: true,
@@ -112,46 +104,28 @@ export default class ModelAddForm extends React.Component {
             });
             return;
         }
-        let url = baseUrl + "/models/" + encodeURI(newAlias);
-        let config = {
-            cancelToken: aliasAxios.token,
-            headers: {
-                'Authorization': 'Bearer ' + this.state.auth.token,
-            }
-        };
-        axios.get(url, config)
-            .then(res => {
-                console.log(res.data);
+
+        if (aliasAxios) {
+            aliasAxios.cancel();
+        }
+        aliasAxios = axios.CancelToken.source();
+        this.setState({
+            aliasLoading: true,
+        });
+
+
+        datastore.modelAliasIsUnique(newAlias, aliasAxios)
+            .then(isUnique => {
                 this.setState({
-                    isAliasNotUnique: true,
+                    isAliasNotUnique: !isUnique,
                     aliasLoading: false
                 });
-            })
-            .catch(err => {
-                if (axios.isCancel(err)) {
-                    console.log('Error: ', err.message);
-                } else {
-                    console.log(err);
-                    this.setState({
-                        isAliasNotUnique: false,
-                        aliasLoading: false
-                    });
-                }
             });
     }
 
     getProjectList() {
-        const url = baseUrl + "/projects";
-        const config = {headers: {'Authorization': 'Bearer ' + this.state.auth.token}};
-        axios.get(url, config)
-            .then(res => {
-                let editableProjects = [];
-                res.data.forEach(proj => {
-                    if (proj.permissions.UPDATE) {
-                        editableProjects.push(proj.project_id);
-                    }
-                });
-                editableProjects.sort();
+        datastore.getProjects()
+            .then(editableProjects => {
                 this.setState({
                     projects: editableProjects
                 });
@@ -185,7 +159,7 @@ export default class ModelAddForm extends React.Component {
     checkRequirements(payload) {
         // rule 1: model name cannot be empty
         let error = null;
-        console.log(payload.name)
+
         if (!payload.name) {
             error = "Model 'name' cannot be empty!"
         }
@@ -209,28 +183,19 @@ export default class ModelAddForm extends React.Component {
     handleSubmit() {
         this.setState({ loading: true }, () => {
             let payload = this.createPayload();
-            console.log(payload);
-            if (this.checkRequirements(payload)) {
-                let url = baseUrl + "/models/";
-                let config = {
-                    cancelToken: this.signal.token,
-                    headers: {
-                        'Authorization': 'Bearer ' + this.state.auth.token,
-                        'Content-type': 'application/json'
-                    }
-                };
 
-                axios.post(url, payload, config)
-                    .then(res => {
-                        console.log(res);
-                        this.props.onClose(res.data);
+            if (this.checkRequirements(payload)) {
+                datastore.createModel(payload, this.signal)
+                    .then(model => {
+
+                        this.props.onClose(model);
                     })
                     .catch(err => {
                         if (axios.isCancel(err)) {
                             console.log('Error: ', err.message);
                         } else {
                             console.log(err);
-                            console.log(err.response);
+
                             this.setState({
                                 errorAddModel: err.response,
                             });
@@ -247,7 +212,7 @@ export default class ModelAddForm extends React.Component {
         const target = event.target;
         let value = target.value;
         const name = target.name;
-        console.log(name + " => " + value);
+
         if (name === "private") {
             value = !target.checked;
         } else if (name === "alias") {

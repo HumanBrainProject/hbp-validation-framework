@@ -43,9 +43,9 @@ class ResultFile extends React.Component {
         // files in Collaboratory v2 storage need a suffix to the URL for direct downloads
         if (this.state.url.includes("drive.ebrains.eu")) {
             if (this.state.url.endsWith("?dl=1")) {
-                this.setState({ 
+                this.setState({
                     url: this.state.url.slice(0, -5),
-                    download_url: this.state.url 
+                    download_url: this.state.url
                 })
             } else {
                 this.setState({ download_url: this.state.url + "?dl=1" })
@@ -90,7 +90,7 @@ class ResultFile extends React.Component {
                         file_size: "?",
                     })
                 }
-                console.log(err)
+
             });
     }
 
@@ -101,7 +101,7 @@ class ResultFile extends React.Component {
     }
 
     render() {
-        console.log(this.props.r_file);
+
         var fsize = isNaN(this.state.file_size) ? this.state.file_size : filesize(this.state.file_size)
         return (
             <Grid style={{ marginBottom: 10 }}>

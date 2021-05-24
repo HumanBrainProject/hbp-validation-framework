@@ -10,7 +10,7 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import ContextMain from './ContextMain';
 import ErrorDialog from './ErrorDialog';
-import { baseUrl } from "./globals";
+import { datastore } from "./datastore";
 import { replaceEmptyStringsWithNull } from "./utils";
 import LoadingIndicatorModal from './LoadingIndicatorModal';
 import ModelInstanceArrayOfForms from './ModelInstanceArrayOfForms';
@@ -32,8 +32,8 @@ export default class ModelInstanceEditForm extends React.Component {
         this.checkVersionUnique = this.checkVersionUnique.bind(this);
 
         const [authContext,] = this.context.auth;
-        // console.log(authContext);
-        // console.log(authContext.token);
+        //
+        //
 
         this.state = {
             instances: [{
@@ -79,16 +79,9 @@ export default class ModelInstanceEditForm extends React.Component {
         }
         versionAxios = axios.CancelToken.source();
 
-        let url = baseUrl + "/models/" + this.props.modelID + "/instances/?version=" + newVersion;
-        let config = {
-            cancelToken: versionAxios.token,
-            headers: {
-                'Authorization': 'Bearer ' + this.state.auth.token,
-            }
-        };
-        await axios.get(url, config)
+        await datastore.getModelInstanceFromVersion(this.props.modelID, newVersion, versionAxios)
             .then(res => {
-                console.log(res.data);
+
                 if (res.data.length === 0) {
                     isUnique = true;
                 }
@@ -139,21 +132,12 @@ export default class ModelInstanceEditForm extends React.Component {
     async handleSubmit() {
         this.setState({ loading: true }, async () => {
             let payload = this.createPayload();
-            console.log(payload);
-            if (await this.checkRequirements(payload)) {
-                let url = baseUrl + "/models/" + this.props.modelID + "/instances/" + payload.id;
-                let config = {
-                    cancelToken: this.signal.token,
-                    headers: {
-                        'Authorization': 'Bearer ' + this.state.auth.token,
-                        'Content-type': 'application/json'
-                    }
-                };
 
-                axios.put(url, payload, config)
-                    .then(res => {
-                        console.log(res);
-                        this.props.onClose(res.data);
+            if (await this.checkRequirements(payload)) {
+                datastore.updateModelInstance(this.props.modelID, payload, this.signal)
+                    .then(modelInstance => {
+
+                        this.props.onClose(modelInstance);
                     })
                     .catch(err => {
                         if (axios.isCancel(err)) {
@@ -176,7 +160,7 @@ export default class ModelInstanceEditForm extends React.Component {
         const target = event.target;
         let value = target.value;
         const name = target.name;
-        console.log(name + " => " + value);
+
         if (name === "version") {
             this.checkVersionUnique(value)
         }
@@ -186,7 +170,7 @@ export default class ModelInstanceEditForm extends React.Component {
     }
 
     render() {
-        console.log(this.state.instances)
+
         let errorMessage = "";
         if (this.state.errorEditModelInstance) {
             errorMessage = <ErrorDialog open={Boolean(this.state.errorEditModelInstance)} handleErrorDialogClose={this.handleErrorEditDialogClose} error={this.state.errorEditModelInstance.message || this.state.errorEditModelInstance} />
@@ -220,7 +204,7 @@ export default class ModelInstanceEditForm extends React.Component {
                         Cancel
           </Button>
                     <Button onClick={this.handleSubmit} color="primary">
-                        Edit Model Instance
+                        Save changes
           </Button>
                 </DialogActions>
             </Dialog>

@@ -1,0 +1,27 @@
+stages:
+  - test
+  - build
+
+run_cypress_tests:
+  image: cypress/browsers:node12.14.1-chrome85-ff81
+  stage: test
+  script:
+    - cd apps/validation_framework_v2
+    # install dependencies
+    - npm ci
+    # start server and run Cypress tests
+    - npm run e2e:ci
+  tags:
+    - docker-runner
+
+build_image:
+  stage: build
+  only:
+    refs:
+      - development
+  script:
+    - docker build -f apps/deployment/Dockerfile.dev -t docker-registry.ebrains.eu/model-catalog/model-catalog-v2:dev ./apps
+    - docker login -u $DOCKER_REGISTRY_USER -p $DOCKER_REGISTRY_SECRET docker-registry.ebrains.eu
+    - docker push docker-registry.ebrains.eu/model-catalog/model-catalog-v2:dev
+  tags:
+    - shell-runner

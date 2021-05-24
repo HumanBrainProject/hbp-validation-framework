@@ -1,13 +1,14 @@
 import React from 'react';
 import MUIDataTable from "mui-datatables";
 import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
-import { formatAuthors, downloadJSON } from "./utils";
+
+import { datastore } from './datastore';
+import { formatAuthors, downloadJSON, showNotification } from "./utils";
 import MUIDataTableCustomToolbar from "./MUIDataTableCustomToolbar";
 import CustomToolbarSelect from "./MUIDataTableCustomRowToolbar";
 import ViewSelected from "./ViewSelected";
 import Theme from './theme';
 import ContextMain from './ContextMain';
-import { showNotification } from './utils';
 import { withSnackbar } from 'notistack';
 
 class ModelTable extends React.Component {
@@ -77,8 +78,8 @@ class ModelTable extends React.Component {
     })
 
     downloadSelectedJSON(selectedRows) {
-        console.log(selectedRows);
-        console.log("Download JSON.");
+
+
         var selectedModels = [];
         for (var item in selectedRows.data) {
             let data = this.state.data[selectedRows.data[item].dataIndex]
@@ -93,7 +94,7 @@ class ModelTable extends React.Component {
     }
 
     hideTableRows(selectedRows) {
-        console.log("Hide row(s)!");
+
         var selectedIndices = [];
         for (var item in selectedRows.data) {
             selectedIndices.push(selectedRows.data[item].dataIndex)
@@ -120,7 +121,7 @@ class ModelTable extends React.Component {
         })
     }
 
-    addModelCompare(selectedRows) {
+    async addModelCompare(selectedRows) {
         console.log("Add item(s) to compare.")
         var selectedModels = [];
         for (var item in selectedRows.data) {
@@ -133,9 +134,12 @@ class ModelTable extends React.Component {
         }
 
         let [compareModels, setCompareModels] = this.context.compareModels;
-        console.log(compareModels);
+
         for (let model of selectedModels) {
             // Note: only models with instances can be added to compare
+            if (!model.loadedVersions) {
+                model = await datastore.getModel(model.id);
+            }
             if (model.instances.length > 0) {
                 // check if model already added to compare
                 if (!(model.id in compareModels)) {
@@ -160,7 +164,7 @@ class ModelTable extends React.Component {
                 showNotification(this.props.enqueueSnackbar, this.props.closeSnackbar, "Skipped: model '" + model.name + "' (0 instances)!", "error")
             }
         }
-        console.log(compareModels);
+
         setCompareModels(compareModels);
     }
 

@@ -158,6 +158,7 @@ export default class TestResultOverview extends React.Component {
 
         this.handleResultEntryClick = this.handleResultEntryClick.bind(this)
         this.handleResultDetailClose = this.handleResultDetailClose.bind(this)
+        this.handleResultUpdate = this.handleResultUpdate.bind(this)
     }
 
     getTestVersions = () => {
@@ -187,38 +188,38 @@ export default class TestResultOverview extends React.Component {
 
         results.forEach(function (result, index) {
             // check if this model was already encountered
-            if (!(result.model.id in dict_results)) {
-                dict_results[result.model.id] = {
-                    model_id: result.model.id,
-                    model_name: result.model.name,
-                    model_alias: result.model.alias,
+            if (!(result.model_id in dict_results)) {
+                dict_results[result.model_id] = {
+                    model_id: result.model_id,
+                    model_name: result.model_name,
+                    model_alias: result.model_alias,
                     model_instances: {}
                 };
             }
             // check if this model instance was already encountered
-            if (!(result.model_instance_id in dict_results[result.model.id]["model_instances"])) {
-                dict_results[result.model.id]["model_instances"][result.model_instance_id] = {
+            if (!(result.model_instance_id in dict_results[result.model_id]["model_instances"])) {
+                dict_results[result.model_id]["model_instances"][result.model_instance_id] = {
                     model_inst_id: result.model_instance_id,
-                    model_version: result.model_instance.version,
-                    timestamp: result.model_instance.timestamp,
+                    model_version: result.model_version,
+                    //timestamp: result.model_instance.timestamp,
                     results: {}
                 };
             }
             // check if test instance exists for this model instance
-            if (!(result.test_instance_id in dict_results[result.model.id]["model_instances"][result.model_instance_id]["results"])) {
-                dict_results[result.model.id]["model_instances"][result.model_instance_id]["results"][result.test_instance_id] = [];
+            if (!(result.test_instance_id in dict_results[result.model_id]["model_instances"][result.model_instance_id]["results"])) {
+                dict_results[result.model_id]["model_instances"][result.model_instance_id]["results"][result.test_instance_id] = [];
             }
             // add result to list of test instance results for above test instance
-            dict_results[result.model.id]["model_instances"][result.model_instance_id]["results"][result.test_instance_id].push(
+            dict_results[result.model_id]["model_instances"][result.model_instance_id]["results"][result.test_instance_id].push(
                 {
                     result_id: result.id,
                     score: result.score,
                     timestamp: result.timestamp,
-                    test_id: result.test.id,
-                    test_name: result.test.name,
-                    test_alias: result.test.alias,
+                    test_id: result.test_id,
+                    test_name: result.test_name,
+                    test_alias: result.test_alias,
                     test_inst_id: result.test_instance_id,
-                    test_version: result.test_instance.version,
+                    test_version: result.test_version,
                     result_json: result
                 })
         });
@@ -226,8 +227,8 @@ export default class TestResultOverview extends React.Component {
         // insert empty lists for (model_instance, test_instance) combos without results
         results.forEach(function (result) {
             list_test_versions.forEach(function (t_inst) {
-                if (!(t_inst["test_inst_id"] in dict_results[result.model.id]["model_instances"][result.model_instance_id]["results"])) {
-                    dict_results[result.model.id]["model_instances"][result.model_instance_id]["results"][t_inst["test_inst_id"]] = [];
+                if (!(t_inst["test_inst_id"] in dict_results[result.model_id]["model_instances"][result.model_instance_id]["results"])) {
+                    dict_results[result.model_id]["model_instances"][result.model_instance_id]["results"][t_inst["test_inst_id"]] = [];
                 }
             })
         })
@@ -292,6 +293,12 @@ export default class TestResultOverview extends React.Component {
             'currentResult': null
         });
         updateHash('');
+    };
+
+    handleResultUpdate(updatedResult) {
+        this.setState({
+            'currentResult': updatedResult
+        });
     };
 
     renderResultsSummaryTable(dict_results, test_versions) {
@@ -371,7 +378,7 @@ export default class TestResultOverview extends React.Component {
         }
 
         if (this.state.currentResult) {
-            resultDetail = <ResultDetail open={this.state.resultDetailOpen} result={this.state.currentResult} onClose={this.handleResultDetailClose} />;
+            resultDetail = <ResultDetail open={this.state.resultDetailOpen} result={this.state.currentResult} onClose={this.handleResultDetailClose} onUpdate={this.handleResultUpdate} />;
         } else {
             resultDetail = "";
         }

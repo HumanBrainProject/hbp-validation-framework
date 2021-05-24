@@ -62,7 +62,7 @@ class TestDetailHeader extends React.Component {
 
     handleEditTestFormClose(test) {
         console.log("close edit")
-        console.log(test)
+
         this.setState({ 'openEditForm': false });
         if (test) {
             this.props.updateCurrentTestData(test)

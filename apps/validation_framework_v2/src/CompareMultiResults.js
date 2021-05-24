@@ -36,9 +36,10 @@ import axios from 'axios';
 import { withSnackbar } from 'notistack';
 import PropTypes from 'prop-types';
 import React from 'react';
+import { datastore } from './datastore';
 import CompareMultiGraphs from './CompareMultiGraphs';
 import ContextMain from './ContextMain';
-import { baseUrl, querySizeLimit, updateHash } from "./globals";
+import { updateHash } from "./globals";
 import LoadingIndicator from "./LoadingIndicator";
 import ResultDetail from './ResultDetail';
 import ResultGraphs from './ResultGraphs';
@@ -198,7 +199,7 @@ class ResultEntryModel extends React.Component {
                                 </TableCell>
                                 {
                                     // Not every model instance will have a result associated with every test instance (i.e. columns)
-                                    // thus we need to fill in the results in the correct columns (corresponding to matching test instances) 
+                                    // thus we need to fill in the results in the correct columns (corresponding to matching test instances)
                                     list_tests.map(function (test) {
                                         return dict_test_versions[test.test_id].map(function (test_inst) {
                                             if (Object.keys(result_model.model_instances[model_inst_id].tests).includes(test.test_id)
@@ -257,7 +258,7 @@ class ResultEntryTest extends React.Component {
                                 </TableCell>
                                 {
                                     // Not every test instance will have a result associated with every model instance (i.e. columns)
-                                    // thus we need to fill in the results in the correct columns (corresponding to matching model instances) 
+                                    // thus we need to fill in the results in the correct columns (corresponding to matching model instances)
                                     list_models.map(function (model) {
                                         return dict_model_versions[model.model_id].map(function (model_inst) {
                                             if (Object.keys(result_test.test_instances[test_inst_id].models).includes(model.model_id)
@@ -391,20 +392,13 @@ class CompareMultiResults extends React.Component {
     }
 
     fetchModelResults() {
-        let url = baseUrl + "/results-extended/?model_instance_id=" + this.state.model_inst_ids.join('&model_instance_id=') + "&size=" + querySizeLimit;
-        let config = {
-            cancelToken: this.signal.token,
-            headers: {
-                'Authorization': 'Bearer ' + this.state.auth.token,
-            }
-        }
-        return axios.get(url, config)
-            .then(res => {
+        return datastore.getResultsByModelInstances(this.state.model_inst_ids)
+            .then(results => {
                 this.setState({
                     loadingResults: false,
                 });
-                console.log(res);
-                return res.data;
+
+                return results;
             })
             .catch(err => {
                 if (axios.isCancel(err)) {
@@ -421,20 +415,13 @@ class CompareMultiResults extends React.Component {
     }
 
     fetchTestResults() {
-        let url = baseUrl + "/results-extended/?test_instance_id=" + this.state.test_inst_ids.join('&test_instance_id=') + "&size=" + querySizeLimit;
-        let config = {
-            cancelToken: this.signal.token,
-            headers: {
-                'Authorization': 'Bearer ' + this.state.auth.token,
-            }
-        }
-        return axios.get(url, config)
-            .then(res => {
+        return datastore.getResultsByTestInstance(this.state.test_inst_ids, this.signal)
+            .then(results => {
                 this.setState({
                     loadingResults: false,
                 });
-                console.log(res);
-                return res.data;
+
+                return results;
             })
             .catch(err => {
                 if (axios.isCancel(err)) {
@@ -468,7 +455,7 @@ class CompareMultiResults extends React.Component {
             results = await this.fetchTestResults()
         }
 
-        console.log(results);
+
         // if both models and tests specified, filter results (obtained from models) by tests
         let filtered_results = [];
         let test_inst_ids = this.state.test_inst_ids;
@@ -482,7 +469,7 @@ class CompareMultiResults extends React.Component {
             filtered_results = results;
         }
 
-        console.log(filtered_results);
+
         this.setState({
             results: filtered_results
         })
@@ -627,7 +614,7 @@ class CompareMultiResults extends React.Component {
 
         // loop every model
         Object.keys(model_dict).forEach(function (m_key, index) {
-            // console.log(m_key);
+            //
             // check if model exists in results
             if (!(m_key in results_grouped)) {
                 results_grouped[m_key] = {
@@ -639,7 +626,7 @@ class CompareMultiResults extends React.Component {
             }
             // loop every model instance
             Object.keys(model_dict[m_key].selected_instances).forEach(function (m_inst_key, index) {
-                // console.log(m_inst_key);
+                //
                 // check if model instance exists for this model in results
                 if (!(m_inst_key in results_grouped[m_key]["model_instances"])) {
                     results_grouped[m_key]["model_instances"][m_inst_key] = {
@@ -651,7 +638,7 @@ class CompareMultiResults extends React.Component {
                 }
                 // loop every test
                 Object.keys(test_dict).forEach(function (t_key, index) {
-                    // console.log(t_key);
+                    //
                     // check if test exists in results for this model instance
                     if (!(t_key in results_grouped[m_key]["model_instances"][m_inst_key]["tests"])) {
                         results_grouped[m_key]["model_instances"][m_inst_key]["tests"][t_key] = {
@@ -663,7 +650,7 @@ class CompareMultiResults extends React.Component {
                     }
                     // loop every test instance
                     Object.keys(test_dict[t_key].selected_instances).forEach(function (t_inst_key, index) {
-                        // console.log(t_inst_key);
+                        //
                         // check if test instance exists for this test in results
                         if (!(t_inst_key in results_grouped[m_key]["model_instances"][m_inst_key]["tests"][t_key]["test_instances"])) {
                             results_grouped[m_key]["model_instances"][m_inst_key]["tests"][t_key]["test_instances"][t_inst_key] = {
@@ -819,7 +806,7 @@ class CompareMultiResults extends React.Component {
             });
         });
 
-        console.log(dict_results);
+
         return dict_results
     }
 
@@ -962,14 +949,14 @@ class CompareMultiResults extends React.Component {
             });
         });
 
-        console.log(dict_results);
+
         return dict_results
     }
 
     renderModelsResultsSummaryTable(dict_results, list_tests, dict_test_versions) {
-        console.log(dict_results);
-        console.log(list_tests);
-        console.log(dict_test_versions);
+
+
+
         return (
             <React.Fragment >
                 <Grid container item direction="column">
@@ -1036,7 +1023,7 @@ class CompareMultiResults extends React.Component {
     }
 
     renderTestsResultsSummaryTable(dict_results, list_models, dict_model_versions) {
-        console.log(dict_results);
+
 
         return (
             <React.Fragment >
@@ -1106,8 +1093,8 @@ class CompareMultiResults extends React.Component {
     launchCompare() {
         let results = this.state.results;
         let required_results = [];
-        console.log(this.state.compareShow);
-        console.log(results);
+
+
         if (this.state.compareShow === "common_models") {
             let test_inst_ids = [];
             if (this.state.test_inst_ids.length === 0) {
@@ -1119,10 +1106,10 @@ class CompareMultiResults extends React.Component {
             } else {
                 test_inst_ids = this.state.test_inst_ids;
             }
-            console.log(test_inst_ids)
+
             // filter to get test instances that exist in results for every model instance
             for (let t_inst_key of test_inst_ids) {
-                console.log(t_inst_key);
+
                 let t_inst_results = [];
                 let t_inst_for_m_inst = [];
                 results.forEach(function (result) {
@@ -1133,8 +1120,8 @@ class CompareMultiResults extends React.Component {
                         }
                     }
                 });
-                console.log(t_inst_for_m_inst);
-                console.log(this.state.model_inst_ids);
+
+
                 if (t_inst_for_m_inst.sort().toString() === this.state.model_inst_ids.sort().toString()) {
                     required_results = required_results.concat(t_inst_results)
                 }
@@ -1150,10 +1137,10 @@ class CompareMultiResults extends React.Component {
             } else {
                 model_inst_ids = this.state.model_inst_ids;
             }
-            console.log(model_inst_ids)
+
             // filter to get model instances that exist in results for every test instance
             for (let m_inst_key of model_inst_ids) {
-                console.log(m_inst_key);
+
                 let m_inst_results = [];
                 let m_inst_for_t_inst = [];
                 results.forEach(function (result) {
@@ -1164,8 +1151,8 @@ class CompareMultiResults extends React.Component {
                         }
                     }
                 });
-                console.log(m_inst_for_t_inst);
-                console.log(this.state.test_inst_ids);
+
+
                 if (m_inst_for_t_inst.sort().toString() === this.state.test_inst_ids.sort().toString()) {
                     required_results = required_results.concat(m_inst_results)
                 }
@@ -1175,7 +1162,7 @@ class CompareMultiResults extends React.Component {
         } else {
             return <></>
         }
-        console.log(required_results)
+
 
         // render tables and figures for the selected results
         var content_table = "";
@@ -1191,18 +1178,18 @@ class CompareMultiResults extends React.Component {
             if (this.state.compareShow === "common_tests") {
                 const [list_models, dict_model_versions] = this.getModelVersions(required_results);
                 results_grouped = this.groupResultsTestsCompare(required_results);
-                console.log(results_grouped);
+
                 content_table = this.renderTestsResultsSummaryTable(results_grouped, list_models, dict_model_versions);
             } else {
                 // case for this.state.compareShow = "common_models" or "all"
                 const [list_tests, dict_test_versions] = this.getTestVersions(required_results);
                 results_grouped = this.groupResultsModelsCompare(required_results);
-                console.log(results_grouped);
+
                 if (this.state.compareShow === "all") {
                     // insert empty entries for (model_instance, test_instance) combos without results - only for compareShow === "all"
                     results_grouped = this.addEmptyResults(results_grouped)
                 }
-                console.log(results_grouped);
+
                 content_table = this.renderModelsResultsSummaryTable(results_grouped, list_tests, dict_test_versions);
             }
             content_figures = <ResultGraphs
@@ -1379,9 +1366,9 @@ class CompareMultiResults extends React.Component {
         var content_summary = "";
         var resultDetail = "";
 
-        console.log(this.state.model_inst_ids)
-        console.log(this.state.test_inst_ids)
-        console.log(this.state.results)
+
+
+
 
         if (this.state.loadingResults && this.state.compareShow) {
             content_table = <Grid item xs={12} align="center"><LoadingIndicator position="relative" /></Grid>

@@ -15,7 +15,8 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import ContextMain from './ContextMain';
 import ErrorDialog from './ErrorDialog';
-import { baseUrl, filterTestKeys } from "./globals";
+import { filterTestKeys } from "./globals";
+import { datastore } from "./datastore";
 import { replaceEmptyStringsWithNull } from "./utils";
 import LoadingIndicatorModal from './LoadingIndicatorModal';
 import PersonSelect from './PersonSelect';
@@ -73,7 +74,7 @@ export default class TestEditForm extends React.Component {
     }
 
     componentDidMount() {
-        console.log({ ...this.props.testData });
+
         this.setState({ ...this.props.testData })
     }
 
@@ -87,7 +88,7 @@ export default class TestEditForm extends React.Component {
     }
 
     checkAliasUnique(newAlias) {
-        console.log(aliasAxios);
+
         if (aliasAxios) {
             aliasAxios.cancel();
         }
@@ -104,7 +105,7 @@ export default class TestEditForm extends React.Component {
         this.setState({
             aliasLoading: true,
         });
-        console.log(newAlias);
+
         if (!newAlias) {
             this.setState({
                 isAliasNotUnique: true,
@@ -112,36 +113,11 @@ export default class TestEditForm extends React.Component {
             });
             return;
         }
-        let url = baseUrl + "/tests/" + encodeURI(newAlias);
-        let config = {
-            cancelToken: aliasAxios.token,
-            headers: {
-                'Authorization': 'Bearer ' + this.state.auth.token,
-            }
-        };
-        axios.get(url, config)
-            .then(res => {
-                console.log(res.data.tests);
-                if (res.data.tests.length === 0) {
-                    this.setState({
-                        isAliasNotUnique: false,
-                        aliasLoading: false
-                    });
-                } else {
-                    this.setState({
-                        isAliasNotUnique: true,
-                        aliasLoading: false
-                    });
-                }
-            })
-            .catch(err => {
-                if (axios.isCancel(err)) {
-                    console.log('Error: ', err.message);
-                } else {
-                    console.log(err);
-                }
+
+        datastore.testAliasIsUnique(newAlias, aliasAxios)
+            .then(isUnique => {
                 this.setState({
-                    isAliasNotUnique: true,
+                    isAliasNotUnique: !isUnique,
                     aliasLoading: false
                 });
             });
@@ -172,7 +148,7 @@ export default class TestEditForm extends React.Component {
     checkRequirements(payload) {
         // rule 1: test name cannot be empty
         let error = null;
-        console.log(payload.name)
+
         if (!payload.name) {
             error = "Test 'name' cannot be empty!"
         }
@@ -201,21 +177,12 @@ export default class TestEditForm extends React.Component {
     handleSubmit() {
         this.setState({ loading: true }, () => {
             let payload = this.createPayload();
-            console.log(payload);
-            if (this.checkRequirements(payload)) {
-                let url = baseUrl + "/tests/" + this.state.id;
-                let config = {
-                    cancelToken: this.signal.token,
-                    headers: {
-                        'Authorization': 'Bearer ' + this.state.auth.token,
-                        'Content-type': 'application/json'
-                    }
-                };
 
-                axios.put(url, payload, config)
-                    .then(res => {
-                        console.log(res);
-                        this.props.onClose(res.data);
+            if (this.checkRequirements(payload)) {
+                datastore.updateTest(payload, this.signal)
+                    .then(test => {
+
+                        this.props.onClose(test);
                     })
                     .catch(err => {
                         if (axios.isCancel(err)) {
@@ -238,7 +205,7 @@ export default class TestEditForm extends React.Component {
         const target = event.target;
         let value = target.value;
         const name = target.name;
-        console.log(name + " => " + value);
+
         if (name === "private") {
             value = !target.checked;
         }
@@ -255,7 +222,7 @@ export default class TestEditForm extends React.Component {
         if (this.state.errorEditTest) {
             errorMessage = <ErrorDialog open={Boolean(this.state.errorEditTest)} handleErrorDialogClose={this.handleErrorEditDialogClose} error={this.state.errorEditTest.message || this.state.errorEditTest} />
         }
-        console.log(this.props.testData)
+
         return (
             <Dialog onClose={this.handleClose}
                 aria-labelledby="Form for editing an existing test in the library"
@@ -334,7 +301,7 @@ export default class TestEditForm extends React.Component {
                         Cancel
           </Button>
                     <Button onClick={this.handleSubmit} color="primary">
-                        Edit Test
+                        Save changes
           </Button>
                 </DialogActions>
             </Dialog>

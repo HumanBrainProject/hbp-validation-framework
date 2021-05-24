@@ -110,7 +110,7 @@ export function copyToClipboard(value, enqueueSnackbar, closeSnackbar, message, 
         variant: type,
         anchorOrigin: {
             vertical: 'bottom',
-            horizontal: 'right',
+            horizontal: 'left',
         },
         onClick: () => {
           closeSnackbar(key);
@@ -125,7 +125,7 @@ export function showNotification(enqueueSnackbar, closeSnackbar, message, type =
         variant: type,
         anchorOrigin: {
             vertical: 'bottom',
-            horizontal: 'right',
+            horizontal: 'left',
         },
         onClick: () => {
           closeSnackbar(key);

@@ -5,11 +5,11 @@ function parseName(fullName) {
     const human = require("humanparser");
     fullName = fullName.trim();
     let givenName, familyName;
-    console.log("fullName = " + fullName);
+
     // [familyName, givenName] = fullName.split(",", 2);
     givenName = [human.parseName(fullName).firstName, human.parseName(fullName).middleName].filter(Boolean).join(" ")
     familyName = human.parseName(fullName).lastName
-    console.log("familyName = " + familyName + " givenName = " + givenName);
+
     return {
         given_name: givenName.trim(),
         family_name: familyName.trim()
@@ -17,12 +17,10 @@ function parseName(fullName) {
 }
 
 function formatNames(nameList) {
-    //console.log("nameList = " + nameList);
     let formattedNames = nameList.map(function (obj) {
         let nameStr = obj.family_name + ", " + obj.given_name;
         return nameStr;
     });
-    //console.log("formattedNames = " + formattedNames);
     return formattedNames;
 }
 

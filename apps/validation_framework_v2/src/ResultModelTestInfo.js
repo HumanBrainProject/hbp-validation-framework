@@ -195,16 +195,16 @@ class ResultModelTestInfo extends React.Component {
                             aria-controls="panel1a-content"
                             id="panel_model_test_instance_common"
                         >
-                            <Typography variant="subtitle1"><b>Model & Test Instance: Common Parameters</b></Typography>
+                            <Typography variant="subtitle1"><b>Model & Test Version: Common Parameters</b></Typography>
                         </AccordionSummary>
                         <AccordionDetails>
                             <TableContainer component={Paper}>
                                 <Table>
                                     <TableHead>
                                         <TableRow>
-                                            <TableCell align="center" style={{ backgroundColor: Theme.tableHeader }}><Typography variant="body2"><b>Model Instance</b></Typography></TableCell>
+                                            <TableCell align="center" style={{ backgroundColor: Theme.tableHeader }}><Typography variant="body2"><b>Model Version</b></Typography></TableCell>
                                             <TableCell width="150px" align="center" style={{ backgroundColor: Theme.tableRowSelectColor }}><Typography variant="body2"><b>Parameter</b></Typography></TableCell>
-                                            <TableCell align="center" style={{ backgroundColor: Theme.tableHeader }}><Typography variant="body2"><b>Test Instance</b></Typography></TableCell>
+                                            <TableCell align="center" style={{ backgroundColor: Theme.tableHeader }}><Typography variant="body2"><b>Test Version</b></Typography></TableCell>
                                         </TableRow>
                                     </TableHead>
                                     <TableBody>
@@ -224,7 +224,7 @@ class ResultModelTestInfo extends React.Component {
                             aria-controls="panel1a-content"
                             id="panel_model_test_instance_others"
                         >
-                            <Typography variant="subtitle1"><b>Model & Test Instance: Other Parameters</b></Typography>
+                            <Typography variant="subtitle1"><b>Model & Test Version: Other Parameters</b></Typography>
                         </AccordionSummary>
                         <AccordionDetails>
                             <Grid container spacing={2}>
@@ -233,7 +233,7 @@ class ResultModelTestInfo extends React.Component {
                                         <Table>
                                             <TableHead>
                                                 <TableRow>
-                                                    <TableCell align="center" style={{ backgroundColor: Theme.tableHeader }} colSpan={2}><Typography variant="body2"><b>Model Instance</b></Typography></TableCell>
+                                                    <TableCell align="center" style={{ backgroundColor: Theme.tableHeader }} colSpan={2}><Typography variant="body2"><b>Model Version</b></Typography></TableCell>
                                                 </TableRow>
                                             </TableHead>
                                             <TableBody>
@@ -249,7 +249,7 @@ class ResultModelTestInfo extends React.Component {
                                         <Table>
                                             <TableHead>
                                                 <TableRow>
-                                                    <TableCell align="center" style={{ backgroundColor: Theme.tableHeader }} colSpan={2}><Typography variant="body2"><b>Test Instance</b></Typography></TableCell>
+                                                    <TableCell align="center" style={{ backgroundColor: Theme.tableHeader }} colSpan={2}><Typography variant="body2"><b>Test Version</b></Typography></TableCell>
                                                 </TableRow>
                                             </TableHead>
                                             <TableBody>
@@ -271,20 +271,20 @@ class ResultModelTestInfo extends React.Component {
                             aria-controls="panel1a-content"
                             id="panel_model_test_common"
                         >
-                            <Typography variant="subtitle1"><b>Model & Test Instance: Descriptions</b></Typography>
+                            <Typography variant="subtitle1"><b>Model & Test Version: Descriptions</b></Typography>
                         </AccordionSummary>
                         <AccordionDetails>
                             <TableContainer component={Paper}>
                                 <Table>
                                     <TableBody>
                                         <TableRow>
-                                            <TableCell style={{ backgroundColor: Theme.tableHeader }}><Typography variant="body2"><b>Model Instance Description</b></Typography></TableCell>
+                                            <TableCell style={{ backgroundColor: Theme.tableHeader }}><Typography variant="body2"><b>Model Version Description</b></Typography></TableCell>
                                         </TableRow>
                                         <TableRow>
                                             <TableCell><Typography variant="body2">{this.props.model_instance.description ? this.props.model_instance.description : "<< no info >>"}</Typography></TableCell>
                                         </TableRow>
                                         <TableRow>
-                                            <TableCell style={{ backgroundColor: Theme.tableHeader }}><Typography variant="body2"><b>Test Instance Description</b></Typography></TableCell>
+                                            <TableCell style={{ backgroundColor: Theme.tableHeader }}><Typography variant="body2"><b>Test Version Description</b></Typography></TableCell>
                                         </TableRow>
                                         <TableRow>
                                             <TableCell><Typography variant="body2">{this.props.test_instance.description ? this.props.test_instance.description : "<< no info >>"}</Typography></TableCell>

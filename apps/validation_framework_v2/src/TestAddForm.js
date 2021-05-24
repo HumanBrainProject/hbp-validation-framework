@@ -16,9 +16,11 @@ import RadioButtonUncheckedIcon from '@material-ui/icons/RadioButtonUnchecked';
 import axios from 'axios';
 import PropTypes from 'prop-types';
 import React from 'react';
+
+import { datastore } from './datastore';
 import ContextMain from './ContextMain';
 import ErrorDialog from './ErrorDialog';
-import { baseUrl, filterTestKeys } from "./globals";
+import { filterTestKeys } from "./globals";
 import { replaceEmptyStringsWithNull } from "./utils";
 import LoadingIndicatorModal from './LoadingIndicatorModal';
 import PersonSelect from './PersonSelect';
@@ -90,15 +92,6 @@ export default class TestAddForm extends React.Component {
     }
 
     checkAliasUnique(newAlias) {
-        console.log(aliasAxios);
-        if (aliasAxios) {
-            aliasAxios.cancel();
-        }
-        aliasAxios = axios.CancelToken.source();
-        this.setState({
-            aliasLoading: true,
-        });
-        console.log(newAlias);
         if (!newAlias) {
             this.setState({
                 isAliasNotUnique: true,
@@ -106,31 +99,23 @@ export default class TestAddForm extends React.Component {
             });
             return;
         }
-        let url = baseUrl + "/tests/" + encodeURI(newAlias);
-        let config = {
-            cancelToken: aliasAxios.token,
-            headers: {
-                'Authorization': 'Bearer ' + this.state.auth.token,
-            }
-        };
-        axios.get(url, config)
-            .then(res => {
-                console.log(res.data);
+
+
+        if (aliasAxios) {
+            aliasAxios.cancel();
+        }
+        aliasAxios = axios.CancelToken.source();
+        this.setState({
+            aliasLoading: true,
+        });
+
+
+        datastore.testAliasIsUnique(newAlias, aliasAxios)
+            .then(isUnique => {
                 this.setState({
-                    isAliasNotUnique: true,
+                    isAliasNotUnique: !isUnique,
                     aliasLoading: false
                 });
-            })
-            .catch(err => {
-                if (axios.isCancel(err)) {
-                    console.log('Error: ', err.message);
-                } else {
-                    console.log(err);
-                    this.setState({
-                        isAliasNotUnique: false,
-                        aliasLoading: false
-                    });
-                }
             });
     }
 
@@ -162,7 +147,7 @@ export default class TestAddForm extends React.Component {
     checkRequirements(payload) {
         // rule 1: test name cannot be empty
         let error = null;
-        console.log(payload.name)
+
         if (!payload.name) {
             error = "Test 'name' cannot be empty!"
         }
@@ -191,28 +176,19 @@ export default class TestAddForm extends React.Component {
     handleSubmit() {
         this.setState({ loading: true }, () => {
             let payload = this.createPayload();
-            console.log(payload);
-            if (this.checkRequirements(payload)) {
-                let url = baseUrl + "/tests/";
-                let config = {
-                    cancelToken: this.signal.token,
-                    headers: {
-                        'Authorization': 'Bearer ' + this.state.auth.token,
-                        'Content-type': 'application/json'
-                    }
-                };
 
-                axios.post(url, payload, config)
-                    .then(res => {
-                        console.log(res);
-                        this.props.onClose(res.data);
+            if (this.checkRequirements(payload)) {
+                datastore.createTest(payload, this.signal)
+                    .then(test => {
+
+                        this.props.onClose(test);
                     })
                     .catch(err => {
                         if (axios.isCancel(err)) {
                             console.log('Error: ', err.message);
                         } else {
                             console.log(err);
-                            console.log(err.response);
+
                             this.setState({
                                 errorAddTest: err.response,
                             });
@@ -229,7 +205,7 @@ export default class TestAddForm extends React.Component {
         const target = event.target;
         let value = target.value;
         const name = target.name;
-        console.log(name + " => " + value);
+
         if (name === "alias") {
             this.checkAliasUnique(value)
         } else if (name === "data_location") {

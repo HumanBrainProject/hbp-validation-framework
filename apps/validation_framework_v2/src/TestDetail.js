@@ -19,13 +19,14 @@ import { withSnackbar } from 'notistack';
 
 import axios from 'axios';
 
+import { datastore } from "./datastore";
 import TestDetailHeader from './TestDetailHeader';
 import TestDetailContent from './TestDetailContent';
 import TestDetailMetadata from './TestDetailMetadata';
 import TestResultOverview from './TestResultOverview';
 import { formatAuthors } from "./utils";
 import ResultGraphs from './ResultGraphs';
-import { DevMode, baseUrl, querySizeLimit } from "./globals";
+import { DevMode } from "./globals";
 
 // if working on the appearance/layout set globals.DevMode=true
 // to avoid loading the models and tests over the network every time;
@@ -94,18 +95,24 @@ class TestDetail extends React.Component {
         super(props, context);
         const [authContext,] = this.context.auth;
 
+        let testData = this.props.testData;
+        if (!testData.data_location) {
+            testData.data_location = [];
+        }
+
         this.state = {
             tabValue: 0,
             results: null,
             loadingResult: true,
+            loadingExtended: true,
             error: null,
-            testData: this.props.testData,
             auth: authContext,
-            compareFlag: this.props.testData.instances.length === 0 ? null : this.checkCompareStatus()
+            compareFlag: null
         };
         if (DevMode) {
             this.state['results'] = result_data.results;
             this.state['loadingResult'] = false;
+            this.state['loadingExtended'] = false;
         }
         this.updateCurrentTestData = this.updateCurrentTestData.bind(this);
         this.checkCompareStatus = this.checkCompareStatus.bind(this);
@@ -115,10 +122,12 @@ class TestDetail extends React.Component {
         this.removeTestInstanceCompare = this.removeTestInstanceCompare.bind(this);
         this.handleClose = this.handleClose.bind(this);
         this.handleTabChange = this.handleTabChange.bind(this);
+        this.getExtendedData =  this.getExtendedData.bind(this);
     }
 
     componentDidMount() {
         if (!DevMode) {
+            this.getExtendedData();
             this.getTestResults();
         }
     }
@@ -128,23 +137,21 @@ class TestDetail extends React.Component {
     }
 
     updateCurrentTestData(updatedTestData) {
-        this.setState({
-            testData: updatedTestData
-        })
+        this.props.updateCurrentTestData(updatedTestData);
     }
 
-    checkCompareStatus() {
+    checkCompareStatus(testData) {
         // required since test could have been added to compare via table listing
         let [compareTests,] = this.context.compareTests;
         // check if test exists in compare
-        if (!(this.props.testData.id in compareTests)) {
+        if (!(testData.id in compareTests)) {
             return false;
         }
-        let test_inst_ids = this.props.testData.instances.map(item => item.id).sort()
-        let compare_test_inst_ids = Object.keys(compareTests[this.props.testData.id].selected_instances).sort()
+        let test_inst_ids = testData.instances.map(item => item.id).sort()
+        let compare_test_inst_ids = Object.keys(compareTests[testData.id].selected_instances).sort()
         // check if all the test instances already added to compare
-        console.log(test_inst_ids.toString());
-        console.log(compare_test_inst_ids.toString());
+
+
         if (test_inst_ids.toString() === compare_test_inst_ids.toString()) {
             return true;
         } else {
@@ -155,8 +162,8 @@ class TestDetail extends React.Component {
     addTestCompare() {
         console.log("Add item to compare.")
         let [compareTests, setCompareTests] = this.context.compareTests;
-        console.log(compareTests);
-        let test = this.state.testData;
+
+        let test = this.props.testData;
         // check if test already added to compare
         if (!(test.id in compareTests)) {
             compareTests[test.id] = {
@@ -175,7 +182,7 @@ class TestDetail extends React.Component {
                 }
             }
         }
-        console.log(compareTests);
+
         setCompareTests(compareTests);
         this.setState({ compareFlag: true })
         showNotification(this.props.enqueueSnackbar, this.props.closeSnackbar, "Test added to compare!", "info")
@@ -184,13 +191,13 @@ class TestDetail extends React.Component {
     removeTestCompare() {
         console.log("Remove item from compare.")
         let [compareTests, setCompareTests] = this.context.compareTests;
-        console.log(compareTests);
-        let test = this.state.testData;
+
+        let test = this.props.testData;
         // remove if test exists for compare
         if (test.id in compareTests) {
             delete compareTests[test.id];
         }
-        console.log(compareTests);
+
         setCompareTests(compareTests);
         this.setState({ compareFlag: false })
         showNotification(this.props.enqueueSnackbar, this.props.closeSnackbar, "Test removed from compare!", "info")
@@ -199,8 +206,8 @@ class TestDetail extends React.Component {
     addTestInstanceCompare(test_inst_id) {
         console.log("Add instance to compare.")
         let [compareTests, setCompareTests] = this.context.compareTests;
-        console.log(compareTests);
-        let test = this.state.testData;
+
+        let test = this.props.testData;
         // check if test already added to compare
         if (!(test.id in compareTests)) {
             compareTests[test.id] = {
@@ -220,7 +227,7 @@ class TestDetail extends React.Component {
         }
         // check if all test instances are now in compare
         this.setState({ compareFlag: this.checkCompareStatus() })
-        console.log(compareTests);
+
         setCompareTests(compareTests);
         showNotification(this.props.enqueueSnackbar, this.props.closeSnackbar, "Test instance added to compare!", "info")
     }
@@ -228,8 +235,8 @@ class TestDetail extends React.Component {
     removeTestInstanceCompare(test_inst_id) {
         console.log("Remove instance from compare.")
         let [compareTests, setCompareTests] = this.context.compareTests;
-        console.log(compareTests);
-        let test = this.state.testData;
+
+        let test = this.props.testData;
         if (test.id in compareTests) {
             if (test_inst_id in compareTests[test.id].selected_instances) {
                 delete compareTests[test.id].selected_instances[test_inst_id];
@@ -240,7 +247,7 @@ class TestDetail extends React.Component {
             delete compareTests[test.id];
             this.setState({ compareFlag: false })
         }
-        console.log(compareTests);
+
         setCompareTests(compareTests);
         this.forceUpdate();
         showNotification(this.props.enqueueSnackbar, this.props.closeSnackbar, "Test instance removed from compare!", "info")
@@ -254,18 +261,37 @@ class TestDetail extends React.Component {
         this.setState({ tabValue: newValue })
     }
 
-    getTestResults = () => {
-        let url = baseUrl + "/results-extended/?test_id=" + this.props.testData.id + "&size=" + querySizeLimit;
-        let config = {
-            cancelToken: this.signal.token,
-            headers: {
-                'Authorization': 'Bearer ' + this.state.auth.token,
-            }
-        }
-        return axios.get(url, config)
-            .then(res => {
+    getExtendedData() {
+        return datastore.getTest(this.props.testData.id, this.signal)
+            .then(test => {
+
+
+                this.props.updateCurrentTestData(test);
                 this.setState({
-                    results: res.data,
+                    loadingExtended: false,
+                    error: null,
+                    compareFlag: test.instances.length === 0 ? null : this.checkCompareStatus(test)
+                });
+            })
+            .catch(err => {
+                if (axios.isCancel(err)) {
+                    console.log('Error: ', err.message);
+                } else {
+                    // Something went wrong. Save the error in state and re-render.
+                    this.setState({
+                        loadingExtended: false,
+                        error: err
+                    });
+                }
+            }
+            );
+    };
+
+    getTestResults = () => {
+        return datastore.getResultsByTest(this.props.testData.id, this.signal)
+            .then(results => {
+                this.setState({
+                    results: results,
                     loadingResult: false,
                     error: null
                 });
@@ -285,7 +311,7 @@ class TestDetail extends React.Component {
     };
 
     render() {
-        console.log(this.state.testData)
+
         return (
             <Dialog fullScreen onClose={this.handleClose} aria-labelledby="simple-dialog-title" open={this.props.open}>
                 <MyDialogTitle onClose={this.handleClose} />
@@ -293,13 +319,13 @@ class TestDetail extends React.Component {
                     <Grid container spacing={3}>
                         <Grid item xs={12}>
                             <TestDetailHeader
-                                name={this.state.testData.name}
-                                authors={formatAuthors(this.state.testData.author)}
-                                id={this.state.testData.id}
-                                alias={this.state.testData.alias}
-                                dateCreated={this.state.testData.date_created}
-                                implementation_status={this.state.testData.implementation_status}
-                                testData={this.state.testData}
+                                name={this.props.testData.name}
+                                authors={formatAuthors(this.props.testData.author)}
+                                id={this.props.testData.id}
+                                alias={this.props.testData.alias}
+                                dateCreated={this.props.testData.date_created}
+                                implementation_status={this.props.testData.implementation_status}
+                                testData={this.props.testData}
                                 updateCurrentTestData={this.updateCurrentTestData}
                                 compareFlag={this.state.compareFlag}
                                 addTestCompare={this.addTestCompare}
@@ -319,39 +345,40 @@ class TestDetail extends React.Component {
                                 <Grid container spacing={3}>
                                     <Grid item xs={9}>
                                         <TestDetailContent
-                                            dataLocation={this.state.testData.data_location}
-                                            description={this.state.testData.description}
-                                            instances={this.state.testData.instances}
-                                            id={this.state.testData.id}
+                                            dataLocation={this.props.testData.data_location}
+                                            description={this.props.testData.description}
+                                            instances={this.props.testData.instances}
+                                            id={this.props.testData.id}
                                             results={this.state.results}
+                                            loading={this.state.loadingExtended}
                                             addTestInstanceCompare={this.addTestInstanceCompare}
                                             removeTestInstanceCompare={this.removeTestInstanceCompare}
                                         />
                                     </Grid>
                                     <Grid item xs={3}>
                                         <TestDetailMetadata
-                                            species={this.state.testData.species}
-                                            brainRegion={this.state.testData.brain_region}
-                                            cellType={this.state.testData.cell_type}
-                                            recording_modality={this.state.testData.recording_modality}
-                                            dataType={this.state.testData.data_type}
-                                            testType={this.state.testData.test_type}
-                                            scoreType={this.state.testData.score_type}
+                                            species={this.props.testData.species}
+                                            brainRegion={this.props.testData.brain_region}
+                                            cellType={this.props.testData.cell_type}
+                                            recording_modality={this.props.testData.recording_modality}
+                                            dataType={this.props.testData.data_type}
+                                            testType={this.props.testData.test_type}
+                                            scoreType={this.props.testData.score_type}
                                         />
                                     </Grid>
                                 </Grid>
                             </TabPanel>
                             <TabPanel value={this.state.tabValue} index={1}>
                                 <TestResultOverview
-                                    id={this.state.testData.id}
-                                    testJSON={this.state.testData}
+                                    id={this.props.testData.id}
+                                    testJSON={this.props.testData}
                                     results={this.state.results}
                                     loadingResult={this.state.loadingResult}
                                 />
                             </TabPanel>
                             <TabPanel value={this.state.tabValue} index={2}>
                                 <ResultGraphs
-                                    id={this.state.testData.id}
+                                    id={this.props.testData.id}
                                     results={this.state.results}
                                     loadingResult={this.state.loadingResult}
                                 />

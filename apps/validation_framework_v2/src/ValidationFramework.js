@@ -13,6 +13,7 @@ import Paper from '@material-ui/core/Paper';
 import axios from 'axios';
 import _ from 'lodash';
 
+import { datastore } from "./datastore";
 import ModelTable from "./ModelTable";
 import TestTable from "./TestTable";
 import ModelDetail from "./ModelDetail";
@@ -27,7 +28,7 @@ import ConfigDisplayTop from "./ConfigDisplaySimple"
 import LoadingIndicator from "./LoadingIndicator"
 import ResultDetail from './ResultDetail';
 import ErrorDialog from './ErrorDialog';
-import { DevMode, baseUrl, querySizeLimit, collaboratoryOrigin, updateSettingsTopic, isFramedApp, settingsDelimiter, filterKeys, filterModelKeys, filterTestKeys, displayValid, queryValid, updateHash } from "./globals";
+import { DevMode, collaboratoryOrigin, updateSettingsTopic, isFramedApp, settingsDelimiter, filterKeys, filterModelKeys, filterTestKeys, displayValid, queryValid, updateHash } from "./globals";
 import { isUUID, showNotification } from './utils'
 import ContextMain from './ContextMain';
 import Theme from './theme';
@@ -41,17 +42,9 @@ var sample_test_data = {}
 if (DevMode) {
     sample_model_data = require('./dev_data/sample_data_models.json');
     sample_test_data = require('./dev_data/sample_data_tests.json');
-}
-
-const buildQuery = (filterDict) => {
-    let q = "";
-    for (var key in filterDict) {
-        for (var value of filterDict[key]) {
-            q += `&${key}=${value}`
-        }
     }
-    return q.slice(1);
-};
+
+
 
 const filtersEmpty = (filterDict) => {
     // return true if no filters are set
@@ -82,7 +75,7 @@ const storeSettings = (filterDict, display) => {
             },
             collaboratoryOrigin);
         console.log("Stored filter and display settings");
-        console.log(data);
+
     }
 };
 
@@ -97,7 +90,7 @@ const retrieveFilters = (context) => {
             filters[key] = [];
         }
     }
-    console.log(filters)
+
     const [, setContextFilters] = context.filters;
     setContextFilters(filters);
     return filters;
@@ -139,7 +132,6 @@ class ValidationFramework extends React.Component {
             'errorUpdate': null,
             'errorGet': null,
             'filters': retrieveFilters(context),
-            'validFilterValues': this.retrieveFilterValidValues(),
             'display': retrieveDisplay(),
             'modelsTableWide': false,
             'testsTableWide': false,
@@ -184,7 +176,6 @@ class ValidationFramework extends React.Component {
             this.state['loadingModel'] = false
             this.state['loadingTest'] = false
         }
-        this.retrieveFilterValidValues = this.retrieveFilterValidValues(this);
         this.handleModelDetailClose = this.handleModelDetailClose.bind(this);
         this.handleTestDetailClose = this.handleTestDetailClose.bind(this);
         this.handleResultDetailClose = this.handleResultDetailClose.bind(this);
@@ -208,6 +199,12 @@ class ValidationFramework extends React.Component {
         this.openAddTestForm = this.openAddTestForm.bind(this);
         this.handleAddModelFormClose = this.handleAddModelFormClose.bind(this);
         this.handleAddTestFormClose = this.handleAddTestFormClose.bind(this);
+        this.updateCurrentModel= this.updateCurrentModel.bind(this);
+        this.handleAddModelInstance = this.handleAddModelInstance.bind(this);
+        this.handleEditModelInstance = this.handleEditModelInstance.bind(this);
+        this.updateCurrentTest= this.updateCurrentTest.bind(this);
+        this.handleAddTestInstance = this.handleAddTestInstance.bind(this);
+        this.handleEditTestInstance = this.handleEditTestInstance.bind(this);
         this.handleColumnsChange = this.handleColumnsChange.bind(this);
     }
 
@@ -224,8 +221,8 @@ class ValidationFramework extends React.Component {
     }
 
     handleColumnsChange(key, columnName, action) {
-        console.log(`Changed column ${columnName} in table ${key}: ${action}`);
-        let newColumns = [... this.state[key]];
+
+        let newColumns = [...this.state[key]];
         newColumns.forEach((col) => {
             if (col.name === columnName) {
                 col.options.display = (action === 'add');
@@ -252,14 +249,14 @@ class ValidationFramework extends React.Component {
 
     handleAddModelFormClose(currentModel) {
         console.log("close add")
-        console.log(currentModel)
+
         this.setState({ 'addModelFormOpen': false });
         if (currentModel) {
             let models = this.state.modelData;
-            console.log(this.state.modelData)
+
             models.unshift(currentModel);
             this.setState({
-                data: models,
+                modelData: models,
                 currentModel: currentModel,
                 modelDetailOpen: true
             });
@@ -268,16 +265,48 @@ class ValidationFramework extends React.Component {
         }
     }
 
+    updateCurrentModel(updatedModel) {
+        let updatedModelData = [...this.state.modelData];
+        for (let i = 0; i < updatedModelData.length; i++) {
+            if (updatedModelData[i].id === updatedModel.id) {
+                updatedModelData[i] = updatedModel;
+                break;
+            }
+        }
+
+
+        this.setState({
+            modelData: updatedModelData,
+            currentModel: updatedModel
+        });
+    }
+
+    handleAddModelInstance(newModelInstance) {
+        let updatedCurrentModel = this.state.currentModel; // need to copy?
+        updatedCurrentModel.instances.push(newModelInstance);
+        this.updateCurrentModel(updatedCurrentModel);
+    }
+
+    handleEditModelInstance(updatedModelInstance) {
+        let updatedCurrentModel = this.state.currentModel;
+        for (let i = 0; i < updatedCurrentModel.instances.length; i++) {
+            if (updatedCurrentModel.instances[i].id === updatedModelInstance.id) {
+                updatedCurrentModel.instances[i] = updatedModelInstance;
+            }
+        }
+        this.updateCurrentModel(updatedCurrentModel);
+    }
+
     handleAddTestFormClose(currentTest) {
         console.log("close add")
-        console.log(currentTest)
+
         this.setState({ 'addTestFormOpen': false });
         if (currentTest) {
             let tests = this.state.testData;
-            console.log(this.state.testData)
+
             tests.unshift(currentTest);
             this.setState({
-                data: tests,
+                testData: tests,
                 currentTest: currentTest,
                 testDetailOpen: true
             });
@@ -286,20 +315,68 @@ class ValidationFramework extends React.Component {
         }
     }
 
+    updateCurrentTest(updatedTest) {
+        let updatedTestData = [...this.state.testData];
+        for (let i = 0; i < updatedTestData.length; i++) {
+            if (updatedTestData[i].id === updatedTest.id) {
+                updatedTestData[i] = updatedTest;
+                break;
+            }
+        }
+
+
+        this.setState({
+            testData: updatedTestData,
+            currentTest: updatedTest
+        });
+    }
+
+    handleAddTestInstance(newTestInstance) {
+        let updatedCurrentTest = this.state.currentTest; // need to copy?
+        updatedCurrentTest.instances.push(newTestInstance);
+        this.updateCurrentTest(updatedCurrentTest);
+    }
+
+    handleEditTestInstance(updatedTestInstance) {
+        let updatedCurrentTest = this.state.currentTest;
+        for (let i = 0; i < updatedCurrentTest.instances.length; i++) {
+            if (updatedCurrentTest.instances[i].id === updatedTestInstance.id) {
+                updatedCurrentTest.instances[i] = updatedTestInstance;
+            }
+        }
+        this.updateCurrentTest(updatedCurrentTest);
+    }
+
     componentDidMount() {
         document.body.style.backgroundColor = Theme.bodyBackground;
         const token = this.props.auth.tokenParsed;
-        console.log(token);
+
 
         const [, setAuthContext] = this.context.auth;
         setAuthContext(this.props.auth)
-        // console.log("Here: ", authContext);
-        // console.log("Here: ", setAuthContext);
+
+        datastore.getValidFilterValues()
+            .then(vocab => {
+                console.log("Retrieved valid filter values");
+                const [, setContextValidFilterValues] = this.context.validFilterValues;
+                setContextValidFilterValues(vocab);
+            })
+            .catch(err => {
+                if (axios.isCancel(err)) {
+                    console.log('Error: ', err.message);
+                } else {
+                    // Something went wrong. Save the error in state and re-render.
+                    this.setState({
+                        error: err
+                    });
+                }
+            }
+        );
 
         this.props.auth.loadUserInfo()
             .success(() => {
                 const userInfo = this.props.auth.userInfo;
-                console.log(userInfo);
+
             })
             .error(console.log);
 
@@ -358,50 +435,17 @@ class ValidationFramework extends React.Component {
         this.signal.cancel('REST API call canceled!');
     }
 
-    retrieveFilterValidValues() {
-        let url = baseUrl + "/vocab/";
-        let config = {
-            cancelToken: this.signal.token
-        }
-        return axios.get(url, config)
-            .then(res => {
-                this.setState({
-                    validFilterValues: res.data
-                });
-                const [, setContextValidFilterValues] = this.context.validFilterValues;
-                setContextValidFilterValues(res.data);
-            })
-            .catch(err => {
-                if (axios.isCancel(err)) {
-                    console.log('Error: ', err.message);
-                } else {
-                    // Something went wrong. Save the error in state and re-render.
-                    this.setState({
-                        error: err
-                    });
-                }
-            }
-            );
-    }
-
     getModel(key, value) {
-        let url = "";
+        let identifier = "";
         if (key === "model_id") {
-            url = baseUrl + "/models/" + value;
+            identifier = value;
         } else if (key === "model_alias") {
-            url = baseUrl + "/models/" + encodeURI(value);
+            identifier = encodeURI(value);
         }
-        let config = {
-            cancelToken: this.signal.token,
-            headers: {
-                'Authorization': 'Bearer ' + this.props.auth.token,
-            }
-        }
-        // this.setState({loadingModel: true});
-        axios.get(url, config)
-            .then(res => {
+        datastore.getModel(identifier, this.signal)
+            .then(model => {
                 this.setState({
-                    currentModel: res.data,
+                    currentModel: model,
                     loadingOpen: false,
                     errorGet: null,
                     modelDetailOpen: true
@@ -432,27 +476,17 @@ class ValidationFramework extends React.Component {
     };
 
     getModelFromInstance(value) {
-        let url = baseUrl + "/models/query/instances/" + encodeURI(value);
-        console.log(url);
-        let config = {
-            cancelToken: this.signal.token,
-            headers: {
-                'Authorization': 'Bearer ' + this.props.auth.token,
-            }
-        }
-        // this.setState({loadingModel: true});
-        axios.get(url, config)
+        datastore.getModelInstanceFromID(value, this.signal)
             .then(res => {
-                url = baseUrl + "/models/" + encodeURI(res.data.model_id);
-                axios.get(url, config)
-                    .then(m_res => {
+                datastore.getModel(encodeURI(res.data.model_id), this.signal)
+                    .then(model => {
                         this.setState({
-                            currentModel: m_res.data,
+                            currentModel: model,
                             loadingOpen: false,
                             errorGet: null,
                             modelDetailOpen: true
                         });
-                        updateHash('model_id.'+res.data.model_id);
+                        updateHash('model_id.' + model.id);
                     })
                     .catch(err => {
                         if (axios.isCancel(err)) {
@@ -502,23 +536,16 @@ class ValidationFramework extends React.Component {
     };
 
     getTest(key, value) {
-        let url = "";
+        let identifier = "";
         if (key === "test_id") {
-            url = baseUrl + "/tests/" + value;
+            identifier = value;
         } else if (key === "test_alias") {
-            url = baseUrl + "/tests/" + encodeURI(value);
+            identifier = encodeURI(value);
         }
-        let config = {
-            cancelToken: this.signal.token,
-            headers: {
-                'Authorization': 'Bearer ' + this.props.auth.token,
-            }
-        }
-        // this.setState({loadingTest: true});
-        axios.get(url, config)
-            .then(res => {
+        datastore.getTest(identifier, this.signal)
+            .then(test => {
                 this.setState({
-                    currentTest: res.data,
+                    currentTest: test,
                     loadingOpen: false,
                     errorGet: null,
                     testDetailOpen: true
@@ -549,26 +576,17 @@ class ValidationFramework extends React.Component {
     };
 
     getTestFromInstance(value) {
-        let url = baseUrl + "/tests/query/instances/" + encodeURI(value);
-        let config = {
-            cancelToken: this.signal.token,
-            headers: {
-                'Authorization': 'Bearer ' + this.props.auth.token,
-            }
-        }
-        // this.setState({loadingModel: true});
-        axios.get(url, config)
+        datastore.getTestInstanceFromID(encodeURI(value), this.signal)
             .then(res => {
-                url = baseUrl + "/tests/" + encodeURI(res.data.test_id);
-                axios.get(url, config)
-                    .then(t_res => {
+                datastore.getTest(encodeURI(res.data.test_id), this.signal)
+                    .then(test => {
                         this.setState({
-                            currentTest: t_res.data,
+                            currentTest: test,
                             loadingOpen: false,
                             errorGet: null,
                             testDetailOpen: true
                         });
-                        updateHash('test_id.'+res.data.test_id);
+                        updateHash('test_id.'+test.id);
                     })
                     .catch(err => {
                         if (axios.isCancel(err)) {
@@ -618,17 +636,10 @@ class ValidationFramework extends React.Component {
     };
 
     getResult(key, value) {
-        let url = baseUrl + "/results-extended/" + value;
-        let config = {
-            cancelToken: this.signal.token,
-            headers: {
-                'Authorization': 'Bearer ' + this.props.auth.token,
-            }
-        }
-        return axios.get(url, config)
-            .then(res => {
+        return datastore.getResult(value, this.signal)
+            .then(result => {
                 this.setState({
-                    currentResult: res.data,
+                    currentResult: result,
                     loadingOpen: false,
                     errorGet: null,
                     resultDetailOpen: true
@@ -666,19 +677,10 @@ class ValidationFramework extends React.Component {
                 errorUpdate: null
             });
         } else {
-            let query = buildQuery(filters);
-            let config = {
-                cancelToken: this.signal.token,
-                headers: {
-                    'Authorization': 'Bearer ' + this.props.auth.token,
-                }
-            }
-            let url = baseUrl + "/models/?" + encodeURI(query) + "&size=" + querySizeLimit;
             this.setState({ loadingModel: true });
-            axios.get(url, config)
-                .then(res => {
-                    const models = res.data;
-                    console.log(models);
+            datastore.queryModels(filters, this.signal)
+                .then(models => {
+
                     this.setState({
                         modelData: models,
                         loadingModel: false,
@@ -708,19 +710,10 @@ class ValidationFramework extends React.Component {
                 errorUpdate: null
             });
         } else {
-            let query = buildQuery(filters);
-            let config = {
-                cancelToken: this.signal.token,
-                headers: {
-                    'Authorization': 'Bearer ' + this.props.auth.token,
-                }
-            }
-            let url = baseUrl + "/tests/?" + encodeURI(query) + "&size=" + querySizeLimit;
             this.setState({ loadingTest: true });
-            axios.get(url, config)
-                .then(res => {
-                    const tests = res.data;
-                    console.log(tests);
+            datastore.queryTests(filters, this.signal)
+                .then(tests => {
+
                     this.setState({
                         testData: tests,
                         loadingTest: false,
@@ -804,8 +797,8 @@ class ValidationFramework extends React.Component {
             update_test_flag = false;
         }
 
-        console.log(update_model_flag)
-        console.log(update_test_flag)
+
+
 
         let update_settings = false;
 
@@ -823,8 +816,8 @@ class ValidationFramework extends React.Component {
             }
             showNotification(this.props.enqueueSnackbar, this.props.closeSnackbar, "App config updated!", "success")
         }
-        console.log(update_model_flag)
-        console.log(update_test_flag)
+
+
 
         if (display !== this.state.display) { // compare new (display) with existing (this.state.display)
             update_settings = true;
@@ -950,9 +943,6 @@ class ValidationFramework extends React.Component {
         var addModel = "";
         var addTest = "";
 
-        // const [ contaxtValidFilterValues, setContaxtValidFilterValues ] = this.context.validFilterValues;
-        // console.log(contaxtValidFilterValues)
-
         if (this.state.loadingOpen) {
             return this.renderLoading();
         }
@@ -971,11 +961,23 @@ class ValidationFramework extends React.Component {
         }
 
         if (this.state.currentModel) {// && this.state.display!=="Only Tests") {
-            modelDetail = <ModelDetail open={this.state.modelDetailOpen} modelData={this.state.currentModel} onClose={this.handleModelDetailClose} auth={this.props.auth} />;
+            modelDetail = <ModelDetail open={this.state.modelDetailOpen}
+                                       modelData={this.state.currentModel}
+                                       onClose={this.handleModelDetailClose}
+                                       auth={this.props.auth}
+                                       updateCurrentModelData={this.updateCurrentModel}
+                                       onAddModelInstance={this.handleAddModelInstance}
+                                       onEditModelInstance={this.handleEditModelInstance} />;
         }
 
         if (this.state.currentTest) {// && this.state.display!=="Only Models") {
-            testDetail = <TestDetail open={this.state.testDetailOpen} testData={this.state.currentTest} onClose={this.handleTestDetailClose} auth={this.props.auth} />;
+            testDetail = <TestDetail open={this.state.testDetailOpen}
+                                     testData={this.state.currentTest}
+                                     onClose={this.handleTestDetailClose}
+                                     auth={this.props.auth}
+                                     updateCurrentTestData={this.updateCurrentTest}
+                                     onAddTestInstance={this.handleAddTestInstance}
+                                     onEditTestInstance={this.handleEditTestInstance} />;
         }
 
         if (this.state.currentResult) {
@@ -1016,7 +1018,11 @@ class ValidationFramework extends React.Component {
                     </Grid>
                     <br />
 
-                    <ConfigForm open={this.state.configOpen} onClose={this.handleConfigClose} config={this.state.filters} validFilterValues={this.state.validFilterValues} display={this.state.display} />
+                    <ConfigForm
+                        open={this.state.configOpen}
+                        onClose={this.handleConfigClose}
+                        config={this.state.filters}
+                        display={this.state.display} />
                     <div>
                         {modelDetail}
                     </div>

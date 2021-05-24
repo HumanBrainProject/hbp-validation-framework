@@ -16,9 +16,11 @@ import RadioButtonUncheckedIcon from '@material-ui/icons/RadioButtonUnchecked';
 import axios from 'axios';
 import PropTypes from 'prop-types';
 import React from 'react';
+
+import { datastore } from "./datastore";
 import ContextMain from './ContextMain';
 import ErrorDialog from './ErrorDialog';
-import { baseUrl, filterModelKeys } from "./globals";
+import { filterModelKeys } from "./globals";
 import { replaceEmptyStringsWithNull } from "./utils";
 import LoadingIndicatorModal from './LoadingIndicatorModal';
 import PersonSelect from './PersonSelect';
@@ -77,7 +79,6 @@ export default class ModelEditForm extends React.Component {
     }
 
     componentDidMount() {
-        console.log({ ...this.props.modelData });
         this.setState({ ...this.props.modelData })
     }
 
@@ -91,12 +92,13 @@ export default class ModelEditForm extends React.Component {
     }
 
     checkAliasUnique(newAlias) {
-        console.log(aliasAxios);
-        if (aliasAxios) {
-            aliasAxios.cancel();
+        if (!newAlias) {
+            this.setState({
+                isAliasNotUnique: true,
+                aliasLoading: false
+            });
+            return;
         }
-        aliasAxios = axios.CancelToken.source();
-
         if (newAlias === this.props.modelData.alias) {
             this.setState({
                 isAliasNotUnique: false,
@@ -105,65 +107,29 @@ export default class ModelEditForm extends React.Component {
             return
         }
 
+
+        if (aliasAxios) {
+            aliasAxios.cancel();
+        }
+        aliasAxios = axios.CancelToken.source();
+
         this.setState({
             aliasLoading: true,
         });
-        console.log(newAlias);
-        if (!newAlias) {
-            this.setState({
-                isAliasNotUnique: true,
-                aliasLoading: false
-            });
-            return;
-        }
-        let url = baseUrl + "/models/" + encodeURI(newAlias);
-        let config = {
-            cancelToken: aliasAxios.token,
-            headers: {
-                'Authorization': 'Bearer ' + this.state.auth.token,
-            }
-        };
-        axios.get(url, config)
-            .then(res => {
-                console.log(res.data.models);
-                if (res.data.models.length === 0) {
-                    this.setState({
-                        isAliasNotUnique: false,
-                        aliasLoading: false
-                    });
-                } else {
-                    this.setState({
-                        isAliasNotUnique: true,
-                        aliasLoading: false
-                    });
-                }
-            })
-            .catch(err => {
-                if (axios.isCancel(err)) {
-                    console.log('Error: ', err.message);
-                } else {
-                    console.log(err);
-                }
+
+
+        datastore.modelAliasIsUnique(newAlias, aliasAxios)
+            .then(isUnique => {
                 this.setState({
-                    isAliasNotUnique: true,
+                    isAliasNotUnique: !isUnique,
                     aliasLoading: false
                 });
             });
     }
 
-
     getProjectList() {
-        const url = baseUrl + "/projects";
-        const config = {headers: {'Authorization': 'Bearer ' + this.state.auth.token}};
-        axios.get(url, config)
-            .then(res => {
-                let editableProjects = [];
-                res.data.forEach(proj => {
-                    if (proj.permissions.UPDATE) {
-                        editableProjects.push(proj.project_id);
-                    }
-                });
-                editableProjects.sort();
+        datastore.getProjects()
+            .then(editableProjects => {
                 this.setState({
                     projects: editableProjects
                 });
@@ -198,7 +164,7 @@ export default class ModelEditForm extends React.Component {
     checkRequirements(payload) {
         // rule 1: model name cannot be empty
         let error = null;
-        console.log(payload.name)
+
         if (!payload.name) {
             error = "Model 'name' cannot be empty!"
         }
@@ -222,21 +188,12 @@ export default class ModelEditForm extends React.Component {
     handleSubmit() {
         this.setState({ loading: true }, () => {
             let payload = this.createPayload();
-            console.log(payload);
-            if (this.checkRequirements(payload)) {
-                let url = baseUrl + "/models/" + this.state.id;
-                let config = {
-                    cancelToken: this.signal.token,
-                    headers: {
-                        'Authorization': 'Bearer ' + this.state.auth.token,
-                        'Content-type': 'application/json'
-                    }
-                };
 
-                axios.put(url, payload, config)
-                    .then(res => {
-                        console.log(res);
-                        this.props.onClose(res.data);
+            if (this.checkRequirements(payload)) {
+                datastore.updateModel(payload, this.signal)
+                    .then(model => {
+
+                        this.props.onClose(model);
                     })
                     .catch(err => {
                         if (axios.isCancel(err)) {
@@ -259,7 +216,7 @@ export default class ModelEditForm extends React.Component {
         const target = event.target;
         let value = target.value;
         const name = target.name;
-        console.log(name + " => " + value);
+
         if (name === "private") {
             value = !target.checked;
         }
@@ -276,7 +233,7 @@ export default class ModelEditForm extends React.Component {
         if (this.state.errorEditModel) {
             errorMessage = <ErrorDialog open={Boolean(this.state.errorEditModel)} handleErrorDialogClose={this.handleErrorEditDialogClose} error={this.state.errorEditModel.message || this.state.errorEditModel} />
         }
-        console.log(this.props.modelData)
+
         return (
             <Dialog onClose={this.handleClose}
                 aria-labelledby="Form for editing an existing model in the catalog"
@@ -371,7 +328,7 @@ export default class ModelEditForm extends React.Component {
                         Cancel
           </Button>
                     <Button onClick={this.handleSubmit} color="primary">
-                        Edit Model
+                        Save changes
           </Button>
                 </DialogActions>
             </Dialog>

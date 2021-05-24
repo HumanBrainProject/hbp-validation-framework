@@ -11,6 +11,7 @@ import { withSnackbar } from 'notistack';
 import React from 'react';
 import ContextMain from './ContextMain';
 import ErrorDialog from './ErrorDialog';
+import LoadingIndicator from './LoadingIndicator';
 import Markdown from './Markdown';
 import ModelInstanceAddForm from './ModelInstanceAddForm';
 import ModelInstanceEditForm from './ModelInstanceEditForm';
@@ -136,7 +137,6 @@ class ModelDetailContent extends React.Component {
         this.state = {
             openAddInstanceForm: false,
             openEditInstanceForm: false,
-            instances: this.props.instances,
             instancesWithResults: this.props.results ? [...new Set(this.props.results.map(a => a.model_instance_id))] : null,
             currentInstance: null,
             errorEditModelInstance: null
@@ -160,27 +160,20 @@ class ModelDetailContent extends React.Component {
 
     handleAddModelInstanceFormClose(newModelInstance) {
         console.log("close add")
-        console.log(newModelInstance)
+
         this.setState({ 'openAddInstanceForm': false });
         if (newModelInstance) {
-            let instances = this.state.instances;
-            instances.push(newModelInstance)
-            this.setState({
-                instances: instances,
-            });
+            this.props.onAddModelInstance(newModelInstance);
             showNotification(this.props.enqueueSnackbar, this.props.closeSnackbar, "Model instance added!", "success")
         }
     }
 
     handleEditModelInstanceFormClose(modelInstance) {
         console.log("close edit")
-        console.log(modelInstance)
+
         this.setState({ 'openEditInstanceForm': false });
         if (modelInstance) {
-            let instances = this.state.instances;
-            this.setState({
-                instances: instances.map(obj => [modelInstance].find(o => o.id === obj.id) || obj)
-            });
+            this.props.onEditModelInstance(modelInstance);
             showNotification(this.props.enqueueSnackbar, this.props.closeSnackbar, "Model instance edited!", "success")
         }
     }
@@ -247,9 +240,21 @@ class ModelDetailContent extends React.Component {
                 </Button>)
         }
 
+        let noInstances = "";
+        if (this.props.loading) {
+            noInstances = <LoadingIndicator />
+        } else {
+            noInstances = (
+                <Typography variant="h6">
+                    <br />
+                    No model instances have yet been registered for this model.
+                </Typography>
+            )
+        }
+
         return (
             <React.Fragment>
-                {console.log(this.state.instancesWithResults)}
+                {}
                 <Grid container direction="column">
                     <Grid item xs={12}>
                         <Box>
@@ -267,14 +272,11 @@ class ModelDetailContent extends React.Component {
                             </Grid>
                         </Grid>
                         {
-                            (this.state.instances.length === 0)
+                            (this.props.instances.length === 0)
                                 ?
-                                <Typography variant="h6">
-                                    <br />
-                                    No model instances have yet been registered for this model.
-                                </Typography>
+                                noInstances
                                 :
-                                this.state.instances.map(instance => (
+                                this.props.instances.map(instance => (
                                     <Box my={2} pb={0} style={{ backgroundColor: Theme.lightBackground }} key={instance.id}>
                                         <Grid container style={{ display: "flex", alignItems: "center", backgroundColor: Theme.tableHeader }}>
                                             <Grid item xs={6}>

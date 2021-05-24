@@ -96,7 +96,7 @@ class ModelDetailHeader extends React.Component {
 
     handleEditModelFormClose(model) {
         console.log("close edit")
-        console.log(model)
+
         this.setState({ 'openEditForm': false });
         if (model) {
             this.props.updateCurrentModelData(model)

@@ -41,18 +41,18 @@ function shortenLabelsUniquely(traces, type, pref_length) {
     // overlap each other in the generated figures
 
     // simply clipping the labels to some pre-defined length
-    // can result in non-unique labels. As Plotly uses the 
+    // can result in non-unique labels. As Plotly uses the
     // labels to merge items into groups, this can cause
     // unrelated items to be merged into same group.
 
     // this method tries to shorten the labels, while trying
     // to keep them distinct for proper grouping.
-    
+
     // Approach:
     // remove common prefix, and also suffix (if required to shorten length further)
 
-    // sorting the labels orders them, so any prefix 
-    // that is common to all labels, will also be common to 
+    // sorting the labels orders them, so any prefix
+    // that is common to all labels, will also be common to
     // the first and last labels. Thus we only need to compare
     // the first and last labels to determine the common prefix.
     // The same can be done for common suffix by reversing labels.
@@ -71,22 +71,22 @@ function shortenLabelsUniquely(traces, type, pref_length) {
     traces.forEach(function(entry) {
         labels = mergeUnique(labels, entry["x"][type]);
     });
-    console.log(labels);
+
     // get subset of labels that are above pref_length
     // these need to be manipulated appropriately
-    // we use this subset  to have more chance of 
+    // we use this subset  to have more chance of
     // obtaining a common prefix/suffix
     var labels_long = labels.filter(function(label) {
         return label.length > pref_length;
     });
-    console.log(labels_long);
+
     if (labels_long.length === 0) {
         return traces;
     }
-    
+
     // find common prefix for long labels
     function findPrefix(strings) {
-        console.log(strings)
+
         if(!strings.length) {
             return null;
         }
@@ -95,7 +95,7 @@ function shortenLabelsUniquely(traces, type, pref_length) {
             string2 = sorted[sorted.length-1],
             i = 0,
             l = Math.min(string1.length, string2.length);
-        
+
         while(i < l && string1[i] === string2[i]) {
             i++;
         }
@@ -120,22 +120,22 @@ function shortenLabelsUniquely(traces, type, pref_length) {
                     return item2;
                 }
             });
-            console.log(labels_final);
+
             this[ind1]["x"][type] = labels_final;
         }, traces);
     }
 
-    // check if any labels too long (after removing prefix) 
+    // check if any labels too long (after removing prefix)
     // if yes then find them
     labels = [];
     traces.forEach(function(entry) {
         labels = mergeUnique(labels, entry["x"][type]);
     });
-    console.log(labels);
+
     labels_long = labels.filter(function(label) {
         return label.length > pref_length;
     });
-    console.log(labels_long);
+
     if (labels_long.length === 0) {
         return traces;
     }
@@ -144,11 +144,11 @@ function shortenLabelsUniquely(traces, type, pref_length) {
     function reverse(string){
         return string.split('').reverse().join('');
     }
-    
+
     function findSuffix(strings){
         if(!strings || strings.length === 0){
             console.log("NULL")
-            return null;   
+            return null;
         }
         return reverse(findPrefix(strings.map(reverse)));
     }
@@ -171,28 +171,28 @@ function shortenLabelsUniquely(traces, type, pref_length) {
                     return item2;
                 }
             });
-            console.log(labels_final);
+
             this[ind1]["x"][type] = labels_final;
         }, traces);
     }
 
-    // check if any labels too long (after removing prefix and suffix) 
+    // check if any labels too long (after removing prefix and suffix)
     // if yes then find them
     labels = [];
     traces.forEach(function(entry) {
         labels = mergeUnique(labels, entry["x"][type]);
     });
-    console.log(labels);
+
     labels_long = labels.filter(function(label) {
         return label.length > pref_length;
     });
-    console.log(labels_long);
+
     if (labels_long.length === 0) {
         return traces;
     }
 
     // else try to create an acronym from labels
-    console.log(traces_original);
+
     var traces_acronym = traces_original;
     traces_acronym.forEach(function(item1, ind1) {
         var trace_item = item1;
@@ -203,7 +203,7 @@ function shortenLabelsUniquely(traces, type, pref_length) {
                 return item2;
             }
         });
-        console.log(labels_final);
+
         this[ind1]["x"][type] = labels_final;
     }, traces_acronym);
 
@@ -225,7 +225,7 @@ function shortenLabelsUniquely(traces, type, pref_length) {
 }
 
 function ResultsFiguresSummaryXaxisModels(props) {
-    console.log(props.dict_results);
+
     let dict_results = props.dict_results;
 
     const Plot = createPlotlyComponent(Plotly);
@@ -248,7 +248,7 @@ function ResultsFiguresSummaryXaxisModels(props) {
                     model_labels.push(dict_results[test_id]["test_instances"][test_inst_id]["models"][model_id]["model_alias"] ? dict_results[test_id]["test_instances"][test_inst_id]["models"][model_id]["model_alias"] : dict_results[test_id]["test_instances"][test_inst_id]["models"][model_id]["model_name"]);
                     model_version_labels.push(dict_results[test_id]["test_instances"][test_inst_id]["models"][model_id]["model_instances"][model_inst_id]["model_version"]);
                     // customdata is used for setting hover description
-                    customdata.push([   
+                    customdata.push([
                                         dict_results[test_id]["test_instances"][test_inst_id]["models"][model_id]["model_name"],
                                         dict_results[test_id]["test_instances"][test_inst_id]["models"][model_id]["model_instances"][model_inst_id]["model_version"],
                                         dict_results[test_id]["test_name"],
@@ -299,7 +299,7 @@ function ResultsFiguresSummaryXaxisModels(props) {
         xaxis: {
             //tickvals: ["1", "2", "3", "4", "5"],
             //ticktext : ["a", "b", "c", "d" ,"e"],
-            title: "<b>Model Instance</b>",
+            title: "<b>Model Version</b>",
             automargin: true,
             // tickangle: -45,
             // textangle: "auto"
@@ -309,10 +309,10 @@ function ResultsFiguresSummaryXaxisModels(props) {
         barmode: 'group'
     };
 
-    console.log(traces);
+
     traces = shortenLabels(traces);
-    console.log(traces);
-    
+
+
     return (
         <Plot
             data={traces}
@@ -326,7 +326,7 @@ function ResultsFiguresSummaryXaxisModels(props) {
 }
 
 function ResultsFiguresSummaryXaxisTests(props) {
-    console.log(props.dict_results);
+
     let dict_results = props.dict_results;
 
     const Plot = createPlotlyComponent(Plotly);
@@ -349,7 +349,7 @@ function ResultsFiguresSummaryXaxisTests(props) {
                     test_labels.push(dict_results[model_id]["model_instances"][model_inst_id]["tests"][test_id]["test_alias"] ? dict_results[model_id]["model_instances"][model_inst_id]["tests"][test_id]["test_alias"] : dict_results[model_id]["model_instances"][model_inst_id]["tests"][test_id]["test_name"]);
                     test_version_labels.push(dict_results[model_id]["model_instances"][model_inst_id]["tests"][test_id]["test_instances"][test_inst_id]["test_version"]);
                     // customdata is used for setting hover description
-                    customdata.push([   
+                    customdata.push([
                                         dict_results[model_id]["model_instances"][model_inst_id]["tests"][test_id]["test_name"],
                                         dict_results[model_id]["model_instances"][model_inst_id]["tests"][test_id]["test_instances"][test_inst_id]["test_version"],
                                         dict_results[model_id]["model_name"],
@@ -400,7 +400,7 @@ function ResultsFiguresSummaryXaxisTests(props) {
         xaxis: {
             //tickvals: ["1", "2", "3", "4", "5"],
             //ticktext : ["a", "b", "c", "d" ,"e"],
-            title: "<b>Test Instance</b>",
+            title: "<b>Test Version</b>",
             automargin: true,
             // tickangle: -45,
             // textangle: "auto"
@@ -410,9 +410,9 @@ function ResultsFiguresSummaryXaxisTests(props) {
         barmode: 'group'
     };
 
-    console.log(traces);
+
     traces = shortenLabels(traces);
-    console.log(traces);
+
 
     return (
         <Plot
