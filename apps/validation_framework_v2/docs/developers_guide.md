@@ -62,7 +62,7 @@ The config file is `.gitlab-ci.yml` in the top-level folder of the Git repositor
 We use [Prettier](https://prettier.io) to maintain uniform code formatting. This integrates with most editors. You can also run the formatter manually, using
 
 ```
-npx prettier --write .
+npx prettier --write --tab-width 4 .
 ```
 
 ## Making a release
@@ -115,10 +115,10 @@ Please give as much information as possible, including screenshots, error messag
 
 The development workflow is based on pull requests. If you wish to contribute, please:
 
-- fork the repository
-- base your changes off the most recent development branch
-- use a branch with a meaningful name (no pull requests from branches named "master" or "development")
-- open a pull request, explaining which issue the PR addresses
+-   fork the repository
+-   base your changes off the most recent development branch
+-   use a branch with a meaningful name (no pull requests from branches named "master" or "development")
+-   open a pull request, explaining which issue the PR addresses
 
 As noted above, please use [Prettier](https://prettier.io) to format your code.
 Since the app already has several heavy dependencies, please try to minimise use of additional third-party libraries.
