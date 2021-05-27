@@ -68,20 +68,20 @@ async def get_live_paper(
     lp = fairgraph.livepapers.LivePaper.from_uuid(str(lp_id), kg_client, api="nexus")
 
     if lp:
-        if not (
-            await can_view_collab(lp.collab_id, token.credentials)
+        if (
+            token.credentials == lp.access_code
+            or await can_view_collab(lp.collab_id, token.credentials)
             or await is_admin(token.credentials)
-            or (token.credentials == lp.access_code)
         ):
+            try:
+                obj = LivePaper.from_kg_object(lp, kg_client)
+            except ConsistencyError as err:
+                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(err))
+        else:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail=f"This account cannot view Collab #{lp.collab_id}",
             )
-
-        try:
-            obj = LivePaper.from_kg_object(lp, kg_client)
-        except ConsistencyError as err:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(err))
     else:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
