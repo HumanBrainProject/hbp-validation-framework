@@ -1547,6 +1547,7 @@ class LivePaperSummary(BaseModel):
     detail_path: str
     modified_date: datetime
     title: str
+    associated_paper_title: str
     year: date
     collab_id: str = None
 
@@ -1554,7 +1555,8 @@ class LivePaperSummary(BaseModel):
     def from_kg_object(cls, lp):
         return cls(
             modified_date=lp.date_modified or lp.date_created,
-            title=lp.name,
+            live_paper_title=lp.name,
+            associated_paper_title=lp.title,
             year=lp.date_published,
             collab_id=lp.collab_id,
             id=lp.uuid,
