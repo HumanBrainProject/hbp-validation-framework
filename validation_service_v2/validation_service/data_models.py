@@ -1546,7 +1546,7 @@ class LivePaperSummary(BaseModel):
     id: UUID
     detail_path: str
     modified_date: datetime
-    title: str
+    live_paper_title: str
     associated_paper_title: str
     year: date
     collab_id: str = None
