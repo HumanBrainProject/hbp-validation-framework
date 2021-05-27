@@ -11,7 +11,7 @@ from ..auth import (
     get_kg_client, get_person_from_token, is_collab_member, is_admin,
     can_view_collab, get_editable_collabs
 )
-from ..data_models import LivePaper, LivePaperSummary, ConsistencyError
+from ..data_models import LivePaper, LivePaperSummary, ConsistencyError, AccessCode
 import fairgraph.livepapers
 from fairgraph.base import as_list
 
@@ -61,13 +61,17 @@ async def query_released_live_papers():
 
 
 @router.get("/livepapers/{lp_id}", response_model=LivePaper)
-async def get_live_paper(lp_id: UUID, token: HTTPAuthorizationCredentials = Depends(auth)):
+async def get_live_paper(
+    lp_id: UUID,
+    token: HTTPAuthorizationCredentials = Depends(auth)
+):
     lp = fairgraph.livepapers.LivePaper.from_uuid(str(lp_id), kg_client, api="nexus")
 
     if lp:
         if not (
             await can_view_collab(lp.collab_id, token.credentials)
             or await is_admin(token.credentials)
+            or (token.credentials == lp.access_code)
         ):
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
@@ -189,3 +193,39 @@ async def update_live_paper(
     #return LivePaper.from_kg_object(lp, kg_client)
 
 # test lp_id: 5249159f-898c-4b60-80ef-95ddc6414557
+
+
+@router.put("/livepapers/{lp_id}/access_code", status_code=status.HTTP_200_OK)
+async def set_access_code(
+    lp_id: UUID,
+    access_code: AccessCode,
+    token: HTTPAuthorizationCredentials = Depends(auth)
+):
+    logger.info("Beginning set access code")
+
+    lp = fairgraph.livepapers.LivePaper.from_uuid(str(lp_id), kg_client, api="nexus")
+
+    if lp:
+        if not (
+            await is_collab_member(lp.collab_id, token.credentials)
+            or await is_admin(token.credentials)
+        ):
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail=f"This account is not a member of Collab #{lp.collab_id}",
+            )
+
+        try:
+            obj = LivePaper.from_kg_object(lp, kg_client)
+        except ConsistencyError as err:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(err))
+        else:
+            obj.access_code = access_code.value
+            obj.save(kg_client)
+            logger.info("Added/updated access code")
+    else:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Live Paper {lp_id} not found.",
+        )
+    return obj

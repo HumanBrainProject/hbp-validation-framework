@@ -1560,3 +1560,13 @@ class LivePaperSummary(BaseModel):
             id=lp.uuid,
             detail_path=f"/livepapers/{lp.uuid}"
         )
+
+
+class AccessCode(BaseModel):
+    value: str
+
+    @validator('value')
+    def min_length(cls, value):
+        if len(value) < 6:
+            raise ValueError("access code must contain at least six characters")
+        return value
