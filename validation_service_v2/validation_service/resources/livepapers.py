@@ -215,17 +215,12 @@ async def set_access_code(
                 detail=f"This account is not a member of Collab #{lp.collab_id}",
             )
 
-        try:
-            obj = LivePaper.from_kg_object(lp, kg_client)
-        except ConsistencyError as err:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(err))
-        else:
-            obj.access_code = access_code.value
-            obj.save(kg_client)
-            logger.info("Added/updated access code")
+        lp.access_code = access_code.value
+        lp.save(kg_client)
+        logger.info("Added/updated access code")
     else:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Live Paper {lp_id} not found.",
         )
-    return obj
+    return None
