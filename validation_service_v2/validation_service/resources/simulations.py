@@ -31,6 +31,7 @@ router = APIRouter()
 
 @router.get("/simulations/", response_model=List[Simulation])
 def query_simulations(
+    model_id: UUID = None,
     model_instance_id: UUID = None,
     size: int = Query(100),
     from_index: int = Query(0),
@@ -47,16 +48,29 @@ def query_simulations(
         kwargs["started_by"] = user
     else:
         return []
+
+    model_instances = []
     if model_instance_id:
         model_instance = fairgraph.brainsimulation.ModelInstance.from_uuid(str(model_instance_id), kg_client, api="nexus")
+        # todo: handle MEModel, not just ModelInstance
+        # todo: if model_id is given, check if it is consistent and return an error if not
         if model_instance:
-            kwargs["model_instance_id"] = model_instance.id
+            model_instances.append(model_instance)
         else:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail=f"Model instance with id {model_instance_id} not found.",
             )
-    simulations = fairgraph.brainsimulation.Simulation.list(kg_client, **kwargs)
+    elif model_id:
+        model_project = fairgraph.brainsimulation.ModelProject.from_uuid(str(model_id), kg_client, api="nexus")
+        model_instances = as_list(model_project.instances)
+    if len(model_instances) > 0:
+        simulations = []
+        for model_instance in model_instances:
+            kwargs["model_instance_id"] = model_instance.id
+            simulations.extend(as_list(fairgraph.brainsimulation.Simulation.list(kg_client, **kwargs)))
+    else:
+        simulations = fairgraph.brainsimulation.Simulation.list(kg_client, **kwargs)
     return [Simulation.from_kg_object(sim, kg_client) for sim in simulations]
 
 
