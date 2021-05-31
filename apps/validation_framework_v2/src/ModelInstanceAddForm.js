@@ -1,20 +1,20 @@
-import Box from '@material-ui/core/Box';
-import Button from '@material-ui/core/Button';
-import Dialog from '@material-ui/core/Dialog';
-import DialogActions from '@material-ui/core/DialogActions';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogTitle from '@material-ui/core/DialogTitle';
-import Grid from '@material-ui/core/Grid';
-import axios from 'axios';
-import PropTypes from 'prop-types';
-import React from 'react';
-import ContextMain from './ContextMain';
-import ErrorDialog from './ErrorDialog';
+import Box from "@material-ui/core/Box";
+import Button from "@material-ui/core/Button";
+import Dialog from "@material-ui/core/Dialog";
+import DialogActions from "@material-ui/core/DialogActions";
+import DialogContent from "@material-ui/core/DialogContent";
+import DialogTitle from "@material-ui/core/DialogTitle";
+import Grid from "@material-ui/core/Grid";
+import axios from "axios";
+import PropTypes from "prop-types";
+import React from "react";
+import ContextMain from "./ContextMain";
+import ErrorDialog from "./ErrorDialog";
 import { datastore } from "./datastore";
 import { replaceEmptyStringsWithNull } from "./utils";
-import LoadingIndicatorModal from './LoadingIndicatorModal';
-import ModelInstanceArrayOfForms from './ModelInstanceArrayOfForms';
-import Theme from './theme';
+import LoadingIndicatorModal from "./LoadingIndicatorModal";
+import ModelInstanceArrayOfForms from "./ModelInstanceArrayOfForms";
+import Theme from "./theme";
 
 let versionAxios = null;
 
@@ -31,36 +31,39 @@ export default class ModelInstanceAddForm extends React.Component {
         this.checkRequirements = this.checkRequirements.bind(this);
         this.checkVersionUnique = this.checkVersionUnique.bind(this);
 
-        const [authContext,] = this.context.auth;
+        const [authContext] = this.context.auth;
         //
         //
 
         this.state = {
-            instances: [{
-                version: "",
-                description: "",
-                parameters: "",
-                morphology: "",
-                source: "",
-                code_format: "",
-                license: ""
-            }],
+            instances: [
+                {
+                    version: "",
+                    description: "",
+                    parameters: "",
+                    morphology: "",
+                    source: "",
+                    code_format: "",
+                    license: "",
+                },
+            ],
             auth: authContext,
-            loading: false
-        }
+            loading: false,
+        };
 
-        this.handleErrorAddDialogClose = this.handleErrorAddDialogClose.bind(this);
+        this.handleErrorAddDialogClose =
+            this.handleErrorAddDialogClose.bind(this);
         this.handleCancel = this.handleCancel.bind(this);
         this.checkVersionUnique = this.checkVersionUnique.bind(this);
         this.createPayload = this.createPayload.bind(this);
     }
 
     handleErrorAddDialogClose() {
-        this.setState({ 'errorAddModelInstance': null });
-    };
+        this.setState({ errorAddModelInstance: null });
+    }
 
     handleCancel() {
-        console.log("Hello")
+        console.log("Hello");
         this.props.onClose();
     }
 
@@ -71,28 +74,32 @@ export default class ModelInstanceAddForm extends React.Component {
         }
         versionAxios = axios.CancelToken.source();
 
-        await datastore.getModelInstanceFromVersion(this.props.modelID, newVersion, versionAxios)
-            .then(res => {
-
+        await datastore
+            .getModelInstanceFromVersion(
+                this.props.modelID,
+                newVersion,
+                versionAxios
+            )
+            .then((res) => {
                 if (res.data.length === 0) {
                     isUnique = true;
                 }
             })
-            .catch(err => {
+            .catch((err) => {
                 if (axios.isCancel(err)) {
-                    console.log('Error: ', err.message);
+                    console.log("Error: ", err.message);
                 } else {
                     console.log(err);
                 }
             });
-        return isUnique
+        return isUnique;
     }
 
     createPayload() {
         let payload = {
             model_id: this.props.modelID,
-            ...this.state.instances[0]
-        }
+            ...this.state.instances[0],
+        };
         return replaceEmptyStringsWithNull(payload);
     }
 
@@ -100,12 +107,13 @@ export default class ModelInstanceAddForm extends React.Component {
         // rule 1: model instance version cannot be empty
         let error = null;
         if (payload.version === "") {
-            error = "Model instance 'version' cannot be empty!"
+            error = "Model instance 'version' cannot be empty!";
         } else {
             // rule 2: check if version is unique
             let isUnique = await this.checkVersionUnique(payload.version);
             if (!isUnique) {
-                error = "Model instance 'version' has to be unique within a model!"
+                error =
+                    "Model instance 'version' has to be unique within a model!";
             }
         }
         if (error) {
@@ -124,26 +132,30 @@ export default class ModelInstanceAddForm extends React.Component {
             let payload = this.createPayload();
 
             if (await this.checkRequirements(payload)) {
-                datastore.createModelInstance(this.props.modelID, payload, this.signal)
-                    .then(modelInstance => {
-
+                datastore
+                    .createModelInstance(
+                        this.props.modelID,
+                        payload,
+                        this.signal
+                    )
+                    .then((modelInstance) => {
                         this.props.onClose(modelInstance);
                     })
-                    .catch(err => {
+                    .catch((err) => {
                         if (axios.isCancel(err)) {
-                            console.log('Error: ', err.message);
+                            console.log("Error: ", err.message);
                         } else {
                             console.log(err);
                             this.setState({
                                 errorAddModelInstance: err.response,
                             });
                         }
-                        this.setState({ loading: false })
+                        this.setState({ loading: false });
                     });
             } else {
-                this.setState({ loading: false })
+                this.setState({ loading: false });
             }
-        })
+        });
     }
 
     handleFieldChange(event) {
@@ -152,25 +164,38 @@ export default class ModelInstanceAddForm extends React.Component {
         const name = target.name;
 
         if (name === "version") {
-            this.checkVersionUnique(value)
+            this.checkVersionUnique(value);
         }
         this.setState({
-            [name]: value
+            [name]: value,
         });
     }
 
     render() {
         let errorMessage = "";
         if (this.state.errorAddModelInstance) {
-            errorMessage = <ErrorDialog open={Boolean(this.state.errorAddModelInstance)} handleErrorDialogClose={this.handleErrorAddDialogClose} error={this.state.errorAddModelInstance.message || this.state.errorAddModelInstance} />
+            errorMessage = (
+                <ErrorDialog
+                    open={Boolean(this.state.errorAddModelInstance)}
+                    handleErrorDialogClose={this.handleErrorAddDialogClose}
+                    error={
+                        this.state.errorAddModelInstance.message ||
+                        this.state.errorAddModelInstance
+                    }
+                />
+            );
         }
         return (
-            <Dialog onClose={this.handleClose}
+            <Dialog
+                onClose={this.handleClose}
                 aria-labelledby="Form for adding a new model instance"
                 open={this.props.open}
                 fullWidth={true}
-                maxWidth="md">
-                <DialogTitle style={{ backgroundColor: Theme.tableHeader }}>Add a new model instance</DialogTitle>
+                maxWidth="md"
+            >
+                <DialogTitle style={{ backgroundColor: Theme.tableHeader }}>
+                    Add a new model instance
+                </DialogTitle>
                 <DialogContent>
                     <LoadingIndicatorModal open={this.state.loading} />
                     <Box my={2}>
@@ -180,21 +205,20 @@ export default class ModelInstanceAddForm extends React.Component {
                                     name="instances"
                                     value={this.state.instances}
                                     modelScope={this.props.modelScope}
-                                    onChange={this.handleFieldChange} />
+                                    onChange={this.handleFieldChange}
+                                />
                             </Grid>
                         </form>
                     </Box>
-                    <div>
-                        {errorMessage}
-                    </div>
+                    <div>{errorMessage}</div>
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={this.handleCancel} color="default">
                         Cancel
-          </Button>
+                    </Button>
                     <Button onClick={this.handleSubmit} color="primary">
                         Add Model Version
-          </Button>
+                    </Button>
                 </DialogActions>
             </Dialog>
         );
@@ -203,5 +227,5 @@ export default class ModelInstanceAddForm extends React.Component {
 
 ModelInstanceAddForm.propTypes = {
     onClose: PropTypes.func.isRequired,
-    open: PropTypes.bool.isRequired
+    open: PropTypes.bool.isRequired,
 };

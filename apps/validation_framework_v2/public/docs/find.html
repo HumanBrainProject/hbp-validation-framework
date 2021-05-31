@@ -1,104 +1,230 @@
 <!DOCTYPE html>
 <html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="x-ua-compatible" content="ie=edge" />
+        <meta
+            name="viewport"
+            content="width=device-width,initial-scale=1;maximum-scale=1; minimum-scale=1;"
+        />
+        <title>
+            EBRAINS Model Catalog:use an existing model with the EBRAINS
+            research infrastructure
+        </title>
+        <link
+            rel="apple-touch-icon"
+            sizes="180x180"
+            href="static/img/apple-touch-icon.png"
+        />
+        <link
+            rel="icon"
+            type="image/png"
+            sizes="32x32"
+            href="static/img/favicon-32x32.png"
+        />
+        <link
+            rel="icon"
+            type="image/png"
+            sizes="16x16"
+            href="static/img/favicon-16x16.png"
+        />
+        <link
+            rel="icon"
+            type="image/png"
+            sizes="192x192"
+            href="static/img/favicon-192x192.png"
+        />
+        <link
+            rel="icon"
+            type="image/png"
+            sizes="256x256"
+            href="static/img/favicon-256x256.png"
+        />
+        <link
+            rel="stylesheet"
+            href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"
+            integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO"
+            crossorigin="anonymous"
+        />
+        <link
+            rel="stylesheet"
+            href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"
+            integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO"
+            crossorigin="anonymous"
+        />
+        <link
+            href="https://cdnjs.cloudflare.com/ajax/libs/open-iconic/1.1.1/font/css/open-iconic-bootstrap.min.css"
+            rel="stylesheet"
+        />
+        <link rel="stylesheet" href="style.css" />
+        <script
+            src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+            integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+            crossorigin="anonymous"
+        ></script>
+        <script
+            src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"
+            integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49"
+            crossorigin="anonymous"
+        ></script>
+        <script
+            src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"
+            integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy"
+            crossorigin="anonymous"
+        ></script>
 
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <meta name="viewport" content="width=device-width,initial-scale=1;maximum-scale=1; minimum-scale=1;">
-    <title>EBRAINS Model Catalog:use an existing model with the EBRAINS research infrastructure</title>
-    <link rel="apple-touch-icon" sizes="180x180" href="static/img/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="static/img/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="static/img/favicon-16x16.png">
-    <link rel="icon" type="image/png" sizes="192x192" href="static/img/favicon-192x192.png">
-    <link rel="icon" type="image/png" sizes="256x256" href="static/img/favicon-256x256.png">
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"
-        integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"
-        integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/open-iconic/1.1.1/font/css/open-iconic-bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
-    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
-        integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
-        crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"
-        integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49"
-        crossorigin="anonymous"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"
-        integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy"
-        crossorigin="anonymous"></script>
+        <link rel="stylesheet" href="ebrains-minimal.css" />
+    </head>
 
-    <link rel="stylesheet" href="ebrains-minimal.css">
-
-</head>
-
-<body>
-    <script src="cookieDisclaimer.js"></script>
-    <main>
-        <header>
-
-            <nav class="navbar navbar-default navbar-light bg-light navbar-expand-lg">
-
-                <a href="https://ebrains.eu/" aria-label="EBRAINS homepage"
-                    class="logo nuxt-link-exact-active nuxt-link-active">
-                    <img src="static/img/ebrains_logo.svg" alt="ebrains" height="60">
-                </a>
-                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup"
-                    aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="collapse navbar-collapse navitems" id="navbarNavAltMarkup">
-                    <ul class="navbar-nav app-links">
-                        <li><a class="nav-item nav-link line" href="https://model-catalog.brainsimulation.eu/">
-                            <span class="oi oi-book " title="Go to the Catalog" aria-hidden="true"></span>
-                          </a></li>
-                        <li><a class="nav-item nav-link line" href="index.html"
-                                alt="About the Model Catalog">Introduction</a></li>
-                        <li><a class="nav-item nav-link line active" href="find.html"
-                                alt="Find, understand and use interesting models">Find</a>
-                        </li>
-                        <li><a class="nav-item nav-link line " href="share.html"
-                                alt="Share models with others">Share</a>
-                        </li>
-                        <li><a class="nav-item nav-link line " href="reuse.html"
-                                alt="Use an existing model with the EBRAINS research infrastructure">Use</a></li>
-                        <li><a class="nav-item nav-link line" href="validation.html"
-                                alt="Compare models to each other and to experimental data">Validate</a></li>
-                        <li><a class="nav-item nav-link line" href="develop.html"
-                                alt="Resources for developers">Develop</a></li>
-                    </ul>
-                </div>
-            </nav>
-            <div class="section title">
-                <div class="container">
-                    <div class="row">
-                        <div class="col-sm align-self-center">
-                            <h1>Find models</h1>
-                            <div>Find, understand and use interesting models</div>
+    <body>
+        <script src="cookieDisclaimer.js"></script>
+        <main>
+            <header>
+                <nav
+                    class="
+                        navbar navbar-default navbar-light
+                        bg-light
+                        navbar-expand-lg
+                    "
+                >
+                    <a
+                        href="https://ebrains.eu/"
+                        aria-label="EBRAINS homepage"
+                        class="logo nuxt-link-exact-active nuxt-link-active"
+                    >
+                        <img
+                            src="static/img/ebrains_logo.svg"
+                            alt="ebrains"
+                            height="60"
+                        />
+                    </a>
+                    <button
+                        class="navbar-toggler"
+                        type="button"
+                        data-toggle="collapse"
+                        data-target="#navbarNavAltMarkup"
+                        aria-controls="navbarNavAltMarkup"
+                        aria-expanded="false"
+                        aria-label="Toggle navigation"
+                    >
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <div
+                        class="collapse navbar-collapse navitems"
+                        id="navbarNavAltMarkup"
+                    >
+                        <ul class="navbar-nav app-links">
+                            <li>
+                                <a
+                                    class="nav-item nav-link line"
+                                    href="https://model-catalog.brainsimulation.eu/"
+                                >
+                                    <span
+                                        class="oi oi-book"
+                                        title="Go to the Catalog"
+                                        aria-hidden="true"
+                                    ></span>
+                                </a>
+                            </li>
+                            <li>
+                                <a
+                                    class="nav-item nav-link line"
+                                    href="index.html"
+                                    alt="About the Model Catalog"
+                                    >Introduction</a
+                                >
+                            </li>
+                            <li>
+                                <a
+                                    class="nav-item nav-link line active"
+                                    href="find.html"
+                                    alt="Find, understand and use interesting models"
+                                    >Find</a
+                                >
+                            </li>
+                            <li>
+                                <a
+                                    class="nav-item nav-link line"
+                                    href="share.html"
+                                    alt="Share models with others"
+                                    >Share</a
+                                >
+                            </li>
+                            <li>
+                                <a
+                                    class="nav-item nav-link line"
+                                    href="reuse.html"
+                                    alt="Use an existing model with the EBRAINS research infrastructure"
+                                    >Use</a
+                                >
+                            </li>
+                            <li>
+                                <a
+                                    class="nav-item nav-link line"
+                                    href="validation.html"
+                                    alt="Compare models to each other and to experimental data"
+                                    >Validate</a
+                                >
+                            </li>
+                            <li>
+                                <a
+                                    class="nav-item nav-link line"
+                                    href="develop.html"
+                                    alt="Resources for developers"
+                                    >Develop</a
+                                >
+                            </li>
+                        </ul>
+                    </div>
+                </nav>
+                <div class="section title">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-sm align-self-center">
+                                <h1>Find models</h1>
+                                <div>
+                                    Find, understand and use interesting models
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        </header>
+            </header>
 
-        <div class="section">
-            <div class="container">
-                <h5>Configuration</h5>
-                <h3>Configuring the Model Catalog</h3>
-                <p>The default view of the Model Catalog shows a table of models and a table of validation tests,
-                    side-by-side:
-                </p>
-                <div style="text-align:center;"><img src="static/figures/find/default_home.png"></div>
-                <p>You can choose to show only models or only validation tests,
-                    as well as filtering the models/tests that are listed,
-                    using the Configure button in the top-left corner:
-                </p>
-                <div style="text-align:center;"><img src="static/figures/find/configure_dialog.png" class="small"></div>
-                <p>If using the stand-alone version of the app, these settings won't be preserved,
-                    but if you use the app embedded into the EBRAINS Collaboratory [TODO: link to section where this is demonstrated]
-                    then the settings will be kept for next time you visit.
-                    Anyone else who visits the same collab will see the same configuration,
-                    so you can present a customized view of the Model Catalog, focusing on just hippocampus models, for example.</p>
-
+            <div class="section">
+                <div class="container">
+                    <h5>Configuration</h5>
+                    <h3>Configuring the Model Catalog</h3>
+                    <p>
+                        The default view of the Model Catalog shows a table of
+                        models and a table of validation tests, side-by-side:
+                    </p>
+                    <div style="text-align: center">
+                        <img src="static/figures/find/default_home.png" />
+                    </div>
+                    <p>
+                        You can choose to show only models or only validation
+                        tests, as well as filtering the models/tests that are
+                        listed, using the Configure button in the top-left
+                        corner:
+                    </p>
+                    <div style="text-align: center">
+                        <img
+                            src="static/figures/find/configure_dialog.png"
+                            class="small"
+                        />
+                    </div>
+                    <p>
+                        If using the stand-alone version of the app, these
+                        settings won't be preserved, but if you use the app
+                        embedded into the EBRAINS Collaboratory [TODO: link to
+                        section where this is demonstrated] then the settings
+                        will be kept for next time you visit. Anyone else who
+                        visits the same collab will see the same configuration,
+                        so you can present a customized view of the Model
+                        Catalog, focusing on just hippocampus models, for
+                        example.
+                    </p>
                 </div>
             </div>
 
@@ -107,75 +233,126 @@
                     <h5>Filtering</h5>
                     <h3>Filtering the list of models</h3>
 
-                <p>Even after configuring the app to show a subset of models, you can further restrict what is shown in the table
-                    using the "Filter Table" button and the Search box, while you can control
-                    what information is shown in the table using the "View Columns" button:</p>
-                <div style="text-align:center;"><img src="static/figures/find/toolbar_filter.png" class="small"></div>
-                <div style="text-align:center;"><img src="static/figures/find/toolbar_searchbox.png"></div>
+                    <p>
+                        Even after configuring the app to show a subset of
+                        models, you can further restrict what is shown in the
+                        table using the "Filter Table" button and the Search
+                        box, while you can control what information is shown in
+                        the table using the "View Columns" button:
+                    </p>
+                    <div style="text-align: center">
+                        <img
+                            src="static/figures/find/toolbar_filter.png"
+                            class="small"
+                        />
+                    </div>
+                    <div style="text-align: center">
+                        <img src="static/figures/find/toolbar_searchbox.png" />
+                    </div>
 
-                <!-- <div style="text-align:center;"><img src="static/figures/find/toolbar_viewcolumns.png" class="small"></div> -->
-                <div style="text-align:center;"><img src="static/figures/find/toolbar_viewcolumns_dialog.png" class="small"></div>
-                <div style="text-align:center;"><img src="static/figures/find/model_list_multi_column_cerebellum.png"></div>
+                    <!-- <div style="text-align:center;"><img src="static/figures/find/toolbar_viewcolumns.png" class="small"></div> -->
+                    <div style="text-align: center">
+                        <img
+                            src="static/figures/find/toolbar_viewcolumns_dialog.png"
+                            class="small"
+                        />
+                    </div>
+                    <div style="text-align: center">
+                        <img
+                            src="static/figures/find/model_list_multi_column_cerebellum.png"
+                        />
+                    </div>
 
-                <!--
+                    <!--
                 <div style="text-align:center;"><img src="static/figures/find/toolbar_csv.png" class="small"></div>
                 <div style="text-align:center;"><img src="static/figures/find/toolbar_search.png" class="small"></div>
                 <div style="text-align:center;"><img src="static/figures/find/toolbar_print.png" class="small"></div>
                 <div style="width: 400px;"><img src="static/figures/find/toolbar_tablewidth.png" class="small"></div>
-                -->
-
+                --></div>
             </div>
-        </div>
 
-        <div class="section">
-            <div class="container">
-                <h5>Viewing</h5>
-                <h3>Viewing model entries</h3>
-                <p>To view the detail of a model entry, click on a row in the table.
-                    The "Info" tab shows a description of the model, assorted metadata,
-                   and gives links to the code/data of all versions of the model.
-                   Where the model is also available in another model repository such
-                   as <a href="https://senselab.med.yale.edu/modeldb/" target="_blank">ModelDB</a>,
-                   <a href="http://www.opensourcebrain.org" target="_blank">Open Source Brain</a>,
-                   or <a href="https://www.ebi.ac.uk/biomodels/" target="_blank">BioModels</a>,
-                   there are links to those repositories.</p>
-                <p>Where a model can be directly used within the EBRAINS infrastructure,
-                    there are links to the available tools that load the model directly
-                    into that tool, see <a href="reuse.html">Use</a>.</p>
-                <p>The "Results" and "Figures" tabs show the results of
-                    validating the model against experimental data.
-                    For more information on model validation, see <a href="validation.html">Validate</a>.</p>
-                <p>To return to the table of models, click "&#215;" in the upper-right corner.</p>
-                <div style="text-align:center;"><img src="static/figures/find/example_model.png"></div>
+            <div class="section">
+                <div class="container">
+                    <h5>Viewing</h5>
+                    <h3>Viewing model entries</h3>
+                    <p>
+                        To view the detail of a model entry, click on a row in
+                        the table. The "Info" tab shows a description of the
+                        model, assorted metadata, and gives links to the
+                        code/data of all versions of the model. Where the model
+                        is also available in another model repository such as
+                        <a
+                            href="https://senselab.med.yale.edu/modeldb/"
+                            target="_blank"
+                            >ModelDB</a
+                        >,
+                        <a href="http://www.opensourcebrain.org" target="_blank"
+                            >Open Source Brain</a
+                        >, or
+                        <a
+                            href="https://www.ebi.ac.uk/biomodels/"
+                            target="_blank"
+                            >BioModels</a
+                        >, there are links to those repositories.
+                    </p>
+                    <p>
+                        Where a model can be directly used within the EBRAINS
+                        infrastructure, there are links to the available tools
+                        that load the model directly into that tool, see
+                        <a href="reuse.html">Use</a>.
+                    </p>
+                    <p>
+                        The "Results" and "Figures" tabs show the results of
+                        validating the model against experimental data. For more
+                        information on model validation, see
+                        <a href="validation.html">Validate</a>.
+                    </p>
+                    <p>
+                        To return to the table of models, click "&#215;" in the
+                        upper-right corner.
+                    </p>
+                    <div style="text-align: center">
+                        <img src="static/figures/find/example_model.png" />
+                    </div>
+                </div>
             </div>
-        </div>
 
-        <div class="section">
-            <div class="container">
-                <h5>Contact</h5>
-                <h3>Any questions?</h3>
+            <div class="section">
+                <div class="container">
+                    <h5>Contact</h5>
+                    <h3>Any questions?</h3>
 
-                <p>If you have questions that are not answered here, contact us by e-mail: <a
-                        href="mailto:support@ebrains.eu">support@ebrains.eu</a></p>
+                    <p>
+                        If you have questions that are not answered here,
+                        contact us by e-mail:
+                        <a href="mailto:support@ebrains.eu"
+                            >support@ebrains.eu</a
+                        >
+                    </p>
+                </div>
             </div>
-        </div>
+        </main>
+        <footer class="site-footer">
+            <div class="footer__content">
+                <a
+                    href="https://ebrains.eu/"
+                    aria-label="EBRAINS homepage"
+                    class="logo nuxt-link-exact-active nuxt-link-active"
+                >
+                    <img
+                        src="static/img/ebrains_logo.svg"
+                        alt="ebrains"
+                        height="60"
+                    />
+                </a>
 
-    </main>
-    <footer class="site-footer">
-        <div class="footer__content"> <a href="https://ebrains.eu/" aria-label="EBRAINS homepage"
-                class="logo nuxt-link-exact-active nuxt-link-active">
-                <img src="static/img/ebrains_logo.svg" alt="ebrains" height="60">
-            </a>
-
-            <p class="small-text">
-            </p>
-        </div>
-        <div class="footer__end">
-            <div class="footer__copyright">
-                Copyright © 2020 EBRAINS. All rights reserved.
+                <p class="small-text"></p>
             </div>
-        </div>
-    </footer>
-</body>
-
+            <div class="footer__end">
+                <div class="footer__copyright">
+                    Copyright © 2020 EBRAINS. All rights reserved.
+                </div>
+            </div>
+        </footer>
+    </body>
 </html>

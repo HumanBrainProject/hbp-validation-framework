@@ -1,34 +1,34 @@
-import Box from '@material-ui/core/Box';
-import Button from '@material-ui/core/Button';
-import Dialog from '@material-ui/core/Dialog';
-import DialogActions from '@material-ui/core/DialogActions';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogTitle from '@material-ui/core/DialogTitle';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import FormLabel from '@material-ui/core/FormLabel';
-import Grid from '@material-ui/core/Grid';
-import InputAdornment from '@material-ui/core/InputAdornment';
-import Switch from '@material-ui/core/Switch';
-import TextField from '@material-ui/core/TextField';
-import CancelIcon from '@material-ui/icons/Cancel';
-import CheckCircleIcon from '@material-ui/icons/CheckCircle';
-import RadioButtonUncheckedIcon from '@material-ui/icons/RadioButtonUnchecked';
-import HelpIcon from '@material-ui/icons/Help';
-import IconButton from '@material-ui/core/IconButton';
-import axios from 'axios';
-import PropTypes from 'prop-types';
-import React from 'react';
+import Box from "@material-ui/core/Box";
+import Button from "@material-ui/core/Button";
+import Dialog from "@material-ui/core/Dialog";
+import DialogActions from "@material-ui/core/DialogActions";
+import DialogContent from "@material-ui/core/DialogContent";
+import DialogTitle from "@material-ui/core/DialogTitle";
+import FormControlLabel from "@material-ui/core/FormControlLabel";
+import FormLabel from "@material-ui/core/FormLabel";
+import Grid from "@material-ui/core/Grid";
+import InputAdornment from "@material-ui/core/InputAdornment";
+import Switch from "@material-ui/core/Switch";
+import TextField from "@material-ui/core/TextField";
+import CancelIcon from "@material-ui/icons/Cancel";
+import CheckCircleIcon from "@material-ui/icons/CheckCircle";
+import RadioButtonUncheckedIcon from "@material-ui/icons/RadioButtonUnchecked";
+import HelpIcon from "@material-ui/icons/Help";
+import IconButton from "@material-ui/core/IconButton";
+import axios from "axios";
+import PropTypes from "prop-types";
+import React from "react";
 
-import { datastore } from './datastore';
-import ContextMain from './ContextMain';
-import ErrorDialog from './ErrorDialog';
+import { datastore } from "./datastore";
+import ContextMain from "./ContextMain";
+import ErrorDialog from "./ErrorDialog";
 import { filterModelKeys } from "./globals";
 import { replaceEmptyStringsWithNull } from "./utils";
-import LoadingIndicatorModal from './LoadingIndicatorModal';
-import ModelInstanceArrayOfForms from './ModelInstanceArrayOfForms';
-import PersonSelect from './PersonSelect';
-import SingleSelect from './SingleSelect';
-import Theme from './theme';
+import LoadingIndicatorModal from "./LoadingIndicatorModal";
+import ModelInstanceArrayOfForms from "./ModelInstanceArrayOfForms";
+import PersonSelect from "./PersonSelect";
+import SingleSelect from "./SingleSelect";
+import Theme from "./theme";
 
 let aliasAxios = null;
 
@@ -45,9 +45,9 @@ export default class ModelAddForm extends React.Component {
         this.checkAliasUnique = this.checkAliasUnique.bind(this);
         this.getProjectList = this.getProjectList.bind(this);
 
-        const [authContext,] = this.context.auth;
-        const [validFilterValuesContext,] = this.context.validFilterValues;
-        const [filtersContext,] = this.context.filters;
+        const [authContext] = this.context.auth;
+        const [validFilterValuesContext] = this.context.validFilterValues;
+        const [filtersContext] = this.context.filters;
 
         this.state = {
             // NOTE: cannot use nested state object owing to performance issues:
@@ -68,31 +68,34 @@ export default class ModelAddForm extends React.Component {
             model_scope: "",
             abstraction_level: "",
             organization: "",
-            instances: [{
-                version: "",
-                description: "",
-                parameters: "",
-                morphology: "",
-                source: "",
-                code_format: "",
-                license: ""
-            }],
+            instances: [
+                {
+                    version: "",
+                    description: "",
+                    parameters: "",
+                    morphology: "",
+                    source: "",
+                    code_format: "",
+                    license: "",
+                },
+            ],
             auth: authContext,
             filters: filtersContext,
             validFilterValues: validFilterValuesContext,
             loading: false,
-            projects: []
-        }
+            projects: [],
+        };
         this.getProjectList();
-        this.handleErrorAddDialogClose = this.handleErrorAddDialogClose.bind(this);
+        this.handleErrorAddDialogClose =
+            this.handleErrorAddDialogClose.bind(this);
     }
 
     handleErrorAddDialogClose() {
-        this.setState({ 'errorAddModel': null });
-    };
+        this.setState({ errorAddModel: null });
+    }
 
     handleCancel() {
-        console.log("Hello")
+        console.log("Hello");
         this.props.onClose();
     }
 
@@ -100,7 +103,7 @@ export default class ModelAddForm extends React.Component {
         if (!newAlias) {
             this.setState({
                 isAliasNotUnique: true,
-                aliasLoading: false
+                aliasLoading: false,
             });
             return;
         }
@@ -113,25 +116,24 @@ export default class ModelAddForm extends React.Component {
             aliasLoading: true,
         });
 
-
-        datastore.modelAliasIsUnique(newAlias, aliasAxios)
-            .then(isUnique => {
-                this.setState({
-                    isAliasNotUnique: !isUnique,
-                    aliasLoading: false
-                });
+        datastore.modelAliasIsUnique(newAlias, aliasAxios).then((isUnique) => {
+            this.setState({
+                isAliasNotUnique: !isUnique,
+                aliasLoading: false,
             });
+        });
     }
 
     getProjectList() {
-        datastore.getProjects()
-            .then(editableProjects => {
+        datastore
+            .getProjects()
+            .then((editableProjects) => {
                 this.setState({
-                    projects: editableProjects
+                    projects: editableProjects,
                 });
             })
-            .catch(err => {
-                console.log('Error: ', err.message);
+            .catch((err) => {
+                console.log("Error: ", err.message);
             });
     }
 
@@ -139,8 +141,14 @@ export default class ModelAddForm extends React.Component {
         let payload = {
             name: this.state.name,
             alias: this.state.alias,
-            author: this.state.author.length > 0 ? this.state.author : [{ "given_name": "", "family_name": "" }],
-            owner: this.state.owner.length > 0 ? this.state.owner : [{ "given_name": "", "family_name": "" }],
+            author:
+                this.state.author.length > 0
+                    ? this.state.author
+                    : [{ given_name: "", family_name: "" }],
+            owner:
+                this.state.owner.length > 0
+                    ? this.state.owner
+                    : [{ given_name: "", family_name: "" }],
             private: this.state.private,
             project_id: this.state.project_id,
             description: this.state.description,
@@ -151,8 +159,8 @@ export default class ModelAddForm extends React.Component {
             abstraction_level: this.state.abstraction_level,
             organization: this.state.organization,
             instances: this.state.instances,
-            images: []
-        }
+            images: [],
+        };
         return replaceEmptyStringsWithNull(payload);
     }
 
@@ -161,12 +169,16 @@ export default class ModelAddForm extends React.Component {
         let error = null;
 
         if (!payload.name) {
-            error = "Model 'name' cannot be empty!"
+            error = "Model 'name' cannot be empty!";
         }
         // rule 2: check if alias (if specified) is unique
-        if (!this.state.aliasLoading && payload.alias && this.state.isAliasNotUnique) {
+        if (
+            !this.state.aliasLoading &&
+            payload.alias &&
+            this.state.isAliasNotUnique
+        ) {
             error = error ? error + "\n" : "";
-            error += "Model 'alias' has to be unique!"
+            error += "Model 'alias' has to be unique!";
         }
 
         if (error) {
@@ -185,14 +197,14 @@ export default class ModelAddForm extends React.Component {
             let payload = this.createPayload();
 
             if (this.checkRequirements(payload)) {
-                datastore.createModel(payload, this.signal)
-                    .then(model => {
-
+                datastore
+                    .createModel(payload, this.signal)
+                    .then((model) => {
                         this.props.onClose(model);
                     })
-                    .catch(err => {
+                    .catch((err) => {
                         if (axios.isCancel(err)) {
-                            console.log('Error: ', err.message);
+                            console.log("Error: ", err.message);
                         } else {
                             console.log(err);
 
@@ -200,12 +212,12 @@ export default class ModelAddForm extends React.Component {
                                 errorAddModel: err.response,
                             });
                         }
-                        this.setState({ loading: false })
+                        this.setState({ loading: false });
                     });
             } else {
-                this.setState({ loading: false })
+                this.setState({ loading: false });
             }
-        })
+        });
     }
 
     handleFieldChange(event) {
@@ -216,33 +228,53 @@ export default class ModelAddForm extends React.Component {
         if (name === "private") {
             value = !target.checked;
         } else if (name === "alias") {
-            this.checkAliasUnique(value)
+            this.checkAliasUnique(value);
         } else if (name === "model_scope") {
             // if ((value !== "single cell") && (!value.startsWith('network'))) {
             if (value !== "single cell") {
                 this.setState({
-                    "instances": [{ ...this.state.instances[0], morphology: null }],
+                    instances: [
+                        { ...this.state.instances[0], morphology: null },
+                    ],
                 });
             }
         }
         this.setState({
-            [name]: value
+            [name]: value,
         });
     }
 
     render() {
         let errorMessage = "";
         if (this.state.errorAddModel) {
-            errorMessage = <ErrorDialog open={Boolean(this.state.errorAddModel)} handleErrorDialogClose={this.handleErrorAddDialogClose} error={this.state.errorAddModel.message || this.state.errorAddModel} />
+            errorMessage = (
+                <ErrorDialog
+                    open={Boolean(this.state.errorAddModel)}
+                    handleErrorDialogClose={this.handleErrorAddDialogClose}
+                    error={
+                        this.state.errorAddModel.message ||
+                        this.state.errorAddModel
+                    }
+                />
+            );
         }
 
         return (
-            <Dialog onClose={this.handleClose}
+            <Dialog
+                onClose={this.handleClose}
                 aria-labelledby="Form for adding a new model to the catalog"
                 open={this.props.open}
                 fullWidth={true}
-                maxWidth="md">
-                <DialogTitle disableTypography style={{ backgroundColor: Theme.tableHeader, display: 'flex', justifyContent: 'space-between' }}>
+                maxWidth="md"
+            >
+                <DialogTitle
+                    disableTypography
+                    style={{
+                        backgroundColor: Theme.tableHeader,
+                        display: "flex",
+                        justifyContent: "space-between",
+                    }}
+                >
                     <h2>Add a new model to the catalog</h2>
                     <IconButton href="https://model-catalog.brainsimulation.eu/docs/share.html">
                         <HelpIcon />
@@ -254,46 +286,112 @@ export default class ModelAddForm extends React.Component {
                         <form>
                             <Grid container spacing={3}>
                                 <Grid item xs={12}>
-                                    <TextField name="name" label="Model Name" defaultValue={this.state.name}
-                                        onBlur={this.handleFieldChange} variant="outlined" fullWidth={true}
-                                        helperText="Please choose an informative name that will distinguish the model from other, similar models" />
+                                    <TextField
+                                        name="name"
+                                        label="Model Name"
+                                        defaultValue={this.state.name}
+                                        onBlur={this.handleFieldChange}
+                                        variant="outlined"
+                                        fullWidth={true}
+                                        helperText="Please choose an informative name that will distinguish the model from other, similar models"
+                                    />
                                 </Grid>
                                 <Grid item xs={12}>
-                                    <PersonSelect name="authors" label="Author(s)" value={this.state.author}
-                                        onChange={this.handleFieldChange} variant="outlined" fullWidth={true} newChipKeys={['Enter', 'Tab', ';']}
-                                        helperText="Enter author names separated by semicolon: firstName1 lastName1; firstName2 lastName2" />
+                                    <PersonSelect
+                                        name="authors"
+                                        label="Author(s)"
+                                        value={this.state.author}
+                                        onChange={this.handleFieldChange}
+                                        variant="outlined"
+                                        fullWidth={true}
+                                        newChipKeys={["Enter", "Tab", ";"]}
+                                        helperText="Enter author names separated by semicolon: firstName1 lastName1; firstName2 lastName2"
+                                    />
                                 </Grid>
                                 <Grid item xs={12}>
-                                    <PersonSelect name="owners" label="Custodian(s)" value={this.state.owner}
-                                        onChange={this.handleFieldChange} variant="outlined" fullWidth={true} newChipKeys={['Enter', 'Tab', ';']}
-                                        helperText="Enter author names separated by semicolon: firstName1 lastName1; firstName2 lastName2" />
+                                    <PersonSelect
+                                        name="owners"
+                                        label="Custodian(s)"
+                                        value={this.state.owner}
+                                        onChange={this.handleFieldChange}
+                                        variant="outlined"
+                                        fullWidth={true}
+                                        newChipKeys={["Enter", "Tab", ";"]}
+                                        helperText="Enter author names separated by semicolon: firstName1 lastName1; firstName2 lastName2"
+                                    />
                                 </Grid>
                                 <Grid item xs={9}>
-                                    <TextField name="alias" label="Model alias / Short name" defaultValue={this.state.alias}
-                                        onBlur={this.handleFieldChange} variant="outlined" fullWidth={true}
-                                        error={!this.state.alias || this.state.aliasLoading ? false : this.state.isAliasNotUnique}
-                                        helperText={!this.state.alias || this.state.aliasLoading
-                                            ? "(optional) Please choose a short name (easier to remember than a long ID)"
-                                            : (this.state.isAliasNotUnique ? "This alias aready exists! " : "Great! This alias is unique.")}
+                                    <TextField
+                                        name="alias"
+                                        label="Model alias / Short name"
+                                        defaultValue={this.state.alias}
+                                        onBlur={this.handleFieldChange}
+                                        variant="outlined"
+                                        fullWidth={true}
+                                        error={
+                                            !this.state.alias ||
+                                            this.state.aliasLoading
+                                                ? false
+                                                : this.state.isAliasNotUnique
+                                        }
+                                        helperText={
+                                            !this.state.alias ||
+                                            this.state.aliasLoading
+                                                ? "(optional) Please choose a short name (easier to remember than a long ID)"
+                                                : this.state.isAliasNotUnique
+                                                ? "This alias aready exists! "
+                                                : "Great! This alias is unique."
+                                        }
                                         InputProps={{
                                             startAdornment: (
                                                 <InputAdornment position="start">
-                                                    {!this.state.alias || this.state.aliasLoading
-                                                        ? <RadioButtonUncheckedIcon style={{ color: "white" }} />
-                                                        : (this.state.isAliasNotUnique
-                                                            ? <CancelIcon style={{ color: "red" }} />
-                                                            : <CheckCircleIcon style={{ color: "green" }} />
-                                                        )}
+                                                    {!this.state.alias ||
+                                                    this.state.aliasLoading ? (
+                                                        <RadioButtonUncheckedIcon
+                                                            style={{
+                                                                color: "white",
+                                                            }}
+                                                        />
+                                                    ) : this.state
+                                                          .isAliasNotUnique ? (
+                                                        <CancelIcon
+                                                            style={{
+                                                                color: "red",
+                                                            }}
+                                                        />
+                                                    ) : (
+                                                        <CheckCircleIcon
+                                                            style={{
+                                                                color: "green",
+                                                            }}
+                                                        />
+                                                    )}
                                                 </InputAdornment>
                                             ),
-                                        }} />
+                                        }}
+                                    />
                                 </Grid>
                                 <Grid item xs={3}>
-                                    <FormLabel component="legend">Make model public?</FormLabel>
+                                    <FormLabel component="legend">
+                                        Make model public?
+                                    </FormLabel>
                                     <FormControlLabel
                                         labelPlacement="bottom"
-                                        control={<Switch checked={!this.state.private} onChange={this.handleFieldChange} name="private" />}
-                                        label={this.state.private ? "Private" : "Public"} />
+                                        control={
+                                            <Switch
+                                                checked={!this.state.private}
+                                                onChange={
+                                                    this.handleFieldChange
+                                                }
+                                                name="private"
+                                            />
+                                        }
+                                        label={
+                                            this.state.private
+                                                ? "Private"
+                                                : "Public"
+                                        }
+                                    />
                                 </Grid>
                                 <Grid item xs={12}>
                                     <SingleSelect
@@ -302,38 +400,64 @@ export default class ModelAddForm extends React.Component {
                                         label="Collab"
                                         value={this.state.project_id}
                                         helperText="Please choose the Collab you will use to set access permissions. You may need to create a new Collab."
-                                        handleChange={this.handleFieldChange} />
+                                        handleChange={this.handleFieldChange}
+                                    />
                                 </Grid>
                                 <Grid item xs={12}>
-                                    <TextField name="organization" label="Organization" defaultValue={this.state.organization}
-                                        onBlur={this.handleFieldChange} variant="outlined" fullWidth={true}
-                                        helperText="Please specify the organization, if any, associated with this model (optional)." />
+                                    <TextField
+                                        name="organization"
+                                        label="Organization"
+                                        defaultValue={this.state.organization}
+                                        onBlur={this.handleFieldChange}
+                                        variant="outlined"
+                                        fullWidth={true}
+                                        helperText="Please specify the organization, if any, associated with this model (optional)."
+                                    />
                                 </Grid>
                                 <Grid item xs={12}>
-                                    <TextField multiline rows="6" name="description" label="Description" defaultValue={this.state.description}
-                                        onBlur={this.handleFieldChange} variant="outlined" fullWidth={true}
-                                        helperText="The description may be formatted with Markdown" />
+                                    <TextField
+                                        multiline
+                                        rows="6"
+                                        name="description"
+                                        label="Description"
+                                        defaultValue={this.state.description}
+                                        onBlur={this.handleFieldChange}
+                                        variant="outlined"
+                                        fullWidth={true}
+                                        helperText="The description may be formatted with Markdown"
+                                    />
                                 </Grid>
-                                {filterModelKeys.map(filter => (
+                                {filterModelKeys.map((filter) => (
                                     <Grid item xs={12} key={filter}>
                                         <SingleSelect
-                                            itemNames={(this.state.filters[filter] && this.state.filters[filter].length) ? this.state.filters[filter] : this.state.validFilterValues[filter]}
+                                            itemNames={
+                                                this.state.filters[filter] &&
+                                                this.state.filters[filter]
+                                                    .length
+                                                    ? this.state.filters[filter]
+                                                    : this.state
+                                                          .validFilterValues[
+                                                          filter
+                                                      ]
+                                            }
                                             label={filter}
                                             value={this.state[filter]}
-                                            handleChange={this.handleFieldChange} />
+                                            handleChange={
+                                                this.handleFieldChange
+                                            }
+                                        />
                                     </Grid>
                                 ))}
                                 <ModelInstanceArrayOfForms
                                     name="instances"
                                     value={this.state.instances}
                                     modelScope={this.state.model_scope}
-                                    onChange={this.handleFieldChange} />
+                                    onChange={this.handleFieldChange}
+                                />
                             </Grid>
                         </form>
                     </Box>
-                    <div>
-                        {errorMessage}
-                    </div>
+                    <div>{errorMessage}</div>
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={this.handleCancel} color="default">
@@ -350,5 +474,5 @@ export default class ModelAddForm extends React.Component {
 
 ModelAddForm.propTypes = {
     onClose: PropTypes.func.isRequired,
-    open: PropTypes.bool.isRequired
+    open: PropTypes.bool.isRequired,
 };

@@ -1,43 +1,49 @@
 /* Inter Regular */
 @font-face {
-    font-family: 'Inter';
+    font-family: "Inter";
     font-display: swap;
-    src: url('https://ebrains.netlify.com/fonts/Inter-Regular.woff2') format('woff2'),
-    url('https://ebrains.netlify.com/fonts/Inter-Regular.woff') format('woff');
+    src: url("https://ebrains.netlify.com/fonts/Inter-Regular.woff2")
+            format("woff2"),
+        url("https://ebrains.netlify.com/fonts/Inter-Regular.woff")
+            format("woff");
     font-weight: 400;
     font-style: normal;
 }
 
 /* Inter Regular Italic */
 @font-face {
-    font-family: 'Inter-Italic';
+    font-family: "Inter-Italic";
     font-display: swap;
-    src: url('https://ebrains.netlify.com/fonts/Inter-Italic.woff2') format('woff2'),
-    url('https://ebrains.netlify.com/fonts/Inter-Italic.woff') format('woff');
+    src: url("https://ebrains.netlify.com/fonts/Inter-Italic.woff2")
+            format("woff2"),
+        url("https://ebrains.netlify.com/fonts/Inter-Italic.woff")
+            format("woff");
     font-weight: 400;
     font-style: italic;
 }
 
 /* Inter Bold */
 @font-face {
-    font-family: 'Inter-Bold';
+    font-family: "Inter-Bold";
     font-display: swap;
-    src: url('https://ebrains.netlify.com/fonts/Inter-Bold.woff2') format('woff2'),
-    url('https://ebrains.netlify.com/fonts/Inter-Bold.woff') format('woff');
+    src: url("https://ebrains.netlify.com/fonts/Inter-Bold.woff2")
+            format("woff2"),
+        url("https://ebrains.netlify.com/fonts/Inter-Bold.woff") format("woff");
     font-weight: 700;
     font-style: normal;
 }
 
 /* Inter Bold Italic */
 @font-face {
-    font-family: 'Inter-Bolditalic';
+    font-family: "Inter-Bolditalic";
     font-display: swap;
-    src: url('https://ebrains.netlify.com/fonts/Inter-Bolditalic.woff2') format('woff2'),
-    url('https://ebrains.netlify.com/fonts/Inter-Bolditalic.woff') format('woff');
+    src: url("https://ebrains.netlify.com/fonts/Inter-Bolditalic.woff2")
+            format("woff2"),
+        url("https://ebrains.netlify.com/fonts/Inter-Bolditalic.woff")
+            format("woff");
     font-weight: 700;
     font-style: italic;
 }
-
 
 :root {
     --light-gray: #f5f5f5;
@@ -62,13 +68,12 @@
     --site-margin: 42px;
     --site-margin-mobile: 12px;
     --spacing: 32px;
-    --shadow: 3px 3px 20px 0px rgba(0, 0, 0, 0.2)
+    --shadow: 3px 3px 20px 0px rgba(0, 0, 0, 0.2);
 }
-
 
 html {
     line-height: 1.15;
-    -webkit-text-size-adjust: 100%
+    -webkit-text-size-adjust: 100%;
 }
 
 body {
@@ -81,13 +86,12 @@ body {
     -ms-text-size-adjust: 100%;
     -webkit-text-size-adjust: 100%;
     -moz-osx-font-smoothing: grayscale;
-    -webkit-font-smoothing: antialiased
+    -webkit-font-smoothing: antialiased;
 }
-
 
 h1 {
     font-size: 2em;
-    margin: .67em 0
+    margin: 0.67em 0;
 }
 
 .line:after {
@@ -99,19 +103,20 @@ h1 {
     height: 2px;
     width: 0;
     background-color: currentColor;
-    transition: width .3s cubic-bezier(.455, .03, .515, .955)
+    transition: width 0.3s cubic-bezier(0.455, 0.03, 0.515, 0.955);
 }
 
-.line.reverse:after, .line:hover:after {
+.line.reverse:after,
+.line:hover:after {
     left: 0;
     right: auto;
-    width: 100%
+    width: 100%;
 }
 
 .line.reverse:hover:after {
     left: auto;
     right: 0;
-    width: 0
+    width: 0;
 }
 
 .app-links li {
@@ -120,17 +125,17 @@ h1 {
     margin: 0 25px;
 }
 
-.app-links li a{
-    padding-right: 0!important;
-    padding-left: 0!important;
-    margin-left: 0!important;
-    margin-right: 0!important;
-    padding-bottom: 2px!important;
+.app-links li a {
+    padding-right: 0 !important;
+    padding-left: 0 !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    padding-bottom: 2px !important;
     font-size: 18px;
-    color: var(--gray-1)!important;
+    color: var(--gray-1) !important;
 }
 
-.logo svg{
+.logo svg {
     color: black;
 }
 
@@ -138,31 +143,30 @@ ul.app-links {
     list-style: none;
 }
 
-h5{
+h5 {
     margin-bottom: 0;
     font-weight: 700;
 }
 
-h4{
+h4 {
     font-weight: 500;
     font-size: 1.3em;
     margin-top: 1.1em;
 }
 
-h1{
+h1 {
     font-weight: 700;
-
 }
 .section {
     border-bottom: 1px solid var(--border-color);
 }
 
-main{
+main {
     position: relative;
     z-index: 20;
     width: 100%;
     background-color: white;
-    margin-bottom:250px;
+    margin-bottom: 250px;
 }
 
 .site-footer {
@@ -178,24 +182,24 @@ main{
     flex-direction: column;
     font-size: var(--font-size-small);
     line-height: var(--line-height-small);
-    color: var(--light-text)
+    color: var(--light-text);
 }
 
-.footer__end ul{
+.footer__end ul {
     list-style: none;
 }
 
 .site-footer .footer__content {
-    margin-bottom: auto
+    margin-bottom: auto;
 }
 
 .site-footer .footer__content .logo {
-    color: var(--dark-gray)
+    color: var(--dark-gray);
 }
 
 .site-footer .footer__content p {
     margin-top: 40px;
-    max-width: 320px
+    max-width: 320px;
 }
 
 .site-footer .footer__end {
@@ -203,19 +207,19 @@ main{
     justify-content: space-between;
     align-items: center;
     width: 100%;
-    min-height: 80px
+    min-height: 80px;
 }
 
 .site-footer .footer__end .footer__social {
-    display: flex
+    display: flex;
 }
 
 .site-footer .footer__end .footer__social li {
-    margin: 0 8px
+    margin: 0 8px;
 }
 
 .site-footer .footer__end .footer__social li a:hover {
-    color: var(--dark-gray)
+    color: var(--dark-gray);
 }
 
 @media (max-width: 768px) {
@@ -223,33 +227,32 @@ main{
         flex-wrap: wrap;
         justify-content: center;
         flex-flow: column-reverse;
-        line-height: 50px
+        line-height: 50px;
     }
 
-    .credits{
+    .credits {
         max-width: 100px;
     }
 }
 
 .sprite-icons {
     width: 40px;
-    height: 40px
+    height: 40px;
 }
 
 .app-links li.nuxt-link-active:after {
-    width: 100%
+    width: 100%;
 }
 main {
-    box-shadow: 0 10px 20px 0 rgba(55,55,55,.1);
+    box-shadow: 0 10px 20px 0 rgba(55, 55, 55, 0.1);
 }
 
-.footer__social a{
-color: rgb(130, 130, 130)
+.footer__social a {
+    color: rgb(130, 130, 130);
 }
 
-.eu-logo{
+.eu-logo {
     height: 40px;
-    width: auto!important;
-    float:right;
+    width: auto !important;
+    float: right;
 }
-
