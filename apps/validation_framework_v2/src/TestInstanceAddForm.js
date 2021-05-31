@@ -1,20 +1,20 @@
-import Button from '@material-ui/core/Button';
-import Dialog from '@material-ui/core/Dialog';
-import DialogActions from '@material-ui/core/DialogActions';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogTitle from '@material-ui/core/DialogTitle';
-import Grid from '@material-ui/core/Grid';
-import Box from '@material-ui/core/Box';
-import axios from 'axios';
-import PropTypes from 'prop-types';
-import React from 'react';
-import ErrorDialog from './ErrorDialog';
+import Button from "@material-ui/core/Button";
+import Dialog from "@material-ui/core/Dialog";
+import DialogActions from "@material-ui/core/DialogActions";
+import DialogContent from "@material-ui/core/DialogContent";
+import DialogTitle from "@material-ui/core/DialogTitle";
+import Grid from "@material-ui/core/Grid";
+import Box from "@material-ui/core/Box";
+import axios from "axios";
+import PropTypes from "prop-types";
+import React from "react";
+import ErrorDialog from "./ErrorDialog";
 import { datastore } from "./datastore";
 import { replaceEmptyStringsWithNull } from "./utils";
-import TestInstanceArrayOfForms from './TestInstanceArrayOfForms';
-import ContextMain from './ContextMain';
-import Theme from './theme';
-import LoadingIndicatorModal from './LoadingIndicatorModal';
+import TestInstanceArrayOfForms from "./TestInstanceArrayOfForms";
+import ContextMain from "./ContextMain";
+import Theme from "./theme";
+import LoadingIndicatorModal from "./LoadingIndicatorModal";
 
 let versionAxios = null;
 
@@ -31,34 +31,37 @@ export default class TestInstanceAddForm extends React.Component {
         this.checkRequirements = this.checkRequirements.bind(this);
         this.checkVersionUnique = this.checkVersionUnique.bind(this);
 
-        const [authContext,] = this.context.auth;
+        const [authContext] = this.context.auth;
         //
         //
 
         this.state = {
-            instances: [{
-                version: "",
-                repository: "",
-                path: "",
-                description: "",
-                parameters: ""
-            }],
+            instances: [
+                {
+                    version: "",
+                    repository: "",
+                    path: "",
+                    description: "",
+                    parameters: "",
+                },
+            ],
             auth: authContext,
-            loading: false
-        }
+            loading: false,
+        };
 
-        this.handleErrorAddDialogClose = this.handleErrorAddDialogClose.bind(this);
+        this.handleErrorAddDialogClose =
+            this.handleErrorAddDialogClose.bind(this);
         this.handleCancel = this.handleCancel.bind(this);
         this.checkVersionUnique = this.checkVersionUnique.bind(this);
         this.createPayload = this.createPayload.bind(this);
     }
 
     handleErrorAddDialogClose() {
-        this.setState({ 'errorAddTestInstance': null });
-    };
+        this.setState({ errorAddTestInstance: null });
+    }
 
     handleCancel() {
-        console.log("Hello")
+        console.log("Hello");
         this.props.onClose();
     }
 
@@ -69,28 +72,32 @@ export default class TestInstanceAddForm extends React.Component {
         }
         versionAxios = axios.CancelToken.source();
 
-        await datastore.getTestInstanceFromVersion(this.props.testID, newVersion, versionAxios)
-            .then(res => {
-
+        await datastore
+            .getTestInstanceFromVersion(
+                this.props.testID,
+                newVersion,
+                versionAxios
+            )
+            .then((res) => {
                 if (res.data.length === 0) {
                     isUnique = true;
                 }
             })
-            .catch(err => {
+            .catch((err) => {
                 if (axios.isCancel(err)) {
-                    console.log('Error: ', err.message);
+                    console.log("Error: ", err.message);
                 } else {
                     console.log(err);
                 }
             });
-        return isUnique
+        return isUnique;
     }
 
     createPayload() {
         let payload = {
             test_id: this.props.testID,
-            ...this.state.instances[0]
-        }
+            ...this.state.instances[0],
+        };
         return replaceEmptyStringsWithNull(payload);
     }
 
@@ -98,12 +105,13 @@ export default class TestInstanceAddForm extends React.Component {
         // rule 1: test instance version cannot be empty
         let error = null;
         if (payload.version === "") {
-            error = "Test instance 'version' cannot be empty!"
+            error = "Test instance 'version' cannot be empty!";
         } else {
             // rule 2: check if version is unique
             let isUnique = await this.checkVersionUnique(payload.version);
             if (!isUnique) {
-                error = "Test instance 'version' has to be unique within a test!"
+                error =
+                    "Test instance 'version' has to be unique within a test!";
             }
         }
         if (error) {
@@ -122,26 +130,26 @@ export default class TestInstanceAddForm extends React.Component {
             let payload = this.createPayload();
 
             if (await this.checkRequirements(payload)) {
-                datastore.createTestInstance(this.props.testID, payload, this.state)
-                    .then(testInstance => {
-
+                datastore
+                    .createTestInstance(this.props.testID, payload, this.state)
+                    .then((testInstance) => {
                         this.props.onClose(testInstance);
                     })
-                    .catch(err => {
+                    .catch((err) => {
                         if (axios.isCancel(err)) {
-                            console.log('Error: ', err.message);
+                            console.log("Error: ", err.message);
                         } else {
                             console.log(err);
                             this.setState({
                                 errorAddTestInstance: err.response,
                             });
                         }
-                        this.setState({ loading: false })
+                        this.setState({ loading: false });
                     });
             } else {
-                this.setState({ loading: false })
+                this.setState({ loading: false });
             }
-        })
+        });
     }
 
     handleFieldChange(event) {
@@ -150,25 +158,38 @@ export default class TestInstanceAddForm extends React.Component {
         const name = target.name;
 
         if (name === "version") {
-            this.checkVersionUnique(value)
+            this.checkVersionUnique(value);
         }
         this.setState({
-            [name]: value
+            [name]: value,
         });
     }
 
     render() {
         let errorMessage = "";
         if (this.state.errorAddTestInstance) {
-            errorMessage = <ErrorDialog open={Boolean(this.state.errorAddTestInstance)} handleErrorDialogClose={this.handleErrorAddDialogClose} error={this.state.errorAddTestInstance.message || this.state.errorAddTestInstance} />
+            errorMessage = (
+                <ErrorDialog
+                    open={Boolean(this.state.errorAddTestInstance)}
+                    handleErrorDialogClose={this.handleErrorAddDialogClose}
+                    error={
+                        this.state.errorAddTestInstance.message ||
+                        this.state.errorAddTestInstance
+                    }
+                />
+            );
         }
         return (
-            <Dialog onClose={this.handleClose}
+            <Dialog
+                onClose={this.handleClose}
                 aria-labelledby="Form for adding a new test instance"
                 open={this.props.open}
                 fullWidth={true}
-                maxWidth="md">
-                <DialogTitle style={{ backgroundColor: Theme.tableHeader }}>Add a new test instance</DialogTitle>
+                maxWidth="md"
+            >
+                <DialogTitle style={{ backgroundColor: Theme.tableHeader }}>
+                    Add a new test instance
+                </DialogTitle>
                 <DialogContent>
                     <LoadingIndicatorModal open={this.state.loading} />
                     <Box my={2}>
@@ -177,21 +198,20 @@ export default class TestInstanceAddForm extends React.Component {
                                 <TestInstanceArrayOfForms
                                     name="instances"
                                     value={this.state.instances}
-                                    onChange={this.handleFieldChange} />
+                                    onChange={this.handleFieldChange}
+                                />
                             </Grid>
                         </form>
                     </Box>
-                    <div>
-                        {errorMessage}
-                    </div>
+                    <div>{errorMessage}</div>
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={this.handleCancel} color="default">
                         Cancel
-          </Button>
+                    </Button>
                     <Button onClick={this.handleSubmit} color="primary">
                         Add Test Version
-          </Button>
+                    </Button>
                 </DialogActions>
             </Dialog>
         );
@@ -200,5 +220,5 @@ export default class TestInstanceAddForm extends React.Component {
 
 TestInstanceAddForm.propTypes = {
     onClose: PropTypes.func.isRequired,
-    open: PropTypes.bool.isRequired
+    open: PropTypes.bool.isRequired,
 };

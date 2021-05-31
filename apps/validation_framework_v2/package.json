@@ -1,63 +1,64 @@
 {
-  "name": "validation_framework_v2",
-  "version": "0.1.0",
-  "private": true,
-  "dependencies": {
-    "@material-ui/core": "^4.11.1",
-    "@material-ui/icons": "^4.5.1",
-    "axios": "^0.21.1",
-    "eslint-config-react-app": "^5.2.1",
-    "eslint-plugin-flowtype": "^5.2.0",
-    "eslint-plugin-import": "^2.22.1",
-    "eslint-plugin-jsx-a11y": "^6.4.1",
-    "eslint-plugin-react": "^7.21.5",
-    "eslint-plugin-react-hooks": "^4.2.0",
-    "filesize": "^6.1.0",
-    "humanparser": "^1.11.0",
-    "keycloak-js": "^8.0.1",
-    "lodash": "^4.17.20",
-    "material-ui-chip-input": "^2.0.0-beta.2",
-    "moment": "^2.29.1",
-    "mui-datatables": "^2.15.0",
-    "notistack": "^0.9.17",
-    "plotly.js": "^1.57.1",
-    "prop-types": "^15.7.2",
-    "react": "^16.14.0",
-    "react-dom": "^16.14.0",
-    "react-markdown": "^4.3.1",
-    "react-mathjax": "^1.0.1",
-    "react-plotly.js": "2.4.0",
-    "react-scripts": "^4.0.3",
-    "remark-math": "^2.0.1",
-    "styled-components": "^5.2.1"
-  },
-  "scripts": {
-    "start": "HTTPS=true react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject",
-    "e2e": "CYPRESS_baseUrl=http://localhost:3000 npx cypress run --browser chrome",
-    "e2e:ci": "npx start-server-and-test serve:e2e http://localhost:3000 e2e",
-    "serve:e2e": "PORT=3000 BROWSER=none react-scripts start"
-  },
-  "eslintConfig": {
-    "extends": "react-app"
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
-  },
-  "devDependencies": {
-    "cypress": "^7.2.0",
-    "react-hot-loader": "^4.13.0",
-    "start-server-and-test": "^1.12.2"
-  }
+    "name": "validation_framework_v2",
+    "version": "0.1.0",
+    "private": true,
+    "dependencies": {
+        "@material-ui/core": "^4.11.1",
+        "@material-ui/icons": "^4.5.1",
+        "axios": "^0.21.1",
+        "eslint-config-react-app": "^5.2.1",
+        "eslint-plugin-flowtype": "^5.2.0",
+        "eslint-plugin-import": "^2.22.1",
+        "eslint-plugin-jsx-a11y": "^6.4.1",
+        "eslint-plugin-react": "^7.21.5",
+        "eslint-plugin-react-hooks": "^4.2.0",
+        "filesize": "^6.1.0",
+        "humanparser": "^1.11.0",
+        "keycloak-js": "^8.0.1",
+        "lodash": "^4.17.20",
+        "material-ui-chip-input": "^2.0.0-beta.2",
+        "moment": "^2.29.1",
+        "mui-datatables": "^2.15.0",
+        "notistack": "^0.9.17",
+        "plotly.js": "^1.57.1",
+        "prop-types": "^15.7.2",
+        "react": "^16.14.0",
+        "react-dom": "^16.14.0",
+        "react-markdown": "^4.3.1",
+        "react-mathjax": "^1.0.1",
+        "react-plotly.js": "2.4.0",
+        "react-scripts": "^4.0.3",
+        "remark-math": "^2.0.1",
+        "styled-components": "^5.2.1"
+    },
+    "scripts": {
+        "start": "HTTPS=true react-scripts start",
+        "build": "react-scripts build",
+        "test": "react-scripts test",
+        "eject": "react-scripts eject",
+        "e2e": "CYPRESS_baseUrl=http://localhost:3000 npx cypress run --browser chrome",
+        "e2e:ci": "npx start-server-and-test serve:e2e http://localhost:3000 e2e",
+        "serve:e2e": "PORT=3000 BROWSER=none react-scripts start"
+    },
+    "eslintConfig": {
+        "extends": "react-app"
+    },
+    "browserslist": {
+        "production": [
+            ">0.2%",
+            "not dead",
+            "not op_mini all"
+        ],
+        "development": [
+            "last 1 chrome version",
+            "last 1 firefox version",
+            "last 1 safari version"
+        ]
+    },
+    "devDependencies": {
+        "cypress": "^7.2.0",
+        "prettier": "^2.3.0",
+        "react-hot-loader": "^4.13.0",
+        "start-server-and-test": "^1.12.2"
+    }
 }

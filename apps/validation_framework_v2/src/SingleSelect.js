@@ -1,16 +1,16 @@
-import React from 'react';
-import { makeStyles } from '@material-ui/core/styles';
-import Input from '@material-ui/core/Input';
-import InputLabel from '@material-ui/core/InputLabel';
-import MenuItem from '@material-ui/core/MenuItem';
-import FormHelperText from '@material-ui/core/FormHelperText';
-import FormControl from '@material-ui/core/FormControl';
-import ListItemText from '@material-ui/core/ListItemText';
-import Select from '@material-ui/core/Select';
+import React from "react";
+import { makeStyles } from "@material-ui/core/styles";
+import Input from "@material-ui/core/Input";
+import InputLabel from "@material-ui/core/InputLabel";
+import MenuItem from "@material-ui/core/MenuItem";
+import FormHelperText from "@material-ui/core/FormHelperText";
+import FormControl from "@material-ui/core/FormControl";
+import ListItemText from "@material-ui/core/ListItemText";
+import Select from "@material-ui/core/Select";
 
 import { formatLabel } from "./utils";
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
     formControl: {
         margin: theme.spacing(1),
         minWidth: 700,
@@ -41,7 +41,9 @@ export default function SingleSelect(props) {
     return (
         <div>
             <FormControl className={classes.formControl}>
-                <InputLabel id={fieldLabelId}>{formatLabel(props.label)}</InputLabel>
+                <InputLabel id={fieldLabelId}>
+                    {formatLabel(props.label)}
+                </InputLabel>
                 <Select
                     labelId={fieldLabelId}
                     id={fieldId}
@@ -53,12 +55,13 @@ export default function SingleSelect(props) {
                 >
                     {
                         // conditional rendering syntax
-                        (props.label !== "implementation_status") &&
-                        <MenuItem key="None" value="">
-                            <ListItemText primary="None" />
-                        </MenuItem>
+                        props.label !== "implementation_status" && (
+                            <MenuItem key="None" value="">
+                                <ListItemText primary="None" />
+                            </MenuItem>
+                        )
                     }
-                    {props.itemNames.map(name => (
+                    {props.itemNames.map((name) => (
                         <MenuItem key={name} value={name}>
                             <ListItemText primary={name} />
                         </MenuItem>

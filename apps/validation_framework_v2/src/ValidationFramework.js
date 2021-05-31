@@ -1,17 +1,17 @@
-import React from 'react';
-import { hot } from 'react-hot-loader/root'
+import React from "react";
+import { hot } from "react-hot-loader/root";
 
-import CssBaseline from '@material-ui/core/CssBaseline';
-import Container from '@material-ui/core/Container';
-import Grid from '@material-ui/core/Grid';
+import CssBaseline from "@material-ui/core/CssBaseline";
+import Container from "@material-ui/core/Container";
+import Grid from "@material-ui/core/Grid";
 import Tooltip from "@material-ui/core/Tooltip";
-import IconButton from '@material-ui/core/IconButton';
-import SettingsIcon from '@material-ui/icons/Settings';
-import AccountTreeIcon from '@material-ui/icons/AccountTree';
-import Typography from '@material-ui/core/Typography';
-import Paper from '@material-ui/core/Paper';
-import axios from 'axios';
-import _ from 'lodash';
+import IconButton from "@material-ui/core/IconButton";
+import SettingsIcon from "@material-ui/icons/Settings";
+import AccountTreeIcon from "@material-ui/icons/AccountTree";
+import Typography from "@material-ui/core/Typography";
+import Paper from "@material-ui/core/Paper";
+import axios from "axios";
+import _ from "lodash";
 
 import { datastore } from "./datastore";
 import ModelTable from "./ModelTable";
@@ -24,27 +24,37 @@ import TestAddForm from "./TestAddForm";
 import ConfigForm from "./ConfigForm";
 import Introduction from "./Introduction";
 //import ConfigDisplayTop from "./ConfigDisplayTop"
-import ConfigDisplayTop from "./ConfigDisplaySimple"
-import LoadingIndicator from "./LoadingIndicator"
-import ResultDetail from './ResultDetail';
-import ErrorDialog from './ErrorDialog';
-import { DevMode, collaboratoryOrigin, updateSettingsTopic, isFramedApp, settingsDelimiter, filterKeys, filterModelKeys, filterTestKeys, displayValid, queryValid, updateHash } from "./globals";
-import { isUUID, showNotification } from './utils'
-import ContextMain from './ContextMain';
-import Theme from './theme';
-import { withSnackbar } from 'notistack';
+import ConfigDisplayTop from "./ConfigDisplaySimple";
+import LoadingIndicator from "./LoadingIndicator";
+import ResultDetail from "./ResultDetail";
+import ErrorDialog from "./ErrorDialog";
+import {
+    DevMode,
+    collaboratoryOrigin,
+    updateSettingsTopic,
+    isFramedApp,
+    settingsDelimiter,
+    filterKeys,
+    filterModelKeys,
+    filterTestKeys,
+    displayValid,
+    queryValid,
+    updateHash,
+} from "./globals";
+import { isUUID, showNotification } from "./utils";
+import ContextMain from "./ContextMain";
+import Theme from "./theme";
+import { withSnackbar } from "notistack";
 
 // if working on the appearance/layout set globals.DevMode=true
 // to avoid loading the models and tests over the network every time;
 // instead we use the local sample_data_models and sample_data_tests files
-var sample_model_data = {}
-var sample_test_data = {}
+var sample_model_data = {};
+var sample_test_data = {};
 if (DevMode) {
-    sample_model_data = require('./dev_data/sample_data_models.json');
-    sample_test_data = require('./dev_data/sample_data_tests.json');
-    }
-
-
+    sample_model_data = require("./dev_data/sample_data_models.json");
+    sample_test_data = require("./dev_data/sample_data_tests.json");
+}
 
 const filtersEmpty = (filterDict) => {
     // return true if no filters are set
@@ -53,7 +63,7 @@ const filtersEmpty = (filterDict) => {
         if (filterDict[key].length > 0) {
             is_empty = false;
         }
-    };
+    }
     return is_empty;
 };
 
@@ -71,11 +81,11 @@ const storeSettings = (filterDict, display) => {
         window.parent.postMessage(
             {
                 topic: updateSettingsTopic,
-                data: data
+                data: data,
             },
-            collaboratoryOrigin);
+            collaboratoryOrigin
+        );
         console.log("Stored filter and display settings");
-
     }
 };
 
@@ -94,7 +104,7 @@ const retrieveFilters = (context) => {
     const [, setContextFilters] = context.filters;
     setContextFilters(filters);
     return filters;
-}
+};
 
 const retrieveDisplay = () => {
     const searchParams = new URLSearchParams(window.location.search);
@@ -104,7 +114,7 @@ const retrieveDisplay = () => {
     } else {
         return displayValid[1]; //"Models and Tests"
     }
-}
+};
 
 class ValidationFramework extends React.Component {
     signal = axios.CancelToken.source();
@@ -114,67 +124,81 @@ class ValidationFramework extends React.Component {
         super(props, context);
 
         this.state = {
-            'modelData': [],
-            'testData': [],
-            'currentModel': null,
-            'currentTest': null,
-            'currentResult': null,
-            'modelDetailOpen': false,
-            'testDetailOpen': false,
-            'resultDetailOpen': false,
-            'compareResultsOpen': false,
-            'addModelFormOpen': false,
-            'addTestFormOpen': false,
-            'configOpen': false,
-            'loadingOpen': false,
-            'loadingModel': true,
-            'loadingTest': true,
-            'errorUpdate': null,
-            'errorGet': null,
-            'filters': retrieveFilters(context),
-            'display': retrieveDisplay(),
-            'modelsTableWide': false,
-            'testsTableWide': false,
-            'modelsTableColumns': [
-                { name: 'ID', options: { display: false } },
-                { name: 'Name', options: { display: true } },
-                { name: 'Alias', options: { display: false } },
-                { name: 'Author', options: { display: true } },
-                { name: 'Visibility', options: { display: false } },
-                { name: 'Project ID', options: { display: false } },
-                { name: 'Species', options: { display: false } },
-                { name: 'Brain region', options: { display: false } },
-                { name: 'Cell type', options: { display: false } },
-                { name: 'Model scope', options: { display: false } },
-                { name: 'Abstraction level', options: { display: false } },
-                { name: 'Owner', options: { display: false } },
-                { name: 'Organization', options: { display: false } },
-                { name: 'Created Date', options: { display: false } },
-                { name: 'jsonObject', options: { display: false, viewColumns: false, filter: false } }
+            modelData: [],
+            testData: [],
+            currentModel: null,
+            currentTest: null,
+            currentResult: null,
+            modelDetailOpen: false,
+            testDetailOpen: false,
+            resultDetailOpen: false,
+            compareResultsOpen: false,
+            addModelFormOpen: false,
+            addTestFormOpen: false,
+            configOpen: false,
+            loadingOpen: false,
+            loadingModel: true,
+            loadingTest: true,
+            errorUpdate: null,
+            errorGet: null,
+            filters: retrieveFilters(context),
+            display: retrieveDisplay(),
+            modelsTableWide: false,
+            testsTableWide: false,
+            modelsTableColumns: [
+                { name: "ID", options: { display: false } },
+                { name: "Name", options: { display: true } },
+                { name: "Alias", options: { display: false } },
+                { name: "Author", options: { display: true } },
+                { name: "Visibility", options: { display: false } },
+                { name: "Project ID", options: { display: false } },
+                { name: "Species", options: { display: false } },
+                { name: "Brain region", options: { display: false } },
+                { name: "Cell type", options: { display: false } },
+                { name: "Model scope", options: { display: false } },
+                { name: "Abstraction level", options: { display: false } },
+                { name: "Owner", options: { display: false } },
+                { name: "Organization", options: { display: false } },
+                { name: "Created Date", options: { display: false } },
+                {
+                    name: "jsonObject",
+                    options: {
+                        display: false,
+                        viewColumns: false,
+                        filter: false,
+                    },
+                },
             ],
-            'testsTableColumns': [
-                { name: 'ID', options: { display: false } },
-                { name: 'Name', options: { display: true } },
-                { name: 'Alias', options: { display: false } },
-                { name: 'Author', options: { display: true } },
-                { name: 'Status', options: { display: false } },
-                { name: 'Species', options: { display: false } },
-                { name: 'Brain region', options: { display: false } },
-                { name: 'Cell type', options: { display: false } },
-                { name: 'Test type', options: { display: false } },
-                { name: 'Score type', options: { display: false } },
-                { name: 'Data type', options: { display: false } },
-                { name: 'Data modality', options: { display: false } },
-                { name: 'Data location', options: { display: false } },
-                { name: 'Created date', options: { display: false } },
-                { name: 'jsonObject', options: { display: false, viewColumns: false, filter: false } }
-            ]
+            testsTableColumns: [
+                { name: "ID", options: { display: false } },
+                { name: "Name", options: { display: true } },
+                { name: "Alias", options: { display: false } },
+                { name: "Author", options: { display: true } },
+                { name: "Status", options: { display: false } },
+                { name: "Species", options: { display: false } },
+                { name: "Brain region", options: { display: false } },
+                { name: "Cell type", options: { display: false } },
+                { name: "Test type", options: { display: false } },
+                { name: "Score type", options: { display: false } },
+                { name: "Data type", options: { display: false } },
+                { name: "Data modality", options: { display: false } },
+                { name: "Data location", options: { display: false } },
+                { name: "Created date", options: { display: false } },
+                {
+                    name: "jsonObject",
+                    options: {
+                        display: false,
+                        viewColumns: false,
+                        filter: false,
+                    },
+                },
+            ],
         };
         if (DevMode) {
-            this.state['modelData'] = sample_model_data.models
-            this.state['testData'] = sample_test_data.tests
-            this.state['loadingModel'] = false
-            this.state['loadingTest'] = false
+            this.state["modelData"] = sample_model_data.models;
+            this.state["testData"] = sample_test_data.tests;
+            this.state["loadingModel"] = false;
+            this.state["loadingTest"] = false;
         }
         this.handleModelDetailClose = this.handleModelDetailClose.bind(this);
         this.handleTestDetailClose = this.handleTestDetailClose.bind(this);
@@ -183,8 +207,10 @@ class ValidationFramework extends React.Component {
         this.handleTestRowClick = this.handleTestRowClick.bind(this);
         this.openConfig = this.openConfig.bind(this);
         this.handleConfigClose = this.handleConfigClose.bind(this);
-        this.handleErrorGetDialogClose = this.handleErrorGetDialogClose.bind(this);
-        this.handleErrorUpdateDialogClose = this.handleErrorUpdateDialogClose.bind(this);
+        this.handleErrorGetDialogClose =
+            this.handleErrorGetDialogClose.bind(this);
+        this.handleErrorUpdateDialogClose =
+            this.handleErrorUpdateDialogClose.bind(this);
         this.updateModels = this.updateModels.bind(this);
         this.updateTests = this.updateTests.bind(this);
         this.getModel = this.getModel.bind(this);
@@ -199,10 +225,10 @@ class ValidationFramework extends React.Component {
         this.openAddTestForm = this.openAddTestForm.bind(this);
         this.handleAddModelFormClose = this.handleAddModelFormClose.bind(this);
         this.handleAddTestFormClose = this.handleAddTestFormClose.bind(this);
-        this.updateCurrentModel= this.updateCurrentModel.bind(this);
+        this.updateCurrentModel = this.updateCurrentModel.bind(this);
         this.handleAddModelInstance = this.handleAddModelInstance.bind(this);
         this.handleEditModelInstance = this.handleEditModelInstance.bind(this);
-        this.updateCurrentTest= this.updateCurrentTest.bind(this);
+        this.updateCurrentTest = this.updateCurrentTest.bind(this);
         this.handleAddTestInstance = this.handleAddTestInstance.bind(this);
         this.handleEditTestInstance = this.handleEditTestInstance.bind(this);
         this.handleColumnsChange = this.handleColumnsChange.bind(this);
@@ -210,47 +236,46 @@ class ValidationFramework extends React.Component {
 
     modelTableFullWidth() {
         this.setState({
-            modelsTableWide: !this.state.modelsTableWide
+            modelsTableWide: !this.state.modelsTableWide,
         });
     }
 
     testTableFullWidth() {
         this.setState({
-            testsTableWide: !this.state.testsTableWide
+            testsTableWide: !this.state.testsTableWide,
         });
     }
 
     handleColumnsChange(key, columnName, action) {
-
         let newColumns = [...this.state[key]];
         newColumns.forEach((col) => {
             if (col.name === columnName) {
-                col.options.display = (action === 'add');
+                col.options.display = action === "add";
             }
         });
-        this.setState({key: newColumns})
+        this.setState({ key: newColumns });
     }
 
     openCompareResults() {
-        this.setState({ 'compareResultsOpen': true })
+        this.setState({ compareResultsOpen: true });
     }
 
     closeCompareResults() {
-        this.setState({ 'compareResultsOpen': false })
+        this.setState({ compareResultsOpen: false });
     }
 
     openAddModelForm() {
-        this.setState({ 'addModelFormOpen': true })
-    };
+        this.setState({ addModelFormOpen: true });
+    }
 
     openAddTestForm() {
-        this.setState({ 'addTestFormOpen': true })
-    };
+        this.setState({ addTestFormOpen: true });
+    }
 
     handleAddModelFormClose(currentModel) {
-        console.log("close add")
+        console.log("close add");
 
-        this.setState({ 'addModelFormOpen': false });
+        this.setState({ addModelFormOpen: false });
         if (currentModel) {
             let models = this.state.modelData;
 
@@ -258,10 +283,15 @@ class ValidationFramework extends React.Component {
             this.setState({
                 modelData: models,
                 currentModel: currentModel,
-                modelDetailOpen: true
+                modelDetailOpen: true,
             });
             updateHash("model_id." + currentModel.id);
-            showNotification(this.props.enqueueSnackbar, this.props.closeSnackbar, "Model has been added!", "info")
+            showNotification(
+                this.props.enqueueSnackbar,
+                this.props.closeSnackbar,
+                "Model has been added!",
+                "info"
+            );
         }
     }
 
@@ -274,10 +304,9 @@ class ValidationFramework extends React.Component {
             }
         }
 
-
         this.setState({
             modelData: updatedModelData,
-            currentModel: updatedModel
+            currentModel: updatedModel,
         });
     }
 
@@ -290,7 +319,9 @@ class ValidationFramework extends React.Component {
     handleEditModelInstance(updatedModelInstance) {
         let updatedCurrentModel = this.state.currentModel;
         for (let i = 0; i < updatedCurrentModel.instances.length; i++) {
-            if (updatedCurrentModel.instances[i].id === updatedModelInstance.id) {
+            if (
+                updatedCurrentModel.instances[i].id === updatedModelInstance.id
+            ) {
                 updatedCurrentModel.instances[i] = updatedModelInstance;
             }
         }
@@ -298,9 +329,9 @@ class ValidationFramework extends React.Component {
     }
 
     handleAddTestFormClose(currentTest) {
-        console.log("close add")
+        console.log("close add");
 
-        this.setState({ 'addTestFormOpen': false });
+        this.setState({ addTestFormOpen: false });
         if (currentTest) {
             let tests = this.state.testData;
 
@@ -308,10 +339,15 @@ class ValidationFramework extends React.Component {
             this.setState({
                 testData: tests,
                 currentTest: currentTest,
-                testDetailOpen: true
+                testDetailOpen: true,
             });
             updateHash("test_id." + currentTest.id);
-            showNotification(this.props.enqueueSnackbar, this.props.closeSnackbar, "Test has been added!", "info")
+            showNotification(
+                this.props.enqueueSnackbar,
+                this.props.closeSnackbar,
+                "Test has been added!",
+                "info"
+            );
         }
     }
 
@@ -324,10 +360,9 @@ class ValidationFramework extends React.Component {
             }
         }
 
-
         this.setState({
             testData: updatedTestData,
-            currentTest: updatedTest
+            currentTest: updatedTest,
         });
     }
 
@@ -351,53 +386,60 @@ class ValidationFramework extends React.Component {
         document.body.style.backgroundColor = Theme.bodyBackground;
         const token = this.props.auth.tokenParsed;
 
-
         const [, setAuthContext] = this.context.auth;
-        setAuthContext(this.props.auth)
+        setAuthContext(this.props.auth);
 
-        datastore.getValidFilterValues()
-            .then(vocab => {
+        datastore
+            .getValidFilterValues()
+            .then((vocab) => {
                 console.log("Retrieved valid filter values");
-                const [, setContextValidFilterValues] = this.context.validFilterValues;
+                const [, setContextValidFilterValues] =
+                    this.context.validFilterValues;
                 setContextValidFilterValues(vocab);
             })
-            .catch(err => {
+            .catch((err) => {
                 if (axios.isCancel(err)) {
-                    console.log('Error: ', err.message);
+                    console.log("Error: ", err.message);
                 } else {
                     // Something went wrong. Save the error in state and re-render.
                     this.setState({
-                        error: err
+                        error: err,
                     });
                 }
-            }
-        );
+            });
 
-        this.props.auth.loadUserInfo()
+        this.props.auth
+            .loadUserInfo()
             .success(() => {
                 const userInfo = this.props.auth.userInfo;
-
             })
             .error(console.log);
 
         if (window.location.hash) {
             let proceed = true;
             const param = window.location.hash.slice(1);
-            const key = param.split(".")[0]
-            const value = param.substr(param.indexOf('.') + 1)
-            let error_message = ""
+            const key = param.split(".")[0];
+            const value = param.substr(param.indexOf(".") + 1);
+            let error_message = "";
 
             if (!queryValid.includes(key)) {
-                error_message = "URL query parameter must be one of the following:\n" + queryValid.join(", ");
+                error_message =
+                    "URL query parameter must be one of the following:\n" +
+                    queryValid.join(", ");
                 this.setState({ errorGet: error_message });
                 proceed = false;
-                updateHash('');
+                updateHash("");
             }
             if (proceed && key.endsWith("_id") && !isUUID(value)) {
-                error_message = "Value for query parameter '" + key + "' is not a valid UUID.\n Value: (" + value + ")";
+                error_message =
+                    "Value for query parameter '" +
+                    key +
+                    "' is not a valid UUID.\n Value: (" +
+                    value +
+                    ")";
                 this.setState({ errorGet: error_message });
                 proceed = false;
-                updateHash('');
+                updateHash("");
             }
             if (proceed) {
                 this.setState({ loadingOpen: true });
@@ -432,7 +474,7 @@ class ValidationFramework extends React.Component {
     }
 
     componentWillUnmount() {
-        this.signal.cancel('REST API call canceled!');
+        this.signal.cancel("REST API call canceled!");
     }
 
     getModel(key, value) {
@@ -442,18 +484,19 @@ class ValidationFramework extends React.Component {
         } else if (key === "model_alias") {
             identifier = encodeURI(value);
         }
-        datastore.getModel(identifier, this.signal)
-            .then(model => {
+        datastore
+            .getModel(identifier, this.signal)
+            .then((model) => {
                 this.setState({
                     currentModel: model,
                     loadingOpen: false,
                     errorGet: null,
-                    modelDetailOpen: true
+                    modelDetailOpen: true,
                 });
             })
-            .catch(err => {
+            .catch((err) => {
                 if (axios.isCancel(err)) {
-                    console.log('errorGet: ', err.message);
+                    console.log("errorGet: ", err.message);
                     this.setState({
                         loadingOpen: false,
                     });
@@ -463,34 +506,35 @@ class ValidationFramework extends React.Component {
                     try {
                         error_message = err.response.data.detail;
                     } catch {
-                        error_message = err
+                        error_message = err;
                     }
                     this.setState({
                         loadingOpen: false,
-                        errorGet: error_message
+                        errorGet: error_message,
                     });
                 }
-                updateHash('');
-            }
-            );
-    };
+                updateHash("");
+            });
+    }
 
     getModelFromInstance(value) {
-        datastore.getModelInstanceFromID(value, this.signal)
-            .then(res => {
-                datastore.getModel(encodeURI(res.data.model_id), this.signal)
-                    .then(model => {
+        datastore
+            .getModelInstanceFromID(value, this.signal)
+            .then((res) => {
+                datastore
+                    .getModel(encodeURI(res.data.model_id), this.signal)
+                    .then((model) => {
                         this.setState({
                             currentModel: model,
                             loadingOpen: false,
                             errorGet: null,
-                            modelDetailOpen: true
+                            modelDetailOpen: true,
                         });
-                        updateHash('model_id.' + model.id);
+                        updateHash("model_id." + model.id);
                     })
-                    .catch(err => {
+                    .catch((err) => {
                         if (axios.isCancel(err)) {
-                            console.log('errorGet: ', err.message);
+                            console.log("errorGet: ", err.message);
                             this.setState({
                                 loadingOpen: false,
                             });
@@ -500,20 +544,19 @@ class ValidationFramework extends React.Component {
                             try {
                                 error_message = err.response.data.detail;
                             } catch {
-                                error_message = err
+                                error_message = err;
                             }
                             this.setState({
                                 loadingOpen: false,
-                                errorGet: error_message
+                                errorGet: error_message,
                             });
                         }
-                        updateHash('');
-                    }
-                    );
+                        updateHash("");
+                    });
             })
-            .catch(err => {
+            .catch((err) => {
                 if (axios.isCancel(err)) {
-                    console.log('errorGet: ', err.message);
+                    console.log("errorGet: ", err.message);
                     this.setState({
                         loadingOpen: false,
                     });
@@ -523,17 +566,16 @@ class ValidationFramework extends React.Component {
                     try {
                         error_message = err.response.data.detail;
                     } catch {
-                        error_message = err
+                        error_message = err;
                     }
                     this.setState({
                         loadingOpen: false,
-                        errorGet: error_message
+                        errorGet: error_message,
                     });
                 }
-                updateHash('');
-            }
-            );
-    };
+                updateHash("");
+            });
+    }
 
     getTest(key, value) {
         let identifier = "";
@@ -542,18 +584,19 @@ class ValidationFramework extends React.Component {
         } else if (key === "test_alias") {
             identifier = encodeURI(value);
         }
-        datastore.getTest(identifier, this.signal)
-            .then(test => {
+        datastore
+            .getTest(identifier, this.signal)
+            .then((test) => {
                 this.setState({
                     currentTest: test,
                     loadingOpen: false,
                     errorGet: null,
-                    testDetailOpen: true
+                    testDetailOpen: true,
                 });
             })
-            .catch(err => {
+            .catch((err) => {
                 if (axios.isCancel(err)) {
-                    console.log('errorGet: ', err.message);
+                    console.log("errorGet: ", err.message);
                     this.setState({
                         loadingOpen: false,
                     });
@@ -563,34 +606,35 @@ class ValidationFramework extends React.Component {
                     try {
                         error_message = err.response.data.detail;
                     } catch {
-                        error_message = err
+                        error_message = err;
                     }
                     this.setState({
                         loadingOpen: false,
-                        errorGet: error_message
+                        errorGet: error_message,
                     });
                 }
-                updateHash('');
-            }
-            );
-    };
+                updateHash("");
+            });
+    }
 
     getTestFromInstance(value) {
-        datastore.getTestInstanceFromID(encodeURI(value), this.signal)
-            .then(res => {
-                datastore.getTest(encodeURI(res.data.test_id), this.signal)
-                    .then(test => {
+        datastore
+            .getTestInstanceFromID(encodeURI(value), this.signal)
+            .then((res) => {
+                datastore
+                    .getTest(encodeURI(res.data.test_id), this.signal)
+                    .then((test) => {
                         this.setState({
                             currentTest: test,
                             loadingOpen: false,
                             errorGet: null,
-                            testDetailOpen: true
+                            testDetailOpen: true,
                         });
-                        updateHash('test_id.'+test.id);
+                        updateHash("test_id." + test.id);
                     })
-                    .catch(err => {
+                    .catch((err) => {
                         if (axios.isCancel(err)) {
-                            console.log('errorGet: ', err.message);
+                            console.log("errorGet: ", err.message);
                             this.setState({
                                 loadingOpen: false,
                             });
@@ -600,20 +644,19 @@ class ValidationFramework extends React.Component {
                             try {
                                 error_message = err.response.data.detail;
                             } catch {
-                                error_message = err
+                                error_message = err;
                             }
                             this.setState({
                                 loadingOpen: false,
-                                errorGet: error_message
+                                errorGet: error_message,
                             });
                         }
-                        updateHash('');
-                    }
-                    );
+                        updateHash("");
+                    });
             })
-            .catch(err => {
+            .catch((err) => {
                 if (axios.isCancel(err)) {
-                    console.log('errorGet: ', err.message);
+                    console.log("errorGet: ", err.message);
                     this.setState({
                         loadingOpen: false,
                     });
@@ -623,31 +666,31 @@ class ValidationFramework extends React.Component {
                     try {
                         error_message = err.response.data.detail;
                     } catch {
-                        error_message = err
+                        error_message = err;
                     }
                     this.setState({
                         loadingOpen: false,
-                        errorGet: error_message
+                        errorGet: error_message,
                     });
                 }
-                updateHash('');
-            }
-            );
-    };
+                updateHash("");
+            });
+    }
 
     getResult(key, value) {
-        return datastore.getResult(value, this.signal)
-            .then(result => {
+        return datastore
+            .getResult(value, this.signal)
+            .then((result) => {
                 this.setState({
                     currentResult: result,
                     loadingOpen: false,
                     errorGet: null,
-                    resultDetailOpen: true
+                    resultDetailOpen: true,
                 });
             })
-            .catch(err => {
+            .catch((err) => {
                 if (axios.isCancel(err)) {
-                    console.log('errorGet: ', err.message);
+                    console.log("errorGet: ", err.message);
                     this.setState({
                         loadingOpen: false,
                     });
@@ -657,129 +700,126 @@ class ValidationFramework extends React.Component {
                     try {
                         error_message = err.response.data.detail;
                     } catch {
-                        error_message = err
+                        error_message = err;
                     }
                     this.setState({
                         loadingOpen: false,
-                        errorGet: error_message
+                        errorGet: error_message,
                     });
                 }
-                updateHash('');
-            }
-            );
-    };
+                updateHash("");
+            });
+    }
 
     updateModels(filters) {
         if (filtersEmpty(filters)) {
             this.setState({
                 modelData: [],
                 loadingModel: false,
-                errorUpdate: null
+                errorUpdate: null,
             });
         } else {
             this.setState({ loadingModel: true });
-            datastore.queryModels(filters, this.signal)
-                .then(models => {
-
+            datastore
+                .queryModels(filters, this.signal)
+                .then((models) => {
                     this.setState({
                         modelData: models,
                         loadingModel: false,
-                        errorUpdate: null
+                        errorUpdate: null,
                     });
                 })
-                .catch(err => {
+                .catch((err) => {
                     if (axios.isCancel(err)) {
-                        console.log('errorUpdate: ', err.message);
+                        console.log("errorUpdate: ", err.message);
                     } else {
                         // Something went wrong. Save the error in state and re-render.
                         this.setState({
                             loadingModel: false,
-                            errorUpdate: err
+                            errorUpdate: err,
                         });
                     }
-                }
-                );
-        };
-    };
+                });
+        }
+    }
 
     updateTests(filters) {
         if (filtersEmpty(filters)) {
             this.setState({
                 testData: [],
                 loadingTest: false,
-                errorUpdate: null
+                errorUpdate: null,
             });
         } else {
             this.setState({ loadingTest: true });
-            datastore.queryTests(filters, this.signal)
-                .then(tests => {
-
+            datastore
+                .queryTests(filters, this.signal)
+                .then((tests) => {
                     this.setState({
                         testData: tests,
                         loadingTest: false,
-                        errorUpdate: null
+                        errorUpdate: null,
                     });
                 })
-                .catch(err => {
+                .catch((err) => {
                     if (axios.isCancel(err)) {
-                        console.log('errorUpdate: ', err.message);
+                        console.log("errorUpdate: ", err.message);
                     } else {
                         // Something went wrong. Save the error in state and re-render.
                         this.setState({
                             loadingTest: false,
-                            errorUpdate: err
+                            errorUpdate: err,
                         });
                     }
-                }
-                );
-        };
-    };
+                });
+        }
+    }
 
     handleModelRowClick(rowData, rowMeta) {
         // Note: last element of MUIDataTable (in ModelTable.js) is set to json Object of entry
-        this.setState({ 'currentModel': rowData[rowData.length - 1] });
-        this.setState({ 'modelDetailOpen': true });
+        this.setState({ currentModel: rowData[rowData.length - 1] });
+        this.setState({ modelDetailOpen: true });
         updateHash("model_id." + rowData[0]);
-    };
+    }
 
     handleModelDetailClose() {
-        this.setState({ 'currentModel': null });
-        this.setState({ 'modelDetailOpen': false });
-        updateHash('');
-    };
+        this.setState({ currentModel: null });
+        this.setState({ modelDetailOpen: false });
+        updateHash("");
+    }
 
     handleTestRowClick(rowData, rowMeta) {
         // Note: last element of MUIDataTable (in TestTable.js) is set to json Object of entry
-        this.setState({ 'currentTest': rowData[rowData.length - 1] });
-        this.setState({ 'testDetailOpen': true });
+        this.setState({ currentTest: rowData[rowData.length - 1] });
+        this.setState({ testDetailOpen: true });
         updateHash("test_id." + rowData[0]);
-    };
+    }
 
     handleTestDetailClose() {
-        this.setState({ 'currentTest': null });
-        this.setState({ 'testDetailOpen': false });
-        updateHash('');
-    };
+        this.setState({ currentTest: null });
+        this.setState({ testDetailOpen: false });
+        updateHash("");
+    }
 
     handleResultDetailClose() {
-        this.setState({ 'currentResult': null });
-        this.setState({ 'resultDetailOpen': false });
-        updateHash('');
-    };
+        this.setState({ currentResult: null });
+        this.setState({ resultDetailOpen: false });
+        updateHash("");
+    }
 
     openConfig() {
-        this.setState({ 'configOpen': true })
-    };
+        this.setState({ configOpen: true });
+    }
 
     handleConfigClose(display, filters, cancel = false) {
         if (cancel) {
-            this.setState({ 'configOpen': false });
-            return
+            this.setState({ configOpen: false });
+            return;
         }
 
         let modelFilters = {};
         filterModelKeys.forEach(function (key, index) {
-            modelFilters[key] = filters[key]
+            modelFilters[key] = filters[key];
         });
 
         let update_model_flag = null; // 3 states: null : needs changes, pending; false: no changes needed; true: changes made
@@ -797,14 +837,11 @@ class ValidationFramework extends React.Component {
             update_test_flag = false;
         }
 
-
-
-
         let update_settings = false;
 
         if (update_model_flag === null || update_test_flag === null) {
             update_settings = true;
-            this.setState({ 'filters': filters });
+            this.setState({ filters: filters });
 
             if (update_model_flag === null && display !== "Only Tests") {
                 update_model_flag = true;
@@ -814,22 +851,26 @@ class ValidationFramework extends React.Component {
                 update_test_flag = true;
                 this.updateTests(testFilters);
             }
-            showNotification(this.props.enqueueSnackbar, this.props.closeSnackbar, "App config updated!", "success")
+            showNotification(
+                this.props.enqueueSnackbar,
+                this.props.closeSnackbar,
+                "App config updated!",
+                "success"
+            );
         }
 
-
-
-        if (display !== this.state.display) { // compare new (display) with existing (this.state.display)
+        if (display !== this.state.display) {
+            // compare new (display) with existing (this.state.display)
             update_settings = true;
             // if model changes made above, no need to do again
-            if ((!update_model_flag) && (this.state.display === "Only Tests")) {
+            if (!update_model_flag && this.state.display === "Only Tests") {
                 this.updateModels(modelFilters);
             }
             // if test changes made above, no need to do again
-            if ((!update_test_flag) && (this.state.display === "Only Models")) {
+            if (!update_test_flag && this.state.display === "Only Models") {
                 this.updateTests(testFilters);
             }
-            this.setState({ 'display': display });
+            this.setState({ display: display });
             this.setState({ modelsTableWide: false });
             this.setState({ testsTableWide: false });
         }
@@ -837,100 +878,128 @@ class ValidationFramework extends React.Component {
         if (update_settings) {
             storeSettings(filters, display);
         }
-        this.setState({ 'configOpen': false });
-    };
+        this.setState({ configOpen: false });
+    }
 
     handleErrorGetDialogClose() {
-        this.setState({ 'errorGet': null });
-    };
+        this.setState({ errorGet: null });
+    }
 
     handleErrorUpdateDialogClose() {
-        this.setState({ 'errorUpdate': null });
-    };
+        this.setState({ errorUpdate: null });
+    }
 
     renderLoading() {
         return (
-            <Paper style={{ padding: '0 0 0 16px' }}>
+            <Paper style={{ padding: "0 0 0 16px" }}>
                 <br />
                 <Typography variant="h6">Loading...</Typography>
                 <LoadingIndicator />
-                <br /><br />
+                <br />
+                <br />
             </Paper>
-        )
+        );
     }
 
     renderTables() {
-        let model_table = <React.Fragment>
-            {this.state.loadingModel ?
-                <Paper style={{ padding: '0 0 0 16px' }}>
-                    <br />
-                    <Typography variant="h6">Models</Typography>
-                    <LoadingIndicator />
-                    <br /><br />
-                </Paper>
-                :
-                <ModelTable
-                    modelData={this.state.modelData}
-                    display={this.state.display}
-                    changeTableWidth={this.modelTableFullWidth}
-                    openCompareResults={this.openCompareResults}
-                    openAddModelForm={this.openAddModelForm}
-                    handleRowClick={this.handleModelRowClick}
-                    columns={this.state.modelsTableColumns}
-                    onColumnsChange={(columnName, action) => this.handleColumnsChange('modelsTableColumns', columnName, action)}
-                />
-            }
-        </React.Fragment>
+        let model_table = (
+            <React.Fragment>
+                {this.state.loadingModel ? (
+                    <Paper style={{ padding: "0 0 0 16px" }}>
+                        <br />
+                        <Typography variant="h6">Models</Typography>
+                        <LoadingIndicator />
+                        <br />
+                        <br />
+                    </Paper>
+                ) : (
+                    <ModelTable
+                        modelData={this.state.modelData}
+                        display={this.state.display}
+                        changeTableWidth={this.modelTableFullWidth}
+                        openCompareResults={this.openCompareResults}
+                        openAddModelForm={this.openAddModelForm}
+                        handleRowClick={this.handleModelRowClick}
+                        columns={this.state.modelsTableColumns}
+                        onColumnsChange={(columnName, action) =>
+                            this.handleColumnsChange(
+                                "modelsTableColumns",
+                                columnName,
+                                action
+                            )
+                        }
+                    />
+                )}
+            </React.Fragment>
+        );
 
-        let test_table = <React.Fragment>
-            {this.state.loadingTest ?
-                <Paper style={{ padding: '0 0 0 16px' }}>
-                    <br />
-                    <Typography variant="h6">Tests</Typography>
-                    <LoadingIndicator />
-                    <br /><br />
-                </Paper>
-                :
-                <TestTable
-                    testData={this.state.testData} display={this.state.display}
-                    changeTableWidth={this.testTableFullWidth}
-                    openCompareResults={this.openCompareResults}
-                    openAddTestForm={this.openAddTestForm}
-                    handleRowClick={this.handleTestRowClick}
-                    columns={this.state.testsTableColumns}
-                    onColumnsChange={(columnName, action) => this.handleColumnsChange('testsTableColumns', columnName, action)}
-                />
-            }
-        </React.Fragment>
+        let test_table = (
+            <React.Fragment>
+                {this.state.loadingTest ? (
+                    <Paper style={{ padding: "0 0 0 16px" }}>
+                        <br />
+                        <Typography variant="h6">Tests</Typography>
+                        <LoadingIndicator />
+                        <br />
+                        <br />
+                    </Paper>
+                ) : (
+                    <TestTable
+                        testData={this.state.testData}
+                        display={this.state.display}
+                        changeTableWidth={this.testTableFullWidth}
+                        openCompareResults={this.openCompareResults}
+                        openAddTestForm={this.openAddTestForm}
+                        handleRowClick={this.handleTestRowClick}
+                        columns={this.state.testsTableColumns}
+                        onColumnsChange={(columnName, action) =>
+                            this.handleColumnsChange(
+                                "testsTableColumns",
+                                columnName,
+                                action
+                            )
+                        }
+                    />
+                )}
+            </React.Fragment>
+        );
 
         let content = "";
-        if ((this.state.modelsTableWide && !this.state.testsTableWide) || (this.state.display === "Only Models")) {
-            content = <Grid container>
-                <Grid item xs={12}>
-                    {model_table}
+        if (
+            (this.state.modelsTableWide && !this.state.testsTableWide) ||
+            this.state.display === "Only Models"
+        ) {
+            content = (
+                <Grid container>
+                    <Grid item xs={12}>
+                        {model_table}
+                    </Grid>
                 </Grid>
-            </Grid>
-        } else if ((!this.state.modelsTableWide && this.state.testsTableWide) || (this.state.display === "Only Tests")) {
-            content = <Grid container>
-                <Grid item xs={12}>
-                    {test_table}
+            );
+        } else if (
+            (!this.state.modelsTableWide && this.state.testsTableWide) ||
+            this.state.display === "Only Tests"
+        ) {
+            content = (
+                <Grid container>
+                    <Grid item xs={12}>
+                        {test_table}
+                    </Grid>
                 </Grid>
-            </Grid>
+            );
         } else {
-            content = <Grid container spacing={2}>
-                <Grid item xs={6}>
-                    {model_table}
+            content = (
+                <Grid container spacing={2}>
+                    <Grid item xs={6}>
+                        {model_table}
+                    </Grid>
+                    <Grid item xs={6}>
+                        {test_table}
+                    </Grid>
                 </Grid>
-                <Grid item xs={6}>
-                    {test_table}
-                </Grid>
-            </Grid>
+            );
         }
-        return (
-            <div>
-                {content}
-            </div>
-        );
+        return <div>{content}</div>;
     }
 
     renderValidationFramework() {
@@ -947,53 +1016,103 @@ class ValidationFramework extends React.Component {
             return this.renderLoading();
         }
         if (this.state.errorGet) {
-            return <ErrorDialog open={Boolean(this.state.errorGet)} handleErrorDialogClose={this.handleErrorGetDialogClose} error={this.state.errorGet.message || this.state.errorGet} />
+            return (
+                <ErrorDialog
+                    open={Boolean(this.state.errorGet)}
+                    handleErrorDialogClose={this.handleErrorGetDialogClose}
+                    error={this.state.errorGet.message || this.state.errorGet}
+                />
+            );
         }
         if (this.state.errorUpdate) {
-            return <ErrorDialog open={Boolean(this.state.errorUpdate)} handleErrorDialogClose={this.handleErrorUpdateDialogClose} error={this.state.errorUpdate.message || this.state.errorUpdate} />
+            return (
+                <ErrorDialog
+                    open={Boolean(this.state.errorUpdate)}
+                    handleErrorDialogClose={this.handleErrorUpdateDialogClose}
+                    error={
+                        this.state.errorUpdate.message || this.state.errorUpdate
+                    }
+                />
+            );
         }
         if (filtersEmpty(this.state.filters)) {
             configContent = "";
             mainContent = <Introduction />;
         } else {
-            configContent = <ConfigDisplayTop display={this.state.display} filters={this.state.filters} />
+            configContent = (
+                <ConfigDisplayTop
+                    display={this.state.display}
+                    filters={this.state.filters}
+                />
+            );
             mainContent = this.renderTables();
         }
 
-        if (this.state.currentModel) {// && this.state.display!=="Only Tests") {
-            modelDetail = <ModelDetail open={this.state.modelDetailOpen}
-                                       modelData={this.state.currentModel}
-                                       onClose={this.handleModelDetailClose}
-                                       auth={this.props.auth}
-                                       updateCurrentModelData={this.updateCurrentModel}
-                                       onAddModelInstance={this.handleAddModelInstance}
-                                       onEditModelInstance={this.handleEditModelInstance} />;
+        if (this.state.currentModel) {
+            // && this.state.display!=="Only Tests") {
+            modelDetail = (
+                <ModelDetail
+                    open={this.state.modelDetailOpen}
+                    modelData={this.state.currentModel}
+                    onClose={this.handleModelDetailClose}
+                    auth={this.props.auth}
+                    updateCurrentModelData={this.updateCurrentModel}
+                    onAddModelInstance={this.handleAddModelInstance}
+                    onEditModelInstance={this.handleEditModelInstance}
+                />
+            );
         }
 
-        if (this.state.currentTest) {// && this.state.display!=="Only Models") {
-            testDetail = <TestDetail open={this.state.testDetailOpen}
-                                     testData={this.state.currentTest}
-                                     onClose={this.handleTestDetailClose}
-                                     auth={this.props.auth}
-                                     updateCurrentTestData={this.updateCurrentTest}
-                                     onAddTestInstance={this.handleAddTestInstance}
-                                     onEditTestInstance={this.handleEditTestInstance} />;
+        if (this.state.currentTest) {
+            // && this.state.display!=="Only Models") {
+            testDetail = (
+                <TestDetail
+                    open={this.state.testDetailOpen}
+                    testData={this.state.currentTest}
+                    onClose={this.handleTestDetailClose}
+                    auth={this.props.auth}
+                    updateCurrentTestData={this.updateCurrentTest}
+                    onAddTestInstance={this.handleAddTestInstance}
+                    onEditTestInstance={this.handleEditTestInstance}
+                />
+            );
         }
 
         if (this.state.currentResult) {
-            resultDetail = <ResultDetail open={this.state.resultDetailOpen} result={this.state.currentResult} onClose={this.handleResultDetailClose} />;
+            resultDetail = (
+                <ResultDetail
+                    open={this.state.resultDetailOpen}
+                    result={this.state.currentResult}
+                    onClose={this.handleResultDetailClose}
+                />
+            );
         }
 
         if (this.state.compareResultsOpen) {
-            compareResults = <CompareMultiResults open={this.state.compareResultsOpen} onClose={this.closeCompareResults} />
+            compareResults = (
+                <CompareMultiResults
+                    open={this.state.compareResultsOpen}
+                    onClose={this.closeCompareResults}
+                />
+            );
         }
 
         if (this.state.addModelFormOpen) {
-            addModel = <ModelAddForm open={this.state.addModelFormOpen} onClose={this.handleAddModelFormClose} />
+            addModel = (
+                <ModelAddForm
+                    open={this.state.addModelFormOpen}
+                    onClose={this.handleAddModelFormClose}
+                />
+            );
         }
 
         if (this.state.addTestFormOpen) {
-            addTest = <TestAddForm open={this.state.addTestFormOpen} onClose={this.handleAddTestFormClose} />
+            addTest = (
+                <TestAddForm
+                    open={this.state.addTestFormOpen}
+                    onClose={this.handleAddTestFormClose}
+                />
+            );
         }
 
         return (
@@ -1002,12 +1121,18 @@ class ValidationFramework extends React.Component {
                     <Grid container direction="row">
                         <Grid item xs={1}>
                             <Tooltip title={"Change Configuration"}>
-                                <IconButton onClick={this.openConfig} aria-label="Configure filters">
+                                <IconButton
+                                    onClick={this.openConfig}
+                                    aria-label="Configure filters"
+                                >
                                     <SettingsIcon />
                                 </IconButton>
                             </Tooltip>
                             <Tooltip title={"Compare Validation Results"}>
-                                <IconButton onClick={this.openCompareResults} aria-label="Compare results">
+                                <IconButton
+                                    onClick={this.openCompareResults}
+                                    aria-label="Compare results"
+                                >
                                     <AccountTreeIcon />
                                 </IconButton>
                             </Tooltip>
@@ -1022,33 +1147,20 @@ class ValidationFramework extends React.Component {
                         open={this.state.configOpen}
                         onClose={this.handleConfigClose}
                         config={this.state.filters}
-                        display={this.state.display} />
-                    <div>
-                        {modelDetail}
-                    </div>
-                    <div>
-                        {testDetail}
-                    </div>
-                    <div>
-                        {resultDetail}
-                    </div>
-                    <div>
-                        {compareResults}
-                    </div>
-                    <div>
-                        {addModel}
-                    </div>
-                    <div>
-                        {addTest}
-                    </div>
-                    <main>
-                        {mainContent}
-                    </main>
+                        display={this.state.display}
+                    />
+                    <div>{modelDetail}</div>
+                    <div>{testDetail}</div>
+                    <div>{resultDetail}</div>
+                    <div>{compareResults}</div>
+                    <div>{addModel}</div>
+                    <div>{addTest}</div>
+                    <main>{mainContent}</main>
                     <br />
                 </div>
             </React.Fragment>
         );
-    };
+    }
 
     render() {
         return (
@@ -1062,4 +1174,4 @@ class ValidationFramework extends React.Component {
     }
 }
 
-export default withSnackbar(hot(ValidationFramework))
+export default withSnackbar(hot(ValidationFramework));

@@ -1,16 +1,15 @@
-import React from 'react';
+import React from "react";
 import MUIDataTable from "mui-datatables";
-import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
+import { createMuiTheme, MuiThemeProvider } from "@material-ui/core/styles";
 
-import { datastore } from './datastore';
+import { datastore } from "./datastore";
 import { formatAuthors, downloadJSON, showNotification } from "./utils";
 import MUIDataTableCustomToolbar from "./MUIDataTableCustomToolbar";
 import CustomToolbarSelect from "./MUIDataTableCustomRowToolbar";
 import ViewSelected from "./ViewSelected";
-import Theme from './theme';
-import ContextMain from './ContextMain';
-import { withSnackbar } from 'notistack';
-
+import Theme from "./theme";
+import ContextMain from "./ContextMain";
+import { withSnackbar } from "notistack";
 
 class TestTable extends React.Component {
     static contextType = ContextMain;
@@ -21,7 +20,7 @@ class TestTable extends React.Component {
         this.state = {
             data: this.props.testData,
             selectedData: [],
-            viewSelectedOpen: false
+            viewSelectedOpen: false,
         };
 
         this.downloadSelectedJSON = this.downloadSelectedJSON.bind(this);
@@ -31,106 +30,129 @@ class TestTable extends React.Component {
         this.handleViewSelectedClose = this.handleViewSelectedClose.bind(this);
     }
 
-    getMuiTheme = () => createMuiTheme({
-        overrides: {
-            // handles table title bar color
-            MUIDataTableToolbar: {
-                root: {
-                    backgroundColor: Theme.tableHeader,
-                    color: Theme.textPrimary
-                }
+    getMuiTheme = () =>
+        createMuiTheme({
+            overrides: {
+                // handles table title bar color
+                MUIDataTableToolbar: {
+                    root: {
+                        backgroundColor: Theme.tableHeader,
+                        color: Theme.textPrimary,
+                    },
+                },
+                // handles table data header color
+                MUIDataTableHeadCell: {
+                    fixedHeaderCommon: {
+                        backgroundColor: Theme.tableDataHeader,
+                    },
+                },
+                // handles data row color; clashes and blocks MuiTableRow
+                // MUIDataTableBodyCell: {
+                // 	root: {
+                // 		backgroundColor: Theme.tableDataRow,
+                // 		color: Theme.textPrimary,
+                // 		// borderBottom: "none"
+                // 	}
+                // },
+                // handles data footer color
+                MUIDataTablePagination: {
+                    root: {
+                        backgroundColor: Theme.tableFooter,
+                        color: Theme.textPrimary,
+                    },
+                },
+                // handles row hover color and selected row color
+                MuiTableRow: {
+                    hover: {
+                        "&$root": {
+                            "&:hover": {
+                                backgroundColor: Theme.tableRowHoverColor,
+                            },
+                        },
+                    },
+                    root: {
+                        "&$selected": {
+                            backgroundColor: Theme.tableRowSelectColor,
+                        },
+                    },
+                },
+                MUIDataTableSelectCell: {
+                    headerCell: {
+                        backgroundColor: Theme.tableDataHeader,
+                    },
+                },
             },
-            // handles table data header color
-            MUIDataTableHeadCell: {
-                fixedHeaderCommon: {
-                    backgroundColor: Theme.tableDataHeader
-                }
-            },
-            // handles data row color; clashes and blocks MuiTableRow
-            // MUIDataTableBodyCell: {
-            // 	root: {
-            // 		backgroundColor: Theme.tableDataRow,
-            // 		color: Theme.textPrimary,
-            // 		// borderBottom: "none"
-            // 	}
-            // },
-            // handles data footer color
-            MUIDataTablePagination: {
-                root: {
-                    backgroundColor: Theme.tableFooter,
-                    color: Theme.textPrimary
-                }
-            },
-            // handles row hover color and selected row color
-            MuiTableRow: {
-                hover: { '&$root': { '&:hover': { backgroundColor: Theme.tableRowHoverColor }, } },
-                root: {
-                    '&$selected': {
-                        backgroundColor: Theme.tableRowSelectColor
-                    }
-                }
-            },
-            MUIDataTableSelectCell: {
-                headerCell: {
-                    backgroundColor: Theme.tableDataHeader,
-                }
-            },
-        }
-    })
+        });
 
     downloadSelectedJSON(selectedRows) {
-
         var selectedTests = [];
         for (var item in selectedRows.data) {
-            let data = this.state.data[selectedRows.data[item].dataIndex]
+            let data = this.state.data[selectedRows.data[item].dataIndex];
             let ordered_data = {};
-            Object.keys(data).sort().forEach(function (key) {
-                ordered_data[key] = data[key];
-            });
-            selectedTests.push(ordered_data)
+            Object.keys(data)
+                .sort()
+                .forEach(function (key) {
+                    ordered_data[key] = data[key];
+                });
+            selectedTests.push(ordered_data);
         }
-        downloadJSON(JSON.stringify(selectedTests), "selectedTests.json")
-        showNotification(this.props.enqueueSnackbar, this.props.closeSnackbar, "Saved to selectedTests.json", "info")
+        downloadJSON(JSON.stringify(selectedTests), "selectedTests.json");
+        showNotification(
+            this.props.enqueueSnackbar,
+            this.props.closeSnackbar,
+            "Saved to selectedTests.json",
+            "info"
+        );
     }
 
     hideTableRows(selectedRows) {
-
         var selectedIndices = [];
         for (var item in selectedRows.data) {
-            selectedIndices.push(selectedRows.data[item].dataIndex)
+            selectedIndices.push(selectedRows.data[item].dataIndex);
         }
-        const updated_data = this.state.data.filter((item, index) => !selectedIndices.includes(index));
+        const updated_data = this.state.data.filter(
+            (item, index) => !selectedIndices.includes(index)
+        );
         this.setState({ data: updated_data });
-        showNotification(this.props.enqueueSnackbar, this.props.closeSnackbar, "Chosen test(s) have been hidden!", "info")
+        showNotification(
+            this.props.enqueueSnackbar,
+            this.props.closeSnackbar,
+            "Chosen test(s) have been hidden!",
+            "info"
+        );
     }
 
     viewSelectedItems(selectedRows) {
-        console.log("View item(s).")
+        console.log("View item(s).");
         var selectedTests = [];
         for (var item in selectedRows.data) {
-            let data = this.state.data[selectedRows.data[item].dataIndex]
+            let data = this.state.data[selectedRows.data[item].dataIndex];
             let ordered_data = {};
-            Object.keys(data).sort().forEach(function (key) {
-                ordered_data[key] = data[key];
-            });
-            selectedTests.push(ordered_data)
+            Object.keys(data)
+                .sort()
+                .forEach(function (key) {
+                    ordered_data[key] = data[key];
+                });
+            selectedTests.push(ordered_data);
         }
         this.setState({
             viewSelectedOpen: true,
-            selectedData: selectedTests
-        })
+            selectedData: selectedTests,
+        });
     }
 
     async addTestCompare(selectedRows) {
-        console.log("Add item(s) to compare.")
+        console.log("Add item(s) to compare.");
         var selectedTests = [];
         for (var item in selectedRows.data) {
-            let data = this.state.data[selectedRows.data[item].dataIndex]
+            let data = this.state.data[selectedRows.data[item].dataIndex];
             let ordered_data = {};
-            Object.keys(data).sort().forEach(function (key) {
-                ordered_data[key] = data[key];
-            });
-            selectedTests.push(ordered_data)
+            Object.keys(data)
+                .sort()
+                .forEach(function (key) {
+                    ordered_data[key] = data[key];
+                });
+            selectedTests.push(ordered_data);
         }
 
         let [compareTests, setCompareTests] = this.context.compareTests;
@@ -144,24 +166,40 @@ class TestTable extends React.Component {
                 // check if test already added to compare
                 if (!(test.id in compareTests)) {
                     compareTests[test.id] = {
-                        "name": test.name,
-                        "alias": test.alias,
-                        "selected_instances": {}
-                    }
+                        name: test.name,
+                        alias: test.alias,
+                        selected_instances: {},
+                    };
                 }
                 // loop through every instance of this test
                 for (let test_inst of test.instances) {
                     // check if test instance already added to compare
-                    if (!(test_inst.id in compareTests[test.id].selected_instances)) {
-                        compareTests[test.id].selected_instances[test_inst.id] = {
-                            "version": test_inst.version,
-                            "timestamp": test_inst.timestamp
-                        }
+                    if (
+                        !(
+                            test_inst.id in
+                            compareTests[test.id].selected_instances
+                        )
+                    ) {
+                        compareTests[test.id].selected_instances[test_inst.id] =
+                            {
+                                version: test_inst.version,
+                                timestamp: test_inst.timestamp,
+                            };
                     }
                 }
-                showNotification(this.props.enqueueSnackbar, this.props.closeSnackbar, "Test '" + test.name + "' added to compare!", "info")
+                showNotification(
+                    this.props.enqueueSnackbar,
+                    this.props.closeSnackbar,
+                    "Test '" + test.name + "' added to compare!",
+                    "info"
+                );
             } else {
-                showNotification(this.props.enqueueSnackbar, this.props.closeSnackbar, "Skipped: test '" + test.name + "' (0 instances)!", "error")
+                showNotification(
+                    this.props.enqueueSnackbar,
+                    this.props.closeSnackbar,
+                    "Skipped: test '" + test.name + "' (0 instances)!",
+                    "error"
+                );
             }
         }
 
@@ -169,7 +207,7 @@ class TestTable extends React.Component {
     }
 
     handleViewSelectedClose() {
-        this.setState({ viewSelectedOpen: false })
+        this.setState({ viewSelectedOpen: false });
     }
 
     render() {
@@ -179,7 +217,7 @@ class TestTable extends React.Component {
                     <MUIDataTable
                         title="Tests"
                         columns={this.props.columns}
-                        data={this.state.data.map(item => {
+                        data={this.state.data.map((item) => {
                             return [
                                 item.id,
                                 item.name,
@@ -195,8 +233,8 @@ class TestTable extends React.Component {
                                 item.recording_modality,
                                 item.data_location,
                                 item.date_created,
-                                item
-                            ]
+                                item,
+                            ];
                         })}
                         options={{
                             filter: true,
@@ -204,17 +242,45 @@ class TestTable extends React.Component {
                             rowsPerPage: 20,
                             rowsPerPageOptions: [10, 20, 100],
                             onRowClick: this.props.handleRowClick,
-                            onColumnViewChange: this.props.onColumnsChange,  // name changed to "onViewColumnsChange" in recent versions of mui-datatables
-                            responsive: 'stacked', // 'scrollMaxHeight', 'scrollFullHeight', 'scrollFullHeightFullWidth', 'stackedFullWidth'
-                            downloadOptions: { filename: 'selectedTests.csv', separator: ',', filterOptions: { useDisplayedRowsOnly: true } },
-                            customToolbar: () => {
-                                return <MUIDataTableCustomToolbar display={this.props.display} changeTableWidth={this.props.changeTableWidth} tableType="tests" addNew={this.props.openAddTestForm} />;
+                            onColumnViewChange: this.props.onColumnsChange, // name changed to "onViewColumnsChange" in recent versions of mui-datatables
+                            responsive: "stacked", // 'scrollMaxHeight', 'scrollFullHeight', 'scrollFullHeightFullWidth', 'stackedFullWidth'
+                            downloadOptions: {
+                                filename: "selectedTests.csv",
+                                separator: ",",
+                                filterOptions: { useDisplayedRowsOnly: true },
                             },
-                            customToolbarSelect: (selectedRows) => <CustomToolbarSelect selectedRows={selectedRows} downloadSelectedJSON={this.downloadSelectedJSON} hideTableRows={this.hideTableRows} viewSelectedItems={this.viewSelectedItems} addCompare={this.addTestCompare} />
+                            customToolbar: () => {
+                                return (
+                                    <MUIDataTableCustomToolbar
+                                        display={this.props.display}
+                                        changeTableWidth={
+                                            this.props.changeTableWidth
+                                        }
+                                        tableType="tests"
+                                        addNew={this.props.openAddTestForm}
+                                    />
+                                );
+                            },
+                            customToolbarSelect: (selectedRows) => (
+                                <CustomToolbarSelect
+                                    selectedRows={selectedRows}
+                                    downloadSelectedJSON={
+                                        this.downloadSelectedJSON
+                                    }
+                                    hideTableRows={this.hideTableRows}
+                                    viewSelectedItems={this.viewSelectedItems}
+                                    addCompare={this.addTestCompare}
+                                />
+                            ),
                         }}
                     />
                 </MuiThemeProvider>
-                <ViewSelected entity="tests" open={this.state.viewSelectedOpen} onClose={this.handleViewSelectedClose} selectedData={this.state.selectedData} />
+                <ViewSelected
+                    entity="tests"
+                    open={this.state.viewSelectedOpen}
+                    onClose={this.handleViewSelectedClose}
+                    selectedData={this.state.selectedData}
+                />
             </div>
         );
     }

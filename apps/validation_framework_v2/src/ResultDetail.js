@@ -1,35 +1,34 @@
-import React from 'react';
-import axios from 'axios';
-import PropTypes from 'prop-types';
-import { withStyles } from '@material-ui/core/styles';
-import MuiDialogTitle from '@material-ui/core/DialogTitle';
-import DialogContent from '@material-ui/core/DialogContent';
-import Dialog from '@material-ui/core/Dialog';
-import Grid from '@material-ui/core/Grid';
-import Typography from '@material-ui/core/Typography';
-import IconButton from '@material-ui/core/IconButton';
-import CloseIcon from '@material-ui/icons/Close';
-import AppBar from '@material-ui/core/AppBar';
-import Tabs from '@material-ui/core/Tabs';
-import Tab from '@material-ui/core/Tab';
-import Box from '@material-ui/core/Box';
+import React from "react";
+import axios from "axios";
+import PropTypes from "prop-types";
+import { withStyles } from "@material-ui/core/styles";
+import MuiDialogTitle from "@material-ui/core/DialogTitle";
+import DialogContent from "@material-ui/core/DialogContent";
+import Dialog from "@material-ui/core/Dialog";
+import Grid from "@material-ui/core/Grid";
+import Typography from "@material-ui/core/Typography";
+import IconButton from "@material-ui/core/IconButton";
+import CloseIcon from "@material-ui/icons/Close";
+import AppBar from "@material-ui/core/AppBar";
+import Tabs from "@material-ui/core/Tabs";
+import Tab from "@material-ui/core/Tab";
+import Box from "@material-ui/core/Box";
 
-import Theme from './theme';
-import ContextMain from './ContextMain';
-import ResultDetailHeader from './ResultDetailHeader';
-import ResultDetailContent from './ResultDetailContent';
-import ResultRelatedFiles from './ResultRelatedFiles';
-import ResultModelTestInfo from './ResultModelTestInfo';
-import { datastore } from './datastore';
+import Theme from "./theme";
+import ContextMain from "./ContextMain";
+import ResultDetailHeader from "./ResultDetailHeader";
+import ResultDetailContent from "./ResultDetailContent";
+import ResultRelatedFiles from "./ResultRelatedFiles";
+import ResultModelTestInfo from "./ResultModelTestInfo";
+import { datastore } from "./datastore";
 
-
-const styles = theme => ({
+const styles = (theme) => ({
     root: {
         margin: 0,
         padding: theme.spacing(2),
     },
     closeButton: {
-        position: 'absolute',
+        position: "absolute",
         right: theme.spacing(1),
         top: theme.spacing(1),
         color: theme.palette.grey[500],
@@ -59,20 +58,23 @@ TabPanel.propTypes = {
     value: PropTypes.any.isRequired,
 };
 
-const MyDialogTitle = withStyles(styles)(props => {
+const MyDialogTitle = withStyles(styles)((props) => {
     const { children, classes, onClose, ...other } = props;
     return (
         <MuiDialogTitle disableTypography className={classes.root} {...other}>
             <Typography variant="h6">{children}</Typography>
             {onClose ? (
-                <IconButton aria-label="close" className={classes.closeButton} onClick={onClose}>
+                <IconButton
+                    aria-label="close"
+                    className={classes.closeButton}
+                    onClick={onClose}
+                >
                     <CloseIcon />
                 </IconButton>
             ) : null}
         </MuiDialogTitle>
     );
 });
-
 
 export default class ResultDetail extends React.Component {
     signal = axios.CancelToken.source();
@@ -81,12 +83,12 @@ export default class ResultDetail extends React.Component {
     constructor(props, context) {
         super(props, context);
 
-        const [authContext,] = this.context.auth;
+        const [authContext] = this.context.auth;
 
         this.state = {
             tabValue: 0,
             auth: authContext,
-            loading: true
+            loading: true,
         };
 
         this.handleClose = this.handleClose.bind(this);
@@ -101,18 +103,18 @@ export default class ResultDetail extends React.Component {
     }
 
     getResult(resultId) {
-        return datastore.getResult(resultId, this.signal)
-            .then(result => {
+        return datastore
+            .getResult(resultId, this.signal)
+            .then((result) => {
                 this.props.onUpdate(result);
 
-
                 this.setState({
-                    loading: false
+                    loading: false,
                 });
             })
-            .catch(err => {
+            .catch((err) => {
                 if (axios.isCancel(err)) {
-                    console.log('errorGet: ', err.message);
+                    console.log("errorGet: ", err.message);
                     this.setState({
                         loading: false,
                     });
@@ -122,19 +124,18 @@ export default class ResultDetail extends React.Component {
                     try {
                         error_message = err.response.data.detail;
                     } catch {
-                        error_message = err
+                        error_message = err;
                     }
                     this.setState({
                         loading: false,
-                        errorGet: error_message
+                        errorGet: error_message,
                     });
                 }
-            }
-            );
-    };
+            });
+    }
 
     componentWillUnmount() {
-        this.signal.cancel('REST API call canceled!');
+        this.signal.cancel("REST API call canceled!");
     }
 
     handleClose() {
@@ -142,7 +143,7 @@ export default class ResultDetail extends React.Component {
     }
 
     handleTabChange(event, newValue) {
-        this.setState({ tabValue: newValue })
+        this.setState({ tabValue: newValue });
     }
 
     render() {
@@ -154,7 +155,12 @@ export default class ResultDetail extends React.Component {
             result.test_instance = {};
         }
         return (
-            <Dialog fullScreen onClose={this.handleClose} aria-labelledby="simple-dialog-title" open={this.props.open}>
+            <Dialog
+                fullScreen
+                onClose={this.handleClose}
+                aria-labelledby="simple-dialog-title"
+                open={this.props.open}
+            >
                 <MyDialogTitle onClose={this.handleClose} />
                 <DialogContent>
                     <Grid container spacing={3}>
@@ -177,8 +183,15 @@ export default class ResultDetail extends React.Component {
                         </Grid>
                         <Grid item xs={12}>
                             <AppBar position="static">
-                                <Tabs value={this.state.tabValue} onChange={this.handleTabChange}
-                                    style={{ backgroundColor: Theme.tableRowSelectColor, color: Theme.textPrimary }}>
+                                <Tabs
+                                    value={this.state.tabValue}
+                                    onChange={this.handleTabChange}
+                                    style={{
+                                        backgroundColor:
+                                            Theme.tableRowSelectColor,
+                                        color: Theme.textPrimary,
+                                    }}
+                                >
                                     <Tab label="Result Info" />
                                     <Tab label="Result Files" />
                                     <Tab label="Model/Test Info" />
@@ -217,5 +230,5 @@ export default class ResultDetail extends React.Component {
 
 ResultDetail.propTypes = {
     onClose: PropTypes.func.isRequired,
-    open: PropTypes.bool.isRequired
+    open: PropTypes.bool.isRequired,
 };

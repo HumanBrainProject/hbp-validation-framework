@@ -1,8 +1,8 @@
-import React from 'react'
+import React from "react";
 
-const ContextMain = React.createContext()
+const ContextMain = React.createContext();
 
-const ContextMainProvider = props => {
+const ContextMainProvider = (props) => {
     // Context state
     const [auth, setAuth] = React.useState({});
     const [filters, setFilters] = React.useState({});
@@ -17,14 +17,14 @@ const ContextMainProvider = props => {
                 filters: [filters, setFilters],
                 validFilterValues: [validFilterValues, setValidFilterValues],
                 compareModels: [compareModels, setCompareModels],
-                compareTests: [compareTests, setCompareTests]
+                compareTests: [compareTests, setCompareTests],
             }}
         >
             {props.children}
         </ContextMain.Provider>
-    )
-}
+    );
+};
 
-export default ContextMain
+export default ContextMain;
 
-export { ContextMainProvider }
+export { ContextMainProvider };

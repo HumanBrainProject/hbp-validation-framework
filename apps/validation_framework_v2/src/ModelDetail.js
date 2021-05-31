@@ -1,49 +1,48 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import { withStyles } from '@material-ui/core/styles';
-import MuiDialogTitle from '@material-ui/core/DialogTitle';
-import DialogContent from '@material-ui/core/DialogContent';
-import Dialog from '@material-ui/core/Dialog';
-import Grid from '@material-ui/core/Grid';
-import Typography from '@material-ui/core/Typography';
-import IconButton from '@material-ui/core/IconButton';
-import CloseIcon from '@material-ui/icons/Close';
-import AppBar from '@material-ui/core/AppBar';
-import Tabs from '@material-ui/core/Tabs';
-import Tab from '@material-ui/core/Tab';
-import Box from '@material-ui/core/Box';
+import React from "react";
+import PropTypes from "prop-types";
+import { withStyles } from "@material-ui/core/styles";
+import MuiDialogTitle from "@material-ui/core/DialogTitle";
+import DialogContent from "@material-ui/core/DialogContent";
+import Dialog from "@material-ui/core/Dialog";
+import Grid from "@material-ui/core/Grid";
+import Typography from "@material-ui/core/Typography";
+import IconButton from "@material-ui/core/IconButton";
+import CloseIcon from "@material-ui/icons/Close";
+import AppBar from "@material-ui/core/AppBar";
+import Tabs from "@material-ui/core/Tabs";
+import Tab from "@material-ui/core/Tab";
+import Box from "@material-ui/core/Box";
 
-import { withSnackbar } from 'notistack';
+import { withSnackbar } from "notistack";
 
-import axios from 'axios';
+import axios from "axios";
 
 import { DevMode, ADMIN_PROJECT_ID } from "./globals";
-import { datastore } from './datastore';
-import Theme from './theme';
-import ContextMain from './ContextMain';
-import { showNotification, formatAuthors } from './utils';
-import ModelDetailHeader from './ModelDetailHeader';
-import ModelDetailContent from './ModelDetailContent';
-import ModelDetailMetadata from './ModelDetailMetadata';
-import ModelResultOverview from './ModelResultOverview';
-import ResultGraphs from './ResultGraphs';
-
+import { datastore } from "./datastore";
+import Theme from "./theme";
+import ContextMain from "./ContextMain";
+import { showNotification, formatAuthors } from "./utils";
+import ModelDetailHeader from "./ModelDetailHeader";
+import ModelDetailContent from "./ModelDetailContent";
+import ModelDetailMetadata from "./ModelDetailMetadata";
+import ModelResultOverview from "./ModelResultOverview";
+import ResultGraphs from "./ResultGraphs";
 
 // if working on the appearance/layout set globals.DevMode=true
 // to avoid loading the models and tests over the network every time;
 // instead we use the local test_data
-var result_data = {}
+var result_data = {};
 if (DevMode) {
-    result_data = require('./dev_data/sample_model_results.json');
+    result_data = require("./dev_data/sample_model_results.json");
 }
 
-const styles = theme => ({
+const styles = (theme) => ({
     root: {
         margin: 0,
         padding: theme.spacing(2),
     },
     closeButton: {
-        position: 'absolute',
+        position: "absolute",
         right: theme.spacing(1),
         top: theme.spacing(1),
         color: theme.palette.grey[500],
@@ -73,13 +72,17 @@ TabPanel.propTypes = {
     value: PropTypes.any.isRequired,
 };
 
-const MyDialogTitle = withStyles(styles)(props => {
+const MyDialogTitle = withStyles(styles)((props) => {
     const { children, classes, onClose, ...other } = props;
     return (
         <MuiDialogTitle disableTypography className={classes.root} {...other}>
             <Typography variant="h6">{children}</Typography>
             {onClose ? (
-                <IconButton aria-label="close" className={classes.closeButton} onClick={onClose}>
+                <IconButton
+                    aria-label="close"
+                    className={classes.closeButton}
+                    onClick={onClose}
+                >
                     <CloseIcon />
                 </IconButton>
             ) : null}
@@ -87,14 +90,13 @@ const MyDialogTitle = withStyles(styles)(props => {
     );
 });
 
-
 class ModelDetail extends React.Component {
     signal = axios.CancelToken.source();
     static contextType = ContextMain;
 
     constructor(props, context) {
         super(props, context);
-        const [authContext,] = this.context.auth;
+        const [authContext] = this.context.auth;
 
         this.state = {
             tabValue: 0,
@@ -104,23 +106,24 @@ class ModelDetail extends React.Component {
             error: null,
             auth: authContext,
             canEdit: false,
-            compareFlag: null
+            compareFlag: null,
         };
         if (DevMode) {
-            this.state['results'] = result_data.results;
-            this.state['loadingResult'] = false;
-            this.state['loadingExtended'] = false;
+            this.state["results"] = result_data.results;
+            this.state["loadingResult"] = false;
+            this.state["loadingExtended"] = false;
         }
         this.updateCurrentModelData = this.updateCurrentModelData.bind(this);
         this.checkCompareStatus = this.checkCompareStatus.bind(this);
         this.addModelCompare = this.addModelCompare.bind(this);
         this.removeModelCompare = this.removeModelCompare.bind(this);
         this.addModelInstanceCompare = this.addModelInstanceCompare.bind(this);
-        this.removeModelInstanceCompare = this.removeModelInstanceCompare.bind(this);
+        this.removeModelInstanceCompare =
+            this.removeModelInstanceCompare.bind(this);
         this.handleClose = this.handleClose.bind(this);
         this.handleTabChange = this.handleTabChange.bind(this);
         this.checkEditAccess = this.checkEditAccess.bind(this);
-        this.getExtendedData =  this.getExtendedData.bind(this);
+        this.getExtendedData = this.getExtendedData.bind(this);
     }
 
     componentDidMount() {
@@ -132,7 +135,7 @@ class ModelDetail extends React.Component {
     }
 
     componentWillUnmount() {
-        this.signal.cancel('REST API call canceled!');
+        this.signal.cancel("REST API call canceled!");
     }
 
     updateCurrentModelData(updatedModelData) {
@@ -141,15 +144,16 @@ class ModelDetail extends React.Component {
 
     checkCompareStatus(modelData) {
         // required since model could have been added to compare via table listing
-        let [compareModels,] = this.context.compareModels;
+        let [compareModels] = this.context.compareModels;
         // check if model exists in compare
         if (!(modelData.id in compareModels)) {
             return false;
         }
-        let model_inst_ids = modelData.instances.map(item => item.id).sort()
-        let compare_model_inst_ids = Object.keys(compareModels[modelData.id].selected_instances).sort()
+        let model_inst_ids = modelData.instances.map((item) => item.id).sort();
+        let compare_model_inst_ids = Object.keys(
+            compareModels[modelData.id].selected_instances
+        ).sort();
         // check if all the model instances already added to compare
-
 
         if (model_inst_ids.toString() === compare_model_inst_ids.toString()) {
             return true;
@@ -159,36 +163,43 @@ class ModelDetail extends React.Component {
     }
 
     addModelCompare() {
-        console.log("Add item to compare.")
+        console.log("Add item to compare.");
         let [compareModels, setCompareModels] = this.context.compareModels;
 
         let model = this.props.modelData;
         // check if model already added to compare
         if (!(model.id in compareModels)) {
             compareModels[model.id] = {
-                "name": model.name,
-                "alias": model.alias,
-                "selected_instances": {}
-            }
+                name: model.name,
+                alias: model.alias,
+                selected_instances: {},
+            };
         }
         // loop through every instance of this model
         for (let model_inst of model.instances) {
             // check if model instance already added to compare
-            if (!(model_inst.id in compareModels[model.id].selected_instances)) {
+            if (
+                !(model_inst.id in compareModels[model.id].selected_instances)
+            ) {
                 compareModels[model.id].selected_instances[model_inst.id] = {
-                    "version": model_inst.version,
-                    "timestamp": model_inst.timestamp
-                }
+                    version: model_inst.version,
+                    timestamp: model_inst.timestamp,
+                };
             }
         }
 
         setCompareModels(compareModels);
-        this.setState({ compareFlag: true })
-        showNotification(this.props.enqueueSnackbar, this.props.closeSnackbar, "Model added to compare!", "info")
+        this.setState({ compareFlag: true });
+        showNotification(
+            this.props.enqueueSnackbar,
+            this.props.closeSnackbar,
+            "Model added to compare!",
+            "info"
+        );
     }
 
     removeModelCompare() {
-        console.log("Remove item from compare.")
+        console.log("Remove item from compare.");
         let [compareModels, setCompareModels] = this.context.compareModels;
 
         let model = this.props.modelData;
@@ -198,58 +209,79 @@ class ModelDetail extends React.Component {
         }
 
         setCompareModels(compareModels);
-        this.setState({ compareFlag: false })
-        showNotification(this.props.enqueueSnackbar, this.props.closeSnackbar, "Model removed from compare!", "info")
+        this.setState({ compareFlag: false });
+        showNotification(
+            this.props.enqueueSnackbar,
+            this.props.closeSnackbar,
+            "Model removed from compare!",
+            "info"
+        );
     }
 
     addModelInstanceCompare(model_inst_id) {
-        console.log("Add instance to compare.")
+        console.log("Add instance to compare.");
         let [compareModels, setCompareModels] = this.context.compareModels;
 
         let model = this.props.modelData;
         // check if model already added to compare
         if (!(model.id in compareModels)) {
             compareModels[model.id] = {
-                "name": model.name,
-                "alias": model.alias,
-                "selected_instances": {}
-            }
+                name: model.name,
+                alias: model.alias,
+                selected_instances: {},
+            };
         }
         // add model instance to compare
-        let model_inst = model.instances.find(item => item.id === model_inst_id);
+        let model_inst = model.instances.find(
+            (item) => item.id === model_inst_id
+        );
         // check if model instance already added to compare
         if (!(model_inst_id in compareModels[model.id].selected_instances)) {
             compareModels[model.id].selected_instances[model_inst_id] = {
-                "version": model_inst.version,
-                "timestamp": model_inst.timestamp
-            }
+                version: model_inst.version,
+                timestamp: model_inst.timestamp,
+            };
         }
         // check if all model instances are now in compare
-        this.setState({ compareFlag: this.checkCompareStatus() })
+        this.setState({ compareFlag: this.checkCompareStatus() });
 
         setCompareModels(compareModels);
-        showNotification(this.props.enqueueSnackbar, this.props.closeSnackbar, "Model instance added to compare!", "info")
+        showNotification(
+            this.props.enqueueSnackbar,
+            this.props.closeSnackbar,
+            "Model instance added to compare!",
+            "info"
+        );
     }
 
     removeModelInstanceCompare(model_inst_id) {
-        console.log("Remove instance from compare.")
+        console.log("Remove instance from compare.");
         let [compareModels, setCompareModels] = this.context.compareModels;
 
         let model = this.props.modelData;
         if (model.id in compareModels) {
             if (model_inst_id in compareModels[model.id].selected_instances) {
-                delete compareModels[model.id].selected_instances[model_inst_id];
+                delete compareModels[model.id].selected_instances[
+                    model_inst_id
+                ];
             }
         }
         // remove model if it does not contain any other instances for compare
-        if (Object.keys(compareModels[model.id].selected_instances).length === 0) {
+        if (
+            Object.keys(compareModels[model.id].selected_instances).length === 0
+        ) {
             delete compareModels[model.id];
-            this.setState({ compareFlag: false })
+            this.setState({ compareFlag: false });
         }
 
         setCompareModels(compareModels);
         this.forceUpdate();
-        showNotification(this.props.enqueueSnackbar, this.props.closeSnackbar, "Model instance removed from compare!", "info")
+        showNotification(
+            this.props.enqueueSnackbar,
+            this.props.closeSnackbar,
+            "Model instance removed from compare!",
+            "info"
+        );
     }
 
     handleClose() {
@@ -257,97 +289,110 @@ class ModelDetail extends React.Component {
     }
 
     handleTabChange(event, newValue) {
-        this.setState({ tabValue: newValue })
+        this.setState({ tabValue: newValue });
     }
 
     getExtendedData() {
-        return datastore.getModel(this.props.modelData.id, this.signal)
-            .then(model => {
+        return datastore
+            .getModel(this.props.modelData.id, this.signal)
+            .then((model) => {
                 this.props.updateCurrentModelData(model);
                 this.setState({
                     loadingExtended: false,
                     error: null,
-                    compareFlag: model.instances.length === 0 ? null : this.checkCompareStatus(model)
+                    compareFlag:
+                        model.instances.length === 0
+                            ? null
+                            : this.checkCompareStatus(model),
                 });
             })
-            .catch(err => {
+            .catch((err) => {
                 if (axios.isCancel(err)) {
-                    console.log('Error: ', err.message);
+                    console.log("Error: ", err.message);
                 } else {
                     // Something went wrong. Save the error in state and re-render.
                     this.setState({
                         loadingExtended: false,
-                        error: err
+                        error: err,
                     });
                 }
-            }
-            );
-    };
+            });
+    }
 
     getModelResults() {
-        return datastore.getResultsByModel(this.props.modelData.id)
-            .then(results => {
-
-
+        return datastore
+            .getResultsByModel(this.props.modelData.id)
+            .then((results) => {
                 this.setState({
                     results: results,
                     loadingResult: false,
-                    error: null
+                    error: null,
                 });
             })
-            .catch(err => {
+            .catch((err) => {
                 if (axios.isCancel(err)) {
-                    console.log('Error: ', err.message);
+                    console.log("Error: ", err.message);
                 } else {
                     // Something went wrong. Save the error in state and re-render.
                     this.setState({
                         loadingResult: false,
-                        error: err
+                        error: err,
                     });
                 }
-            }
-        );
-    };
+            });
+    }
 
     checkEditAccess() {
         let model = this.props.modelData;
         console.log("Checking edit access");
-        datastore.getProjects()
-            .then(projects => {
-
-                projects.forEach(projectID => {
-
-                    if ((projectID === model.project_id) || (projectID === ADMIN_PROJECT_ID)) {
+        datastore
+            .getProjects()
+            .then((projects) => {
+                projects.forEach((projectID) => {
+                    if (
+                        projectID === model.project_id ||
+                        projectID === ADMIN_PROJECT_ID
+                    ) {
                         this.setState({
-                            canEdit: true
+                            canEdit: true,
                         });
                     }
-                })
+                });
             })
-            .catch(err => {
-                console.log('Error: ', err.message);
+            .catch((err) => {
+                console.log("Error: ", err.message);
             });
     }
 
     render() {
-
         return (
-            <Dialog fullScreen onClose={this.handleClose} aria-labelledby="simple-dialog-title" open={this.props.open}>
+            <Dialog
+                fullScreen
+                onClose={this.handleClose}
+                aria-labelledby="simple-dialog-title"
+                open={this.props.open}
+            >
                 <MyDialogTitle onClose={this.handleClose} />
                 <DialogContent>
                     <Grid container spacing={3}>
                         <Grid item xs={12}>
                             <ModelDetailHeader
                                 name={this.props.modelData.name}
-                                authors={formatAuthors(this.props.modelData.author)}
+                                authors={formatAuthors(
+                                    this.props.modelData.author
+                                )}
                                 private={this.props.modelData.private}
                                 id={this.props.modelData.id}
                                 alias={this.props.modelData.alias}
                                 dateCreated={this.props.modelData.date_created}
-                                owner={formatAuthors(this.props.modelData.owner)}
+                                owner={formatAuthors(
+                                    this.props.modelData.owner
+                                )}
                                 modelData={this.props.modelData}
                                 canEdit={this.state.canEdit}
-                                updateCurrentModelData={this.updateCurrentModelData}
+                                updateCurrentModelData={
+                                    this.updateCurrentModelData
+                                }
                                 compareFlag={this.state.compareFlag}
                                 addModelCompare={this.addModelCompare}
                                 removeModelCompare={this.removeModelCompare}
@@ -355,8 +400,15 @@ class ModelDetail extends React.Component {
                         </Grid>
                         <Grid item xs={12}>
                             <AppBar position="static">
-                                <Tabs value={this.state.tabValue} onChange={this.handleTabChange}
-                                    style={{ backgroundColor: Theme.tableRowSelectColor, color: Theme.textPrimary }} >
+                                <Tabs
+                                    value={this.state.tabValue}
+                                    onChange={this.handleTabChange}
+                                    style={{
+                                        backgroundColor:
+                                            Theme.tableRowSelectColor,
+                                        color: Theme.textPrimary,
+                                    }}
+                                >
                                     <Tab label="Info" />
                                     <Tab label="Results" />
                                     <Tab label="Figures" />
@@ -366,26 +418,53 @@ class ModelDetail extends React.Component {
                                 <Grid container spacing={3}>
                                     <Grid item xs={9}>
                                         <ModelDetailContent
-                                            description={this.props.modelData.description}
-                                            instances={this.props.modelData.instances}
+                                            description={
+                                                this.props.modelData.description
+                                            }
+                                            instances={
+                                                this.props.modelData.instances
+                                            }
                                             id={this.props.modelData.id}
-                                            modelScope={this.props.modelData.model_scope}
+                                            modelScope={
+                                                this.props.modelData.model_scope
+                                            }
                                             canEdit={this.state.canEdit}
                                             results={this.state.results}
                                             loading={this.state.loadingExtended}
-                                            addModelInstanceCompare={this.addModelInstanceCompare}
-                                            removeModelInstanceCompare={this.removeModelInstanceCompare}
+                                            addModelInstanceCompare={
+                                                this.addModelInstanceCompare
+                                            }
+                                            removeModelInstanceCompare={
+                                                this.removeModelInstanceCompare
+                                            }
                                         />
                                     </Grid>
                                     <Grid item xs={3}>
                                         <ModelDetailMetadata
-                                            species={this.props.modelData.species}
-                                            brainRegion={this.props.modelData.brain_region}
-                                            cellType={this.props.modelData.cell_type}
-                                            modelScope={this.props.modelData.model_scope}
-                                            abstractionLevel={this.props.modelData.abstraction_level}
-                                            projectID={this.props.modelData.project_id}
-                                            organization={this.props.modelData.organization}
+                                            species={
+                                                this.props.modelData.species
+                                            }
+                                            brainRegion={
+                                                this.props.modelData
+                                                    .brain_region
+                                            }
+                                            cellType={
+                                                this.props.modelData.cell_type
+                                            }
+                                            modelScope={
+                                                this.props.modelData.model_scope
+                                            }
+                                            abstractionLevel={
+                                                this.props.modelData
+                                                    .abstraction_level
+                                            }
+                                            projectID={
+                                                this.props.modelData.project_id
+                                            }
+                                            organization={
+                                                this.props.modelData
+                                                    .organization
+                                            }
                                         />
                                     </Grid>
                                 </Grid>
@@ -415,7 +494,7 @@ class ModelDetail extends React.Component {
 
 ModelDetail.propTypes = {
     onClose: PropTypes.func.isRequired,
-    open: PropTypes.bool.isRequired
+    open: PropTypes.bool.isRequired,
 };
 
 export default withSnackbar(ModelDetail);
