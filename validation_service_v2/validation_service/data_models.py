@@ -1370,11 +1370,11 @@ class LivePaperDataItem(BaseModel):
                 identifier=data_item.identifier
             )
 
-    def to_kg_object(self):
+    def to_kg_object(self, kg_live_paper_section):
         if self.identifier:
             identifier = self.identifier
         else:
-            identifier=hashlib.sha1(self.url.encode("utf-8")).hexdigest()
+            identifier=hashlib.sha1((self.url + self.label).encode("utf-8")).hexdigest()
         if self.url:
             distr = Distribution(self.url)
         else:
@@ -1384,7 +1384,8 @@ class LivePaperDataItem(BaseModel):
             name=self.label,
             view_url=self.view_url,
             identifier=identifier,
-            resource_type=self.type
+            resource_type=self.type,
+            part_of=kg_live_paper_section
         )
 
 
@@ -1409,21 +1410,21 @@ class LivePaperSection(BaseModel):
             description=section.description,
             data=section.data_raw,
             dataFormatted=[LivePaperDataItem.from_kg_object(item, kg_client)
-                           for item in as_list(section.data)]
+                           for item in as_list(section.data.resolve(kg_client, api="nexus"))]
         )
 
     def to_kg_objects(self, kg_live_paper):
-        data_items = [obj.to_kg_object() for obj in self.dataFormatted]
         section = fairgraph.livepapers.LivePaperResourceSection(
             order=self.order,
             section_type=self.type,
             name=self.title,
             icon=self.icon,
             description=self.description,
-            data=data_items,
             data_raw=self.data,
             part_of=kg_live_paper)
-        return data_items + [section]
+        data_items = [obj.to_kg_object(kg_live_paper_section=section)
+                      for obj in self.dataFormatted]
+        return [section] + data_items
 
 
 def inverse_license_lookup(iri):
