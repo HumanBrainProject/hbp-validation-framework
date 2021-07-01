@@ -1367,7 +1367,7 @@ class LivePaperDataItem(BaseModel):
             return cls(
                 label=data_item.name,
                 type=data_item.resource_type,
-                identifier=data_item.identifier
+                identifier=UUID(data_item.identifier)
             )
 
     def to_kg_object(self, kg_live_paper_section, kg_live_paper):
@@ -1383,7 +1383,7 @@ class LivePaperDataItem(BaseModel):
             distribution=distr,
             name=self.label,
             view_url=self.view_url,
-            identifier=identifier,
+            identifier=str(identifier),
             resource_type=self.type,
             part_of=kg_live_paper_section
         )
