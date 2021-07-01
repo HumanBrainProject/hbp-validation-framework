@@ -1,6 +1,6 @@
 import os
 from os.path import join, dirname
-from uuid import UUID
+from uuid import UUID, uuid5
 from enum import Enum
 from typing import List
 from datetime import datetime, timezone, date
@@ -1346,8 +1346,8 @@ class PersonWithAffiliation(BaseModel):
 
 
 class LivePaperDataItem(BaseModel):
-    url: HttpUrl = None
-    label: str = None
+    url: HttpUrl
+    label: str
     view_url: HttpUrl = None
     type: str = None
     identifier: UUID = None
@@ -1374,11 +1374,9 @@ class LivePaperDataItem(BaseModel):
         if self.identifier:
             identifier = self.identifier
         else:
-            identifier=hashlib.sha1((self.url + self.label).encode("utf-8")).hexdigest()
-        if self.url:
+            namespace = UUID('6669a40d-9afd-4ec6-aa23-7893c3b0ded1')
+            identifier = uuid5(namespace, self.url + self.label + str(kg_live_paper_section.uuid))
             distr = Distribution(self.url)
-        else:
-            distr = None
         return fairgraph.livepapers.LivePaperResourceItem(
             distribution=distr,
             name=self.label,
