@@ -1370,12 +1370,14 @@ class LivePaperDataItem(BaseModel):
                 identifier=data_item.identifier
             )
 
-    def to_kg_object(self, kg_live_paper_section):
+    def to_kg_object(self, kg_live_paper_section, kg_live_paper):
         if self.identifier:
             identifier = self.identifier
         else:
             namespace = UUID('6669a40d-9afd-4ec6-aa23-7893c3b0ded1')
-            identifier = uuid5(namespace, self.url + self.label + str(kg_live_paper_section.uuid))
+            identifier = uuid5(namespace,
+                               (self.url + self.label + kg_live_paper_section.title
+                                + kg_live_paper.live_paper_title))
         distr = Distribution(self.url)
         return fairgraph.livepapers.LivePaperResourceItem(
             distribution=distr,
@@ -1417,7 +1419,8 @@ class LivePaperSection(BaseModel):
             icon=self.icon,
             description=self.description,
             part_of=kg_live_paper)
-        data_items = [obj.to_kg_object(kg_live_paper_section=section)
+        data_items = [obj.to_kg_object(kg_live_paper_section=section,
+                                       kg_live_paper=kg_live_paper)
                       for obj in self.data]
         return [section] + data_items
 
