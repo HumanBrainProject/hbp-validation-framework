@@ -119,6 +119,12 @@ async def create_live_paper(
             detail=f"Cannot provide id when creating a live paper. Use PUT to update an existing paper.",
         )
 
+    if not live_paper.collab_id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Collab ID needs to be provided",
+        )
+
     if not (
         await is_collab_member(live_paper.collab_id, token.credentials)
         or await is_admin(token.credentials)
