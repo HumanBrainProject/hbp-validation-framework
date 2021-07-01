@@ -1393,8 +1393,7 @@ class LivePaperSection(BaseModel):
     title: str
     icon: str = None
     description: str = None
-    data: str
-    dataFormatted: List[LivePaperDataItem]
+    data: List[LivePaperDataItem]
 
     @classmethod
     def from_kg_object(cls, section, kg_client):
@@ -1406,8 +1405,7 @@ class LivePaperSection(BaseModel):
             title=section.name,
             icon=section.icon,
             description=section.description,
-            data=section.data_raw,
-            dataFormatted=[LivePaperDataItem.from_kg_object(item, kg_client)
+            data=[LivePaperDataItem.from_kg_object(item, kg_client)
                            for item in as_list(section.data.resolve(kg_client, api="nexus"))]
         )
 
@@ -1418,10 +1416,9 @@ class LivePaperSection(BaseModel):
             name=self.title,
             icon=self.icon,
             description=self.description,
-            data_raw=self.data,
             part_of=kg_live_paper)
         data_items = [obj.to_kg_object(kg_live_paper_section=section)
-                      for obj in self.dataFormatted]
+                      for obj in self.data]
         return [section] + data_items
 
 
