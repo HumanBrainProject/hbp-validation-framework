@@ -1376,7 +1376,7 @@ class LivePaperDataItem(BaseModel):
         else:
             namespace = UUID('6669a40d-9afd-4ec6-aa23-7893c3b0ded1')
             identifier = uuid5(namespace, self.url + self.label + str(kg_live_paper_section.uuid))
-            distr = Distribution(self.url)
+        distr = Distribution(self.url)
         return fairgraph.livepapers.LivePaperResourceItem(
             distribution=distr,
             name=self.label,
@@ -1406,7 +1406,7 @@ class LivePaperSection(BaseModel):
             icon=section.icon,
             description=section.description,
             data=[LivePaperDataItem.from_kg_object(item, kg_client)
-                           for item in as_list(section.data.resolve(kg_client, api="nexus"))]
+                  for item in as_list(section.data.resolve(kg_client, api="nexus"))]
         )
 
     def to_kg_objects(self, kg_live_paper):
@@ -1542,6 +1542,7 @@ class LivePaperSummary(BaseModel):
     id: UUID
     detail_path: str
     modified_date: datetime
+    citation: str = None
     live_paper_title: str
     associated_paper_title: str
     year: date
@@ -1553,6 +1554,7 @@ class LivePaperSummary(BaseModel):
             modified_date=lp.date_modified or lp.date_created,
             live_paper_title=lp.name,
             associated_paper_title=lp.title,
+            citation=lp.citation,
             year=lp.date_published,
             collab_id=lp.collab_id,
             id=lp.uuid,
