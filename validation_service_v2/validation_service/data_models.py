@@ -1376,8 +1376,8 @@ class LivePaperDataItem(BaseModel):
         else:
             namespace = UUID('6669a40d-9afd-4ec6-aa23-7893c3b0ded1')
             identifier = uuid5(namespace,
-                               (self.url + self.label + kg_live_paper_section.title
-                                + kg_live_paper.live_paper_title))
+                               (self.url + self.label + kg_live_paper_section.name
+                                + kg_live_paper.name))
         distr = Distribution(self.url)
         return fairgraph.livepapers.LivePaperResourceItem(
             distribution=distr,
