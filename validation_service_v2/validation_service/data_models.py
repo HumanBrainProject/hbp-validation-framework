@@ -1437,7 +1437,7 @@ class LivePaper(BaseModel):
     modified_date: datetime
     version: str = None
     authors: List[PersonWithAffiliation]
-    corresponding_author: PersonWithAffiliation
+    corresponding_author: List[PersonWithAffiliation]
     created_author: List[PersonWithAffiliation] = None
     approved_author: PersonWithAffiliation = None
     year: date
@@ -1467,13 +1467,13 @@ class LivePaper(BaseModel):
 
         original_authors = get_people(lp.original_authors)
         ca_index = lp.corresponding_author_index
-        if ca_index is None:
-            ca_index = -1
+        if ca_index in (None, -1):
+            ca_index = []
         return cls(
             modified_date=lp.date_modified or lp.date_created,
             version=lp.version,
             authors=original_authors,
-            corresponding_author=original_authors[ca_index],
+            corresponding_author=[original_authors[au] for au in as_list(ca_index)],
             created_author=get_people(lp.live_paper_authors),
             approved_author=get_person(lp.custodian),
             year=lp.date_published,
@@ -1496,7 +1496,7 @@ class LivePaper(BaseModel):
         original_authors = [p.to_kg_object() for p in self.authors]
         if self.corresponding_author:
             try:
-                corresponding_author_index = self.authors.index(self.corresponding_author)
+                corresponding_author_index = [self.authors.index(au) for au in as_list(self.corresponding_author)]
             except ValueError as err:
                 logger.error(str(err))
                 corresponding_author_index = -1
