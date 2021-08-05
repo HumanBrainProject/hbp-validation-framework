@@ -146,7 +146,7 @@ class ValidationFramework extends React.Component {
             modelsTableWide: false,
             testsTableWide: false,
             modelsTableColumns: [
-                { name: "ID1", options: { display: false } },
+                { name: "ID", options: { display: false } },
                 { name: "Name", options: { display: true } },
                 { name: "Alias", options: { display: false } },
                 { name: "Author", options: { display: true } },
