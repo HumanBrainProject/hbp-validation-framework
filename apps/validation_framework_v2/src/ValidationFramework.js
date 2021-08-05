@@ -151,7 +151,7 @@ class ValidationFramework extends React.Component {
                 { name: "Alias", options: { display: false } },
                 { name: "Author", options: { display: true } },
                 { name: "Visibility", options: { display: false } },
-                { name: "Collab ID", options: { display: true } },
+                { name: "Collab ID", options: { display: false } },
                 { name: "Species", options: { display: false } },
                 { name: "Brain region", options: { display: false } },
                 { name: "Cell type", options: { display: false } },
