@@ -10,7 +10,7 @@ function MetadataItem(props) {
     if (props.value) {
         if (props.label === "Collab ID") {
             return (
-                <ListItem button component="a" href={"props.value" + props.value} target="_blank">
+                <ListItem button component="a" href={"https://wiki.ebrains.eu/bin/view/Collabs/" + props.value} target="_blank">
                     <Tooltip title={"Click to open Collab"}>
                         <ListItemText primary={props.value} secondary={props.label} />
                     </Tooltip>
