@@ -1141,7 +1141,6 @@ class ValidationFramework extends React.Component {
                             {configContent}
                         </Grid>
                     </Grid>
-                    <br />
 
                     <ConfigForm
                         open={this.state.configOpen}
