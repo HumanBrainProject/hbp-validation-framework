@@ -84,7 +84,7 @@ export default class ConfigForm extends React.Component {
                 showFilters = filterKeys;
             }
             const [validFilterValues] = this.context.validFilterValues;
-            console.log("validFilterValues");
+            // console.log("validFilterValues");
 
             return (
                 <Dialog

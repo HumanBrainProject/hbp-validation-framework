@@ -816,6 +816,7 @@ class ValidationFramework extends React.Component {
             this.setState({ configOpen: false });
             return;
         }
+        console.log(filters);
 
         let modelFilters = {};
         filterModelKeys.forEach(function (key, index) {
@@ -1037,7 +1038,7 @@ class ValidationFramework extends React.Component {
         }
         if (filtersEmpty(this.state.filters)) {
             configContent = "";
-            mainContent = <Introduction />;
+            mainContent = <Introduction handleConfig={this.handleConfigClose} />;
         } else {
             configContent = (
                 <ConfigDisplayTop

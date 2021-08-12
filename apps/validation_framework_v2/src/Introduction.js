@@ -22,7 +22,7 @@ import Button from "@material-ui/core/Button";
 import { yellow } from "@material-ui/core/colors";
 import Plotly from "plotly.js";
 import createPlotlyComponent from "react-plotly.js/factory";
-import { corsProxy } from "./globals";
+import { updateHash, corsProxy, filterKeys } from "./globals";
 import { formatLabel } from "./utils";
 import "./App.css";
 
@@ -84,10 +84,10 @@ function MediaCard(props) {
         }}
       >
         <CardActionArea
-          href={
-            "https://model-catalog.brainsimulation.eu/#model_id." + props.id
-          }
-          target="_blank"
+          onClick={() => {
+            updateHash("model_id." + props.id);
+            window.location.reload();
+          }}
         >
           <CardMedia
             className={classes.media}
@@ -134,11 +134,10 @@ function MediaCard(props) {
             size="small"
             color="primary"
             style={{ fontWeight: "bolder" }}
-            onClick={() =>
-              openInNewTab(
-                "https://model-catalog.brainsimulation.eu/#model_id." + props.id
-              )
-            }
+            onClick={() => {
+              updateHash("model_id." + props.id);
+              window.location.reload();
+            }}
           >
             View Model
           </Button>
@@ -149,7 +148,7 @@ function MediaCard(props) {
 }
 
 function PlotGraph(props) {
-  console.log(props.data);
+  //   console.log(props.data);
   const Plot = createPlotlyComponent(Plotly);
   var layout = {};
 
@@ -160,20 +159,38 @@ function PlotGraph(props) {
     // autosize: true,
     height: 400,
     width: 500,
+    margin: { t: 50, b: 50, l: 0 },
   };
+
+  // replace 'null' filter value with 'other'
+  let data = JSON.parse(JSON.stringify(props.data).replace("null", "other"));
 
   return (
     <Plot
       data={[
         {
-          values: props.data ? Object.values(props.data) : null,
-          labels: props.data ? Object.keys(props.data) : null,
+          values: props.data ? Object.values(data) : null,
+          labels: props.data ? Object.keys(data) : null,
           type: "pie",
         },
       ]}
       layout={layout}
       config={{
         displaylogo: false,
+      }}
+      onClick={(data) => {
+        console.log(data["points"][0]["label"]);
+        if (data["points"][0]["label"] !== "other") {
+          let modelFilters = {};
+          filterKeys.forEach(function (key, index) {
+            if (key !== props.filter) {
+              modelFilters[key] = [];
+            } else {
+              modelFilters[key] = [data["points"][0]["label"]];
+            }
+          });
+          props.handleConfig("Only Models", modelFilters);
+        }
       }}
     />
   );
@@ -189,6 +206,7 @@ class Introduction extends React.Component {
   }
 
   componentDidMount() {
+    this.mounted = true;
     fetch(
       corsProxy +
         "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/VF_paper_demo/vf_stats/models_stats.json"
@@ -197,16 +215,24 @@ class Introduction extends React.Component {
       .then((jsonData) => {
         // jsonData is parsed json object received from url
         console.log(jsonData);
-        this.setState({
-          stats: jsonData,
-        });
+        if (this.mounted) {
+          this.setState({
+            stats: jsonData,
+          });
+        }
       })
       .catch((error) => {
         console.error(error);
-        this.setState({
-          stats: null,
-        });
+        if (this.mounted) {
+          this.setState({
+            stats: null,
+          });
+        }
       });
+  }
+
+  componentWillUnmount() {
+    this.mounted = false;
   }
 
   render() {
@@ -297,10 +323,7 @@ class Introduction extends React.Component {
           </Grid>
         </Grid>
         <Grid>
-          <Grid
-            className={classes.roundedBox}
-            style={{ width: "95%", paddingTop: "20px" }}
-          >
+          <Grid className={classes.roundedBox} style={{ width: "95%" }}>
             <span
               style={{
                 fontWeight: "bolder",
@@ -406,7 +429,7 @@ class Introduction extends React.Component {
           <Grid>
             <Grid
               className={classes.roundedBox}
-              style={{ width: "95%", paddingTop: "20px" }}
+              style={{ width: "95%", margin: "0.5em auto" }}
             >
               <span
                 style={{
@@ -418,7 +441,14 @@ class Introduction extends React.Component {
                 Distribution of Models
               </span>
             </Grid>
-            <Grid>
+            <Grid
+              container
+              spacing={2}
+              direction="row"
+              alignItems="center"
+              justify="center"
+              style={{ minHeight: "100vh" }}
+            >
               {[
                 "species",
                 "brain_region",
@@ -427,10 +457,13 @@ class Introduction extends React.Component {
                 "abstraction_level",
               ].map((filter, i) => {
                 return (
-                  <PlotGraph
-                    data={this.state.stats ? this.state.stats[filter] : null}
-                    filter={filter}
-                  />
+                  <Grid item key={filter}>
+                    <PlotGraph
+                      data={this.state.stats ? this.state.stats[filter] : null}
+                      filter={filter}
+                      handleConfig={this.props.handleConfig}
+                    />
+                  </Grid>
                 );
               })}
             </Grid>
