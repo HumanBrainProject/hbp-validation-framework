@@ -162,8 +162,8 @@ function PlotGraph(props) {
     margin: { t: 50, b: 50, l: 0 },
   };
 
-  // replace 'null' filter value with 'other'
-  let data = JSON.parse(JSON.stringify(props.data).replace("null", "other"));
+  // replace 'null' filter value with 'not specified'
+  let data = JSON.parse(JSON.stringify(props.data).replace("null", "not specified"));
 
   return (
     <Plot
@@ -180,7 +180,7 @@ function PlotGraph(props) {
       }}
       onClick={(data) => {
         console.log(data["points"][0]["label"]);
-        if (data["points"][0]["label"] !== "other") {
+        if (data["points"][0]["label"] !== "not specified") {
           let modelFilters = {};
           filterKeys.forEach(function (key, index) {
             if (key !== props.filter) {
