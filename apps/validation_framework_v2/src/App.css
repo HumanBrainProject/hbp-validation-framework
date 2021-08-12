@@ -6,3 +6,7 @@
 input {
   border-bottom: 0 !important;
 }
+
+.pielayer{
+    cursor: pointer;
+}

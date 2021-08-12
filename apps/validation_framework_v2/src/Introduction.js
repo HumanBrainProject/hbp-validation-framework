@@ -429,7 +429,7 @@ class Introduction extends React.Component {
           <Grid>
             <Grid
               className={classes.roundedBox}
-              style={{ width: "95%", margin: "0.5em auto" }}
+              style={{ width: "95%", margin: "25px" }}
             >
               <span
                 style={{
@@ -447,7 +447,6 @@ class Introduction extends React.Component {
               direction="row"
               alignItems="center"
               justify="center"
-              style={{ minHeight: "100vh" }}
             >
               {[
                 "species",
@@ -457,7 +456,7 @@ class Introduction extends React.Component {
                 "abstraction_level",
               ].map((filter, i) => {
                 return (
-                  <Grid item key={filter}>
+                  <Grid item key={filter} style={{ paddingTop: 0, paddingBottom: 0 }}>
                     <PlotGraph
                       data={this.state.stats ? this.state.stats[filter] : null}
                       filter={filter}

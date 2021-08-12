@@ -1120,7 +1120,7 @@ class ValidationFramework extends React.Component {
             <React.Fragment>
                 <div>
                     <Grid container direction="row">
-                        <Grid item xs={1}>
+                        <Grid item style={{width:"100px"}}>
                             <Tooltip title={"Change Configuration"}>
                                 <IconButton
                                     onClick={this.openConfig}
@@ -1138,7 +1138,7 @@ class ValidationFramework extends React.Component {
                                 </IconButton>
                             </Tooltip>
                         </Grid>
-                        <Grid item xs={11}>
+                        <Grid item>
                             {configContent}
                         </Grid>
                     </Grid>
