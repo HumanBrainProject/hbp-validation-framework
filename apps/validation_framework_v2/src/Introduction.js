@@ -128,20 +128,20 @@ function MediaCard(props) {
               />
             </div>
           </CardContent>
+          <CardActions style={{ marginLeft: 5, marginRight: 5 }}>
+            <Button
+              size="small"
+              color="primary"
+              style={{ fontWeight: "bolder" }}
+              onClick={() => {
+                updateHash("model_id." + props.id);
+                window.location.reload();
+              }}
+            >
+              View Model
+            </Button>
+          </CardActions>
         </CardActionArea>
-        <CardActions style={{ marginLeft: 5, marginRight: 5 }}>
-          <Button
-            size="small"
-            color="primary"
-            style={{ fontWeight: "bolder" }}
-            onClick={() => {
-              updateHash("model_id." + props.id);
-              window.location.reload();
-            }}
-          >
-            View Model
-          </Button>
-        </CardActions>
       </Card>
     </Grid>
   );
@@ -163,7 +163,9 @@ function PlotGraph(props) {
   };
 
   // replace 'null' filter value with 'not specified'
-  let data = JSON.parse(JSON.stringify(props.data).replace("null", "not specified"));
+  let data = JSON.parse(
+    JSON.stringify(props.data).replace("null", "not specified")
+  );
 
   return (
     <Plot
@@ -456,7 +458,11 @@ class Introduction extends React.Component {
                 "abstraction_level",
               ].map((filter, i) => {
                 return (
-                  <Grid item key={filter} style={{ paddingTop: 0, paddingBottom: 0 }}>
+                  <Grid
+                    item
+                    key={filter}
+                    style={{ paddingTop: 0, paddingBottom: 0 }}
+                  >
                     <PlotGraph
                       data={this.state.stats ? this.state.stats[filter] : null}
                       filter={filter}
