@@ -1,6 +1,6 @@
 import os
 from os.path import join, dirname
-from uuid import UUID
+from uuid import UUID, uuid5
 from enum import Enum
 from typing import List
 from datetime import datetime, timezone, date
@@ -1346,8 +1346,8 @@ class PersonWithAffiliation(BaseModel):
 
 
 class LivePaperDataItem(BaseModel):
-    url: HttpUrl = None
-    label: str = None
+    url: HttpUrl
+    label: str
     view_url: HttpUrl = None
     type: str = None
     identifier: UUID = None
@@ -1367,24 +1367,25 @@ class LivePaperDataItem(BaseModel):
             return cls(
                 label=data_item.name,
                 type=data_item.resource_type,
-                identifier=data_item.identifier
+                identifier=UUID(data_item.identifier)
             )
 
-    def to_kg_object(self):
+    def to_kg_object(self, kg_live_paper_section, kg_live_paper):
         if self.identifier:
             identifier = self.identifier
         else:
-            identifier=hashlib.sha1(self.url.encode("utf-8")).hexdigest()
-        if self.url:
-            distr = Distribution(self.url)
-        else:
-            distr = None
+            namespace = UUID('6669a40d-9afd-4ec6-aa23-7893c3b0ded1')
+            identifier = uuid5(namespace,
+                               (self.url + self.label + kg_live_paper_section.name
+                                + kg_live_paper.name))
+        distr = Distribution(self.url)
         return fairgraph.livepapers.LivePaperResourceItem(
             distribution=distr,
             name=self.label,
             view_url=self.view_url,
-            identifier=identifier,
-            resource_type=self.type
+            identifier=str(identifier),
+            resource_type=self.type,
+            part_of=kg_live_paper_section
         )
 
 
@@ -1394,8 +1395,7 @@ class LivePaperSection(BaseModel):
     title: str
     icon: str = None
     description: str = None
-    data: str
-    dataFormatted: List[LivePaperDataItem]
+    data: List[LivePaperDataItem]
 
     @classmethod
     def from_kg_object(cls, section, kg_client):
@@ -1407,23 +1407,22 @@ class LivePaperSection(BaseModel):
             title=section.name,
             icon=section.icon,
             description=section.description,
-            data=section.data_raw,
-            dataFormatted=[LivePaperDataItem.from_kg_object(item, kg_client)
-                           for item in as_list(section.data)]
+            data=[LivePaperDataItem.from_kg_object(item, kg_client)
+                  for item in as_list(section.data.resolve(kg_client, api="nexus"))]
         )
 
     def to_kg_objects(self, kg_live_paper):
-        data_items = [obj.to_kg_object() for obj in self.dataFormatted]
         section = fairgraph.livepapers.LivePaperResourceSection(
             order=self.order,
             section_type=self.type,
             name=self.title,
             icon=self.icon,
             description=self.description,
-            data=data_items,
-            data_raw=self.data,
             part_of=kg_live_paper)
-        return data_items + [section]
+        data_items = [obj.to_kg_object(kg_live_paper_section=section,
+                                       kg_live_paper=kg_live_paper)
+                      for obj in self.data]
+        return [section] + data_items
 
 
 def inverse_license_lookup(iri):
@@ -1438,7 +1437,7 @@ class LivePaper(BaseModel):
     modified_date: datetime
     version: str = None
     authors: List[PersonWithAffiliation]
-    corresponding_author: PersonWithAffiliation
+    corresponding_author: List[PersonWithAffiliation]
     created_author: List[PersonWithAffiliation] = None
     approved_author: PersonWithAffiliation = None
     year: date
@@ -1468,13 +1467,13 @@ class LivePaper(BaseModel):
 
         original_authors = get_people(lp.original_authors)
         ca_index = lp.corresponding_author_index
-        if ca_index is None:
-            ca_index = -1
+        if ca_index in (None, -1):
+            ca_index = []
         return cls(
             modified_date=lp.date_modified or lp.date_created,
             version=lp.version,
             authors=original_authors,
-            corresponding_author=original_authors[ca_index],
+            corresponding_author=[original_authors[au] for au in as_list(ca_index)],
             created_author=get_people(lp.live_paper_authors),
             approved_author=get_person(lp.custodian),
             year=lp.date_published,
@@ -1497,7 +1496,7 @@ class LivePaper(BaseModel):
         original_authors = [p.to_kg_object() for p in self.authors]
         if self.corresponding_author:
             try:
-                corresponding_author_index = self.authors.index(self.corresponding_author)
+                corresponding_author_index = [self.authors.index(au) for au in as_list(self.corresponding_author)]
             except ValueError as err:
                 logger.error(str(err))
                 corresponding_author_index = -1
@@ -1546,6 +1545,7 @@ class LivePaperSummary(BaseModel):
     id: UUID
     detail_path: str
     modified_date: datetime
+    citation: str = None
     live_paper_title: str
     associated_paper_title: str
     year: date
@@ -1557,6 +1557,7 @@ class LivePaperSummary(BaseModel):
             modified_date=lp.date_modified or lp.date_created,
             live_paper_title=lp.name,
             associated_paper_title=lp.title,
+            citation=lp.citation,
             year=lp.date_published,
             collab_id=lp.collab_id,
             id=lp.uuid,

@@ -28,8 +28,8 @@ RUN pip3 install ./fairgraph
 
 ENV SITEDIR /home/docker/site
 
-COPY requirements.txt $SITEDIR/
-RUN pip3 install -r $SITEDIR/requirements.txt
+COPY requirements.txt.lock $SITEDIR/
+RUN pip3 install -r $SITEDIR/requirements.txt.lock
 
 COPY validation_service $SITEDIR/validation_service
 RUN wget https://raw.githubusercontent.com/spdx/license-list-data/master/json/licenses.json -O $SITEDIR/validation_service/spdx_licences.json
