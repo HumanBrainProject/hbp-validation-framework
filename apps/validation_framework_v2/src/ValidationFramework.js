@@ -816,6 +816,7 @@ class ValidationFramework extends React.Component {
             this.setState({ configOpen: false });
             return;
         }
+        console.log(filters);
 
         let modelFilters = {};
         filterModelKeys.forEach(function (key, index) {
@@ -1037,7 +1038,7 @@ class ValidationFramework extends React.Component {
         }
         if (filtersEmpty(this.state.filters)) {
             configContent = "";
-            mainContent = <Introduction />;
+            mainContent = <Introduction handleConfig={this.handleConfigClose} />;
         } else {
             configContent = (
                 <ConfigDisplayTop
@@ -1119,7 +1120,7 @@ class ValidationFramework extends React.Component {
             <React.Fragment>
                 <div>
                     <Grid container direction="row">
-                        <Grid item xs={1}>
+                        <Grid item style={{width:"100px"}}>
                             <Tooltip title={"Change Configuration"}>
                                 <IconButton
                                     onClick={this.openConfig}
@@ -1137,11 +1138,10 @@ class ValidationFramework extends React.Component {
                                 </IconButton>
                             </Tooltip>
                         </Grid>
-                        <Grid item xs={11}>
+                        <Grid item>
                             {configContent}
                         </Grid>
                     </Grid>
-                    <br />
 
                     <ConfigForm
                         open={this.state.configOpen}
