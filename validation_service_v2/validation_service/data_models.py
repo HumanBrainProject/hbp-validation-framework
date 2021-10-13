@@ -42,6 +42,7 @@ logger = logging.getLogger("validation_service_v2")
 
 EBRAINS_DRIVE_API = "https://drive.ebrains.eu/api2/"
 
+fairgraph.commons.License.initialize(join(dirname(__file__), "spdx_licences.json"))
 
 def uuid_from_uri(uri):
     return uri.split("/")[-1]
