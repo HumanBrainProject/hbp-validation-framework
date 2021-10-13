@@ -52,8 +52,7 @@ async def query_live_papers(
 
 @router.get("/livepapers-published/", response_model=List[LivePaperSummary])
 async def query_released_live_papers():
-    lps = fairgraph.livepapers.LivePaper.list(kg_client, api="query", scope="latest", size=1000)
-    # to do: change "latest" to "release" once we're out of testing
+    lps = fairgraph.livepapers.LivePaper.list(kg_client, api="query", scope="released", size=1000)
     return [
         LivePaperSummary.from_kg_object(lp)
         for lp in as_list(lps)
@@ -92,8 +91,7 @@ async def get_live_paper(
 
 @router.get("/livepapers-published/{lp_id}", response_model=LivePaper)
 async def get_live_paper(lp_id: UUID):
-    lp = fairgraph.livepapers.LivePaper.from_uuid(str(lp_id), kg_client, api="query", scope="latest")
-    # too: change this to scope="released" once we're ready
+    lp = fairgraph.livepapers.LivePaper.from_uuid(str(lp_id), kg_client, api="query", scope="released")
     if lp:
         try:
             obj = LivePaper.from_kg_object(lp, kg_client)
