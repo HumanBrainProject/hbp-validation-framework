@@ -16,7 +16,7 @@ from pydantic.errors import ColorError
 from pyld.jsonld import _compare_shortest_least
 import requests
 
-from pydantic import BaseModel, HttpUrl, AnyUrl, validator, ValidationError
+from pydantic import BaseModel, HttpUrl, AnyUrl, validator, ValidationError, constr
 from fastapi.encoders import jsonable_encoder
 from fastapi import HTTPException, status
 
@@ -55,6 +55,9 @@ def ensure_has_timezone(timestamp):
         return timestamp.astimezone(timezone.utc)
     else:
         return timestamp
+
+
+Slug = constr(regex=r"^\w[\w\-]+$", to_lower=True, strip_whitespace=True)
 
 
 class Species(str, Enum):
@@ -1435,6 +1438,7 @@ def inverse_license_lookup(iri):
 class LivePaper(BaseModel):
     lp_tool_version: str = "0.1"
     id: UUID = None
+    alias: Slug = None
     modified_date: datetime
     version: str = None
     authors: List[PersonWithAffiliation]
@@ -1448,6 +1452,7 @@ class LivePaper(BaseModel):
     url: HttpUrl = None
     citation: str = None
     doi: HttpUrl = None
+    associated_paper_doi: HttpUrl = None
     abstract: str = None
     license: str = None
     resources_description: str = None
@@ -1472,6 +1477,7 @@ class LivePaper(BaseModel):
             ca_index = []
         return cls(
             modified_date=lp.date_modified or lp.date_created,
+            alias=lp.alias,
             version=lp.version,
             authors=original_authors,
             corresponding_author=[original_authors[au] for au in as_list(ca_index)],
@@ -1484,6 +1490,7 @@ class LivePaper(BaseModel):
             url=getattr(lp.url, "location", None),
             citation=lp.citation,
             doi=lp.doi,
+            associated_paper_doi=lp.associated_paper_doi,
             abstract=lp.abstract,
             license=getattr(lp.license, "label", None),
             collab_id=lp.collab_id,
@@ -1515,6 +1522,7 @@ class LivePaper(BaseModel):
         lp = fairgraph.livepapers.LivePaper(
             name=self.live_paper_title,
             title=self.associated_paper_title,
+            alias=self.alias,
             description=self.resources_description,
             date_modified=self.modified_date,
             version=self.version,
@@ -1528,6 +1536,7 @@ class LivePaper(BaseModel):
             url=url,
             citation=self.citation,
             doi=self.doi,
+            associated_paper_doi=self.associated_paper_doi,
             abstract=self.abstract,
             license=fairgraph.commons.License(self.license)
         )
@@ -1551,6 +1560,8 @@ class LivePaperSummary(BaseModel):
     associated_paper_title: str
     year: date
     collab_id: str = None
+    doi: str = None
+    alias: str = None
 
     @classmethod
     def from_kg_object(cls, lp):
@@ -1561,6 +1572,8 @@ class LivePaperSummary(BaseModel):
             citation=lp.citation,
             year=lp.date_published,
             collab_id=lp.collab_id,
+            doi=lp.doi,
+            alias=lp.alias,
             id=lp.uuid,
             detail_path=f"/livepapers/{lp.uuid}"
         )

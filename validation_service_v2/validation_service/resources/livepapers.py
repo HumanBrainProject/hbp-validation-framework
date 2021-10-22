@@ -1,7 +1,7 @@
 
 import logging
 from uuid import UUID
-from typing import List
+from typing import List, Union
 from datetime import datetime
 
 
@@ -11,9 +11,10 @@ from ..auth import (
     get_kg_client, get_person_from_token, is_collab_member, is_admin,
     can_view_collab, get_editable_collabs
 )
-from ..data_models import LivePaper, LivePaperSummary, ConsistencyError, AccessCode
+from ..data_models import LivePaper, LivePaperSummary, ConsistencyError, AccessCode, Slug
+from ..db import _get_live_paper_by_id_or_alias
 import fairgraph.livepapers
-from fairgraph.base import as_list
+from fairgraph.base import KGQuery, as_list
 
 
 logger = logging.getLogger("validation_service_v2")
@@ -61,10 +62,10 @@ async def query_released_live_papers():
 
 @router.get("/livepapers/{lp_id}", response_model=LivePaper)
 async def get_live_paper(
-    lp_id: UUID,
+    lp_id: Union[UUID, Slug],
     token: HTTPAuthorizationCredentials = Depends(auth)
 ):
-    lp = fairgraph.livepapers.LivePaper.from_uuid(str(lp_id), kg_client, api="nexus")
+    lp = _get_live_paper_by_id_or_alias(lp_id, scope="in progress")
 
     if lp:
         if (
@@ -90,8 +91,10 @@ async def get_live_paper(
 
 
 @router.get("/livepapers-published/{lp_id}", response_model=LivePaper)
-async def get_live_paper(lp_id: UUID):
-    lp = fairgraph.livepapers.LivePaper.from_uuid(str(lp_id), kg_client, api="query", scope="released")
+async def get_live_paper(
+    lp_id: Union[UUID, Slug]
+):
+    lp = _get_live_paper_by_id_or_alias(lp_id, scope="released")
     if lp:
         try:
             obj = LivePaper.from_kg_object(lp, kg_client)
@@ -151,7 +154,7 @@ async def create_live_paper(
 
 @router.put("/livepapers/{lp_id}", status_code=status.HTTP_200_OK)
 async def update_live_paper(
-    lp_id: UUID,
+    lp_id: UUID,    #todo: handle Slug
     live_paper: LivePaper,
     token: HTTPAuthorizationCredentials = Depends(auth)
 ):
@@ -201,13 +204,13 @@ async def update_live_paper(
 
 @router.put("/livepapers/{lp_id}/access_code", status_code=status.HTTP_200_OK)
 async def set_access_code(
-    lp_id: UUID,
+    lp_id: Union[UUID, Slug],
     access_code: AccessCode,
     token: HTTPAuthorizationCredentials = Depends(auth)
 ):
     logger.info("Beginning set access code")
 
-    lp = fairgraph.livepapers.LivePaper.from_uuid(str(lp_id), kg_client, api="nexus")
+    lp = _get_live_paper_by_id_or_alias(lp_id, scope="in progress")
 
     if lp:
         if not (

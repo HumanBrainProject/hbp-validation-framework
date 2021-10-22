@@ -9,6 +9,7 @@ from fastapi import HTTPException, status
 from fairgraph.brainsimulation import (
     ModelProject, ModelInstance, MEModel,
     ValidationTestDefinition, ValidationScript)
+from fairgraph.livepapers import LivePaper
 from .auth import get_kg_client, get_user_from_token, is_collab_member, is_admin
 
 
@@ -107,3 +108,26 @@ def _get_test_instance_by_id(instance_id, token):
     #       has been deleted but the instance wasn't, we could get a None here
     #       which we need to deal with
     return test_instance
+
+
+def _get_live_paper_by_id_or_alias(lp_id, scope):
+    if scope in ("latest", "in progress"):
+        kwargs = {
+            "api": "nexus",
+            "scope": "latest"
+        }
+    elif scope == "released":
+        kwargs = {
+            "api": "query",
+            "scope": "released"
+        }
+    if isinstance(lp_id, UUID):
+        live_paper = LivePaper.from_uuid(str(lp_id), kg_client, **kwargs)
+    else:
+        live_paper = LivePaper.from_alias(lp_id, kg_client, **kwargs)
+    if not live_paper:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Live paper with ID or alias '{lp_id}' not found.",
+        )
+    return live_paper
