@@ -1332,11 +1332,11 @@ class PersonWithAffiliation(BaseModel):
     @classmethod
     def from_kg_object(cls, p, client):
         if isinstance(p, KGProxy):
-            pr = p.resolve(client, api="nexus")
+            pr = p.resolve(client, api="nexus", scope="latest")
         else:
             pr = p
         if pr.affiliation:
-            affiliation = pr.affiliation.resolve(client, api="nexus").name
+            affiliation = pr.affiliation.resolve(client, api="nexus", scope="latest").name
         else:
             affiliation = None
         return cls(firstname=pr.given_name, lastname=pr.family_name, affiliation=affiliation)
