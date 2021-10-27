@@ -158,7 +158,7 @@ class Person(BaseModel):
     @classmethod
     def from_kg_object(cls, p, client):
         if isinstance(p, KGProxy):
-            pr = p.resolve(client, api="nexus")
+            pr = p.resolve(client, api="nexus", scope="latest")
         else:
             pr = p
         return cls(given_name=pr.given_name, family_name=pr.family_name)
@@ -189,7 +189,7 @@ class ModelInstance(BaseModel):
     @classmethod
     def from_kg_object(cls, instance, client, model_id):
         if isinstance(instance, KGProxy):
-            instance = instance.resolve(client, api="nexus")
+            instance = instance.resolve(client, api="nexus", scope="latest")
             if instance is None:
                 raise Exception(f"Instance not found.")
         instance_data = {
@@ -203,7 +203,7 @@ class ModelInstance(BaseModel):
             "alternatives": []
         }
         if instance.main_script:
-            main_script = instance.main_script.resolve(client, api="nexus")
+            main_script = instance.main_script.resolve(client, api="nexus", scope="latest")
         else:
             raise Exception(f"main_script unexpectedly not present.\ninstance: {instance}")
         if main_script:
@@ -218,12 +218,12 @@ class ModelInstance(BaseModel):
             )
         if instance.alternate_of:
             for alt in as_list(instance.alternate_of):
-                alt_obj = alt.resolve(client, api="nexus")
+                alt_obj = alt.resolve(client, api="nexus", scope="latest")
                 if alt_obj and alt_obj.identifier:
                     url = f"https://kg.ebrains.eu/search/instances/Model/{alt_obj.identifier}"
                     instance_data["alternatives"].append(url)
         if hasattr(instance, "morphology"):
-            morph = instance.morphology.resolve(client, api="nexus")
+            morph = instance.morphology.resolve(client, api="nexus", scope="latest")
             instance_data["morphology"] = morph.morphology_file
             instance_data["morphology_id"] = morph.id  # internal
         if hasattr(instance, "e_model"):
@@ -373,7 +373,7 @@ class ScientificModel(BaseModel):
                 author=[Person.from_kg_object(p, client) for p in as_list(model_project.authors)],
                 owner=[Person.from_kg_object(p, client) for p in as_list(model_project.owners)],
                 project_id=model_project.collab_id,
-                organization=model_project.organization.resolve(client, api="nexus").name
+                organization=model_project.organization.resolve(client, api="nexus", scope="latest").name
                 if model_project.organization
                 else None,
                 private=model_project.private,
@@ -480,7 +480,7 @@ class ScientificModelSummary(BaseModel):
                 author=[Person.from_kg_object(p, client) for p in as_list(model_project.authors)],
                 owner=[Person.from_kg_object(p, client) for p in as_list(model_project.owners)],
                 project_id=model_project.collab_id,
-                organization=model_project.organization.resolve(client, api="nexus").name
+                organization=model_project.organization.resolve(client, api="nexus", scope="latest").name
                 if model_project.organization
                 else None,
                 private=model_project.private,
@@ -630,7 +630,7 @@ class ValidationTest(BaseModel):
         # due to the time it takes for Nexus to become consistent, we add newly saved scripts
         # to the result of the KG query in case they are not yet included
         scripts = {
-            scr.id: scr for scr in as_list(test_definition.scripts.resolve(client, api="nexus"))
+            scr.id: scr for scr in as_list(test_definition.scripts.resolve(client, api="nexus", scope="latest"))
         }
         if recently_saved_scripts:
             for script in recently_saved_scripts:
@@ -990,7 +990,7 @@ class ValidationResult(BaseModel):
     def from_kg_object(cls, result, client):
         if result.generated_by:
             try:
-                validation_activity = result.generated_by.resolve(client, api="nexus")
+                validation_activity = result.generated_by.resolve(client, api="nexus", scope="latest")
             except Exception as err:
                 raise ConsistencyError from err
         else:
@@ -1003,7 +1003,7 @@ class ValidationResult(BaseModel):
         logger.debug("Additional data for {}:\n{}".format(result.id, result.additional_data))
         additional_data = []
         for item in as_list(result.additional_data):
-            item = item.resolve(client, api="nexus")
+            item = item.resolve(client, api="nexus", scope="latest")
             if item:
                 additional_data.append(File.from_kg_object(item.result_file))
             else:
@@ -1059,7 +1059,7 @@ class ValidationResult(BaseModel):
         test_code = fairgraph.brainsimulation.ValidationScript.from_id(
             str(self.test_instance_id), kg_client, api="nexus"
         )
-        test_definition = test_code.test_definition.resolve(kg_client, api="nexus")
+        test_definition = test_code.test_definition.resolve(kg_client, api="nexus", scope="latest")
         model_instance = _get_model_instance_by_id_no_access_check(self.model_instance_id, kg_client)
         reference_data = fairgraph.core.Collection(
             f"Reference data for {test_definition.name}",
@@ -1145,10 +1145,10 @@ class ComputingEnvironment(BaseModel):
 
     @classmethod
     def from_kg_object(cls, env_obj, kg_client):
-        hardware_obj = env_obj.hardware.resolve(kg_client, api="nexus")
+        hardware_obj = env_obj.hardware.resolve(kg_client, api="nexus", scope="latest")
         dependencies = []
         for dep in as_list(env_obj.software):
-            dep = dep.resolve(kg_client, api="nexus")
+            dep = dep.resolve(kg_client, api="nexus", scope="latest")
             dependencies.append(
                 SoftwareDependency(name=dep.name, version=dep.version)
             )
@@ -1213,7 +1213,7 @@ class Simulation(BaseModel):
     def from_kg_object(cls, sim_activity, kg_client):
         outputs = [output.resolve(kg_client, api="nexus")
                    for output in as_list(sim_activity.result)]
-        config_obj = sim_activity.config.resolve(kg_client, api="nexus")
+        config_obj = sim_activity.config.resolve(kg_client, api="nexus", scope="latest")
         if config_obj and config_obj.config_file:
             config = kg_client._nexus_client._http_client.get(config_obj.config_file.location)
         else:
@@ -1224,7 +1224,7 @@ class Simulation(BaseModel):
                     "msg": f"Unable to retrieve config. config_obj={config_obj} config_file={config_obj.config_file.location}"
                 }
             }
-        env_obj = sim_activity.computing_environment.resolve(kg_client, api="nexus")
+        env_obj = sim_activity.computing_environment.resolve(kg_client, api="nexus", scope="latest")
         if env_obj:
             env = ComputingEnvironment.from_kg_object(env_obj, kg_client)
         else:
@@ -1359,7 +1359,7 @@ class LivePaperDataItem(BaseModel):
     @classmethod
     def from_kg_object(cls, data_item, kg_client):
         if isinstance(data_item, KGProxy):
-            data_item = data_item.resolve(kg_client, api="nexus")
+            data_item = data_item.resolve(kg_client, api="nexus", scope="latest")
         if data_item.resource_type in (None, "URL"):
             return cls(
                 url=data_item.distribution.location,
@@ -1404,7 +1404,7 @@ class LivePaperSection(BaseModel):
     @classmethod
     def from_kg_object(cls, section, kg_client):
         if isinstance(section, KGProxy):
-            section = section.resolve(kg_client, api="nexus")
+            section = section.resolve(kg_client, api="nexus", scope="latest")
         return cls(
             order=int(section.order),
             type=section.section_type,
@@ -1412,7 +1412,7 @@ class LivePaperSection(BaseModel):
             icon=section.icon,
             description=section.description,
             data=[LivePaperDataItem.from_kg_object(item, kg_client)
-                  for item in as_list(section.data.resolve(kg_client, api="nexus"))]
+                  for item in as_list(section.data.resolve(kg_client, api="nexus", scope="latest"))]
         )
 
     def to_kg_objects(self, kg_live_paper):
@@ -1496,7 +1496,7 @@ class LivePaper(BaseModel):
             collab_id=lp.collab_id,
             resources_description=lp.description,
             resources=[LivePaperSection.from_kg_object(sec, kg_client)
-                       for sec in as_list(lp.resource_section.resolve(kg_client, api="nexus"))],
+                       for sec in as_list(lp.resource_section.resolve(kg_client, api="nexus", scope="latest"))],
             id=lp.uuid
         )
 
