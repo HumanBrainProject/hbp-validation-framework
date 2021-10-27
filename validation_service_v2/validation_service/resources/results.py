@@ -137,7 +137,7 @@ from_index, token):
 
 @router.get("/results/{result_id}", response_model=ValidationResult)
 def get_result(result_id: UUID, token: HTTPAuthorizationCredentials = Depends(auth)):
-    result = ValidationResultKG.from_uuid(str(result_id), kg_client, api="nexus")
+    result = ValidationResultKG.from_uuid(str(result_id), kg_client, api="nexus", scope="latest")
     if result:
         try:
             obj = ValidationResult.from_kg_object(result, kg_client)
@@ -202,7 +202,7 @@ async def query_results_extended(
 @router.get("/results-extended/{result_id}", response_model=ValidationResultWithTestAndModel)
 async def get_result_extended(result_id: UUID,
                      token: HTTPAuthorizationCredentials = Depends(auth)):
-    result = ValidationResultKG.from_uuid(str(result_id), kg_client, api="nexus")
+    result = ValidationResultKG.from_uuid(str(result_id), kg_client, api="nexus", scope="latest")
     if result:
         try:
             obj = await ValidationResultWithTestAndModel.from_kg_object(result, kg_client, token)
@@ -300,7 +300,7 @@ def create_result(result: ValidationResult, token: HTTPAuthorizationCredentials 
 @router.delete("/results/{result_id}", status_code=status.HTTP_200_OK)
 async def delete_result(result_id: UUID, token: HTTPAuthorizationCredentials = Depends(auth)):
     # todo: handle non-existent UUID
-    result = ValidationResultKG.from_uuid(str(result_id), kg_client, api="nexus")
+    result = ValidationResultKG.from_uuid(str(result_id), kg_client, api="nexus", scope="latest")
     if not await is_admin(token.credentials):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,

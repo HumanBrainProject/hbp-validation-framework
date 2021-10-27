@@ -212,7 +212,7 @@ async def update_model(
             detail=f"This account is not a member of Collab #{model_patch.project_id}",
         )
     # retrieve stored model
-    model_project = ModelProject.from_uuid(str(model_id), kg_client, api="nexus")
+    model_project = ModelProject.from_uuid(str(model_id), kg_client, api="nexus", scope="latest")
     stored_model = ScientificModel.from_kg_object(model_project, kg_client)
     # if retrieved project_id is different to payload id, check permissions for that id
     if stored_model.project_id != model_patch.project_id and not (
@@ -255,7 +255,7 @@ async def update_model(
 @router.delete("/models/{model_id}", status_code=status.HTTP_200_OK)
 async def delete_model(model_id: UUID, token: HTTPAuthorizationCredentials = Depends(auth)):
     # todo: handle non-existent UUID
-    model_project = ModelProject.from_uuid(str(model_id), kg_client, api="nexus")
+    model_project = ModelProject.from_uuid(str(model_id), kg_client, api="nexus", scope="latest")
     if not (
         await is_collab_member(model_project.collab_id, token.credentials)
         or await is_admin(token.credentials)
@@ -354,7 +354,7 @@ async def create_model_instance(
     # not sure the following is needed.
     # Should just be able to leave the existing model instances as KGProxy objects?
     model_project.instances = [
-        inst.resolve(kg_client, api="nexus") for inst in as_list(model_project.instances)
+        inst.resolve(kg_client, api="nexus", scope="latest") for inst in as_list(model_project.instances)
     ]
     model_project.instances.append(model_instance_kg)
     model_project.save(kg_client)
@@ -368,7 +368,7 @@ async def update_model_instance_by_id(
     token: HTTPAuthorizationCredentials = Depends(auth),
 ):
     model_instance_kg, model_id = await _get_model_instance_by_id(model_instance_id, token)
-    model_project = model_instance_kg.project.resolve(kg_client, api="nexus")
+    model_project = model_instance_kg.project.resolve(kg_client, api="nexus", scope="latest")
     return await _update_model_instance(
         model_instance_kg, model_project, model_instance_patch, token
     )
@@ -421,7 +421,7 @@ async def delete_model_instance_by_id(
     model_instance_id: UUID, token: HTTPAuthorizationCredentials = Depends(auth)
 ):
     model_instance_kg, model_id = await _get_model_instance_by_id(model_instance_id, token)
-    model_project = model_instance_kg.project.resolve(kg_client, api="nexus")
+    model_project = model_instance_kg.project.resolve(kg_client, api="nexus", scope="latest")
     await _delete_model_instance(model_instance_id, model_project)
 
 
@@ -430,7 +430,7 @@ async def delete_model_instance(
     model_id: UUID, model_instance_id: UUID, token: HTTPAuthorizationCredentials = Depends(auth)
 ):
     # todo: handle non-existent UUID
-    model_project = ModelProject.from_uuid(str(model_id), kg_client, api="nexus")
+    model_project = ModelProject.from_uuid(str(model_id), kg_client, api="nexus", scope="latest")
     if not (
         await is_collab_member(model_project.collab_id, token.credentials)
         or await is_admin(token.credentials)

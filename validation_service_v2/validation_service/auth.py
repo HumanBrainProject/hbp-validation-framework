@@ -68,7 +68,7 @@ def get_person_from_token(kg_client, token):
     user_info = get_user_from_token(token.credentials)
     family_name = user_info["family_name"]
     given_name = user_info["given_name"]
-    person = fairgraph.core.Person.list(kg_client, family_name=family_name, given_name=given_name, api="nexus")
+    person = fairgraph.core.Person.list(kg_client, family_name=family_name, given_name=given_name, api="nexus", scope="latest")
     if person:
         if isinstance(person, list):
             logger.error("Found more than one person with this name")

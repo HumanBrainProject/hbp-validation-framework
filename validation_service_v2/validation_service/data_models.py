@@ -654,7 +654,7 @@ class ValidationTest(BaseModel):
             date_created=test_definition.date_created,
             old_uuid=test_definition.old_uuid,
             data_location=[
-                item.resolve(client, api="nexus").result_file.location
+                item.resolve(client, api="nexus", scope="latest").result_file.location
                 for item in as_list(test_definition.reference_data)
             ],
             data_type=test_definition.data_type,
@@ -1211,7 +1211,7 @@ class Simulation(BaseModel):
 
     @classmethod
     def from_kg_object(cls, sim_activity, kg_client):
-        outputs = [output.resolve(kg_client, api="nexus")
+        outputs = [output.resolve(kg_client, api="nexus", scope="latest")
                    for output in as_list(sim_activity.result)]
         config_obj = sim_activity.config.resolve(kg_client, api="nexus", scope="latest")
         if config_obj and config_obj.config_file:
@@ -1255,7 +1255,7 @@ class Simulation(BaseModel):
 
         # check if sim config already exists
         config_identifier = hashlib.sha1(json.dumps(self.configuration).encode("utf-8")).hexdigest()
-        sim_config = fairgraph.brainsimulation.SimulationConfiguration.by_name(config_identifier, kg_client, api="nexus")
+        sim_config = fairgraph.brainsimulation.SimulationConfiguration.by_name(config_identifier, kg_client, api="nexus", scope="latest")
         if not sim_config:
             tmp_config_file = tempfile.NamedTemporaryFile(mode="w", encoding="utf-8", delete=False)
             json.dump(self.configuration, tmp_config_file)
@@ -1270,7 +1270,7 @@ class Simulation(BaseModel):
         kg_objects['config'] = [sim_config]
 
         # get model instance
-        model_instance = fairgraph.brainsimulation.ModelInstance.from_id(str(self.model_instance_id), kg_client, api="nexus")
+        model_instance = fairgraph.brainsimulation.ModelInstance.from_id(str(self.model_instance_id), kg_client, api="nexus", scope="latest")
 
         sim_outputs = []
         n = len(self.outputs)

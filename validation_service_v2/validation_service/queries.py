@@ -149,11 +149,11 @@ def build_result_filters(
 
 def model_alias_exists(alias, client):
     if alias:
-        model_with_same_alias = ModelProject.from_alias(alias, client, api="nexus")
+        model_with_same_alias = ModelProject.from_alias(alias, client, api="nexus", scope="latest")
         return bool(model_with_same_alias)
     return False
 
 
 def test_alias_exists(alias, client):
-    test_with_same_alias = ValidationTestDefinition.from_alias(alias, client, api="nexus")
+    test_with_same_alias = ValidationTestDefinition.from_alias(alias, client, api="nexus", scope="latest")
     return bool(test_with_same_alias)

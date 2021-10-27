@@ -151,7 +151,7 @@ def update_test(
     token: HTTPAuthorizationCredentials = Depends(auth),
 ):
     # retrieve stored test
-    test_definition = ValidationTestDefinition.from_uuid(str(test_id), kg_client, api="nexus")
+    test_definition = ValidationTestDefinition.from_uuid(str(test_id), kg_client, api="nexus", scope="latest")
     stored_test = ValidationTest.from_kg_object(test_definition, kg_client)
     # if alias changed, check uniqueness of new alias
     if (
@@ -184,14 +184,14 @@ def update_test(
 @router.delete("/tests/{test_id}", status_code=status.HTTP_200_OK)
 async def delete_test(test_id: UUID, token: HTTPAuthorizationCredentials = Depends(auth)):
     # todo: handle non-existent UUID
-    test_definition = ValidationTestDefinition.from_uuid(str(test_id), kg_client, api="nexus")
+    test_definition = ValidationTestDefinition.from_uuid(str(test_id), kg_client, api="nexus", scope="latest")
     if not await is_admin(token.credentials):
         # todo: replace this check with a group membership check for Collab v2
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN, detail="Deleting tests is restricted to admins"
         )
     test_definition.delete(kg_client)
-    for test_script in as_list(test_definition.scripts.resolve(kg_client, api="nexus")):
+    for test_script in as_list(test_definition.scripts.resolve(kg_client, api="nexus", scope="latest")):
         test_script.delete(kg_client)
 
 
@@ -202,7 +202,7 @@ def get_test_instances(
     test_definition = _get_test_by_id_or_alias(test_id, token)
     test_instances = [
         ValidationTestInstance.from_kg_object(inst, kg_client)
-        for inst in as_list(test_definition.scripts.resolve(kg_client, api="nexus"))
+        for inst in as_list(test_definition.scripts.resolve(kg_client, api="nexus", scope="latest"))
     ]
     if version:
         test_instances = [inst for inst in test_instances if inst.version == version]
@@ -224,7 +224,7 @@ def get_latest_test_instance_given_test_id(
     test_definition = _get_test_by_id_or_alias(test_id, token)
     test_instances = [
         ValidationTestInstance.from_kg_object(inst, kg_client)
-        for inst in as_list(test_definition.scripts.resolve(kg_client, api="nexus"))
+        for inst in as_list(test_definition.scripts.resolve(kg_client, api="nexus", scope="latest"))
     ]
     if len(test_instances) == 0:
         raise HTTPException(
@@ -240,7 +240,7 @@ def get_test_instance_given_test_id(
     test_id: str, test_instance_id: UUID, token: HTTPAuthorizationCredentials = Depends(auth)
 ):
     test_definition = _get_test_by_id_or_alias(test_id, token)
-    for inst in as_list(test_definition.scripts.resolve(kg_client, api="nexus")):
+    for inst in as_list(test_definition.scripts.resolve(kg_client, api="nexus", scope="latest")):
         if UUID(inst.uuid) == test_instance_id:
             return ValidationTestInstance.from_kg_object(inst, kg_client)
     raise HTTPException(
@@ -285,7 +285,7 @@ def update_test_instance_by_id(
     token: HTTPAuthorizationCredentials = Depends(auth),
 ):
     validation_script = _get_test_instance_by_id(test_instance_id, token)
-    test_definition_kg = validation_script.test_definition.resolve(kg_client, api="nexus")
+    test_definition_kg = validation_script.test_definition.resolve(kg_client, api="nexus", scope="latest")
     return _update_test_instance(validation_script, test_definition_kg, test_instance_patch, token)
 
 
@@ -306,7 +306,7 @@ def update_test_instance(
 
 
 def _check_test_script_uniqueness(test_definition, test_script, kg_client):
-    other_scripts = test_definition.scripts.resolve(kg_client, api="nexus")
+    other_scripts = test_definition.scripts.resolve(kg_client, api="nexus", scope="latest")
     for other_script in as_list(other_scripts):
         if (
             test_script.version == other_script.version
@@ -338,7 +338,7 @@ async def delete_test_instance_by_id(
     test_instance_id: UUID, token: HTTPAuthorizationCredentials = Depends(auth)
 ):
     # todo: handle non-existent UUID, inconsistent test_id and test_instance_id
-    test_script = ValidationScript.from_uuid(str(test_instance_id), kg_client, api="nexus")
+    test_script = ValidationScript.from_uuid(str(test_instance_id), kg_client, api="nexus", scope="latest")
     if not await is_admin(token.credentials):
         # todo: replace this check with a group membership check for Collab v2
         raise HTTPException(
@@ -353,7 +353,7 @@ async def delete_test_instance(
     test_id: str, test_instance_id: UUID, token: HTTPAuthorizationCredentials = Depends(auth)
 ):
     # todo: handle non-existent UUID, inconsistent test_id and test_instance_id
-    test_script = ValidationScript.from_uuid(str(test_instance_id), kg_client, api="nexus")
+    test_script = ValidationScript.from_uuid(str(test_instance_id), kg_client, api="nexus", scope="latest")
     if not await is_admin(token.credentials):
         # todo: replace this check with a group membership check for Collab v2
         raise HTTPException(
