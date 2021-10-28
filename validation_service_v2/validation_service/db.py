@@ -122,12 +122,14 @@ def _get_live_paper_by_id_or_alias(lp_id, scope):
             "scope": "released"
         }
     if isinstance(lp_id, UUID):
+        identifier_type = "ID"
         live_paper = LivePaper.from_uuid(str(lp_id), kg_client, **kwargs)
     else:
+        identifier_type = "alias"
         live_paper = LivePaper.from_alias(lp_id, kg_client, **kwargs)
     if not live_paper:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Live paper with ID or alias '{lp_id}' not found.",
+            detail=f"Live paper with {identifier_type} '{lp_id}' not found.",
         )
     return live_paper
