@@ -21,7 +21,7 @@ RUN unset DEBIAN_FRONTEND
 
 RUN pip3 install --upgrade pip
 
-RUN git clone https://github.com/HumanBrainProject/pyxus.git --branch=pystache-jinja2 --single-branch pyxus_src
+RUN git clone https://github.com/apdavison/pyxus.git --branch=pystache-jinja2 --single-branch pyxus_src
 RUN pip3 install -r pyxus_src/pyxus/requirements.txt; pip install pyxus_src/pyxus
 RUN git clone https://github.com/apdavison/fairgraph.git --branch=master --single-branch
 RUN pip3 install ./fairgraph
