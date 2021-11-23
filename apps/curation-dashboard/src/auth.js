@@ -17,7 +17,12 @@ export default function initAuth(main) {
     console.log('DOM content is loaded, initialising Keycloak client...');
     keycloak
         .init({ flow: 'standard', pkceMethod: 'S256' })
-        .then(() => checkAuth(main))
+        .then(() => 
+        {
+            console.log("A");
+            checkAuth(main);
+            console.log("B");
+        })
         .catch(console.log);
 }
 
@@ -25,7 +30,6 @@ export default function initAuth(main) {
 function checkPermissions(keycloak) {
     return keycloak.loadUserInfo()
         .then((userInfo) => {
-
             if (userInfo.roles.team.includes("collab-model-validation-editor") || userInfo.roles.team.includes("collab-model-validation-administrator")) {
                 keycloak.authorized = true;
             } else {

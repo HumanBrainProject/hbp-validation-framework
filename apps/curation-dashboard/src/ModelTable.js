@@ -242,7 +242,7 @@ export default function ModelTable(props) {
                 setErrorMessage('Error loading models: ', err.message);
                 setLoading(false);
             });
-    }, []);
+    }, [props.auth]);
 
     const handleRequestSort = (event, property, type) => {
         const isAsc = orderBy === property && order === 'asc';

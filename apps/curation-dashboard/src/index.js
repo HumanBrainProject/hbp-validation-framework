@@ -3,7 +3,6 @@ import ReactDOM from 'react-dom';
 import initAuth from './auth';
 import App from './App';
 
-
 function renderApp(auth) {
   ReactDOM.render(
     <React.StrictMode>
