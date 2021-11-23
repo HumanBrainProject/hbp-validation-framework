@@ -17,15 +17,9 @@ export default function initAuth(main) {
     console.log('DOM content is loaded, initialising Keycloak client...');
     keycloak
         .init({ flow: 'standard', pkceMethod: 'S256' })
-        .then(() => 
-        {
-            console.log("A");
-            checkAuth(main);
-            console.log("B");
-        })
+        .then(() => checkAuth(main))
         .catch(console.log);
 }
-
 
 function checkPermissions(keycloak) {
     return keycloak.loadUserInfo()
@@ -37,7 +31,6 @@ function checkPermissions(keycloak) {
             }
         })
 }
-
 
 function checkAuth(main) {
     console.log('Keycloak client is initialised, verifying authentication...');
