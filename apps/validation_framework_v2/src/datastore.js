@@ -450,7 +450,10 @@ class DataStore {
     }
 
     async getResult(resultID, source = null) {
-        if (this.results[resultID]) {
+        if (this.results[resultID] && this.results[resultID].hasOwnProperty('model')) {
+            // results obtained via '/results-summary/' endpoint do not contain
+            // values for model, model_instance, test, test_instance, results_storage
+            // we fetch and store the detailed result JSON here
             return this.results[resultID];
         } else {
             const url = this.baseUrl + "/results-extended/" + resultID;

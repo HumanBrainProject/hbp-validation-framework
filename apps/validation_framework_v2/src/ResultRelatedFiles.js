@@ -224,7 +224,15 @@ class ResultFile extends React.Component {
 
 class ResultRelatedFiles extends React.Component {
     render() {
-        if (this.props.result_files.length === 0) {
+        if (!this.props.result_files) {
+            return (
+                <Typography variant="subtitle1">
+                    <b>
+                        Loading...
+                    </b>
+                </Typography>
+            );
+        } else if (this.props.result_files.length === 0) {
             return (
                 <Typography variant="subtitle1">
                     <b>

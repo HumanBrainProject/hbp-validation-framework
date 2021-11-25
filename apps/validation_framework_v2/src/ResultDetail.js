@@ -21,6 +21,7 @@ import ResultDetailContent from "./ResultDetailContent";
 import ResultRelatedFiles from "./ResultRelatedFiles";
 import ResultModelTestInfo from "./ResultModelTestInfo";
 import { datastore } from "./datastore";
+import { updateHash } from "./globals";
 
 const styles = (theme) => ({
     root: {
@@ -89,11 +90,14 @@ export default class ResultDetail extends React.Component {
             tabValue: 0,
             auth: authContext,
             loading: true,
+            sourceHash: this.props.sourceHash || "" 
         };
 
         this.handleClose = this.handleClose.bind(this);
         this.handleTabChange = this.handleTabChange.bind(this);
         this.getResult = this.getResult.bind(this);
+
+        updateHash("result_id." + this.props.result.id);
 
         if (!this.props.result.model) {
             this.getResult(this.props.result.id);
@@ -139,7 +143,7 @@ export default class ResultDetail extends React.Component {
     }
 
     handleClose() {
-        this.props.onClose();
+        this.props.onClose(this.state.sourceHash);
     }
 
     handleTabChange(event, newValue) {
@@ -148,6 +152,7 @@ export default class ResultDetail extends React.Component {
 
     render() {
         let result = this.props.result;
+        console.log(JSON.parse(JSON.stringify(result)))
         if (!result.model) {
             result.model = {};
             result.model_instance = {};

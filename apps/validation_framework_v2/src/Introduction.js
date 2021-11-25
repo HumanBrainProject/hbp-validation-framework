@@ -128,20 +128,20 @@ function MediaCard(props) {
               />
             </div>
           </CardContent>
-          <CardActions style={{ marginLeft: 5, marginRight: 5 }}>
-            <Button
-              size="small"
-              color="primary"
-              style={{ fontWeight: "bolder" }}
-              onClick={() => {
-                updateHash("model_id." + props.id);
-                window.location.reload();
-              }}
-            >
-              View Model
-            </Button>
-          </CardActions>
         </CardActionArea>
+        <CardActions style={{ marginLeft: 5, marginRight: 5 }}>
+          <Button
+            size="small"
+            color="primary"
+            style={{ fontWeight: "bolder" }}
+            onClick={() => {
+              updateHash("model_id." + props.id);
+              window.location.reload();
+            }}
+          >
+            View Model
+          </Button>
+        </CardActions>
       </Card>
     </Grid>
   );
