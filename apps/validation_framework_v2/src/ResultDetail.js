@@ -152,7 +152,6 @@ export default class ResultDetail extends React.Component {
 
     render() {
         let result = this.props.result;
-        console.log(JSON.parse(JSON.stringify(result)))
         if (!result.model) {
             result.model = {};
             result.model_instance = {};
