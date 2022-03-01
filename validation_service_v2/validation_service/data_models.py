@@ -1447,8 +1447,8 @@ class LivePaper(BaseModel):
     approved_author: PersonWithAffiliation = None
     year: date
     live_paper_title: str
-    associated_paper_title: str
-    journal: str
+    associated_paper_title: str = None
+    journal: str = None
     url: HttpUrl = None
     citation: str = None
     doi: HttpUrl = None
@@ -1521,7 +1521,7 @@ class LivePaper(BaseModel):
             url = None
         lp = fairgraph.livepapers.LivePaper(
             name=self.live_paper_title,
-            title=self.associated_paper_title,
+            title=self.associated_paper_title or self.live_paper_title,
             alias=self.alias,
             description=self.resources_description,
             date_modified=self.modified_date,
@@ -1538,7 +1538,7 @@ class LivePaper(BaseModel):
             doi=self.doi,
             associated_paper_doi=self.associated_paper_doi,
             abstract=self.abstract,
-            license=fairgraph.commons.License(self.license)
+            license=fairgraph.commons.License(self.license) if self.license else None
         )
         if self.id:
             lp.id = lp.__class__.uri_from_uuid(self.id, kg_client)
