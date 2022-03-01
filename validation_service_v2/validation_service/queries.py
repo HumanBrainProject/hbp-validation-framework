@@ -1,12 +1,7 @@
 from itertools import chain
-from fairgraph.brainsimulation import (
-    ModelProject,
-    ValidationTestDefinition,
-    ValidationScript,
-    ModelInstance,
-    MEModel,
-)
+import fairgraph.openminds.core as omcore
 
+from .data_models import term_cache, Species, BrainRegion, CellType, ModelScope, AbstractionLevel
 
 def build_model_project_filters(
     alias,
@@ -19,35 +14,40 @@ def build_model_project_filters(
     abstraction_level,
     author,
     owner,
-    organization,
-    project_id,
-    private,
+    organization
 ):
-    context = {
-        "nsg": "https://bbp-nexus.epfl.ch/vocabs/bbp/neurosciencegraph/core/v0.1.0/",
-        "schema": "http://schema.org/",
+    filter_query = {
+        "study_targets": []
     }
-    filter_query = {"op": "and", "value": []}
-    # todo: handle filter by id
-    for value, path in (
-        # (id, "@id"),  # does this work?
-        (alias, "nsg:alias"),
-        (name, "schema:name"),
-        (brain_region, "nsg:brainRegion / rdfs:label"),
-        (species, "nsg:species / rdfs:label"),
-        (cell_type, "nsg:celltype / rdfs:label"),
-        (model_scope, "nsg:modelOf / rdfs:label"),
-        (abstraction_level, "nsg:abstractionLevel / rdfs:label"),
-        (author, "schema:author / schema:familyName"),
-        (owner, "nsg:owner / schema:familyName"),
-        (organization, "nsg:organization / schema:name"),
-        (project_id, "nsg:collabID"),
-    ):
-        if value is not None and len(value) > 0:
-            filter_query["value"].append({"path": path, "op": "in", "value": value})
-    if private is not None:
-        filter_query["value"].append({"path": "nsg:private", "op": "eq", "value": private})
-    return filter_query, context
+    if id:
+        filter_query["@id"] = id
+    if alias:
+        filter_query["alias"] = alias
+    if name:
+        filter_query["name"] = name
+    if species:
+        filter_query["study_targets"].extend(
+            term_cache["Species"]["names"][name] for name in species)
+    if brain_region:
+        filter_query["study_targets"].extend(
+            term_cache["UBERONParcellation"]["names"][name] for name in brain_region)
+    if cell_type:
+        filter_query["study_targets"].extend(
+            term_cache["CellType"]["names"][name] for name in cell_type)
+    if model_scope:
+        filter_query["model_scope"] = term_cache["ModelScope"]["names"][model_scope].id
+    if abstraction_level:
+        filter_query["abstraction_level"] = term_cache["AbstractionLevel"]["names"][model_scope].id
+    if author:
+        pass
+        #filter_query["developers"] = # TODO: need to first query Person, then use the ids here, or we write a custom query
+    if owner:
+        pass
+    if organization:
+        pass
+    if len(filter_query["study_targets"]) == 0:
+        filter_query.pop("study_targets")
+    return filter_query
 
 
 def build_validation_test_filters(
@@ -64,6 +64,7 @@ def build_validation_test_filters(
     score_type,
     author,
 ):
+    raise NotImplementedError("Not yet migrated")
     context = {
         "nsg": "https://bbp-nexus.epfl.ch/vocabs/bbp/neurosciencegraph/core/v0.1.0/",
         "schema": "http://schema.org/",
@@ -106,6 +107,7 @@ def build_result_filters(
     project_id,
     kg_client,
 ):
+    raise NotImplementedError("Not yet migrated")
     context = {
         "nsg": "https://bbp-nexus.epfl.ch/vocabs/bbp/neurosciencegraph/core/v0.1.0/",
         "schema": "http://schema.org/",
@@ -148,12 +150,19 @@ def build_result_filters(
 
 
 def model_alias_exists(alias, client):
+    # todo: fix this to consider spaces
+    # we probably can't check for global uniqueness across spaces, but we
+    # can check in the "model" space, plus the space defined by the current project_id
+
+    # there would then have to be a check by curators when moving a private model
+    # to "model" and releasing it
     if alias:
-        model_with_same_alias = ModelProject.from_alias(alias, client, api="nexus", scope="latest")
+        model_with_same_alias = omcore.Model.from_alias(alias, client, space="model", scope="latest")
         return bool(model_with_same_alias)
     return False
 
 
 def test_alias_exists(alias, client):
+    raise NotImplementedError("Not yet migrated")
     test_with_same_alias = ValidationTestDefinition.from_alias(alias, client, api="nexus", scope="latest")
     return bool(test_with_same_alias)

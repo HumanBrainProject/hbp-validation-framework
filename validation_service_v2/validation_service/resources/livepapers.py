@@ -8,7 +8,7 @@ from datetime import datetime
 from fastapi import APIRouter, Depends, Header, Query, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from ..auth import (
-    get_kg_client, get_person_from_token, is_collab_member, is_admin,
+    get_kg_client_for_user_account, is_collab_member, is_admin,
     can_view_collab, get_editable_collabs
 )
 from ..data_models import LivePaper, LivePaperSummary, ConsistencyError, AccessCode, Slug
@@ -20,7 +20,6 @@ from fairgraph.base import KGQuery, as_list
 logger = logging.getLogger("validation_service_v2")
 
 auth = HTTPBearer()
-kg_client = get_kg_client()
 router = APIRouter()
 
 
@@ -32,6 +31,11 @@ async def query_live_papers(
     editable: bool = False,
     token: HTTPAuthorizationCredentials = Depends(auth)
 ):
+    raise HTTPException(
+        status_code=status.HTTP_501_NOT_IMPLEMENTED,
+        detail="Not yet migrated",
+    )
+
     lps = fairgraph.livepapers.LivePaper.list(kg_client, api="nexus", size=1000)
     if editable:
         # include only those papers the user can edit
@@ -53,6 +57,11 @@ async def query_live_papers(
 
 @router.get("/livepapers-published/", response_model=List[LivePaperSummary])
 async def query_released_live_papers():
+    raise HTTPException(
+        status_code=status.HTTP_501_NOT_IMPLEMENTED,
+        detail="Not yet migrated",
+    )
+
     lps = fairgraph.livepapers.LivePaper.list(kg_client, api="query", scope="released", size=1000)
     return [
         LivePaperSummary.from_kg_object(lp)
@@ -65,6 +74,11 @@ async def get_live_paper(
     lp_id: Union[UUID, Slug],
     token: HTTPAuthorizationCredentials = Depends(auth)
 ):
+    raise HTTPException(
+        status_code=status.HTTP_501_NOT_IMPLEMENTED,
+        detail="Not yet migrated",
+    )
+
     lp = _get_live_paper_by_id_or_alias(lp_id, scope="in progress")
 
     if lp:
@@ -94,6 +108,11 @@ async def get_live_paper(
 async def get_live_paper(
     lp_id: Union[UUID, Slug]
 ):
+    raise HTTPException(
+        status_code=status.HTTP_501_NOT_IMPLEMENTED,
+        detail="Not yet migrated",
+    )
+
     lp = _get_live_paper_by_id_or_alias(lp_id, scope="released")
     if lp:
         try:
@@ -113,6 +132,11 @@ async def create_live_paper(
     live_paper: LivePaper,
     token: HTTPAuthorizationCredentials = Depends(auth)
 ):
+    raise HTTPException(
+        status_code=status.HTTP_501_NOT_IMPLEMENTED,
+        detail="Not yet migrated",
+    )
+
     logger.info("Beginning post live paper")
     if live_paper.id:
         raise HTTPException(
@@ -158,6 +182,11 @@ async def update_live_paper(
     live_paper: LivePaper,
     token: HTTPAuthorizationCredentials = Depends(auth)
 ):
+    raise HTTPException(
+        status_code=status.HTTP_501_NOT_IMPLEMENTED,
+        detail="Not yet migrated",
+    )
+
     logger.info("Beginning put live paper")
 
     if not (
@@ -208,6 +237,11 @@ async def set_access_code(
     access_code: AccessCode,
     token: HTTPAuthorizationCredentials = Depends(auth)
 ):
+    raise HTTPException(
+        status_code=status.HTTP_501_NOT_IMPLEMENTED,
+        detail="Not yet migrated",
+    )
+
     logger.info("Beginning set access code")
 
     lp = _get_live_paper_by_id_or_alias(lp_id, scope="in progress")

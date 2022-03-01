@@ -25,7 +25,7 @@ Please [login here](https://validation-v2.brainsimulation.eu/login), then copy t
 (this workflow will be simplified in the near future).
 """
 
-app = FastAPI(title="EBRAINS Model Validation Service", description=description, version="2.0")
+app = FastAPI(title="EBRAINS Model Validation Service", description=description, version="2.5")
 
 app.add_middleware(
     SessionMiddleware,

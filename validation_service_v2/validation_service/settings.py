@@ -6,6 +6,7 @@ HBP_IDENTITY_SERVICE_URL_V2 = (
     "https://iam.ebrains.eu/auth/realms/hbp/protocol/openid-connect"
 )
 HBP_COLLAB_SERVICE_URL_V2 = "https://wiki.ebrains.eu/rest/v1/"
+KG_CORE_API_HOST = os.environ.get("KG_CORE_API_HOST")
 KG_SERVICE_ACCOUNT_CLIENT_ID = os.environ.get("KG_SERVICE_ACCOUNT_CLIENT_ID")
 KG_SERVICE_ACCOUNT_SECRET = os.environ.get("KG_SERVICE_ACCOUNT_SECRET")
 EBRAINS_IAM_CONF_URL = "https://iam.ebrains.eu/auth/realms/hbp/.well-known/openid-configuration"

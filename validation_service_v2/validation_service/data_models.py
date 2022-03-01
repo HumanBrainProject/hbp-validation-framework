@@ -22,27 +22,25 @@ from fastapi import HTTPException, status
 
 from fairgraph.base import KGQuery, KGProxy, as_list, IRI, Distribution
 import fairgraph
-import fairgraph.core
-import fairgraph.brainsimulation
+import fairgraph.openminds.core as omcore
+import fairgraph.openminds.computation as omcmp
+import fairgraph.openminds.controlledterms as omterms
 
 from .examples import EXAMPLES
 from .db import (_get_model_by_id_or_alias, _get_model_instance_by_id,
                  _get_test_by_id_or_alias, _get_test_instance_by_id)
-from .auth import get_user_from_token
+from .auth import get_user_from_token, get_kg_client_for_service_account
 
 
-fairgraph.core.use_namespace(fairgraph.brainsimulation.DEFAULT_NAMESPACE)
-fairgraph.software.use_namespace(fairgraph.brainsimulation.DEFAULT_NAMESPACE)
-fairgraph.computing.use_namespace(fairgraph.brainsimulation.DEFAULT_NAMESPACE)
-fairgraph.commons.License.initialize(join(dirname(__file__), "spdx_licences.json"))
-fairgraph.uniminds.ModelInstance.set_strict_mode(False, "abstraction_level")
-fairgraph.brainsimulation.MEModel.set_strict_mode(False, "model_of")
+kg_client = get_kg_client_for_service_account()
+term_cache = {}
+
+omcore.Model.set_strict_mode(False)  # off for all attributes for now, make this more selective once things are working again
+omcore.ModelVersion.set_strict_mode(False)
 logger = logging.getLogger("validation_service_v2")
-
 
 EBRAINS_DRIVE_API = "https://drive.ebrains.eu/api2/"
 
-fairgraph.commons.License.initialize(join(dirname(__file__), "spdx_licences.json"))
 
 def uuid_from_uri(uri):
     return uri.split("/")[-1]
@@ -57,23 +55,56 @@ def ensure_has_timezone(timestamp):
         return timestamp
 
 
+def get_term_cache():
+    if len(term_cache) == 0:
+        for cls in (
+            omterms.Species,  # todo: filter to give a smaller list
+            omterms.UBERONParcellation,
+            omterms.ModelScope,
+            omterms.ModelAbstractionLevel,
+            omterms.CellType,
+            omterms.Technique,  # todo: filter to include only types relevant to model validation
+            omcore.License,
+            omcore.ContentType  # todo: filter to include only types relevant to modelling
+        ):
+            objects = cls.list(kg_client, api="core", scope="latest", size=10000)
+            term_cache[cls.__name__] = {
+                "names": {obj.name: obj for obj in objects},
+                "ids": {obj.id: obj for obj in objects}
+            }
+    return term_cache
+
+get_term_cache()
+
+
 Slug = constr(regex=r"^\w[\w\-]+$", to_lower=True, strip_whitespace=True)
 
 
-class Species(str, Enum):
-    mouse = "Mus musculus"
-    rat = "Rattus norvegicus"
-    human = "Homo sapiens"
-    macaque = "Macaca mulatta"
-    marmoset = "Callithrix jacchus"
-    rodent = "Rodentia"  # yes, not a species
-    opossum = "Monodelphis domestica"
-    platypus = "Ornithorhynchus anatinus"
+# class Species(str, Enum):
+#     mouse = "Mus musculus"
+#     rat = "Rattus norvegicus"
+#     human = "Homo sapiens"
+#     macaque = "Macaca mulatta"
+#     marmoset = "Callithrix jacchus"
+#     rodent = "Rodentia"  # yes, not a species
+#     opossum = "Monodelphis domestica"
+#     platypus = "Ornithorhynchus anatinus"
+
+Species = Enum(
+    "Species",
+    [
+        (name.replace(" ", "_"), name)
+        for name in term_cache["Species"]["names"]
+    ]
+)
 
 
 BrainRegion = Enum(
     "BrainRegion",
-    [(name.replace(" ", "_"), name) for name in fairgraph.commons.BrainRegion.iri_map.keys()],
+    [
+        (name.replace(" ", "_"), name)
+        for name in term_cache["UBERONParcellation"]["names"]
+    ]
 )
 
 
@@ -81,7 +112,7 @@ ModelScope = Enum(
     "ModelScope",
     [
         (name.replace(" ", "_").replace(":", "__"), name)
-        for name in fairgraph.commons.ModelScope.iri_map.keys()
+        for name in term_cache["ModelScope"]["names"]
     ],
 )
 
@@ -90,15 +121,33 @@ AbstractionLevel = Enum(
     "AbstractionLevel",
     [
         (name.replace(" ", "_").replace(":", "__"), name)
-        for name in fairgraph.commons.AbstractionLevel.iri_map.keys()
+        for name in term_cache["ModelAbstractionLevel"]["names"]
     ],
 )
 
 
 CellType = Enum(
     "CellType",
-    [(name.replace(" ", "_"), name) for name in fairgraph.commons.CellType.iri_map.keys()],
+    [
+        (name.replace(" ", "_"), name)
+        for name in term_cache["CellType"]["names"]
+    ]
 )
+
+
+def get_identifier(iri, prefix):
+    """Return a valid Python variable name based on a KG object UUID"""
+    return prefix + "_" + iri.split("/")[-1].replace("-", "")
+
+
+ContentType = Enum(
+    "ContentType",
+    [
+        (get_identifier(obj.uuid, "ct"), obj.name)
+        for obj in term_cache["ContentType"]["names"].values()
+    ]
+)
+
 
 
 class ImplementationStatus(str, Enum):
@@ -119,14 +168,25 @@ class ImplementationStatus(str, Enum):
 #     'json'}
 
 
-class RecordingModality(str, Enum):
-    # todo: get this enum from KG
-    twophoton = "2-photon imaging"
-    em = "electron microscopy"
-    ephys = "electrophysiology"
-    fmri = "fMRI"
-    hist = "histology"
-    ophys = "optical microscopy"
+# class RecordingModality(str, Enum):
+#     # todo: get this enum from KG
+#     twophoton = "2-photon imaging"
+#     em = "electron microscopy"
+#     ephys = "electrophysiology"
+#     fmri = "fMRI"
+#     hist = "histology"
+#     ophys = "optical microscopy"
+
+
+RecordingModality = Enum(
+    "RecordingModality",
+    [
+        (name.replace(" ", "_"), name)
+        for name in term_cache["Technique"]["names"]
+        # or could use ExperimentalApproach
+        # ideally should filter techniques to include only those are recording techniques
+    ]
+)
 
 
 class ValidationTestType(str, Enum):
@@ -146,25 +206,49 @@ class ScoreType(str, Enum):
 
 License = Enum(
     "License",
-    [(name.replace(" ", "_"), name) for name in fairgraph.commons.License.iri_map.keys()],
+    [
+        (name.replace(" ", "_"), name)
+        for name in term_cache["License"]["names"]
+    ]
 )
 
 
 class Person(BaseModel):
+    """A human person responsible for creating a model, running a simulation, etc."""
+
     given_name: str
     family_name: str
-    orcid: str = None   # todo: add this to KG model
+    orcid: str = None
+
+    class Config:
+        schema_extra = {
+            "example": {
+                "family_name": "Destexhe",
+                "given_name": "Alain",
+                "orcid": "https://orcid.org/0000-0001-7405-0455"
+            }
+        }
 
     @classmethod
-    def from_kg_object(cls, p, client):
-        if isinstance(p, KGProxy):
-            pr = p.resolve(client, api="nexus", scope="latest")
-        else:
-            pr = p
-        return cls(given_name=pr.given_name, family_name=pr.family_name)
+    def from_kg_object(cls, person, client):
+        person = person.resolve(client, scope="in progress")
+        orcid = None
+        if person.digital_identifiers:
+            for digid in as_list(person.digital_identifiers):
+                if isinstance(digid, omcore.ORCID):
+                    orcid = digid.identifier
+                    break
+                elif isinstance(digid, KGProxy) and digid.cls == omcore.ORCID:
+                    orcid = digid.resolve(client, scope="in progress").identifier
+                    break
+        return cls(given_name=person.given_name, family_name=person.family_name,
+                   orcid=orcid)
 
-    def to_kg_object(self):
-        return fairgraph.core.Person(family_name=self.family_name, given_name=self.given_name)
+    def to_kg_object(self, client):
+        obj = omcore.Person(family_name=self.family_name, given_name=self.given_name)
+        if self.orcid:
+            obj.digital_identifiers = [omcore.ORCID(identifier=self.orcid)]
+        return obj
 
 
 class ModelInstance(BaseModel):
@@ -188,46 +272,30 @@ class ModelInstance(BaseModel):
 
     @classmethod
     def from_kg_object(cls, instance, client, model_id):
-        if isinstance(instance, KGProxy):
-            instance = instance.resolve(client, api="nexus", scope="latest")
-            if instance is None:
-                raise Exception(f"Instance not found.")
+        instance = instance.resolve(client, scope="latest")
+        alternatives = [
+            mv.resolve(client, scope="latest").homepage
+            for mv in as_list(instance.is_alternative_version_of)
+        ]
+        repository = instance.repository.resolve(client, scope="latest")
+        licenses = [lic.resolve(client, scope="latest") for lic in as_list(instance.licenses)]
         instance_data = {
             "id": instance.uuid,
             "uri": instance.id,
-            "version": instance.version,
+            "version": instance.version_identifier,
             "description": instance.description,
-            "parameters": instance.parameters,
-            "timestamp": ensure_has_timezone(instance.timestamp),
+            "parameters": None,  # todo: get from instance.input_data
+            "timestamp": ensure_has_timezone(instance.release_date),
             "model_id": model_id,
-            "alternatives": []
+            "alternatives": [mv.homepage for mv in alternatives if mv.homepage],
+            "code_format": instance.format.resolve(client, scope="latest").name if instance.format else None,
+            "source": repository.iri.value,
+            "license": licenses[0] if licenses else None,
+            "script_id": None,  # field no-longer used, but kept to maintain backwards-compatibility
+            "hash": getattr(repository.hash, "digest", None)
         }
-        if instance.main_script:
-            main_script = instance.main_script.resolve(client, api="nexus", scope="latest")
-        else:
-            raise Exception(f"main_script unexpectedly not present.\ninstance: {instance}")
-        if main_script:
-            instance_data.update(
-                {
-                    "code_format": main_script.code_format,
-                    "source": main_script.code_location,
-                    "license": main_script.license,
-                    "script_id": main_script.id,  # internal use only
-                    "hash": getattr(main_script.distribution, "digest", None)
-                }
-            )
-        if instance.alternate_of:
-            for alt in as_list(instance.alternate_of):
-                alt_obj = alt.resolve(client, api="nexus", scope="latest")
-                if alt_obj and alt_obj.identifier:
-                    url = f"https://kg.ebrains.eu/search/instances/Model/{alt_obj.identifier}"
-                    instance_data["alternatives"].append(url)
-        if hasattr(instance, "morphology"):
-            morph = instance.morphology.resolve(client, api="nexus", scope="latest")
-            instance_data["morphology"] = morph.morphology_file
-            instance_data["morphology_id"] = morph.id  # internal
-        if hasattr(instance, "e_model"):
-            instance_data["e_model_id"] = instance.e_model.id
+        # instance_data["morphology"] = ?
+        # instance_data["morphology_id"] = ?
         try:
             obj = cls(**instance_data)
         except ValidationError as err:
@@ -235,72 +303,27 @@ class ModelInstance(BaseModel):
             raise
         return obj
 
-    def to_kg_objects(self, model_project):
-        script = fairgraph.brainsimulation.ModelScript(
-            name=f"ModelScript for {model_project.name} @ {self.version}",
-            code_format=self.code_format,
-            code_location=self.source,
-            license=self.license,
+    def to_kg_object(self, model_project):
+        repository = omcore.FileRepository(
+            iri=self.source,
+            #hosted_by=
+            #repository_type=
+            hash=omcore.Hash(algorithm="SHA-1", digest=self.hash)  # are we sure we're using SHA-1
         )
-        if hasattr(self, "script_id"):
-            script.id = self.script_id
-        kg_objects = [script]
-
-        if (
-            model_project.model_of
-            and model_project.model_of.label == "single cell"
-            and self.morphology
-        ):
-            e_model = fairgraph.brainsimulation.EModel(
-                name=f"EModel for {model_project.name} @ {self.version}",
-                brain_region=model_project.brain_region,
-                species=model_project.species,
-                model_of=None,
-                main_script=None,
-                release=None,
-            )
-            if hasattr(self, "e_model_id"):
-                e_model.id = self.e_model_id
-            kg_objects.append(e_model)
-            morph = fairgraph.brainsimulation.Morphology(
-                name=f"Morphology for {model_project.name} @ {self.version}",
-                cell_type=model_project.celltype,
-                morphology_file=self.morphology,
-            )
-            if hasattr(self, "morphology_id"):
-                morph.id = self.morphology_id
-            kg_objects.append(morph)
-            minst = fairgraph.brainsimulation.MEModel(
-                name=f"ModelInstance for {model_project.name} @ {self.version}",
-                description=self.description or "",
-                brain_region=model_project.brain_region,
-                species=model_project.species,
-                model_of=None,
-                main_script=script,
-                e_model=e_model,
-                morphology=morph,
-                version=self.version,
-                parameters=self.parameters,
-                timestamp=ensure_has_timezone(self.timestamp) or datetime.now(timezone.utc),
-                release=None,
-            )
-        else:
-            minst = fairgraph.brainsimulation.ModelInstance(
-                name=f"ModelInstance for {model_project.name} @ {self.version}",
-                description=self.description or "",
-                brain_region=model_project.brain_region,
-                species=model_project.species,
-                model_of=None,
-                main_script=script,
-                version=self.version,
-                parameters=self.parameters,
-                timestamp=ensure_has_timezone(self.timestamp) or datetime.now(timezone.utc),
-                release=None,
-            )
+        # todo: handle morphology
+        minst = omcore.ModelVersion(
+            name=f"ModelInstance for {model_project.name} @ {self.version}",
+            description=self.description or "",
+            version_identifier=self.version,
+            #parameters=
+            format=term_cache["ContentType"]["names"][ContentType(self.code_format)],
+            repository=repository,
+            license=term_cache["License"]["names"][License(self.license)],
+            release_date=self.timestamp.date() if self.timestamp else date.today(),
+        )
         if self.uri:
             minst.id = str(self.uri)
-        kg_objects.append(minst)
-        return kg_objects
+        return minst
 
 
 class ModelInstancePatch(BaseModel):
@@ -324,6 +347,26 @@ class ModelInstancePatch(BaseModel):
 class Image(BaseModel):
     caption: str = None
     url: HttpUrl
+
+
+def is_private(space):
+    return space == "myspace" or space.startswith("collab-")
+
+
+def filter_study_targets(study_targets):
+    cell_types = []
+    brain_regions = []
+    species = []
+    for item in as_list(study_targets):
+        item = item.resolve(kg_client, scope="latest")
+        if isinstance(item, omterms.CellType):
+            cell_types.append(item.name)
+        elif isinstance(item, omterms.UBERONParcellation):
+            brain_regions.append(item.name)
+        elif isinstance(item, omterms.Species):
+            species.append(item.name)
+    return cell_types, brain_regions, species
+
 
 
 class ScientificModel(BaseModel):
@@ -357,55 +400,59 @@ class ScientificModel(BaseModel):
     @classmethod
     def from_kg_object(cls, model_project, client):
         instances = []
-        for inst_obj in as_list(model_project.instances):
-            try:
+        for inst_obj in as_list(model_project.versions):
+            #try:
+                inst_obj = inst_obj.resolve(client, scope="latest")
                 inst = ModelInstance.from_kg_object(inst_obj, client, model_id=model_project.uuid)
-            except Exception as err:
-                logger.warning(f"Problem retrieving model instance {inst_obj.id}: {err}")
-            else:
+            #except Exception as err:
+            #    logger.warning(f"Problem retrieving model instance {inst_obj.id}: {err}")
+            #else:
                 instances.append(inst)
+        cell_types, brain_regions, species = filter_study_targets(model_project.study_targets)
+        if instances:
+            date_created = min(inst.timestamp for inst in instances)
+        else:
+            date_created = None
+        organizations = [org.name for org in as_list(model_project.custodians)
+                         if isinstance(org, omcore.Organization)]
         try:
-            obj = cls(
+            data = dict(
                 id=model_project.uuid,
                 uri=model_project.id,
                 name=model_project.name,
                 alias=model_project.alias,
-                author=[Person.from_kg_object(p, client) for p in as_list(model_project.authors)],
-                owner=[Person.from_kg_object(p, client) for p in as_list(model_project.owners)],
-                project_id=model_project.collab_id,
-                organization=model_project.organization.resolve(client, api="nexus", scope="latest").name
-                if model_project.organization
-                else None,
-                private=model_project.private,
-                cell_type=model_project.celltype.label if model_project.celltype else None,
-                model_scope=model_project.model_of.label if model_project.model_of else None,
-                abstraction_level=model_project.abstraction_level.label
-                if model_project.abstraction_level
-                else None,
-                brain_region=model_project.brain_region.label
-                if model_project.brain_region
-                else None,
-                species=model_project.species.label if model_project.species else None,
+                author=[Person.from_kg_object(p, client)
+                        for p in as_list(model_project.developers)],
+                owner=[Person.from_kg_object(p, client)
+                       for p in as_list(model_project.custodians)
+                       if isinstance(p, omcore.Person)],
+                project_id=model_project.space,
+                organization=organizations[0] if organizations else None,
+                private=is_private(model_project.space),
+                cell_type=cell_types[0] if cell_types else None,
+                model_scope=term_cache["ModelScope"]["ids"][model_project.model_scope.id].name
+                            if model_project.model_scope else None,
+                abstraction_level=term_cache["ModelAbstractionLevel"]["ids"][model_project.abstraction_level.id].name
+                                  if model_project.abstraction_level else None,
+                brain_region=brain_regions[0] if brain_regions else None,
+                species=species[0] if species else None,
                 description=model_project.description,
-                date_created=model_project.date_created,
-                images=as_list(model_project.images),
-                old_uuid=model_project.old_uuid,
+                date_created=date_created,
+                #images=,
+                old_uuid=None,
                 instances=instances,
             )
+            obj = cls(**data)
         except ValidationError as err:
-            logger.error(f"Validation error for data from model project: {model_project}")
+            logger.error(f"Validation error for data from model project: {model_project}\n{data}")
             raise
         return obj
 
-    def to_kg_objects(self):
+    def to_kg_object(self):
         authors = [person.to_kg_object() for person in self.author]
         owners = [person.to_kg_object() for person in self.owner]
-        kg_objects = authors + owners
         if self.organization:
-            org = fairgraph.core.Organization(name=self.organization)
-            kg_objects.append(org)
-        else:
-            org = None
+            owners.append(omcore.Organization(name=self.organization))
 
         def get_ontology_object(cls, value):
             return cls(value.value) if value else None
@@ -419,7 +466,6 @@ class ScientificModel(BaseModel):
             private=self.private,
             collab_id=self.project_id,
             alias=self.alias,
-            organization=org,
             brain_region=get_ontology_object(fairgraph.commons.BrainRegion, self.brain_region),
             species=get_ontology_object(fairgraph.commons.Species, self.species),
             celltype=get_ontology_object(fairgraph.commons.CellType, self.cell_type),
@@ -427,24 +473,20 @@ class ScientificModel(BaseModel):
                 fairgraph.commons.AbstractionLevel, self.abstraction_level
             ),
             model_of=get_ontology_object(fairgraph.commons.ModelScope, self.model_scope),
-            images=jsonable_encoder(self.images),
+            images=jsonable_encoder(self.images)
         )
         if self.uri:
             model_project.id = str(self.uri)
 
         if self.instances:
+            model_versions = []
             for instance in self.instances:
-                kg_objects.extend(instance.to_kg_objects(model_project))
-            model_project.instances = [
-                obj
-                for obj in kg_objects
-                if (
-                    isinstance(obj, fairgraph.brainsimulation.ModelInstance)
-                    and not isinstance(obj, fairgraph.brainsimulation.EModel)
-                )
-            ]
-        kg_objects.append(model_project)
-        return kg_objects
+                model_versions = [
+                    instance.to_kg_objects(model_project)
+                    for instance in self.instances
+                ]
+            model_project.versions = model_versions
+        return model_project
 
 
 class ScientificModelSummary(BaseModel):
@@ -471,30 +513,29 @@ class ScientificModelSummary(BaseModel):
 
     @classmethod
     def from_kg_object(cls, model_project, client):
+        cell_types, brain_regions, species = filter_study_targets(model_project.study_targets)
         try:
             obj = cls(
                 id=model_project.uuid,
                 uri=model_project.id,
                 name=model_project.name,
                 alias=model_project.alias,
-                author=[Person.from_kg_object(p, client) for p in as_list(model_project.authors)],
-                owner=[Person.from_kg_object(p, client) for p in as_list(model_project.owners)],
-                project_id=model_project.collab_id,
-                organization=model_project.organization.resolve(client, api="nexus", scope="latest").name
-                if model_project.organization
-                else None,
-                private=model_project.private,
-                cell_type=model_project.celltype.label if model_project.celltype else None,
-                model_scope=model_project.model_of.label if model_project.model_of else None,
-                abstraction_level=model_project.abstraction_level.label
-                if model_project.abstraction_level
-                else None,
-                brain_region=model_project.brain_region.label
-                if model_project.brain_region
-                else None,
-                species=model_project.species.label if model_project.species else None,
+                author=[Person.from_kg_object(p, client)
+                        for p in as_list(model_project.developers)],
+                owner=[Person.from_kg_object(p, client)
+                       for p in as_list(model_project.custodian)
+                       if isinstance(p, omcore.Person)],
+                project_id=model_project.space,
+                organization=[org.name for org in as_list(model_project.custodian)
+                              if isinstance(org, omcore.Organization)][0],
+                private=is_private(model_project.space),
+                cell_type=cell_types,
+                model_scope=model_project.model_scope.name if model_project.model_scope else None,
+                abstraction_level=model_project.abstraction_level.name if model_project.abstraction_level else None,
+                brain_region=brain_regions,
+                species=species,
                 description=model_project.description,
-                date_created=model_project.date_created,
+                date_created=None,
             )
         except ValidationError as err:
             logger.error(f"Validation error for data from model project: {model_project}")

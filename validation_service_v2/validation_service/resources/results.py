@@ -16,7 +16,7 @@ from fastapi import APIRouter, Depends, Header, Query, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic import ValidationError
 
-from ..auth import get_kg_client, get_user_from_token, is_collab_member, is_admin
+from ..auth import get_kg_client_for_user_account, get_user_from_token, is_collab_member, is_admin
 from ..data_models import ScoreType, ValidationResult, ValidationResultWithTestAndModel, ValidationResultSummary, ConsistencyError
 from ..queries import build_result_filters
 from .. import settings
@@ -25,7 +25,6 @@ from .. import settings
 logger = logging.getLogger("validation_service_v2")
 
 auth = HTTPBearer()
-kg_client = get_kg_client()
 router = APIRouter()
 
 
@@ -47,6 +46,11 @@ def query_results(
     # from header
     token: HTTPAuthorizationCredentials = Depends(auth),
 ):
+    raise HTTPException(
+        status_code=status.HTTP_501_NOT_IMPLEMENTED,
+        detail="Not yet migrated",
+    )
+
     return _query_results(passed, project_id, model_instance_id, test_instance_id, model_id, test_id, model_alias, test_alias, score_type,  size,
 from_index, token)
 
@@ -137,6 +141,11 @@ from_index, token):
 
 @router.get("/results/{result_id}", response_model=ValidationResult)
 def get_result(result_id: UUID, token: HTTPAuthorizationCredentials = Depends(auth)):
+    raise HTTPException(
+        status_code=status.HTTP_501_NOT_IMPLEMENTED,
+        detail="Not yet migrated",
+    )
+
     result = ValidationResultKG.from_uuid(str(result_id), kg_client, api="nexus", scope="latest")
     if result:
         try:
@@ -169,6 +178,11 @@ async def query_results_extended(
     # from header
     token: HTTPAuthorizationCredentials = Depends(auth),
 ):
+    raise HTTPException(
+        status_code=status.HTTP_501_NOT_IMPLEMENTED,
+        detail="Not yet migrated",
+    )
+
     filter_query, context = build_result_filters(
         model_instance_id,
         test_instance_id,
@@ -202,6 +216,11 @@ async def query_results_extended(
 @router.get("/results-extended/{result_id}", response_model=ValidationResultWithTestAndModel)
 async def get_result_extended(result_id: UUID,
                      token: HTTPAuthorizationCredentials = Depends(auth)):
+    raise HTTPException(
+        status_code=status.HTTP_501_NOT_IMPLEMENTED,
+        detail="Not yet migrated",
+    )
+
     result = ValidationResultKG.from_uuid(str(result_id), kg_client, api="nexus", scope="latest")
     if result:
         try:
@@ -235,6 +254,10 @@ async def query_results_summary(
     # from header
     token: HTTPAuthorizationCredentials = Depends(auth),
 ):
+    raise HTTPException(
+        status_code=status.HTTP_501_NOT_IMPLEMENTED,
+        detail="Not yet migrated",
+    )
 
     path = "/modelvalidation/simulation/validationresult/v0.1.0"
     query_id = "vf-summary"
@@ -282,6 +305,11 @@ async def query_results_summary(
 
 @router.post("/results/", response_model=ValidationResult, status_code=status.HTTP_201_CREATED)
 def create_result(result: ValidationResult, token: HTTPAuthorizationCredentials = Depends(auth)):
+    raise HTTPException(
+        status_code=status.HTTP_501_NOT_IMPLEMENTED,
+        detail="Not yet migrated",
+    )
+
     logger.info("Beginning post result")
     kg_objects = result.to_kg_objects(kg_client)
     logger.info("Created objects")
@@ -299,6 +327,11 @@ def create_result(result: ValidationResult, token: HTTPAuthorizationCredentials 
 
 @router.delete("/results/{result_id}", status_code=status.HTTP_200_OK)
 async def delete_result(result_id: UUID, token: HTTPAuthorizationCredentials = Depends(auth)):
+    raise HTTPException(
+        status_code=status.HTTP_501_NOT_IMPLEMENTED,
+        detail="Not yet migrated",
+    )
+
     # todo: handle non-existent UUID
     result = ValidationResultKG.from_uuid(str(result_id), kg_client, api="nexus", scope="latest")
     if not await is_admin(token.credentials):

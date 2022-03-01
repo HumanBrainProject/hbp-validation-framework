@@ -2,7 +2,7 @@ import requests
 import logging
 import json
 
-from fairgraph.client import KGClient
+from fairgraph.client_v3 import KGv3Client as KGClient
 import fairgraph
 
 from fastapi import HTTPException, status
@@ -12,7 +12,7 @@ from . import settings
 
 logger = logging.getLogger("validation_service_v2")
 
-kg_client = None
+kg_client_for_service_account = None
 
 oauth = OAuth()
 
@@ -29,19 +29,22 @@ oauth.register(
 )
 
 
-def get_kg_client():
-    global kg_client
-    if kg_client is None:
-        kg_client = KGClient(
+def get_kg_client_for_service_account():
+    global kg_client_for_service_account
+    if kg_client_for_service_account is None:
+        kg_client_for_service_account = KGClient(
             client_id=settings.KG_SERVICE_ACCOUNT_CLIENT_ID,
             client_secret=settings.KG_SERVICE_ACCOUNT_SECRET,
-            oidc_host=settings.OIDC_HOST,
-            nexus_endpoint=settings.NEXUS_ENDPOINT,
+            host=settings.KG_CORE_API_HOST,
         )
-    return kg_client
+    return kg_client_for_service_account
 
 
-def get_user_from_token(token):
+def get_kg_client_for_user_account(token):
+    return KGClient(token=token, host=settings.KG_CORE_API_HOST)
+
+
+async def get_user_from_token(user_token):
     """
     Get user id with token
     :param request: request
@@ -49,34 +52,17 @@ def get_user_from_token(token):
     :returns: res._content
     :rtype: str
     """
-    url_v2 = f"{settings.HBP_IDENTITY_SERVICE_URL_V2}/userinfo"
-    headers = {"Authorization": f"Bearer {token}"}
-    # logger.debug("Requesting user information for given access token")
-    res = requests.get(url_v2, headers=headers)
-    if res.status_code != 200:
-        raise HTTPException(status_code=401, detail="Invalid token")
-    else:
-        user_info = res.json()
-        logger.debug(user_info)
-        # make this compatible with the v1 json
-        user_info["id"] = user_info["sub"]
-        user_info["username"] = user_info.get("preferred_username", "unknown")
-        return user_info
-
-
-def get_person_from_token(kg_client, token):
-    user_info = get_user_from_token(token.credentials)
-    family_name = user_info["family_name"]
-    given_name = user_info["given_name"]
-    person = fairgraph.core.Person.list(kg_client, family_name=family_name, given_name=given_name, api="nexus", scope="latest")
-    if person:
-        if isinstance(person, list):
-            logger.error("Found more than one person with this name")
-            return None
-        else:
-            return person
-    else:
-        return None
+    # collab v2 only
+    user_info = await oauth.ebrains.user_info(
+        token={"access_token": user_token, "token_type": "bearer"}
+    )
+    if "error" in user_info:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail=user_info["error_description"]
+        )
+    user_info["id"] = user_info["sub"]
+    user_info["username"] = user_info.get("preferred_username", "unknown")
+    return user_info
 
 
 async def get_collab_info(collab_id, user_token):
@@ -92,7 +78,7 @@ async def get_collab_info(collab_id, user_token):
     return response
 
 
-async def get_collab_permissions_v2(collab_id, user_token):
+async def get_collab_permissions(collab_id, user_token):
     userinfo = await oauth.ebrains.userinfo(
         token={"access_token": user_token, "token_type": "bearer"}
     )
@@ -127,7 +113,6 @@ async def is_collab_member(collab_id, user_token):
     try:
         int(collab_id)
     except ValueError:
-        get_collab_permissions = get_collab_permissions_v2
         permissions = await get_collab_permissions(collab_id, user_token)
         return permissions.get("UPDATE", False)
     else:
