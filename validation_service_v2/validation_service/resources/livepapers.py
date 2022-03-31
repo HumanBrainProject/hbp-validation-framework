@@ -63,6 +63,7 @@ async def query_released_live_papers():
 @router.get("/livepapers/{lp_id}", response_model=LivePaper)
 async def get_live_paper(
     lp_id: Union[UUID, Slug],
+    editable: bool = False,
     token: HTTPAuthorizationCredentials = Depends(auth)
 ):
     lp = _get_live_paper_by_id_or_alias(lp_id, scope="in progress")
@@ -75,6 +76,11 @@ async def get_live_paper(
         ):
             try:
                 obj = LivePaper.from_kg_object(lp, kg_client)
+                if editable:
+                    # check if user has privileges to edit this paper
+                    editable_collabs = await get_editable_collabs(token.credentials)
+                    if obj.collab_id not in editable_collabs:
+                        return {}
             except ConsistencyError as err:
                 raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(err))
         else:
