@@ -9,7 +9,7 @@ from fastapi import APIRouter, Depends, Header, Query, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from ..auth import (
     get_kg_client, get_person_from_token, is_collab_member, is_admin,
-    can_view_collab, get_editable_collabs
+    can_view_collab, can_edit_collab, get_editable_collabs
 )
 from ..data_models import LivePaper, LivePaperSummary, ConsistencyError, AccessCode, Slug
 from ..db import _get_live_paper_by_id_or_alias
@@ -70,7 +70,7 @@ async def get_live_paper(
     if lp:
         if (
             token.credentials == lp.access_code
-            or await can_view_collab(lp.collab_id, token.credentials)
+            or await can_edit_collab(lp.collab_id, token.credentials)
             or await is_admin(token.credentials)
         ):
             try:

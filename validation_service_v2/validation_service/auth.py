@@ -152,6 +152,19 @@ async def can_view_collab(collab_id, user_token):
         return False
 
 
+async def can_edit_collab(collab_id, user_token):
+    if collab_id is None:
+        return False
+    try:
+        int(collab_id)
+    except ValueError:
+        get_collab_permissions = get_collab_permissions_v2
+        permissions = await get_collab_permissions(collab_id, user_token)
+        return permissions.get("UPDATE", False)
+    else:
+        return False
+
+
 async def get_editable_collabs(user_token):
     # collab v2 only
     userinfo = await oauth.ebrains.userinfo(
