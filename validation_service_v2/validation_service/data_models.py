@@ -1,10 +1,8 @@
 import os
-from os.path import join, dirname
 from uuid import UUID, uuid5
 from enum import Enum
 from typing import List
 from datetime import datetime, timezone, date
-from itertools import chain
 import logging
 import json
 import tempfile
@@ -12,15 +10,13 @@ import hashlib
 from urllib.parse import urlparse, parse_qs, quote
 
 from dateutil import parser as date_parser
-from pydantic.errors import ColorError
-from pyld.jsonld import _compare_shortest_least
 import requests
 
 from pydantic import BaseModel, HttpUrl, AnyUrl, validator, ValidationError, constr
 from fastapi.encoders import jsonable_encoder
 from fastapi import HTTPException, status
 
-from fairgraph.base import KGQuery, KGProxy, as_list, IRI, Distribution
+from fairgraph.base_v3 import KGProxy, as_list, IRI
 import fairgraph
 import fairgraph.openminds.core as omcore
 import fairgraph.openminds.computation as omcmp
@@ -35,8 +31,6 @@ from .auth import get_user_from_token, get_kg_client_for_service_account
 kg_client = get_kg_client_for_service_account()
 term_cache = {}
 
-omcore.Model.set_strict_mode(False)  # off for all attributes for now, make this more selective once things are working again
-omcore.ModelVersion.set_strict_mode(False)
 logger = logging.getLogger("validation_service_v2")
 
 EBRAINS_DRIVE_API = "https://drive.ebrains.eu/api2/"
@@ -399,10 +393,11 @@ class ScientificModel(BaseModel):
 
     @classmethod
     def from_kg_object(cls, model_project, client):
+        assert model_project.scope is not None
         instances = []
         for inst_obj in as_list(model_project.versions):
             #try:
-                inst_obj = inst_obj.resolve(client, scope="latest")
+                inst_obj = inst_obj.resolve(client, scope=model_project.scope)
                 inst = ModelInstance.from_kg_object(inst_obj, client, model_id=model_project.uuid)
             #except Exception as err:
             #    logger.warning(f"Problem retrieving model instance {inst_obj.id}: {err}")
@@ -413,8 +408,9 @@ class ScientificModel(BaseModel):
             date_created = min(inst.timestamp for inst in instances)
         else:
             date_created = None
-        organizations = [org.name for org in as_list(model_project.custodians)
-                         if isinstance(org, omcore.Organization)]
+        custodians = [c.resolve(client, scope=model_project.scope) 
+                      for c in as_list(model_project.custodians)]
+        organizations = [org.name for org in custodians if isinstance(org, omcore.Organization)]
         try:
             data = dict(
                 id=model_project.uuid,
@@ -424,7 +420,7 @@ class ScientificModel(BaseModel):
                 author=[Person.from_kg_object(p, client)
                         for p in as_list(model_project.developers)],
                 owner=[Person.from_kg_object(p, client)
-                       for p in as_list(model_project.custodians)
+                       for p in custodians
                        if isinstance(p, omcore.Person)],
                 project_id=model_project.space,
                 organization=organizations[0] if organizations else None,

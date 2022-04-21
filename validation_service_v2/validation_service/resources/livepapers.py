@@ -13,8 +13,8 @@ from ..auth import (
 )
 from ..data_models import LivePaper, LivePaperSummary, ConsistencyError, AccessCode, Slug
 from ..db import _get_live_paper_by_id_or_alias
-import fairgraph.livepapers
-from fairgraph.base import KGQuery, as_list
+import fairgraph.openminds.publications as ompub
+from fairgraph.base_v3 import as_list
 
 
 logger = logging.getLogger("validation_service_v2")
@@ -36,18 +36,18 @@ async def query_live_papers(
         detail="Not yet migrated",
     )
 
-    lps = fairgraph.livepapers.LivePaper.list(kg_client, api="nexus", size=1000)
+    lps = ompub.LivePaperVersion.list(kg_client, scope="in progress", size=1000)
     if editable:
         # include only those papers the user can edit
         editable_collabs = await get_editable_collabs(token.credentials)
         accessible_lps = [
-            lp for lp in lps if lp.collab_id in editable_collabs
+            lp for lp in lps if lp.space in editable_collabs
         ]
     else:
         # include all papers the user can view
         accessible_lps = []
         for lp in lps:
-            if await can_view_collab(lp.collab_id, token.credentials):
+            if await can_view_collab(lp.space, token.credentials):
                 accessible_lps.append(lp)
     return [
         LivePaperSummary.from_kg_object(lp)
@@ -62,7 +62,7 @@ async def query_released_live_papers():
         detail="Not yet migrated",
     )
 
-    lps = fairgraph.livepapers.LivePaper.list(kg_client, api="query", scope="released", size=1000)
+    lps = ompub.LivePaperVersion.list(kg_client, scope="released", size=1000)
     return [
         LivePaperSummary.from_kg_object(lp)
         for lp in as_list(lps)
@@ -94,7 +94,7 @@ async def get_live_paper(
         else:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail=f"This account cannot view Collab #{lp.collab_id}",
+                detail=f"This account cannot edit Collab #{lp.collab_id}",
             )
     else:
         raise HTTPException(

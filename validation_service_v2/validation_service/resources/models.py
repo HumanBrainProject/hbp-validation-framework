@@ -1,9 +1,8 @@
 from uuid import UUID
 from typing import List
-from datetime import datetime
 import logging
 
-from fairgraph.base_v3 import KGQueryV3 as KGQuery, as_list
+from fairgraph.base_v3 import as_list
 import fairgraph.openminds.core as omcore
 
 from fastapi import APIRouter, Depends, Query, Path, HTTPException, status
@@ -41,7 +40,6 @@ def about_this_api():
             "documentation": "/docs"
         }
     }
-
 
 
 @router.get("/models/", response_model=List[ScientificModel])
@@ -128,17 +126,25 @@ async def query_models(
         owner,
         organization
     )
-    space = f"collab-{project_id}" if project_id else "model"
-    kg_client = get_kg_client_for_user_account(token.credentials)
-    if len(filter_query) > 0:
-        logger.info("Searching for ModelProject with the following query: {}".format(filter_query))
-        # note that from_index is not currently supported by KGQuery.resolve
-        model_projects = omcore.Model.list(
-            kg_client, size=size, from_index=from_index, api="query", scope="latest",
-            space=space, **filter_query)
+
+    if project_id:
+        spaces = [f"collab-{collab_id}" for collab in project_id]
     else:
-        model_projects = omcore.Model.list(
-            kg_client, size=size, from_index=from_index, api="core", scope="latest")
+        spaces = ["model"]
+    kg_client = get_kg_client_for_user_account(token.credentials)
+
+    model_projects = []
+    for space in spaces:
+        if len(filter_query) > 0:
+            logger.info("Searching for ModelProject with the following query: {}".format(filter_query))
+            # note that from_index is not currently supported by KGQuery.resolve
+            results = omcore.Model.list(
+                kg_client, size=size, from_index=from_index, api="query", scope="latest",
+                space=space, **filter_query)
+        else:
+            results = omcore.Model.list(
+                kg_client, size=size, from_index=from_index, api="core", scope="latest")
+        model_projects.extend(as_list(results))
     if summary:
         cls = ScientificModelSummary
     else:

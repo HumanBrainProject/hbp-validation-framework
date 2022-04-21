@@ -2,8 +2,7 @@ import requests
 import logging
 import json
 
-from fairgraph.client_v3 import KGv3Client as KGClient
-import fairgraph
+from fairgraph import KGClient
 
 from fastapi import HTTPException, status
 from authlib.integrations.starlette_client import OAuth

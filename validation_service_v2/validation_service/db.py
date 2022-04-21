@@ -8,7 +8,7 @@ from time import sleep
 from fastapi import HTTPException, status
 from fairgraph.openminds.core import Model, ModelVersion, SoftwareVersion
 #from fairgraph.openminds.validation import ValidationTestDefinition
-#from fairgraph.openminds.publications import LivePaper
+from fairgraph.openminds.publications import LivePaper
 from .auth import get_user_from_token, is_collab_member, is_admin
 
 
@@ -18,10 +18,12 @@ RETRY_INTERVAL = 60  # seconds
 def _get_model_by_id_or_alias(model_id, kg_client):
     try:
         model_id = UUID(model_id)
-        model_project = Model.from_uuid(str(model_id), kg_client, scope="latest")
+        get_model = Model.from_uuid
     except ValueError:
-        model_alias = str(model_id)
-        model_project = Model.from_alias(model_alias, kg_client, scope="latest")
+        get_model = Model.from_alias
+    model_project = get_model(str(model_id), kg_client, scope="released")
+    if not model_project:
+        model_project = get_model(str(model_id), kg_client, scope="in progress")
     if not model_project:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -104,25 +106,15 @@ def _get_live_paper_by_id_or_alias(lp_id, scope):
         status_code=status.HTTP_501_NOT_IMPLEMENTED,
         detail="Not yet migrated",
     )
-#     if scope in ("latest", "in progress"):
-#         kwargs = {
-#             "api": "nexus",
-#             "scope": "latest"
-#         }
-#     elif scope == "released":
-#         kwargs = {
-#             "api": "query",
-#             "scope": "released"
-#         }
-#     if isinstance(lp_id, UUID):
-#         identifier_type = "ID"
-#         live_paper = LivePaper.from_uuid(str(lp_id), kg_client, **kwargs)
-#     else:
-#         identifier_type = "alias"
-#         live_paper = LivePaper.from_alias(lp_id, kg_client, **kwargs)
-#     if not live_paper:
-#         raise HTTPException(
-#             status_code=status.HTTP_404_NOT_FOUND,
-#             detail=f"Live paper with {identifier_type} '{lp_id}' not found.",
-#         )
-#     return live_paper
+    if isinstance(lp_id, UUID):
+        identifier_type = "ID"
+        live_paper = LivePaper.from_uuid(str(lp_id), kg_client, scope=scope)
+    else:
+        identifier_type = "alias"
+        live_paper = LivePaper.from_alias(lp_id, kg_client, scope=scope)
+    if not live_paper:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Live paper with {identifier_type} '{lp_id}' not found.",
+        )
+    return live_paper

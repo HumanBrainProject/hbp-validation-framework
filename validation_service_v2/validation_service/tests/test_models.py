@@ -9,7 +9,7 @@ from fastapi import status
 import pytest
 
 from ..data_models import BrainRegion, Species
-from .fixtures import _build_sample_model, client, token, AUTH_HEADER
+from .fixtures import _build_sample_model, private_model, released_model, client, token, AUTH_HEADER
 
 
 def check_model(model):
@@ -50,19 +50,19 @@ def assert_is_valid_url(url):
         raise AssertionError
 
 
-def test_get_model_by_id_no_auth():
-    test_ids = ("8fbdf42c-11a1-40c2-8311-a19f294cbc2c", "cb62b56e-bdfa-4016-81cd-c9dbc834cebc")
+def test_get_model_by_id_no_auth(private_model, released_model):
+    test_ids = (private_model.uuid, released_model.uuid)
     for model_uuid in test_ids:
         response = client.get(f"/models/{model_uuid}")
         assert response.status_code == 403
         assert response.json() == {"detail": "Not authenticated"}
 
 
-def test_get_model_by_id(caplog):
+def test_get_model_by_id(private_model, released_model, caplog):
     # caplog.set_level(logging.DEBUG)
     test_ids = (
-        (True, "8fbdf42c-11a1-40c2-8311-a19f294cbc2c"),
-        (False, "cb62b56e-bdfa-4016-81cd-c9dbc834cebc"),
+        (True, private_model.uuid),
+        (False, released_model.uuid),
     )
     for expected_private, model_uuid in test_ids:
         # first is private (but test user has access), second is public

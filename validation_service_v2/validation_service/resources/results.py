@@ -8,8 +8,8 @@ import logging
 import itertools
 from requests.exceptions import HTTPError
 
-from fairgraph.client import KGClient, SCOPE_MAP
-from fairgraph.base import KGQuery, KGProxy, as_list
+from fairgraph.client_v3 import STAGE_MAP
+from fairgraph.base_v3 import KGQuery, as_list
 from fairgraph.brainsimulation import ValidationResult as ValidationResultKG, ValidationActivity
 
 from fastapi import APIRouter, Depends, Header, Query, HTTPException, status
@@ -97,7 +97,7 @@ from_index, token):
     # todo : more sophisticated handling of size and from_index
     path = "/modelvalidation/simulation/validationresult/v0.1.0"
     query_id = "test"  # "vf"
-    scope = SCOPE_MAP["latest"]
+    scope = STAGE_MAP["latest"]
     query_parameters = {
         "start": 0,   #from_index,
         "size": 100000,  #size,
@@ -261,7 +261,7 @@ async def query_results_summary(
 
     path = "/modelvalidation/simulation/validationresult/v0.1.0"
     query_id = "vf-summary"
-    scope = SCOPE_MAP["latest"]
+    scope = STAGE_MAP["latest"]
     query_parameters = {
         "start": 0,   #from_index,
         "size": 100000,  #size,

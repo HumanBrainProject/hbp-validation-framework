@@ -3,7 +3,7 @@ from typing import List
 from datetime import datetime
 import logging
 
-from fairgraph.base import KGQuery, as_list
+from fairgraph.base_v3 import KGQuery, as_list
 from fairgraph.brainsimulation import ValidationTestDefinition, ValidationScript
 
 from fastapi import APIRouter, Depends, Query, HTTPException, status
