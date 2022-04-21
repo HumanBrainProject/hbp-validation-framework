@@ -23,7 +23,8 @@ RUN pip3 install --upgrade pip
 
 RUN git clone https://github.com/apdavison/pyxus.git --branch=pystache-jinja2 --single-branch pyxus_src
 RUN pip3 install -r pyxus_src/pyxus/requirements.txt; pip install pyxus_src/pyxus
-RUN git clone https://github.com/apdavison/fairgraph.git --branch=stable --single-branch
+ADD https://api.github.com/repos/HumanBrainProject/fairgraph/git/refs/heads/master fairgraph_version.json
+RUN git clone https://github.com/HumanBrainProject/fairgraph.git --branch=stable --single-branch
 RUN pip3 install ./fairgraph
 
 ENV SITEDIR /home/docker/site
