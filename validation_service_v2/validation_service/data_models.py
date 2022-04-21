@@ -1375,7 +1375,7 @@ class LivePaperDataItem(BaseModel):
                 identifier=UUID(data_item.identifier)
             )
 
-    def to_kg_object(self, kg_live_paper_section, kg_live_paper):
+    def to_kg_object(self, kg_live_paper_section, kg_live_paper, order=None):
         if self.identifier:
             identifier = self.identifier
         else:
@@ -1390,7 +1390,8 @@ class LivePaperDataItem(BaseModel):
             view_url=self.view_url,
             identifier=str(identifier),
             resource_type=self.type,
-            part_of=kg_live_paper_section
+            part_of=kg_live_paper_section,
+            order=order
         )
 
 
@@ -1413,7 +1414,10 @@ class LivePaperSection(BaseModel):
             icon=section.icon,
             description=section.description,
             data=[LivePaperDataItem.from_kg_object(item, kg_client)
-                  for item in as_list(section.data.resolve(kg_client, api="nexus", scope="latest"))]
+                  for item in sorted(
+                      as_list(section.data.resolve(kg_client, api="nexus", scope="latest")),
+                      key=lambda item: item.order or 0
+                  )]
         )
 
     def to_kg_objects(self, kg_live_paper):
@@ -1425,8 +1429,9 @@ class LivePaperSection(BaseModel):
             description=self.description,
             part_of=kg_live_paper)
         data_items = [obj.to_kg_object(kg_live_paper_section=section,
-                                       kg_live_paper=kg_live_paper)
-                      for obj in self.data]
+                                       kg_live_paper=kg_live_paper,
+                                       order=i)
+                      for i, obj in enumerate(self.data)]
         return [section] + data_items
 
 
