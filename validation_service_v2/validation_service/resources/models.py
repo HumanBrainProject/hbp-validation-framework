@@ -139,11 +139,11 @@ async def query_models(
             logger.info("Searching for ModelProject with the following query: {}".format(filter_query))
             # note that from_index is not currently supported by KGQuery.resolve
             results = omcore.Model.list(
-                kg_client, size=size, from_index=from_index, api="query", scope="latest",
+                kg_client, size=size, from_index=from_index, api="query", scope="in progress",
                 space=space, **filter_query)
         else:
             results = omcore.Model.list(
-                kg_client, size=size, from_index=from_index, api="core", scope="latest")
+                kg_client, size=size, from_index=from_index, api="core", scope="in progress")
         model_projects.extend(as_list(results))
     if summary:
         cls = ScientificModelSummary
@@ -232,7 +232,7 @@ async def update_model(
             detail=f"This account is not a member of Collab #{model_patch.project_id}",
         )
     # retrieve stored model
-    model_project = ModelProject.from_uuid(str(model_id), kg_client, api="nexus", scope="latest")
+    model_project = ModelProject.from_uuid(str(model_id), kg_client, api="nexus", scope="in progress")
     stored_model = ScientificModel.from_kg_object(model_project, kg_client)
     # if retrieved project_id is different to payload id, check permissions for that id
     if stored_model.project_id != model_patch.project_id and not (
@@ -279,7 +279,7 @@ async def delete_model(model_id: UUID, token: HTTPAuthorizationCredentials = Dep
         detail="Not yet migrated",
     )
     # todo: handle non-existent UUID
-    model_project = ModelProject.from_uuid(str(model_id), kg_client, api="nexus", scope="latest")
+    model_project = ModelProject.from_uuid(str(model_id), kg_client, api="nexus", scope="in progress")
     if not (
         await is_collab_member(model_project.collab_id, token.credentials)
         or await is_admin(token.credentials)
@@ -319,7 +319,7 @@ async def get_model_instance_from_instance_id(
     return ModelInstance.from_kg_object(inst, kg_client, model_id)
 
 
-@router.get("/models/{model_id}/instances/latest", response_model=ModelInstance)
+@router.get("/models/{model_id}/instances/in progress", response_model=ModelInstance)
 async def get_latest_model_instance_given_model_id(
     model_id: str, token: HTTPAuthorizationCredentials = Depends(auth)
 ):
@@ -386,7 +386,7 @@ async def create_model_instance(
     # not sure the following is needed.
     # Should just be able to leave the existing model instances as KGProxy objects?
     model_project.instances = [
-        inst.resolve(kg_client, api="nexus", scope="latest") for inst in as_list(model_project.instances)
+        inst.resolve(kg_client, api="nexus", scope="in progress") for inst in as_list(model_project.instances)
     ]
     model_project.instances.append(model_instance_kg)
     model_project.save(kg_client)
@@ -405,7 +405,7 @@ async def update_model_instance_by_id(
     )
     kg_client = get_kg_client_for_user_account(token.credentials)
     model_instance_kg, model_id = await _get_model_instance_by_id(model_instance_id, kg_client)
-    model_project = model_instance_kg.project.resolve(kg_client, api="nexus", scope="latest")
+    model_project = model_instance_kg.project.resolve(kg_client, api="nexus", scope="in progress")
     return await _update_model_instance(
         model_instance_kg, model_project, model_instance_patch, token
     )
@@ -466,7 +466,7 @@ async def delete_model_instance_by_id(
         detail="Not yet migrated",
     )
     model_instance_kg, model_id = await _get_model_instance_by_id(model_instance_id, token)
-    model_project = model_instance_kg.project.resolve(kg_client, api="nexus", scope="latest")
+    model_project = model_instance_kg.project.resolve(kg_client, api="nexus", scope="in progress")
     await _delete_model_instance(model_instance_id, model_project)
 
 
@@ -479,7 +479,7 @@ async def delete_model_instance(
         detail="Not yet migrated",
     )
     # todo: handle non-existent UUID
-    model_project = ModelProject.from_uuid(str(model_id), kg_client, api="nexus", scope="latest")
+    model_project = ModelProject.from_uuid(str(model_id), kg_client, api="nexus", scope="in progress")
     if not (
         await is_collab_member(model_project.collab_id, token.credentials)
         or await is_admin(token.credentials)

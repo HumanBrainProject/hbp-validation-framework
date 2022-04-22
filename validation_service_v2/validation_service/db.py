@@ -21,9 +21,9 @@ def _get_model_by_id_or_alias(model_id, kg_client):
         get_model = Model.from_uuid
     except ValueError:
         get_model = Model.from_alias
-    model_project = get_model(str(model_id), kg_client, scope="released")
+    model_project = get_model(str(model_id), kg_client, scope="in progress")
     if not model_project:
-        model_project = get_model(str(model_id), kg_client, scope="in progress")
+        model_project = get_model(str(model_id), kg_client, scope="released")
     if not model_project:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -34,19 +34,19 @@ def _get_model_by_id_or_alias(model_id, kg_client):
 
 
 def _get_model_instance_by_id(instance_id, kg_client):
-    model_instance = ModelVersion.from_uuid(str(instance_id), kg_client, scope="latest")
+    model_instance = ModelVersion.from_uuid(str(instance_id), kg_client, scope="in progress")
     if model_instance is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Model instance with ID '{instance_id}' not found.",
         )
 
-    model_project = Model.list(kg_client, scope="latest", versions=model_instance)[0]
+    model_project = Model.list(kg_client, scope="in progress", versions=model_instance)[0]
     if not model_project:
         # we could get an empty response if the model_project has just been
         # updated and the KG is not consistent, so we wait and try again
         sleep(RETRY_INTERVAL)
-        model_project = Model.list(kg_client, scope="latest", versions=model_instance)[0]
+        model_project = Model.list(kg_client, scope="in progress", versions=model_instance)[0]
         if not model_project:
             # in case of a dangling model instance, where the parent model_project
             # has been deleted but the instance wasn't

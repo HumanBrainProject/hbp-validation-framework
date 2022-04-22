@@ -61,7 +61,7 @@ def get_term_cache():
             omcore.License,
             omcore.ContentType  # todo: filter to include only types relevant to modelling
         ):
-            objects = cls.list(kg_client, api="core", scope="latest", size=10000)
+            objects = cls.list(kg_client, api="core", scope="in progress", size=10000)
             term_cache[cls.__name__] = {
                 "names": {obj.name: obj for obj in objects},
                 "ids": {obj.id: obj for obj in objects}
@@ -253,7 +253,7 @@ class ModelInstance(BaseModel):
     parameters: str = None  # or dict?
     code_format: str = None
     source: AnyUrl = None  # should be required
-    license: str = None  # use Enum
+    license: License = None  # use Enum
     hash: str = None
     timestamp: datetime = None
     morphology: HttpUrl = None
@@ -266,13 +266,13 @@ class ModelInstance(BaseModel):
 
     @classmethod
     def from_kg_object(cls, instance, client, model_id):
-        instance = instance.resolve(client, scope="latest")
+        instance = instance.resolve(client, scope="in progress")
         alternatives = [
-            mv.resolve(client, scope="latest").homepage
+            mv.resolve(client, scope="in progress").homepage
             for mv in as_list(instance.is_alternative_version_of)
         ]
-        repository = instance.repository.resolve(client, scope="latest")
-        licenses = [lic.resolve(client, scope="latest") for lic in as_list(instance.licenses)]
+        repository = instance.repository.resolve(client, scope="in progress")
+        licenses = [lic.resolve(client, scope="in progress") for lic in as_list(instance.licenses)]
         instance_data = {
             "id": instance.uuid,
             "uri": instance.id,
@@ -282,9 +282,9 @@ class ModelInstance(BaseModel):
             "timestamp": ensure_has_timezone(instance.release_date),
             "model_id": model_id,
             "alternatives": [mv.homepage for mv in alternatives if mv.homepage],
-            "code_format": instance.format.resolve(client, scope="latest").name if instance.format else None,
+            "code_format": instance.format.resolve(client, scope="in progress").name if instance.format else None,
             "source": repository.iri.value,
-            "license": licenses[0] if licenses else None,
+            "license": License(licenses[0].name) if licenses else None,
             "script_id": None,  # field no-longer used, but kept to maintain backwards-compatibility
             "hash": getattr(repository.hash, "digest", None)
         }
@@ -312,7 +312,7 @@ class ModelInstance(BaseModel):
             #parameters=
             format=term_cache["ContentType"]["names"][ContentType(self.code_format)],
             repository=repository,
-            license=term_cache["License"]["names"][License(self.license)],
+            license=term_cache["License"]["names"][self.license],
             release_date=self.timestamp.date() if self.timestamp else date.today(),
         )
         if self.uri:
@@ -352,7 +352,7 @@ def filter_study_targets(study_targets):
     brain_regions = []
     species = []
     for item in as_list(study_targets):
-        item = item.resolve(kg_client, scope="latest")
+        item = item.resolve(kg_client, scope="in progress")
         if isinstance(item, omterms.CellType):
             cell_types.append(item.name)
         elif isinstance(item, omterms.UBERONParcellation):
@@ -667,7 +667,7 @@ class ValidationTest(BaseModel):
         # due to the time it takes for Nexus to become consistent, we add newly saved scripts
         # to the result of the KG query in case they are not yet included
         scripts = {
-            scr.id: scr for scr in as_list(test_definition.scripts.resolve(client, api="nexus", scope="latest"))
+            scr.id: scr for scr in as_list(test_definition.scripts.resolve(client, api="nexus", scope="in progress"))
         }
         if recently_saved_scripts:
             for script in recently_saved_scripts:
@@ -691,7 +691,7 @@ class ValidationTest(BaseModel):
             date_created=test_definition.date_created,
             old_uuid=test_definition.old_uuid,
             data_location=[
-                item.resolve(client, api="nexus", scope="latest").result_file.location
+                item.resolve(client, api="nexus", scope="in progress").result_file.location
                 for item in as_list(test_definition.reference_data)
             ],
             data_type=test_definition.data_type,
@@ -1027,7 +1027,7 @@ class ValidationResult(BaseModel):
     def from_kg_object(cls, result, client):
         if result.generated_by:
             try:
-                validation_activity = result.generated_by.resolve(client, api="nexus", scope="latest")
+                validation_activity = result.generated_by.resolve(client, api="nexus", scope="in progress")
             except Exception as err:
                 raise ConsistencyError from err
         else:
@@ -1040,7 +1040,7 @@ class ValidationResult(BaseModel):
         logger.debug("Additional data for {}:\n{}".format(result.id, result.additional_data))
         additional_data = []
         for item in as_list(result.additional_data):
-            item = item.resolve(client, api="nexus", scope="latest")
+            item = item.resolve(client, api="nexus", scope="in progress")
             if item:
                 additional_data.append(File.from_kg_object(item.result_file))
             else:
@@ -1096,7 +1096,7 @@ class ValidationResult(BaseModel):
         test_code = fairgraph.brainsimulation.ValidationScript.from_id(
             str(self.test_instance_id), kg_client, api="nexus"
         )
-        test_definition = test_code.test_definition.resolve(kg_client, api="nexus", scope="latest")
+        test_definition = test_code.test_definition.resolve(kg_client, api="nexus", scope="in progress")
         model_instance = _get_model_instance_by_id_no_access_check(self.model_instance_id, kg_client)
         reference_data = fairgraph.core.Collection(
             f"Reference data for {test_definition.name}",
@@ -1182,10 +1182,10 @@ class ComputingEnvironment(BaseModel):
 
     @classmethod
     def from_kg_object(cls, env_obj, kg_client):
-        hardware_obj = env_obj.hardware.resolve(kg_client, api="nexus", scope="latest")
+        hardware_obj = env_obj.hardware.resolve(kg_client, api="nexus", scope="in progress")
         dependencies = []
         for dep in as_list(env_obj.software):
-            dep = dep.resolve(kg_client, api="nexus", scope="latest")
+            dep = dep.resolve(kg_client, api="nexus", scope="in progress")
             dependencies.append(
                 SoftwareDependency(name=dep.name, version=dep.version)
             )
@@ -1248,9 +1248,9 @@ class Simulation(BaseModel):
 
     @classmethod
     def from_kg_object(cls, sim_activity, kg_client):
-        outputs = [output.resolve(kg_client, api="nexus", scope="latest")
+        outputs = [output.resolve(kg_client, api="nexus", scope="in progress")
                    for output in as_list(sim_activity.result)]
-        config_obj = sim_activity.config.resolve(kg_client, api="nexus", scope="latest")
+        config_obj = sim_activity.config.resolve(kg_client, api="nexus", scope="in progress")
         if config_obj and config_obj.config_file:
             config = kg_client._nexus_client._http_client.get(config_obj.config_file.location)
         else:
@@ -1261,7 +1261,7 @@ class Simulation(BaseModel):
                     "msg": f"Unable to retrieve config. config_obj={config_obj} config_file={config_obj.config_file.location}"
                 }
             }
-        env_obj = sim_activity.computing_environment.resolve(kg_client, api="nexus", scope="latest")
+        env_obj = sim_activity.computing_environment.resolve(kg_client, api="nexus", scope="in progress")
         if env_obj:
             env = ComputingEnvironment.from_kg_object(env_obj, kg_client)
         else:
@@ -1292,7 +1292,7 @@ class Simulation(BaseModel):
 
         # check if sim config already exists
         config_identifier = hashlib.sha1(json.dumps(self.configuration).encode("utf-8")).hexdigest()
-        sim_config = fairgraph.brainsimulation.SimulationConfiguration.by_name(config_identifier, kg_client, api="nexus", scope="latest")
+        sim_config = fairgraph.brainsimulation.SimulationConfiguration.by_name(config_identifier, kg_client, api="nexus", scope="in progress")
         if not sim_config:
             tmp_config_file = tempfile.NamedTemporaryFile(mode="w", encoding="utf-8", delete=False)
             json.dump(self.configuration, tmp_config_file)
@@ -1307,7 +1307,7 @@ class Simulation(BaseModel):
         kg_objects['config'] = [sim_config]
 
         # get model instance
-        model_instance = fairgraph.brainsimulation.ModelInstance.from_id(str(self.model_instance_id), kg_client, api="nexus", scope="latest")
+        model_instance = fairgraph.brainsimulation.ModelInstance.from_id(str(self.model_instance_id), kg_client, api="nexus", scope="in progress")
 
         sim_outputs = []
         n = len(self.outputs)
@@ -1369,11 +1369,11 @@ class PersonWithAffiliation(BaseModel):
     @classmethod
     def from_kg_object(cls, p, client):
         if isinstance(p, KGProxy):
-            pr = p.resolve(client, api="nexus", scope="latest")
+            pr = p.resolve(client, api="nexus", scope="in progress")
         else:
             pr = p
         if pr.affiliation:
-            affiliation = pr.affiliation.resolve(client, api="nexus", scope="latest").name
+            affiliation = pr.affiliation.resolve(client, api="nexus", scope="in progress").name
         else:
             affiliation = None
         return cls(firstname=pr.given_name, lastname=pr.family_name, affiliation=affiliation)
@@ -1396,7 +1396,7 @@ class LivePaperDataItem(BaseModel):
     @classmethod
     def from_kg_object(cls, data_item, kg_client):
         if isinstance(data_item, KGProxy):
-            data_item = data_item.resolve(kg_client, api="nexus", scope="latest")
+            data_item = data_item.resolve(kg_client, api="nexus", scope="in progress")
         if data_item.resource_type in (None, "URL"):
             return cls(
                 url=data_item.distribution.location,
@@ -1441,7 +1441,7 @@ class LivePaperSection(BaseModel):
     @classmethod
     def from_kg_object(cls, section, kg_client):
         if isinstance(section, KGProxy):
-            section = section.resolve(kg_client, api="nexus", scope="latest")
+            section = section.resolve(kg_client, api="nexus", scope="in progress")
         return cls(
             order=int(section.order),
             type=section.section_type,
@@ -1449,7 +1449,7 @@ class LivePaperSection(BaseModel):
             icon=section.icon,
             description=section.description,
             data=[LivePaperDataItem.from_kg_object(item, kg_client)
-                  for item in as_list(section.data.resolve(kg_client, api="nexus", scope="latest"))]
+                  for item in as_list(section.data.resolve(kg_client, api="nexus", scope="in progress"))]
         )
 
     def to_kg_objects(self, kg_live_paper):
@@ -1533,7 +1533,7 @@ class LivePaper(BaseModel):
             collab_id=lp.collab_id,
             resources_description=lp.description,
             resources=[LivePaperSection.from_kg_object(sec, kg_client)
-                       for sec in as_list(lp.resource_section.resolve(kg_client, api="nexus", scope="latest"))],
+                       for sec in as_list(lp.resource_section.resolve(kg_client, api="nexus", scope="in progress"))],
             id=lp.uuid
         )
 

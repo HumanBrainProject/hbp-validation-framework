@@ -157,12 +157,12 @@ def model_alias_exists(alias, client):
     # there would then have to be a check by curators when moving a private model
     # to "model" and releasing it
     if alias:
-        model_with_same_alias = omcore.Model.from_alias(alias, client, space="model", scope="latest")
+        model_with_same_alias = omcore.Model.from_alias(alias, client, space="model", scope="in progress")
         return bool(model_with_same_alias)
     return False
 
 
 def test_alias_exists(alias, client):
     raise NotImplementedError("Not yet migrated")
-    test_with_same_alias = ValidationTestDefinition.from_alias(alias, client, api="nexus", scope="latest")
+    test_with_same_alias = ValidationTestDefinition.from_alias(alias, client, api="nexus", scope="in progress")
     return bool(test_with_same_alias)

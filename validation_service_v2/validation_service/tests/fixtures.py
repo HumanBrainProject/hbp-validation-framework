@@ -61,8 +61,8 @@ def _build_sample_model():
         "project_id": "model-validation",
         "organization": "HBP-SGA3-WP5",
         "private": True,
-        "species": "Ornithorhynchus anatinus",
-        "brain_region": "hippocampus",
+        "species": "Chlorocebus aethiops sabaeus",
+        "brain_region": "CA1 field of hippocampus",
         "model_scope": "network",
         "abstraction_level": "spiking neurons: point neuron",
         "cell_type": None,
@@ -75,7 +75,7 @@ def _build_sample_model():
                 "parameters": "{'meaning': 42}",
                 "code_format": "Python",
                 "source": "http://example.com/my_code.py",
-                "license": "MIT",
+                "license": "The MIT license",
             }
         ],
     }
