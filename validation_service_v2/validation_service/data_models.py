@@ -800,11 +800,11 @@ class ValidationTestPatch(BaseModel):
 # todo: refactor to eliminate this duplication
 def _get_model_instance_by_id_no_access_check(instance_id, kg_client):
     model_instance = fairgraph.brainsimulation.ModelInstance.from_uuid(
-        str(instance_id), kg_client, api="nexus"
+        str(instance_id), kg_client, api="nexus", scope="latest"
     )
     if model_instance is None:
         model_instance = fairgraph.brainsimulation.MEModel.from_uuid(
-            str(instance_id), kg_client, api="nexus"
+            str(instance_id), kg_client, api="nexus", scope="latest"
         )
     if model_instance is None:
         raise HTTPException(
@@ -1057,7 +1057,7 @@ class ValidationResult(BaseModel):
         kg_objects = additional_data[:]
 
         test_code = fairgraph.brainsimulation.ValidationScript.from_id(
-            str(self.test_instance_id), kg_client, api="nexus"
+            str(self.test_instance_id), kg_client, api="nexus", scope="latest"
         )
         test_definition = test_code.test_definition.resolve(kg_client, api="nexus", scope="latest")
         model_instance = _get_model_instance_by_id_no_access_check(self.model_instance_id, kg_client)

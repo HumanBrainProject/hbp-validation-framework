@@ -128,11 +128,11 @@ async def query_models(
         logger.info("Searching for ModelProject with the following query: {}".format(filter_query))
         # note that from_index is not currently supported by KGQuery.resolve
         model_projects = KGQuery(ModelProject, {"nexus": filter_query}, context).resolve(
-            kg_client, api="nexus", size=size
+            kg_client, api="nexus", size=size, scope="latest"
         )
     else:
         model_projects = ModelProject.list(
-            kg_client, api="nexus", size=size, from_index=from_index
+            kg_client, api="nexus", size=size, from_index=from_index, scope="latest"
         )
     if summary:
         cls = ScientificModelSummary

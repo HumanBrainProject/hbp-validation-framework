@@ -69,9 +69,9 @@ from_index, token):
         logger.info(f"Searching for ValidationResult with the following query: {filter_query}")
         # note that from_index is not currently supported by KGQuery.resolve
         query = KGQuery(ValidationResultKG, {"nexus": filter_query}, context)
-        results = query.resolve(kg_client, api="nexus", size=size)
+        results = query.resolve(kg_client, api="nexus", size=size, scope="latest")
     else:
-        results = ValidationResultKG.list(kg_client, api="nexus", size=size, from_index=from_index)
+        results = ValidationResultKG.list(kg_client, api="nexus", size=size, from_index=from_index, scope="latest")
     response = []
     for result in results:
         try:
@@ -185,9 +185,9 @@ async def query_results_extended(
         logger.info(f"Searching for ValidationResult with the following query: {filter_query}")
         # note that from_index is not currently supported by KGQuery.resolve
         query = KGQuery(ValidationResultKG, {"nexus": filter_query}, context)
-        results = query.resolve(kg_client, api="nexus", size=size)
+        results = query.resolve(kg_client, api="nexus", size=size, scope="latest")
     else:
-        results = ValidationResultKG.list(kg_client, api="nexus", size=size, from_index=from_index)
+        results = ValidationResultKG.list(kg_client, api="nexus", size=size, from_index=from_index, scope="latest")
     response = []
     for result in results:
         try:
