@@ -91,10 +91,10 @@ def query_tests(
         )
         # note that from_index is not currently supported by KGQuery.resolve
         query = KGQuery(ValidationTestDefinition, {"nexus": filter_query}, context)
-        test_definitions = query.resolve(kg_client, api="nexus", size=size)
+        test_definitions = query.resolve(kg_client, api="nexus", size=size, scope="latest")
     else:
         test_definitions = ValidationTestDefinition.list(
-            kg_client, api="nexus", size=size, from_index=from_index
+            kg_client, api="nexus", size=size, from_index=from_index, scope="latest"
         )
     if summary:
         cls = ValidationTestSummary
