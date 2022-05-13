@@ -59,14 +59,14 @@ describe("Comparing models starting from the homepage", () => {
         cy.get("h6").contains("3 models");
         cy.get("button").contains("Compare All").scrollIntoView().click();
         cy.wait(20000);
-        cy.get("td").contains("8.48").click();
+        cy.get("div").contains("8.48").click();
     });
 
     it("should allow us to remove unwanted versions before using Compare Models", () => {
         cy.get("[data-testid=Search-iconButton]").click();
         cy.get("input[type=text]").type("mpg14");
         cy.get("td")
-            .contains("CA1_pyr_cACpyr_mpg141208_B_idA_20170915151855")
+            .contains("CA1_pyr_cACpyr_mpg141209_A_idA_20190328144646")
             .siblings()
             .first()
             .click();
@@ -82,7 +82,7 @@ describe("Comparing models starting from the homepage", () => {
         cy.get("h4").should("contain", "Compare Validation Results");
         cy.get("h6").contains("2 models, 4 model instances");
         cy.get("[role=button]")
-            .contains("CA1_pyr_cACpyr_mpg141208_B_idA_20170915151855")
+            .contains("CA1_pyr_cACpyr_mpg141209_A_idA_20190328144646")
             .click();
         cy.get("button[aria-label=delete]").last().click();
         cy.get("[role=button]")
@@ -93,7 +93,7 @@ describe("Comparing models starting from the homepage", () => {
         cy.get("h6").contains("2 models, 2 model instances");
         cy.get("button").contains("Compare Models").scrollIntoView().click();
         cy.wait(30000);
-        cy.get("td").contains("9.65").click();
+        cy.get("div").contains("9.65").click();
         cy.url().should(
             "equal",
             Cypress.config().baseUrl +
@@ -105,7 +105,7 @@ describe("Comparing models starting from the homepage", () => {
         cy.get("[data-testid=Search-iconButton]").click();
         cy.get("input[type=text]").type("mpg14");
         cy.get("td")
-            .contains("CA1_pyr_cACpyr_mpg141208_B_idA_20170915151855")
+            .contains("CA1_pyr_cACpyr_mpg141209_A_idA_20190328144646")
             .siblings()
             .first()
             .click();
