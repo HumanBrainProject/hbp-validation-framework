@@ -11,4 +11,4 @@ To run development web server::
 To run tests::
 
     $ export VF_TEST_TOKEN=<oidc-access-token>
-    $ pytest validation_service/tests.py
+    $ pytest validation_service/tests

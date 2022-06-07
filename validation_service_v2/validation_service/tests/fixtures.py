@@ -73,7 +73,7 @@ def _build_sample_model():
                 "version": "1.23",
                 "description": "description of this version",
                 "parameters": "{'meaning': 42}",
-                "code_format": "Python",
+                "code_format": "text/x-python",
                 "source": "http://example.com/my_code.py",
                 "license": "The MIT license",
             }

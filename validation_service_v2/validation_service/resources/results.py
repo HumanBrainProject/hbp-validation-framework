@@ -97,7 +97,7 @@ from_index, token):
     # todo : more sophisticated handling of size and from_index
     path = "/modelvalidation/simulation/validationresult/v0.1.0"
     query_id = "test"  # "vf"
-    scope = STAGE_MAP["latest"]
+    scope = STAGE_MAP["in progress"]
     query_parameters = {
         "start": 0,   #from_index,
         "size": 100000,  #size,
@@ -146,7 +146,7 @@ def get_result(result_id: UUID, token: HTTPAuthorizationCredentials = Depends(au
         detail="Not yet migrated",
     )
 
-    result = ValidationResultKG.from_uuid(str(result_id), kg_client, api="nexus", scope="latest")
+    result = ValidationResultKG.from_uuid(str(result_id), kg_client, api="nexus", scope="in progress")
     if result:
         try:
             obj = ValidationResult.from_kg_object(result, kg_client)
@@ -221,7 +221,7 @@ async def get_result_extended(result_id: UUID,
         detail="Not yet migrated",
     )
 
-    result = ValidationResultKG.from_uuid(str(result_id), kg_client, api="nexus", scope="latest")
+    result = ValidationResultKG.from_uuid(str(result_id), kg_client, api="nexus", scope="in progress")
     if result:
         try:
             obj = await ValidationResultWithTestAndModel.from_kg_object(result, kg_client, token)
@@ -261,7 +261,7 @@ async def query_results_summary(
 
     path = "/modelvalidation/simulation/validationresult/v0.1.0"
     query_id = "vf-summary"
-    scope = STAGE_MAP["latest"]
+    scope = STAGE_MAP["in progress"]
     query_parameters = {
         "start": 0,   #from_index,
         "size": 100000,  #size,
@@ -333,7 +333,7 @@ async def delete_result(result_id: UUID, token: HTTPAuthorizationCredentials = D
     )
 
     # todo: handle non-existent UUID
-    result = ValidationResultKG.from_uuid(str(result_id), kg_client, api="nexus", scope="latest")
+    result = ValidationResultKG.from_uuid(str(result_id), kg_client, api="nexus", scope="in progress")
     if not await is_admin(token.credentials):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,

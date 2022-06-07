@@ -41,12 +41,14 @@ def _get_model_instance_by_id(instance_id, kg_client):
             detail=f"Model instance with ID '{instance_id}' not found.",
         )
 
-    model_project = Model.list(kg_client, scope="in progress", versions=model_instance)[0]
+    model_project = Model.list(kg_client, scope="in progress", space=model_instance.space, 
+                               versions=model_instance)
     if not model_project:
         # we could get an empty response if the model_project has just been
         # updated and the KG is not consistent, so we wait and try again
         sleep(RETRY_INTERVAL)
-        model_project = Model.list(kg_client, scope="in progress", versions=model_instance)[0]
+        model_project = Model.list(kg_client, scope="in progress", space=model_instance.space, 
+                                   versions=model_instance)
         if not model_project:
             # in case of a dangling model instance, where the parent model_project
             # has been deleted but the instance wasn't
@@ -54,6 +56,7 @@ def _get_model_instance_by_id(instance_id, kg_client):
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail=f"Model instance with ID '{instance_id}' no longer exists.",
             )
+    model_project = model_project[0]
     return model_instance, model_project.uuid
 
 
@@ -64,10 +67,10 @@ def _get_test_by_id_or_alias(test_id, kg_client):
     )
 #     try:
 #         test_id = UUID(test_id)
-#         test_definition = ValidationTestDefinition.from_uuid(str(test_id), kg_client, api="nexus", scope="latest")
+#         test_definition = ValidationTestDefinition.from_uuid(str(test_id), kg_client, api="nexus", scope="in progress")
 #     except ValueError:
 #         test_alias = test_id
-#         test_definition = ValidationTestDefinition.from_alias(test_alias, kg_client, api="nexus", scope="latest")
+#         test_definition = ValidationTestDefinition.from_alias(test_alias, kg_client, api="nexus", scope="in progress")
 #     if not test_definition:  # None or empty list
 #         raise HTTPException(
 #             status_code=status.HTTP_404_NOT_FOUND,
@@ -87,14 +90,14 @@ def _get_test_instance_by_id(instance_id, kg_client):
         status_code=status.HTTP_501_NOT_IMPLEMENTED,
         detail="Not yet migrated",
     )
-#     test_instance = ValidationScript.from_uuid(str(instance_id), kg_client, api="nexus", scope="latest")
+#     test_instance = ValidationScript.from_uuid(str(instance_id), kg_client, api="nexus", scope="in progress")
 #     if test_instance is None:
 #         raise HTTPException(
 #             status_code=status.HTTP_404_NOT_FOUND,
 #             detail=f"Test instance with ID '{instance_id}' not found.",
 #         )
 
-#     test_definition = test_instance.test_definition.resolve(kg_client, api="nexus", scope="latest")
+#     test_definition = test_instance.test_definition.resolve(kg_client, api="nexus", scope="in progress")
 #     # todo: in case of a dangling test instance, where the parent test_definition
 #     #       has been deleted but the instance wasn't, we could get a None here
 #     #       which we need to deal with

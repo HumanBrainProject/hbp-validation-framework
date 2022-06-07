@@ -71,6 +71,13 @@ def get_term_cache():
 get_term_cache()
 
 
+def get_term(cls_name, attr):
+    if attr:
+        return term_cache[cls_name]["names"].get(attr.value, None)
+    else:
+        return None
+
+
 Slug = constr(regex=r"^\w[\w\-]+$", to_lower=True, strip_whitespace=True)
 
 
@@ -238,7 +245,7 @@ class Person(BaseModel):
         return cls(given_name=person.given_name, family_name=person.family_name,
                    orcid=orcid)
 
-    def to_kg_object(self, client):
+    def to_kg_object(self):
         obj = omcore.Person(family_name=self.family_name, given_name=self.given_name)
         if self.orcid:
             obj.digital_identifiers = [omcore.ORCID(identifier=self.orcid)]
@@ -251,11 +258,11 @@ class ModelInstance(BaseModel):
     version: str
     description: str = None
     parameters: str = None  # or dict?
-    code_format: str = None
+    code_format: ContentType = None
     source: AnyUrl = None  # should be required
     license: License = None  # use Enum
     hash: str = None
-    timestamp: datetime = None
+    timestamp: date = None
     morphology: HttpUrl = None
     model_id: UUID = None  # id of parent model
     alternatives: List[HttpUrl] = None  # alternative representations, e.g. EBRAINS Search, ModelDB
@@ -279,11 +286,11 @@ class ModelInstance(BaseModel):
             "version": instance.version_identifier,
             "description": instance.description,
             "parameters": None,  # todo: get from instance.input_data
-            "timestamp": ensure_has_timezone(instance.release_date),
+            "timestamp": instance.release_date,
             "model_id": model_id,
             "alternatives": [mv.homepage for mv in alternatives if mv.homepage],
-            "code_format": instance.format.resolve(client, scope="in progress").name if instance.format else None,
-            "source": repository.iri.value,
+            "code_format": ContentType(instance.format.resolve(client, scope="in progress").name) if instance.format else None,
+            "source": str(repository.iri),
             "license": License(licenses[0].name) if licenses else None,
             "script_id": None,  # field no-longer used, but kept to maintain backwards-compatibility
             "hash": getattr(repository.hash, "digest", None)
@@ -310,10 +317,10 @@ class ModelInstance(BaseModel):
             description=self.description or "",
             version_identifier=self.version,
             #parameters=
-            format=term_cache["ContentType"]["names"][ContentType(self.code_format)],
+            format=get_term("ContentType", self.code_format),
             repository=repository,
-            license=term_cache["License"]["names"][self.license],
-            release_date=self.timestamp.date() if self.timestamp else date.today(),
+            licenses=get_term("License", self.license),
+            release_date=self.timestamp if self.timestamp else date.today(),
         )
         if self.uri:
             minst.id = str(self.uri)
@@ -328,7 +335,7 @@ class ModelInstancePatch(BaseModel):
     parameters: str = None
     code_format: str = None
     source: HttpUrl = None
-    license: str = None
+    license: License = None
     hash: str = None
     timestamp: datetime = None
     morphology: HttpUrl = None
@@ -383,7 +390,7 @@ class ScientificModel(BaseModel):
     brain_region: BrainRegion = None
     species: Species = None
     description: str
-    date_created: datetime = None
+    date_created: date = None
     images: List[Image] = None
     old_uuid: UUID = None
     instances: List[ModelInstance] = None
@@ -450,27 +457,33 @@ class ScientificModel(BaseModel):
         if self.organization:
             owners.append(omcore.Organization(name=self.organization))
 
-        def get_ontology_object(cls, value):
-            return cls(value.value) if value else None
+        study_targets = []
+        if self.species:
+            species = get_term("Species", self.species)
+            if species:
+                study_targets.append(species)
+        if self.brain_region:
+            brain_region = get_term("UBERONParcellation", self.brain_region)
+            if brain_region:
+                study_targets.append(brain_region)
+        if self.cell_type:
+            cell_type = get_term("CellType", self.cell_type)
+            if cell_type:
+                study_targets.append(cell_type)
 
-        model_project = fairgraph.brainsimulation.ModelProject(
+        model_project = omcore.Model(
             name=self.name,
-            owners=owners,
-            authors=authors,
-            description=self.description,
-            date_created=self.date_created or datetime.now(timezone.utc),
-            private=self.private,
-            collab_id=self.project_id,
             alias=self.alias,
-            brain_region=get_ontology_object(fairgraph.commons.BrainRegion, self.brain_region),
-            species=get_ontology_object(fairgraph.commons.Species, self.species),
-            celltype=get_ontology_object(fairgraph.commons.CellType, self.cell_type),
-            abstraction_level=get_ontology_object(
-                fairgraph.commons.AbstractionLevel, self.abstraction_level
-            ),
-            model_of=get_ontology_object(fairgraph.commons.ModelScope, self.model_scope),
-            images=jsonable_encoder(self.images)
-        )
+            description=self.description,
+            abstraction_level=get_term("ModelAbstractionLevel", self.abstraction_level),
+            model_scope=get_term("ModelScope", self.model_scope),
+            custodians=owners,
+            developers=authors,
+            digital_identifier=None,
+            homepage=None,
+            how_to_cite=None,
+            study_targets=study_targets
+        )        
         if self.uri:
             model_project.id = str(self.uri)
 
@@ -478,7 +491,7 @@ class ScientificModel(BaseModel):
             model_versions = []
             for instance in self.instances:
                 model_versions = [
-                    instance.to_kg_objects(model_project)
+                    instance.to_kg_object(model_project)
                     for instance in self.instances
                 ]
             model_project.versions = model_versions

@@ -8,7 +8,7 @@ import fairgraph.openminds.core as omcore
 from fastapi import APIRouter, Depends, Query, Path, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
-from ..auth import is_collab_member, is_admin, get_kg_client_for_user_account
+from ..auth import is_collab_member, is_admin, get_kg_client_for_user_account, get_kg_client_for_service_account
 from ..db import _get_model_instance_by_id, _get_model_by_id_or_alias
 from ..data_models import (
     Person,
@@ -174,10 +174,6 @@ async def get_model(
 async def create_model(
     model: ScientificModel, token: HTTPAuthorizationCredentials = Depends(auth)
 ):
-    raise HTTPException(
-        status_code=status.HTTP_501_NOT_IMPLEMENTED,
-        detail="Not yet migrated",
-    )
     # check permissions
     if model.project_id is None:
         raise HTTPException(
@@ -191,25 +187,29 @@ async def create_model(
             status_code=status.HTTP_403_FORBIDDEN,
             detail=f"This account is not a member of Collab #{model.project_id}",
         )
-    # check uniqueness of alias
-    if model.alias and model_alias_exists(model.alias, kg_client):
+
+    kg_user_client = get_kg_client_for_user_account(token.credentials)
+    kg_service_client = get_kg_client_for_service_account()
+    # check uniqueness of alias, using service client we can check against aliases of all models
+    if model.alias and model_alias_exists(model.alias, kg_service_client):
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail=f"Another model with alias '{model.alias}' already exists.",
         )
-    kg_objects = model.to_kg_objects()
-    model_project = kg_objects[-1]
-    assert isinstance(model_project, ModelProject)
-    if model_project.exists(kg_client, api="any"):
+    model_project = model.to_kg_object()
+    kg_space = f"collab-{model.project_id}"
+    #if model.description == "RAISE EXCEPTION":
+    #    raise Exception()
+    if model_project.exists(kg_user_client) or model_project.exists(kg_user_client, space=kg_space):
         # see https://stackoverflow.com/questions/3825990/http-response-code-for-post-when-resource-already-exists
         # for a discussion of the most appropriate status code to use here
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail=f"Another model with the same name and timestamp already exists.",
+            detail=f"Another model with the same name already exists.",
         )
-    for obj in kg_objects:
-        obj.save(kg_client)
-    return ScientificModel.from_kg_object(model_project, kg_client)
+    model_project.save(kg_user_client, space=kg_space, recursive=True)
+    model_project.scope = "in progress"
+    return ScientificModel.from_kg_object(model_project, kg_user_client)
 
 
 @router.put("/models/{model_id}", response_model=ScientificModel, status_code=status.HTTP_200_OK)
@@ -218,10 +218,6 @@ async def update_model(
     model_patch: ScientificModelPatch,
     token: HTTPAuthorizationCredentials = Depends(auth),
 ):
-    raise HTTPException(
-        status_code=status.HTTP_501_NOT_IMPLEMENTED,
-        detail="Not yet migrated",
-    )
     # if payload contains a project_id, check permissions for that id
     if model_patch.project_id and not (
         await is_collab_member(model_patch.project_id, token.credentials)
@@ -231,9 +227,13 @@ async def update_model(
             status_code=status.HTTP_403_FORBIDDEN,
             detail=f"This account is not a member of Collab #{model_patch.project_id}",
         )
+
+    kg_user_client = get_kg_client_for_user_account(token.credentials)
+    kg_service_client = get_kg_client_for_service_account()
+
     # retrieve stored model
-    model_project = ModelProject.from_uuid(str(model_id), kg_client, api="nexus", scope="in progress")
-    stored_model = ScientificModel.from_kg_object(model_project, kg_client)
+    model_project = omcore.Model.from_uuid(str(model_id), kg_user_client, scope="in progress")
+    stored_model = ScientificModel.from_kg_object(model_project, kg_user_client)
     # if retrieved project_id is different to payload id, check permissions for that id
     if stored_model.project_id != model_patch.project_id and not (
         await is_collab_member(stored_model.project_id, token.credentials)
@@ -247,7 +247,7 @@ async def update_model(
     if (
         model_patch.alias
         and model_patch.alias != stored_model.alias
-        and model_alias_exists(model_patch.alias, kg_client)
+        and model_alias_exists(model_patch.alias, kg_service_client)
     ):
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
@@ -264,33 +264,29 @@ async def update_model(
         if field in ("author", "owner"):
             update_data[field] = [Person(**p) for p in update_data[field]]
     updated_model = stored_model.copy(update=update_data)
-    kg_objects = updated_model.to_kg_objects()
-    for obj in kg_objects:
-        obj.save(kg_client)
-    model_project = kg_objects[-1]
-    assert isinstance(model_project, ModelProject)
-    return ScientificModel.from_kg_object(model_project, kg_client)
+    updated_model_project = updated_model.to_kg_object()
+    updated_model_project.save(kg_user_client, space=model_project.space, recursive=True)
+    updated_model_project.scope = "in progress"
+    return ScientificModel.from_kg_object(updated_model_project, kg_user_client)
 
 
 @router.delete("/models/{model_id}", status_code=status.HTTP_200_OK)
 async def delete_model(model_id: UUID, token: HTTPAuthorizationCredentials = Depends(auth)):
-    raise HTTPException(
-        status_code=status.HTTP_501_NOT_IMPLEMENTED,
-        detail="Not yet migrated",
-    )
     # todo: handle non-existent UUID
-    model_project = ModelProject.from_uuid(str(model_id), kg_client, api="nexus", scope="in progress")
+    kg_client = get_kg_client_for_user_account(token.credentials)
+    model_project = omcore.Model.from_uuid(str(model_id), kg_client, scope="in progress")
+    collab_id = model_project.space[len("collab-"):]
     if not (
-        await is_collab_member(model_project.collab_id, token.credentials)
+        await is_collab_member(collab_id, token.credentials)
         or await is_admin(token.credentials)
     ):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail=f"Access to this model is restricted to members of Collab #{model_project.collab_id}",
+            detail=f"Access to this model is restricted to members of Collab #{collab_id}",
         )
     model_project.delete(kg_client)
-    for model_instance in as_list(model_project.instances):
-        # todo: we should possibly also delete emodels, modelscripts, morphologies,
+    for model_instance in as_list(model_project.versions):
+        # todo: we should possibly also delete repositories,
         # but need to check they're not shared with other instances
         model_instance.delete(kg_client)
 
@@ -303,7 +299,7 @@ async def get_model_instances(
     model_project = _get_model_by_id_or_alias(model_id, kg_client)
     model_instances = [
         ModelInstance.from_kg_object(inst, kg_client, model_project.uuid)
-        for inst in as_list(model_project.instances)
+        for inst in as_list(model_project.versions)
     ]
     if version is not None:
         model_instances = [inst for inst in model_instances if inst.version == version]
@@ -327,7 +323,7 @@ async def get_latest_model_instance_given_model_id(
     model_project = _get_model_by_id_or_alias(model_id, kg_client)
     model_instances = [
         ModelInstance.from_kg_object(inst, kg_client, model_project.uuid)
-        for inst in as_list(model_project.instances)
+        for inst in as_list(model_project.versions)
     ]
     latest = sorted(model_instances, key=lambda inst: inst["timestamp"])[-1]
     return latest
@@ -338,8 +334,8 @@ async def get_model_instance_given_model_id(
     model_id: str, model_instance_id: UUID, token: HTTPAuthorizationCredentials = Depends(auth)
 ):
     kg_client = get_kg_client_for_user_account(token.credentials)
-    model_project = _get_model_by_id_or_alias(model_id, token)
-    for inst in as_list(model_project.instances):
+    model_project = _get_model_by_id_or_alias(model_id, kg_client)
+    for inst in as_list(model_project.versions):
         if UUID(inst.uuid) == model_instance_id:
             return ModelInstance.from_kg_object(inst, kg_client, model_project.uuid)
     raise HTTPException(
@@ -358,39 +354,35 @@ async def create_model_instance(
     model_instance: ModelInstance,
     token: HTTPAuthorizationCredentials = Depends(auth),
 ):
-    raise HTTPException(
-        status_code=status.HTTP_501_NOT_IMPLEMENTED,
-        detail="Not yet migrated",
-    )
-    model_project = await _get_model_by_id_or_alias(model_id, token)
+    kg_user_client = get_kg_client_for_user_account(token.credentials)
+    model_project = _get_model_by_id_or_alias(model_id, kg_user_client)
     # check permissions for this model
-    if model_project.collab_id and not (
-        await is_collab_member(model_project.collab_id, token.credentials)
+    if model_project.space is None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, 
+            detail=f"Unable to determine access permissions - please contact EBRAINS support"
+        )
+    collab_id = model_project.space[len("collab-"):]
+    if not (
+        await is_collab_member(collab_id, token.credentials)
         or await is_admin(token.credentials)
     ):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail=f"This account is not a member of Collab #{model_project.project_id}",
         )
-    kg_objects = model_instance.to_kg_objects(model_project)
-    model_instance_kg = kg_objects[-1]
+    model_instance_kg = model_instance.to_kg_object(model_project)
     # check if an identical model instance already exists, raise an error if so
-    if model_instance_kg.exists(kg_client, api="any"):
+    if model_instance_kg.exists(kg_user_client, space=model_project.space):
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail=f"Another model instance with the same name already exists.",
         )
     # otherwise save to KG
-    for obj in kg_objects:
-        obj.save(kg_client)
-    # not sure the following is needed.
-    # Should just be able to leave the existing model instances as KGProxy objects?
-    model_project.instances = [
-        inst.resolve(kg_client, api="nexus", scope="in progress") for inst in as_list(model_project.instances)
-    ]
-    model_project.instances.append(model_instance_kg)
-    model_project.save(kg_client)
-    return ModelInstance.from_kg_object(model_instance_kg, kg_client, model_project.uuid)
+    model_instance_kg.save(kg_user_client, space=model_project.space, recursive=True)
+    model_project.versions = as_list(model_project.versions) + [model_instance_kg]
+    model_project.save(kg_user_client, recursive=False)
+    return ModelInstance.from_kg_object(model_instance_kg, kg_user_client, model_project.uuid)
 
 
 @router.put("/models/query/instances/{model_instance_id}", response_model=ModelInstance)
@@ -399,13 +391,9 @@ async def update_model_instance_by_id(
     model_instance_patch: ModelInstancePatch,
     token: HTTPAuthorizationCredentials = Depends(auth),
 ):
-    raise HTTPException(
-        status_code=status.HTTP_501_NOT_IMPLEMENTED,
-        detail="Not yet migrated",
-    )
-    kg_client = get_kg_client_for_user_account(token.credentials)
-    model_instance_kg, model_id = await _get_model_instance_by_id(model_instance_id, kg_client)
-    model_project = model_instance_kg.project.resolve(kg_client, api="nexus", scope="in progress")
+    kg_user_client = get_kg_client_for_user_account(token.credentials)
+    model_instance_kg, model_id = _get_model_instance_by_id(model_instance_id, kg_user_client)
+    model_project = _get_model_by_id_or_alias(model_id, kg_user_client)
     return await _update_model_instance(
         model_instance_kg, model_project, model_instance_patch, token
     )
@@ -422,12 +410,10 @@ async def update_model_instance(
     model_instance_patch: ModelInstancePatch,
     token: HTTPAuthorizationCredentials = Depends(auth),
 ):
-    raise HTTPException(
-        status_code=status.HTTP_501_NOT_IMPLEMENTED,
-        detail="Not yet migrated",
-    )
-    model_instance_kg, model_id = await _get_model_instance_by_id(model_instance_id, token)
-    model_project = await _get_model_by_id_or_alias(model_id, token)
+    kg_user_client = get_kg_client_for_user_account(token.credentials)
+    model_instance_kg, retrieved_model_id = _get_model_instance_by_id(model_instance_id, kg_user_client)
+    assert model_id == retrieved_model_id
+    model_project = _get_model_by_id_or_alias(model_id, kg_user_client)
     return await _update_model_instance(
         model_instance_kg, model_project, model_instance_patch, token
     )
@@ -435,8 +421,14 @@ async def update_model_instance(
 
 async def _update_model_instance(model_instance_kg, model_project, model_instance_patch, token):
     # check permissions for this model
-    if model_project.collab_id and not (
-        await is_collab_member(model_project.collab_id, token.credentials)
+    if model_project.space is None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, 
+            detail=f"Unable to determine access permissions - please contact EBRAINS support"
+        )
+    collab_id = model_project.space[len("collab-"):]
+    if not (
+        await is_collab_member(collab_id, token.credentials)
         or await is_admin(token.credentials)
     ):
         raise HTTPException(
@@ -444,65 +436,67 @@ async def _update_model_instance(model_instance_kg, model_project, model_instanc
             detail=f"This account is not a member of Collab #{model_project.project_id}",
         )
 
+    kg_user_client = get_kg_client_for_user_account(token.credentials)
     stored_model_instance = ModelInstance.from_kg_object(
-        model_instance_kg, kg_client, model_project.uuid
+        model_instance_kg, kg_user_client, model_project.uuid
     )
     update_data = model_instance_patch.dict(exclude_unset=True)
     updated_model_instance = stored_model_instance.copy(update=update_data)
-    kg_objects = updated_model_instance.to_kg_objects(model_project)
-    for obj in kg_objects:
-        obj.save(kg_client)
-    model_instance_kg = kg_objects[-1]
-    assert isinstance(model_instance_kg, (ModelInstanceKG, MEModel))
-    return ModelInstance.from_kg_object(model_instance_kg, kg_client, model_project.uuid)
+    model_instance_kg = updated_model_instance.to_kg_object(model_project)
+    model_instance_kg.save(kg_user_client, space=model_project.space, recursive=True)
+    return ModelInstance.from_kg_object(model_instance_kg, kg_user_client, model_project.uuid)
 
 
 @router.delete("/models/query/instances/{model_instance_id}", status_code=status.HTTP_200_OK)
 async def delete_model_instance_by_id(
     model_instance_id: UUID, token: HTTPAuthorizationCredentials = Depends(auth)
 ):
-    raise HTTPException(
-        status_code=status.HTTP_501_NOT_IMPLEMENTED,
-        detail="Not yet migrated",
-    )
-    model_instance_kg, model_id = await _get_model_instance_by_id(model_instance_id, token)
-    model_project = model_instance_kg.project.resolve(kg_client, api="nexus", scope="in progress")
-    await _delete_model_instance(model_instance_id, model_project)
-
-
-@router.delete("/models/{model_id}/instances/{model_instance_id}", status_code=status.HTTP_200_OK)
-async def delete_model_instance(
-    model_id: UUID, model_instance_id: UUID, token: HTTPAuthorizationCredentials = Depends(auth)
-):
-    raise HTTPException(
-        status_code=status.HTTP_501_NOT_IMPLEMENTED,
-        detail="Not yet migrated",
-    )
-    # todo: handle non-existent UUID
-    model_project = ModelProject.from_uuid(str(model_id), kg_client, api="nexus", scope="in progress")
+    kg_user_client = get_kg_client_for_user_account(token.credentials)
+    model_instance_kg, model_id = _get_model_instance_by_id(model_instance_id, kg_user_client)
+    model_project = _get_model_by_id_or_alias(model_id, kg_user_client)
+    collab_id = model_project.space[len("collab-"):]
     if not (
-        await is_collab_member(model_project.collab_id, token.credentials)
+        await is_collab_member(collab_id, token.credentials)
         or await is_admin(token.credentials)
     ):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail=f"Access to this model is restricted to members of Collab #{model_project.collab_id}",
         )
-    await _delete_model_instance(model_instance_id, model_project)
+    await _delete_model_instance(model_instance_id, model_project, kg_user_client)
 
 
-async def _delete_model_instance(model_instance_id, model_project):
-    raise HTTPException(
-        status_code=status.HTTP_501_NOT_IMPLEMENTED,
-        detail="Not yet migrated",
-    )
-    model_instances = as_list(model_project.instances)
+@router.delete("/models/{model_id}/instances/{model_instance_id}", status_code=status.HTTP_200_OK)
+async def delete_model_instance(
+    model_id: UUID, model_instance_id: UUID, token: HTTPAuthorizationCredentials = Depends(auth)
+):
+    # todo: handle non-existent UUID
+    kg_user_client = get_kg_client_for_user_account(token.credentials)
+    model_instance_kg, model_id = _get_model_instance_by_id(model_instance_id, kg_user_client)
+    model_project = _get_model_by_id_or_alias(model_id, kg_user_client)
+    collab_id = model_project.space[len("collab-"):]
+    if not (
+        await is_collab_member(collab_id, token.credentials)
+        or await is_admin(token.credentials)
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=f"Access to this model is restricted to members of Collab #{model_project.collab_id}",
+        )
+    await _delete_model_instance(model_instance_id, model_project, kg_user_client)
+
+
+async def _delete_model_instance(model_instance_id, model_project, kg_user_client):
+    model_instances = as_list(model_project.versions)
+    n_start = len(model_instances)
     for model_instance in model_instances[:]:
-        # todo: we should possibly also delete emodels, modelscripts, morphologies,
+        # todo: we should possibly also delete child objects (repository, etc.),
         # but need to check they're not shared with other instances
         if model_instance.uuid == str(model_instance_id):
-            model_instance.delete(kg_client)
+            model_instance.delete(kg_user_client, ignore_not_found=False)
             model_instances.remove(model_instance)
             break
-        model_project.instances = model_instances
-        model_project.save(kg_client)
+    if n_start > 0:
+        assert len(model_instances) == n_start - 1
+    model_project.versions = model_instances
+    model_project.save(kg_user_client, recursive=False)

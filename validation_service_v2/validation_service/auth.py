@@ -129,7 +129,6 @@ async def can_view_collab(collab_id, user_token):
     try:
         int(collab_id)
     except ValueError:
-        get_collab_permissions = get_collab_permissions_v2
         permissions = await get_collab_permissions(collab_id, user_token)
         return permissions.get("VIEW", False)
     else:

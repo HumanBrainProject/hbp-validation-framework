@@ -318,7 +318,7 @@ def test_create_model_without_collab_membership():
 
 
 def test_create_duplicate_model(caplog):
-    # Creating two models with the same name and date_created fields is not allowed
+    # Creating two models with the same name field is not allowed
     # caplog.set_level(logging.INFO)
     payload = _build_sample_model()
     # create
@@ -327,12 +327,10 @@ def test_create_duplicate_model(caplog):
     posted_model = response.json()
     check_model(posted_model)
 
-    # try to create the same again, copying the date_created from the original
-    payload["date_created"] = posted_model["date_created"]
     response = client.post(f"/models/", json=payload, headers=AUTH_HEADER)
     assert response.status_code == status.HTTP_409_CONFLICT
     assert response.json() == {
-        "detail": "Another model with the same name and timestamp already exists."
+        "detail": "Another model with the same name already exists."
     }
 
     # delete first model
@@ -490,9 +488,9 @@ def test_create_model_instance():
         "version": "1.3",
         "description": "description of this version",
         "parameters": "{'meaning': 42.01}",
-        "code_format": "Python",
+        "code_format": "text/x-python",
         "source": "http://example.com/my_code.py",
-        "license": "MIT",
+        "license": "The MIT license",
     }
     response = client.post(f"/models/{model_uuid}/instances/", json=payload2, headers=AUTH_HEADER)
     assert response.status_code == status.HTTP_201_CREATED
@@ -524,7 +522,7 @@ def test_update_model_instance():
     payload2 = {
         "description": "a more detailed description of this version",
         "source": "http://example.com/my_code_in_a_new_location.py",
-        "license": "BSD",
+        "license": "The 3-Clause BSD License",
     }
     response = client.put(
         f"/models/{model_uuid}/instances/{model_instance_uuid}", json=payload2, headers=AUTH_HEADER
@@ -562,7 +560,7 @@ def test_update_model_instance_without_model_id():
     payload2 = {
         "description": "a more detailed description of this version",
         "source": "http://example.com/my_code_in_a_new_location.py",
-        "license": "BSD",
+        "license": "The 3-Clause BSD License",
     }
     response = client.put(
         f"/models/query/instances/{model_instance_uuid}", json=payload2, headers=AUTH_HEADER
@@ -618,9 +616,9 @@ def test_delete_model_instance(caplog):
             "version": "1.3",
             "description": "description of this version",
             "parameters": "{'meaning': sqrt(42)}",
-            "code_format": "Python",
+            "code_format": "text/x-python",
             "source": "http://example.com/my_code_2.py",
-            "license": "MIT",
+            "license": "The MIT license",
         }
     )
     response = client.post(f"/models/", json=payload, headers=AUTH_HEADER)

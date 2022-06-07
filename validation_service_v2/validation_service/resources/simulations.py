@@ -56,7 +56,7 @@ def query_simulations(
 
     model_instances = []
     if model_instance_id:
-        model_instance = fairgraph.brainsimulation.ModelInstance.from_uuid(str(model_instance_id), kg_client, api="nexus", scope="latest")
+        model_instance = fairgraph.brainsimulation.ModelInstance.from_uuid(str(model_instance_id), kg_client, api="nexus", scope="in progress")
         # todo: handle MEModel, not just ModelInstance
         # todo: if model_id is given, check if it is consistent and return an error if not
         if model_instance:
@@ -67,7 +67,7 @@ def query_simulations(
                 detail=f"Model instance with id {model_instance_id} not found.",
             )
     elif model_id:
-        model_project = fairgraph.brainsimulation.ModelProject.from_uuid(str(model_id), kg_client, api="nexus", scope="latest")
+        model_project = fairgraph.brainsimulation.ModelProject.from_uuid(str(model_id), kg_client, api="nexus", scope="in progress")
         model_instances = as_list(model_project.instances)
     if len(model_instances) > 0:
         simulations = []
@@ -86,7 +86,7 @@ def get_simulation(simulation_id: UUID, token: HTTPAuthorizationCredentials = De
         detail="Not yet migrated",
     )
 
-    simulation_activity = fairgraph.brainsimulation.Simulation.from_uuid(str(simulation_id), kg_client, api="nexus", scope="latest")
+    simulation_activity = fairgraph.brainsimulation.Simulation.from_uuid(str(simulation_id), kg_client, api="nexus", scope="in progress")
     if simulation_activity:
         try:
             obj = Simulation.from_kg_object(simulation_activity, kg_client)
