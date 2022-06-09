@@ -1,5 +1,6 @@
 from itertools import chain
 import fairgraph.openminds.core as omcore
+import fairgraph.openminds.computation as omcmp
 
 from .data_models import term_cache, Species, BrainRegion, CellType, ModelScope, AbstractionLevel
 
@@ -64,28 +65,40 @@ def build_validation_test_filters(
     score_type,
     author,
 ):
-    raise NotImplementedError("Not yet migrated")
-    context = {
-        "nsg": "https://bbp-nexus.epfl.ch/vocabs/bbp/neurosciencegraph/core/v0.1.0/",
-        "schema": "http://schema.org/",
+    filter_query = {
+        "study_targets": []
     }
-    filter_query = {"op": "and", "value": []}
-    for value, path in (
-        (alias, "nsg:alias"),
-        (name, "schema:name"),
-        (implementation_status, "nsg:status"),
-        (brain_region, "nsg:brainRegion / rdfs:label"),
-        (species, "nsg:species / rdfs:label"),
-        (cell_type, "nsg:celltype / rdfs:label"),
-        (data_type, "nsg:dataType"),
-        (recording_modality, "nsg:recordingModality"),
-        (test_type, "nsg:testType"),
-        (score_type, "nsg:scoreType"),
-        (author, "schema:author / schema:familyName"),
-    ):
-        if value is not None and len(value) > 0:
-            filter_query["value"].append({"path": path, "op": "in", "value": value})
-    return filter_query, context
+    if id:
+        filter_query["@id"] = id
+    if alias:
+        filter_query["alias"] = alias
+    if name:
+        filter_query["name"] = name
+    if species:
+        filter_query["study_targets"].extend(
+            term_cache["Species"]["names"][name] for name in species)
+    if brain_region:
+        filter_query["study_targets"].extend(
+            term_cache["UBERONParcellation"]["names"][name] for name in brain_region)
+    if cell_type:
+        filter_query["study_targets"].extend(
+            term_cache["CellType"]["names"][name] for name in cell_type)
+    if implementation_status:
+        raise NotImplementedError()
+    if data_type:
+        filter_query["data_type"] = term_cache["ContentType"]["names"][data_type].id
+    if recording_modality:
+        filter_query["data_type"] = term_cache["Technique"]["names"][data_type].id
+    if test_type:
+        raise NotImplementedError()
+    if score_type:
+        filter_query["score_type"] = term_cache["MeasureType"]["names"][data_type].id
+    if author:
+        pass
+        #filter_query["developers"] = # TODO: need to first query Person, then use the ids here, or we write a custom query
+    if len(filter_query["study_targets"]) == 0:
+        filter_query.pop("study_targets")
+    return filter_query
 
 
 def get_full_uri(kg_types, uuid, client):
@@ -163,6 +176,8 @@ def model_alias_exists(alias, client):
 
 
 def test_alias_exists(alias, client):
-    raise NotImplementedError("Not yet migrated")
-    test_with_same_alias = ValidationTestDefinition.from_alias(alias, client, api="nexus", scope="in progress")
-    return bool(test_with_same_alias)
+    if alias:
+        kg_space = "collab-model-validation"  # for development, to fix
+        test_with_same_alias = omcmp.ValidationTest.from_alias(alias, client, space=kg_space, scope="in progress")
+        return bool(test_with_same_alias)
+    return False

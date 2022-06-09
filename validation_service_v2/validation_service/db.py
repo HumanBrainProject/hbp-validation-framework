@@ -7,7 +7,7 @@ from uuid import UUID
 from time import sleep
 from fastapi import HTTPException, status
 from fairgraph.openminds.core import Model, ModelVersion, SoftwareVersion
-#from fairgraph.openminds.validation import ValidationTestDefinition
+from fairgraph.openminds.computation import ValidationTest, ValidationTestVersion
 from fairgraph.openminds.publications import LivePaper
 from .auth import get_user_from_token, is_collab_member, is_admin
 
@@ -61,47 +61,36 @@ def _get_model_instance_by_id(instance_id, kg_client):
 
 
 def _get_test_by_id_or_alias(test_id, kg_client):
-    raise HTTPException(
-        status_code=status.HTTP_501_NOT_IMPLEMENTED,
-        detail="Not yet migrated",
-    )
-#     try:
-#         test_id = UUID(test_id)
-#         test_definition = ValidationTestDefinition.from_uuid(str(test_id), kg_client, api="nexus", scope="in progress")
-#     except ValueError:
-#         test_alias = test_id
-#         test_definition = ValidationTestDefinition.from_alias(test_alias, kg_client, api="nexus", scope="in progress")
-#     if not test_definition:  # None or empty list
-#         raise HTTPException(
-#             status_code=status.HTTP_404_NOT_FOUND,
-#             detail=f"Test with ID or alias '{test_id}' not found.",
-#         )
-#     if isinstance(test_definition, list):
-#         # this could happen if a duplicate alias has sneaked through
-#         raise Exception(
-#             f"Found multiple tests (n={len(test_definition)}) with id/alias '{test_id}'"
-#         )
-#     # todo: fairgraph should accept UUID object as well as str
-#     return test_definition
+    try:
+        test_id = UUID(test_id)
+        get_test = ValidationTest.from_uuid
+    except ValueError:
+        get_test = ValidationTest.from_alias
+    test_definition = get_test(str(test_id), kg_client, scope="in progress")
+    if not test_definition:
+        test_definition = get_test(str(test_id), kg_client, scope="released")
+    if not test_definition:  # None or empty list
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Test with ID or alias '{test_id}' not found.",
+        )
+    if isinstance(test_definition, list):
+        # this could happen if a duplicate alias has sneaked through
+        raise Exception(
+            f"Found multiple tests (n={len(test_definition)}) with id/alias '{test_id}'"
+        )
+    # todo: fairgraph should accept UUID object as well as str
+    return test_definition
 
 
 def _get_test_instance_by_id(instance_id, kg_client):
-    raise HTTPException(
-        status_code=status.HTTP_501_NOT_IMPLEMENTED,
-        detail="Not yet migrated",
-    )
-#     test_instance = ValidationScript.from_uuid(str(instance_id), kg_client, api="nexus", scope="in progress")
-#     if test_instance is None:
-#         raise HTTPException(
-#             status_code=status.HTTP_404_NOT_FOUND,
-#             detail=f"Test instance with ID '{instance_id}' not found.",
-#         )
-
-#     test_definition = test_instance.test_definition.resolve(kg_client, api="nexus", scope="in progress")
-#     # todo: in case of a dangling test instance, where the parent test_definition
-#     #       has been deleted but the instance wasn't, we could get a None here
-#     #       which we need to deal with
-#     return test_instance
+    test_instance = ValidationTestVersion.from_uuid(str(instance_id), kg_client, scope="in progress")
+    if test_instance is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Test instance with ID '{instance_id}' not found.",
+        )
+    return test_instance
 
 
 def _get_live_paper_by_id_or_alias(lp_id, scope):

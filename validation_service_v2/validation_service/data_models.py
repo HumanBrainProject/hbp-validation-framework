@@ -28,7 +28,7 @@ from .db import (_get_model_by_id_or_alias, _get_model_instance_by_id,
 from .auth import get_user_from_token, get_kg_client_for_service_account
 
 
-kg_client = get_kg_client_for_service_account()
+kg_service_client = get_kg_client_for_service_account()
 term_cache = {}
 
 logger = logging.getLogger("validation_service_v2")
@@ -61,7 +61,7 @@ def get_term_cache():
             omcore.License,
             omcore.ContentType  # todo: filter to include only types relevant to modelling
         ):
-            objects = cls.list(kg_client, api="core", scope="in progress", size=10000)
+            objects = cls.list(kg_service_client, api="core", scope="in progress", size=10000)
             term_cache[cls.__name__] = {
                 "names": {obj.name: obj for obj in objects},
                 "ids": {obj.id: obj for obj in objects}
@@ -359,7 +359,7 @@ def filter_study_targets(study_targets):
     brain_regions = []
     species = []
     for item in as_list(study_targets):
-        item = item.resolve(kg_client, scope="in progress")
+        item = item.resolve(kg_service_client, scope="in progress")
         if isinstance(item, omterms.CellType):
             cell_types.append(item.name)
         elif isinstance(item, omterms.UBERONParcellation):
@@ -610,35 +610,56 @@ class ValidationTestInstance(BaseModel):
     test_id: UUID = None
 
     @classmethod
-    def from_kg_object(cls, test_script, client):
+    def from_kg_object(cls, test_version, test_uuid, client):
+        test_version = test_version.resolve(client, scope="in progress")
+        if test_version.repository:
+            repository = test_version.repository.resolve(client, scope="in progress").iri.value
+        else:
+            repository = None
         return cls(
-            uri=test_script.id,
-            id=test_script.uuid,
-            old_uuid=test_script.old_uuid,
-            repository=test_script.repository.value,
-            version=test_script.version,
-            description=test_script.description,
-            parameters=test_script.parameters,
-            path=test_script.test_class,
-            timestamp=ensure_has_timezone(test_script.date_created),
-            test_id=test_script.test_definition.uuid,
+            uri=test_version.id,
+            id=test_version.uuid,
+            description=test_version.version_innovation,
+            path=test_version.entry_point,
+            timestamp=test_version.release_date,
+            repository=repository,
+            version=test_version.version_identifier,
+            test_id=test_uuid,
+            #parameters=?
         )
 
-    def to_kg_objects(self, test_definition):
-        script = fairgraph.brainsimulation.ValidationScript(
+    def to_kg_object(self, test_definition):
+        reference_data = None
+        if test_definition.data_location:
+            reference_data = [
+                omcore.URL(
+                    url=IRI(url)
+                )
+                for url in test_definition.data_location
+            ]
+        if self.repository:
+            repository = omcore.FileRepository(
+                name=self.repository,
+                iri=IRI(self.repository),
+            )
+        else:
+            repository = None
+        test_version = omcmp.ValidationTestVersion(
             name=f"Implementation of {test_definition.name}, version '{self.version}'",
-            date_created=ensure_has_timezone(self.timestamp) or datetime.now(timezone.utc),
-            repository=IRI(self.repository),
-            version=self.version,
-            description=self.description,
-            parameters=self.parameters,
-            test_class=self.path,
-            test_definition=test_definition,
-            id=self.uri,
+            alias=f"{test_definition.alias}-{self.version}",
+            custodians=None,   # inherits from parent
+            description=None,  # inherits from parent
+            developers=None,   # inherits from parent
+            entry_point=self.path,
+            reference_data=reference_data,
+            release_date=None,
+            repository=repository,
+            version_identifier=self.version,
+            version_innovation=self.description,
         )
         if self.uri:
-            script.id = str(self.uri)
-        return [script]
+            test_version.id = str(self.uri)
+        return test_version
 
 
 class ValidationTestInstancePatch(BaseModel):
@@ -676,87 +697,107 @@ class ValidationTest(BaseModel):
     # todo: add "publication" field
 
     @classmethod
-    def from_kg_object(cls, test_definition, client, recently_saved_scripts=None):
-        # due to the time it takes for Nexus to become consistent, we add newly saved scripts
-        # to the result of the KG query in case they are not yet included
-        scripts = {
-            scr.id: scr for scr in as_list(test_definition.scripts.resolve(client, api="nexus", scope="in progress"))
-        }
-        if recently_saved_scripts:
-            for script in recently_saved_scripts:
-                scripts[id] = script
+    def from_kg_object(cls, test_definition, client):
+        versions = [ver.resolve(client, scope="in progress") for ver in as_list(test_definition.versions)]
         instances = [
-            ValidationTestInstance.from_kg_object(inst, client) for inst in scripts.values()
+            ValidationTestInstance.from_kg_object(inst, test_definition.uuid, client) for inst in versions
         ]
+        cell_types, brain_regions, species = filter_study_targets(test_definition.study_targets)
+        if len(versions) > 0:
+            latest_version = sorted(versions,
+                                    key=lambda ver: ver.version_identifier)[-1]
+            reference_data = [item.resolve(client, scope="in progress")
+                             for item in as_list(latest_version.reference_data)]
+            data_location = []
+            data_type = set()
+            for item in reference_data:
+                if hasattr(item, "iri"):  # File
+                    data_location.append(item.iri.value)
+                    data_type.add(item.format)
+                elif hasattr(item, "url"):  # URL
+                    data_location.append(item.url.value)
+            data_type = list(data_type)
+            if len(data_type) == 1:
+                data_type = data_type[0]
+            elif len(data_type) == 0:
+                data_type = None
+        else:
+            data_location = None
+            data_type = None
         obj = cls(
             id=test_definition.uuid,
             uri=test_definition.id,
             name=test_definition.name,
             alias=test_definition.alias,
-            implementation_status=test_definition.status or ImplementationStatus.proposal.value,
-            author=[Person.from_kg_object(p, client) for p in as_list(test_definition.authors)],
-            cell_type=test_definition.celltype.label if test_definition.celltype else None,
-            brain_region=test_definition.brain_region.label
-            if test_definition.brain_region
-            else None,
-            species=test_definition.species.label if test_definition.species else None,
+            #implementation_status=?  # get from release state and/or other metadata?
+            #custodians=test_definition.custodians,
             description=test_definition.description,
-            date_created=test_definition.date_created,
-            old_uuid=test_definition.old_uuid,
-            data_location=[
-                item.resolve(client, api="nexus", scope="in progress").result_file.location
-                for item in as_list(test_definition.reference_data)
-            ],
-            data_type=test_definition.data_type,
-            recording_modality=test_definition.recording_modality
-            if test_definition.recording_modality
-            else None,
-            test_type=test_definition.test_type if test_definition.test_type else None,
-            score_type=test_definition.score_type if test_definition.score_type else None,
-            instances=sorted(instances, key=lambda inst: inst.timestamp),
+            author=[Person.from_kg_object(p, client) for p in as_list(test_definition.developers)],
+            cell_type=cell_types[0] if cell_types else None,
+            brain_region=brain_regions[0] if brain_regions else None,
+            species=species[0] if species else None,            
+            date_created=None,
+            data_location=data_location,
+            data_type=data_type,
+            #digital_identifier=test_definition.digital_identifier,
+            recording_modality=RecordingModality(test_definition.experimental_technique.resolve(client).name) if test_definition.experimental_technique else None,
+            instances=sorted(instances, key=lambda inst: inst.version),
+            score_type=ScoreType(test_definition.score_type.resolve(client).name) if test_definition.score_type else None,
         )
         return obj
 
-    def to_kg_objects(self):
-        authors = [person.to_kg_object() for person in self.author]
-        timestamp = ensure_has_timezone(self.date_created) or datetime.now(timezone.utc)
+    def to_kg_object(self):
+        developers = [person.to_kg_object() for person in self.author]
+        #timestamp = ensure_has_timezone(self.date_created) or datetime.now(timezone.utc)
+        timestamp = None
         data_files = [
-            fairgraph.analysis.AnalysisResult(
+            omcore.File(
                 name="Reference data #{} for validation test '{}'".format(i + 1, self.name),
-                result_file=url,
-                timestamp=ensure_has_timezone(timestamp),
+                iri=IRI(url),
             )
             for i, url in enumerate(self.data_location)
         ]
-        kg_objects = authors + data_files
+        study_targets = []
+        if self.species:
+            species = get_term("Species", self.species)
+            if species:
+                study_targets.append(species)
+        if self.brain_region:
+            brain_region = get_term("UBERONParcellation", self.brain_region)
+            if brain_region:
+                study_targets.append(brain_region)
+        if self.cell_type:
+            cell_type = get_term("CellType", self.cell_type)
+            if cell_type:
+                study_targets.append(cell_type)
 
-        def get_ontology_object(cls, value):
-            return cls(value.value) if value else None
-
-        test_definition = fairgraph.brainsimulation.ValidationTestDefinition(
+        test_definition = omcmp.ValidationTest(
             name=self.name,
             alias=self.alias,
-            status=self.implementation_status,
-            brain_region=get_ontology_object(fairgraph.commons.BrainRegion, self.brain_region),
-            species=get_ontology_object(fairgraph.commons.Species, self.species),
-            celltype=get_ontology_object(fairgraph.commons.CellType, self.cell_type),
-            reference_data=data_files,
-            data_type=self.data_type,
-            recording_modality=self.recording_modality,
-            test_type=self.test_type,
-            score_type=self.score_type,
+            custodians=developers,
             description=self.description,
-            authors=authors,
-            date_created=ensure_has_timezone(timestamp),
+            developers=developers,
+            #digital_identifier=,
+            experimental_technique=get_term("Technique", self.recording_modality),
+            #homepage=,
+            #how_to_cite=,
+            #model_scope=None,   # re-curate by hand
+            score_type=None,  # todo: add terms - get_term("MeasureType", self.score_type),
+            study_targets=study_targets
         )
         if self.uri:
             test_definition.id = str(self.uri)
-        kg_objects.append(test_definition)
 
-        for instance in self.instances:
-            kg_objects.extend(instance.to_kg_objects(test_definition))
+        if self.instances:
+            test_versions = []
+            for instance in self.instances:
+                test_versions = [
+                    instance.to_kg_object(self)
+                    for instance in self.instances
+                ]
+            test_definition.versions = test_versions
 
-        return kg_objects
+        return test_definition
 
 
 class ValidationTestSummary(BaseModel):

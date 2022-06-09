@@ -128,7 +128,7 @@ async def query_models(
     )
 
     if project_id:
-        spaces = [f"collab-{collab_id}" for collab in project_id]
+        spaces = [f"collab-{collab_id}" for collab_id in project_id]
     else:
         spaces = ["model"]
     kg_client = get_kg_client_for_user_account(token.credentials)

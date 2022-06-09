@@ -4,7 +4,7 @@ from datetime import datetime
 import logging
 
 from fairgraph.base_v3 import KGQuery, as_list
-from fairgraph.brainsimulation import ValidationTestDefinition, ValidationScript
+import fairgraph.openminds.computation as omcmp
 
 from fastapi import APIRouter, Depends, Query, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
@@ -38,6 +38,9 @@ router = APIRouter()
 
 @router.get("/tests/")
 def query_tests(
+    project_id: List[str] = Query(
+        None, description="Find validation tests belonging to a specific project/projects"
+    ),
     alias: List[str] = Query(None),
     id: List[UUID] = Query(None),
     name: List[str] = Query(None),
@@ -56,11 +59,6 @@ def query_tests(
     # from header
     token: HTTPAuthorizationCredentials = Depends(auth),
 ):
-    raise HTTPException(
-        status_code=status.HTTP_501_NOT_IMPLEMENTED,
-        detail="Not yet migrated",
-    )
-
     # get the values of of the Enums
     if brain_region:
         brain_region = [item.value for item in brain_region]
@@ -75,7 +73,7 @@ def query_tests(
     if score_type:
         score_type = [item.value for item in score_type]
 
-    filter_query, context = build_validation_test_filters(
+    filter_query = build_validation_test_filters(
         alias,
         id,
         name,
@@ -89,17 +87,27 @@ def query_tests(
         score_type,
         author,
     )
-    if len(filter_query["value"]) > 0:
-        logger.info(
-            f"Searching for ValidationTestDefinition with the following query: {filter_query}"
-        )
-        # note that from_index is not currently supported by KGQuery.resolve
-        query = KGQuery(ValidationTestDefinition, {"nexus": filter_query}, context)
-        test_definitions = query.resolve(kg_client, api="nexus", size=size)
+
+    if project_id:
+        spaces = [f"collab-{collab_id}" for collab_id in project_id]
     else:
-        test_definitions = ValidationTestDefinition.list(
-            kg_client, api="nexus", size=size, from_index=from_index
-        )
+        #spaces = ["computation"]
+        spaces = ["collab-model-validation"]  # during development
+    kg_client = get_kg_client_for_user_account(token.credentials)
+
+
+    test_definitions = []
+    for space in spaces:
+        if len(filter_query) > 0:
+            logger.info("Searching for ValidationTest with the following query: {}".format(filter_query))
+            results = omcmp.ValidationTest.list(
+                kg_client, size=size, from_index=from_index, api="query", scope="in progress",
+                space=space, **filter_query)
+        else:
+            results = omcmp.ValidationTest.list(
+                kg_client, size=size, from_index=from_index, api="core", scope="in progress", 
+                space=space)
+        test_definitions.extend(as_list(results))
     if summary:
         cls = ValidationTestSummary
     else:
@@ -113,47 +121,31 @@ def query_tests(
 
 @router.get("/tests/{test_id}", response_model=ValidationTest)
 def get_test(test_id: str, token: HTTPAuthorizationCredentials = Depends(auth)):
-    raise HTTPException(
-        status_code=status.HTTP_501_NOT_IMPLEMENTED,
-        detail="Not yet migrated",
-    )
-    test_definition = _get_test_by_id_or_alias(test_id, token)
+    kg_client = get_kg_client_for_user_account(token.credentials)
+    test_definition = _get_test_by_id_or_alias(test_id, kg_client)
     return ValidationTest.from_kg_object(test_definition, kg_client)
 
 
 @router.post("/tests/", response_model=ValidationTest, status_code=status.HTTP_201_CREATED)
 def create_test(test: ValidationTest, token: HTTPAuthorizationCredentials = Depends(auth)):
-    raise HTTPException(
-        status_code=status.HTTP_501_NOT_IMPLEMENTED,
-        detail="Not yet migrated",
-    )
+    kg_user_client = get_kg_client_for_user_account(token.credentials)
     # check uniqueness of alias
-    if test.alias and test_alias_exists(test.alias, kg_client):
+    if test.alias and test_alias_exists(test.alias, kg_user_client):
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail=f"Another validation test with alias '{test.alias}' already exists.",
         )
-    kg_objects = test.to_kg_objects()
-    recently_saved_scripts = []  # due to the time it takes for Nexus to become consistent,
-    # we keep newly saved scripts to add to the result of the KG query
-    # in case they are not yet included
-    for obj in kg_objects:
-        if isinstance(obj, ValidationTestDefinition):
-            test_definition = obj
-        elif isinstance(obj, ValidationScript):
-            recently_saved_scripts.append(obj)
-    if test_definition.exists(kg_client, api="any"):
+    test_definition = test.to_kg_object()
+    kg_space = "collab-model-validation"  # during development
+    if test_definition.exists(kg_user_client, space=kg_space):
         # see https://stackoverflow.com/questions/3825990/http-response-code-for-post-when-resource-already-exists
         # for a discussion of the most appropriate status code to use here
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail=f"Another validation test with the same name and timestamp already exists.",
         )
-    for obj in kg_objects:
-        obj.save(kg_client)
-    return ValidationTest.from_kg_object(
-        test_definition, kg_client, recently_saved_scripts=recently_saved_scripts
-    )
+    test_definition.save(kg_user_client, recursive=True, space=kg_space)
+    return ValidationTest.from_kg_object(test_definition, kg_user_client)
 
 
 @router.put("/tests/{test_id}", response_model=ValidationTest, status_code=status.HTTP_200_OK)
@@ -199,34 +191,30 @@ def update_test(
 
 @router.delete("/tests/{test_id}", status_code=status.HTTP_200_OK)
 async def delete_test(test_id: UUID, token: HTTPAuthorizationCredentials = Depends(auth)):
-    raise HTTPException(
-        status_code=status.HTTP_501_NOT_IMPLEMENTED,
-        detail="Not yet migrated",
-    )
     # todo: handle non-existent UUID
-    test_definition = ValidationTestDefinition.from_uuid(str(test_id), kg_client, api="nexus", scope="in progress")
+    kg_client = get_kg_client_for_user_account(token.credentials)
+    test_definition = omcmp.ValidationTest.from_uuid(str(test_id), kg_client, scope="in progress")
     if not await is_admin(token.credentials):
         # todo: replace this check with a group membership check for Collab v2
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN, detail="Deleting tests is restricted to admins"
         )
     test_definition.delete(kg_client)
-    for test_script in as_list(test_definition.scripts.resolve(kg_client, api="nexus", scope="in progress")):
-        test_script.delete(kg_client)
+    for test_version in as_list(test_definition.versions):
+        # todo: we should possibly also delete repositories,
+        # but need to check they're not shared with other instances
+        test_version.delete(kg_client)
 
 
 @router.get("/tests/{test_id}/instances/", response_model=List[ValidationTestInstance])
 def get_test_instances(
     test_id: str, version: str = Query(None), token: HTTPAuthorizationCredentials = Depends(auth)
 ):
-    raise HTTPException(
-        status_code=status.HTTP_501_NOT_IMPLEMENTED,
-        detail="Not yet migrated",
-    )
-    test_definition = _get_test_by_id_or_alias(test_id, token)
+    kg_client = get_kg_client_for_user_account(token.credentials)
+    test_definition = _get_test_by_id_or_alias(test_id, kg_client)
     test_instances = [
         ValidationTestInstance.from_kg_object(inst, kg_client)
-        for inst in as_list(test_definition.scripts.resolve(kg_client, api="nexus", scope="in progress"))
+        for inst in as_list(test_definition.versions.resolve(kg_client, scope="in progress"))
     ]
     if version:
         test_instances = [inst for inst in test_instances if inst.version == version]
@@ -237,11 +225,8 @@ def get_test_instances(
 def get_test_instance_from_instance_id(
     test_instance_id: UUID, token: HTTPAuthorizationCredentials = Depends(auth)
 ):
-    raise HTTPException(
-        status_code=status.HTTP_501_NOT_IMPLEMENTED,
-        detail="Not yet migrated",
-    )
-    inst = _get_test_instance_by_id(test_instance_id, token)
+    kg_client = get_kg_client_for_user_account(token.credentials)
+    inst = _get_test_instance_by_id(test_instance_id, kg_client)
     return ValidationTestInstance.from_kg_object(inst, kg_client)
 
 
@@ -271,12 +256,9 @@ def get_latest_test_instance_given_test_id(
 def get_test_instance_given_test_id(
     test_id: str, test_instance_id: UUID, token: HTTPAuthorizationCredentials = Depends(auth)
 ):
-    raise HTTPException(
-        status_code=status.HTTP_501_NOT_IMPLEMENTED,
-        detail="Not yet migrated",
-    )
-    test_definition = _get_test_by_id_or_alias(test_id, token)
-    for inst in as_list(test_definition.scripts.resolve(kg_client, api="nexus", scope="in progress")):
+    kg_client = get_kg_client_for_user_account(token.credentials)
+    test_definition = _get_test_by_id_or_alias(test_id, kg_client)
+    for inst in as_list(test_definition.versions.resolve(kg_client, api="nexus", scope="in progress")):
         if UUID(inst.uuid) == test_instance_id:
             return ValidationTestInstance.from_kg_object(inst, kg_client)
     raise HTTPException(
@@ -289,11 +271,8 @@ def get_test_instance_given_test_id(
 def get_test_instance_from_instance_id(
     test_instance_id: UUID, token: HTTPAuthorizationCredentials = Depends(auth)
 ):
-    raise HTTPException(
-        status_code=status.HTTP_501_NOT_IMPLEMENTED,
-        detail="Not yet migrated",
-    )
-    test_instance_kg = _get_test_instance_by_id(test_instance_id, token)
+    kg_client = get_kg_client_for_user_account(token.credentials)
+    test_instance_kg = _get_test_instance_by_id(test_instance_id, kg_client)
     return ValidationTestInstance.from_kg_object(test_instance_kg, kg_client)
 
 
