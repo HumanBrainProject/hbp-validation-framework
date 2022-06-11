@@ -179,5 +179,7 @@ def test_alias_exists(alias, client):
     if alias:
         kg_space = "collab-model-validation"  # for development, to fix
         test_with_same_alias = omcmp.ValidationTest.from_alias(alias, client, space=kg_space, scope="in progress")
-        return bool(test_with_same_alias)
+        if test_with_same_alias:
+            # need this check because alias query doesn't do exact matching
+            return test_with_same_alias.alias == alias
     return False

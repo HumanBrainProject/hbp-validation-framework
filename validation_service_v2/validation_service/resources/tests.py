@@ -154,12 +154,9 @@ def update_test(
     test_patch: ValidationTestPatch,
     token: HTTPAuthorizationCredentials = Depends(auth),
 ):
-    raise HTTPException(
-        status_code=status.HTTP_501_NOT_IMPLEMENTED,
-        detail="Not yet migrated",
-    )
     # retrieve stored test
-    test_definition = ValidationTestDefinition.from_uuid(str(test_id), kg_client, api="nexus", scope="in progress")
+    kg_client = get_kg_client_for_user_account(token.credentials)
+    test_definition = omcmp.ValidationTest.from_uuid(str(test_id), kg_client, scope="in progress")
     stored_test = ValidationTest.from_kg_object(test_definition, kg_client)
     # if alias changed, check uniqueness of new alias
     if (
@@ -181,12 +178,9 @@ def update_test(
     if "author" in update_data:
         update_data["author"] = [Person(**p) for p in update_data["author"]]
     updated_test = stored_test.copy(update=update_data)
-    kg_objects = updated_test.to_kg_objects()
-    for obj in kg_objects:
-        obj.save(kg_client)
-        if isinstance(obj, ValidationTestDefinition):
-            test_definition = obj
-    return ValidationTest.from_kg_object(test_definition, kg_client)
+    updated_test_definition = updated_test.to_kg_object()
+    updated_test_definition.save(kg_client, recursive=True, space=test_definition.space)
+    return ValidationTest.from_kg_object(updated_test_definition, kg_client)
 
 
 @router.delete("/tests/{test_id}", status_code=status.HTTP_200_OK)
@@ -213,8 +207,8 @@ def get_test_instances(
     kg_client = get_kg_client_for_user_account(token.credentials)
     test_definition = _get_test_by_id_or_alias(test_id, kg_client)
     test_instances = [
-        ValidationTestInstance.from_kg_object(inst, kg_client)
-        for inst in as_list(test_definition.versions.resolve(kg_client, scope="in progress"))
+        ValidationTestInstance.from_kg_object(inst, test_definition.uuid, kg_client)
+        for inst in as_list(test_definition.versions)
     ]
     if version:
         test_instances = [inst for inst in test_instances if inst.version == version]
@@ -227,7 +221,8 @@ def get_test_instance_from_instance_id(
 ):
     kg_client = get_kg_client_for_user_account(token.credentials)
     inst = _get_test_instance_by_id(test_instance_id, kg_client)
-    return ValidationTestInstance.from_kg_object(inst, kg_client)
+    test_definition = omcmp.ValidationTest.list(kg_client, scope="in progress", space=inst.space, versions=inst)[0]
+    return ValidationTestInstance.from_kg_object(inst, test_definition.uuid, kg_client)
 
 
 @router.get("/tests/{test_id}/instances/in progress", response_model=ValidationTestInstance)
@@ -238,10 +233,11 @@ def get_latest_test_instance_given_test_id(
         status_code=status.HTTP_501_NOT_IMPLEMENTED,
         detail="Not yet migrated",
     )
+    kg_client = get_kg_client_for_user_account(token.credentials)
     test_definition = _get_test_by_id_or_alias(test_id, token)
     test_instances = [
-        ValidationTestInstance.from_kg_object(inst, kg_client)
-        for inst in as_list(test_definition.scripts.resolve(kg_client, api="nexus", scope="in progress"))
+        ValidationTestInstance.from_kg_object(inst, test_definition.uuid, kg_client)
+        for inst in as_list(test_definition.versions.resolve(kg_client, scope="in progress"))
     ]
     if len(test_instances) == 0:
         raise HTTPException(
@@ -258,9 +254,9 @@ def get_test_instance_given_test_id(
 ):
     kg_client = get_kg_client_for_user_account(token.credentials)
     test_definition = _get_test_by_id_or_alias(test_id, kg_client)
-    for inst in as_list(test_definition.versions.resolve(kg_client, api="nexus", scope="in progress")):
+    for inst in as_list(test_definition.versions):
         if UUID(inst.uuid) == test_instance_id:
-            return ValidationTestInstance.from_kg_object(inst, kg_client)
+            return ValidationTestInstance.from_kg_object(inst, test_definition.uuid, kg_client)
     raise HTTPException(
         status_code=status.HTTP_400_BAD_REQUEST,
         detail="Test ID and test instance ID are inconsistent",
@@ -286,16 +282,13 @@ def create_test_instance(
     test_instance: ValidationTestInstance,
     token: HTTPAuthorizationCredentials = Depends(auth),
 ):
-    raise HTTPException(
-        status_code=status.HTTP_501_NOT_IMPLEMENTED,
-        detail="Not yet migrated",
-    )
-
-    test_definition = _get_test_by_id_or_alias(test_id, token)
-    kg_object = test_instance.to_kg_objects(test_definition)[0]
-    _check_test_script_uniqueness(test_definition, kg_object, kg_client)
-    kg_object.save(kg_client)
-    return ValidationTestInstance.from_kg_object(kg_object, kg_client)
+    kg_client = get_kg_client_for_user_account(token.credentials)
+    test_definition = _get_test_by_id_or_alias(test_id, kg_client)
+    test_instance_kg = test_instance.to_kg_object(ValidationTest.from_kg_object(test_definition, kg_client))
+    test_instance_kg.save(kg_client, recursive=True, space=test_definition.space)
+    test_definition.versions = as_list(test_definition.versions) + [test_instance_kg]
+    test_definition.save(kg_client, recursive=False)
+    return ValidationTestInstance.from_kg_object(test_instance_kg, test_definition.uuid, kg_client)
 
 
 @router.put(
@@ -308,14 +301,12 @@ def update_test_instance_by_id(
     test_instance_patch: ValidationTestInstancePatch,
     token: HTTPAuthorizationCredentials = Depends(auth),
 ):
-    raise HTTPException(
-        status_code=status.HTTP_501_NOT_IMPLEMENTED,
-        detail="Not yet migrated",
-    )
-
-    validation_script = _get_test_instance_by_id(test_instance_id, token)
-    test_definition_kg = validation_script.test_definition.resolve(kg_client, api="nexus", scope="in progress")
-    return _update_test_instance(validation_script, test_definition_kg, test_instance_patch, token)
+    kg_client = get_kg_client_for_user_account(token.credentials)
+    test_instance_kg = _get_test_instance_by_id(test_instance_id, kg_client)
+    test_definition = omcmp.ValidationTest.list(
+        kg_client, scope="in progress", 
+        space=test_instance_kg.space, versions=test_instance_kg)[0]
+    return _update_test_instance(test_instance_kg, test_definition, test_instance_patch, token)
 
 
 @router.put(
@@ -329,41 +320,20 @@ def update_test_instance(
     test_instance_patch: ValidationTestInstancePatch,
     token: HTTPAuthorizationCredentials = Depends(auth),
 ):
-    raise HTTPException(
-        status_code=status.HTTP_501_NOT_IMPLEMENTED,
-        detail="Not yet migrated",
-    )
-
-    validation_script = _get_test_instance_by_id(test_instance_id, token)
-    test_definition_kg = _get_test_by_id_or_alias(test_id, token)
-    return _update_test_instance(validation_script, test_definition_kg, test_instance_patch, token)
+    kg_client = get_kg_client_for_user_account(token.credentials)
+    test_instance_kg = _get_test_instance_by_id(test_instance_id, kg_client)
+    test_definition_kg = _get_test_by_id_or_alias(test_id, kg_client)
+    return _update_test_instance(test_instance_kg, test_definition_kg, test_instance_patch, kg_client)
 
 
-def _check_test_script_uniqueness(test_definition, test_script, kg_client):
-    other_scripts = test_definition.scripts.resolve(kg_client, api="nexus", scope="in progress")
-    for other_script in as_list(other_scripts):
-        if (
-            test_script.version == other_script.version
-            and test_script.parameters == other_script.parameters
-            and test_script.id != other_script.id
-        ):
-            raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT,
-                detail="Version and parameters match those of an existing test instance",
-            )
-
-
-def _update_test_instance(validation_script, test_definition_kg, test_instance_patch, token):
-    stored_test_instance = ValidationTestInstance.from_kg_object(validation_script, kg_client)
+def _update_test_instance(test_instance, test_definition_kg, test_instance_patch, kg_client):
+    stored_test_instance = ValidationTestInstance.from_kg_object(test_instance, kg_client)
     update_data = test_instance_patch.dict(exclude_unset=True)
     updated_test_instance = stored_test_instance.copy(update=update_data)
-    kg_objects = updated_test_instance.to_kg_objects(test_definition_kg)
-    test_instance_kg = kg_objects[-1]
-    assert isinstance(test_instance_kg, ValidationScript)
-    assert test_instance_kg.id == validation_script.id
-    _check_test_script_uniqueness(test_definition_kg, test_instance_kg, kg_client)
-    for obj in kg_objects:
-        obj.save(kg_client)
+    test_instance_kg = updated_test_instance.to_kg_object(test_definition_kg)
+    assert test_instance_kg.id == test_instance.id
+    assert stored_test_instance.space is not None
+    test_instance_kg.save(kg_client, recursive=True, space=stored_test_instance.space)
     return ValidationTestInstance.from_kg_object(test_instance_kg, kg_client)
 
 
@@ -371,37 +341,37 @@ def _update_test_instance(validation_script, test_definition_kg, test_instance_p
 async def delete_test_instance_by_id(
     test_instance_id: UUID, token: HTTPAuthorizationCredentials = Depends(auth)
 ):
-    raise HTTPException(
-        status_code=status.HTTP_501_NOT_IMPLEMENTED,
-        detail="Not yet migrated",
-    )
-
     # todo: handle non-existent UUID, inconsistent test_id and test_instance_id
-    test_script = ValidationScript.from_uuid(str(test_instance_id), kg_client, api="nexus", scope="in progress")
+    kg_client = get_kg_client_for_user_account(token.credentials)
+    test_instance_kg = omcmp.ValidationTestVersion.from_uuid(str(test_instance_id), kg_client, scope="in progress")
     if not await is_admin(token.credentials):
         # todo: replace this check with a group membership check for Collab v2
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Deleting test instances is restricted to admins",
         )
-    test_script.delete(kg_client)
+    test_definition = omcmp.ValidationTest.list(
+        kg_client, scope="in progress", 
+        space=test_instance_kg.space, versions=test_instance_kg)[0]
+    test_definition.versions = [obj for obj in test_definition.versions if obj.uuid != test_instance_id]
+    test_definition.save(kg_client, recursive=False)
+    test_instance_kg.delete(kg_client)
 
 
 @router.delete("/tests/{test_id}/instances/{test_instance_id}", status_code=status.HTTP_200_OK)
 async def delete_test_instance(
     test_id: str, test_instance_id: UUID, token: HTTPAuthorizationCredentials = Depends(auth)
 ):
-    raise HTTPException(
-        status_code=status.HTTP_501_NOT_IMPLEMENTED,
-        detail="Not yet migrated",
-    )
-
     # todo: handle non-existent UUID, inconsistent test_id and test_instance_id
-    test_script = ValidationScript.from_uuid(str(test_instance_id), kg_client, api="nexus", scope="in progress")
+    kg_client = get_kg_client_for_user_account(token.credentials)
+    test_instance_kg = omcmp.ValidationTestVersion.from_uuid(str(test_instance_id), kg_client, scope="in progress")
     if not await is_admin(token.credentials):
         # todo: replace this check with a group membership check for Collab v2
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Deleting test instances is restricted to admins",
         )
-    test_script.delete(kg_client)
+    test_definition = _get_test_by_id_or_alias(test_id, kg_client)
+    test_definition.versions = [obj for obj in test_definition.versions if obj.uuid != test_instance_id]
+    test_definition.save(kg_client, recursive=False)
+    test_instance_kg.delete(kg_client)
