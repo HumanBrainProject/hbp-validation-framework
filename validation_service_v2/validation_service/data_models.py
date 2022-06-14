@@ -280,6 +280,7 @@ class ModelInstance(BaseModel):
         ]
         repository = instance.repository.resolve(client, scope="in progress")
         licenses = [lic.resolve(client, scope="in progress") for lic in as_list(instance.licenses)]
+        content_types = [ct.resolve(client) for ct in as_list(instance.format)]
         instance_data = {
             "id": instance.uuid,
             "uri": instance.id,
@@ -289,7 +290,7 @@ class ModelInstance(BaseModel):
             "timestamp": instance.release_date,
             "model_id": model_id,
             "alternatives": [mv.homepage for mv in alternatives if mv.homepage],
-            "code_format": ContentType(instance.format.resolve(client, scope="in progress").name) if instance.format else None,
+            "code_format": ContentType(content_types[0].name) if content_types else None,
             "source": str(repository.iri),
             "license": License(licenses[0].name) if licenses else None,
             "script_id": None,  # field no-longer used, but kept to maintain backwards-compatibility
@@ -415,7 +416,7 @@ class ScientificModel(BaseModel):
             date_created = min(inst.timestamp for inst in instances)
         else:
             date_created = None
-        custodians = [c.resolve(client, scope=model_project.scope) 
+        custodians = [c.resolve(client, scope=model_project.scope)
                       for c in as_list(model_project.custodians)]
         organizations = [org.name for org in custodians if isinstance(org, omcore.Organization)]
         try:
@@ -483,7 +484,7 @@ class ScientificModel(BaseModel):
             homepage=None,
             how_to_cite=None,
             study_targets=study_targets
-        )        
+        )
         if self.uri:
             model_project.id = str(self.uri)
 
@@ -735,7 +736,7 @@ class ValidationTest(BaseModel):
             author=[Person.from_kg_object(p, client) for p in as_list(test_definition.developers)],
             cell_type=cell_types[0] if cell_types else None,
             brain_region=brain_regions[0] if brain_regions else None,
-            species=species[0] if species else None,            
+            species=species[0] if species else None,
             date_created=None,
             data_location=data_location,
             data_type=data_type,
@@ -919,11 +920,12 @@ class File(BaseModel):
     id: str = None
 
     @classmethod
-    def from_kg_object(cls, file_obj):
-        url = file_obj.location
+    def from_kg_object(cls, file_obj, client):
+        file_obj = file_obj.resolve(client, scope="in progress")
+        url = file_obj.iri.value
         url_parts = urlparse(url)
         id = None
-        local_path = file_obj.original_file_name
+        local_path = file_obj.iri.value.split("/")[-1]
         if url_parts.netloc == "collab-storage-redirect.brainsimulation.eu":
             file_store = "collab-v1"
             local_path = url_parts.path
@@ -938,10 +940,10 @@ class File(BaseModel):
         else:
             file_store = None
         return cls(
-            download_url=file_obj.location,
-            hash=file_obj.digest,
-            size=file_obj.size,
-            content_type=file_obj.content_type,
+            download_url=file_obj.iri.value,
+            hash=file_obj.hash.value if file_obj.hash else None,
+            size=file_obj.storage_size,
+            content_type=file_obj.format.name if file_obj.format else None,
             local_path=local_path,
             file_store=file_store,
             id=id
@@ -1044,6 +1046,46 @@ class ValidationResultSummary(BaseModel):
     test_alias: str = None
 
     @classmethod
+    def from_kg_object(cls, validation_activity, client):
+        model_instance = [obj for obj in validation_activity.inputs if obj.cls == omcore.ModelVersion][0]
+        model_instance = model_instance.resolve(client, scope="in progress")
+        model_instance_id = model_instance.uuid
+        model = model_instance.is_version_of(client)
+        test_instance = [obj for obj in validation_activity.inputs if obj.cls == omcmp.ValidationTest][0]
+        test_instance = test_instance.resolve(client, scope="in progress")
+        test_instance_id = test_instance.uuid
+        test = test_instance.is_version_of(client)
+        additional_data = []
+        for item in as_list(validation_activity.outputs):
+            additional_data.append(File.from_kg_object(item))
+        data_type = set()
+        for item in test_instance.reference_data:
+            if hasattr(item, "iri"):  # File
+                data_type.add(item.format)
+        data_type = list(data_type)
+        if len(data_type) == 1:
+            data_type = data_type[0]
+        elif len(data_type) == 0:
+            data_type = None
+        return cls(
+            id=validation_activity.uuid,
+            model_instance_id=model_instance_id,
+            test_instance_id=test_instance_id,
+            test_version=test_instance.version_identifier,
+            score=validation_activity.score,
+            score_type=ScoreType(test.score_type.resolve(client).name) if test.score_type else None,
+            data_type=data_type,
+            timestamp=ensure_has_timezone(validation_activity.timestamp),
+            model_id=model.uuid,
+            model_name=model.name,
+            model_alias=model.alias,
+            model_version=model_instance.version_identifier,
+            test_id=test.uuid,
+            test_name=test.name,
+            test_alias=test.alias
+        )
+
+    @classmethod
     def from_kg_query(cls, result):
         return cls(
             id=uuid_from_uri(result["uri"]),
@@ -1070,7 +1112,7 @@ class ValidationResult(BaseModel):
     old_uuid: UUID = None
     model_instance_id: UUID
     test_instance_id: UUID
-    results_storage: List[File]  # for now at least, accept "collab:" and "swift:" URLs
+    results_storage: List[File]
     score: float
     passed: bool = None
     timestamp: datetime = None
@@ -1078,39 +1120,27 @@ class ValidationResult(BaseModel):
     normalized_score: float = None
 
     @classmethod
-    def from_kg_object(cls, result, client):
-        if result.generated_by:
-            try:
-                validation_activity = result.generated_by.resolve(client, api="nexus", scope="in progress")
-            except Exception as err:
-                raise ConsistencyError from err
-        else:
-            raise ConsistencyError("Missing ValidationActivity")
-        if validation_activity is None:
-            raise ConsistencyError("Missing ValidationActivity (may have been deleted)")
-        model_instance_id = validation_activity.model_instance.uuid
-        test_instance_id = validation_activity.test_script.uuid
-        logger.debug("Serializing validation test result")
-        logger.debug("Additional data for {}:\n{}".format(result.id, result.additional_data))
+    def from_kg_object(cls, validation_activity, client):
+        inputs = [obj.resolve(client, scope="in progress") for obj in validation_activity.inputs]
+        model_instance = [obj for obj in inputs if isinstance(obj, omcore.ModelVersion)][0]
+        model_instance_id = model_instance.uuid
+        test_instance = [obj for obj in inputs if isinstance(obj, omcmp.ValidationTestVersion)][0]
+        test_instance_id = test_instance.uuid
         additional_data = []
-        for item in as_list(result.additional_data):
-            item = item.resolve(client, api="nexus", scope="in progress")
-            if item:
-                additional_data.append(File.from_kg_object(item.result_file))
-            else:
-                logger.warning("Couldn't resolve {}".format(item))
+        for item in as_list(validation_activity.outputs):
+            additional_data.append(File.from_kg_object(item, client))
         return cls(
-            id=result.uuid,
-            uri=result.id,
-            old_uuid=result.old_uuid,
+            id=validation_activity.uuid,
+            uri=validation_activity.id,
+            old_uuid=None,
             model_instance_id=model_instance_id,
             test_instance_id=test_instance_id,
-            results_storage=additional_data,  # todo: handle collab storage redirects
-            score=result.score,
-            passed=result.passed,
-            timestamp=ensure_has_timezone(result.timestamp),
-            project_id=result.collab_id,
-            normalized_score=result.normalized_score,
+            results_storage=additional_data,
+            score=validation_activity.score,
+            passed=None,
+            timestamp=ensure_has_timezone(validation_activity.started_at_time),
+            project_id=validation_activity.space,
+            normalized_score=None,
         )
 
     @classmethod
@@ -1189,19 +1219,19 @@ class ValidationResultWithTestAndModel(ValidationResult):
     test: ValidationTest
 
     @classmethod
-    async def from_kg_object(cls, result, client, token):
-        vr = ValidationResult.from_kg_object(result, client)
+    def from_kg_object(cls, validation_activity, client):
+        vr = ValidationResult.from_kg_object(validation_activity, client)
 
-        model_instance_kg, model_id = await _get_model_instance_by_id(vr.model_instance_id, token)
-        model_project = await _get_model_by_id_or_alias(model_id, token)
+        model_instance_kg, model_id = _get_model_instance_by_id(vr.model_instance_id, client)
+        model_project = _get_model_by_id_or_alias(model_id, client)
 
         model_instance = ModelInstance.from_kg_object(model_instance_kg, client, model_project.uuid)
         model = ScientificModel.from_kg_object(model_project, client)
 
-        test_script = _get_test_instance_by_id(vr.test_instance_id, token)
-        test_definition = _get_test_by_id_or_alias(test_script.test_definition.uuid, token)
+        test_script = _get_test_instance_by_id(vr.test_instance_id, client)
+        test_definition = test_script.is_version_of(client)
 
-        test_instance = ValidationTestInstance.from_kg_object(test_script, token)
+        test_instance = ValidationTestInstance.from_kg_object(test_script, test_definition.uuid, client)
         test = ValidationTest.from_kg_object(test_definition, client)
 
         return cls(

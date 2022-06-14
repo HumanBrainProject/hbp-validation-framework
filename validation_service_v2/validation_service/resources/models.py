@@ -143,7 +143,8 @@ async def query_models(
                 space=space, **filter_query)
         else:
             results = omcore.Model.list(
-                kg_client, size=size, from_index=from_index, api="core", scope="in progress")
+                kg_client, size=size, from_index=from_index, api="core", scope="in progress",
+                space=space)
         model_projects.extend(as_list(results))
     if summary:
         cls = ScientificModelSummary
@@ -359,7 +360,7 @@ async def create_model_instance(
     # check permissions for this model
     if model_project.space is None:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, 
+            status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"Unable to determine access permissions - please contact EBRAINS support"
         )
     collab_id = model_project.space[len("collab-"):]
@@ -423,7 +424,7 @@ async def _update_model_instance(model_instance_kg, model_project, model_instanc
     # check permissions for this model
     if model_project.space is None:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, 
+            status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"Unable to determine access permissions - please contact EBRAINS support"
         )
     collab_id = model_project.space[len("collab-"):]

@@ -10,7 +10,8 @@ from requests.exceptions import HTTPError
 
 from fairgraph.client_v3 import STAGE_MAP
 from fairgraph.base_v3 import KGQuery, as_list
-from fairgraph.brainsimulation import ValidationResult as ValidationResultKG, ValidationActivity
+import fairgraph.openminds.core as omcore
+import fairgraph.openminds.computation as omcmp
 
 from fastapi import APIRouter, Depends, Header, Query, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
@@ -30,34 +31,35 @@ router = APIRouter()
 
 @router.get("/results/", response_model=List[ValidationResult])
 def query_results(
-    passed: List[bool] = Query(None),
+    #passed: List[bool] = Query(None),
     project_id: List[int] = Query(None),
     model_instance_id: List[UUID] = Query(
         None
-    ),  # todo: rename this 'model_instance_id' for consistency
+    ),
     test_instance_id: List[UUID] = Query(None),
-    model_id: List[UUID] = Query(None),
-    test_id: List[UUID] = Query(None),
-    model_alias: List[str] = Query(None),
-    test_alias: List[str] = Query(None),
+    #model_id: List[UUID] = Query(None),
+    #test_id: List[UUID] = Query(None),
+    #model_alias: List[str] = Query(None),
+    #test_alias: List[str] = Query(None),
     score_type: List[ScoreType] = None,
     size: int = Query(100),
     from_index: int = Query(0),
     # from header
     token: HTTPAuthorizationCredentials = Depends(auth),
 ):
-    raise HTTPException(
-        status_code=status.HTTP_501_NOT_IMPLEMENTED,
-        detail="Not yet migrated",
-    )
-
+    passed = None
+    model_id = None
+    test_id = None
+    model_alias = None
+    test_alias = None
     return _query_results(passed, project_id, model_instance_id, test_instance_id, model_id, test_id, model_alias, test_alias, score_type,  size,
-from_index, token)
+from_index, token, response_model=ValidationResult)
 
 
 def _query_results(passed, project_id, model_instance_id, test_instance_id, model_id, test_id, model_alias, test_alias, score_type,  size,
-from_index, token):
-    filter_query, context = build_result_filters(
+from_index, token, response_model):
+    kg_client = get_kg_client_for_user_account(token.credentials)
+    filter_query = build_result_filters(
         model_instance_id,
         test_instance_id,
         model_id,
@@ -66,25 +68,29 @@ from_index, token):
         test_alias,
         score_type,
         passed,
-        project_id,
         kg_client,
     )
-    if len(filter_query["value"]) > 0:
-        logger.info(f"Searching for ValidationResult with the following query: {filter_query}")
-        # note that from_index is not currently supported by KGQuery.resolve
-        query = KGQuery(ValidationResultKG, {"nexus": filter_query}, context)
-        results = query.resolve(kg_client, api="nexus", size=size)
+    if project_id:
+        spaces = [f"collab-{collab_id}" for collab_id in project_id]
     else:
-        results = ValidationResultKG.list(kg_client, api="nexus", size=size, from_index=from_index)
-    response = []
-    for result in results:
-        try:
-            obj = ValidationResult.from_kg_object(result, kg_client)
-        except ConsistencyError as err:  # todo: count these and report them in the response
-            logger.warning(str(err))
+        spaces = ["collab-model-validation"]
+
+    validation_results = []
+    for space in spaces:
+        if len(filter_query) > 0:
+            logger.info("Searching for ModelValidations with the following query: {}".format(filter_query))
+            results = omcmp.ModelValidation.list(
+                kg_client, size=size, from_index=from_index, api="query", scope="in progress",
+                space=space, **filter_query)
         else:
-            response.append(obj)
-    return response
+            results = omcmp.ModelValidation.list(
+                kg_client, size=size, from_index=from_index, api="core", scope="in progress",
+                space=space)
+        validation_results.extend(as_list(results))
+    return [
+        response_model.from_kg_object(validation_result, kg_client)
+        for validation_result in as_list(validation_results)
+    ]
 
 
 def expand_combinations(D):
@@ -141,15 +147,11 @@ from_index, token):
 
 @router.get("/results/{result_id}", response_model=ValidationResult)
 def get_result(result_id: UUID, token: HTTPAuthorizationCredentials = Depends(auth)):
-    raise HTTPException(
-        status_code=status.HTTP_501_NOT_IMPLEMENTED,
-        detail="Not yet migrated",
-    )
-
-    result = ValidationResultKG.from_uuid(str(result_id), kg_client, api="nexus", scope="in progress")
-    if result:
+    kg_client = get_kg_client_for_user_account(token.credentials)
+    validation_activity = omcmp.ModelValidation.from_uuid(str(result_id), kg_client, scope="in progress")
+    if validation_activity:
         try:
-            obj = ValidationResult.from_kg_object(result, kg_client)
+            obj = ValidationResult.from_kg_object(validation_activity, kg_client)
         except ConsistencyError as err:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(err))
     else:
@@ -162,69 +164,39 @@ def get_result(result_id: UUID, token: HTTPAuthorizationCredentials = Depends(au
 
 @router.get("/results-extended/", response_model=List[ValidationResultWithTestAndModel])
 async def query_results_extended(
-    passed: List[bool] = Query(None),
+    #passed: List[bool] = Query(None),
     project_id: List[int] = Query(None),
     model_instance_id: List[UUID] = Query(
         None
     ),  # todo: rename this 'model_instance_id' for consistency
     test_instance_id: List[UUID] = Query(None),
-    model_id: List[UUID] = Query(None),
-    test_id: List[UUID] = Query(None),
-    model_alias: List[str] = Query(None),
-    test_alias: List[str] = Query(None),
+    #model_id: List[UUID] = Query(None),
+    #test_id: List[UUID] = Query(None),
+    #model_alias: List[str] = Query(None),
+    #test_alias: List[str] = Query(None),
     score_type: List[ScoreType] = None,
     size: int = Query(100),
     from_index: int = Query(0),
     # from header
     token: HTTPAuthorizationCredentials = Depends(auth),
 ):
-    raise HTTPException(
-        status_code=status.HTTP_501_NOT_IMPLEMENTED,
-        detail="Not yet migrated",
-    )
-
-    filter_query, context = build_result_filters(
-        model_instance_id,
-        test_instance_id,
-        model_id,
-        test_id,
-        model_alias,
-        test_alias,
-        score_type,
-        passed,
-        project_id,
-        kg_client,
-    )
-    if len(filter_query["value"]) > 0:
-        logger.info(f"Searching for ValidationResult with the following query: {filter_query}")
-        # note that from_index is not currently supported by KGQuery.resolve
-        query = KGQuery(ValidationResultKG, {"nexus": filter_query}, context)
-        results = query.resolve(kg_client, api="nexus", size=size)
-    else:
-        results = ValidationResultKG.list(kg_client, api="nexus", size=size, from_index=from_index)
-    response = []
-    for result in results:
-        try:
-            obj = await ValidationResultWithTestAndModel.from_kg_object(result, kg_client, token)
-        except ConsistencyError as err:  # todo: count these and report them in the response
-            logger.warning(str(err))
-        else:
-            response.append(obj)
-    return response
+    passed = None
+    model_id = None
+    test_id = None
+    model_alias = None
+    test_alias = None
+    return _query_results(passed, project_id, model_instance_id, test_instance_id, model_id, test_id, model_alias, test_alias, score_type,  size,
+from_index, token, response_model=ValidationResultWithTestAndModel)
 
 
 @router.get("/results-extended/{result_id}", response_model=ValidationResultWithTestAndModel)
 async def get_result_extended(result_id: UUID,
                      token: HTTPAuthorizationCredentials = Depends(auth)):
-    raise HTTPException(
-        status_code=status.HTTP_501_NOT_IMPLEMENTED,
-        detail="Not yet migrated",
-    )
-
-    result = ValidationResultKG.from_uuid(str(result_id), kg_client, api="nexus", scope="in progress")
-    if result:
+    kg_client = get_kg_client_for_user_account(token.credentials)
+    validation_activity = omcmp.ModelValidation.from_uuid(str(result_id), kg_client, scope="in progress")
+    if validation_activity:
         try:
-            obj = await ValidationResultWithTestAndModel.from_kg_object(result, kg_client, token)
+            obj = ValidationResultWithTestAndModel.from_kg_object(validation_activity, kg_client)
         except ConsistencyError as err:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(err))
     else:

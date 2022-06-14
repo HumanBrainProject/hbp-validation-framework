@@ -117,49 +117,31 @@ def build_result_filters(
     test_alias,
     score_type,
     passed,
-    project_id,
     kg_client,
 ):
-    raise NotImplementedError("Not yet migrated")
-    context = {
-        "nsg": "https://bbp-nexus.epfl.ch/vocabs/bbp/neurosciencegraph/core/v0.1.0/",
-        "schema": "http://schema.org/",
-        "dcterms": "http://purl.org/dc/terms/",
-    }
-    filter_query = {"op": "and", "value": []}
+    filter_query = {}
 
+    inputs = []
     if model_instance_id is not None:
-        model_instance_id = list(
-            chain(
-                get_full_uri([ModelInstance, MEModel], uuid, kg_client)
-                for uuid in model_instance_id
-            )
-        )
+        inputs.extend(model_instance_id)
     if test_instance_id is not None:
-        test_instance_id = list(
-            chain(get_full_uri(ValidationScript, uuid, kg_client) for uuid in test_instance_id)
-        )
+        inputs.extend(test_instance_id)
+    if inputs:
+        filter_query["inputs"] = inputs
     if model_id is not None:
-        model_id = list(chain(get_full_uri(ModelProject, uuid, kg_client) for uuid in model_id))
+        pass
     if test_id is not None:
-        test_id = list(
-            chain(get_full_uri(ValidationTestDefinition, uuid, kg_client) for uuid in test_id)
-        )
+        pass
+    if model_alias is not None:
+        pass
+    if test_alias is not None:
+        pass
+    if score_type is not None:
+        pass
+    if passed is not None:
+        pass
 
-    for value, path in (
-        (model_instance_id, "prov:wasGeneratedBy / prov:used"),
-        (test_instance_id, "prov:wasGeneratedBy / prov:used"),
-        (model_id, "prov:wasGeneratedBy / prov:used / ^dcterms:hasPart"),
-        (test_id, "prov:wasGeneratedBy / prov:used / nsg:implements"),
-        (model_alias, "prov:wasGeneratedBy / prov:used / ^dcterms:hasPart / nsg:alias"),
-        (test_alias, "prov:wasGeneratedBy / prov:used / nsg:implements / nsg:alias"),
-        (score_type, "prov:wasGeneratedBy / prov:used / nsg:implements / nsg:scoreType"),
-        (passed, "nsg:passedValidation"),
-        (project_id, "nsg:collabID"),
-    ):
-        if value is not None and len(value) > 0:
-            filter_query["value"].append({"path": path, "op": "in", "value": value})
-    return filter_query, context
+    return filter_query
 
 
 def model_alias_exists(alias, client):
