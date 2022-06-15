@@ -30,7 +30,7 @@ class ResultFile extends React.Component {
             // content_type: this.props.r_file.content_type,
             url: this.props.r_file.download_url,
             download_url: this.props.r_file.download_url,
-            share_url: null,
+            share_url: this.props.r_file.download_url,
             filename: this.props.r_file.download_url
                 .split("/")
                 .pop()
