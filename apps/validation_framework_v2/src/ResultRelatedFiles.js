@@ -30,6 +30,7 @@ class ResultFile extends React.Component {
             // content_type: this.props.r_file.content_type,
             url: this.props.r_file.download_url,
             download_url: this.props.r_file.download_url,
+            share_url: this.props.r_file.download_url,
             filename: this.props.r_file.download_url
                 .split("/")
                 .pop()
@@ -71,6 +72,24 @@ class ResultFile extends React.Component {
                 url_parts[1] +
                 "/file/detail/?p=" +
                 url_parts[2];
+
+            // Obtaining Collab Drive share URL to avoid authentication loop issue when previewing file inside iframe
+            let query_share_url = corsProxy + "https://drive.ebrains.eu/api2/repos/" + url_parts[1] + "/file/shared-link/";
+            var formdata = new FormData();
+            formdata.append("p", url_parts[2]);
+            axios
+            .put(query_share_url, formdata, config)
+            .then((res) => {
+                this.setState({
+                    share_url: res.headers["location"],
+                });
+            })
+            .catch((err) => {
+                console.log("Error creating share link!");
+                this.setState({
+                    share_url: null,
+                });
+            });
         } else {
             query_url = this.state.url;
         }
@@ -191,7 +210,7 @@ class ResultFile extends React.Component {
                                             width: "100%",
                                             height: "400px",
                                         }}
-                                        src={this.state.url}
+                                        src={this.state.share_url}
                                     />
                                 </div>
                             )}
