@@ -17,7 +17,8 @@ class DataStore {
         this.auth = auth;
         this.models = {};
         this.tests = {};
-        this.results = {};
+        this.summary_results = {};
+        this.extended_results = {};
         this.projects = [];
         this.vocab = null;
         this.queries = {
@@ -372,7 +373,7 @@ class DataStore {
     async getResultsByModel(modelId, source = null) {
         if (this.models[modelId].loadedResults) {
             return this.models[modelId].results.map((resultId) => {
-                return this.results[resultId];
+                return this.summary_results[resultId];
             });
         } else {
             const url =
@@ -385,7 +386,7 @@ class DataStore {
                 const resultIds = [];
                 res.data.forEach((result) => {
                     resultIds.push(result.id);
-                    this.results[result.id] = result;
+                    this.summary_results[result.id] = result;
                 });
                 this.models[modelId].results = resultIds;
                 this.models[modelId].loadedResults = true;
@@ -403,7 +404,7 @@ class DataStore {
             querySizeLimit;
         return this.get(url, source).then((res) => {
             res.data.forEach((result) => {
-                this.results[result.id] = result;
+                this.extended_results[result.id] = result;
             });
             return res.data;
         });
@@ -412,7 +413,7 @@ class DataStore {
     async getResultsByTest(testId, source = null) {
         if (this.tests[testId].loadedResults) {
             return this.tests[testId].results.map((resultId) => {
-                return this.results[resultId];
+                return this.summary_results[resultId];
             });
         } else {
             const url =
@@ -425,7 +426,7 @@ class DataStore {
                 const resultIds = [];
                 res.data.forEach((result) => {
                     resultIds.push(result.id);
-                    this.results[result.id] = result;
+                    this.summary_results[result.id] = result;
                 });
                 this.tests[testId].results = resultIds;
                 this.tests[testId].loadedResults = true;
@@ -443,20 +444,20 @@ class DataStore {
             querySizeLimit;
         return this.get(url, source).then((res) => {
             res.data.forEach((result) => {
-                this.results[result.id] = result;
+                this.extended_results[result.id] = result;
             });
             return res.data;
         });
     }
 
     async getResult(resultID, source = null) {
-        if (this.results[resultID]) {
-            return this.results[resultID];
+        if (this.extended_results[resultID]) {
+            return this.extended_results[resultID];
         } else {
             const url = this.baseUrl + "/results-extended/" + resultID;
             return this.get(url, source).then((res) => {
-                this.results[resultID] = res.data;
-                return this.results[resultID];
+                this.extended_results[resultID] = res.data;
+                return this.extended_results[resultID];
             });
         }
     }
