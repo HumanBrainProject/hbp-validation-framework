@@ -55,7 +55,7 @@ build_api_dev_image:
     - shell-runner
 
 
-  build_api_prod_image:
+build_api_prod_image:
   stage: build
   rules:
       - if: '$CI_COMMIT_REF_NAME == "master"'
