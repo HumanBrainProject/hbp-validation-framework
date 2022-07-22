@@ -440,15 +440,14 @@ export default class TestResultOverview extends React.Component {
             resultDetailOpen: true,
             currentResult: result,
         });
-        updateHash("result_id." + result.id);
     }
 
-    handleResultDetailClose() {
+    handleResultDetailClose(sourceHash) {
         this.setState({
             resultDetailOpen: false,
             currentResult: null,
         });
-        updateHash("");
+        updateHash(sourceHash || "" );
     }
 
     handleResultUpdate(updatedResult) {
@@ -599,7 +598,15 @@ export default class TestResultOverview extends React.Component {
 
         const test_versions = this.getTestVersions();
         const results = this.props.results;
-        if (results.length === 0) {
+        if (!results) {
+            return (
+                <Typography variant="subtitle1">
+                    <b>
+                        Loading...
+                    </b>
+                </Typography>
+            );
+        } else if (results.length === 0) {
             content = this.renderNoResults();
         } else {
             const results_grouped = this.groupResults(test_versions, results);
@@ -616,6 +623,7 @@ export default class TestResultOverview extends React.Component {
                     result={this.state.currentResult}
                     onClose={this.handleResultDetailClose}
                     onUpdate={this.handleResultUpdate}
+                    sourceHash={window.location.hash.slice(1)}
                 />
             );
         } else {

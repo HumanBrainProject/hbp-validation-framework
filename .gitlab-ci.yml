@@ -5,6 +5,9 @@ stages:
 run_cypress_tests:
   image: cypress/browsers:node12.14.1-chrome85-ff81
   stage: test
+  rules:
+    - changes:
+      - apps/validation_framework_v2/**/*
   script:
     - cd apps/validation_framework_v2
     # install dependencies
