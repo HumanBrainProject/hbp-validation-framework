@@ -2,7 +2,7 @@
 EBRAINS Model Validation Service
 ================================
 
-Version 2, work in progress
+Version 2
 
 To run development web server::
 
