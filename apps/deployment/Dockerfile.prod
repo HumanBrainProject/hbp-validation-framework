@@ -10,7 +10,7 @@ WORKDIR /model-catalog
 ENV PATH /model-catalog/node_modules/.bin:$PATH
 COPY validation_framework_v2/package.json ./
 COPY validation_framework_v2/package-lock.json ./
-RUN npm ci --silent
+RUN npm ci --silent --legacy-peer-deps
 COPY validation_framework_v2 ./
 RUN node --max-old-space-size=4096 `which npm` run build
 
@@ -18,7 +18,7 @@ WORKDIR /curation-dashboard
 ENV PATH /curation-dashboard/node_modules/.bin:$PATH
 COPY curation-dashboard/package.json ./
 COPY curation-dashboard/package-lock.json ./
-RUN npm ci --silent
+RUN npm ci --silent --legacy-peer-deps
 COPY curation-dashboard ./
 RUN npm run build
 
