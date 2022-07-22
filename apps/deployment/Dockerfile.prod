@@ -4,7 +4,7 @@
 # as it contains only the final built app
 
 # build environment
-FROM node:alpine as build
+FROM node:16-alpine as build
 
 WORKDIR /model-catalog
 ENV PATH /model-catalog/node_modules/.bin:$PATH
