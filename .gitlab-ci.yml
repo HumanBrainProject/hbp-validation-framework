@@ -53,7 +53,7 @@ build_api_dev_image:
   script:
     - docker build -f validation_service_v2/deployment/Dockerfile.dev -t docker-registry.ebrains.eu/model-catalog/validation_service-v2:dev ./validation_service_v2
     - docker login -u $DOCKER_REGISTRY_USER -p $DOCKER_REGISTRY_SECRET docker-registry.ebrains.eu
-    - docker push docker-registry.ebrains.eu/hbp-model-validation/validation_service-v2:dev
+    - docker push docker-registry.ebrains.eu/model-catalog/validation_service-v2:dev
   tags:
     - shell-runner
 
@@ -67,6 +67,6 @@ build_api_prod_image:
   script:
     - docker build -f validation_service_v2/deployment/Dockerfile.prod -t docker-registry.ebrains.eu/model-catalog/validation_service-v2:prod ./validation_service_v2
     - docker login -u $DOCKER_REGISTRY_USER -p $DOCKER_REGISTRY_SECRET docker-registry.ebrains.eu
-    - docker push docker-registry.ebrains.eu/hbp-model-validation/validation_service-v2:prod
+    - docker push docker-registry.ebrains.eu/model-catalog/validation_service-v2:prod
   tags:
     - shell-runner
