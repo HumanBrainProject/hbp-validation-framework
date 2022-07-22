@@ -10,7 +10,6 @@ from fairgraph.brainsimulation import (
 
 def build_model_project_filters(
     alias,
-    id,
     name,
     brain_region,
     species,
@@ -28,9 +27,7 @@ def build_model_project_filters(
         "schema": "http://schema.org/",
     }
     filter_query = {"op": "and", "value": []}
-    # todo: handle filter by id
     for value, path in (
-        # (id, "@id"),  # does this work?
         (alias, "nsg:alias"),
         (name, "schema:name"),
         (brain_region, "nsg:brainRegion / rdfs:label"),

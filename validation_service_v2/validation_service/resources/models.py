@@ -109,31 +109,39 @@ async def query_models(
     if abstraction_level:
         abstraction_level = abstraction_level.value
 
-    filter_query, context = build_model_project_filters(
-        alias,
-        id,
-        name,
-        brain_region,
-        species,
-        cell_type,
-        model_scope,
-        abstraction_level,
-        author,
-        owner,
-        organization,
-        project_id,
-        private,
-    )
-    if len(filter_query["value"]) > 0:
-        logger.info("Searching for ModelProject with the following query: {}".format(filter_query))
-        # note that from_index is not currently supported by KGQuery.resolve
-        model_projects = KGQuery(ModelProject, {"nexus": filter_query}, context).resolve(
-            kg_client, api="nexus", size=size, scope="latest"
-        )
+    # transform UUIDs into URIs
+    if id:
+        model_projects = []
+        for uuid in id:
+            model_project = ModelProject.from_uuid(str(uuid), kg_client, api="nexus", scope="latest")
+            if model_project:
+                model_projects.append(model_project)
     else:
-        model_projects = ModelProject.list(
-            kg_client, api="nexus", size=size, from_index=from_index, scope="latest"
+        # if specifying specific ids, we ignore any other search terms
+        filter_query, context = build_model_project_filters(
+            alias,
+            name,
+            brain_region,
+            species,
+            cell_type,
+            model_scope,
+            abstraction_level,
+            author,
+            owner,
+            organization,
+            project_id,
+            private,
         )
+        if len(filter_query["value"]) > 0:
+            logger.info("Searching for ModelProject with the following query: {}".format(filter_query))
+            # note that from_index is not currently supported by KGQuery.resolve
+            model_projects = KGQuery(ModelProject, {"nexus": filter_query}, context).resolve(
+                kg_client, api="nexus", size=size, scope="latest"
+            )
+        else:
+            model_projects = ModelProject.list(
+                kg_client, api="nexus", size=size, from_index=from_index, scope="latest"
+            )
     if summary:
         cls = ScientificModelSummary
     else:
