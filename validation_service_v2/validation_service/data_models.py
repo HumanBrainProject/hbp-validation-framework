@@ -1370,6 +1370,7 @@ class LivePaperDataItem(BaseModel):
             )
         else:
             return cls(
+                url=data_item.distribution.location,
                 label=data_item.name,
                 type=data_item.resource_type,
                 identifier=UUID(data_item.identifier)
