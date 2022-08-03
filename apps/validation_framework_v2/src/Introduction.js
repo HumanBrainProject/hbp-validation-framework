@@ -78,7 +78,7 @@ function MediaCard(props) {
       <Card
         style={{
           width: "90%",
-          backgroundColor: "#FFECB3",
+          backgroundColor: "#DCEDC8",
           borderStyle: "solid",
           borderWidth: 2,
         }}
@@ -211,7 +211,7 @@ class Introduction extends React.Component {
     this.mounted = true;
     fetch(
       corsProxy +
-        "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/VF_paper_demo/vf_stats/models_stats.json"
+      "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/VF_paper_demo/vf_stats/models_stats.json"
     )
       .then((response) => response.json())
       .then((jsonData) => {
@@ -241,47 +241,60 @@ class Introduction extends React.Component {
     const { classes } = this.props;
     return (
       <React.Fragment>
-        <Grid
-          className={classes.roundedBox}
+
+        <div
           style={{
-            marginTop: "5px",
-            paddingTop: "50px",
-            paddingBottom: "50px",
+            paddingLeft: "5%",
+            paddingRight: "5%",
+            textAlign: "justify",
+            fontSize: 16,
+            lineHeight: 1.75,
+            paddingBottom: "20px",
           }}
         >
-          <Grid
-            style={{
-              display: "flex",
-              justifyContent: "center",
-              alignItem: "center",
-            }}
-          >
-            <img
-              className="ebrains-icon-small"
-              src="/docs/static/img/ebrains_logo.png"
-              alt="EBRAINS logo"
-              style={{ width: "50px", height: "50px" }}
-            />
-            <span
-              className={classes.header}
-              style={{ paddingLeft: "15px", marginTop: "4px" }}
-            >
-              <Typography variant="h4" component="h2" gutterBottom>
-                <b>EBRAINS Model Catalog</b>
-              </Typography>
-            </span>
-          </Grid>
-          <Grid style={{ paddingTop: "20px" }}>
-            <Typography variant="h5" component="h3">
-              A framework for collaborative and reproducible modelling in
-              neuroscience
-            </Typography>
-          </Grid>
-        </Grid>
+          <div className="title-solid-style" style={{ fontSize: 44 }}>EBRAINS Model Catalog</div>
+          <div className="title-solid-style" style={{ fontSize: 32, color: "#00A595" }}>A framework for collaborative and reproducible modelling in neuroscience</div>
+        </div>
+        <div style={{ marginBottom: "40px", }}>
+          <div className="rainbow-row">
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+          </div>
+        </div>
+        {/* <div
+          style={{
+            paddingLeft: "5%",
+            paddingRight: "5%",
+            textAlign: "justify",
+            fontSize: 16,
+            lineHeight: 1.75,
+          }}
+        >
+          abcde
+        </div> */}
+
 
         <Grid container spacing={3} className={classes.body}>
-          <Grid item xs={6}>
-            <Paper elevation={5} className={classes.panel}>
+          <Grid item xs={6} style={{ paddingTop: 0 }}>
+            <div
+              className="note rounded intro"
+              style={{
+                marginLeft: "5%",
+                marginRight: "0%",
+                width: "95%",
+                textAlign: "justify",
+                fontSize: 16,
+                lineHeight: 1.75,
+                marginTop: "0px",
+                marginBottom: "20px"
+              }}
+            >
               <Typography variant="h5" component="h3" gutterBottom>
                 <PlayCircleFilledIcon
                   style={{ color: yellow[700], verticalAlign: "text-top" }}
@@ -293,17 +306,29 @@ class Introduction extends React.Component {
                 species, brain region, model scope, etc. by clicking on the
                 configure icon{" "}
                 <SettingsIcon style={{ verticalAlign: "text-bottom" }} /> at the
-                top left. You can specify multiple filters and also select
+                top right. You can specify multiple filters and also select
                 multiple values per filter. You also have the option to display
                 only models or only tests, as required.
               </Typography>
               <Typography variant="body1" gutterBottom>
                 <Link href="/docs/find.html">See documentation</Link>
               </Typography>
-            </Paper>
+            </div>
           </Grid>
-          <Grid item xs={6}>
-            <Paper elevation={5} className={classes.panel}>
+          <Grid item xs={6} style={{ paddingTop: 0 }}>
+            <div
+              className="note rounded intro"
+              style={{
+                marginLeft: "0%",
+                marginRight: "5%",
+                width: "95%",
+                textAlign: "justify",
+                fontSize: 16,
+                lineHeight: 1.75,
+                marginTop: "0px",
+                marginBottom: "20px"
+              }}
+            >
               <Typography variant="h5" component="h3" gutterBottom>
                 <InfoIcon
                   style={{ color: yellow[700], verticalAlign: "text-top" }}
@@ -314,18 +339,18 @@ class Introduction extends React.Component {
                 The EBRAINS Model Catalog contains information about models
                 developed and/or used within the EBRAINS research
                 infrastructure. It allows you to find information about
-                neuroscience models and about results obtained using those
-                models, in particular about how those models have been validated
+                models and results obtained using those
+                models, showcasing how those models have been validated
                 against experimental findings.
               </Typography>
               <Typography variant="body1" gutterBottom>
                 <Link href="/docs">More information</Link>
               </Typography>
-            </Paper>
+            </div>
           </Grid>
         </Grid>
         <Grid>
-          <Grid className={classes.roundedBox} style={{ width: "95%" }}>
+          <div className="box rounded centered smallbox titleText" style={{ width: "95%" }}>
             <span
               style={{
                 fontWeight: "bolder",
@@ -333,9 +358,9 @@ class Introduction extends React.Component {
                 textAlign: "center",
               }}
             >
-              Featured Models
+              Featured Live Papers
             </span>
-          </Grid>
+          </div>
           <Grid
             style={{
               paddingLeft: "3.5%",
@@ -425,14 +450,10 @@ class Introduction extends React.Component {
             </Slider>
           </Grid>
           <br />
-          <br />
         </Grid>
         {this.state.stats && (
           <Grid>
-            <Grid
-              className={classes.roundedBox}
-              style={{ width: "95%", margin: "25px" }}
-            >
+            <div className="box rounded centered smallbox titleText" style={{ width: "95%" }}>
               <span
                 style={{
                   fontWeight: "bolder",
@@ -442,7 +463,7 @@ class Introduction extends React.Component {
               >
                 Distribution of Models
               </span>
-            </Grid>
+            </div>
             <Grid
               container
               spacing={2}
@@ -474,6 +495,20 @@ class Introduction extends React.Component {
             </Grid>
           </Grid>
         )}
+        <br />
+        <br />
+        <div className="rainbow-row" style={{ paddingLeft: "2.5%", paddingRight: "2.5%" }}>
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
+        </div>
+        <br />
+        <br />
       </React.Fragment>
     );
   }

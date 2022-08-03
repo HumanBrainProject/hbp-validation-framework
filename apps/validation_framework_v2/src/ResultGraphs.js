@@ -506,7 +506,7 @@ export default class ResultGraphs extends React.Component {
                             <Accordion
                                 defaultExpanded={true}
                                 key={test_id}
-                                style={{ backgroundColor: Theme.tableHeader }}
+                                style={{ backgroundColor: Theme.tableDarkHeader }}
                             >
                                 <AccordionSummary
                                     expandIcon={<ExpandMoreIcon />}

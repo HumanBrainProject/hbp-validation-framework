@@ -482,14 +482,14 @@ export default class ModelResultOverview extends React.Component {
                                         align="center"
                                         colSpan={2}
                                         rowSpan={2}
-                                        bgcolor={Theme.tableRowSelectColor}
+                                        bgcolor={Theme.tableDarkHeader}
                                     >
                                         Validation Test
                                     </TableCell>
                                     <TableCell
                                         align="center"
                                         colSpan={model_versions.length * 3}
-                                        bgcolor={Theme.tableRowSelectColor}
+                                        bgcolor={Theme.tableDarkHeader}
                                     >
                                         Model Version(s)
                                     </TableCell>

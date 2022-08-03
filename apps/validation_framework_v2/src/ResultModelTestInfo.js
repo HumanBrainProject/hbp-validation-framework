@@ -34,9 +34,9 @@ function CommonParameter(props) {
                             props.enqueueSnackbar,
                             props.closeSnackbar,
                             "Model " +
-                                props.entity +
-                                formatLabel(props.label) +
-                                " copied"
+                            props.entity +
+                            formatLabel(props.label) +
+                            " copied"
                         )
                     }
                 >
@@ -45,7 +45,7 @@ function CommonParameter(props) {
             </TableCell>
             <TableCell
                 align="center"
-                style={{ backgroundColor: Theme.tableHeader }}
+                style={{ backgroundColor: Theme.tableDarkHeader }}
             >
                 <Typography variant="body2">
                     <b>{formatLabel(props.label)}</b>
@@ -62,9 +62,9 @@ function CommonParameter(props) {
                             props.enqueueSnackbar,
                             props.closeSnackbar,
                             "Test " +
-                                props.entity +
-                                formatLabel(props.label) +
-                                " copied"
+                            props.entity +
+                            formatLabel(props.label) +
+                            " copied"
                         )
                     }
                 >
@@ -95,9 +95,9 @@ function OtherParameter(props) {
                             props.enqueueSnackbar,
                             props.closeSnackbar,
                             props.entity +
-                                " " +
-                                formatLabel(props.label) +
-                                " copied"
+                            " " +
+                            formatLabel(props.label) +
+                            " copied"
                         )
                     }
                 >
@@ -141,7 +141,7 @@ class ResultModelTestInfo extends React.Component {
                                                     align="center"
                                                     style={{
                                                         backgroundColor:
-                                                            Theme.tableHeader,
+                                                            Theme.tableDarkHeader,
                                                     }}
                                                 >
                                                     <Typography variant="body2">
@@ -153,18 +153,18 @@ class ResultModelTestInfo extends React.Component {
                                                     align="center"
                                                     style={{
                                                         backgroundColor:
-                                                            Theme.tableRowSelectColor,
+                                                            Theme.tableDarkHeader,
                                                     }}
                                                 >
                                                     <Typography variant="body2">
-                                                        <b>Parameter</b>
+                                                        <b>{"<< "}Parameter{" >>"}</b>
                                                     </Typography>
                                                 </TableCell>
                                                 <TableCell
                                                     align="center"
                                                     style={{
                                                         backgroundColor:
-                                                            Theme.tableHeader,
+                                                            Theme.tableDarkHeader,
                                                     }}
                                                 >
                                                     <Typography variant="body2">
@@ -235,7 +235,7 @@ class ResultModelTestInfo extends React.Component {
                                                         align="center"
                                                         style={{
                                                             backgroundColor:
-                                                                Theme.tableHeader,
+                                                                Theme.tableDarkHeader,
                                                         }}
                                                         colSpan={2}
                                                     >
@@ -259,7 +259,7 @@ class ResultModelTestInfo extends React.Component {
                                                         label={param}
                                                         value={
                                                             this.props.model[
-                                                                param
+                                                            param
                                                             ]
                                                         }
                                                         key={param}
@@ -287,7 +287,7 @@ class ResultModelTestInfo extends React.Component {
                                                         align="center"
                                                         style={{
                                                             backgroundColor:
-                                                                Theme.tableHeader,
+                                                                Theme.tableDarkHeader,
                                                         }}
                                                         colSpan={2}
                                                     >
@@ -311,7 +311,7 @@ class ResultModelTestInfo extends React.Component {
                                                         label={param}
                                                         value={
                                                             this.props.test[
-                                                                param
+                                                            param
                                                             ]
                                                         }
                                                         key={param}
@@ -356,7 +356,7 @@ class ResultModelTestInfo extends React.Component {
                                             <TableCell
                                                 style={{
                                                     backgroundColor:
-                                                        Theme.tableHeader,
+                                                        Theme.tableDarkHeader,
                                                 }}
                                             >
                                                 <Typography variant="body2">
@@ -385,7 +385,7 @@ class ResultModelTestInfo extends React.Component {
                                             <TableCell
                                                 style={{
                                                     backgroundColor:
-                                                        Theme.tableHeader,
+                                                        Theme.tableDarkHeader,
                                                 }}
                                             >
                                                 <Typography variant="body2">
@@ -439,7 +439,7 @@ class ResultModelTestInfo extends React.Component {
                                                 align="center"
                                                 style={{
                                                     backgroundColor:
-                                                        Theme.tableHeader,
+                                                        Theme.tableDarkHeader,
                                                 }}
                                             >
                                                 <Typography variant="body2">
@@ -451,18 +451,18 @@ class ResultModelTestInfo extends React.Component {
                                                 align="center"
                                                 style={{
                                                     backgroundColor:
-                                                        Theme.tableRowSelectColor,
+                                                        Theme.tableDarkHeader,
                                                 }}
                                             >
                                                 <Typography variant="body2">
-                                                    <b>Parameter</b>
+                                                    <b>{"<< "}Parameter{" >>"}</b>
                                                 </Typography>
                                             </TableCell>
                                             <TableCell
                                                 align="center"
                                                 style={{
                                                     backgroundColor:
-                                                        Theme.tableHeader,
+                                                        Theme.tableDarkHeader,
                                                 }}
                                             >
                                                 <Typography variant="body2">
@@ -482,12 +482,12 @@ class ResultModelTestInfo extends React.Component {
                                                 label={param}
                                                 m_value={
                                                     this.props.model_instance[
-                                                        param
+                                                    param
                                                     ]
                                                 }
                                                 t_value={
                                                     this.props.test_instance[
-                                                        param
+                                                    param
                                                     ]
                                                 }
                                                 key={param}
@@ -531,7 +531,7 @@ class ResultModelTestInfo extends React.Component {
                                                         align="center"
                                                         style={{
                                                             backgroundColor:
-                                                                Theme.tableHeader,
+                                                                Theme.tableDarkHeader,
                                                         }}
                                                         colSpan={2}
                                                     >
@@ -555,7 +555,7 @@ class ResultModelTestInfo extends React.Component {
                                                         value={
                                                             this.props
                                                                 .model_instance[
-                                                                param
+                                                            param
                                                             ]
                                                         }
                                                         key={param}
@@ -583,7 +583,7 @@ class ResultModelTestInfo extends React.Component {
                                                         align="center"
                                                         style={{
                                                             backgroundColor:
-                                                                Theme.tableHeader,
+                                                                Theme.tableDarkHeader,
                                                         }}
                                                         colSpan={2}
                                                     >
@@ -604,7 +604,7 @@ class ResultModelTestInfo extends React.Component {
                                                         value={
                                                             this.props
                                                                 .test_instance[
-                                                                param
+                                                            param
                                                             ]
                                                         }
                                                         key={param}
@@ -649,7 +649,7 @@ class ResultModelTestInfo extends React.Component {
                                             <TableCell
                                                 style={{
                                                     backgroundColor:
-                                                        Theme.tableHeader,
+                                                        Theme.tableDarkHeader,
                                                 }}
                                             >
                                                 <Typography variant="body2">
@@ -666,8 +666,8 @@ class ResultModelTestInfo extends React.Component {
                                                     {this.props.model_instance
                                                         .description
                                                         ? this.props
-                                                              .model_instance
-                                                              .description
+                                                            .model_instance
+                                                            .description
                                                         : "<< no info >>"}
                                                 </Typography>
                                             </TableCell>
@@ -676,7 +676,7 @@ class ResultModelTestInfo extends React.Component {
                                             <TableCell
                                                 style={{
                                                     backgroundColor:
-                                                        Theme.tableHeader,
+                                                        Theme.tableDarkHeader,
                                                 }}
                                             >
                                                 <Typography variant="body2">
@@ -692,8 +692,8 @@ class ResultModelTestInfo extends React.Component {
                                                     {this.props.test_instance
                                                         .description
                                                         ? this.props
-                                                              .test_instance
-                                                              .description
+                                                            .test_instance
+                                                            .description
                                                         : "<< no info >>"}
                                                 </Typography>
                                             </TableCell>

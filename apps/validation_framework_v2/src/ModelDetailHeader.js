@@ -75,7 +75,7 @@ function CompareIcon(props) {
                     aria-label="compare model"
                     onClick={() => props.addModelCompare()}
                     style={{
-                        backgroundColor: Theme.buttonSecondary,
+                        backgroundColor: Theme.buttonPrimary,
                         marginLeft: 10,
                     }}
                 >
@@ -94,7 +94,7 @@ function EditButton(props) {
                     aria-label="edit model"
                     onClick={() => props.handleEditClick()}
                     style={{
-                        backgroundColor: Theme.buttonSecondary,
+                        backgroundColor: Theme.buttonPrimary,
                         marginLeft: 10,
                     }}
                 >

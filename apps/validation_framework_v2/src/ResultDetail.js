@@ -192,7 +192,7 @@ export default class ResultDetail extends React.Component {
                                     onChange={this.handleTabChange}
                                     style={{
                                         backgroundColor:
-                                            Theme.tableRowSelectColor,
+                                            Theme.pageDetailBarColor,
                                         color: Theme.textPrimary,
                                     }}
                                 >

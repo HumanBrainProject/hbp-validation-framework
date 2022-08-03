@@ -6,6 +6,7 @@ import Container from "@material-ui/core/Container";
 import Grid from "@material-ui/core/Grid";
 import Tooltip from "@material-ui/core/Tooltip";
 import IconButton from "@material-ui/core/IconButton";
+import HelpOutlineIcon from "@material-ui/icons/HelpOutline";
 import SettingsIcon from "@material-ui/icons/Settings";
 import AccountTreeIcon from "@material-ui/icons/AccountTree";
 import Typography from "@material-ui/core/Typography";
@@ -23,8 +24,8 @@ import ModelAddForm from "./ModelAddForm";
 import TestAddForm from "./TestAddForm";
 import ConfigForm from "./ConfigForm";
 import Introduction from "./Introduction";
-//import ConfigDisplayTop from "./ConfigDisplayTop"
-import ConfigDisplayTop from "./ConfigDisplaySimple";
+
+import ConfigDisplaySimple from "./ConfigDisplaySimple";
 import LoadingIndicator from "./LoadingIndicator";
 import ResultDetail from "./ResultDetail";
 import ErrorDialog from "./ErrorDialog";
@@ -1041,7 +1042,7 @@ class ValidationFramework extends React.Component {
             mainContent = <Introduction handleConfig={this.handleConfigClose} />;
         } else {
             configContent = (
-                <ConfigDisplayTop
+                <ConfigDisplaySimple
                     display={this.state.display}
                     filters={this.state.filters}
                 />
@@ -1119,29 +1120,63 @@ class ValidationFramework extends React.Component {
         return (
             <React.Fragment>
                 <div>
-                    <Grid container direction="row">
-                        <Grid item style={{width:"100px"}}>
-                            <Tooltip title={"Change Configuration"}>
-                                <IconButton
-                                    onClick={this.openConfig}
-                                    aria-label="Configure filters"
-                                >
-                                    <SettingsIcon />
-                                </IconButton>
-                            </Tooltip>
-                            <Tooltip title={"Compare Validation Results"}>
-                                <IconButton
-                                    onClick={this.openCompareResults}
-                                    aria-label="Compare results"
-                                >
-                                    <AccountTreeIcon />
-                                </IconButton>
-                            </Tooltip>
-                        </Grid>
-                        <Grid item>
-                            {configContent}
-                        </Grid>
-                    </Grid>
+                    <div className="box rounded centered"
+                        style={{ marginTop: "25px", paddingTop: "0.25em", paddingBottom: "0.25em", marginBottom: "1em" }}>
+                        <div style={{ display: "flex" }}>
+                            <div style={{ flex: 1, textAlign: "left", paddingLeft: "25px", alignSelf: "center" }}>
+                                <Tooltip title={"Open EBRAINS Homepage"}>
+                                    <a href="https://ebrains.eu/"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        style={{ textAlign: "center" }}
+                                    >
+                                        <img
+                                            src="/docs/static/img/General_logo_Landscape_White.svg"
+                                            alt="EBRAINS logo"
+                                            style={{ height: "70px", cursor: "pointer" }}
+                                        />
+                                    </a>
+                                </Tooltip>
+                            </div>
+                            {!filtersEmpty(this.state.filters) &&
+                                <div style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
+                                    <div className="title-style" style={{ fontSize: 40, cursor: "pointer" }} onClick={() => window.location.href = "/"}>Model Catalog</div>
+                                </div>
+                            }
+                            <div style={{ flex: 1, textAlign: "right", paddingRight: "25px", alignSelf: "center" }}>
+                                <Tooltip title={"Change Configuration"}>
+                                    <IconButton
+                                        onClick={this.openConfig}
+                                        aria-label="Configure filters"
+                                    >
+                                        <SettingsIcon />
+                                    </IconButton>
+                                </Tooltip>
+                                <Tooltip title={"Compare Validation Results"}>
+                                    <IconButton
+                                        onClick={this.openCompareResults}
+                                        aria-label="Compare results"
+                                    >
+                                        <AccountTreeIcon />
+                                    </IconButton>
+                                </Tooltip>
+                                <Tooltip title={"Open Documentation"}>
+                                    <a
+                                        href="/docs"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                    >
+                                        <IconButton aria-label="Open Documentation">
+                                            <HelpOutlineIcon fontSize="large" />
+                                        </IconButton>
+                                    </a>
+                                </Tooltip>
+                            </div>
+                        </div>
+                    </div>
+                    <div style={{ paddingLeft: "15px", paddingRight: "15px", paddingBottom: "10px" }}>
+                        {configContent}
+                    </div>
 
                     <ConfigForm
                         open={this.state.configOpen}

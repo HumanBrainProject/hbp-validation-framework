@@ -483,14 +483,14 @@ export default class TestResultOverview extends React.Component {
                                         align="center"
                                         colSpan={2}
                                         rowSpan={2}
-                                        bgcolor={Theme.tableRowSelectColor}
+                                        bgcolor={Theme.tableDarkHeader}
                                     >
                                         Model
                                     </TableCell>
                                     <TableCell
                                         align="center"
                                         colSpan={test_versions.length * 3}
-                                        bgcolor={Theme.tableRowSelectColor}
+                                        bgcolor={Theme.tableDarkHeader}
                                     >
                                         Test Version(s)
                                     </TableCell>
