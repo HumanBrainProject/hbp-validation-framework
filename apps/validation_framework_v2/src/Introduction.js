@@ -358,7 +358,7 @@ class Introduction extends React.Component {
                 textAlign: "center",
               }}
             >
-              Featured Live Papers
+              Featured Models
             </span>
           </div>
           <Grid
