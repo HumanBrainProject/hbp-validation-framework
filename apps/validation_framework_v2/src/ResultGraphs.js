@@ -32,7 +32,6 @@ function ResultsFiguresTestIntance(props) {
         let model_version_result_ids = [];
         let model_version_scores = [];
         let customdata = [];
-
         for (let model_inst_entry of Object.values(
             model_entry["model_instances"]
         )) {
@@ -49,6 +48,7 @@ function ResultsFiguresTestIntance(props) {
                     result_entry.result_json;
             });
         }
+        console.log(model_labels);
         traces.push({
             x: [
                 model_labels.map(function (item) {
@@ -123,7 +123,7 @@ function ResultsFiguresTestIntance(props) {
         <Accordion
             defaultExpanded={true}
             key={props.test_inst_id}
-            style={{ backgroundColor: Theme.lightBackground }}
+            style={{ backgroundColor: Theme.darkBackground }}
         >
             <AccordionSummary
                 expandIcon={<ExpandMoreIcon />}
@@ -147,9 +147,9 @@ function ResultsFiguresTestIntance(props) {
                                             onClick={(data) =>
                                                 props.handleResultEntryClick(
                                                     label_resultJSON_map[
-                                                        data["points"][0][
-                                                            "hovertext"
-                                                        ]
+                                                    data["points"][0][
+                                                    "hovertext"
+                                                    ]
                                                     ]
                                                 )
                                             }
@@ -179,7 +179,7 @@ function ResultsFiguresTestIntance(props) {
                                             <b>
                                                 {
                                                     props.test_inst_entry
-                                                        .score_type
+                                                        .score_type || "(Not specified)"
                                                 }
                                             </b>
                                         </Typography>
@@ -209,7 +209,34 @@ export default class ResultGraphs extends React.Component {
         this.handleResultDetailClose = this.handleResultDetailClose.bind(this);
     }
 
+    convertResultsFormat = (results) => {
+        // converts to format required by groupResults()
+        // i.e. same format as used by model/test detail page
+        let req_results = [];
+        results.forEach(function (result, index) {
+            req_results.push({
+                "id": result.id,
+                "model_instance_id": result.model_instance_id,
+                "test_instance_id": result.test_instance_id,
+                "test_version": result.test_instance.version,
+                "score": result.score,
+                "score_type": result.test.score_type,
+                "data_type": result.test.data_type,
+                "timestamp": result.timestamp,
+                "model_id": result.model.id,
+                "model_name": result.model.name,
+                "model_alias": result.model.alias,
+                "model_version": result.model_instance.version,
+                "test_id": result.test.id,
+                "test_name": result.test.name,
+                "test_alias": result.test.alias
+            })
+        });
+        return req_results;
+    }
+
     groupResults = (results) => {
+        console.log(results);
         // will be a multi-D dict {test -> test instance -> model -> model instance} with list as values
         var dict_results = {};
 
@@ -235,7 +262,6 @@ export default class ResultGraphs extends React.Component {
                 ] = {
                     test_inst_id: result.test_instance_id,
                     test_version: result.test_version,
-                    //timestamp: result.test_instance.timestamp,
                     data_type: result.data_type,
                     score_type: result.score_type,
                     models: {},
@@ -246,7 +272,7 @@ export default class ResultGraphs extends React.Component {
                 !(
                     result.model_id in
                     dict_results[result.test_id]["test_instances"][
-                        result.test_instance_id
+                    result.test_instance_id
                     ]["models"]
                 )
             ) {
@@ -264,7 +290,7 @@ export default class ResultGraphs extends React.Component {
                 !(
                     result.model_instance_id in
                     dict_results[result.test_id]["test_instances"][
-                        result.test_instance_id
+                    result.test_instance_id
                     ]["models"][result.model_id]["model_instances"]
                 )
             ) {
@@ -275,7 +301,6 @@ export default class ResultGraphs extends React.Component {
                 ] = {
                     model_inst_id: result.model_instance_id,
                     model_version: result.model_version,
-                    //timestamp: result.model_instance.timestamp,
                     results: [],
                 };
             }
@@ -356,13 +381,13 @@ export default class ResultGraphs extends React.Component {
                     var temp_sorted = {};
                     Object.keys(
                         dict_results[test_id]["test_instances"][test_inst_id][
-                            "models"
+                        "models"
                         ]
                     )
                         .sort(function (a, b) {
                             var parent =
                                 dict_results[test_id]["test_instances"][
-                                    test_inst_id
+                                test_inst_id
                                 ]["models"];
                             var t_a_display = parent[a].model_alias
                                 ? parent[a].model_alias
@@ -381,7 +406,7 @@ export default class ResultGraphs extends React.Component {
                         .forEach(function (key) {
                             temp_sorted[key] =
                                 dict_results[test_id]["test_instances"][
-                                    test_inst_id
+                                test_inst_id
                                 ]["models"][key];
                         });
                     dict_results[test_id]["test_instances"][test_inst_id][
@@ -397,19 +422,19 @@ export default class ResultGraphs extends React.Component {
                 function (test_inst_id) {
                     Object.keys(
                         dict_results[test_id]["test_instances"][test_inst_id][
-                            "models"
+                        "models"
                         ]
                     ).forEach(function (model_id) {
                         var temp_sorted = {};
                         Object.keys(
                             dict_results[test_id]["test_instances"][
-                                test_inst_id
+                            test_inst_id
                             ]["models"][model_id]["model_instances"]
                         )
                             .sort(function (a, b) {
                                 var parent =
                                     dict_results[test_id]["test_instances"][
-                                        test_inst_id
+                                    test_inst_id
                                     ]["models"][model_id]["model_instances"];
                                 var t_a_timestamp = parent[a].timestamp;
                                 var t_b_timestamp = parent[b].timestamp;
@@ -424,9 +449,9 @@ export default class ResultGraphs extends React.Component {
                             .forEach(function (key) {
                                 temp_sorted[key] =
                                     dict_results[test_id]["test_instances"][
-                                        test_inst_id
+                                    test_inst_id
                                     ]["models"][model_id]["model_instances"][
-                                        key
+                                    key
                                     ];
                             });
                         dict_results[test_id]["test_instances"][test_inst_id][
@@ -443,12 +468,12 @@ export default class ResultGraphs extends React.Component {
                 function (test_inst_id) {
                     Object.keys(
                         dict_results[test_id]["test_instances"][test_inst_id][
-                            "models"
+                        "models"
                         ]
                     ).forEach(function (model_id) {
                         Object.keys(
                             dict_results[test_id]["test_instances"][
-                                test_inst_id
+                            test_inst_id
                             ]["models"][model_id]["model_instances"]
                         ).forEach(function (model_inst_id) {
                             dict_results[test_id]["test_instances"][
@@ -469,7 +494,7 @@ export default class ResultGraphs extends React.Component {
                 }
             );
         });
-
+        console.log(dict_results);
         return dict_results;
     };
 
@@ -506,7 +531,7 @@ export default class ResultGraphs extends React.Component {
                             <Accordion
                                 defaultExpanded={true}
                                 key={test_id}
-                                style={{ backgroundColor: Theme.tableDarkHeader }}
+                                style={{ backgroundColor: Theme.lightBackground }}
                             >
                                 <AccordionSummary
                                     expandIcon={<ExpandMoreIcon />}
@@ -518,9 +543,9 @@ export default class ResultGraphs extends React.Component {
                                         <b>
                                             {dict_results[test_id].test_alias
                                                 ? dict_results[test_id]
-                                                      .test_alias
+                                                    .test_alias
                                                 : dict_results[test_id]
-                                                      .test_name}
+                                                    .test_name}
                                         </b>
                                     </Typography>
                                 </AccordionSummary>
@@ -528,7 +553,7 @@ export default class ResultGraphs extends React.Component {
                                     <Grid container spacing={3}>
                                         {Object.entries(
                                             dict_results[test_id][
-                                                "test_instances"
+                                            "test_instances"
                                             ]
                                         ).map(
                                             ([
@@ -591,7 +616,17 @@ export default class ResultGraphs extends React.Component {
         if (results.length === 0) {
             content = this.renderNoResults();
         } else {
-            const results_grouped = this.groupResults(results);
+            // 'multiResultsCompare' required below as single model/test detail page fetches results
+            // in a particular format [using datastore. getResultsByModel()/getResultsByTest()],
+            // while multi-model/test comparison uses another format
+            // [using datastore.getResultsByModelInstances()/getResultsByTestInstance()]
+            // for model/test detail page, 'multiResultsCompare' param is absent (i.e. false)
+            let results_grouped = null;
+            if (this.props.multiResultsCompare) {
+                results_grouped = this.groupResults(this.convertResultsFormat(results));
+            } else {
+                results_grouped = this.groupResults(results);
+            }
             content = this.renderResultsFigures(results_grouped);
         }
 

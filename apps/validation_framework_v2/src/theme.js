@@ -1,6 +1,7 @@
 export default {
     bodyBackground: "#FFFFFF",
     lightBackground: "#EFF7E5",
+    darkBackground: "#13AC8B",
     darkOrange: "#FF9933",
     tableDarkHeader: "#13AC8B",
     tableHeader: "#4DC26D",
@@ -15,8 +16,13 @@ export default {
     textSecondary: "#FFFFFF",
     instanceInfoBox: "#EFF7E5",
     metadataInfoBox: "#DCEDC8",
+    buttonDark: "#13AC8B",
     buttonPrimary: "#9CE142",
-    buttonSecondary: "#13AC8B",
+    activeTabColor: "#9CE142",
+    buttonSecondary: "#FFE5A8",
     plotBarColor: "#FF9933",
     disabledColor: "#DCDCDC",
+    subTabColor: "#DCEDC8",
+    lightText: "#FFFFFF",
+    darkText: "#000000"
 };
