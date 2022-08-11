@@ -301,7 +301,7 @@ def create_result(result: ValidationResult, token: HTTPAuthorizationCredentials 
 async def delete_result(result_id: UUID, token: HTTPAuthorizationCredentials = Depends(auth)):
     # todo: handle non-existent UUID
     result = ValidationResultKG.from_uuid(str(result_id), kg_client, api="nexus", scope="latest")
-    if not await is_admin(token.credentials):
+    if not await is_admin(token):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Deleting validation results is restricted to admins",

@@ -1200,7 +1200,7 @@ class Simulation(BaseModel):
 
     def _get_person(self, kg_client, token):
         if self.started_by is None:
-            user_info = get_user_from_token(token.credentials)
+            user_info = get_user_from_token(token)
             family_name = user_info["family_name"]
             given_name = user_info["given_name"]
         else:

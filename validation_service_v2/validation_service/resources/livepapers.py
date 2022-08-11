@@ -35,7 +35,7 @@ async def query_live_papers(
     lps = fairgraph.livepapers.LivePaper.list(kg_client, api="nexus", size=1000)
     if editable:
         # include only those papers the user can edit
-        editable_collabs = await get_editable_collabs(token.credentials)
+        editable_collabs = await get_editable_collabs(token)
         accessible_lps = [
             lp for lp in lps if lp.collab_id in editable_collabs
         ]
@@ -43,7 +43,7 @@ async def query_live_papers(
         # include all papers the user can view
         accessible_lps = []
         for lp in lps:
-            if await can_view_collab(lp.collab_id, token.credentials):
+            if await can_view_collab(lp.collab_id, token):
                 accessible_lps.append(lp)
     return [
         LivePaperSummary.from_kg_object(lp)
@@ -70,8 +70,8 @@ async def get_live_paper(
     if lp:
         if (
             token.credentials == lp.access_code
-            or await can_edit_collab(lp.collab_id, token.credentials)
-            or await is_admin(token.credentials)
+            or await can_edit_collab(lp.collab_id, token)
+            or await is_admin(token)
         ):
             try:
                 obj = LivePaper.from_kg_object(lp, kg_client)
@@ -127,8 +127,8 @@ async def create_live_paper(
         )
 
     if not (
-        await is_collab_member(live_paper.collab_id, token.credentials)
-        or await is_admin(token.credentials)
+        await is_collab_member(live_paper.collab_id, token)
+        or await is_admin(token)
     ):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -161,8 +161,8 @@ async def update_live_paper(
     logger.info("Beginning put live paper")
 
     if not (
-        await is_collab_member(live_paper.collab_id, token.credentials)
-        or await is_admin(token.credentials)
+        await is_collab_member(live_paper.collab_id, token)
+        or await is_admin(token)
     ):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -214,8 +214,8 @@ async def set_access_code(
 
     if lp:
         if not (
-            await is_collab_member(lp.collab_id, token.credentials)
-            or await is_admin(token.credentials)
+            await is_collab_member(lp.collab_id, token)
+            or await is_admin(token)
         ):
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,

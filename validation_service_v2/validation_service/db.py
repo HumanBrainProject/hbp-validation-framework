@@ -21,8 +21,8 @@ kg_client = get_kg_client()
 async def _check_model_access(model_project, token):
     if model_project.private:
         if not (
-            await is_collab_member(model_project.collab_id, token.credentials)
-            or await is_admin(token.credentials)
+            await is_collab_member(model_project.collab_id, token)
+            or await is_admin(token)
         ):
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,

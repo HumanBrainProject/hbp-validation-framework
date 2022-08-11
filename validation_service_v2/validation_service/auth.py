@@ -50,7 +50,7 @@ def get_user_from_token(token):
     :rtype: str
     """
     url_v2 = f"{settings.HBP_IDENTITY_SERVICE_URL_V2}/userinfo"
-    headers = {"Authorization": f"Bearer {token}"}
+    headers = {"Authorization": f"Bearer {token.credentials}"}
     # logger.debug("Requesting user information for given access token")
     res = requests.get(url_v2, headers=headers)
     if res.status_code != 200:
@@ -65,7 +65,7 @@ def get_user_from_token(token):
 
 
 def get_person_from_token(kg_client, token):
-    user_info = get_user_from_token(token.credentials)
+    user_info = get_user_from_token(token)
     family_name = user_info["family_name"]
     given_name = user_info["given_name"]
     person = fairgraph.core.Person.list(kg_client, family_name=family_name, given_name=given_name, api="nexus", scope="latest")
@@ -79,9 +79,9 @@ def get_person_from_token(kg_client, token):
         return None
 
 
-async def get_collab_info(collab_id, user_token):
+async def get_collab_info(collab_id, token):
     collab_info_url = f"{settings.HBP_COLLAB_SERVICE_URL_V2}collabs/{collab_id}"
-    headers = {"Authorization": f"Bearer {user_token}"}
+    headers = {"Authorization": f"Bearer {token.credentials}"}
     res = requests.get(collab_info_url, headers=headers)
     try:
         response = res.json()
@@ -92,9 +92,9 @@ async def get_collab_info(collab_id, user_token):
     return response
 
 
-async def get_collab_permissions_v2(collab_id, user_token):
+async def get_collab_permissions_v2(collab_id, token):
     userinfo = await oauth.ebrains.userinfo(
-        token={"access_token": user_token, "token_type": "bearer"}
+        token={"access_token": token.credentials, "token_type": "bearer"}
     )
     if "error" in userinfo:
         raise HTTPException(
@@ -113,7 +113,7 @@ async def get_collab_permissions_v2(collab_id, user_token):
         permissions = {"VIEW": True, "UPDATE": True}
     else:
         assert highest_collab_role is None
-        collab_info = await get_collab_info(collab_id, user_token)
+        collab_info = await get_collab_info(collab_id, token)
         if collab_info.get("isPublic", False):  # will be False if 404 collab not found
             permissions = {"VIEW": True, "UPDATE": False}
         else:
@@ -121,54 +121,54 @@ async def get_collab_permissions_v2(collab_id, user_token):
     return permissions
 
 
-async def is_collab_member(collab_id, user_token):
+async def is_collab_member(collab_id, token):
     if collab_id is None:
         return False
     try:
         int(collab_id)
     except ValueError:
         get_collab_permissions = get_collab_permissions_v2
-        permissions = await get_collab_permissions(collab_id, user_token)
+        permissions = await get_collab_permissions(collab_id, token)
         return permissions.get("UPDATE", False)
     else:
         return False
 
 
-async def is_admin(user_token):
-    return await is_collab_member(settings.ADMIN_COLLAB_ID, user_token)
+async def is_admin(token):
+    return await is_collab_member(settings.ADMIN_COLLAB_ID, token)
     # todo: replace this check with a group membership check for Collab v2
 
 
-async def can_view_collab(collab_id, user_token):
-    if collab_id is None:
+async def can_view_collab(collab_id, token):
+    if collab_id is None or token is None:
         return False
     try:
         int(collab_id)
     except ValueError:
         get_collab_permissions = get_collab_permissions_v2
-        permissions = await get_collab_permissions(collab_id, user_token)
+        permissions = await get_collab_permissions(collab_id, token)
         return permissions.get("VIEW", False)
     else:
         return False
 
 
-async def can_edit_collab(collab_id, user_token):
-    if collab_id is None:
+async def can_edit_collab(collab_id, token):
+    if collab_id is None or token is None:
         return False
     try:
         int(collab_id)
     except ValueError:
         get_collab_permissions = get_collab_permissions_v2
-        permissions = await get_collab_permissions(collab_id, user_token)
+        permissions = await get_collab_permissions(collab_id, token)
         return permissions.get("UPDATE", False)
     else:
         return False
 
 
-async def get_editable_collabs(user_token):
+async def get_editable_collabs(token):
     # collab v2 only
     userinfo = await oauth.ebrains.userinfo(
-        token={"access_token": user_token, "token_type": "bearer"}
+        token={"access_token": token.credentials, "token_type": "bearer"}
     )
     if "error" in userinfo:
         raise HTTPException(
