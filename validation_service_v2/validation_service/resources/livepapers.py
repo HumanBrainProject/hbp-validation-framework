@@ -8,8 +8,7 @@ from datetime import datetime
 from fastapi import APIRouter, Depends, Header, Query, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from ..auth import (
-    get_kg_client, get_person_from_token, is_collab_member, is_admin,
-    can_view_collab, can_edit_collab, get_editable_collabs
+    get_kg_client, is_admin, can_view_collab, can_edit_collab, get_editable_collabs
 )
 from ..data_models import LivePaper, LivePaperSummary, ConsistencyError, AccessCode, Slug
 from ..db import _get_live_paper_by_id_or_alias
@@ -127,7 +126,7 @@ async def create_live_paper(
         )
 
     if not (
-        await is_collab_member(live_paper.collab_id, token)
+        await can_edit_collab(live_paper.collab_id, token)
         or await is_admin(token)
     ):
         raise HTTPException(
@@ -161,7 +160,7 @@ async def update_live_paper(
     logger.info("Beginning put live paper")
 
     if not (
-        await is_collab_member(live_paper.collab_id, token)
+        await can_edit_collab(live_paper.collab_id, token)
         or await is_admin(token)
     ):
         raise HTTPException(
@@ -214,7 +213,7 @@ async def set_access_code(
 
     if lp:
         if not (
-            await is_collab_member(lp.collab_id, token)
+            await can_edit_collab(lp.collab_id, token)
             or await is_admin(token)
         ):
             raise HTTPException(

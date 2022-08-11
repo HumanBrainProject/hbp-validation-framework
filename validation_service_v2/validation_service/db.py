@@ -10,7 +10,7 @@ from fairgraph.brainsimulation import (
     ModelProject, ModelInstance, MEModel,
     ValidationTestDefinition, ValidationScript)
 from fairgraph.livepapers import LivePaper
-from .auth import get_kg_client, get_user_from_token, is_collab_member, is_admin
+from .auth import get_kg_client, can_view_collab, is_admin
 
 
 RETRY_INTERVAL = 60  # seconds
@@ -21,7 +21,7 @@ kg_client = get_kg_client()
 async def _check_model_access(model_project, token):
     if model_project.private:
         if not (
-            await is_collab_member(model_project.collab_id, token)
+            await can_view_collab(model_project.collab_id, token)
             or await is_admin(token)
         ):
             raise HTTPException(

@@ -10,7 +10,7 @@ from fastapi import APIRouter, Depends, Query, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic import ValidationError
 
-from ..auth import get_kg_client, get_user_from_token, is_collab_member, is_admin
+from ..auth import is_admin
 from ..db import kg_client, _get_test_by_id_or_alias, _get_test_instance_by_id
 from ..data_models import (
     Person,
