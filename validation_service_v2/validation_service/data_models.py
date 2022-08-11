@@ -28,7 +28,7 @@ import fairgraph.brainsimulation
 from .examples import EXAMPLES
 from .db import (_get_model_by_id_or_alias, _get_model_instance_by_id,
                  _get_test_by_id_or_alias, _get_test_instance_by_id)
-from .auth import get_user_from_token
+from .auth import User
 
 
 fairgraph.core.use_namespace(fairgraph.brainsimulation.DEFAULT_NAMESPACE)
@@ -1099,16 +1099,17 @@ class ValidationResultWithTestAndModel(ValidationResult):
 
     @classmethod
     async def from_kg_object(cls, result, client, token):
+        user = User(token)
         vr = ValidationResult.from_kg_object(result, client)
 
-        model_instance_kg, model_id = await _get_model_instance_by_id(vr.model_instance_id, token)
-        model_project = await _get_model_by_id_or_alias(model_id, token)
+        model_instance_kg, model_id = await _get_model_instance_by_id(vr.model_instance_id, user)
+        model_project = await _get_model_by_id_or_alias(model_id, user)
 
         model_instance = ModelInstance.from_kg_object(model_instance_kg, client, model_project.uuid)
         model = ScientificModel.from_kg_object(model_project, client)
 
-        test_script = _get_test_instance_by_id(vr.test_instance_id, token)
-        test_definition = _get_test_by_id_or_alias(test_script.test_definition.uuid, token)
+        test_script = _get_test_instance_by_id(vr.test_instance_id, user)
+        test_definition = _get_test_by_id_or_alias(test_script.test_definition.uuid, user)
 
         test_instance = ValidationTestInstance.from_kg_object(test_script, token)
         test = ValidationTest.from_kg_object(test_definition, client)
@@ -1198,9 +1199,10 @@ class Simulation(BaseModel):
     environment: ComputingEnvironment = None
     started_by: Person = None
 
-    def _get_person(self, kg_client, token):
+    async def _get_person(self, kg_client, token):
         if self.started_by is None:
-            user_info = get_user_from_token(token)
+            user = User(token)
+            user_info = await user.get_user_info()
             family_name = user_info["family_name"]
             given_name = user_info["given_name"]
         else:
@@ -1242,11 +1244,12 @@ class Simulation(BaseModel):
             started_by=Person.from_kg_object(sim_activity.started_by, kg_client)
         )
 
-    def to_kg_objects(self, kg_client, token):
+    async def to_kg_objects(self, kg_client, token):
         kg_objects = {}
 
         # get person who launched this simulation
-        person = self._get_person(kg_client, token)
+        user = User(token)
+        person = await user.get_person(kg_client)
         kg_objects['person'] = [person]
 
         # get timestamps

@@ -10,7 +10,7 @@ from fairgraph.brainsimulation import (
     ModelProject, ModelInstance, MEModel,
     ValidationTestDefinition, ValidationScript)
 from fairgraph.livepapers import LivePaper
-from .auth import get_kg_client, can_view_collab
+from .auth import get_kg_client
 
 
 RETRY_INTERVAL = 60  # seconds
@@ -18,16 +18,16 @@ RETRY_INTERVAL = 60  # seconds
 kg_client = get_kg_client()
 
 
-async def _check_model_access(model_project, token):
+async def _check_model_access(model_project, user):
     if model_project.private:
-        if not await can_view_collab(model_project.collab_id, token):
+        if not await user.can_view_collab(model_project.collab_id):
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail=f"Access to this model is restricted to members of Collab #{model_project.collab_id}",
             )
 
 
-async def _get_model_by_id_or_alias(model_id, token):
+async def _get_model_by_id_or_alias(model_id, user):
     try:
         model_id = UUID(model_id)
         model_project = ModelProject.from_uuid(str(model_id), kg_client, api="nexus", scope="latest")
@@ -40,11 +40,11 @@ async def _get_model_by_id_or_alias(model_id, token):
             detail=f"Model with ID or alias '{model_id}' not found.",
         )
     # todo: fairgraph should accept UUID object as well as str
-    await _check_model_access(model_project, token)
+    await _check_model_access(model_project, user)
     return model_project
 
 
-async def _get_model_instance_by_id(instance_id, token):
+async def _get_model_instance_by_id(instance_id, user):
     model_instance = ModelInstance.from_uuid(str(instance_id), kg_client, api="nexus", scope="latest")
     if model_instance is None:
         model_instance = MEModel.from_uuid(str(instance_id), kg_client, api="nexus", scope="latest")
@@ -67,11 +67,11 @@ async def _get_model_instance_by_id(instance_id, token):
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail=f"Model instance with ID '{instance_id}' no longer exists.",
             )
-    await _check_model_access(model_project, token)
+    await _check_model_access(model_project, user)
     return model_instance, model_project.uuid
 
 
-def _get_test_by_id_or_alias(test_id, token):
+def _get_test_by_id_or_alias(test_id, user):
     try:
         test_id = UUID(test_id)
         test_definition = ValidationTestDefinition.from_uuid(str(test_id), kg_client, api="nexus", scope="latest")
@@ -92,7 +92,7 @@ def _get_test_by_id_or_alias(test_id, token):
     return test_definition
 
 
-def _get_test_instance_by_id(instance_id, token):
+def _get_test_instance_by_id(instance_id, user):
     test_instance = ValidationScript.from_uuid(str(instance_id), kg_client, api="nexus", scope="latest")
     if test_instance is None:
         raise HTTPException(

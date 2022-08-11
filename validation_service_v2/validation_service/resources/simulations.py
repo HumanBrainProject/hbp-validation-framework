@@ -16,7 +16,7 @@ from fastapi import APIRouter, Depends, Header, Query, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic import ValidationError
 
-from ..auth import get_kg_client, get_person_from_token
+from ..auth import get_kg_client, User
 from ..data_models import Simulation, ConsistencyError
 from .. import settings
 
@@ -30,7 +30,7 @@ router = APIRouter()
 
 
 @router.get("/simulations/", response_model=List[Simulation])
-def query_simulations(
+async def query_simulations(
     model_id: UUID = None,
     model_instance_id: UUID = None,
     size: int = Query(100),
@@ -38,7 +38,7 @@ def query_simulations(
     # from header
     token: HTTPAuthorizationCredentials = Depends(auth),
 ):
-    user = get_person_from_token(kg_client, token)
+    user = await User(token).get_person(kg_client)
     kwargs = {
         "size": size,
         "from_index": from_index,
@@ -91,9 +91,9 @@ def get_simulation(simulation_id: UUID, token: HTTPAuthorizationCredentials = De
 
 
 @router.post("/simulations/", response_model=Simulation, status_code=status.HTTP_201_CREATED)
-def create_simulation(simulation: Simulation, token: HTTPAuthorizationCredentials = Depends(auth)):
+async def create_simulation(simulation: Simulation, token: HTTPAuthorizationCredentials = Depends(auth)):
     logger.info("Beginning post simulation")
-    kg_objects = simulation.to_kg_objects(kg_client, token)
+    kg_objects = await simulation.to_kg_objects(kg_client, token)
     logger.info("Created objects")
     for label in ('person', 'config', 'outputs', 'hardware', 'dependencies', 'env', 'activity'):
         for obj in as_list(kg_objects[label]):

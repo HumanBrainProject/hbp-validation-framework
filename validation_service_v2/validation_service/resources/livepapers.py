@@ -7,9 +7,7 @@ from datetime import datetime
 
 from fastapi import APIRouter, Depends, Header, Query, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from ..auth import (
-    get_kg_client, can_view_collab, can_edit_collab, get_editable_collabs
-)
+from ..auth import get_kg_client, User
 from ..data_models import LivePaper, LivePaperSummary, ConsistencyError, AccessCode, Slug
 from ..db import _get_live_paper_by_id_or_alias
 import fairgraph.livepapers
@@ -31,10 +29,11 @@ async def query_live_papers(
     editable: bool = False,
     token: HTTPAuthorizationCredentials = Depends(auth)
 ):
+    user = User(token)
     lps = fairgraph.livepapers.LivePaper.list(kg_client, api="nexus", size=1000)
     if editable:
         # include only those papers the user can edit
-        editable_collabs = await get_editable_collabs(token)
+        editable_collabs = await user.get_editable_collabs()
         accessible_lps = [
             lp for lp in lps if lp.collab_id in editable_collabs
         ]
@@ -42,7 +41,7 @@ async def query_live_papers(
         # include all papers the user can view
         accessible_lps = []
         for lp in lps:
-            if await can_view_collab(lp.collab_id, token):
+            if await user.can_view_collab(lp.collab_id):
                 accessible_lps.append(lp)
     return [
         LivePaperSummary.from_kg_object(lp)
@@ -64,12 +63,13 @@ async def get_live_paper(
     lp_id: Union[UUID, Slug],
     token: HTTPAuthorizationCredentials = Depends(auth)
 ):
+    user = User(token)
     lp = _get_live_paper_by_id_or_alias(lp_id, scope="in progress")
 
     if lp:
         if (
             token.credentials == lp.access_code
-            or await can_edit_collab(lp.collab_id, token)
+            or await user.can_edit_collab(lp.collab_id)
         ):
             try:
                 obj = LivePaper.from_kg_object(lp, kg_client)
@@ -124,7 +124,8 @@ async def create_live_paper(
             detail="Collab ID needs to be provided",
         )
 
-    if not await can_edit_collab(live_paper.collab_id, token):
+    user = User(token)
+    if not await user.can_edit_collab(live_paper.collab_id):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail=f"This account is not a member of Collab #{live_paper.collab_id}",
@@ -154,8 +155,8 @@ async def update_live_paper(
     token: HTTPAuthorizationCredentials = Depends(auth)
 ):
     logger.info("Beginning put live paper")
-
-    if not await can_edit_collab(live_paper.collab_id, token):
+    user = User(token)
+    if not await user.can_edit_collab(live_paper.collab_id):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail=f"This account is not a member of Collab #{live_paper.collab_id}",
@@ -201,11 +202,11 @@ async def set_access_code(
     token: HTTPAuthorizationCredentials = Depends(auth)
 ):
     logger.info("Beginning set access code")
-
+    user = User(token)
     lp = _get_live_paper_by_id_or_alias(lp_id, scope="in progress")
 
     if lp:
-        if not await can_edit_collab(lp.collab_id, token):
+        if not await user.can_edit_collab(lp.collab_id):
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail=f"This account is not a member of Collab #{lp.collab_id}",

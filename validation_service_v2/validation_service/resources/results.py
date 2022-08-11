@@ -16,7 +16,7 @@ from fastapi import APIRouter, Depends, Header, Query, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic import ValidationError
 
-from ..auth import get_kg_client, is_admin
+from ..auth import get_kg_client, User
 from ..data_models import ScoreType, ValidationResult, ValidationResultWithTestAndModel, ValidationResultSummary, ConsistencyError
 from ..queries import build_result_filters
 from .. import settings
@@ -300,8 +300,9 @@ def create_result(result: ValidationResult, token: HTTPAuthorizationCredentials 
 @router.delete("/results/{result_id}", status_code=status.HTTP_200_OK)
 async def delete_result(result_id: UUID, token: HTTPAuthorizationCredentials = Depends(auth)):
     # todo: handle non-existent UUID
+    user = User(token)
     result = ValidationResultKG.from_uuid(str(result_id), kg_client, api="nexus", scope="latest")
-    if not await is_admin(token):
+    if not await user.is_admin():
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Deleting validation results is restricted to admins",

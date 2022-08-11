@@ -9,7 +9,7 @@ from fairgraph.brainsimulation import ModelProject, ModelInstance as ModelInstan
 from fastapi import APIRouter, Depends, Query, Path, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
-from ..auth import get_user_from_token, can_view_collab, can_edit_collab
+from ..auth import User
 from ..db import kg_client, _get_model_instance_by_id, _get_model_by_id_or_alias
 from ..data_models import (
     Person,
@@ -82,11 +82,11 @@ async def query_models(
     #     - private = None: only public models, from all projects
     #     - private = True: 400? error "To see private models, you must specify the project/collab"
     #     - private = False: only public models, from all projects
-
+    user = User(token)
     if private:
         if project_id:
             for collab_id in project_id:
-                if not await can_view_collab(collab_id, token):
+                if not await user.can_view_collab(collab_id):
                     raise HTTPException(
                         status_code=status.HTTP_403_FORBIDDEN,
                         detail="You are not a member of project #{collab_id}",
@@ -158,7 +158,8 @@ async def get_model(
     token: HTTPAuthorizationCredentials = Depends(auth),
 ):
     """Retrieve information about a specific model identified by a UUID"""
-    model_project = await _get_model_by_id_or_alias(model_id, token)
+    user = User(token)
+    model_project = await _get_model_by_id_or_alias(model_id, user)
     if not model_project:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail=f"Model with ID '{model_id}' not found."
@@ -175,7 +176,8 @@ async def create_model(
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail=f"project_id must be provided"
         )
-    if not await can_edit_collab(model.project_id, token):
+    user = User(token)
+    if not await user.can_edit_collab(model.project_id):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail=f"This account is not a member of Collab #{model.project_id}",
@@ -207,8 +209,9 @@ async def update_model(
     model_patch: ScientificModelPatch,
     token: HTTPAuthorizationCredentials = Depends(auth),
 ):
+    user = User(token)
     # if payload contains a project_id, check permissions for that id
-    if model_patch.project_id and not await can_edit_collab(model_patch.project_id, token):
+    if model_patch.project_id and not await user.can_edit_collab(model_patch.project_id):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail=f"This account is not a member of Collab #{model_patch.project_id}",
@@ -218,7 +221,7 @@ async def update_model(
     stored_model = ScientificModel.from_kg_object(model_project, kg_client)
     # if retrieved project_id is different to payload id, check permissions for that id
     if stored_model.project_id != model_patch.project_id and not (
-        await can_edit_collab(stored_model.project_id, token)
+        await user.can_edit_collab(stored_model.project_id)
     ):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -256,8 +259,9 @@ async def update_model(
 @router.delete("/models/{model_id}", status_code=status.HTTP_200_OK)
 async def delete_model(model_id: UUID, token: HTTPAuthorizationCredentials = Depends(auth)):
     # todo: handle non-existent UUID
+    user = User(token)
     model_project = ModelProject.from_uuid(str(model_id), kg_client, api="nexus", scope="latest")
-    if not await can_edit_collab(model_project.collab_id, token):
+    if not await user.can_edit_collab(model_project.collab_id):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail=f"Access to this model is restricted to members of Collab #{model_project.collab_id}",
@@ -273,7 +277,8 @@ async def delete_model(model_id: UUID, token: HTTPAuthorizationCredentials = Dep
 async def get_model_instances(
     model_id: str, version: str = None, token: HTTPAuthorizationCredentials = Depends(auth)
 ):
-    model_project = await _get_model_by_id_or_alias(model_id, token)
+    user = User(token)
+    model_project = await _get_model_by_id_or_alias(model_id, user)
     model_instances = [
         ModelInstance.from_kg_object(inst, kg_client, model_project.uuid)
         for inst in as_list(model_project.instances)
@@ -287,7 +292,8 @@ async def get_model_instances(
 async def get_model_instance_from_instance_id(
     model_instance_id: UUID, token: HTTPAuthorizationCredentials = Depends(auth)
 ):
-    inst, model_id = await _get_model_instance_by_id(model_instance_id, token)
+    user = User(token)
+    inst, model_id = await _get_model_instance_by_id(model_instance_id, user)
     return ModelInstance.from_kg_object(inst, kg_client, model_id)
 
 
@@ -295,7 +301,8 @@ async def get_model_instance_from_instance_id(
 async def get_latest_model_instance_given_model_id(
     model_id: str, token: HTTPAuthorizationCredentials = Depends(auth)
 ):
-    model_project = await _get_model_by_id_or_alias(model_id, token)
+    user = User(token)
+    model_project = await _get_model_by_id_or_alias(model_id, user)
     model_instances = [
         ModelInstance.from_kg_object(inst, kg_client, model_project.uuid)
         for inst in as_list(model_project.instances)
@@ -308,7 +315,8 @@ async def get_latest_model_instance_given_model_id(
 async def get_model_instance_given_model_id(
     model_id: str, model_instance_id: UUID, token: HTTPAuthorizationCredentials = Depends(auth)
 ):
-    model_project = await _get_model_by_id_or_alias(model_id, token)
+    user = User(token)
+    model_project = await _get_model_by_id_or_alias(model_id, user)
     for inst in as_list(model_project.instances):
         if UUID(inst.uuid) == model_instance_id:
             return ModelInstance.from_kg_object(inst, kg_client, model_project.uuid)
@@ -328,9 +336,10 @@ async def create_model_instance(
     model_instance: ModelInstance,
     token: HTTPAuthorizationCredentials = Depends(auth),
 ):
-    model_project = await _get_model_by_id_or_alias(model_id, token)
+    user = User(token)
+    model_project = await _get_model_by_id_or_alias(model_id, user)
     # check permissions for this model
-    if model_project.collab_id and not await can_edit_collab(model_project.collab_id, token):
+    if model_project.collab_id and not await user.can_edit_collab(model_project.collab_id):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail=f"This account is not a member of Collab #{model_project.project_id}",
@@ -362,10 +371,11 @@ async def update_model_instance_by_id(
     model_instance_patch: ModelInstancePatch,
     token: HTTPAuthorizationCredentials = Depends(auth),
 ):
-    model_instance_kg, model_id = await _get_model_instance_by_id(model_instance_id, token)
+    user = User(token)
+    model_instance_kg, model_id = await _get_model_instance_by_id(model_instance_id, user)
     model_project = model_instance_kg.project.resolve(kg_client, api="nexus", scope="latest")
     return await _update_model_instance(
-        model_instance_kg, model_project, model_instance_patch, token
+        model_instance_kg, model_project, model_instance_patch, user
     )
 
 
@@ -380,16 +390,17 @@ async def update_model_instance(
     model_instance_patch: ModelInstancePatch,
     token: HTTPAuthorizationCredentials = Depends(auth),
 ):
-    model_instance_kg, model_id = await _get_model_instance_by_id(model_instance_id, token)
-    model_project = await _get_model_by_id_or_alias(model_id, token)
+    user = User(token)
+    model_instance_kg, model_id = await _get_model_instance_by_id(model_instance_id, user)
+    model_project = await _get_model_by_id_or_alias(model_id, user)
     return await _update_model_instance(
-        model_instance_kg, model_project, model_instance_patch, token
+        model_instance_kg, model_project, model_instance_patch, user
     )
 
 
-async def _update_model_instance(model_instance_kg, model_project, model_instance_patch, token):
+async def _update_model_instance(model_instance_kg, model_project, model_instance_patch, user):
     # check permissions for this model
-    if model_project.collab_id and not await can_edit_collab(model_project.collab_id, token):
+    if model_project.collab_id and not await user.can_edit_collab(model_project.collab_id):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail=f"This account is not a member of Collab #{model_project.project_id}",
@@ -412,7 +423,8 @@ async def _update_model_instance(model_instance_kg, model_project, model_instanc
 async def delete_model_instance_by_id(
     model_instance_id: UUID, token: HTTPAuthorizationCredentials = Depends(auth)
 ):
-    model_instance_kg, model_id = await _get_model_instance_by_id(model_instance_id, token)
+    user = User(token)
+    model_instance_kg, model_id = await _get_model_instance_by_id(model_instance_id, user)
     model_project = model_instance_kg.project.resolve(kg_client, api="nexus", scope="latest")
     await _delete_model_instance(model_instance_id, model_project)
 
@@ -422,8 +434,9 @@ async def delete_model_instance(
     model_id: UUID, model_instance_id: UUID, token: HTTPAuthorizationCredentials = Depends(auth)
 ):
     # todo: handle non-existent UUID
+    user = User(token)
     model_project = ModelProject.from_uuid(str(model_id), kg_client, api="nexus", scope="latest")
-    if not await can_edit_collab(model_project.collab_id, token):
+    if not await user.can_edit_collab(model_project.collab_id):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail=f"Access to this model is restricted to members of Collab #{model_project.collab_id}",
