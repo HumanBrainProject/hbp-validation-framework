@@ -21,6 +21,7 @@ import fairgraph
 import fairgraph.openminds.core as omcore
 import fairgraph.openminds.computation as omcmp
 import fairgraph.openminds.controlledterms as omterms
+import fairgraph.openminds.publications as ompub
 
 from .examples import EXAMPLES
 from .db import (_get_model_by_id_or_alias, _get_model_instance_by_id,
@@ -59,7 +60,8 @@ def get_term_cache():
             omterms.CellType,
             omterms.Technique,  # todo: filter to include only types relevant to model validation
             omcore.License,
-            omcore.ContentType  # todo: filter to include only types relevant to modelling
+            omcore.ContentType,  # todo: filter to include only types relevant to modelling
+            ompub.LivePaperResourceType,
         ):
             objects = cls.list(kg_service_client, api="core", scope="in progress", size=10000)
             term_cache[cls.__name__] = {
@@ -1453,49 +1455,115 @@ class PersonWithAffiliation(BaseModel):
     @classmethod
     def from_kg_object(cls, p, client):
         if isinstance(p, KGProxy):
-            pr = p.resolve(client, api="nexus", scope="in progress")
+            pr = p.resolve(client, scope="in progress")
         else:
             pr = p
-        if pr.affiliation:
-            affiliation = pr.affiliation.resolve(client, api="nexus", scope="in progress").name
+        if pr.affiliations:
+            affiliation = as_list(pr.affiliations)[0].resolve(client, scope="in progress", follow_links=1).organization.name
         else:
             affiliation = None
         return cls(firstname=pr.given_name, lastname=pr.family_name, affiliation=affiliation)
 
     def to_kg_object(self):
-        p = fairgraph.core.Person(family_name=self.lastname, given_name=self.firstname)
-        if self.affiliation and not (p.affiliation and p.affiliation.name == self.affiliation):
-            org = fairgraph.core.Organization(name=self.affiliation)
-            p.affiliation = org
+        p = omcore.Person(family_name=self.lastname, given_name=self.firstname)
+        if self.affiliation and not (p.affiliations and p.affiliations[0].organization.name == self.affiliation):
+            org = omcore.Organization(name=self.affiliation)
+            p.affiliations = omcore.Affiliation(organization=org)
         return p
+
+    def __eq__(self, other):
+        return self.firstname == other.firstname and self.lastname == other.lastname
+
+    def __hash__(self):
+        return hash(f"{self.lastname}, {self.firstname}")
 
 
 class LivePaperDataItem(BaseModel):
     url: HttpUrl
     label: str
     view_url: HttpUrl = None
-    type: str = None
+    type: str = None  # todo: make this an Enum
     identifier: UUID = None
 
     @classmethod
     def from_kg_object(cls, data_item, kg_client):
         if isinstance(data_item, KGProxy):
-            data_item = data_item.resolve(kg_client, api="nexus", scope="in progress")
-        if data_item.resource_type in (None, "URL"):
+            data_item = data_item.resolve(kg_client, scope="in progress")
+        resource_type = data_item.resource_type.resolve(kg_client, scope="in progress")  # todo: use scope='released'
+        if data_item.resource_type is None or data_item.resource_type.name == "URL":
             return cls(
-                url=data_item.distribution.location,
+                url=data_item.iri,
                 label=data_item.name,
-                view_url=data_item.view_url,
-                type=data_item.resource_type or "URL"
+                view_url=None,  #  todo: look up the viewer application and generate the link based on the resource type,
+                type=data_item.resource_type.name if data_item.resource_type else "URL"
             )
         else:
             return cls(
                 label=data_item.name,
-                type=data_item.resource_type,
-                identifier=UUID(data_item.identifier)
+                type=data_item.resource_type.name,
+                identifier=data_item.uuid
             )
 
-    def to_kg_object(self, kg_live_paper_section, kg_live_paper):
+    """
+    Notes on generating view_url
+
+    Examples from Shailesh
+    Note format below: dowload_url -> view_url
+    Morphology
+    (i) User URL
+    https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2018_migliore_et_al/morphologies/980120A.asc
+    ->
+    https://neuroinformatics.nl/HBP/morphology-viewer-dev/?url=https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2018_migliore_et_al/morphologies/980120A.asc
+    But alternatively, a custom visulaization tool specified by authors (for same file as above):
+    ->
+    https://bbp.epfl.ch/public/morph-view/CA1_int_bAC_980120A_20180119154402.html
+    (ii) NeuroMorpho import
+    https://neuromorpho.org/dableFiles/wearne_hof/CNG%20version/cnic_001.CNG.swc
+    ->
+    https://neuromorpho.org/neuron_info.jsp?neuron_name=cnic_001
+    https://neuromorpho.org/dableFiles/guerra%20da%20rocha/Source-Version/cc08lamx4cel01pp-sb.DAT
+    ->
+    https://neuromorpho.org/neuron_info.jsp?neuron_name=cc08lamx4cel01pp-sb
+    (it appears that for NeuroMorpho it is not trivial to identify download URL from page URL owing to variable extensions, but it seems it should be possible to do the reverse as you desire)
+    Electrophysiology
+    (i) User URL
+    https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2018_migliore_et_al/exp_data/abf-pyr-cAC/95822010/95822011.abf
+    ->
+    NeoViewer
+    (ii) AllenBrainAtlas import
+    https://celltypes.brain-map.org/api/v2/well_known_file_download/742807112
+    ->
+    https://celltypes.brain-map.org/experiment/electrophysiology/643575207
+    (this was the case where the two URLs were different and not easily convertible)
+    Models
+    (i) User URL
+    https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2018_migliore_et_al/models/CA1_int_bAC_011023HP2_20180116154023/CA1_int_bAC_011023HP2_20180116154023.zip
+    ->
+    https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2018-migliore-et-al/Model%20Catalog#model_id.ab570001-df66-466c-bc6f-1b44cd324222
+    (above example uses model catalog page when available; no relation between URLs)
+    (ii) ModelDB import
+    https://senselab.med.yale.edu/modeldb/eavBinDown?o=87284&a=23&mime=application/zip
+    ->
+    https://senselab.med.yale.edu/modeldb/ShowModel.cshtml?model=87284
+    https://senselab.med.yale.edu/modeldb/eavBinDown?o=128079&a=23&mime=application/zip
+    ->
+    https://senselab.med.yale.edu/modeldb/ShowModel.cshtml?model=128079
+    (iii) OpenSourceBrain import - links to GitHub
+    https://github.com/OpenSourceBrain/Thalamocortical
+    ->
+    https://www.opensourcebrain.org/projects/thalamocortical
+    https://github.com/OpenSourceBrain/PotjansDiesmann2014.git
+    ->
+    https://www.opensourcebrain.org/projects/potjansdiesmann2014
+    (not sure if safe to expect similar namings always in this case)
+    (iv) BioModels import
+    https://www.ebi.ac.uk/biomodels/model/download/MODEL2003100001
+    ->
+    https://www.ebi.ac.uk/biomodels/MODEL1611230001
+    Generic section does not have an integrated tool, and currently simply allows users to optionally specify a view url that they feel is relevant.
+    """
+
+    def to_kg_object(self, kg_live_paper_section, kg_live_paper, kg_client):
         if self.identifier:
             identifier = self.identifier
         else:
@@ -1503,14 +1571,14 @@ class LivePaperDataItem(BaseModel):
             identifier = uuid5(namespace,
                                (self.url + self.label + kg_live_paper_section.name
                                 + kg_live_paper.name))
-        distr = Distribution(self.url)
-        return fairgraph.livepapers.LivePaperResourceItem(
-            distribution=distr,
+        id = kg_client.uri_from_uuid(identifier)
+        return ompub.LivePaperResourceItem(
+            id=str(id),
             name=self.label,
-            view_url=self.view_url,
-            identifier=str(identifier),
-            resource_type=self.type,
-            part_of=kg_live_paper_section
+            iri=self.url,
+            #view_url=self.view_url,
+            resource_type=term_cache["LivePaperResourceType"]["names"].get(self.type, None),
+            is_part_of=kg_live_paper_section
         )
 
 
@@ -1525,35 +1593,34 @@ class LivePaperSection(BaseModel):
     @classmethod
     def from_kg_object(cls, section, kg_client):
         if isinstance(section, KGProxy):
-            section = section.resolve(kg_client, api="nexus", scope="in progress")
+            section = section.resolve(kg_client, scope="in progress")
+        if section.section_type:
+            section_type = section.section_type.resolve(kg_client, scope="in progress")
+        else:
+            section_type = None
+        resource_items = ompub.LivePaperResourceItem.list(kg_client, size=1000, scope="in progress", is_part_of=section)
         return cls(
             order=int(section.order),
-            type=section.section_type,
+            type=section_type.name if section_type else None,
             title=section.name,
-            icon=section.icon,
+            icon=section.icon,  # todo: generate based on section_type
             description=section.description,
             data=[LivePaperDataItem.from_kg_object(item, kg_client)
-                  for item in as_list(section.data.resolve(kg_client, api="nexus", scope="in progress"))]
+                  for item in as_list(resource_items)]
         )
 
-    def to_kg_objects(self, kg_live_paper):
-        section = fairgraph.livepapers.LivePaperResourceSection(
+    def to_kg_objects(self, kg_live_paper, kg_client):
+        section = ompub.LivePaperSection(
             order=self.order,
             section_type=self.type,
             name=self.title,
-            icon=self.icon,
             description=self.description,
-            part_of=kg_live_paper)
+            is_part_of=kg_live_paper)
         data_items = [obj.to_kg_object(kg_live_paper_section=section,
-                                       kg_live_paper=kg_live_paper)
+                                       kg_live_paper=kg_live_paper,
+                                       kg_client=kg_client)
                       for obj in self.data]
         return [section] + data_items
-
-
-def inverse_license_lookup(iri):
-    for key, value in fairgraph.commons.License.iri_map.items():
-        if value == iri:
-            return key
 
 
 class LivePaper(BaseModel):
@@ -1581,7 +1648,7 @@ class LivePaper(BaseModel):
     resources: List[LivePaperSection]
 
     @classmethod
-    def from_kg_object(cls, lp, kg_client):
+    def from_kg_object(cls, lp, lpv, kg_client):
         def get_people(obj):
             if obj is None:
                 return None
@@ -1592,84 +1659,83 @@ class LivePaper(BaseModel):
                 return None
             return PersonWithAffiliation.from_kg_object(obj, kg_client)
 
-        original_authors = get_people(lp.original_authors)
-        ca_index = lp.corresponding_author_index
-        if ca_index in (None, -1):
-            ca_index = []
+        related_publications = lpv.related_publications or lp.related_publications
+        original_authors = set()
+        for rel_pub in as_list(related_publications):
+            original_authors.update(get_people(rel_pub.authors))
+        custodians = lpv.custodians or lp.custodian
+        sections = ompub.LivePaperSection.list(kg_client, size=1000, scope="in progress", is_part_of=lpv)  # space=?
         return cls(
-            modified_date=lp.date_modified or lp.date_created,
-            alias=lp.alias,
-            version=lp.version,
+            modified_date=lpv.release_date or lpv.creation_date,
+            alias=lpv.alias or lp.alias,
+            version=lp.version_identifier,
             authors=original_authors,
-            corresponding_author=[original_authors[au] for au in as_list(ca_index)],
+            corresponding_author=get_people(related_publications[0].custodians),
             created_author=get_people(lp.live_paper_authors),
-            approved_author=get_person(lp.custodian),
-            year=lp.date_published,
-            associated_paper_title=lp.title,
-            live_paper_title=lp.name,
-            journal=lp.journal,
-            url=getattr(lp.url, "location", None),
-            citation=lp.citation,
-            doi=lp.doi,
-            associated_paper_doi=lp.associated_paper_doi,
-            abstract=lp.abstract,
-            license=getattr(lp.license, "label", None),
-            collab_id=lp.collab_id,
-            resources_description=lp.description,
+            approved_author=get_person(as_list(custodians)[0]) if custodians else None,
+            year=related_publications[0].release_date,  # what if multiple related pubs - for now we assume only one
+            associated_paper_title=related_publications[0].name,
+            live_paper_title=lpv.name or lp.name,
+            journal=related_publications[0].get_journal_name(),
+            url=related_publications[0].iri,
+            citation=None,  # todo: autogenerate
+            doi=lpv.digital_identifier,
+            associated_paper_doi=related_publications[0].digital_identifier,
+            abstract=lpv.abstract or lp.abstract,
+            license=term_cache["License"]["names"].get(lpv.license.label, None) if lpv.license else None,
+            collab_id=lpv.space,
+            resources_description=lpv.description or lp.description,
             resources=[LivePaperSection.from_kg_object(sec, kg_client)
-                       for sec in as_list(lp.resource_section.resolve(kg_client, api="nexus", scope="in progress"))],
-            id=lp.uuid
+                       for sec in as_list(sections)],
+            id=lpv.uuid
         )
 
     def to_kg_objects(self, kg_client):
         original_authors = [p.to_kg_object() for p in self.authors]
-        if self.corresponding_author:
-            try:
-                corresponding_author_index = [self.authors.index(au) for au in as_list(self.corresponding_author)]
-            except ValueError as err:
-                logger.error(str(err))
-                corresponding_author_index = -1
-        else:
-            corresponding_author_index = -1
         if self.approved_author:
             custodian = self.approved_author.to_kg_object()
         else:
             custodian = None
         live_paper_authors = [p.to_kg_object() for p in as_list(self.created_author)]
-        if self.url:
-            url = Distribution(location=self.url)
-        else:
-            url = None
-        lp = fairgraph.livepapers.LivePaper(
+
+        def get_journal_volume(journal_name):
+            return None   # todo
+
+        related_pub = ompub.ScholarlyArticle(
+            name=self.associated_paper_title,
+            iri=self.url,
+            authors=original_authors,
+            custodian=self.corresponding_author[0].to_kg_object(),
+            digital_identifier=self.associated_paper_doi,
+            is_part_of=get_journal_volume(self.journal),
+            release_date=self.year
+        )
+        lpv = ompub.LivePaperVersion(
             name=self.live_paper_title,
-            title=self.associated_paper_title,
             alias=self.alias,
             description=self.resources_description,
-            date_modified=self.modified_date,
-            version=self.version,
-            original_authors=original_authors,
-            corresponding_author_index=corresponding_author_index,
-            custodian=custodian,
-            live_paper_authors=live_paper_authors,
-            collab_id=self.collab_id,
-            date_published=self.year,
-            journal=self.journal,
-            url=url,
-            citation=self.citation,
-            doi=self.doi,
-            associated_paper_doi=self.associated_paper_doi,
+            release_date=self.modified_date,
+            version_identifier=self.version,
+            custodians=custodian,
+            authors=live_paper_authors,
+            related_publications=related_pub,
+            digital_identifier=self.doi,
             abstract=self.abstract,
-            license=fairgraph.commons.License(self.license)
+            license=term_cache["License"]["names"].get(self.license, None)
         )
+        lpv._space = self.collab_id
         if self.id:
-            lp.id = lp.__class__.uri_from_uuid(self.id, kg_client)
-        sections = sum([section.to_kg_objects(lp) for section in self.resources], [])
-        authors = set(original_authors + live_paper_authors + [custodian])
+            lpv.id = lpv.__class__.uri_from_uuid(self.id, kg_client)
+        sections = sum([section.to_kg_objects(lpv, kg_client) for section in self.resources], [])
+        authors = {}
+        for au in original_authors + live_paper_authors + [custodian]:
+            authors[au.full_name] = au
         return {
-            "people": authors,
+            "people": authors.values(),
             "sections": sections,
-            "paper": [lp]
+            "paper": [lpv]
         }
+        # todo: handle query/creation of LivePaper to match LivePaperVersion
 
 
 class LivePaperSummary(BaseModel):
@@ -1685,18 +1751,19 @@ class LivePaperSummary(BaseModel):
     alias: str = None
 
     @classmethod
-    def from_kg_object(cls, lp):
+    def from_kg_object(cls, lpv, lp):
+        related_publications = lpv.related_publications or lp.related_publications
         return cls(
-            modified_date=lp.date_modified or lp.date_created,
-            live_paper_title=lp.name,
-            associated_paper_title=lp.title,
-            citation=lp.citation,
-            year=lp.date_published,
-            collab_id=lp.collab_id,
-            doi=lp.doi,
+            modified_date=lpv.release_date or lpv.creation_date,
+            live_paper_title=lpv.name or lp.name,
+            associated_paper_title=related_publications[0].name,
+            citation=None,
+            year=related_publications[0].release_date,
+            collab_id=lpv.space,
+            doi=lpv.digital_identifier,
             alias=lp.alias,
-            id=lp.uuid,
-            detail_path=f"/livepapers/{lp.uuid}"
+            id=lpv.uuid,
+            detail_path=f"/livepapers/{lpv.uuid}"
         )
 
 
