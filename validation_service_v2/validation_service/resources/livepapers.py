@@ -8,7 +8,7 @@ from datetime import datetime
 from fastapi import APIRouter, Depends, Header, Query, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from ..auth import (
-    get_kg_client, is_admin, can_view_collab, can_edit_collab, get_editable_collabs
+    get_kg_client, can_view_collab, can_edit_collab, get_editable_collabs
 )
 from ..data_models import LivePaper, LivePaperSummary, ConsistencyError, AccessCode, Slug
 from ..db import _get_live_paper_by_id_or_alias
@@ -70,7 +70,6 @@ async def get_live_paper(
         if (
             token.credentials == lp.access_code
             or await can_edit_collab(lp.collab_id, token)
-            or await is_admin(token)
         ):
             try:
                 obj = LivePaper.from_kg_object(lp, kg_client)
@@ -125,10 +124,7 @@ async def create_live_paper(
             detail="Collab ID needs to be provided",
         )
 
-    if not (
-        await can_edit_collab(live_paper.collab_id, token)
-        or await is_admin(token)
-    ):
+    if not await can_edit_collab(live_paper.collab_id, token):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail=f"This account is not a member of Collab #{live_paper.collab_id}",
@@ -159,10 +155,7 @@ async def update_live_paper(
 ):
     logger.info("Beginning put live paper")
 
-    if not (
-        await can_edit_collab(live_paper.collab_id, token)
-        or await is_admin(token)
-    ):
+    if not await can_edit_collab(live_paper.collab_id, token):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail=f"This account is not a member of Collab #{live_paper.collab_id}",
@@ -212,10 +205,7 @@ async def set_access_code(
     lp = _get_live_paper_by_id_or_alias(lp_id, scope="in progress")
 
     if lp:
-        if not (
-            await can_edit_collab(lp.collab_id, token)
-            or await is_admin(token)
-        ):
+        if not await can_edit_collab(lp.collab_id, token):
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail=f"This account is not a member of Collab #{lp.collab_id}",

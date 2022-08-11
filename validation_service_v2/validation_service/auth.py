@@ -121,37 +121,35 @@ async def get_collab_permissions(collab_id, token):
     return permissions
 
 
-async def can_view_collab(collab_id, token):
+async def _have_collab_access(collab_id, token):
     if collab_id is None or token is None:
         return False
     try:
         int(collab_id)
     except ValueError:
         permissions = await get_collab_permissions(collab_id, token)
-        return permissions.get("VIEW", False)
     else:
-        return False
+        permissions = {}
+    if permissions.get("VIEW", False):
+        return True
+    else:
+        return is_admin(token)
+
+
+async def can_view_collab(collab_id, token):
+    return _have_collab_access(collab_id, "VIEW", token)
 
 
 async def can_edit_collab(collab_id, token):
-    if collab_id is None or token is None:
-        return False
-    try:
-        int(collab_id)
-    except ValueError:
-        permissions = await get_collab_permissions(collab_id, token)
-        return permissions.get("UPDATE", False)
-    else:
-        return False
+    return _have_collab_access(collab_id, "UPDATE", token)
 
 
 async def is_admin(token):
     return await can_edit_collab(settings.ADMIN_COLLAB_ID, token)
-    # todo: replace this check with a group membership check for Collab v2
+    # todo: replace this check with a group membership check
 
 
 async def get_editable_collabs(token):
-    # collab v2 only
     userinfo = await oauth.ebrains.userinfo(
         token={"access_token": token.credentials, "token_type": "bearer"}
     )

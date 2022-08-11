@@ -10,7 +10,7 @@ from fairgraph.brainsimulation import (
     ModelProject, ModelInstance, MEModel,
     ValidationTestDefinition, ValidationScript)
 from fairgraph.livepapers import LivePaper
-from .auth import get_kg_client, can_view_collab, is_admin
+from .auth import get_kg_client, can_view_collab
 
 
 RETRY_INTERVAL = 60  # seconds
@@ -20,10 +20,7 @@ kg_client = get_kg_client()
 
 async def _check_model_access(model_project, token):
     if model_project.private:
-        if not (
-            await can_view_collab(model_project.collab_id, token)
-            or await is_admin(token)
-        ):
+        if not await can_view_collab(model_project.collab_id, token):
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail=f"Access to this model is restricted to members of Collab #{model_project.collab_id}",

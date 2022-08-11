@@ -9,7 +9,7 @@ from fairgraph.brainsimulation import ModelProject, ModelInstance as ModelInstan
 from fastapi import APIRouter, Depends, Query, Path, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
-from ..auth import get_user_from_token, is_admin, can_view_collab, can_edit_collab
+from ..auth import get_user_from_token, can_view_collab, can_edit_collab
 from ..db import kg_client, _get_model_instance_by_id, _get_model_by_id_or_alias
 from ..data_models import (
     Person,
@@ -175,10 +175,7 @@ async def create_model(
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail=f"project_id must be provided"
         )
-    if not (
-        await can_edit_collab(model.project_id, token)
-        or await is_admin(token)
-    ):
+    if not await can_edit_collab(model.project_id, token):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail=f"This account is not a member of Collab #{model.project_id}",
@@ -211,10 +208,7 @@ async def update_model(
     token: HTTPAuthorizationCredentials = Depends(auth),
 ):
     # if payload contains a project_id, check permissions for that id
-    if model_patch.project_id and not (
-        await can_edit_collab(model_patch.project_id, token)
-        or await is_admin(token)
-    ):
+    if model_patch.project_id and not await can_edit_collab(model_patch.project_id, token):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail=f"This account is not a member of Collab #{model_patch.project_id}",
@@ -225,7 +219,6 @@ async def update_model(
     # if retrieved project_id is different to payload id, check permissions for that id
     if stored_model.project_id != model_patch.project_id and not (
         await can_edit_collab(stored_model.project_id, token)
-        or await is_admin(token)
     ):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -264,10 +257,7 @@ async def update_model(
 async def delete_model(model_id: UUID, token: HTTPAuthorizationCredentials = Depends(auth)):
     # todo: handle non-existent UUID
     model_project = ModelProject.from_uuid(str(model_id), kg_client, api="nexus", scope="latest")
-    if not (
-        await can_edit_collab(model_project.collab_id, token)
-        or await is_admin(token)
-    ):
+    if not await can_edit_collab(model_project.collab_id, token):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail=f"Access to this model is restricted to members of Collab #{model_project.collab_id}",
@@ -340,10 +330,7 @@ async def create_model_instance(
 ):
     model_project = await _get_model_by_id_or_alias(model_id, token)
     # check permissions for this model
-    if model_project.collab_id and not (
-        await can_edit_collab(model_project.collab_id, token)
-        or await is_admin(token)
-    ):
+    if model_project.collab_id and not await can_edit_collab(model_project.collab_id, token):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail=f"This account is not a member of Collab #{model_project.project_id}",
@@ -402,10 +389,7 @@ async def update_model_instance(
 
 async def _update_model_instance(model_instance_kg, model_project, model_instance_patch, token):
     # check permissions for this model
-    if model_project.collab_id and not (
-        await can_edit_collab(model_project.collab_id, token)
-        or await is_admin(token)
-    ):
+    if model_project.collab_id and not await can_edit_collab(model_project.collab_id, token):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail=f"This account is not a member of Collab #{model_project.project_id}",
@@ -439,10 +423,7 @@ async def delete_model_instance(
 ):
     # todo: handle non-existent UUID
     model_project = ModelProject.from_uuid(str(model_id), kg_client, api="nexus", scope="latest")
-    if not (
-        await can_edit_collab(model_project.collab_id, token)
-        or await is_admin(token)
-    ):
+    if not await can_edit_collab(model_project.collab_id, token):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail=f"Access to this model is restricted to members of Collab #{model_project.collab_id}",
