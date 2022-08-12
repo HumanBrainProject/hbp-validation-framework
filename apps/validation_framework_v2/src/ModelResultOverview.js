@@ -15,6 +15,21 @@ import LoadingIndicator from "./LoadingIndicator";
 import ResultDetail from "./ResultDetail";
 import Theme from "./theme";
 import { formatTimeStampToCompact, roundFloat } from "./utils";
+import styled from "styled-components";
+
+const StyledTableRow = styled(TableRow)(({ theme }) => ({
+    '&:nth-of-type(odd)': {
+        backgroundColor: "white",
+        borderBottom: "1px solid #DDDDDD"
+    },
+    '&:nth-of-type(even)': {
+        backgroundColor: "#F3F3F3",
+    },
+    '&:last-of-type': {
+        borderBottom: "2px solid",
+        borderColor: Theme.darkBackground
+    },
+}));
 
 class ResultPerInstanceComboMT extends React.Component {
     constructor(props) {
@@ -180,7 +195,7 @@ class ResultEntryTest extends React.Component {
                 <React.Fragment>
                     {Object.keys(result_test.test_instances).map(
                         (test_inst_id, index_tt) => (
-                            <TableRow key={test_inst_id}>
+                            <StyledTableRow key={test_inst_id}>
                                 {index_tt === 0 ? (
                                     <TableCell
                                         align="right"
@@ -218,8 +233,8 @@ class ResultEntryTest extends React.Component {
                                                 result_test.test_instances[
                                                     test_inst_id
                                                 ].results[
-                                                    model_version_entry
-                                                        .model_inst_id
+                                                model_version_entry
+                                                    .model_inst_id
                                                 ]
                                             }
                                             handleResultEntryClick={
@@ -231,7 +246,7 @@ class ResultEntryTest extends React.Component {
                                         />
                                     );
                                 })}
-                            </TableRow>
+                            </StyledTableRow>
                         )
                     )}
                 </React.Fragment>
@@ -317,7 +332,7 @@ export default class ModelResultOverview extends React.Component {
                 !(
                     result.model_instance_id in
                     dict_results[result.test_id]["test_instances"][
-                        result.test_instance_id
+                    result.test_instance_id
                     ]["results"]
                 )
             ) {
@@ -348,7 +363,7 @@ export default class ModelResultOverview extends React.Component {
                     !(
                         m_inst["model_inst_id"] in
                         dict_results[result.test_id]["test_instances"][
-                            result.test_instance_id
+                        result.test_instance_id
                         ]["results"]
                     )
                 ) {
@@ -412,7 +427,7 @@ export default class ModelResultOverview extends React.Component {
                 function (test_inst_id) {
                     Object.keys(
                         dict_results[test_id]["test_instances"][test_inst_id][
-                            "results"
+                        "results"
                         ]
                     ).forEach(function (model_inst_id, index_m) {
                         dict_results[test_id]["test_instances"][test_inst_id][
@@ -446,7 +461,7 @@ export default class ModelResultOverview extends React.Component {
             resultDetailOpen: false,
             currentResult: null,
         });
-        updateHash(sourceHash || "" );
+        updateHash(sourceHash || "");
     }
 
     handleResultUpdate(updatedResult) {
@@ -459,65 +474,68 @@ export default class ModelResultOverview extends React.Component {
         return (
             <React.Fragment>
                 <Grid container item direction="column">
-                    <Box px={2} pb={0}>
+                    <Box px={2} pb={0} my={2}>
                         <Typography variant="subtitle1">
                             <b>Summary of Validation Results</b>
                         </Typography>
                     </Box>
-                    <br />
                     <TableContainer>
                         <Table
                             aria-label="spanning table"
                             style={{
                                 width: "auto",
                                 tableLayout: "auto",
-                                border: 2,
-                                borderColor: "lightgrey",
-                                borderStyle: "solid",
+                                borderStyle: "none",
+                                borderRadius: "20px 20px 0 0",
+                                overflow: "hidden",
+                                marginTop: "10px"
                             }}
                         >
                             <TableHead>
-                                <TableRow>
+                                <StyledTableRow>
                                     <TableCell
                                         align="center"
                                         colSpan={2}
                                         rowSpan={2}
-                                        bgcolor={Theme.tableRowSelectColor}
+                                        bgcolor={Theme.tableDarkHeader}
+                                        style={{ color: Theme.lightText, fontSize: "18px" }}
                                     >
                                         Validation Test
                                     </TableCell>
                                     <TableCell
                                         align="center"
                                         colSpan={model_versions.length * 3}
-                                        bgcolor={Theme.tableRowSelectColor}
+                                        bgcolor={Theme.tableDarkHeader}
+                                        style={{ color: Theme.lightText, fontSize: "18px" }}
                                     >
                                         Model Version(s)
                                     </TableCell>
-                                </TableRow>
-                                <TableRow>
+                                </StyledTableRow>
+                                <StyledTableRow>
                                     {model_versions.map((item, index) => (
                                         <TableCell
                                             align="center"
                                             colSpan={3}
                                             key={item["model_inst_id"]}
                                             bgcolor={Theme.tableHeader}
+                                            style={{ color: Theme.darkText, fontSize: "16px" }}
                                         >
                                             {item["model_version"]}
                                         </TableCell>
                                     ))}
-                                </TableRow>
-                                <TableRow>
+                                </StyledTableRow>
+                                <StyledTableRow>
                                     <TableCell
                                         align="center"
                                         bgcolor={Theme.tableHeader}
-                                        style={{ width: 200, maxWidth: 200 }}
+                                        style={{ width: 200, maxWidth: 200, color: Theme.darkText, fontSize: "16px" }}
                                     >
                                         Test Name
                                     </TableCell>
                                     <TableCell
                                         align="center"
                                         bgcolor={Theme.tableHeader}
-                                        style={{ width: 200, maxWidth: 200 }}
+                                        style={{ width: 200, maxWidth: 200, color: Theme.darkText, fontSize: "16px" }}
                                     >
                                         Test Version
                                     </TableCell>
@@ -553,9 +571,13 @@ export default class ModelResultOverview extends React.Component {
                                             </TableCell>
                                         </React.Fragment>
                                     ))}
-                                </TableRow>
+                                </StyledTableRow>
                             </TableHead>
-                            <TableBody>
+                            <TableBody
+                                style={{
+                                    borderBottom: "2px solid",
+                                    borderColor: Theme.darkBackground
+                                }}>
                                 {Object.keys(dict_results).map(
                                     (test_id, index_t) => (
                                         <ResultEntryTest

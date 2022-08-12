@@ -8,6 +8,7 @@ import Grid from "@material-ui/core/Grid";
 import Typography from "@material-ui/core/Typography";
 import IconButton from "@material-ui/core/IconButton";
 import CloseIcon from "@material-ui/icons/Close";
+import DoubleArrowIcon from '@material-ui/icons/DoubleArrow';
 import AppBar from "@material-ui/core/AppBar";
 import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
@@ -47,6 +48,17 @@ const styles = (theme) => ({
         top: theme.spacing(1),
         color: theme.palette.grey[500],
     },
+    default_tabStyle: {
+        backgroundColor: Theme.tableHeader,
+    },
+    active_tabStyle: {
+        backgroundColor: Theme.activeTabColor,
+    },
+    default_subTabStyle: {
+        backgroundColor: Theme.subTabColor,
+        fontStyle: "italic",
+        opacity: 1.0
+    }
 });
 
 function TabPanel(props) {
@@ -243,7 +255,7 @@ class ModelDetail extends React.Component {
             };
         }
         // check if all model instances are now in compare
-        this.setState({ compareFlag: this.checkCompareStatus() });
+        this.setState({ compareFlag: this.checkCompareStatus(model) });
 
         setCompareModels(compareModels);
         showNotification(
@@ -289,6 +301,13 @@ class ModelDetail extends React.Component {
     }
 
     handleTabChange(event, newValue) {
+        // 0 : Model Info
+        // 1 : Validations
+        // 2 : Validations -> Results
+        // 3 : Validations -> Figures
+        if (newValue === 1) {
+            newValue = 2
+        }
         this.setState({ tabValue: newValue });
     }
 
@@ -365,6 +384,7 @@ class ModelDetail extends React.Component {
     }
 
     render() {
+        const { classes } = this.props;
         return (
             <Dialog
                 fullScreen
@@ -405,15 +425,32 @@ class ModelDetail extends React.Component {
                                     onChange={this.handleTabChange}
                                     style={{
                                         backgroundColor:
-                                            Theme.tableRowSelectColor,
+                                            Theme.pageDetailBarColor,
                                         color: Theme.textPrimary,
                                     }}
                                 >
-                                    <Tab label="Info" />
-                                    <Tab label="Results" />
-                                    <Tab label="Figures" />
+                                    <Tab label="Info" className={this.state.tabValue === 0 ? classes.active_tabStyle : classes.default_tabStyle}
+                                        style={{ opacity: 1 }} />
+
+                                    <Tab label={this.state.tabValue >= 1
+                                        ? <div>Validations<DoubleArrowIcon style={{ verticalAlign: 'bottom', opacity: 1 }} /></div>
+                                        : "Validations"}
+                                        className={this.state.tabValue >= 1 ? classes.active_tabStyle : classes.default_tabStyle} />
+
+                                    {this.state.tabValue >= 1 && <Tab label="Results" className={classes.default_subTabStyle}
+                                        style={{
+                                            borderTop: "medium solid", borderTopColor: Theme.activeTabColor,
+                                            borderBottom: "medium solid", borderBottomColor: Theme.activeTabColor
+                                        }} />}
+
+                                    {this.state.tabValue >= 1 && <Tab label="Figures" className={classes.default_subTabStyle}
+                                        style={{
+                                            borderTop: "medium solid", borderTopColor: Theme.activeTabColor,
+                                            borderBottom: "medium solid", borderBottomColor: Theme.activeTabColor
+                                        }} />}
                                 </Tabs>
                             </AppBar>
+
                             <TabPanel value={this.state.tabValue} index={0}>
                                 <Grid container spacing={3}>
                                     <Grid item xs={9}>
@@ -470,6 +507,8 @@ class ModelDetail extends React.Component {
                                 </Grid>
                             </TabPanel>
                             <TabPanel value={this.state.tabValue} index={1}>
+                            </TabPanel>
+                            <TabPanel value={this.state.tabValue} index={2}>
                                 <ModelResultOverview
                                     id={this.props.modelData.id}
                                     modelJSON={this.props.modelData}
@@ -477,7 +516,7 @@ class ModelDetail extends React.Component {
                                     loadingResult={this.state.loadingResult}
                                 />
                             </TabPanel>
-                            <TabPanel value={this.state.tabValue} index={2}>
+                            <TabPanel value={this.state.tabValue} index={3}>
                                 <ResultGraphs
                                     id={this.props.modelData.id}
                                     results={this.state.results}
@@ -497,4 +536,4 @@ ModelDetail.propTypes = {
     open: PropTypes.bool.isRequired,
 };
 
-export default withSnackbar(ModelDetail);
+export default withSnackbar(withStyles(styles)(ModelDetail));
