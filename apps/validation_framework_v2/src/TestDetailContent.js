@@ -325,7 +325,7 @@ class TestDetailContent extends React.Component {
                                               display: "flex",
                                               alignItems: "center",
                                               backgroundColor:
-                                                  Theme.tableHeader,
+                                                  Theme.versionHeaderBarColor,
                                           }}
                                       >
                                           <Grid item xs={6}>
