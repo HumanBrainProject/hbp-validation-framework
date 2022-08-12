@@ -31,16 +31,6 @@ export default function initAuth(main) {
     }
 }
 
-function checkPermissions(keycloak) {
-    return keycloak.loadUserInfo()
-        .then((userInfo) => {
-            if (userInfo.roles.team.includes("collab-model-validation-editor") || userInfo.roles.team.includes("collab-model-validation-administrator")) {
-                keycloak.authorized = true;
-            } else {
-                keycloak.authorized = false;
-            }
-        })
-}
 
 function checkAuth(main) {
     console.log('Keycloak client is initialised, verifying authentication...');
@@ -77,9 +67,7 @@ function checkAuth(main) {
         }
         if (isAuthenticated) {
             console.log('...which is authenticated, starting business logic...');
-            checkPermissions(keycloak).then(() => {
-                return main(keycloak);
-            });
+            return main(keycloak);
         }
     }
 
