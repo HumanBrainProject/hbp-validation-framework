@@ -45,6 +45,21 @@ import ResultDetail from "./ResultDetail";
 import ResultGraphs from "./ResultGraphs";
 import Theme from "./theme";
 import { formatTimeStampToCompact, roundFloat } from "./utils";
+import styled from "styled-components";
+
+const StyledTableRow = styled(TableRow)(({ theme }) => ({
+    '&:nth-of-type(odd)': {
+        backgroundColor: "white",
+        borderBottom: "1px solid #DDDDDD"
+    },
+    '&:nth-of-type(even)': {
+        backgroundColor: "#F3F3F3",
+    },
+    '&:last-of-type': {
+        borderBottom: "2px solid",
+        borderColor: Theme.darkBackground
+    },
+}));
 
 const styles = (theme) => ({
     root: {
@@ -243,7 +258,7 @@ class ResultEntryModel extends React.Component {
                 <React.Fragment>
                     {Object.keys(result_model.model_instances).map(
                         (model_inst_id, index_tt) => (
-                            <TableRow key={model_inst_id}>
+                            <StyledTableRow key={model_inst_id}>
                                 {index_tt === 0 ? (
                                     <TableCell
                                         align="right"
@@ -343,7 +358,7 @@ class ResultEntryModel extends React.Component {
                                         });
                                     })
                                 }
-                            </TableRow>
+                            </StyledTableRow>
                         )
                     )}
                 </React.Fragment>
@@ -366,7 +381,7 @@ class ResultEntryTest extends React.Component {
                 <React.Fragment>
                     {Object.keys(result_test.test_instances).map(
                         (test_inst_id, index_tt) => (
-                            <TableRow key={test_inst_id}>
+                            <StyledTableRow key={test_inst_id}>
                                 {index_tt === 0 ? (
                                     <TableCell
                                         align="right"
@@ -464,7 +479,7 @@ class ResultEntryTest extends React.Component {
                                         });
                                     })
                                 }
-                            </TableRow>
+                            </StyledTableRow>
                         )
                     )}
                 </React.Fragment>
@@ -1485,18 +1500,20 @@ class CompareMultiResults extends React.Component {
                             style={{
                                 width: "auto",
                                 tableLayout: "auto",
-                                border: 2,
-                                borderColor: "lightgrey",
-                                borderStyle: "solid",
+                                borderStyle: "none",
+                                borderRadius: "20px 20px 0 0",
+                                overflow: "hidden",
+                                marginTop: "10px"
                             }}
                         >
                             <TableHead>
-                                <TableRow>
+                                <StyledTableRow>
                                     <TableCell
                                         align="center"
                                         colSpan={2}
                                         rowSpan={2}
                                         bgcolor={Theme.darkBackground}
+                                        style={{ color: Theme.lightText, fontSize: "18px" }}
                                     >
                                         Model \ Validation Test
                                     </TableCell>
@@ -1509,6 +1526,7 @@ class CompareMultiResults extends React.Component {
                                             }
                                             key={test.test_id}
                                             bgcolor={Theme.darkBackground}
+                                            style={{ color: Theme.lightText, fontSize: "18px" }}
                                         >
                                             <Tooltip
                                                 title="Test"
@@ -1521,8 +1539,8 @@ class CompareMultiResults extends React.Component {
                                             </Tooltip>
                                         </TableCell>
                                     ))}
-                                </TableRow>
-                                <TableRow>
+                                </StyledTableRow>
+                                <StyledTableRow>
                                     {list_tests.map((test, index) =>
                                         dict_test_versions[test.test_id].map(
                                             (test_inst, index) => (
@@ -1531,6 +1549,7 @@ class CompareMultiResults extends React.Component {
                                                     colSpan={3}
                                                     key={test_inst.test_inst_id}
                                                     bgcolor={Theme.tableHeader}
+                                                    style={{ color: Theme.darkText, fontSize: "16px" }}
                                                 >
                                                     <Tooltip
                                                         title="Test Version"
@@ -1546,19 +1565,19 @@ class CompareMultiResults extends React.Component {
                                             )
                                         )
                                     )}
-                                </TableRow>
-                                <TableRow>
+                                </StyledTableRow>
+                                <StyledTableRow>
                                     <TableCell
                                         align="center"
                                         bgcolor={Theme.tableHeader}
-                                        style={{ width: 200, maxWidth: 200 }}
+                                        style={{ width: 200, maxWidth: 200, color: Theme.darkText, fontSize: "16px" }}
                                     >
                                         Model Name
                                     </TableCell>
                                     <TableCell
                                         align="center"
                                         bgcolor={Theme.tableHeader}
-                                        style={{ width: 200, maxWidth: 200 }}
+                                        style={{ width: 200, maxWidth: 200, color: Theme.darkText, fontSize: "16px" }}
                                     >
                                         Model Version
                                     </TableCell>
@@ -1604,7 +1623,7 @@ class CompareMultiResults extends React.Component {
                                             )
                                         )
                                     )}
-                                </TableRow>
+                                </StyledTableRow>
                             </TableHead>
                             <TableBody>
                                 {Object.keys(dict_results).map(
@@ -1646,18 +1665,20 @@ class CompareMultiResults extends React.Component {
                             style={{
                                 width: "auto",
                                 tableLayout: "auto",
-                                border: 2,
-                                borderColor: "lightgrey",
-                                borderStyle: "solid",
+                                borderStyle: "none",
+                                borderRadius: "20px 20px 0 0",
+                                overflow: "hidden",
+                                marginTop: "10px"
                             }}
                         >
                             <TableHead>
-                                <TableRow>
+                                <StyledTableRow>
                                     <TableCell
                                         align="center"
                                         colSpan={2}
                                         rowSpan={2}
                                         bgcolor={Theme.darkBackground}
+                                        style={{ color: Theme.lightText, fontSize: "18px" }}
                                     >
                                         Validation Test \ Model
                                     </TableCell>
@@ -1671,6 +1692,7 @@ class CompareMultiResults extends React.Component {
                                             }
                                             key={model.model_id}
                                             bgcolor={Theme.darkBackground}
+                                            style={{ color: Theme.lightText, fontSize: "18px" }}
                                         >
                                             <Tooltip
                                                 title="Model"
@@ -1683,8 +1705,8 @@ class CompareMultiResults extends React.Component {
                                             </Tooltip>
                                         </TableCell>
                                     ))}
-                                </TableRow>
-                                <TableRow>
+                                </StyledTableRow>
+                                <StyledTableRow>
                                     {list_models.map((model, index) =>
                                         dict_model_versions[model.model_id].map(
                                             (model_inst, index) => (
@@ -1695,6 +1717,7 @@ class CompareMultiResults extends React.Component {
                                                         model_inst.model_inst_id
                                                     }
                                                     bgcolor={Theme.tableHeader}
+                                                    style={{ color: Theme.darkText, fontSize: "16px" }}
                                                 >
                                                     <Tooltip
                                                         title="Model Version"
@@ -1710,19 +1733,19 @@ class CompareMultiResults extends React.Component {
                                             )
                                         )
                                     )}
-                                </TableRow>
-                                <TableRow>
+                                </StyledTableRow>
+                                <StyledTableRow>
                                     <TableCell
                                         align="center"
                                         bgcolor={Theme.tableHeader}
-                                        style={{ width: 200, maxWidth: 200 }}
+                                        style={{ width: 200, maxWidth: 200, color: Theme.darkText, fontSize: "16px" }}
                                     >
                                         Test Name
                                     </TableCell>
                                     <TableCell
                                         align="center"
                                         bgcolor={Theme.tableHeader}
-                                        style={{ width: 200, maxWidth: 200 }}
+                                        style={{ width: 200, maxWidth: 200, color: Theme.darkText, fontSize: "16px" }}
                                     >
                                         Test Version
                                     </TableCell>
@@ -1768,7 +1791,7 @@ class CompareMultiResults extends React.Component {
                                             )
                                         )
                                     )}
-                                </TableRow>
+                                </StyledTableRow>
                             </TableHead>
                             <TableBody>
                                 {Object.keys(dict_results).map(
@@ -2194,7 +2217,7 @@ class CompareMultiResults extends React.Component {
                                     xs={5}
                                     style={{
                                         backgroundColor:
-                                            Theme.tableRowHoverColor,
+                                            Theme.StyledTableRowHoverColor,
                                     }}
                                 >
                                     <Typography variant="h6">
@@ -2386,7 +2409,7 @@ class CompareMultiResults extends React.Component {
                                     xs={5}
                                     style={{
                                         backgroundColor:
-                                            Theme.tableRowHoverColor,
+                                            Theme.StyledTableRowHoverColor,
                                     }}
                                 >
                                     <Typography variant="h6">
