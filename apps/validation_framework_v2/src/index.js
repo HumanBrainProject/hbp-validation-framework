@@ -6,7 +6,6 @@ import { ContextMainProvider } from "./ContextMain";
 import { SnackbarProvider } from "notistack";
 import ValidationFramework from "./ValidationFramework";
 
-
 function renderApp(auth) {
     datastore.auth = auth;
     ReactDOM.render(
