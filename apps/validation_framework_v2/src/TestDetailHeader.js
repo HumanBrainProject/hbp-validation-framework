@@ -57,7 +57,7 @@ function CompareIcon(props) {
                     aria-label="compare test"
                     onClick={() => props.addTestCompare()}
                     style={{
-                        backgroundColor: Theme.buttonSecondary,
+                        backgroundColor: Theme.buttonPrimary,
                         marginLeft: 10,
                     }}
                 >
@@ -140,7 +140,7 @@ class TestDetailHeader extends React.Component {
                 <Grid item>
                     <Typography variant="h4" gutterBottom>
                         <span
-                            style={{ marginHorizontal: 125, cursor: "pointer" }}
+                            style={{ marginHorizontal: 125, fontWeight: "bold", color: Theme.darkGreenText, cursor: "pointer" }}
                             onClick={() =>
                                 copyToClipboard(
                                     this.props.name,
@@ -158,7 +158,7 @@ class TestDetailHeader extends React.Component {
                                 aria-label="edit test"
                                 onClick={() => this.handleEditClick()}
                                 style={{
-                                    backgroundColor: Theme.buttonSecondary,
+                                    backgroundColor: Theme.buttonPrimary,
                                     marginLeft: 10,
                                 }}
                             >

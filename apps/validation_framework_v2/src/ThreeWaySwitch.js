@@ -23,7 +23,7 @@ export const SwitchSelection = styled.span`
     left: 0px;
     width: 200px;
     height: 40px;
-    background: #216ba5;
+    background: #00A595;
     border-radius: 3px;
     transition: left 0.25s ease-out;
 `;

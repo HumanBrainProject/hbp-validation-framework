@@ -45,6 +45,21 @@ import ResultDetail from "./ResultDetail";
 import ResultGraphs from "./ResultGraphs";
 import Theme from "./theme";
 import { formatTimeStampToCompact, roundFloat } from "./utils";
+import styled from "styled-components";
+
+const StyledTableRow = styled(TableRow)(({ theme }) => ({
+    '&:nth-of-type(odd)': {
+        backgroundColor: "white",
+        borderBottom: "1px solid #DDDDDD"
+    },
+    '&:nth-of-type(even)': {
+        backgroundColor: "#F3F3F3",
+    },
+    '&:last-of-type': {
+        borderBottom: "2px solid",
+        borderColor: Theme.darkBackground
+    },
+}));
 
 const styles = (theme) => ({
     root: {
@@ -243,7 +258,7 @@ class ResultEntryModel extends React.Component {
                 <React.Fragment>
                     {Object.keys(result_model.model_instances).map(
                         (model_inst_id, index_tt) => (
-                            <TableRow key={model_inst_id}>
+                            <StyledTableRow key={model_inst_id}>
                                 {index_tt === 0 ? (
                                     <TableCell
                                         align="right"
@@ -343,7 +358,7 @@ class ResultEntryModel extends React.Component {
                                         });
                                     })
                                 }
-                            </TableRow>
+                            </StyledTableRow>
                         )
                     )}
                 </React.Fragment>
@@ -366,7 +381,7 @@ class ResultEntryTest extends React.Component {
                 <React.Fragment>
                     {Object.keys(result_test.test_instances).map(
                         (test_inst_id, index_tt) => (
-                            <TableRow key={test_inst_id}>
+                            <StyledTableRow key={test_inst_id}>
                                 {index_tt === 0 ? (
                                     <TableCell
                                         align="right"
@@ -464,7 +479,7 @@ class ResultEntryTest extends React.Component {
                                         });
                                     })
                                 }
-                            </TableRow>
+                            </StyledTableRow>
                         )
                     )}
                 </React.Fragment>
@@ -884,7 +899,7 @@ class CompareMultiResults extends React.Component {
                         !(
                             t_key in
                             results_grouped[m_key]["model_instances"][
-                                m_inst_key
+                            m_inst_key
                             ]["tests"]
                         )
                     ) {
@@ -906,7 +921,7 @@ class CompareMultiResults extends React.Component {
                                 !(
                                     t_inst_key in
                                     results_grouped[m_key]["model_instances"][
-                                        m_inst_key
+                                    m_inst_key
                                     ]["tests"][t_key]["test_instances"]
                                 )
                             ) {
@@ -970,7 +985,7 @@ class CompareMultiResults extends React.Component {
                 !(
                     result.test.id in
                     dict_results[result.model.id]["model_instances"][
-                        result.model_instance_id
+                    result.model_instance_id
                     ]["tests"]
                 )
             ) {
@@ -988,7 +1003,7 @@ class CompareMultiResults extends React.Component {
                 !(
                     result.test_instance_id in
                     dict_results[result.model.id]["model_instances"][
-                        result.model_instance_id
+                    result.model_instance_id
                     ]["tests"][result.test.id]["test_instances"]
                 )
             ) {
@@ -1075,7 +1090,7 @@ class CompareMultiResults extends React.Component {
                     var temp_sorted = {};
                     Object.keys(
                         dict_results[model_id]["model_instances"][
-                            model_inst_id
+                        model_inst_id
                         ]["tests"]
                     )
                         .sort(function (a, b) {
@@ -1083,20 +1098,20 @@ class CompareMultiResults extends React.Component {
                                 "model_instances"
                             ][model_inst_id]["tests"][a].test_alias
                                 ? dict_results[model_id]["model_instances"][
-                                      model_inst_id
-                                  ]["tests"][a].test_alias
+                                    model_inst_id
+                                ]["tests"][a].test_alias
                                 : dict_results[model_id]["model_instances"][
-                                      model_inst_id
-                                  ]["tests"][a].test_name;
+                                    model_inst_id
+                                ]["tests"][a].test_name;
                             var t_b_display = dict_results[model_id][
                                 "model_instances"
                             ][model_inst_id]["tests"][b].test_alias
                                 ? dict_results[model_id]["model_instances"][
-                                      model_inst_id
-                                  ]["tests"][b].test_alias
+                                    model_inst_id
+                                ]["tests"][b].test_alias
                                 : dict_results[model_id]["model_instances"][
-                                      model_inst_id
-                                  ]["tests"][b].test_name;
+                                    model_inst_id
+                                ]["tests"][b].test_name;
                             if (t_a_display < t_b_display) {
                                 return -1;
                             }
@@ -1108,7 +1123,7 @@ class CompareMultiResults extends React.Component {
                         .forEach(function (key) {
                             temp_sorted[key] =
                                 dict_results[model_id]["model_instances"][
-                                    model_inst_id
+                                model_inst_id
                                 ]["tests"][key];
                         });
                     dict_results[model_id]["model_instances"][model_inst_id][
@@ -1124,13 +1139,13 @@ class CompareMultiResults extends React.Component {
                 function (model_inst_id) {
                     Object.keys(
                         dict_results[model_id]["model_instances"][
-                            model_inst_id
+                        model_inst_id
                         ]["tests"]
                     ).forEach(function (test_id) {
                         var temp_sorted = {};
                         Object.keys(
                             dict_results[model_id]["model_instances"][
-                                model_inst_id
+                            model_inst_id
                             ]["tests"][test_id]["test_instances"]
                         )
                             .sort(function (a, b) {
@@ -1155,7 +1170,7 @@ class CompareMultiResults extends React.Component {
                             .forEach(function (key) {
                                 temp_sorted[key] =
                                     dict_results[model_id]["model_instances"][
-                                        model_inst_id
+                                    model_inst_id
                                     ]["tests"][test_id]["test_instances"][key];
                             });
                         dict_results[model_id]["model_instances"][
@@ -1172,12 +1187,12 @@ class CompareMultiResults extends React.Component {
                 function (model_instance_id) {
                     Object.keys(
                         dict_results[model_id]["model_instances"][
-                            model_instance_id
+                        model_instance_id
                         ]["tests"]
                     ).forEach(function (test_id) {
                         Object.keys(
                             dict_results[model_id]["model_instances"][
-                                model_instance_id
+                            model_instance_id
                             ]["tests"][test_id]["test_instances"]
                         ).forEach(function (test_instance_id) {
                             dict_results[model_id]["model_instances"][
@@ -1237,7 +1252,7 @@ class CompareMultiResults extends React.Component {
                 !(
                     result.model.id in
                     dict_results[result.test.id]["test_instances"][
-                        result.test_instance_id
+                    result.test_instance_id
                     ]["models"]
                 )
             ) {
@@ -1255,7 +1270,7 @@ class CompareMultiResults extends React.Component {
                 !(
                     result.model_instance_id in
                     dict_results[result.test.id]["test_instances"][
-                        result.test_instance_id
+                    result.test_instance_id
                     ]["models"][result.model.id]["model_instances"]
                 )
             ) {
@@ -1342,7 +1357,7 @@ class CompareMultiResults extends React.Component {
                     var temp_sorted = {};
                     Object.keys(
                         dict_results[test_id]["test_instances"][test_inst_id][
-                            "models"
+                        "models"
                         ]
                     )
                         .sort(function (a, b) {
@@ -1350,20 +1365,20 @@ class CompareMultiResults extends React.Component {
                                 "test_instances"
                             ][test_inst_id]["models"][a].test_alias
                                 ? dict_results[test_id]["test_instances"][
-                                      test_inst_id
-                                  ]["models"][a].test_alias
+                                    test_inst_id
+                                ]["models"][a].test_alias
                                 : dict_results[test_id]["test_instances"][
-                                      test_inst_id
-                                  ]["models"][a].test_name;
+                                    test_inst_id
+                                ]["models"][a].test_name;
                             var t_b_display = dict_results[test_id][
                                 "test_instances"
                             ][test_inst_id]["models"][b].test_alias
                                 ? dict_results[test_id]["test_instances"][
-                                      test_inst_id
-                                  ]["models"][b].test_alias
+                                    test_inst_id
+                                ]["models"][b].test_alias
                                 : dict_results[test_id]["test_instances"][
-                                      test_inst_id
-                                  ]["models"][b].test_name;
+                                    test_inst_id
+                                ]["models"][b].test_name;
                             if (t_a_display < t_b_display) {
                                 return -1;
                             }
@@ -1375,7 +1390,7 @@ class CompareMultiResults extends React.Component {
                         .forEach(function (key) {
                             temp_sorted[key] =
                                 dict_results[test_id]["test_instances"][
-                                    test_inst_id
+                                test_inst_id
                                 ]["models"][key];
                         });
                     dict_results[test_id]["test_instances"][test_inst_id][
@@ -1391,13 +1406,13 @@ class CompareMultiResults extends React.Component {
                 function (test_inst_id) {
                     Object.keys(
                         dict_results[test_id]["test_instances"][test_inst_id][
-                            "models"
+                        "models"
                         ]
                     ).forEach(function (model_id) {
                         var temp_sorted = {};
                         Object.keys(
                             dict_results[test_id]["test_instances"][
-                                test_inst_id
+                            test_inst_id
                             ]["models"][model_id]["model_instances"]
                         )
                             .sort(function (a, b) {
@@ -1422,9 +1437,9 @@ class CompareMultiResults extends React.Component {
                             .forEach(function (key) {
                                 temp_sorted[key] =
                                     dict_results[test_id]["test_instances"][
-                                        test_inst_id
+                                    test_inst_id
                                     ]["models"][model_id]["model_instances"][
-                                        key
+                                    key
                                     ];
                             });
                         dict_results[test_id]["test_instances"][test_inst_id][
@@ -1441,12 +1456,12 @@ class CompareMultiResults extends React.Component {
                 function (test_inst_id) {
                     Object.keys(
                         dict_results[test_id]["test_instances"][test_inst_id][
-                            "models"
+                        "models"
                         ]
                     ).forEach(function (model_id) {
                         Object.keys(
                             dict_results[test_id]["test_instances"][
-                                test_inst_id
+                            test_inst_id
                             ]["models"][model_id]["model_instances"]
                         ).forEach(function (model_instance_id) {
                             dict_results[test_id]["test_instances"][
@@ -1485,18 +1500,20 @@ class CompareMultiResults extends React.Component {
                             style={{
                                 width: "auto",
                                 tableLayout: "auto",
-                                border: 2,
-                                borderColor: "lightgrey",
-                                borderStyle: "solid",
+                                borderStyle: "none",
+                                borderRadius: "20px 20px 0 0",
+                                overflow: "hidden",
+                                marginTop: "10px"
                             }}
                         >
                             <TableHead>
-                                <TableRow>
+                                <StyledTableRow>
                                     <TableCell
                                         align="center"
                                         colSpan={2}
                                         rowSpan={2}
-                                        bgcolor={Theme.tableRowSelectColor}
+                                        bgcolor={Theme.darkBackground}
+                                        style={{ color: Theme.lightText, fontSize: "18px" }}
                                     >
                                         Model \ Validation Test
                                     </TableCell>
@@ -1508,7 +1525,8 @@ class CompareMultiResults extends React.Component {
                                                     .length * 3
                                             }
                                             key={test.test_id}
-                                            bgcolor={Theme.tableRowSelectColor}
+                                            bgcolor={Theme.darkBackground}
+                                            style={{ color: Theme.lightText, fontSize: "18px" }}
                                         >
                                             <Tooltip
                                                 title="Test"
@@ -1521,8 +1539,8 @@ class CompareMultiResults extends React.Component {
                                             </Tooltip>
                                         </TableCell>
                                     ))}
-                                </TableRow>
-                                <TableRow>
+                                </StyledTableRow>
+                                <StyledTableRow>
                                     {list_tests.map((test, index) =>
                                         dict_test_versions[test.test_id].map(
                                             (test_inst, index) => (
@@ -1531,6 +1549,7 @@ class CompareMultiResults extends React.Component {
                                                     colSpan={3}
                                                     key={test_inst.test_inst_id}
                                                     bgcolor={Theme.tableHeader}
+                                                    style={{ color: Theme.darkText, fontSize: "16px" }}
                                                 >
                                                     <Tooltip
                                                         title="Test Version"
@@ -1546,19 +1565,19 @@ class CompareMultiResults extends React.Component {
                                             )
                                         )
                                     )}
-                                </TableRow>
-                                <TableRow>
+                                </StyledTableRow>
+                                <StyledTableRow>
                                     <TableCell
                                         align="center"
                                         bgcolor={Theme.tableHeader}
-                                        style={{ width: 200, maxWidth: 200 }}
+                                        style={{ width: 200, maxWidth: 200, color: Theme.darkText, fontSize: "16px" }}
                                     >
                                         Model Name
                                     </TableCell>
                                     <TableCell
                                         align="center"
                                         bgcolor={Theme.tableHeader}
-                                        style={{ width: 200, maxWidth: 200 }}
+                                        style={{ width: 200, maxWidth: 200, color: Theme.darkText, fontSize: "16px" }}
                                     >
                                         Model Version
                                     </TableCell>
@@ -1604,7 +1623,7 @@ class CompareMultiResults extends React.Component {
                                             )
                                         )
                                     )}
-                                </TableRow>
+                                </StyledTableRow>
                             </TableHead>
                             <TableBody>
                                 {Object.keys(dict_results).map(
@@ -1646,18 +1665,20 @@ class CompareMultiResults extends React.Component {
                             style={{
                                 width: "auto",
                                 tableLayout: "auto",
-                                border: 2,
-                                borderColor: "lightgrey",
-                                borderStyle: "solid",
+                                borderStyle: "none",
+                                borderRadius: "20px 20px 0 0",
+                                overflow: "hidden",
+                                marginTop: "10px"
                             }}
                         >
                             <TableHead>
-                                <TableRow>
+                                <StyledTableRow>
                                     <TableCell
                                         align="center"
                                         colSpan={2}
                                         rowSpan={2}
-                                        bgcolor={Theme.tableRowSelectColor}
+                                        bgcolor={Theme.darkBackground}
+                                        style={{ color: Theme.lightText, fontSize: "18px" }}
                                     >
                                         Validation Test \ Model
                                     </TableCell>
@@ -1670,7 +1691,8 @@ class CompareMultiResults extends React.Component {
                                                 ].length * 3
                                             }
                                             key={model.model_id}
-                                            bgcolor={Theme.tableRowSelectColor}
+                                            bgcolor={Theme.darkBackground}
+                                            style={{ color: Theme.lightText, fontSize: "18px" }}
                                         >
                                             <Tooltip
                                                 title="Model"
@@ -1683,8 +1705,8 @@ class CompareMultiResults extends React.Component {
                                             </Tooltip>
                                         </TableCell>
                                     ))}
-                                </TableRow>
-                                <TableRow>
+                                </StyledTableRow>
+                                <StyledTableRow>
                                     {list_models.map((model, index) =>
                                         dict_model_versions[model.model_id].map(
                                             (model_inst, index) => (
@@ -1695,6 +1717,7 @@ class CompareMultiResults extends React.Component {
                                                         model_inst.model_inst_id
                                                     }
                                                     bgcolor={Theme.tableHeader}
+                                                    style={{ color: Theme.darkText, fontSize: "16px" }}
                                                 >
                                                     <Tooltip
                                                         title="Model Version"
@@ -1710,19 +1733,19 @@ class CompareMultiResults extends React.Component {
                                             )
                                         )
                                     )}
-                                </TableRow>
-                                <TableRow>
+                                </StyledTableRow>
+                                <StyledTableRow>
                                     <TableCell
                                         align="center"
                                         bgcolor={Theme.tableHeader}
-                                        style={{ width: 200, maxWidth: 200 }}
+                                        style={{ width: 200, maxWidth: 200, color: Theme.darkText, fontSize: "16px" }}
                                     >
                                         Test Name
                                     </TableCell>
                                     <TableCell
                                         align="center"
                                         bgcolor={Theme.tableHeader}
-                                        style={{ width: 200, maxWidth: 200 }}
+                                        style={{ width: 200, maxWidth: 200, color: Theme.darkText, fontSize: "16px" }}
                                     >
                                         Test Version
                                     </TableCell>
@@ -1768,7 +1791,7 @@ class CompareMultiResults extends React.Component {
                                             )
                                         )
                                     )}
-                                </TableRow>
+                                </StyledTableRow>
                             </TableHead>
                             <TableBody>
                                 {Object.keys(dict_results).map(
@@ -1920,6 +1943,7 @@ class CompareMultiResults extends React.Component {
                 <ResultGraphs
                     results={required_results}
                     loadingResult={false}
+                    multiResultsCompare={true}
                 />
             );
             content_summary = <CompareMultiGraphs results={required_results} />;
@@ -2193,7 +2217,7 @@ class CompareMultiResults extends React.Component {
                                     xs={5}
                                     style={{
                                         backgroundColor:
-                                            Theme.tableRowHoverColor,
+                                            Theme.StyledTableRowHoverColor,
                                     }}
                                 >
                                     <Typography variant="h6">
@@ -2202,19 +2226,27 @@ class CompareMultiResults extends React.Component {
                                     <Typography variant="subtitle1">
                                         {this.state.total_models === 1
                                             ? this.state.total_models +
-                                              " model, "
+                                            " model, "
                                             : this.state.total_models +
-                                              " models, "}
+                                            " models, "}
                                         {this.state.total_model_insts === 1
                                             ? this.state.total_model_insts +
-                                              " model instance"
+                                            " model instance"
                                             : this.state.total_model_insts +
-                                              " model instances"}
+                                            " model instances"}
                                     </Typography>
                                     {Object.keys(this.state.model_dict).map(
                                         (m_key) => (
-                                            <div key={m_key}>
-                                                <List dense={true}>
+                                            <div key={m_key} style={{
+                                                paddingTop: "8px",
+                                                paddingBottom: "8px",
+                                            }}>
+                                                <List dense={true} style={{
+                                                    border: "thin solid",
+                                                    borderColor: Theme.darkBackground,
+                                                    paddingTop: "0px",
+                                                    paddingBottom: "0px",
+                                                }}>
                                                     <ListItem
                                                         style={{
                                                             backgroundColor:
@@ -2377,7 +2409,7 @@ class CompareMultiResults extends React.Component {
                                     xs={5}
                                     style={{
                                         backgroundColor:
-                                            Theme.tableRowHoverColor,
+                                            Theme.StyledTableRowHoverColor,
                                     }}
                                 >
                                     <Typography variant="h6">
@@ -2387,17 +2419,25 @@ class CompareMultiResults extends React.Component {
                                         {this.state.total_tests === 1
                                             ? this.state.total_tests + " test, "
                                             : this.state.total_tests +
-                                              " tests, "}
+                                            " tests, "}
                                         {this.state.total_test_insts === 1
                                             ? this.state.total_test_insts +
-                                              " test instance"
+                                            " test instance"
                                             : this.state.total_test_insts +
-                                              " test instances"}
+                                            " test instances"}
                                     </Typography>
                                     {Object.keys(this.state.test_dict).map(
                                         (t_key) => (
-                                            <div key={t_key}>
-                                                <List dense={true}>
+                                            <div key={t_key} style={{
+                                                paddingTop: "8px",
+                                                paddingBottom: "8px",
+                                            }}>
+                                                <List dense={true} style={{
+                                                    border: "thin solid",
+                                                    borderColor: Theme.darkBackground,
+                                                    paddingTop: "0px",
+                                                    paddingBottom: "0px",
+                                                }}>
                                                     <ListItem
                                                         style={{
                                                             backgroundColor:
@@ -2644,94 +2684,94 @@ class CompareMultiResults extends React.Component {
                             )}
                         {(this.state.total_model_insts !== 0 ||
                             this.state.total_test_insts !== 0) && (
-                            <Grid
-                                container
-                                spacing={3}
-                                style={{ marginTop: "50px" }}
-                            >
-                                <Grid item xs={12} align="center">
-                                    <Box
-                                        display="flex"
-                                        justifyContent="space-around"
-                                        alignItems="center"
-                                        style={{ maxWidth: "1200px" }}
-                                    >
-                                        <Button
-                                            disabled={Boolean(
-                                                !this.state.compareShow
-                                            )}
-                                            variant="contained"
-                                            style={{
-                                                backgroundColor:
-                                                    Theme.disabledColor,
-                                                width: "225px",
-                                            }}
-                                            onClick={() =>
-                                                this.setState({
-                                                    compareShow: false,
-                                                })
-                                            }
+                                <Grid
+                                    container
+                                    spacing={3}
+                                    style={{ marginTop: "50px" }}
+                                >
+                                    <Grid item xs={12} align="center">
+                                        <Box
+                                            display="flex"
+                                            justifyContent="space-around"
+                                            alignItems="center"
+                                            style={{ maxWidth: "1200px" }}
                                         >
-                                            Clear Results
-                                        </Button>
-                                        <Button
-                                            disabled={
-                                                this.state.compareShow ===
+                                            <Button
+                                                disabled={Boolean(
+                                                    !this.state.compareShow
+                                                )}
+                                                variant="contained"
+                                                style={{
+                                                    backgroundColor:
+                                                        Theme.disabledColor,
+                                                    width: "225px",
+                                                }}
+                                                onClick={() =>
+                                                    this.setState({
+                                                        compareShow: false,
+                                                    })
+                                                }
+                                            >
+                                                Clear Results
+                                            </Button>
+                                            <Button
+                                                disabled={
+                                                    this.state.compareShow ===
                                                     "common_models" ||
-                                                this.state.total_model_insts ===
+                                                    this.state.total_model_insts ===
                                                     0
-                                            }
-                                            variant="contained"
-                                            style={{
-                                                backgroundColor:
-                                                    Theme.buttonSecondary,
-                                                width: "225px",
-                                            }}
-                                            onClick={() =>
-                                                this.setCompare("common_models")
-                                            }
-                                        >
-                                            Compare Models
-                                        </Button>
-                                        <Button
-                                            disabled={
-                                                this.state.compareShow ===
+                                                }
+                                                variant="contained"
+                                                style={{
+                                                    backgroundColor:
+                                                        Theme.buttonDark,
+                                                    width: "225px",
+                                                }}
+                                                onClick={() =>
+                                                    this.setCompare("common_models")
+                                                }
+                                            >
+                                                Compare Models
+                                            </Button>
+                                            <Button
+                                                disabled={
+                                                    this.state.compareShow ===
                                                     "common_tests" ||
-                                                this.state.total_test_insts ===
+                                                    this.state.total_test_insts ===
                                                     0
-                                            }
-                                            variant="contained"
-                                            style={{
-                                                backgroundColor:
-                                                    Theme.buttonSecondary,
-                                                width: "225px",
-                                            }}
-                                            onClick={() =>
-                                                this.setCompare("common_tests")
-                                            }
-                                        >
-                                            Compare Tests
-                                        </Button>
-                                        <Button
-                                            disabled={
-                                                this.state.compareShow === "all"
-                                            }
-                                            variant="contained"
-                                            style={{
-                                                backgroundColor:
-                                                    Theme.buttonPrimary,
-                                                width: "225px",
-                                            }}
-                                            onClick={() =>
-                                                this.setCompare("all")
-                                            }
-                                        >
-                                            Compare All
-                                        </Button>
-                                    </Box>
+                                                }
+                                                variant="contained"
+                                                style={{
+                                                    backgroundColor:
+                                                        Theme.buttonDark,
+                                                    width: "225px",
+                                                }}
+                                                onClick={() =>
+                                                    this.setCompare("common_tests")
+                                                }
+                                            >
+                                                Compare Tests
+                                            </Button>
+                                            <Button
+                                                disabled={
+                                                    this.state.compareShow === "all"
+                                                }
+                                                variant="contained"
+                                                style={{
+                                                    backgroundColor:
+                                                        Theme.buttonDark,
+                                                    width: "225px",
+                                                }}
+                                                onClick={() =>
+                                                    this.setCompare("all")
+                                                }
+                                            >
+                                                Compare All
+                                            </Button>
+                                        </Box>
+                                    </Grid>
                                 </Grid>
-                            </Grid>
-                        )}
+                            )}
                         {this.state.compareShow === "common_models" && (
                             <Grid
                                 container
@@ -2794,7 +2834,7 @@ class CompareMultiResults extends React.Component {
                                             indicatorColor="secondary"
                                             style={{
                                                 backgroundColor:
-                                                    Theme.tableRowSelectColor,
+                                                    Theme.pageDetailBarColor,
                                                 color: Theme.textPrimary,
                                             }}
                                         >

@@ -15,6 +15,21 @@ import LoadingIndicator from "./LoadingIndicator";
 import ResultDetail from "./ResultDetail";
 import Theme from "./theme";
 import { formatTimeStampToCompact, roundFloat } from "./utils";
+import styled from "styled-components";
+
+const StyledTableRow = styled(TableRow)(({ theme }) => ({
+    '&:nth-of-type(odd)': {
+        backgroundColor: "white",
+        borderBottom: "1px solid #DDDDDD"
+    },
+    '&:nth-of-type(even)': {
+        backgroundColor: "#F3F3F3",
+    },
+    '&:last-of-type': {
+        borderBottom: "2px solid",
+        borderColor: Theme.darkBackground
+    },
+}));
 
 class ResultPerInstanceComboMT extends React.Component {
     constructor(props) {
@@ -180,7 +195,7 @@ class ResultEntryModel extends React.Component {
                 <React.Fragment>
                     {Object.keys(result_model.model_instances).map(
                         (model_inst_id, index_tt) => (
-                            <TableRow key={model_inst_id}>
+                            <StyledTableRow key={model_inst_id}>
                                 {index_tt === 0 ? (
                                     <TableCell
                                         align="right"
@@ -232,7 +247,7 @@ class ResultEntryModel extends React.Component {
                                         />
                                     );
                                 })}
-                            </TableRow>
+                            </StyledTableRow>
                         )
                     )}
                 </React.Fragment>
@@ -460,54 +475,57 @@ export default class TestResultOverview extends React.Component {
         return (
             <React.Fragment>
                 <Grid container item direction="column">
-                    <Box px={2} pb={0}>
+                    <Box px={2} pb={0} my={2}>
                         <Typography variant="subtitle1">
                             <b>Summary of Validation Results</b>
                         </Typography>
                     </Box>
-                    <br />
                     <TableContainer>
                         <Table
                             aria-label="spanning table"
                             style={{
                                 width: "auto",
                                 tableLayout: "auto",
-                                border: 2,
-                                borderColor: "lightgrey",
-                                borderStyle: "solid",
+                                borderStyle: "none",
+                                borderRadius: "20px 20px 0 0",
+                                overflow: "hidden",
+                                marginTop: "10px"
                             }}
                         >
                             <TableHead>
-                                <TableRow>
+                                <StyledTableRow>
                                     <TableCell
                                         align="center"
                                         colSpan={2}
                                         rowSpan={2}
-                                        bgcolor={Theme.tableRowSelectColor}
+                                        bgcolor={Theme.tableDarkHeader}
+                                        style={{ color: Theme.lightText, fontSize: "18px" }}
                                     >
                                         Model
                                     </TableCell>
                                     <TableCell
                                         align="center"
                                         colSpan={test_versions.length * 3}
-                                        bgcolor={Theme.tableRowSelectColor}
+                                        bgcolor={Theme.tableDarkHeader}
+                                        style={{ color: Theme.lightText, fontSize: "18px" }}
                                     >
                                         Test Version(s)
                                     </TableCell>
-                                </TableRow>
-                                <TableRow>
+                                </StyledTableRow>
+                                <StyledTableRow>
                                     {test_versions.map((item, index) => (
                                         <TableCell
                                             align="center"
                                             colSpan={3}
                                             key={item["test_inst_id"]}
                                             bgcolor={Theme.tableHeader}
+                                            style={{ color: Theme.darkText, fontSize: "16px" }}
                                         >
                                             {item["test_version"]}
                                         </TableCell>
                                     ))}
-                                </TableRow>
-                                <TableRow>
+                                </StyledTableRow>
+                                <StyledTableRow>
                                     <TableCell
                                         align="center"
                                         bgcolor={Theme.tableHeader}
@@ -554,9 +572,13 @@ export default class TestResultOverview extends React.Component {
                                             </TableCell>
                                         </React.Fragment>
                                     ))}
-                                </TableRow>
+                                </StyledTableRow>
                             </TableHead>
-                            <TableBody>
+                            <TableBody
+                                style={{
+                                    borderBottom: "2px solid",
+                                    borderColor: Theme.darkBackground
+                                }}>
                                 {Object.keys(dict_results).map(
                                     (model_id, index_m) => (
                                         <ResultEntryModel
