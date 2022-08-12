@@ -181,7 +181,7 @@ class ModelDetailHeader extends React.Component {
                     <Typography variant="h4" gutterBottom>
                         <AccessibilityIcon private={this.props.private} />
                         <span
-                            style={{ marginHorizontal: 125, cursor: "pointer" }}
+                            style={{ marginHorizontal: 125, fontWeight: "bold", color: Theme.darkGreenText, cursor: "pointer", }}
                             onClick={() =>
                                 copyToClipboard(
                                     this.props.name,

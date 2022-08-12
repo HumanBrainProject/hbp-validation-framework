@@ -24,5 +24,6 @@ export default {
     disabledColor: "#DCDCDC",
     subTabColor: "#DCEDC8",
     lightText: "#FFFFFF",
-    darkText: "#000000"
+    darkText: "#000000",
+    darkGreenText: "#13AC8B"
 };

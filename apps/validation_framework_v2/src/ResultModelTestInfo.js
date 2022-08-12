@@ -17,12 +17,27 @@ import React from "react";
 import Markdown from "./Markdown";
 import Theme from "./theme";
 import { copyToClipboard, formatLabel, formatValue } from "./utils";
+import styled from "styled-components";
+
+const StyledTableRow = styled(TableRow)(({ theme }) => ({
+    '&:nth-of-type(odd)': {
+        backgroundColor: "white",
+        borderBottom: "1px solid #DDDDDD"
+    },
+    '&:nth-of-type(even)': {
+        backgroundColor: "#F3F3F3",
+    },
+    '&:last-of-type': {
+        borderBottom: "2px solid",
+        borderColor: Theme.darkBackground
+    },
+}));
 
 function CommonParameter(props) {
     var m_value = formatValue(props.label, props.m_value);
     var t_value = formatValue(props.label, props.t_value);
     return (
-        <TableRow>
+        <StyledTableRow>
             <TableCell>
                 <Box
                     overflow="auto"
@@ -71,14 +86,14 @@ function CommonParameter(props) {
                     <Typography variant="body2">{t_value}</Typography>
                 </Box>
             </TableCell>
-        </TableRow>
+        </StyledTableRow>
     );
 }
 
 function OtherParameter(props) {
     var value = formatValue(props.label, props.value);
     return (
-        <TableRow>
+        <StyledTableRow>
             <TableCell>
                 <Typography variant="body2">
                     <b>{formatLabel(props.label)}</b>:{" "}
@@ -104,7 +119,7 @@ function OtherParameter(props) {
                     <Typography variant="body2">{value}</Typography>
                 </Box>
             </TableCell>
-        </TableRow>
+        </StyledTableRow>
     );
 }
 
@@ -128,15 +143,18 @@ class ResultModelTestInfo extends React.Component {
                         </AccordionSummary>
                         <AccordionDetails>
                             <Grid container item xs={12}>
-                                <TableContainer component={Paper}>
+                                <TableContainer component={Paper} style={{ backgroundColor: Theme.lightBackground }}>
                                     <Table
                                         style={{
-                                            width: "auto",
                                             tableLayout: "auto",
+                                            borderStyle: "none",
+                                            borderRadius: "20px 20px 0 0",
+                                            overflow: "hidden",
+                                            boxShadow: "none"
                                         }}
                                     >
                                         <TableHead>
-                                            <TableRow>
+                                            <StyledTableRow>
                                                 <TableCell
                                                     align="center"
                                                     style={{
@@ -144,20 +162,20 @@ class ResultModelTestInfo extends React.Component {
                                                             Theme.tableDarkHeader,
                                                     }}
                                                 >
-                                                    <Typography variant="body2">
+                                                    <Typography style={{ color: Theme.lightText, fontSize: "18px" }}>
                                                         <b>Model</b>
                                                     </Typography>
                                                 </TableCell>
                                                 <TableCell
-                                                    width="150px"
+                                                    width="160px"
                                                     align="center"
                                                     style={{
                                                         backgroundColor:
                                                             Theme.tableDarkHeader,
                                                     }}
                                                 >
-                                                    <Typography variant="body2">
-                                                        <b>{"<< "}Parameter{" >>"}</b>
+                                                    <Typography style={{ color: Theme.lightText, fontSize: "18px" }}>
+                                                        {/* <b>{"<< "}Parameter{" >>"}</b> */}
                                                     </Typography>
                                                 </TableCell>
                                                 <TableCell
@@ -167,11 +185,11 @@ class ResultModelTestInfo extends React.Component {
                                                             Theme.tableDarkHeader,
                                                     }}
                                                 >
-                                                    <Typography variant="body2">
+                                                    <Typography style={{ color: Theme.lightText, fontSize: "18px" }}>
                                                         <b>Test</b>
                                                     </Typography>
                                                 </TableCell>
-                                            </TableRow>
+                                            </StyledTableRow>
                                         </TableHead>
                                         <TableBody>
                                             {[
@@ -227,10 +245,17 @@ class ResultModelTestInfo extends React.Component {
                         <AccordionDetails>
                             <Grid container spacing={2}>
                                 <Grid item xs={6}>
-                                    <TableContainer component={Paper}>
-                                        <Table>
+                                    <TableContainer component={Paper} style={{ backgroundColor: Theme.lightBackground }}>
+                                        <Table
+                                            style={{
+                                                tableLayout: "auto",
+                                                borderStyle: "none",
+                                                borderRadius: "20px 20px 0 0",
+                                                overflow: "hidden",
+                                                boxShadow: "none"
+                                            }}>
                                             <TableHead>
-                                                <TableRow>
+                                                <StyledTableRow>
                                                     <TableCell
                                                         align="center"
                                                         style={{
@@ -239,11 +264,11 @@ class ResultModelTestInfo extends React.Component {
                                                         }}
                                                         colSpan={2}
                                                     >
-                                                        <Typography variant="body2">
+                                                        <Typography style={{ color: Theme.lightText, fontSize: "18px" }}>
                                                             <b>Model</b>
                                                         </Typography>
                                                     </TableCell>
-                                                </TableRow>
+                                                </StyledTableRow>
                                             </TableHead>
                                             <TableBody>
                                                 {[
@@ -279,10 +304,16 @@ class ResultModelTestInfo extends React.Component {
                                     </TableContainer>
                                 </Grid>
                                 <Grid item xs={6}>
-                                    <TableContainer component={Paper}>
-                                        <Table>
+                                    <TableContainer component={Paper} style={{ backgroundColor: Theme.lightBackground }}>
+                                        <Table style={{
+                                            tableLayout: "auto",
+                                            borderStyle: "none",
+                                            borderRadius: "20px 20px 0 0",
+                                            overflow: "hidden",
+                                            boxShadow: "none"
+                                        }}>
                                             <TableHead>
-                                                <TableRow>
+                                                <StyledTableRow>
                                                     <TableCell
                                                         align="center"
                                                         style={{
@@ -291,11 +322,11 @@ class ResultModelTestInfo extends React.Component {
                                                         }}
                                                         colSpan={2}
                                                     >
-                                                        <Typography variant="body2">
+                                                        <Typography style={{ color: Theme.lightText, fontSize: "18px" }}>
                                                             <b>Test</b>
                                                         </Typography>
                                                     </TableCell>
-                                                </TableRow>
+                                                </StyledTableRow>
                                             </TableHead>
                                             <TableBody>
                                                 {[
@@ -352,19 +383,19 @@ class ResultModelTestInfo extends React.Component {
                             <TableContainer component={Paper}>
                                 <Table>
                                     <TableBody>
-                                        <TableRow>
+                                        <StyledTableRow>
                                             <TableCell
                                                 style={{
                                                     backgroundColor:
                                                         Theme.tableDarkHeader,
                                                 }}
                                             >
-                                                <Typography variant="body2">
+                                                <Typography style={{ color: Theme.lightText, fontSize: "18px" }}>
                                                     <b>Model Description</b>
                                                 </Typography>
                                             </TableCell>
-                                        </TableRow>
-                                        <TableRow>
+                                        </StyledTableRow>
+                                        <StyledTableRow>
                                             <TableCell>
                                                 <Typography variant="body2">
                                                     {this.props.model
@@ -380,20 +411,20 @@ class ResultModelTestInfo extends React.Component {
                                                     )}
                                                 </Typography>
                                             </TableCell>
-                                        </TableRow>
-                                        <TableRow>
+                                        </StyledTableRow>
+                                        <StyledTableRow>
                                             <TableCell
                                                 style={{
                                                     backgroundColor:
                                                         Theme.tableDarkHeader,
                                                 }}
                                             >
-                                                <Typography variant="body2">
+                                                <Typography style={{ color: Theme.lightText, fontSize: "18px" }}>
                                                     <b>Test Protocol</b>
                                                 </Typography>
                                             </TableCell>
-                                        </TableRow>
-                                        <TableRow>
+                                        </StyledTableRow>
+                                        <StyledTableRow>
                                             <TableCell>
                                                 <Typography variant="body2">
                                                     {this.props.test
@@ -409,7 +440,7 @@ class ResultModelTestInfo extends React.Component {
                                                     )}
                                                 </Typography>
                                             </TableCell>
-                                        </TableRow>
+                                        </StyledTableRow>
                                     </TableBody>
                                 </Table>
                             </TableContainer>
@@ -431,10 +462,17 @@ class ResultModelTestInfo extends React.Component {
                             </Typography>
                         </AccordionSummary>
                         <AccordionDetails>
-                            <TableContainer component={Paper}>
-                                <Table>
+                            <TableContainer component={Paper} style={{ backgroundColor: Theme.lightBackground }}>
+                                <Table style={{
+                                    width: "auto",
+                                    tableLayout: "auto",
+                                    borderStyle: "none",
+                                    borderRadius: "20px 20px 0 0",
+                                    overflow: "hidden",
+                                    boxShadow: "none"
+                                }}>
                                     <TableHead>
-                                        <TableRow>
+                                        <StyledTableRow>
                                             <TableCell
                                                 align="center"
                                                 style={{
@@ -442,7 +480,7 @@ class ResultModelTestInfo extends React.Component {
                                                         Theme.tableDarkHeader,
                                                 }}
                                             >
-                                                <Typography variant="body2">
+                                                <Typography style={{ color: Theme.lightText, fontSize: "18px" }}>
                                                     <b>Model Version</b>
                                                 </Typography>
                                             </TableCell>
@@ -454,8 +492,8 @@ class ResultModelTestInfo extends React.Component {
                                                         Theme.tableDarkHeader,
                                                 }}
                                             >
-                                                <Typography variant="body2">
-                                                    <b>{"<< "}Parameter{" >>"}</b>
+                                                <Typography style={{ color: Theme.lightText, fontSize: "18px" }}>
+                                                    {/* <b>{"<< "}Parameter{" >>"}</b> */}
                                                 </Typography>
                                             </TableCell>
                                             <TableCell
@@ -465,11 +503,11 @@ class ResultModelTestInfo extends React.Component {
                                                         Theme.tableDarkHeader,
                                                 }}
                                             >
-                                                <Typography variant="body2">
+                                                <Typography style={{ color: Theme.lightText, fontSize: "18px" }}>
                                                     <b>Test Version</b>
                                                 </Typography>
                                             </TableCell>
-                                        </TableRow>
+                                        </StyledTableRow>
                                     </TableHead>
                                     <TableBody>
                                         {[
@@ -523,10 +561,16 @@ class ResultModelTestInfo extends React.Component {
                         <AccordionDetails>
                             <Grid container spacing={2}>
                                 <Grid item xs={6}>
-                                    <TableContainer component={Paper}>
-                                        <Table>
+                                    <TableContainer component={Paper} style={{ backgroundColor: Theme.lightBackground }}>
+                                        <Table style={{
+                                            tableLayout: "auto",
+                                            borderStyle: "none",
+                                            borderRadius: "20px 20px 0 0",
+                                            overflow: "hidden",
+                                            boxShadow: "none"
+                                        }}>
                                             <TableHead>
-                                                <TableRow>
+                                                <StyledTableRow>
                                                     <TableCell
                                                         align="center"
                                                         style={{
@@ -535,11 +579,11 @@ class ResultModelTestInfo extends React.Component {
                                                         }}
                                                         colSpan={2}
                                                     >
-                                                        <Typography variant="body2">
+                                                        <Typography style={{ color: Theme.lightText, fontSize: "18px" }}>
                                                             <b>Model Version</b>
                                                         </Typography>
                                                     </TableCell>
-                                                </TableRow>
+                                                </StyledTableRow>
                                             </TableHead>
                                             <TableBody>
                                                 {[
@@ -575,10 +619,16 @@ class ResultModelTestInfo extends React.Component {
                                     </TableContainer>
                                 </Grid>
                                 <Grid item xs={6}>
-                                    <TableContainer component={Paper}>
-                                        <Table>
+                                    <TableContainer component={Paper} style={{ backgroundColor: Theme.lightBackground }}>
+                                        <Table style={{
+                                            tableLayout: "auto",
+                                            borderStyle: "none",
+                                            borderRadius: "20px 20px 0 0",
+                                            overflow: "hidden",
+                                            boxShadow: "none"
+                                        }}>
                                             <TableHead>
-                                                <TableRow>
+                                                <StyledTableRow>
                                                     <TableCell
                                                         align="center"
                                                         style={{
@@ -587,11 +637,11 @@ class ResultModelTestInfo extends React.Component {
                                                         }}
                                                         colSpan={2}
                                                     >
-                                                        <Typography variant="body2">
+                                                        <Typography style={{ color: Theme.lightText, fontSize: "18px" }}>
                                                             <b>Test Version</b>
                                                         </Typography>
                                                     </TableCell>
-                                                </TableRow>
+                                                </StyledTableRow>
                                             </TableHead>
                                             <TableBody>
                                                 {[
@@ -645,22 +695,22 @@ class ResultModelTestInfo extends React.Component {
                             <TableContainer component={Paper}>
                                 <Table>
                                     <TableBody>
-                                        <TableRow>
+                                        <StyledTableRow>
                                             <TableCell
                                                 style={{
                                                     backgroundColor:
                                                         Theme.tableDarkHeader,
                                                 }}
                                             >
-                                                <Typography variant="body2">
+                                                <Typography style={{ color: Theme.lightText, fontSize: "18px" }}>
                                                     <b>
                                                         Model Version
                                                         Description
                                                     </b>
                                                 </Typography>
                                             </TableCell>
-                                        </TableRow>
-                                        <TableRow>
+                                        </StyledTableRow>
+                                        <StyledTableRow>
                                             <TableCell>
                                                 <Typography variant="body2">
                                                     {this.props.model_instance
@@ -671,22 +721,22 @@ class ResultModelTestInfo extends React.Component {
                                                         : "<< no info >>"}
                                                 </Typography>
                                             </TableCell>
-                                        </TableRow>
-                                        <TableRow>
+                                        </StyledTableRow>
+                                        <StyledTableRow>
                                             <TableCell
                                                 style={{
                                                     backgroundColor:
                                                         Theme.tableDarkHeader,
                                                 }}
                                             >
-                                                <Typography variant="body2">
+                                                <Typography style={{ color: Theme.lightText, fontSize: "18px" }}>
                                                     <b>
                                                         Test Version Description
                                                     </b>
                                                 </Typography>
                                             </TableCell>
-                                        </TableRow>
-                                        <TableRow>
+                                        </StyledTableRow>
+                                        <StyledTableRow>
                                             <TableCell>
                                                 <Typography variant="body2">
                                                     {this.props.test_instance
@@ -697,14 +747,14 @@ class ResultModelTestInfo extends React.Component {
                                                         : "<< no info >>"}
                                                 </Typography>
                                             </TableCell>
-                                        </TableRow>
+                                        </StyledTableRow>
                                     </TableBody>
                                 </Table>
                             </TableContainer>
                         </AccordionDetails>
                     </Accordion>
                 </Grid>
-            </Grid>
+            </Grid >
         );
     }
 }

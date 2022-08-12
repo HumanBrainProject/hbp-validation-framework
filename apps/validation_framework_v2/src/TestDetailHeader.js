@@ -140,7 +140,7 @@ class TestDetailHeader extends React.Component {
                 <Grid item>
                     <Typography variant="h4" gutterBottom>
                         <span
-                            style={{ marginHorizontal: 125, cursor: "pointer" }}
+                            style={{ marginHorizontal: 125, fontWeight: "bold", color: Theme.darkGreenText, cursor: "pointer" }}
                             onClick={() =>
                                 copyToClipboard(
                                     this.props.name,
