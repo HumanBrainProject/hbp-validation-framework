@@ -20,14 +20,14 @@ export default function initAuth(main) {
         // for local development
         keycloak
         .init({ flow: 'implicit', promiseType: 'native' }) 
-        .success(() => checkAuth(main))
-        .error(console.log);
+        .then(() => checkAuth(main))
+        .catch(console.log);
     } else {
         // for deployment
         keycloak
         .init({ flow: 'standard', pkceMethod: 'S256' }) 
-        .success(() => checkAuth(main))
-        .error(console.log);
+        .then(() => checkAuth(main))
+        .catch(console.log);
     }
 }
 
