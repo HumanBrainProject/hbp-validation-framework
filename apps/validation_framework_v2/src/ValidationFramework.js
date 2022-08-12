@@ -385,7 +385,6 @@ class ValidationFramework extends React.Component {
 
     componentDidMount() {
         document.body.style.backgroundColor = Theme.bodyBackground;
-        const token = this.props.auth.tokenParsed;
 
         const [, setAuthContext] = this.context.auth;
         setAuthContext(this.props.auth);
@@ -408,13 +407,6 @@ class ValidationFramework extends React.Component {
                     });
                 }
             });
-
-        this.props.auth
-            .loadUserInfo()
-            .success(() => {
-                const userInfo = this.props.auth.userInfo;
-            })
-            .error(console.log);
 
         if (window.location.hash) {
             let proceed = true;
