@@ -6,24 +6,34 @@ import Keycloak from 'keycloak-js';
 const keycloak = Keycloak({
     url: 'https://iam.ebrains.eu/auth',
     realm: 'hbp',
-    clientId: 'model-catalog'
+    clientId: 'model-catalog',
+    'public-client': true,
+    'confidential-port': 0,
 });
 const YOUR_APP_SCOPES = 'team email profile';   // full list at https://iam.ebrains.eu/auth/realms/hbp/.well-known/openid-configuration
 
 
 export default function initAuth(main) {
     console.log('DOM content is loaded, initialising Keycloak client...');
-    keycloak
-        .init({ flow: 'implicit', promiseType: 'native' })
+    console.log(window.location.hostname);
+    if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
+        // for local development
+        keycloak
+        .init({ flow: 'implicit', promiseType: 'native' }) 
         .then(() => checkAuth(main))
         .catch(console.log);
+    } else {
+        // for deployment
+        keycloak
+        .init({ flow: 'standard', pkceMethod: 'S256' }) 
+        .then(() => checkAuth(main))
+        .catch(console.log);
+    }
 }
-
 
 function checkPermissions(keycloak) {
     return keycloak.loadUserInfo()
         .then((userInfo) => {
-
             if (userInfo.roles.team.includes("collab-model-validation-editor") || userInfo.roles.team.includes("collab-model-validation-administrator")) {
                 keycloak.authorized = true;
             } else {
@@ -31,7 +41,6 @@ function checkPermissions(keycloak) {
             }
         })
 }
-
 
 function checkAuth(main) {
     console.log('Keycloak client is initialised, verifying authentication...');
