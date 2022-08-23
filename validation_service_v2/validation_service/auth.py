@@ -60,6 +60,7 @@ class User:
         self.token = token
         self._user_info = None
         self._collab_info = {}
+        self._connection_error = False
 
     async def get_user_info(self):
         if self._user_info is None:
@@ -79,7 +80,16 @@ class User:
 
     async def get_collab_info(self, collab_id):
         if collab_id not in self._collab_info:
-            self._collab_info[collab_id] = await get_collab_info(collab_id, self.token)
+            if not self._connection_error:
+                # if the Collab API is not responding, we set an error flag to avoid further
+                # requests and treat all collabs as private
+                try:
+                    self._collab_info[collab_id] = await get_collab_info(collab_id, self.token)
+                except requests.exceptions.ConnectionError as err:
+                    self._connection_error = True
+                    self._collab_info[collab_id] = {}
+            else:
+                self._collab_info[collab_id] = {}
         return self._collab_info[collab_id]
 
     async def get_person(self, kg_client):
