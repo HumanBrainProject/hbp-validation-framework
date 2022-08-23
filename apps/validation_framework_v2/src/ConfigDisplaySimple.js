@@ -78,7 +78,7 @@ function FilterDisplay(props) {
     );
 }
 
-export default function ConfigDisplayTop(props) {
+export default function ConfigDisplaySimple(props) {
     const classes = useStyles();
     let showFilters = {};
     if (props.display === "Only Models") {
@@ -89,7 +89,7 @@ export default function ConfigDisplayTop(props) {
         showFilters = filterKeys;
     }
     return (
-        <div className={classes.root}>
+        <div className={classes.root} style={{display: "block"}}>
             {showFilters.map((filterName, index) => {
                 return (
                     <FilterDisplay

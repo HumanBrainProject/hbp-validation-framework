@@ -1,3 +1,5 @@
+import { Typography } from "@material-ui/core";
+import Avatar from "@material-ui/core/Avatar";
 import Box from "@material-ui/core/Box";
 import Button from "@material-ui/core/Button";
 import Dialog from "@material-ui/core/Dialog";
@@ -7,6 +9,7 @@ import DialogTitle from "@material-ui/core/DialogTitle";
 import Grid from "@material-ui/core/Grid";
 import InputAdornment from "@material-ui/core/InputAdornment";
 import TextField from "@material-ui/core/TextField";
+import Tooltip from "@material-ui/core/Tooltip";
 import CancelIcon from "@material-ui/icons/Cancel";
 import CheckCircleIcon from "@material-ui/icons/CheckCircle";
 import RadioButtonUncheckedIcon from "@material-ui/icons/RadioButtonUnchecked";
@@ -55,7 +58,7 @@ export default class TestEditForm extends React.Component {
             alias: "",
             author: [],
             description: "",
-            data_location: "",
+            data_location: [],
             data_type: "",
             species: "",
             brain_region: "",
@@ -208,10 +211,14 @@ export default class TestEditForm extends React.Component {
         let value = target.value;
         const name = target.name;
 
-        if (name === "private") {
-            value = !target.checked;
-        } else if (name === "alias") {
+        if (name === "alias") {
             this.checkAliasUnique(value);
+        } else if (name === "data_location") {
+            value = value
+                .replace(/\n/g, ",")
+                .split(",")
+                .map((item) => item.trim())
+                .filter(Boolean);
         }
         this.setState({
             [name]: value,
@@ -282,30 +289,30 @@ export default class TestEditForm extends React.Component {
                                         fullWidth={true}
                                         error={
                                             !this.state.alias ||
-                                            this.state.aliasLoading
+                                                this.state.aliasLoading
                                                 ? false
                                                 : this.state.isAliasNotUnique
                                         }
                                         helperText={
                                             !this.state.alias ||
-                                            this.state.aliasLoading
+                                                this.state.aliasLoading
                                                 ? "(optional) Please choose a short name (easier to remember than a long ID)"
                                                 : this.state.isAliasNotUnique
-                                                ? "This alias aready exists! "
-                                                : "Great! This alias is unique."
+                                                    ? "This alias aready exists! "
+                                                    : "Great! This alias is unique."
                                         }
                                         InputProps={{
                                             startAdornment: (
                                                 <InputAdornment position="start">
                                                     {!this.state.alias ||
-                                                    this.state.aliasLoading ? (
+                                                        this.state.aliasLoading ? (
                                                         <RadioButtonUncheckedIcon
                                                             style={{
                                                                 color: "white",
                                                             }}
                                                         />
                                                     ) : this.state
-                                                          .isAliasNotUnique ? (
+                                                        .isAliasNotUnique ? (
                                                         <CancelIcon
                                                             style={{
                                                                 color: "red",
@@ -344,7 +351,44 @@ export default class TestEditForm extends React.Component {
                                         onBlur={this.handleFieldChange}
                                         variant="outlined"
                                         fullWidth={true}
-                                        helperText="Enter location of target experimental data file"
+                                        helperText="Enter location of target experimental data file(s). Separate each file location with a comma or a new line."
+                                        multiline
+                                        rows={3}
+                                        InputProps={{
+                                            startAdornment: (
+                                                <InputAdornment position="start">
+                                                    <Tooltip
+                                                        title={
+                                                            this.state
+                                                                .data_location
+                                                                .length +
+                                                            " files(s) specified"
+                                                        }
+                                                    >
+                                                        <Avatar
+                                                            style={{
+                                                                width: "30px",
+                                                                height: "30px",
+                                                            }}
+                                                        >
+                                                            <Typography
+                                                                variant="subtitle1"
+                                                                style={{
+                                                                    fontWeight:
+                                                                        "bold",
+                                                                }}
+                                                            >
+                                                                {
+                                                                    this.state
+                                                                        .data_location
+                                                                        .length
+                                                                }
+                                                            </Typography>
+                                                        </Avatar>
+                                                    </Tooltip>
+                                                </InputAdornment>
+                                            ),
+                                        }}
                                     />
                                 </Grid>
                                 <Grid item xs={9}>
@@ -363,13 +407,13 @@ export default class TestEditForm extends React.Component {
                                         <SingleSelect
                                             itemNames={
                                                 this.state.filters[filter] &&
-                                                this.state.filters[filter]
-                                                    .length
+                                                    this.state.filters[filter]
+                                                        .length
                                                     ? this.state.filters[filter]
                                                     : this.state
-                                                          .validFilterValues[
-                                                          filter
-                                                      ]
+                                                        .validFilterValues[
+                                                    filter
+                                                    ]
                                             }
                                             label={filter}
                                             value={

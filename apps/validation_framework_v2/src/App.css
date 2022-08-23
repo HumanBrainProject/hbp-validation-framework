@@ -7,6 +7,142 @@ input {
   border-bottom: 0 !important;
 }
 
-.pielayer{
-    cursor: pointer;
+.pielayer {
+  cursor: pointer;
+}
+
+.title-style {
+  font-family: 'Rajdhani';
+  font-weight: bold;
+  line-height: 1.5;
+  font-size: 52px;
+  font-weight: 700;
+  color: #388E3C;
+  -webkit-text-fill-color: white;
+  -webkit-text-stroke: 1px;
+}
+
+.title-solid-style {
+  font-family: 'Rajdhani';
+  font-weight: bold;
+  line-height: 1.5;
+  font-size: 52px;
+  font-weight: 700;
+  color: #000000;
+  text-align: center;
+}
+
+/* For journal title header */
+.box {
+  position: relative;
+  width: 100%;
+  padding: 1em 1.5em;
+  margin: 2em auto;
+  color: #000;
+  background: linear-gradient(0.25turn, #00A595, #9CE142);
+  overflow: hidden;
+}
+
+.smallbox {
+  /* background: #00C959; */
+  background: linear-gradient(0.25turn, #00A595, #9CE142);
+  /* background: radial-gradient(ellipse 40% 50px, #9CE142, #00A595) */
+}
+
+.box.rounded {
+  -moz-border-radius: 10px 10px 10px 10px;
+  border-radius: 10px 10px 10px 10px;
+}
+
+.box.rounded.centered {
+  text-align: center;
+}
+
+/* For abstract box with folder corner */
+.note {
+  position: relative;
+  width: 100%;
+  padding: 1em 1.5em;
+  margin: 2em auto;
+  color: #000;
+  background: #DCEDC8;
+  overflow: hidden;
+}
+
+.note:before {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  border-width: 0 16px 16px 0;
+  border-style: solid;
+  border-color: #fff #fff #658E15 #658E15;
+  background: #689F38;
+  -webkit-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.3), -1px 1px 1px rgba(0, 0, 0, 0.2);
+  -moz-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.3), -1px 1px 1px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.3), -1px 1px 1px rgba(0, 0, 0, 0.2);
+  /* Firefox 3.0 damage limitation */
+  display: block;
+  width: 0;
+}
+
+.note.rounded {
+  -moz-border-radius: 5px 0 5px 5px;
+  border-radius: 5px 0 5px 5px;
+}
+
+.note.rounded:before {
+  border-width: 8px;
+  border-color: #fff #fff transparent transparent;
+  -moz-border-radius: 0 0 0 5px;
+  border-radius: 0 0 0 5px;
+}
+
+/* For HBP rainbow footer */
+.rainbow-row {
+  display: table;
+  table-layout: fixed;
+  width: 100%
+}
+
+.rainbow-row.rr-small>div {
+  height: 3px;
+}
+
+.rainbow-row>div {
+  width: 12.5%;
+  display: table-cell;
+  height: 10px
+}
+
+.rainbow-row>div:nth-child(1) {
+  background: #00A595
+}
+
+.rainbow-row>div:nth-child(2) {
+  background: #13AC8B
+}
+
+.rainbow-row>div:nth-child(3) {
+  background: #29B480
+}
+
+.rainbow-row>div:nth-child(4) {
+  background: #39BA78
+}
+
+.rainbow-row>div:nth-child(5) {
+  background: #4DC26D
+}
+
+.rainbow-row>div:nth-child(6) {
+  background: #61CA62
+}
+
+.rainbow-row>div:nth-child(7) {
+  background: #77D256
+}
+
+.rainbow-row>div:nth-child(8) {
+  background: #9CE142
 }
