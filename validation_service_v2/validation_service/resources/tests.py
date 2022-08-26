@@ -109,7 +109,7 @@ def query_tests(
 
 @router.get("/tests/{test_id}", response_model=ValidationTest)
 def get_test(test_id: str, token: HTTPAuthorizationCredentials = Depends(auth)):
-    user = User()
+    user = User(token)
     test_definition = _get_test_by_id_or_alias(test_id, user)
     return ValidationTest.from_kg_object(test_definition, kg_client)
 
@@ -201,7 +201,7 @@ async def delete_test(test_id: UUID, token: HTTPAuthorizationCredentials = Depen
 def get_test_instances(
     test_id: str, version: str = Query(None), token: HTTPAuthorizationCredentials = Depends(auth)
 ):
-    user = User()
+    user = User(token)
     test_definition = _get_test_by_id_or_alias(test_id, user)
     test_instances = [
         ValidationTestInstance.from_kg_object(inst, kg_client)
@@ -216,7 +216,7 @@ def get_test_instances(
 def get_test_instance_from_instance_id(
     test_instance_id: UUID, token: HTTPAuthorizationCredentials = Depends(auth)
 ):
-    user = User()
+    user = User(token)
     inst = _get_test_instance_by_id(test_instance_id, user)
     return ValidationTestInstance.from_kg_object(inst, kg_client)
 
@@ -225,7 +225,7 @@ def get_test_instance_from_instance_id(
 def get_latest_test_instance_given_test_id(
     test_id: str, token: HTTPAuthorizationCredentials = Depends(auth)
 ):
-    user = User()
+    user = User(token)
     test_definition = _get_test_by_id_or_alias(test_id, user)
     test_instances = [
         ValidationTestInstance.from_kg_object(inst, kg_client)
@@ -244,7 +244,7 @@ def get_latest_test_instance_given_test_id(
 def get_test_instance_given_test_id(
     test_id: str, test_instance_id: UUID, token: HTTPAuthorizationCredentials = Depends(auth)
 ):
-    user = User()
+    user = User(token)
     test_definition = _get_test_by_id_or_alias(test_id, user)
     for inst in as_list(test_definition.scripts.resolve(kg_client, api="nexus", scope="latest")):
         if UUID(inst.uuid) == test_instance_id:
@@ -274,7 +274,7 @@ def create_test_instance(
     test_instance: ValidationTestInstance,
     token: HTTPAuthorizationCredentials = Depends(auth),
 ):
-    user = User()
+    user = User(token)
     test_definition = _get_test_by_id_or_alias(test_id, user)
     kg_object = test_instance.to_kg_objects(test_definition)[0]
     _check_test_script_uniqueness(test_definition, kg_object, kg_client)
@@ -309,7 +309,7 @@ def update_test_instance(
     test_instance_patch: ValidationTestInstancePatch,
     token: HTTPAuthorizationCredentials = Depends(auth),
 ):
-    user = User()
+    user = User(token)
     validation_script = _get_test_instance_by_id(test_instance_id, user)
     test_definition_kg = _get_test_by_id_or_alias(test_id, user)
     return _update_test_instance(validation_script, test_definition_kg, test_instance_patch, user)
