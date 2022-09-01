@@ -8,15 +8,15 @@ from datetime import datetime
 from fastapi import APIRouter, Depends, Header, Query, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from ..auth import (
-    get_kg_client_for_user_account, is_collab_member, is_admin,
-    can_view_collab, get_editable_collabs
+    get_kg_client_for_user_account, get_kg_client_for_service_account,
+    is_collab_member, is_admin, can_view_collab, get_editable_collabs
 )
 from ..data_models import LivePaper, LivePaperSummary, ConsistencyError, AccessCode, Slug
 from ..db import _get_live_paper_by_id_or_alias
 import fairgraph.openminds.publications as ompub
 from fairgraph.base_v3 import as_list
 
-
+LIVEPAPERS_SPACE = "livepapers"
 logger = logging.getLogger("validation_service_v2")
 
 auth = HTTPBearer()
@@ -31,27 +31,35 @@ async def query_live_papers(
     editable: bool = False,
     token: HTTPAuthorizationCredentials = Depends(auth)
 ):
-    raise HTTPException(
-        status_code=status.HTTP_501_NOT_IMPLEMENTED,
-        detail="Not yet migrated",
-    )
+    kg_client = get_kg_client_for_user_account(token)
 
-    lps = ompub.LivePaperVersion.list(kg_client, scope="in progress", size=1000)
+    # get all live papers that the user has view access to
+
+    # todo: change this to search for LivePapers, and then get the most recent LivePaperVersion for that LP
+
+    lpvs = as_list(ompub.LivePaperVersion.list(kg_client, scope="in progress", size=1000, space=None, api="core"))
+    lpvs += as_list(ompub.LivePaperVersion.list(kg_client, scope="released", size=1000, space=LIVEPAPERS_SPACE, api="core"))
+    # todo: modify fairgraph so that space=None queries across all spaces
+    # todo: remove duplicates from the combined list. Maybe start with released, and replace entries
+    #       if a more up-to-date version appears under "in progress"
+    #       maybe move this functionality to fairgraph, with a scope="latest" or "any"
+
     if editable:
         # include only those papers the user can edit
+        # todo: check that space names match collab names, maybe an extra "collab-" in the former
         editable_collabs = await get_editable_collabs(token.credentials)
-        accessible_lps = [
-            lp for lp in lps if lp.space in editable_collabs
+        accessible_lpvs = [
+            lpv for lpv in lpvs if lpv.space in editable_collabs
         ]
+        # alternative implementation, profile these
+        # accessible_lps = [
+        #     lp for lp in lps if await can_edit_collab(lp.space, token.credentials)
+        # ]
     else:
-        # include all papers the user can view
-        accessible_lps = []
-        for lp in lps:
-            if await can_view_collab(lp.space, token.credentials):
-                accessible_lps.append(lp)
+        accessible_lpvs = lpvs
     return [
-        LivePaperSummary.from_kg_object(lp)
-        for lp in as_list(accessible_lps)
+        LivePaperSummary.from_kg_object(lpv, kg_client)
+        for lpv in as_list(accessible_lpvs)
     ]
 
 
@@ -61,8 +69,8 @@ async def query_released_live_papers():
         status_code=status.HTTP_501_NOT_IMPLEMENTED,
         detail="Not yet migrated",
     )
-
-    lps = ompub.LivePaperVersion.list(kg_client, scope="released", size=1000)
+    kg_client = get_kg_client_for_service_account()
+    lps = ompub.LivePaperVersion.list(kg_client, scope="released", size=1000, space=LIVEPAPERS_SPACE)
     return [
         LivePaperSummary.from_kg_object(lp)
         for lp in as_list(lps)
@@ -74,32 +82,31 @@ async def get_live_paper(
     lp_id: Union[UUID, Slug],
     token: HTTPAuthorizationCredentials = Depends(auth)
 ):
-    raise HTTPException(
-        status_code=status.HTTP_501_NOT_IMPLEMENTED,
-        detail="Not yet migrated",
-    )
+    kg_client = get_kg_client_for_user_account(token)
+    lpv = _get_live_paper_by_id_or_alias(lp_id, kg_client, scope="in progress")
 
-    lp = _get_live_paper_by_id_or_alias(lp_id, scope="in progress")
+    def get_access_code(lpv):  # to implement
+        return None
 
-    if lp:
+    if lpv:
         if (
-            token.credentials == lp.access_code
-            or await can_view_collab(lp.collab_id, token.credentials)
+            token.credentials == get_access_code(lpv)
+            or await can_view_collab(lpv.collab_id, token.credentials)
             or await is_admin(token.credentials)
         ):
             try:
-                obj = LivePaper.from_kg_object(lp, kg_client)
+                obj = LivePaper.from_kg_object(lpv, kg_client)
             except ConsistencyError as err:
                 raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(err))
         else:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail=f"This account cannot edit Collab #{lp.collab_id}",
+                detail=f"This account cannot edit Collab #{lpv.collab_id}",
             )
     else:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Live Paper {lp_id} not found.",
+            detail=f"Live Paper {lp_id} not found, or you do not have access",
         )
     return obj
 
@@ -112,8 +119,9 @@ async def get_live_paper(
         status_code=status.HTTP_501_NOT_IMPLEMENTED,
         detail="Not yet migrated",
     )
-
-    lp = _get_live_paper_by_id_or_alias(lp_id, scope="released")
+    kg_client = get_kg_client_for_service_account()
+    # check - do we need service account, or will any user account get released instances?
+    lp = _get_live_paper_by_id_or_alias(lp_id, kg_client, scope="released")
     if lp:
         try:
             obj = LivePaper.from_kg_object(lp, kg_client)
@@ -143,7 +151,6 @@ async def create_live_paper(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"Cannot provide id when creating a live paper. Use PUT to update an existing paper.",
         )
-
     if not live_paper.collab_id:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -158,6 +165,8 @@ async def create_live_paper(
             status_code=status.HTTP_403_FORBIDDEN,
             detail=f"This account is not a member of Collab #{live_paper.collab_id}",
         )
+
+    kg_client = get_kg_client_for_user_account(token)
 
     kg_objects = live_paper.to_kg_objects(kg_client)
     if kg_objects["paper"][0].exists(kg_client):
@@ -208,6 +217,8 @@ async def update_live_paper(
             detail=f"Inconsistent ids: {lp_id} != {live_paper.id}",
         )
 
+    kg_client = get_kg_client_for_user_account(token)
+
     kg_objects = live_paper.to_kg_objects(kg_client)
     logger.info("Created objects")
 
@@ -244,7 +255,8 @@ async def set_access_code(
 
     logger.info("Beginning set access code")
 
-    lp = _get_live_paper_by_id_or_alias(lp_id, scope="in progress")
+    kg_client = get_kg_client_for_user_account(token)
+    lp = _get_live_paper_by_id_or_alias(lp_id, kg_client, scope="in progress")
 
     if lp:
         if not (

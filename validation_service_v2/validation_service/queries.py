@@ -92,7 +92,7 @@ def build_validation_test_filters(
     if test_type:
         raise NotImplementedError()
     if score_type:
-        filter_query["score_type"] = term_cache["MeasureType"]["names"][data_type].id
+        filter_query["score_type"] = term_cache["DifferenceMeasure"]["names"][data_type].id
     if author:
         pass
         #filter_query["developers"] = # TODO: need to first query Person, then use the ids here, or we write a custom query

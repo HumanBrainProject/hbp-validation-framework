@@ -8,7 +8,7 @@ from time import sleep
 from fastapi import HTTPException, status
 from fairgraph.openminds.core import Model, ModelVersion, SoftwareVersion
 from fairgraph.openminds.computation import ValidationTest, ValidationTestVersion
-from fairgraph.openminds.publications import LivePaper
+from fairgraph.openminds.publications import LivePaperVersion
 from .auth import get_user_from_token, is_collab_member, is_admin
 
 
@@ -93,17 +93,14 @@ def _get_test_instance_by_id(instance_id, kg_client):
     return test_instance
 
 
-def _get_live_paper_by_id_or_alias(lp_id, scope):
-    raise HTTPException(
-        status_code=status.HTTP_501_NOT_IMPLEMENTED,
-        detail="Not yet migrated",
-    )
+def _get_live_paper_by_id_or_alias(lp_id, kg_client, scope):
+
     if isinstance(lp_id, UUID):
         identifier_type = "ID"
-        live_paper = LivePaper.from_uuid(str(lp_id), kg_client, scope=scope)
+        live_paper = LivePaperVersion.from_uuid(str(lp_id), kg_client, scope=scope)
     else:
         identifier_type = "alias"
-        live_paper = LivePaper.from_alias(lp_id, kg_client, scope=scope)
+        live_paper = LivePaperVersion.from_alias(lp_id, kg_client, scope=scope)
     if not live_paper:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,

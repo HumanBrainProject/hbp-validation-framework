@@ -40,7 +40,7 @@ def get_kg_client_for_service_account():
 
 
 def get_kg_client_for_user_account(token):
-    return KGClient(token=token, host=settings.KG_CORE_API_HOST)
+    return KGClient(token=token.credentials, host=settings.KG_CORE_API_HOST)
 
 
 async def get_user_from_token(user_token):

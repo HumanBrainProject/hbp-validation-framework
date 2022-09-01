@@ -59,9 +59,10 @@ def get_term_cache():
             omterms.ModelAbstractionLevel,
             omterms.CellType,
             omterms.Technique,  # todo: filter to include only types relevant to model validation
+            omterms.DifferenceMeasure,
             omcore.License,
             omcore.ContentType,  # todo: filter to include only types relevant to modelling
-            ompub.LivePaperResourceType,
+            omcore.Organization
         ):
             objects = cls.list(kg_service_client, api="core", scope="in progress", size=10000)
             term_cache[cls.__name__] = {
@@ -785,7 +786,7 @@ class ValidationTest(BaseModel):
             #homepage=,
             #how_to_cite=,
             #model_scope=None,   # re-curate by hand
-            score_type=None,  # todo: add terms - get_term("MeasureType", self.score_type),
+            score_type=get_term("DifferenceMeasure", self.score_type),
             study_targets=study_targets
         )
         if self.uri:
@@ -1489,18 +1490,19 @@ class LivePaperDataItem(BaseModel):
     def from_kg_object(cls, data_item, kg_client):
         if isinstance(data_item, KGProxy):
             data_item = data_item.resolve(kg_client, scope="in progress")
-        resource_type = data_item.resource_type.resolve(kg_client, scope="in progress")  # todo: use scope='released'
-        if data_item.resource_type is None or data_item.resource_type.name == "URL":
+        if data_item.hosted_by is None:  # or data_item.resource_type.name == "URL":
             return cls(
-                url=data_item.iri,
+                url=data_item.iri.value,
                 label=data_item.name,
                 view_url=None,  #  todo: look up the viewer application and generate the link based on the resource type,
-                type=data_item.resource_type.name if data_item.resource_type else "URL"
+                type="URL"
             )
         else:
+            resource_type = data_item.hosted_by.resolve(kg_client, scope="in progress")  # todo: use scope='released'
             return cls(
+                url=data_item.iri.value,
                 label=data_item.name,
-                type=data_item.resource_type.name,
+                type=resource_type.name,
                 identifier=data_item.uuid
             )
 
@@ -1577,7 +1579,7 @@ class LivePaperDataItem(BaseModel):
             name=self.label,
             iri=self.url,
             #view_url=self.view_url,
-            resource_type=term_cache["LivePaperResourceType"]["names"].get(self.type, None),
+            hosted_by=term_cache["Organization"]["names"].get(self.type, None),  # todo: filter the organizations to keep only those that represent repositories
             is_part_of=kg_live_paper_section
         )
 
@@ -1594,16 +1596,12 @@ class LivePaperSection(BaseModel):
     def from_kg_object(cls, section, kg_client):
         if isinstance(section, KGProxy):
             section = section.resolve(kg_client, scope="in progress")
-        if section.section_type:
-            section_type = section.section_type.resolve(kg_client, scope="in progress")
-        else:
-            section_type = None
         resource_items = ompub.LivePaperResourceItem.list(kg_client, size=1000, scope="in progress", is_part_of=section)
         return cls(
             order=int(section.order),
-            type=section_type.name if section_type else None,
+            type=section.section_type,
             title=section.name,
-            icon=section.icon,  # todo: generate based on section_type
+            icon=None,  # todo: generate based on section_type
             description=section.description,
             data=[LivePaperDataItem.from_kg_object(item, kg_client)
                   for item in as_list(resource_items)]
@@ -1648,7 +1646,7 @@ class LivePaper(BaseModel):
     resources: List[LivePaperSection]
 
     @classmethod
-    def from_kg_object(cls, lp, lpv, kg_client):
+    def from_kg_object(cls, lpv, kg_client):
         def get_people(obj):
             if obj is None:
                 return None
@@ -1659,30 +1657,54 @@ class LivePaper(BaseModel):
                 return None
             return PersonWithAffiliation.from_kg_object(obj, kg_client)
 
-        related_publications = lpv.related_publications or lp.related_publications
+        lp = lpv.is_version_of(kg_client)
+
+        related_publication_dois = as_list(lpv.related_publications)
+        associated_paper_title = None
+        associated_paper_release_date = None
+        associated_paper_doi = None
+        associated_paper_url = None
+        associated_paper_abstract = None
+        corresponding_author = None
+        journal_name = None
+
+        if len(related_publication_dois) > 0:
+            related_publication_doi = related_publication_dois[0].resolve(kg_client, scope=lpv.scope)  #? or maybe need to check both scopes
+            # to do: generalise the following to chapter, book, ...
+            related_publications = as_list(ompub.ScholarlyArticle.list(kg_client, scope=lpv.scope,
+                                                                       digital_identifier=related_publication_doi))
+            if len(related_publications) > 0:
+                related_publication = related_publications[0].resolve(kg_client, follow_links=1, scope=lpv.scope)
+                associated_paper_title = related_publication.name
+                associated_paper_release_date = related_publication.date_published
+                associated_paper_doi = related_publication.digital_identifier.identifier if related_publication.digital_identifier else None
+                associated_paper_url = related_publication.iri.value
+                associated_paper_abstract = related_publication.abstract
+                corresponding_author = get_people(related_publication.custodians)
+                journal_name = related_publication.get_journal(kg_client).name if related_publication.is_part_of else None
         original_authors = set()
-        for rel_pub in as_list(related_publications):
+        for rel_pub in related_publications:
             original_authors.update(get_people(rel_pub.authors))
-        custodians = lpv.custodians or lp.custodian
+        custodians = lpv.custodians or lp.custodians
         sections = ompub.LivePaperSection.list(kg_client, size=1000, scope="in progress", is_part_of=lpv)  # space=?
         return cls(
             modified_date=lpv.release_date or lpv.creation_date,
             alias=lpv.alias or lp.alias,
-            version=lp.version_identifier,
+            version=lpv.version_identifier,
             authors=original_authors,
-            corresponding_author=get_people(related_publications[0].custodians),
-            created_author=get_people(lp.live_paper_authors),
+            corresponding_author=corresponding_author,
+            created_author=get_people(lp.authors),
             approved_author=get_person(as_list(custodians)[0]) if custodians else None,
-            year=related_publications[0].release_date,  # what if multiple related pubs - for now we assume only one
-            associated_paper_title=related_publications[0].name,
+            year=associated_paper_release_date,  # what if multiple related pubs - for now we assume only one
+            associated_paper_title=associated_paper_title,
             live_paper_title=lpv.name or lp.name,
-            journal=related_publications[0].get_journal_name(),
-            url=related_publications[0].iri,
+            journal=journal_name,
+            url=associated_paper_url,
             citation=None,  # todo: autogenerate
-            doi=lpv.digital_identifier,
-            associated_paper_doi=related_publications[0].digital_identifier,
-            abstract=lpv.abstract or lp.abstract,
-            license=term_cache["License"]["names"].get(lpv.license.label, None) if lpv.license else None,
+            doi=lpv.digital_identifier.resolve(kg_client, scope=lpv.scope).identifier if lpv.digital_identifier else None,
+            associated_paper_doi=associated_paper_doi,
+            abstract=associated_paper_abstract,
+            license=term_cache["License"]["ids"].get(lpv.license.id, None).name if lpv.license else None,
             collab_id=lpv.space,
             resources_description=lpv.description or lp.description,
             resources=[LivePaperSection.from_kg_object(sec, kg_client)
@@ -1705,10 +1727,11 @@ class LivePaper(BaseModel):
             name=self.associated_paper_title,
             iri=self.url,
             authors=original_authors,
-            custodian=self.corresponding_author[0].to_kg_object(),
+            custodians=self.corresponding_author[0].to_kg_object(),
             digital_identifier=self.associated_paper_doi,
             is_part_of=get_journal_volume(self.journal),
-            release_date=self.year
+            date_published=self.year,
+            abstract=self.abstract
         )
         lpv = ompub.LivePaperVersion(
             name=self.live_paper_title,
@@ -1720,7 +1743,6 @@ class LivePaper(BaseModel):
             authors=live_paper_authors,
             related_publications=related_pub,
             digital_identifier=self.doi,
-            abstract=self.abstract,
             license=term_cache["License"]["names"].get(self.license, None)
         )
         lpv._space = self.collab_id
@@ -1744,23 +1766,35 @@ class LivePaperSummary(BaseModel):
     modified_date: datetime
     citation: str = None
     live_paper_title: str
-    associated_paper_title: str
-    year: date
+    associated_paper_title: str = None
+    year: date = None
     collab_id: str = None
     doi: str = None
     alias: str = None
 
     @classmethod
-    def from_kg_object(cls, lpv, lp):
-        related_publications = lpv.related_publications or lp.related_publications
+    def from_kg_object(cls, lpv, kg_client):
+        lp = lpv.is_version_of(kg_client)
+        related_publication_dois = as_list(lpv.related_publications)
+        associated_paper_title = None
+        associated_paper_release_date = None
+        if len(related_publication_dois) > 0:
+            related_publication_doi = related_publication_dois[0].resolve(kg_client, scope=lpv.scope)  #? or maybe need to check both scopes
+            # to do: generalise the following to chapter, book, ...
+            related_publications = as_list(ompub.ScholarlyArticle.list(kg_client, scope=lpv.scope,
+                                                                       digital_identifier=related_publication_doi))
+            if len(related_publications) > 0:
+                related_publication = related_publications[0]  #.resolve(kg_client, follow_links=1, scope=lpv.scope)
+                associated_paper_title = related_publication.name
+                associated_paper_release_date = related_publication.date_published
         return cls(
             modified_date=lpv.release_date or lpv.creation_date,
             live_paper_title=lpv.name or lp.name,
-            associated_paper_title=related_publications[0].name,
+            associated_paper_title=associated_paper_title,  #related_publications[0].name,
             citation=None,
-            year=related_publications[0].release_date,
+            year=associated_paper_release_date,  #related_publications[0].release_date,
             collab_id=lpv.space,
-            doi=lpv.digital_identifier,
+            doi=lpv.digital_identifier.resolve(kg_client, scope=lpv.scope).identifier if lpv.digital_identifier else None,
             alias=lp.alias,
             id=lpv.uuid,
             detail_path=f"/livepapers/{lpv.uuid}"
