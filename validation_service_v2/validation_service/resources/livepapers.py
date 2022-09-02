@@ -83,25 +83,25 @@ async def get_live_paper(
     token: HTTPAuthorizationCredentials = Depends(auth)
 ):
     kg_client = get_kg_client_for_user_account(token)
-    lpv = _get_live_paper_by_id_or_alias(lp_id, kg_client, scope="in progress")
+    lp = _get_live_paper_by_id_or_alias(lp_id, kg_client, scope="in progress")
 
-    def get_access_code(lpv):  # to implement
+    def get_access_code(lp):  # to implement
         return None
 
-    if lpv:
+    if lp:
         if (
-            token.credentials == get_access_code(lpv)
-            or await can_view_collab(lpv.collab_id, token.credentials)
+            token.credentials == get_access_code(lp)
+            or await can_view_collab(lp.space, token.credentials)
             or await is_admin(token.credentials)
         ):
             try:
-                obj = LivePaper.from_kg_object(lpv, kg_client)
+                obj = LivePaper.from_kg_object(lp, kg_client)
             except ConsistencyError as err:
                 raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(err))
         else:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail=f"This account cannot edit Collab #{lpv.collab_id}",
+                detail=f"This account cannot edit Collab #{lp.space}",
             )
     else:
         raise HTTPException(

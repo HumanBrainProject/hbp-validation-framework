@@ -8,7 +8,7 @@ from time import sleep
 from fastapi import HTTPException, status
 from fairgraph.openminds.core import Model, ModelVersion, SoftwareVersion
 from fairgraph.openminds.computation import ValidationTest, ValidationTestVersion
-from fairgraph.openminds.publications import LivePaperVersion
+from fairgraph.openminds.publications import LivePaper
 from .auth import get_user_from_token, is_collab_member, is_admin
 
 
@@ -41,13 +41,13 @@ def _get_model_instance_by_id(instance_id, kg_client):
             detail=f"Model instance with ID '{instance_id}' not found.",
         )
 
-    model_project = Model.list(kg_client, scope="in progress", space=model_instance.space, 
+    model_project = Model.list(kg_client, scope="in progress", space=model_instance.space,
                                versions=model_instance)
     if not model_project:
         # we could get an empty response if the model_project has just been
         # updated and the KG is not consistent, so we wait and try again
         sleep(RETRY_INTERVAL)
-        model_project = Model.list(kg_client, scope="in progress", space=model_instance.space, 
+        model_project = Model.list(kg_client, scope="in progress", space=model_instance.space,
                                    versions=model_instance)
         if not model_project:
             # in case of a dangling model instance, where the parent model_project
@@ -97,10 +97,10 @@ def _get_live_paper_by_id_or_alias(lp_id, kg_client, scope):
 
     if isinstance(lp_id, UUID):
         identifier_type = "ID"
-        live_paper = LivePaperVersion.from_uuid(str(lp_id), kg_client, scope=scope)
+        live_paper = LivePaper.from_uuid(str(lp_id), kg_client, scope=scope)
     else:
         identifier_type = "alias"
-        live_paper = LivePaperVersion.from_alias(lp_id, kg_client, scope=scope)
+        live_paper = LivePaper.from_alias(lp_id, kg_client, space=LivePaper.default_space, scope=scope)
     if not live_paper:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,

@@ -1490,12 +1490,18 @@ class LivePaperDataItem(BaseModel):
     def from_kg_object(cls, data_item, kg_client):
         if isinstance(data_item, KGProxy):
             data_item = data_item.resolve(kg_client, scope="in progress")
+        service_links = as_list(omcore.ServiceLink.list(kg_client, scope="in progress", space=data_item.space, data_location=data_item))
+        if service_links:
+            view_url = service_links[0].open_data_in.resolve(kg_client, scope=service_links[0].scope).url.value
+        else:
+            view_url = None
         if data_item.hosted_by is None:  # or data_item.resource_type.name == "URL":
             return cls(
                 url=data_item.iri.value,
                 label=data_item.name,
-                view_url=None,  #  todo: look up the viewer application and generate the link based on the resource type,
-                type="URL"
+                view_url=view_url,
+                type="URL",
+                identifier=data_item.uuid
             )
         else:
             resource_type = data_item.hosted_by.resolve(kg_client, scope="in progress")  # todo: use scope='released'
@@ -1646,7 +1652,7 @@ class LivePaper(BaseModel):
     resources: List[LivePaperSection]
 
     @classmethod
-    def from_kg_object(cls, lpv, kg_client):
+    def from_kg_object(cls, lp, kg_client):
         def get_people(obj):
             if obj is None:
                 return None
@@ -1657,7 +1663,9 @@ class LivePaper(BaseModel):
                 return None
             return PersonWithAffiliation.from_kg_object(obj, kg_client)
 
-        lp = lpv.is_version_of(kg_client)
+        #lp = lpv.is_version_of(kg_client)
+        lpv = as_list(lp.versions)[-1]  # todo: sort by release_date and/or last_modified
+        lpv = lpv.resolve(kg_client, scope=lp.scope)
 
         related_publication_dois = as_list(lpv.related_publications)
         associated_paper_title = None
@@ -1665,6 +1673,7 @@ class LivePaper(BaseModel):
         associated_paper_doi = None
         associated_paper_url = None
         associated_paper_abstract = None
+        associated_paper_citation = None
         corresponding_author = None
         journal_name = None
 
@@ -1680,6 +1689,7 @@ class LivePaper(BaseModel):
                 associated_paper_doi = related_publication.digital_identifier.identifier if related_publication.digital_identifier else None
                 associated_paper_url = related_publication.iri.value
                 associated_paper_abstract = related_publication.abstract
+                associated_paper_citation = related_publication.get_citation_string(kg_client)
                 corresponding_author = get_people(related_publication.custodians)
                 journal_name = related_publication.get_journal(kg_client).name if related_publication.is_part_of else None
         original_authors = set()
@@ -1689,7 +1699,7 @@ class LivePaper(BaseModel):
         sections = ompub.LivePaperSection.list(kg_client, size=1000, scope="in progress", is_part_of=lpv)  # space=?
         return cls(
             modified_date=lpv.release_date or lpv.creation_date,
-            alias=lpv.alias or lp.alias,
+            alias=lp.alias,
             version=lpv.version_identifier,
             authors=original_authors,
             corresponding_author=corresponding_author,
@@ -1700,16 +1710,17 @@ class LivePaper(BaseModel):
             live_paper_title=lpv.name or lp.name,
             journal=journal_name,
             url=associated_paper_url,
-            citation=None,  # todo: autogenerate
+            citation=associated_paper_citation,
             doi=lpv.digital_identifier.resolve(kg_client, scope=lpv.scope).identifier if lpv.digital_identifier else None,
             associated_paper_doi=associated_paper_doi,
             abstract=associated_paper_abstract,
             license=term_cache["License"]["ids"].get(lpv.license.id, None).name if lpv.license else None,
             collab_id=lpv.space,
             resources_description=lpv.description or lp.description,
-            resources=[LivePaperSection.from_kg_object(sec, kg_client)
-                       for sec in as_list(sections)],
-            id=lpv.uuid
+            resources=sorted([LivePaperSection.from_kg_object(sec, kg_client)
+                              for sec in as_list(sections)],
+                             key=lambda sec: sec.order),
+            id=lp.uuid
         )
 
     def to_kg_objects(self, kg_client):
