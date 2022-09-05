@@ -1692,9 +1692,11 @@ class LivePaper(BaseModel):
                 associated_paper_citation = related_publication.get_citation_string(kg_client)
                 corresponding_author = get_people(related_publication.custodians)
                 journal_name = related_publication.get_journal(kg_client).name if related_publication.is_part_of else None
-        original_authors = set()
+        original_authors = []
         for rel_pub in related_publications:
-            original_authors.update(get_people(rel_pub.authors))
+            original_authors.extend(get_people(rel_pub.authors))
+        # now remove possible duplicates
+        original_authors = list(dict.fromkeys(original_authors))
         custodians = lpv.custodians or lp.custodians
         sections = ompub.LivePaperSection.list(kg_client, size=1000, scope="in progress", is_part_of=lpv)  # space=?
         return cls(
