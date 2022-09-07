@@ -183,15 +183,11 @@ async def update_live_paper(
     live_paper: LivePaper,
     token: HTTPAuthorizationCredentials = Depends(auth)
 ):
-    raise HTTPException(
-        status_code=status.HTTP_501_NOT_IMPLEMENTED,
-        detail="Not yet migrated",
-    )
-
     logger.info("Beginning put live paper")
 
     if not (
-        await is_collab_member(live_paper.collab_id, token.credentials)
+        live_paper.collab_id == "myspace"
+        or await is_collab_member(live_paper.collab_id, token.credentials)
         or await is_admin(token.credentials)
     ):
         raise HTTPException(
@@ -223,9 +219,7 @@ async def update_live_paper(
 
     for category in ("people", "paper", "sections"):  # the order is important
         for obj in kg_objects[category]:
-            if hasattr(obj, "affiliation") and obj.affiliation:
-                obj.affiliation.save(kg_client)
-            obj.save(kg_client)
+            obj.save(kg_client, space=live_paper.collab_id, recursive=True)
     logger.info("Saved objects")
 
     return None

@@ -106,3 +106,36 @@ def test_create_and_delete_live_paper(caplog):
     # todo: check lp no longer exists
     response = client.get(f"/livepapers/{lp_uuid}", headers=AUTH_HEADER)
     assert response.status_code == 404
+
+
+def test_update_live_paper(caplog):
+    # caplog.set_level(logging.INFO)
+    payload = _build_sample_live_paper()
+    # create
+    response = client.post(f"/livepapers/", json=payload, headers=AUTH_HEADER)
+    assert response.status_code == 201
+    posted_lp = response.json()
+    check_live_paper(posted_lp, payload, mode="summary")
+
+    # make changes
+    changes = {
+        "alias": payload["alias"] + "-changed",
+        "live_paper_title": payload["live_paper_title"] + " (changed)",
+        "corresponding_author": [{"firstname": "Frodo", "lastname": "Baggins"}],
+        "abstract": "The previous description was too short",
+    }
+    # update
+    updated_payload = payload.copy()
+    updated_payload.update(changes)
+    response = client.put(f"/livepapers/{posted_lp['id']}", json=updated_payload, headers=AUTH_HEADER)
+    assert response.status_code == 200
+
+    # get updated
+    response = client.get(f"/livepapers/{posted_lp['id']}", headers=AUTH_HEADER)
+    assert response.status_code == 200
+    updated_lp = response.json()
+    check_live_paper(updated_lp, updated_payload, mode="full")
+
+    # delete everything
+    response = client.delete(f"/livepapers/{posted_lp['id']}", headers=AUTH_HEADER)
+    assert response.status_code == 200
