@@ -14,13 +14,15 @@ client = TestClient(app)
 token = os.environ["VF_TEST_TOKEN"]
 AUTH_HEADER = {"Authorization": f"Bearer {token}"}
 
+
 @pytest.fixture(scope="session")
 def private_model():
     kg_client = get_kg_client_for_user_account(token)
     test_model = omcore.Model(
         name="TestModel API v2.5",
         alias="TestModel-API-v2.5",
-        abstraction_level=omterms.ModelAbstractionLevel.by_name("spiking neurons: biophysical", kg_client),
+        abstraction_level=omterms.ModelAbstractionLevel.by_name(
+            "spiking neurons: biophysical", kg_client),
         custodians=omcore.Person(given_name="Frodo", family_name="Baggins"),
         description="This is not a real model, it is an entry created by automated tests, and will be deleted.",
         developers=[omcore.Person(given_name="Frodo", family_name="Baggins"),
@@ -29,11 +31,14 @@ def private_model():
         versions=None,
         homepage=None,
         how_to_cite=None,
-        model_scope=omterms.ModelScope.by_name("network: microcircuit", kg_client),
+        model_scope=omterms.ModelScope.by_name(
+            "network: microcircuit", kg_client),
         study_targets=[
             omterms.Species.by_name("Callithrix jacchus", kg_client),
-            omterms.UBERONParcellation.by_name("CA1 field of hippocampus", kg_client),
-            omterms.CellType.by_name("hippocampus CA1 pyramidal neuron", kg_client)
+            omterms.UBERONParcellation.by_name(
+                "CA1 field of hippocampus", kg_client),
+            omterms.CellType.by_name(
+                "hippocampus CA1 pyramidal neuron", kg_client)
         ]
     )
     test_model.save(kg_client, space="myspace")
@@ -43,7 +48,8 @@ def private_model():
 @pytest.fixture(scope="session")
 def released_model():
     kg_client = get_kg_client_for_user_account(token)
-    released_model = omcore.Model.from_id("cb62b56e-bdfa-4016-81cd-c9dbc834cebc", kg_client)
+    released_model = omcore.Model.from_id(
+        "cb62b56e-bdfa-4016-81cd-c9dbc834cebc", kg_client)
     assert isinstance(released_model, omcore.Model)
     return released_model
 
@@ -131,4 +137,54 @@ def _build_sample_result(model_instance_id, test_instance_id):
         "passed": True,
         "project_id": "model-validation",
         "normalized_score": 0.2468,
+    }
+
+
+def _build_sample_live_paper():
+    now = datetime.now(timezone.utc)
+    alias = f"testlivepaper-apiv2p5-{now.strftime('%Y%m%d-%H%M%S')}"
+    return {
+        "lp_tool_version": "0.1",
+        "alias": alias,
+        "authors": [
+            {"firstname": "Frodo", "lastname": "Baggins"},
+            {"firstname": "Tom", "lastname": "Bombadil"},
+        ],
+        "version": "v1",
+        "modified_date": now.isoformat(),
+        "corresponding_author": [
+            {"firstname": "Tom", "lastname": "Bombadil"}
+        ],
+        "created_author": [
+            {"firstname": "Frodo", "lastname": "Baggins"}
+        ],
+        "approved_author": {"firstname": "Tom", "lastname": "Bombadil"},
+        "year": now.date().isoformat(),
+        "live_paper_title": f"TestLivePaper API v2.5 {now.isoformat()}",
+        "associated_paper_title": "Neuroanatomy of Old Man Willow",
+        "journal": "eLife",
+        "url": f"https://example.com/{alias}",
+        "citation": f"Baggins F. and Bombadil T. ({now.year}) Neuroanatomy of Old Man Willow. eLife 999: e9999999",
+        "associated_paper_doi": "https://doi.org/10.1000/xyz123",
+        "abstract": "This is the abstract of the associated article",
+        "license": "Creative Commons Attribution 4.0 International",
+        "resources_description": "This is like the abstract of the live paper",
+        "collab_id": "myspace",
+        "resources": [
+            {
+                "order": 0,
+                "type": "section_custom",
+                "title": f"A custom resource section, part of {alias}",
+                "icon": "pageview",
+                "description": "This is the section description",
+                "data": [
+                    {
+                        "url": f"https://example.com/{alias}/datafile.txt",
+                        "label": f"A resource, part of {alias}",
+                        "view_url": f"https://example.com/viewer?project={alias}&file=datafile.txt",
+                        "type": "URL"
+                    }
+                ]
+            }
+        ]
     }

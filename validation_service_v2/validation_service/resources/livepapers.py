@@ -13,6 +13,7 @@ from ..auth import (
 )
 from ..data_models import LivePaper, LivePaperSummary, ConsistencyError, AccessCode, Slug
 from ..db import _get_live_paper_by_id_or_alias
+import fairgraph.openminds.core as omcore
 import fairgraph.openminds.publications as ompub
 from fairgraph.base_v3 import as_list
 
@@ -37,8 +38,8 @@ async def query_live_papers(
 
     # todo: change this to search for LivePapers, and then get the most recent LivePaperVersion for that LP
 
-    lpvs = as_list(ompub.LivePaperVersion.list(kg_client, scope="in progress", size=1000, space=None, api="core"))
-    lpvs += as_list(ompub.LivePaperVersion.list(kg_client, scope="released", size=1000, space=LIVEPAPERS_SPACE, api="core"))
+    lps = as_list(ompub.LivePaper.list(kg_client, scope="in progress", size=1000, space=None, api="core"))
+    lps += as_list(ompub.LivePaper.list(kg_client, scope="released", size=1000, space=LIVEPAPERS_SPACE, api="core"))
     # todo: modify fairgraph so that space=None queries across all spaces
     # todo: remove duplicates from the combined list. Maybe start with released, and replace entries
     #       if a more up-to-date version appears under "in progress"
@@ -48,29 +49,25 @@ async def query_live_papers(
         # include only those papers the user can edit
         # todo: check that space names match collab names, maybe an extra "collab-" in the former
         editable_collabs = await get_editable_collabs(token.credentials)
-        accessible_lpvs = [
-            lpv for lpv in lpvs if lpv.space in editable_collabs
+        accessible_lps = [
+            lp for lp in lps if lp.space in editable_collabs
         ]
         # alternative implementation, profile these
         # accessible_lps = [
         #     lp for lp in lps if await can_edit_collab(lp.space, token.credentials)
         # ]
     else:
-        accessible_lpvs = lpvs
+        accessible_lps = lps
     return [
-        LivePaperSummary.from_kg_object(lpv, kg_client)
-        for lpv in as_list(accessible_lpvs)
+        LivePaperSummary.from_kg_object(lp, kg_client)
+        for lp in as_list(accessible_lps)
     ]
 
 
 @router.get("/livepapers-published/", response_model=List[LivePaperSummary])
 async def query_released_live_papers():
-    raise HTTPException(
-        status_code=status.HTTP_501_NOT_IMPLEMENTED,
-        detail="Not yet migrated",
-    )
     kg_client = get_kg_client_for_service_account()
-    lps = ompub.LivePaperVersion.list(kg_client, scope="released", size=1000, space=LIVEPAPERS_SPACE)
+    lps = ompub.LivePaper.list(kg_client, scope="released", size=1000, space=LIVEPAPERS_SPACE)
     return [
         LivePaperSummary.from_kg_object(lp)
         for lp in as_list(lps)
@@ -140,11 +137,6 @@ async def create_live_paper(
     live_paper: LivePaper,
     token: HTTPAuthorizationCredentials = Depends(auth)
 ):
-    raise HTTPException(
-        status_code=status.HTTP_501_NOT_IMPLEMENTED,
-        detail="Not yet migrated",
-    )
-
     logger.info("Beginning post live paper")
     if live_paper.id:
         raise HTTPException(
@@ -158,7 +150,8 @@ async def create_live_paper(
         )
 
     if not (
-        await is_collab_member(live_paper.collab_id, token.credentials)
+        live_paper.collab_id == "myspace"
+        or await is_collab_member(live_paper.collab_id, token.credentials)
         or await is_admin(token.credentials)
     ):
         raise HTTPException(
@@ -169,20 +162,19 @@ async def create_live_paper(
     kg_client = get_kg_client_for_user_account(token)
 
     kg_objects = live_paper.to_kg_objects(kg_client)
-    if kg_objects["paper"][0].exists(kg_client):
+    assert isinstance(kg_objects["paper"][-1], ompub.LivePaper)
+
+    if kg_objects["paper"][-1].exists(kg_client):
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail=f"Another live paper with the same name already exists.",
         )
-    kg_objects["paper"][0].date_created = datetime.now()
     for category in ("people", "paper", "sections"):  # the order is important
         for obj in kg_objects[category]:
-            if hasattr(obj, "affiliation") and obj.affiliation:
-                obj.affiliation.save(kg_client)
-            obj.save(kg_client)
+            obj.save(kg_client, space=live_paper.collab_id, recursive=True)
     logger.info("Saved objects")
-
-    return LivePaperSummary.from_kg_object(kg_objects["paper"][0])
+    #breakpoint()
+    return LivePaperSummary.from_kg_object(kg_objects["paper"][-1], kg_client)
 
 
 @router.put("/livepapers/{lp_id}", status_code=status.HTTP_200_OK)
@@ -222,12 +214,12 @@ async def update_live_paper(
     kg_objects = live_paper.to_kg_objects(kg_client)
     logger.info("Created objects")
 
-    if not kg_objects["paper"][0].exists(kg_client):
+    if not kg_objects["paper"][-1].exists(kg_client):
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Live paper with id {lp_id} not found.",
         )
-    assert UUID(kg_objects["paper"][0].uuid) == lp_id
+    assert UUID(kg_objects["paper"][-1].uuid) == lp_id
 
     for category in ("people", "paper", "sections"):  # the order is important
         for obj in kg_objects[category]:
@@ -277,3 +269,39 @@ async def set_access_code(
             detail=f"Live Paper {lp_id} not found.",
         )
     return None
+
+
+
+@router.delete("/livepapers/{lp_id}", status_code=status.HTTP_200_OK)
+async def delete_live_paper(
+    lp_id: UUID,    #todo: handle alias
+    token: HTTPAuthorizationCredentials = Depends(auth)
+):
+    if not (
+        await is_admin(token.credentials)
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=f"Deleting live papers is restricted to administrators - please contact EBRAIN support",
+        )
+
+    kg_user_client = get_kg_client_for_user_account(token)
+    live_paper = ompub.LivePaper.from_uuid(str(lp_id), kg_user_client, scope="in progress")
+    # todo: handle live_paper is None with 404 error
+
+    live_paper.delete(kg_user_client)
+    # retrieve all versions
+    for version in as_list(live_paper.versions):
+        version = version.resolve(kg_user_client, scope="in progress")
+        # for each version, retrieve all sections
+        sections = ompub.LivePaperSection.list(kg_user_client, scope="in progress", is_part_of=version)
+        version.delete(kg_user_client)
+        # for each section, retrieve all resource items and any associated service links
+        for section in as_list(sections):
+            resource_items = ompub.LivePaperResourceItem.list(kg_user_client, scope="in progress", is_part_of=section, size=1000)
+            section.delete(kg_user_client)
+            for item in as_list(resource_items):
+                service_link = omcore.ServiceLink.list(kg_user_client, scope="in progress", data_location=item)
+                item.delete(kg_user_client)
+                for sl in as_list(service_link):
+                    sl.delete(kg_user_client)
