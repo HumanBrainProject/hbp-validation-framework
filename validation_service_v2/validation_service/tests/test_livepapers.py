@@ -1,15 +1,6 @@
-from operator import iconcat
-import os
-from datetime import datetime, timezone
 from time import sleep
-from urllib.parse import urlparse
-from matplotlib.pyplot import title
 import requests
 import logging
-
-from fastapi import status
-
-import pytest
 
 from .fixtures import client, token, AUTH_HEADER, _build_sample_live_paper
 
