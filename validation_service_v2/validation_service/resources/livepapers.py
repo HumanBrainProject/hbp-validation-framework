@@ -169,9 +169,28 @@ async def create_live_paper(
             status_code=status.HTTP_409_CONFLICT,
             detail=f"Another live paper with the same name already exists.",
         )
+
+    if live_paper.collab_id in ("myspace", "livepapers"):
+        kg_space = live_paper.collab_id
+    else:
+        kg_space = f"collab-{live_paper.collab_id}"
+    if kg_space not in kg_client.spaces():
+        # configure space the first time it is used
+        types = [omcore.DOI, omcore.ISBN, omcore.ISSN, omcore.URL, omcore.ServiceLink,
+                 omcore.Person, omcore.Organization] + ompub.list_kg_classes()
+        try:
+            kg_client.configure_space("live-paper-2022-appukuttan-davison", types)
+        except Exception as err:
+            # todo: more fine-grained error reporting. Check content of Exception,
+            #       403 may not be appropriate
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail=f"There was an error when trying to configure KG space {kg_space}: {err}",
+            )
+
     for category in ("people", "paper", "sections"):  # the order is important
         for obj in kg_objects[category]:
-            obj.save(kg_client, space=live_paper.collab_id, recursive=True)
+            obj.save(kg_client, space=kg_space, recursive=True)
     logger.info("Saved objects")
     #breakpoint()
     return LivePaperSummary.from_kg_object(kg_objects["paper"][-1], kg_client)
@@ -217,9 +236,14 @@ async def update_live_paper(
         )
     assert UUID(kg_objects["paper"][-1].uuid) == lp_id
 
+    if live_paper.collab_id in ("myspace", "livepapers"):
+        kg_space = live_paper.collab_id
+    else:
+        kg_space = f"collab-{live_paper.collab_id}"
+
     for category in ("people", "paper", "sections"):  # the order is important
         for obj in kg_objects[category]:
-            obj.save(kg_client, space=live_paper.collab_id, recursive=True)
+            obj.save(kg_client, space=kg_space, recursive=True)
     logger.info("Saved objects")
 
     return None
