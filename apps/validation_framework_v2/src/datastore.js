@@ -1,5 +1,6 @@
 import axios from "axios";
 import { baseUrl, querySizeLimit } from "./globals";
+import { isUUID } from "./utils";
 
 const buildQuery = (filterDict) => {
     let q = "";
@@ -103,8 +104,9 @@ class DataStore {
                 model.loadedVersions = true;
                 model.loadedResults = false;
                 model.results = [];
-                this.models[identifier] = model;
-                return this.models[identifier];
+                let model_id = isUUID(identifier) ? identifier : model.id;
+                this.models[model_id] = model;
+                return this.models[model_id];
             });
         }
     }
@@ -217,9 +219,9 @@ class DataStore {
                 test.loadedVersions = true;
                 test.loadedResults = false;
                 test.results = [];
-                this.tests[identifier] = test;
-
-                return this.tests[identifier];
+                let test_id = isUUID(identifier) ? identifier : test.id;
+                this.tests[test_id] = test;
+                return this.tests[test_id];
             });
         }
     }
