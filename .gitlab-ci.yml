@@ -1,27 +1,43 @@
 stages:
-  - test
   - build
 
-run_cypress_tests:
-  image: cypress/browsers:node12.14.1-chrome85-ff81
-  stage: test
-  script:
-    - cd apps/validation_framework_v2
-    # install dependencies
-    - npm ci
-    # start server and run Cypress tests
-    - npm run e2e:ci
-  tags:
-    - docker-runner
-
-build_image:
+build_api_development_image:
   stage: build
-  only:
-    refs:
-      - development
+  rules:
+      - if: '$CI_COMMIT_REF_NAME == "development"'
+        changes:
+          - validation_service_v2/**/*
   script:
-    - docker build -f apps/deployment/Dockerfile.dev -t docker-registry.ebrains.eu/model-catalog/model-catalog-v2:dev ./apps
+    - docker build -f validation_service_v2/deployment/Dockerfile.dev -t docker-registry.ebrains.eu/model-catalog/validation_service-v3:dev ./validation_service_v2
     - docker login -u $DOCKER_REGISTRY_USER -p $DOCKER_REGISTRY_SECRET docker-registry.ebrains.eu
-    - docker push docker-registry.ebrains.eu/model-catalog/model-catalog-v2:dev
+    - docker push docker-registry.ebrains.eu/model-catalog/validation_service-v3:dev
+  tags:
+    - shell-runner
+
+
+build_api_staging_image:
+  stage: build
+  rules:
+      - if: '$CI_COMMIT_REF_NAME == "staging"'
+        changes:
+          - validation_service_v2/**/*
+  script:
+    - docker build -f validation_service_v2/deployment/Dockerfile.staging -t docker-registry.ebrains.eu/model-catalog/validation_service-v2:staging ./validation_service_v2
+    - docker login -u $DOCKER_REGISTRY_USER -p $DOCKER_REGISTRY_SECRET docker-registry.ebrains.eu
+    - docker push docker-registry.ebrains.eu/model-catalog/validation_service-v2:staging
+  tags:
+    - shell-runner
+
+
+build_api_prod_image:
+  stage: build
+  rules:
+      - if: '$CI_COMMIT_REF_NAME == "master"'
+        changes:
+          - validation_service_v2/**/*
+  script:
+    - docker build -f validation_service_v2/deployment/Dockerfile.prod -t docker-registry.ebrains.eu/model-catalog/validation_service-v2:prod ./validation_service_v2
+    - docker login -u $DOCKER_REGISTRY_USER -p $DOCKER_REGISTRY_SECRET docker-registry.ebrains.eu
+    - docker push docker-registry.ebrains.eu/model-catalog/validation_service-v2:prod
   tags:
     - shell-runner

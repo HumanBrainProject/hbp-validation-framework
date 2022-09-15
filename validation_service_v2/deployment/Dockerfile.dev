@@ -11,7 +11,7 @@
 #              -e KG_SERVICE_ACCOUNT_SECRET \
 #              hbp_validation_service_v2
 
-FROM debian:buster-slim
+FROM debian:bullseye-slim
 
 MAINTAINER Andrew Davison <andrew.davison@cnrs.fr>
 
@@ -21,9 +21,8 @@ RUN unset DEBIAN_FRONTEND
 
 RUN pip3 install --upgrade pip
 
-RUN git clone https://github.com/apdavison/pyxus.git --branch=pystache-jinja2 --single-branch pyxus_src
-RUN pip3 install -r pyxus_src/pyxus/requirements.txt; pip install pyxus_src/pyxus
-RUN git clone https://github.com/apdavison/fairgraph.git --branch=master --single-branch
+ADD https://api.github.com/repos/apdavison/fairgraph/git/refs/heads/validation-tests fairgraph_version.json
+RUN git clone https://github.com/apdavison/fairgraph.git --branch=validation-tests --single-branch
 RUN pip3 install ./fairgraph
 
 ENV SITEDIR /home/docker/site
@@ -34,11 +33,11 @@ RUN pip3 install -r $SITEDIR/requirements.txt.lock
 COPY validation_service $SITEDIR/validation_service
 RUN wget https://raw.githubusercontent.com/spdx/license-list-data/master/json/licenses.json -O $SITEDIR/validation_service/spdx_licences.json
 
-ENV PYTHONPATH  /home/docker:/home/docker/site:/usr/lib/python2.7/dist-packages/:/usr/local/lib/python3.7/dist-packages:/usr/lib/python3.7/dist-packages
+ENV PYTHONPATH  /home/docker:/home/docker/site:/usr/local/lib/python3.9/dist-packages:/usr/lib/python3.9/dist-packages
 
 RUN echo "daemon off;" >> /etc/nginx/nginx.conf
 RUN rm /etc/nginx/sites-enabled/default
-COPY deployment/nginx-app.conf /etc/nginx/sites-enabled/
+COPY deployment/nginx-app-dev.conf /etc/nginx/sites-enabled/nginx-app.conf
 COPY deployment/supervisor-app.conf /etc/supervisor/conf.d/
 #RUN ln -sf /dev/stdout /var/log/nginx/access.log
 #RUN ln -sf /dev/stderr /var/log/nginx/error.log
