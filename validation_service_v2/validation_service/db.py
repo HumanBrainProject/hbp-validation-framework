@@ -9,7 +9,7 @@ from fastapi import HTTPException, status
 from fairgraph.openminds.core import Model, ModelVersion, SoftwareVersion
 from fairgraph.openminds.computation import ValidationTest, ValidationTestVersion
 from fairgraph.openminds.publications import LivePaper
-from .auth import get_user_from_token, is_collab_member, is_admin
+from .auth import get_user_from_token, can_edit_collab, is_admin
 
 
 RETRY_INTERVAL = 60  # seconds

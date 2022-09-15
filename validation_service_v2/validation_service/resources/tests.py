@@ -10,7 +10,7 @@ from fastapi import APIRouter, Depends, Query, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic import ValidationError
 
-from ..auth import get_kg_client_for_user_account, get_user_from_token, is_collab_member, is_admin
+from ..auth import get_kg_client_for_user_account, get_user_from_token, can_edit_collab, is_admin
 from ..db import _get_test_by_id_or_alias, _get_test_instance_by_id
 from ..data_models import (
     Person,
@@ -105,7 +105,7 @@ def query_tests(
                 space=space, **filter_query)
         else:
             results = omcmp.ValidationTest.list(
-                kg_client, size=size, from_index=from_index, api="core", scope="in progress", 
+                kg_client, size=size, from_index=from_index, api="core", scope="in progress",
                 space=space)
         test_definitions.extend(as_list(results))
     if summary:
@@ -304,7 +304,7 @@ def update_test_instance_by_id(
     kg_client = get_kg_client_for_user_account(token.credentials)
     test_instance_kg = _get_test_instance_by_id(test_instance_id, kg_client)
     test_definition = omcmp.ValidationTest.list(
-        kg_client, scope="in progress", 
+        kg_client, scope="in progress",
         space=test_instance_kg.space, versions=test_instance_kg)[0]
     return _update_test_instance(test_instance_kg, test_definition, test_instance_patch, token)
 
@@ -351,7 +351,7 @@ async def delete_test_instance_by_id(
             detail="Deleting test instances is restricted to admins",
         )
     test_definition = omcmp.ValidationTest.list(
-        kg_client, scope="in progress", 
+        kg_client, scope="in progress",
         space=test_instance_kg.space, versions=test_instance_kg)[0]
     test_definition.versions = [obj for obj in test_definition.versions if obj.uuid != test_instance_id]
     test_definition.save(kg_client, recursive=False)

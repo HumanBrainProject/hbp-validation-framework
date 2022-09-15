@@ -9,7 +9,7 @@ from fastapi import APIRouter, Depends, Header, Query, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from ..auth import (
     get_kg_client_for_user_account, get_kg_client_for_service_account,
-    is_collab_member, is_admin, can_view_collab, get_editable_collabs
+    can_edit_collab, is_admin, can_view_collab, get_editable_collabs
 )
 from ..data_models import LivePaper, LivePaperSummary, ConsistencyError, AccessCode, Slug
 from ..db import _get_live_paper_by_id_or_alias
@@ -151,7 +151,7 @@ async def create_live_paper(
 
     if not (
         live_paper.collab_id == "myspace"
-        or await is_collab_member(live_paper.collab_id, token.credentials)
+        or await can_edit_collab(live_paper.collab_id, token.credentials)
         or await is_admin(token.credentials)
     ):
         raise HTTPException(
@@ -206,7 +206,7 @@ async def update_live_paper(
 
     if not (
         live_paper.collab_id == "myspace"
-        or await is_collab_member(live_paper.collab_id, token.credentials)
+        or await can_edit_collab(live_paper.collab_id, token.credentials)
         or await is_admin(token.credentials)
     ):
         raise HTTPException(
@@ -270,7 +270,7 @@ async def set_access_code(
 
     if lp:
         if not (
-            await is_collab_member(lp.collab_id, token.credentials)
+            await can_edit_collab(lp.collab_id, token.credentials)
             or await is_admin(token.credentials)
         ):
             raise HTTPException(

@@ -8,7 +8,7 @@ import fairgraph.openminds.core as omcore
 from fastapi import APIRouter, Depends, Query, Path, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
-from ..auth import is_collab_member, is_admin, get_kg_client_for_user_account, get_kg_client_for_service_account
+from ..auth import can_edit_collab, is_admin, get_kg_client_for_user_account, get_kg_client_for_service_account
 from ..db import _get_model_instance_by_id, _get_model_by_id_or_alias
 from ..data_models import (
     Person,
@@ -90,7 +90,7 @@ async def query_models(
     if private:
         if project_id:
             for collab_id in project_id:
-                if not await is_collab_member(collab_id, token.credentials):
+                if not await can_edit_collab(collab_id, token.credentials):
                     raise HTTPException(
                         status_code=status.HTTP_403_FORBIDDEN,
                         detail="You are not a member of project #{collab_id}",
@@ -181,7 +181,7 @@ async def create_model(
             status_code=status.HTTP_400_BAD_REQUEST, detail=f"project_id must be provided"
         )
     if not (
-        await is_collab_member(model.project_id, token.credentials)
+        await can_edit_collab(model.project_id, token.credentials)
         or await is_admin(token.credentials)
     ):
         raise HTTPException(
@@ -221,7 +221,7 @@ async def update_model(
 ):
     # if payload contains a project_id, check permissions for that id
     if model_patch.project_id and not (
-        await is_collab_member(model_patch.project_id, token.credentials)
+        await can_edit_collab(model_patch.project_id, token.credentials)
         or await is_admin(token.credentials)
     ):
         raise HTTPException(
@@ -237,7 +237,7 @@ async def update_model(
     stored_model = ScientificModel.from_kg_object(model_project, kg_user_client)
     # if retrieved project_id is different to payload id, check permissions for that id
     if stored_model.project_id != model_patch.project_id and not (
-        await is_collab_member(stored_model.project_id, token.credentials)
+        await can_edit_collab(stored_model.project_id, token.credentials)
         or await is_admin(token.credentials)
     ):
         raise HTTPException(
@@ -278,7 +278,7 @@ async def delete_model(model_id: UUID, token: HTTPAuthorizationCredentials = Dep
     model_project = omcore.Model.from_uuid(str(model_id), kg_client, scope="in progress")
     collab_id = model_project.space[len("collab-"):]
     if not (
-        await is_collab_member(collab_id, token.credentials)
+        await can_edit_collab(collab_id, token.credentials)
         or await is_admin(token.credentials)
     ):
         raise HTTPException(
@@ -365,7 +365,7 @@ async def create_model_instance(
         )
     collab_id = model_project.space[len("collab-"):]
     if not (
-        await is_collab_member(collab_id, token.credentials)
+        await can_edit_collab(collab_id, token.credentials)
         or await is_admin(token.credentials)
     ):
         raise HTTPException(
@@ -429,7 +429,7 @@ async def _update_model_instance(model_instance_kg, model_project, model_instanc
         )
     collab_id = model_project.space[len("collab-"):]
     if not (
-        await is_collab_member(collab_id, token.credentials)
+        await can_edit_collab(collab_id, token.credentials)
         or await is_admin(token.credentials)
     ):
         raise HTTPException(
@@ -457,7 +457,7 @@ async def delete_model_instance_by_id(
     model_project = _get_model_by_id_or_alias(model_id, kg_user_client)
     collab_id = model_project.space[len("collab-"):]
     if not (
-        await is_collab_member(collab_id, token.credentials)
+        await can_edit_collab(collab_id, token.credentials)
         or await is_admin(token.credentials)
     ):
         raise HTTPException(
@@ -477,7 +477,7 @@ async def delete_model_instance(
     model_project = _get_model_by_id_or_alias(model_id, kg_user_client)
     collab_id = model_project.space[len("collab-"):]
     if not (
-        await is_collab_member(collab_id, token.credentials)
+        await can_edit_collab(collab_id, token.credentials)
         or await is_admin(token.credentials)
     ):
         raise HTTPException(

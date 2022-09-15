@@ -106,7 +106,7 @@ async def get_collab_permissions(collab_id, user_token):
     return permissions
 
 
-async def is_collab_member(collab_id, user_token):
+async def can_edit_collab(collab_id, user_token):
     if collab_id is None:
         return False
     try:
@@ -119,7 +119,7 @@ async def is_collab_member(collab_id, user_token):
 
 
 async def is_admin(user_token):
-    return await is_collab_member(settings.ADMIN_COLLAB_ID, user_token)
+    return await can_edit_collab(settings.ADMIN_COLLAB_ID, user_token)
     # todo: replace this check with a group membership check for Collab v2
 
 
