@@ -17,6 +17,7 @@ from fastapi.encoders import jsonable_encoder
 from fastapi import HTTPException, status
 
 from fairgraph.base_v3 import KGProxy, as_list, IRI
+from fairgraph.errors import ResolutionFailure
 import fairgraph
 import fairgraph.openminds.core as omcore
 import fairgraph.openminds.computation as omcmp
@@ -1489,7 +1490,11 @@ class PersonWithAffiliation(BaseModel):
         else:
             pr = p
         if pr.affiliations:
-            affiliation = as_list(pr.affiliations)[0].resolve(client, scope="in progress", follow_links=1).organization.name
+            affiliations = [affil.resolve(client, scope="in progress", follow_links=1)
+                            for affil in as_list(pr.affiliations)]
+            affiliation = "; ".join((affil.organization.name for affil in affiliations if affil.organization and affil.organization.name))
+            # todo: if affiliations have start/end dates, filter for the ones that match the datetimes
+            #       associated with the paper/live paper
         else:
             affiliation = None
         return cls(firstname=pr.given_name, lastname=pr.family_name, affiliation=affiliation)
@@ -1681,6 +1686,16 @@ class LivePaper(BaseModel):
         original_authors = list(dict.fromkeys(original_authors))
         custodians = lpv.custodians or lp.custodians
         sections = ompub.LivePaperSection.list(kg_client, size=1000, scope="in progress", space=lp.space, is_part_of=lpv)
+        if lp.space.startswith("collab-"):
+            collab_id = lp.space[7:]
+        else:
+            collab_id = lp.space
+        live_paper_doi = None
+        if lpv.digital_identifier:
+            try:
+                live_paper_doi = lpv.digital_identifier.resolve(kg_client, scope=scope).identifier
+            except ResolutionFailure as err:
+                logger.warn(str(err))
         return cls(
             modified_date=lpv.last_modified,
             alias=lp.alias,
@@ -1695,11 +1710,11 @@ class LivePaper(BaseModel):
             journal=journal_name,
             url=associated_paper_url,
             citation=associated_paper_citation,
-            doi=lpv.digital_identifier.resolve(kg_client, scope=scope).identifier if lpv.digital_identifier else None,
+            doi=live_paper_doi,
             associated_paper_doi=associated_paper_doi,
             abstract=associated_paper_abstract,
             license=term_cache["License"]["ids"].get(lpv.license.id, None).name if lpv.license else None,
-            collab_id=lpv.space,
+            collab_id=collab_id,
             resources_description=lpv.description or lp.description,
             resources=sorted([LivePaperSection.from_kg_object(sec, kg_client)
                               for sec in as_list(sections)],
@@ -1784,27 +1799,40 @@ class LivePaperSummary(BaseModel):
         associated_paper_citation = None
         related_publication_dois = as_list(lpv.related_publications)
         if len(related_publication_dois) > 0:
-            related_publication_doi = related_publication_dois[0].resolve(kg_client, scope=scope)
+            try:
+                related_publication_doi = related_publication_dois[0].resolve(kg_client, scope=scope)
+            except ResolutionFailure as err:
+                logger.warn(str(err))
+                related_publication_doi = None
             # to do: generalise the following to chapter, book, ...
             # also search in livepapers space if that's different from lp.space
-            related_publications = as_list(ompub.ScholarlyArticle.list(kg_client, scope=scope, space=lp.space,
-                                                                       digital_identifier=related_publication_doi))
-            if len(related_publications) > 0:
-                related_publication = related_publications[0].resolve(kg_client, follow_links=1, scope=scope)
-                associated_paper_title = related_publication.name
-                associated_paper_release_date = related_publication.date_published
-                associated_paper_citation = related_publication.get_citation_string(kg_client)
+            if related_publication_doi:
+                related_publications = as_list(ompub.ScholarlyArticle.list(kg_client, scope=scope, space=lp.space,
+                                                                        digital_identifier=related_publication_doi))
+                if len(related_publications) > 0:
+                    related_publication = related_publications[0].resolve(kg_client, follow_links=1, scope=scope)
+                    associated_paper_title = related_publication.name
+                    associated_paper_release_date = related_publication.date_published
+                    associated_paper_citation = related_publication.get_citation_string(kg_client)
         if lpv.digital_identifier:
-            lp_doi = lpv.digital_identifier.resolve(kg_client, scope=scope).identifier
+            try:
+                lp_doi = lpv.digital_identifier.resolve(kg_client, scope=scope).identifier
+            except ResolutionFailure as err:
+                logger.warn(str(err))
+                lp_doi = None
         else:
             lp_doi = None
+        if lp.space.startswith("collab-"):
+            collab_id = lp.space[7:]
+        else:
+            collab_id = lp.space
         return cls(
             modified_date=lpv.last_modified,
             live_paper_title=lpv.name or lp.name,
             associated_paper_title=associated_paper_title,
             citation=associated_paper_citation,
             year=associated_paper_release_date,
-            collab_id=lp.space,
+            collab_id=collab_id,
             doi=lp_doi,
             alias=lp.alias,
             id=lp.uuid,

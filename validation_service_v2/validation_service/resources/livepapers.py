@@ -27,6 +27,14 @@ router = APIRouter()
 # todo:
 #  - handle KG objects as data items
 
+
+def collab_id_from_space(space):
+    if space.startswith("collab-"):
+        return space[7:]
+    else:
+        return None
+
+
 @router.get("/livepapers/", response_model=List[LivePaperSummary])
 async def query_live_papers(
     editable: bool = False,
@@ -35,41 +43,44 @@ async def query_live_papers(
     kg_client = get_kg_client_for_user_account(token)
 
     # get all live papers that the user has view access to
-
-    # todo: change this to search for LivePapers, and then get the most recent LivePaperVersion for that LP
-
-    lps = as_list(ompub.LivePaper.list(kg_client, scope="in progress", size=1000, space=None, api="core"))
-    lps += as_list(ompub.LivePaper.list(kg_client, scope="released", size=1000, space=LIVEPAPERS_SPACE, api="core"))
-    # todo: modify fairgraph so that space=None queries across all spaces
-    # todo: remove duplicates from the combined list. Maybe start with released, and replace entries
-    #       if a more up-to-date version appears under "in progress"
-    #       maybe move this functionality to fairgraph, with a scope="latest" or "any"
+    lps = {lp.id: lp
+           for lp in as_list(ompub.LivePaper.list(kg_client, scope="released", size=1000,
+                                                  space=LIVEPAPERS_SPACE, api="core"))}
+    lps.update({
+        lp.id: lp
+        for lp in as_list(ompub.LivePaper.list(kg_client, scope="in progress", size=1000,
+                                               space=None, api="core"))
+    })
 
     if editable:
         # include only those papers the user can edit
-        # todo: check that space names match collab names, maybe an extra "collab-" in the former
         editable_collabs = await get_editable_collabs(token.credentials)
+
         accessible_lps = [
-            lp for lp in lps if lp.space in editable_collabs
+            lp for lp in lps.values()
+            if lp.space == "myspace" or collab_id_from_space(lp.space) in editable_collabs
         ]
         # alternative implementation, profile these
         # accessible_lps = [
-        #     lp for lp in lps if await can_edit_collab(lp.space, token.credentials)
+        #     lp for lp in lps
+        #     if lp.space == "myspace" or await can_edit_collab(collab_id_from_space(lp.space), token.credentials)
         # ]
     else:
-        accessible_lps = lps
+        accessible_lps = lps.values()
+    # todo: think about sorting
     return [
         LivePaperSummary.from_kg_object(lp, kg_client)
-        for lp in as_list(accessible_lps)
+        for lp in accessible_lps
     ]
 
 
 @router.get("/livepapers-published/", response_model=List[LivePaperSummary])
 async def query_released_live_papers():
+    # check - do we need service account, or will any user account get released instances?
     kg_client = get_kg_client_for_service_account()
     lps = ompub.LivePaper.list(kg_client, scope="released", size=1000, space=LIVEPAPERS_SPACE)
     return [
-        LivePaperSummary.from_kg_object(lp)
+        LivePaperSummary.from_kg_object(lp, kg_client)
         for lp in as_list(lps)
     ]
 
@@ -88,7 +99,8 @@ async def get_live_paper(
     if lp:
         if (
             token.credentials == get_access_code(lp)
-            or await can_view_collab(lp.space, token.credentials)
+            or (lp.space.startswith("collab-")
+                and await can_view_collab(collab_id_from_space(lp.space), token.credentials))
             or await is_admin(token.credentials)
         ):
             try:
@@ -112,10 +124,6 @@ async def get_live_paper(
 async def get_live_paper(
     lp_id: Union[UUID, Slug]
 ):
-    raise HTTPException(
-        status_code=status.HTTP_501_NOT_IMPLEMENTED,
-        detail="Not yet migrated",
-    )
     kg_client = get_kg_client_for_service_account()
     # check - do we need service account, or will any user account get released instances?
     lp = _get_live_paper_by_id_or_alias(lp_id, kg_client, scope="released")
