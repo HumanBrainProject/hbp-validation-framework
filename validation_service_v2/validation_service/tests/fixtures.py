@@ -1,6 +1,7 @@
 import os
 from datetime import datetime, timezone
 from fastapi.testclient import TestClient
+from fastapi.security.http import HTTPAuthorizationCredentials
 
 import fairgraph.openminds.core as omcore
 import fairgraph.openminds.controlledterms as omterms
@@ -11,8 +12,11 @@ from ..auth import get_kg_client_for_user_account
 import pytest
 
 client = TestClient(app)
-token = os.environ["VF_TEST_TOKEN"]
-AUTH_HEADER = {"Authorization": f"Bearer {token}"}
+token = HTTPAuthorizationCredentials(
+    scheme="Bearer",
+    credentials = os.environ["VF_TEST_TOKEN"]
+)
+AUTH_HEADER = {"Authorization": f"{token.scheme} {token.credentials}"}
 
 
 @pytest.fixture(scope="session")

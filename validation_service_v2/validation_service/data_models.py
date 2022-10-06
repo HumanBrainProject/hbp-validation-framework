@@ -1614,6 +1614,14 @@ class LivePaperSection(BaseModel):
         return [section] + data_items
 
 
+def slugify(name):
+    slug = ""
+    for char in name.replace(" ", "-"):
+        if char.isalnum() or char in "-_":
+            slug += char
+    return slug.lower()
+
+
 class LivePaper(BaseModel):
     lp_tool_version: str = "0.1"
     id: UUID = None
@@ -1624,14 +1632,17 @@ class LivePaper(BaseModel):
     corresponding_author: List[PersonWithAffiliation]
     created_author: List[PersonWithAffiliation] = None
     approved_author: PersonWithAffiliation = None
-    year: date
+    year: date = None
     live_paper_title: str
-    associated_paper_title: str
-    journal: str
+    associated_paper_title: str = None
+    journal: str = None
     url: HttpUrl = None
     citation: str = None
     doi: HttpUrl = None
     associated_paper_doi: HttpUrl = None
+    associated_paper_volume: str = None
+    associated_paper_issue: str = None
+    associated_paper_pagination: str = None
     abstract: str = None
     license: str = None
     resources_description: str = None
@@ -1661,6 +1672,9 @@ class LivePaper(BaseModel):
         associated_paper_url = None
         associated_paper_abstract = None
         associated_paper_citation = None
+        associated_paper_volume = None
+        associated_paper_issue = None
+        associated_paper_pagination = None
         corresponding_author = None
         journal_name = None
 
@@ -1677,8 +1691,16 @@ class LivePaper(BaseModel):
                 associated_paper_url = related_publication.iri.value
                 associated_paper_abstract = related_publication.abstract
                 associated_paper_citation = related_publication.get_citation_string(kg_client)
+                associated_paper_pagination = related_publication.pagination
                 corresponding_author = get_people(related_publication.custodians)
-                journal_name = related_publication.get_journal(kg_client).name if related_publication.is_part_of else None
+                (_journal,
+                 _volume,
+                 _issue) = related_publication.get_journal(kg_client, True, True) if related_publication.is_part_of else None
+                journal_name = _journal.name if _journal else None
+                associated_paper_volume = _volume.volume_number if _volume else None
+                associated_paper_issue = _issue.issue_number if _issue else None
+        else:
+            related_publications = []
         original_authors = []
         for rel_pub in related_publications:
             original_authors.extend(get_people(rel_pub.authors))
@@ -1708,6 +1730,8 @@ class LivePaper(BaseModel):
             associated_paper_title=associated_paper_title,
             live_paper_title=lpv.name or lp.name,
             journal=journal_name,
+            associated_paper_volume=associated_paper_volume,
+            associated_paper_issue=associated_paper_issue,
             url=associated_paper_url,
             citation=associated_paper_citation,
             doi=live_paper_doi,
@@ -1730,32 +1754,43 @@ class LivePaper(BaseModel):
             custodian = None
         live_paper_authors = [p.to_kg_object() for p in as_list(self.created_author)]
 
-        def get_journal_volume(journal_name, citation_str):
+        def get_journal_volume_issue(journal_name, volume, issue):
             journal = ompub.Periodical.by_name(journal_name, kg_client, scope="in progress")  # also check "released"
-            return ompub.PublicationVolume(is_part_of=journal, volume_number="placeholder")
-            # todo: try to extract volume number from citation_str
+            volume = ompub.PublicationVolume(is_part_of=journal, volume_number=volume or "placeholder")
+            if issue:
+                return ompub.PublicationIssue(is_part_of=volume, issue_number=issue)
+            else:
+                return volume
 
-        related_pub = ompub.ScholarlyArticle(
-            name=self.associated_paper_title,
-            iri=self.url,
-            authors=original_authors,
-            custodians=self.corresponding_author[0].to_kg_object(),
-            digital_identifier=omcore.DOI(identifier=self.associated_paper_doi) if self.associated_paper_doi else None,
-            is_part_of=get_journal_volume(self.journal, self.citation),
-            date_published=self.year,
-            abstract=self.abstract
-        )
+        if self.associated_paper_title and self.journal and self.year:
+            related_pub = ompub.ScholarlyArticle(
+                name=self.associated_paper_title,
+                iri=self.url,
+                authors=original_authors,
+                custodians=self.corresponding_author[0].to_kg_object(),
+                digital_identifier=omcore.DOI(identifier=self.associated_paper_doi) if self.associated_paper_doi else None,
+                is_part_of=get_journal_volume_issue(self.journal, self.associated_paper_volume, self.associated_paper_issue),
+                pagination=self.associated_paper_pagination,
+                date_published=self.year,
+                abstract=self.abstract
+            )
+        else:
+            related_pub = None
+        alias = self.alias
+        if alias is None:
+            alias = slugify(self.live_paper_title)
+        version = self.version or "v0"
         lpv = ompub.LivePaperVersion(
             name=self.live_paper_title,
-            alias=f"{self.alias}-{self.version}",
+            alias=f"{alias}-{version}",
             last_modified=self.modified_date,
-            version_identifier=self.version,
-            related_publications=related_pub.digital_identifier,
+            version_identifier=version,
+            related_publications=related_pub.digital_identifier if related_pub else None,
             license=term_cache["License"]["names"].get(self.license, None)
         )
         lp = ompub.LivePaper(
             name=self.live_paper_title,
-            alias=self.alias,
+            alias=alias,
             authors=live_paper_authors,
             custodians=custodian,
             description=self.resources_description,
@@ -1772,7 +1807,7 @@ class LivePaper(BaseModel):
         return {
             "people": people.values(),
             "sections": sections,
-            "paper": [related_pub, lp]
+            "paper": [related_pub, lp] if related_pub else [lp]
         }
 
 

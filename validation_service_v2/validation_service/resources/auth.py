@@ -1,6 +1,7 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from starlette.requests import Request
+from httpx import HTTPStatusError
 from ..auth import oauth
 from ..settings import BASE_URL
 
@@ -39,9 +40,18 @@ async def list_projects(
     request: Request,
     token: HTTPAuthorizationCredentials = Depends(auth),
 ):
-    user_info = await oauth.ebrains.userinfo(
-        token={"access_token": token.credentials, "token_type": "bearer"}
-    )
+    try:
+        user_info = await oauth.ebrains.userinfo(
+            token={"access_token": token.credentials, "token_type": "bearer"}
+        )
+    except HTTPStatusError as err:
+        if "401" in str(err):
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail=str(err),
+            )
+        else:
+            raise
     roles = user_info.get("roles", {}).get("team", [])
     projects = {}
     for role in roles:

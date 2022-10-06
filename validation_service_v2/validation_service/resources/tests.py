@@ -93,7 +93,7 @@ def query_tests(
     else:
         #spaces = ["computation"]
         spaces = ["collab-model-validation"]  # during development
-    kg_client = get_kg_client_for_user_account(token.credentials)
+    kg_client = get_kg_client_for_user_account(token)
 
 
     test_definitions = []
@@ -121,14 +121,14 @@ def query_tests(
 
 @router.get("/tests/{test_id}", response_model=ValidationTest)
 def get_test(test_id: str, token: HTTPAuthorizationCredentials = Depends(auth)):
-    kg_client = get_kg_client_for_user_account(token.credentials)
+    kg_client = get_kg_client_for_user_account(token)
     test_definition = _get_test_by_id_or_alias(test_id, kg_client)
     return ValidationTest.from_kg_object(test_definition, kg_client)
 
 
 @router.post("/tests/", response_model=ValidationTest, status_code=status.HTTP_201_CREATED)
 def create_test(test: ValidationTest, token: HTTPAuthorizationCredentials = Depends(auth)):
-    kg_user_client = get_kg_client_for_user_account(token.credentials)
+    kg_user_client = get_kg_client_for_user_account(token)
     # check uniqueness of alias
     if test.alias and test_alias_exists(test.alias, kg_user_client):
         raise HTTPException(
@@ -137,7 +137,7 @@ def create_test(test: ValidationTest, token: HTTPAuthorizationCredentials = Depe
         )
     test_definition = test.to_kg_object()
     kg_space = "collab-model-validation"  # during development
-    if test_definition.exists(kg_user_client, space=kg_space):
+    if test_definition.exists(kg_user_client):
         # see https://stackoverflow.com/questions/3825990/http-response-code-for-post-when-resource-already-exists
         # for a discussion of the most appropriate status code to use here
         raise HTTPException(
@@ -155,7 +155,7 @@ def update_test(
     token: HTTPAuthorizationCredentials = Depends(auth),
 ):
     # retrieve stored test
-    kg_client = get_kg_client_for_user_account(token.credentials)
+    kg_client = get_kg_client_for_user_account(token)
     test_definition = omcmp.ValidationTest.from_uuid(str(test_id), kg_client, scope="in progress")
     stored_test = ValidationTest.from_kg_object(test_definition, kg_client)
     # if alias changed, check uniqueness of new alias
@@ -186,7 +186,7 @@ def update_test(
 @router.delete("/tests/{test_id}", status_code=status.HTTP_200_OK)
 async def delete_test(test_id: UUID, token: HTTPAuthorizationCredentials = Depends(auth)):
     # todo: handle non-existent UUID
-    kg_client = get_kg_client_for_user_account(token.credentials)
+    kg_client = get_kg_client_for_user_account(token)
     test_definition = omcmp.ValidationTest.from_uuid(str(test_id), kg_client, scope="in progress")
     if not await is_admin(token.credentials):
         # todo: replace this check with a group membership check for Collab v2
@@ -204,7 +204,7 @@ async def delete_test(test_id: UUID, token: HTTPAuthorizationCredentials = Depen
 def get_test_instances(
     test_id: str, version: str = Query(None), token: HTTPAuthorizationCredentials = Depends(auth)
 ):
-    kg_client = get_kg_client_for_user_account(token.credentials)
+    kg_client = get_kg_client_for_user_account(token)
     test_definition = _get_test_by_id_or_alias(test_id, kg_client)
     test_instances = [
         ValidationTestInstance.from_kg_object(inst, test_definition.uuid, kg_client)
@@ -219,7 +219,7 @@ def get_test_instances(
 def get_test_instance_from_instance_id(
     test_instance_id: UUID, token: HTTPAuthorizationCredentials = Depends(auth)
 ):
-    kg_client = get_kg_client_for_user_account(token.credentials)
+    kg_client = get_kg_client_for_user_account(token)
     inst = _get_test_instance_by_id(test_instance_id, kg_client)
     test_definition = omcmp.ValidationTest.list(kg_client, scope="in progress", space=inst.space, versions=inst)[0]
     return ValidationTestInstance.from_kg_object(inst, test_definition.uuid, kg_client)
@@ -233,7 +233,7 @@ def get_latest_test_instance_given_test_id(
         status_code=status.HTTP_501_NOT_IMPLEMENTED,
         detail="Not yet migrated",
     )
-    kg_client = get_kg_client_for_user_account(token.credentials)
+    kg_client = get_kg_client_for_user_account(token)
     test_definition = _get_test_by_id_or_alias(test_id, token)
     test_instances = [
         ValidationTestInstance.from_kg_object(inst, test_definition.uuid, kg_client)
@@ -252,7 +252,7 @@ def get_latest_test_instance_given_test_id(
 def get_test_instance_given_test_id(
     test_id: str, test_instance_id: UUID, token: HTTPAuthorizationCredentials = Depends(auth)
 ):
-    kg_client = get_kg_client_for_user_account(token.credentials)
+    kg_client = get_kg_client_for_user_account(token)
     test_definition = _get_test_by_id_or_alias(test_id, kg_client)
     for inst in as_list(test_definition.versions):
         if UUID(inst.uuid) == test_instance_id:
@@ -267,7 +267,7 @@ def get_test_instance_given_test_id(
 def get_test_instance_from_instance_id(
     test_instance_id: UUID, token: HTTPAuthorizationCredentials = Depends(auth)
 ):
-    kg_client = get_kg_client_for_user_account(token.credentials)
+    kg_client = get_kg_client_for_user_account(token)
     test_instance_kg = _get_test_instance_by_id(test_instance_id, kg_client)
     return ValidationTestInstance.from_kg_object(test_instance_kg, kg_client)
 
@@ -282,7 +282,7 @@ def create_test_instance(
     test_instance: ValidationTestInstance,
     token: HTTPAuthorizationCredentials = Depends(auth),
 ):
-    kg_client = get_kg_client_for_user_account(token.credentials)
+    kg_client = get_kg_client_for_user_account(token)
     test_definition = _get_test_by_id_or_alias(test_id, kg_client)
     test_instance_kg = test_instance.to_kg_object(ValidationTest.from_kg_object(test_definition, kg_client))
     test_instance_kg.save(kg_client, recursive=True, space=test_definition.space)
@@ -301,7 +301,7 @@ def update_test_instance_by_id(
     test_instance_patch: ValidationTestInstancePatch,
     token: HTTPAuthorizationCredentials = Depends(auth),
 ):
-    kg_client = get_kg_client_for_user_account(token.credentials)
+    kg_client = get_kg_client_for_user_account(token)
     test_instance_kg = _get_test_instance_by_id(test_instance_id, kg_client)
     test_definition = omcmp.ValidationTest.list(
         kg_client, scope="in progress",
@@ -320,7 +320,7 @@ def update_test_instance(
     test_instance_patch: ValidationTestInstancePatch,
     token: HTTPAuthorizationCredentials = Depends(auth),
 ):
-    kg_client = get_kg_client_for_user_account(token.credentials)
+    kg_client = get_kg_client_for_user_account(token)
     test_instance_kg = _get_test_instance_by_id(test_instance_id, kg_client)
     test_definition_kg = _get_test_by_id_or_alias(test_id, kg_client)
     return _update_test_instance(test_instance_kg, test_definition_kg, test_instance_patch, kg_client)
@@ -342,7 +342,7 @@ async def delete_test_instance_by_id(
     test_instance_id: UUID, token: HTTPAuthorizationCredentials = Depends(auth)
 ):
     # todo: handle non-existent UUID, inconsistent test_id and test_instance_id
-    kg_client = get_kg_client_for_user_account(token.credentials)
+    kg_client = get_kg_client_for_user_account(token)
     test_instance_kg = omcmp.ValidationTestVersion.from_uuid(str(test_instance_id), kg_client, scope="in progress")
     if not await is_admin(token.credentials):
         # todo: replace this check with a group membership check for Collab v2
@@ -363,7 +363,7 @@ async def delete_test_instance(
     test_id: str, test_instance_id: UUID, token: HTTPAuthorizationCredentials = Depends(auth)
 ):
     # todo: handle non-existent UUID, inconsistent test_id and test_instance_id
-    kg_client = get_kg_client_for_user_account(token.credentials)
+    kg_client = get_kg_client_for_user_account(token)
     test_instance_kg = omcmp.ValidationTestVersion.from_uuid(str(test_instance_id), kg_client, scope="in progress")
     if not await is_admin(token.credentials):
         # todo: replace this check with a group membership check for Collab v2

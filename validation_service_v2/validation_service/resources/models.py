@@ -131,7 +131,7 @@ async def query_models(
         spaces = [f"collab-{collab_id}" for collab_id in project_id]
     else:
         spaces = ["model"]
-    kg_client = get_kg_client_for_user_account(token.credentials)
+    kg_client = get_kg_client_for_user_account(token)
 
     model_projects = []
     for space in spaces:
@@ -162,7 +162,7 @@ async def get_model(
     token: HTTPAuthorizationCredentials = Depends(auth),
 ):
     """Retrieve information about a specific model identified by a UUID"""
-    kg_client = get_kg_client_for_user_account(token.credentials)
+    kg_client = get_kg_client_for_user_account(token)
     model_project = _get_model_by_id_or_alias(model_id, kg_client)
     if not model_project:
         raise HTTPException(
@@ -189,7 +189,7 @@ async def create_model(
             detail=f"This account is not a member of Collab #{model.project_id}",
         )
 
-    kg_user_client = get_kg_client_for_user_account(token.credentials)
+    kg_user_client = get_kg_client_for_user_account(token)
     kg_service_client = get_kg_client_for_service_account()
     # check uniqueness of alias, using service client we can check against aliases of all models
     if model.alias and model_alias_exists(model.alias, kg_service_client):
@@ -201,7 +201,7 @@ async def create_model(
     kg_space = f"collab-{model.project_id}"
     #if model.description == "RAISE EXCEPTION":
     #    raise Exception()
-    if model_project.exists(kg_user_client) or model_project.exists(kg_user_client, space=kg_space):
+    if model_project.exists(kg_user_client):
         # see https://stackoverflow.com/questions/3825990/http-response-code-for-post-when-resource-already-exists
         # for a discussion of the most appropriate status code to use here
         raise HTTPException(
@@ -229,7 +229,7 @@ async def update_model(
             detail=f"This account is not a member of Collab #{model_patch.project_id}",
         )
 
-    kg_user_client = get_kg_client_for_user_account(token.credentials)
+    kg_user_client = get_kg_client_for_user_account(token)
     kg_service_client = get_kg_client_for_service_account()
 
     # retrieve stored model
@@ -274,7 +274,7 @@ async def update_model(
 @router.delete("/models/{model_id}", status_code=status.HTTP_200_OK)
 async def delete_model(model_id: UUID, token: HTTPAuthorizationCredentials = Depends(auth)):
     # todo: handle non-existent UUID
-    kg_client = get_kg_client_for_user_account(token.credentials)
+    kg_client = get_kg_client_for_user_account(token)
     model_project = omcore.Model.from_uuid(str(model_id), kg_client, scope="in progress")
     collab_id = model_project.space[len("collab-"):]
     if not (
@@ -296,7 +296,7 @@ async def delete_model(model_id: UUID, token: HTTPAuthorizationCredentials = Dep
 async def get_model_instances(
     model_id: str, version: str = None, token: HTTPAuthorizationCredentials = Depends(auth)
 ):
-    kg_client = get_kg_client_for_user_account(token.credentials)
+    kg_client = get_kg_client_for_user_account(token)
     model_project = _get_model_by_id_or_alias(model_id, kg_client)
     model_instances = [
         ModelInstance.from_kg_object(inst, kg_client, model_project.uuid)
@@ -311,7 +311,7 @@ async def get_model_instances(
 async def get_model_instance_from_instance_id(
     model_instance_id: UUID, token: HTTPAuthorizationCredentials = Depends(auth)
 ):
-    kg_client = get_kg_client_for_user_account(token.credentials)
+    kg_client = get_kg_client_for_user_account(token)
     inst, model_id = _get_model_instance_by_id(model_instance_id, kg_client)
     return ModelInstance.from_kg_object(inst, kg_client, model_id)
 
@@ -320,7 +320,7 @@ async def get_model_instance_from_instance_id(
 async def get_latest_model_instance_given_model_id(
     model_id: str, token: HTTPAuthorizationCredentials = Depends(auth)
 ):
-    kg_client = get_kg_client_for_user_account(token.credentials)
+    kg_client = get_kg_client_for_user_account(token)
     model_project = _get_model_by_id_or_alias(model_id, kg_client)
     model_instances = [
         ModelInstance.from_kg_object(inst, kg_client, model_project.uuid)
@@ -334,7 +334,7 @@ async def get_latest_model_instance_given_model_id(
 async def get_model_instance_given_model_id(
     model_id: str, model_instance_id: UUID, token: HTTPAuthorizationCredentials = Depends(auth)
 ):
-    kg_client = get_kg_client_for_user_account(token.credentials)
+    kg_client = get_kg_client_for_user_account(token)
     model_project = _get_model_by_id_or_alias(model_id, kg_client)
     for inst in as_list(model_project.versions):
         if UUID(inst.uuid) == model_instance_id:
@@ -355,7 +355,7 @@ async def create_model_instance(
     model_instance: ModelInstance,
     token: HTTPAuthorizationCredentials = Depends(auth),
 ):
-    kg_user_client = get_kg_client_for_user_account(token.credentials)
+    kg_user_client = get_kg_client_for_user_account(token)
     model_project = _get_model_by_id_or_alias(model_id, kg_user_client)
     # check permissions for this model
     if model_project.space is None:
@@ -374,7 +374,7 @@ async def create_model_instance(
         )
     model_instance_kg = model_instance.to_kg_object(model_project)
     # check if an identical model instance already exists, raise an error if so
-    if model_instance_kg.exists(kg_user_client, space=model_project.space):
+    if model_instance_kg.exists(kg_user_client):
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail=f"Another model instance with the same name already exists.",
@@ -392,7 +392,7 @@ async def update_model_instance_by_id(
     model_instance_patch: ModelInstancePatch,
     token: HTTPAuthorizationCredentials = Depends(auth),
 ):
-    kg_user_client = get_kg_client_for_user_account(token.credentials)
+    kg_user_client = get_kg_client_for_user_account(token)
     model_instance_kg, model_id = _get_model_instance_by_id(model_instance_id, kg_user_client)
     model_project = _get_model_by_id_or_alias(model_id, kg_user_client)
     return await _update_model_instance(
@@ -411,7 +411,7 @@ async def update_model_instance(
     model_instance_patch: ModelInstancePatch,
     token: HTTPAuthorizationCredentials = Depends(auth),
 ):
-    kg_user_client = get_kg_client_for_user_account(token.credentials)
+    kg_user_client = get_kg_client_for_user_account(token)
     model_instance_kg, retrieved_model_id = _get_model_instance_by_id(model_instance_id, kg_user_client)
     assert model_id == retrieved_model_id
     model_project = _get_model_by_id_or_alias(model_id, kg_user_client)
@@ -437,7 +437,7 @@ async def _update_model_instance(model_instance_kg, model_project, model_instanc
             detail=f"This account is not a member of Collab #{model_project.project_id}",
         )
 
-    kg_user_client = get_kg_client_for_user_account(token.credentials)
+    kg_user_client = get_kg_client_for_user_account(token)
     stored_model_instance = ModelInstance.from_kg_object(
         model_instance_kg, kg_user_client, model_project.uuid
     )
@@ -452,7 +452,7 @@ async def _update_model_instance(model_instance_kg, model_project, model_instanc
 async def delete_model_instance_by_id(
     model_instance_id: UUID, token: HTTPAuthorizationCredentials = Depends(auth)
 ):
-    kg_user_client = get_kg_client_for_user_account(token.credentials)
+    kg_user_client = get_kg_client_for_user_account(token)
     model_instance_kg, model_id = _get_model_instance_by_id(model_instance_id, kg_user_client)
     model_project = _get_model_by_id_or_alias(model_id, kg_user_client)
     collab_id = model_project.space[len("collab-"):]
@@ -472,7 +472,7 @@ async def delete_model_instance(
     model_id: UUID, model_instance_id: UUID, token: HTTPAuthorizationCredentials = Depends(auth)
 ):
     # todo: handle non-existent UUID
-    kg_user_client = get_kg_client_for_user_account(token.credentials)
+    kg_user_client = get_kg_client_for_user_account(token)
     model_instance_kg, model_id = _get_model_instance_by_id(model_instance_id, kg_user_client)
     model_project = _get_model_by_id_or_alias(model_id, kg_user_client)
     collab_id = model_project.space[len("collab-"):]

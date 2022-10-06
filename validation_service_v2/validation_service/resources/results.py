@@ -58,7 +58,7 @@ from_index, token, response_model=ValidationResult)
 
 def _query_results(passed, project_id, model_instance_id, test_instance_id, model_id, test_id, model_alias, test_alias, score_type,  size,
 from_index, token, response_model):
-    kg_client = get_kg_client_for_user_account(token.credentials)
+    kg_client = get_kg_client_for_user_account(token)
     filter_query = build_result_filters(
         model_instance_id,
         test_instance_id,
@@ -147,7 +147,7 @@ from_index, token):
 
 @router.get("/results/{result_id}", response_model=ValidationResult)
 def get_result(result_id: UUID, token: HTTPAuthorizationCredentials = Depends(auth)):
-    kg_client = get_kg_client_for_user_account(token.credentials)
+    kg_client = get_kg_client_for_user_account(token)
     validation_activity = omcmp.ModelValidation.from_uuid(str(result_id), kg_client, scope="in progress")
     if validation_activity:
         try:
@@ -192,7 +192,7 @@ from_index, token, response_model=ValidationResultWithTestAndModel)
 @router.get("/results-extended/{result_id}", response_model=ValidationResultWithTestAndModel)
 async def get_result_extended(result_id: UUID,
                      token: HTTPAuthorizationCredentials = Depends(auth)):
-    kg_client = get_kg_client_for_user_account(token.credentials)
+    kg_client = get_kg_client_for_user_account(token)
     validation_activity = omcmp.ModelValidation.from_uuid(str(result_id), kg_client, scope="in progress")
     if validation_activity:
         try:
