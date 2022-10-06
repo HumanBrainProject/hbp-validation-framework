@@ -1629,7 +1629,7 @@ class LivePaper(BaseModel):
     modified_date: datetime
     version: str = None
     authors: List[PersonWithAffiliation]
-    corresponding_author: List[PersonWithAffiliation]
+    corresponding_author: List[PersonWithAffiliation] = None
     created_author: List[PersonWithAffiliation] = None
     approved_author: PersonWithAffiliation = None
     year: date = None
