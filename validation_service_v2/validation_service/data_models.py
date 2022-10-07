@@ -805,6 +805,8 @@ class ValidationTest(BaseModel):
             if cell_type:
                 study_targets.append(cell_type)
 
+        if self.alias is None:
+            self.alias = slugify(self.name)
         test_definition = omcmp.ValidationTest(
             name=self.name,
             alias=self.alias,
