@@ -311,23 +311,32 @@ class ModelInstance(BaseModel):
             mv.resolve(client, scope="in progress").homepage
             for mv in as_list(instance.is_alternative_version_of)
         ]
-        repository = instance.repository.resolve(client, scope="in progress")
+        if instance.repository:
+            repository = instance.repository.resolve(client, scope="in progress")
+            source = str(repository.iri)
+            if not source.startswith("http"):
+                logger.error(f"Invalid URL: {source}")
+                source = None
+            hash = getattr(repository.hash, "digest", None)
+        else:
+            source = None
+            hash = None
         licenses = [lic.resolve(client, scope="in progress") for lic in as_list(instance.licenses)]
         content_types = [ct.resolve(client) for ct in as_list(instance.format)]
         instance_data = {
             "id": instance.uuid,
             "uri": instance.id,
-            "version": instance.version_identifier,
+            "version": instance.version_identifier or "unknown",
             "description": instance.description,
             "parameters": None,  # todo: get from instance.input_data
             "timestamp": instance.release_date,
             "model_id": model_id,
             "alternatives": [mv.homepage for mv in alternatives if mv.homepage],
             "code_format": ContentType(content_types[0].name) if content_types else None,
-            "source": str(repository.iri),
+            "source": source,
             "license": License(licenses[0].name) if licenses else None,
             "script_id": None,  # field no-longer used, but kept to maintain backwards-compatibility
-            "hash": getattr(repository.hash, "digest", None)
+            "hash": hash
         }
         # instance_data["morphology"] = ?
         # instance_data["morphology_id"] = ?
