@@ -83,6 +83,14 @@ def get_term(cls_name, attr):
         return None
 
 
+def get_term_name_from_id(cls_name, attr):
+    if attr:
+        term = term_cache[cls_name]["ids"].get(attr.id, None)
+        if term:
+            return term.name
+    return None
+
+
 def lookup_service(view_url):
     service_map = {
         "https://celltypes.brain-map.org": "Allen Institute Cell Types Data Portal",
@@ -541,6 +549,12 @@ class ScientificModelSummary(BaseModel):
     @classmethod
     def from_kg_object(cls, model_project, client):
         cell_types, brain_regions, species = filter_study_targets(model_project.study_targets)
+        organizations = [org.name for org in as_list(model_project.custodians)
+                         if isinstance(org, omcore.Organization)]
+        if organizations:
+            organization = organizations[0]
+        else:
+            organization = None
         try:
             obj = cls(
                 id=model_project.uuid,
@@ -553,14 +567,13 @@ class ScientificModelSummary(BaseModel):
                        for p in as_list(model_project.custodians)
                        if isinstance(p, omcore.Person)],
                 project_id=model_project.space,
-                organization=[org.name for org in as_list(model_project.custodians)
-                              if isinstance(org, omcore.Organization)][0],
+                organization=organization,
                 private=is_private(model_project.space),
-                cell_type=cell_types,
-                model_scope=model_project.model_scope.name if model_project.model_scope else None,
-                abstraction_level=model_project.abstraction_level.name if model_project.abstraction_level else None,
-                brain_region=brain_regions,
-                species=species,
+                cell_type=cell_types[0] if cell_types else None,
+                model_scope=get_term_name_from_id("ModelScope", model_project.model_scope),
+                abstraction_level=get_term_name_from_id("ModelAbstractionLevel", model_project.abstraction_level),
+                brain_region=brain_regions[0] if brain_regions else None,
+                species=species[0] if species else None,
                 description=model_project.description,
                 date_created=None,
             )
