@@ -306,7 +306,7 @@ class ModelInstance(BaseModel):
             "id": instance.uuid,
             "uri": instance.id,
             "version": instance.version_identifier or "unknown",
-            "description": instance.description,
+            "description": instance.version_innovation,
             "parameters": None,  # todo: get from instance.input_data
             "timestamp": instance.release_date,
             "model_id": model_id,
@@ -565,7 +565,7 @@ class ScientificModelSummary(BaseModel):
                         for p in as_list(model_project.developers)],
                 owner=[Person.from_kg_object(p, client)
                        for p in as_list(model_project.custodians)
-                       if isinstance(p, omcore.Person)],
+                       if p.classes[0] == omcore.Person],
                 project_id=model_project.space,
                 organization=organization,
                 private=is_private(model_project.space),
