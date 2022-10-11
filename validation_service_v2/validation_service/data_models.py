@@ -446,16 +446,20 @@ class ScientificModel(BaseModel):
         assert model_project.scope is not None
         instances = []
         for inst_obj in as_list(model_project.versions):
-            #try:
+            try:
                 inst_obj = inst_obj.resolve(client, scope=model_project.scope)
                 inst = ModelInstance.from_kg_object(inst_obj, client, model_id=model_project.uuid)
-            #except Exception as err:
-            #    logger.warning(f"Problem retrieving model instance {inst_obj.id}: {err}")
-            #else:
+            except ResolutionFailure as err:
+                logger.warning(f"Problem retrieving model instance {inst_obj.id}: {err}")
+            else:
                 instances.append(inst)
         cell_types, brain_regions, species = filter_study_targets(model_project.study_targets)
         if instances:
-            date_created = min(inst.timestamp for inst in instances)
+            timestamps = [inst.timestamp for inst in instances if inst.timestamp is not None]
+            if timestamps:
+                date_created = min(timestamps)
+            else:
+                date_created = None
         else:
             date_created = None
         custodians = [c.resolve(client, scope=model_project.scope)
