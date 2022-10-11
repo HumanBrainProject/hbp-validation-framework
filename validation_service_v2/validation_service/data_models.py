@@ -550,10 +550,10 @@ class ScientificModelSummary(BaseModel):
                 author=[Person.from_kg_object(p, client)
                         for p in as_list(model_project.developers)],
                 owner=[Person.from_kg_object(p, client)
-                       for p in as_list(model_project.custodian)
+                       for p in as_list(model_project.custodians)
                        if isinstance(p, omcore.Person)],
                 project_id=model_project.space,
-                organization=[org.name for org in as_list(model_project.custodian)
+                organization=[org.name for org in as_list(model_project.custodians)
                               if isinstance(org, omcore.Organization)][0],
                 private=is_private(model_project.space),
                 cell_type=cell_types,
