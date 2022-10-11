@@ -52,19 +52,19 @@ def list_recording_modalities():
     return [item.value for item in RecordingModality]
 
 
-# @router.get("/vocab/test-type/")
-# def list_test_types():
-#     return [item.value for item in ValidationTestType]
+@router.get("/vocab/test-type/")  # deprecated - to remove
+def list_test_types():
+    return [item.value for item in ValidationTestType]
 
 
-# @router.get("/vocab/score-type/")
-# def list_score_types():
-#     return [item.value for item in ScoreType]
+@router.get("/vocab/score-type/")
+def list_score_types():
+    return [item.value for item in ScoreType]
 
 
-# @router.get("/vocab/implementation-status/")
-# def list_implementation_status_values():
-#     return [item.value for item in ImplementationStatus]
+@router.get("/vocab/implementation-status/")
+def list_implementation_status_values():
+    return [item.value for item in ImplementationStatus]
 
 
 class LicenseFilterOptions(str, Enum):
@@ -108,8 +108,8 @@ def all_vocabularies():
         "cell_type": [item.value for item in CellType],
         "abstraction_level": [item.value for item in AbstractionLevel],
         "recording_modality": [item.value for item in RecordingModality],
-        # "test_type": [item.value for item in ValidationTestType],
-        # "score_type": [item.value for item in ScoreType],
-        # "implementation_status": [item.value for item in ImplementationStatus],
+        "test_type": [item.value for item in ValidationTestType],  # deprecated, largely redundant with recording_modality
+        "score_type": [item.value for item in ScoreType],
+        "implementation_status": [item.value for item in ImplementationStatus],
         "license": popular_licenses,
     }

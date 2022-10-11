@@ -114,16 +114,6 @@ def lookup_service(view_url):
 Slug = constr(regex=r"^\w[\w\-]+$", to_lower=True, strip_whitespace=True)
 
 
-# class Species(str, Enum):
-#     mouse = "Mus musculus"
-#     rat = "Rattus norvegicus"
-#     human = "Homo sapiens"
-#     macaque = "Macaca mulatta"
-#     marmoset = "Callithrix jacchus"
-#     rodent = "Rodentia"  # yes, not a species
-#     opossum = "Monodelphis domestica"
-#     platypus = "Ornithorhynchus anatinus"
-
 Species = Enum(
     "Species",
     [
@@ -190,29 +180,7 @@ class ImplementationStatus(str, Enum):
     published = "published"
 
 
-# class DataType(str, Enum):
-#     {'Frequency of occurence, probability',
-#     'LFP',
-#     'Mean, SD',
-#     'Mean, STD',
-#     'Morphology',
-#     'NWB:N HDF5',
-#     'Vector of values',
-#     'application/json',
-#     'json'}
-
-
-# class RecordingModality(str, Enum):
-#     # todo: get this enum from KG
-#     twophoton = "2-photon imaging"
-#     em = "electron microscopy"
-#     ephys = "electrophysiology"
-#     fmri = "fMRI"
-#     hist = "histology"
-#     ophys = "optical microscopy"
-
-
-RecordingModality = Enum(
+RecordingModality = Enum(  # rename to something like DataType or ExperimentalTechnique
     "RecordingModality",
     [
         (name.replace(" ", "_"), name)
@@ -224,6 +192,7 @@ RecordingModality = Enum(
 
 
 class ValidationTestType(str, Enum):
+    # deprecated, largely redundant with RecordingModality
     behaviour = "behaviour"
     network_activity = "network activity"
     network_structure = "network structure"
@@ -231,11 +200,13 @@ class ValidationTestType(str, Enum):
     subcellular = "subcellular"
 
 
-class ScoreType(str, Enum):
-    other = "Other"
-    rsquare = "Rsquare"
-    pvalue = "p-value"
-    zscore = "z-score"
+ScoreType = Enum(
+    "ScoreType",
+    [
+        (name.replace(" ", "_"), name)
+        for name in term_cache["DifferenceMeasure"]["names"]
+    ]
+)
 
 
 License = Enum(
