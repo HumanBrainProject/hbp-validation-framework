@@ -262,22 +262,26 @@ async def query_results_extended2(
 
     kg_client = get_kg_client_for_user_account(token)
 
-    filter = {}
-    # todo: implement combinations where lists have more than one element
+    # if we search for multiple values of model_id (for example) we have to send each query separately
+    # so we use expand_combinations to get the different queries
+
+    filters = {}
     if model_instance_id:
-        filter["model_instance_id"] = kg_client.uri_from_uuid(model_instance_id[0])
+        filters["model_instance_id"] = [kg_client.uri_from_uuid(id) for id in model_instance_id]
     if test_instance_id:
-        filter["test_instance_id"] = kg_client.uri_from_uuid(test_instance_id[0])
+        filters["test_instance_id"] = [kg_client.uri_from_uuid(id) for id in test_instance_id]
     if model_id:
-        filter["model_id"] = kg_client.uri_from_uuid(model_id[0])
+        filters["model_id"] = [kg_client.uri_from_uuid(id) for id in model_id]
     if test_id:
-        filter["test_id"] = kg_client.uri_from_uuid(test_id[0])
+        filters["test_id"] = [kg_client.uri_from_uuid(id) for id in test_id]
     if model_alias:
-        filter["model_alias"] = model_alias[0]
+        filters["model_alias"] = model_alias
     if test_alias:
-        filter["test_alias"] = test_alias[0]
+        filters["test_alias"] = test_alias
     if score_type:
-        filter["score_type"] = [item.value for item in score_type][0]
+        filters["score_type"] = [item.value for item in score_type]
+
+    filters = expand_combinations(filters)
 
     if project_id:
         spaces = [f"collab-{collab_id}" for collab_id in project_id]
@@ -288,18 +292,37 @@ async def query_results_extended2(
     query = kg_client.retrieve_query("VF_ValidationResultWithTestAndModel")
 
     test_results = []
-    for space in spaces:
+    if len(spaces) == 1 and len(filters) == 1:
+        # common, simple case
         try:
-            results = kg_client.query(filter, query["@id"], space=space,
-                from_index=from_index, size=size, scope="in progress")
+            test_results = kg_client.query(filter, query["@id"], space=space,
+                                           from_index=from_index, size=size, scope="in progress")
         except Exception as err:
             breakpoint()
-        test_results.extend(results.data)
+        return [
+            ValidationResultWithTestAndModel.from_kg_query(item, kg_client)
+            for item in test_results
+        ]
+    else:
+        # more complex case for pagination
+        for space in spaces:
+            for filter in filters:
+                try:
+                    results = kg_client.query(filter, query["@id"], space=space,
+                        from_index=0, size=100000, scope="in progress")
+                except Exception as err:
+                    breakpoint()
+                test_results.extend(results.data)
+                if len(test_results) >= size + from_index:
+                    break
+            if len(test_results) >= size + from_index:
+                break
 
-    return [
-        ValidationResultWithTestAndModel.from_kg_query(item, kg_client)
-        for item in test_results
-    ]
+        return [
+            ValidationResultWithTestAndModel.from_kg_query(item, kg_client)
+            for item in test_results[from_index:from_index + size]
+        ]
+
 
 
 @router.get("/results-extended/{result_id}", response_model=ValidationResultWithTestAndModel)
