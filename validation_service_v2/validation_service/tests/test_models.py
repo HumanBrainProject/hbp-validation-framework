@@ -96,6 +96,7 @@ def test_list_models_filter_by_brain_region():
     for model in models:
         check_model(model)
         assert model["brain_region"] == "CA1 field of hippocampus"
+        assert model["species"] is not None
 
 
 def test_list_models_filter_by_species():

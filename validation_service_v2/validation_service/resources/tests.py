@@ -36,7 +36,7 @@ auth = HTTPBearer()
 router = APIRouter()
 
 
-@router.get("/tests/")
+@router.get("/tests-old/")
 def query_tests(
     project_id: List[str] = Query(
         None, description="Find validation tests belonging to a specific project/projects"
@@ -116,6 +116,82 @@ def query_tests(
     return [
         cls.from_kg_object(test_definition, kg_client)
         for test_definition in as_list(test_definitions)
+    ]
+
+
+@router.get("/tests/")
+def query_tests2(
+    project_id: List[str] = Query(
+        None, description="Find validation tests belonging to a specific project/projects"
+    ),
+    alias: List[str] = Query(None),
+    id: List[UUID] = Query(None),
+    name: List[str] = Query(None),
+    implementation_status: str = Query(None),
+    brain_region: List[BrainRegion] = Query(None),
+    species: List[Species] = Query(None),
+    cell_type: List[CellType] = Query(None),
+    data_type: List[str] = Query(None),
+    recording_modality: List[RecordingModality] = Query(None),
+    test_type: List[ValidationTestType] = Query(None),
+    score_type: List[ScoreType] = Query(None),
+    author: List[str] = Query(None),
+    size: int = Query(100),
+    from_index: int = Query(0),
+    summary: bool = Query(False, description="Return only summary information about each validation test"),
+    # from header
+    token: HTTPAuthorizationCredentials = Depends(auth),
+):
+    # get the values of of the Enums
+    filter = {}
+    if brain_region:
+        filter["brain_region"] = [item.value for item in brain_region][0]
+    if species:
+        filter["species"] = [item.value for item in species][0]
+    if cell_type:
+        filter["cell_type"] = [item.value for item in cell_type][0]
+    if recording_modality:
+        filter["recording_modality"] = [item.value for item in recording_modality][0]
+    if test_type:
+        filter["test_type"] = [item.value for item in test_type][0]
+    if data_type:
+        filter["data_type"] = [item.value for item in data_type][0]
+    if score_type:
+        filter["score_type"] = [item.value for item in score_type][0]
+
+    if author:
+        filter["author"] = author[0]
+    if name:
+        filter["name"] = name[0]
+    if alias:
+        filter["alias"] = alias[0]
+
+    # todo: handle implementation_status
+
+    if project_id:
+        spaces = [f"collab-{collab_id}" for collab_id in project_id]
+    else:
+        #spaces = ["computation"]
+        spaces = ["collab-model-validation"]  # during development
+
+    kg_client = get_kg_client_for_user_account(token)
+
+    if summary:
+        cls = ValidationTestSummary
+        query = kg_client.retrieve_query("VF_ValidationTestSummary")
+    else:
+        cls = ValidationTest
+        query = kg_client.retrieve_query("VF_ValidationTest")
+
+    test_definitions = []
+    for space in spaces:
+        results = kg_client.query(filter, query["@id"], space=space,
+            from_index=from_index, size=size, scope="in progress")
+        test_definitions.extend(results.data)
+
+    return [
+        cls.from_kg_query(item, kg_client)
+        for item in test_definitions
     ]
 
 

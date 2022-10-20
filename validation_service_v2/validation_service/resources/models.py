@@ -1,5 +1,5 @@
 from uuid import UUID
-from typing import List
+from typing import List, Union
 import logging
 
 from fairgraph.base_v3 import as_list
@@ -42,7 +42,7 @@ def about_this_api():
     }
 
 
-@router.get("/models/", response_model=List[ScientificModel])
+@router.get("/models-old/", response_model=List[ScientificModel])
 async def query_models(
     alias: List[str] = Query(
         None, description="A list of model aliases (short names) to search for"
@@ -101,7 +101,7 @@ async def query_models(
                 detail="To see private models, you must specify the project/collab id",
             )
 
-    # get the values of of the Enums
+    # get the values of the Enums
     if brain_region:
         brain_region = [item.value for item in brain_region]
     if species:
@@ -156,7 +156,107 @@ async def query_models(
     ]
 
 
-@router.get("/models/{model_id}", response_model=ScientificModel)
+@router.get("/models/", response_model=List[Union[ScientificModel, ScientificModelSummary]])
+async def query_models2(
+    alias: List[str] = Query(
+        None, description="A list of model aliases (short names) to search for"
+    ),
+    id: List[UUID] = Query(None, description="A list of specific model IDs to search for"),
+    name: List[str] = Query(None, description="Model name(s) to search for"),
+    brain_region: List[BrainRegion] = Query(
+        None, description="Find models intended to represent this/these brain region(s)"
+    ),
+    species: List[Species] = Query(
+        None, description="Find models intended to represent this/these species"
+    ),
+    cell_type: List[CellType] = Query(None, description="Find models of this/these cell type(s)"),
+    model_scope: ModelScope = Query(None, description="Find models with a certain scope"),
+    abstraction_level: AbstractionLevel = Query(
+        None, description="Find models with a certain abstraction level"
+    ),
+    author: List[str] = Query(None, description="Find models by author (family name)"),
+    owner: List[str] = Query(None, description="Find models by owner (family name)"),
+    organization: List[str] = Query(None, description="Find models by organization"),
+    project_id: List[str] = Query(
+        None, description="Find models belonging to a specific project/projects"
+    ),
+    private: bool = Query(None, description="Limit the search to public or private models"),
+    summary: bool = Query(False, description="Return only summary information about each model"),
+    size: int = Query(100, description="Maximum number of responses"),
+    from_index: int = Query(0, description="Index of the first response returned"),
+    # from header
+    token: HTTPAuthorizationCredentials = Depends(auth),
+):
+    """
+    Search the model catalog for specific models (identitified by their unique ID or by a short name / alias),
+    and/or search by attributes of the models (e.g. the cell types being modelled, the type of model, the model author).
+    """
+
+    if private:
+        if project_id:
+            for collab_id in project_id:
+                if not await can_edit_collab(collab_id, token.credentials):
+                    raise HTTPException(
+                        status_code=status.HTTP_403_FORBIDDEN,
+                        detail="You are not a member of project #{collab_id}",
+                    )
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="To see private models, you must specify the project/collab id",
+            )
+
+    # get the values of the Enums
+    filter = {}
+    if brain_region:
+        filter["brain_region"] = [item.value for item in brain_region][0]  # for now, take only first
+        # todo: expand lists across all fields into all combinations
+    if species:
+        filter["species"] = [item.value for item in species][0]
+    if cell_type:
+        filter["cell_type"] = [item.value for item in cell_type][0]
+    if model_scope:
+        filter["model_scope"] = model_scope.value
+    if abstraction_level:
+        filter["abstraction_level"] = abstraction_level.value
+
+    if author:
+        filter["author"] = author[0]
+    if owner:
+        filter["owner"] = owner[0]
+    if organization:
+        filter["organization"] = organization[0]
+    if name:
+        filter["name"] = name[0]
+    if alias:
+        filter["alias"] = alias[0]
+
+    if project_id:
+        spaces = [f"collab-{collab_id}" for collab_id in project_id]
+    else:
+        spaces = ["model"]
+
+    kg_client = get_kg_client_for_user_account(token)
+
+    if summary:
+        cls = ScientificModelSummary
+        query = kg_client.retrieve_query("VF_ScientificModelSummary")
+    else:
+        cls = ScientificModel
+        query = kg_client.retrieve_query("VF_ScientificModel")
+
+    models = []
+    for space in spaces:
+        results = kg_client.query(filter, query["@id"], space=space,
+            from_index=from_index, size=size, scope="in progress")
+        models.extend(results.data)
+
+    return [
+        cls.from_kg_query(item, kg_client)
+        for item in models
+    ]
+
+@router.get("/models-old/{model_id}", response_model=ScientificModel)
 async def get_model(
     model_id: str = Path(..., title="Model ID", description="ID of the model to be retrieved"),
     token: HTTPAuthorizationCredentials = Depends(auth),
@@ -169,6 +269,25 @@ async def get_model(
             status_code=status.HTTP_404_NOT_FOUND, detail=f"Model with ID '{model_id}' not found."
         )
     return ScientificModel.from_kg_object(model_project, kg_client)
+
+
+@router.get("/models/{model_id}", response_model=ScientificModel)
+async def get_model2(
+    model_id: str = Path(..., title="Model ID", description="ID of the model to be retrieved"),
+    token: HTTPAuthorizationCredentials = Depends(auth),
+):
+    """Retrieve information about a specific model identified by a UUID"""
+    kg_client = get_kg_client_for_user_account(token)
+    query = kg_client.retrieve_query("VF_ScientificModel")
+    filter = None
+    results = kg_client.query(filter, query["@id"], instance_id=model_id,
+                              size=1, scope="in progress")
+
+    if results.total == 0:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail=f"Model with ID '{model_id}' not found."
+        )
+    return ScientificModel.from_kg_query(results.data[0], kg_client)
 
 
 @router.post("/models/", response_model=ScientificModel, status_code=status.HTTP_201_CREATED)

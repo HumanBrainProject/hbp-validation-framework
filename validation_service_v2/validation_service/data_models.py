@@ -284,6 +284,17 @@ class ModelInstance(BaseModel):
         # during object updates
 
     @classmethod
+    def from_kg_query(cls, item, client):
+        item["id"] = client.uuid_from_uri(item["uri"])
+        item["model_id"] = client.uuid_from_uri(item["model_id"])
+        item["timestamp"] = datetime.fromisoformat(item["timestamp"]).date()
+        item.pop("repository", None)
+        try:
+            return cls(**item)
+        except:
+            breakpoint()
+
+    @classmethod
     def from_kg_object(cls, instance, client, model_id):
         instance = instance.resolve(client, scope="in progress")
         alternatives = [
@@ -421,6 +432,19 @@ class ScientificModel(BaseModel):
         schema_extra = {"example": EXAMPLES["ScientificModel"]}
 
     @classmethod
+    def from_kg_query(cls, item, client):
+        item.pop("@context", None)
+        item["id"] = client.uuid_from_uri(item["uri"])
+        item["instances"] = [
+            ModelInstance.from_kg_query(instance, client)
+            for instance in item.get("instances", [])
+        ]
+        try:
+            return cls(**item)
+        except:
+            breakpoint()
+
+    @classmethod
     def from_kg_object(cls, model_project, client):
         assert model_project.scope is not None
         instances = []
@@ -547,7 +571,17 @@ class ScientificModelSummary(BaseModel):
     date_created: datetime = None
 
     @classmethod
+    def from_kg_query(cls, item, client):
+        item.pop("@context")
+        item["id"] = client.uuid_from_uri(item["uri"])
+        try:
+            return cls(**item)
+        except:
+            breakpoint()
+
+    @classmethod
     def from_kg_object(cls, model_project, client):
+        logger.info(model_project.custodians)
         cell_types, brain_regions, species = filter_study_targets(model_project.study_targets)
         organizations = [org.name for org in as_list(model_project.custodians)
                          if isinstance(org, omcore.Organization)]
@@ -565,6 +599,7 @@ class ScientificModelSummary(BaseModel):
                         for p in as_list(model_project.developers)],
                 owner=[Person.from_kg_object(p, client)
                        for p in as_list(model_project.custodians)
+                       #if isinstance(p, omcore.Person)],
                        if p.classes[0] == omcore.Person],
                 project_id=model_project.space,
                 organization=organization,
@@ -639,6 +674,16 @@ class ValidationTestInstance(BaseModel):
     path: str
     timestamp: datetime = None
     test_id: UUID = None
+
+    @classmethod
+    def from_kg_query(cls, item, client):
+        item["id"] = client.uuid_from_uri(item["uri"])
+        item["test_id"] = client.uuid_from_uri(item["test_id"])
+        item["timestamp"] = datetime.fromisoformat(item["timestamp"])
+        try:
+            return cls(**item)
+        except:
+            breakpoint()
 
     @classmethod
     def from_kg_object(cls, test_version, test_uuid, client):
@@ -726,6 +771,26 @@ class ValidationTest(BaseModel):
     score_type: ScoreType = None
     instances: List[ValidationTestInstance] = None
     # todo: add "publication" field
+
+    @classmethod
+    def from_kg_query(cls, item, client):
+        item.pop("@context", None)
+        item["id"] = client.uuid_from_uri(item["uri"])
+        item["instances"] = [
+            ValidationTestInstance.from_kg_query(instance, client)
+            for instance in item.get("instances", [])
+        ]
+        data_locations = []
+        for loc in item["data_location"]:
+            for field in ("IRI", "URL", "name"):
+                if loc[field].startswith("http"):
+                    data_locations.append(loc[field])
+                    break
+        item["data_location"] = data_locations
+        try:
+            return cls(**item)
+        except:
+            breakpoint()
 
     @classmethod
     def from_kg_object(cls, test_definition, client):
@@ -851,14 +916,23 @@ class ValidationTestSummary(BaseModel):
     score_type: ScoreType = None
 
     @classmethod
+    def from_kg_query(cls, item, client):
+        item.pop("@context")
+        item["id"] = client.uuid_from_uri(item["uri"])
+        try:
+            return cls(**item)
+        except:
+            breakpoint()
+
+    @classmethod
     def from_kg_object(cls, test_definition, client):
         obj = cls(
             id=test_definition.uuid,
             uri=test_definition.id,
             name=test_definition.name,
             alias=test_definition.alias,
-            implementation_status=test_definition.status or ImplementationStatus.proposal.value,
-            author=[Person.from_kg_object(p, client) for p in as_list(test_definition.authors)],
+            implementation_status=None,  # to fix (test_definition.status or ImplementationStatus.proposal.value),
+            author=[Person.from_kg_object(p, client) for p in as_list(test_definition.developers)],
             cell_type=test_definition.celltype.label if test_definition.celltype else None,
             brain_region=test_definition.brain_region.label
             if test_definition.brain_region
@@ -1078,27 +1152,39 @@ class ValidationResultSummary(BaseModel):
     test_alias: str = None
 
     @classmethod
+    def from_kg_query(cls, item, client):
+        item.pop("@context")
+        item["id"] = client.uuid_from_uri(item["uri"])
+        item["model_instance_id"] = client.uuid_from_uri(item["model_instance_id"])
+        item["test_instance_id"] = client.uuid_from_uri(item["test_instance_id"])
+        item["model_id"] = client.uuid_from_uri(item["model_id"])
+        item["test_id"] = client.uuid_from_uri(item["test_id"])
+        try:
+            return cls(**item)
+        except:
+            breakpoint()
+
+    @classmethod
     def from_kg_object(cls, validation_activity, client):
-        model_instance = [obj for obj in validation_activity.inputs if obj.cls == omcore.ModelVersion][0]
-        model_instance = model_instance.resolve(client, scope="in progress")
+        logger.info(validation_activity.inputs)
+        inputs = [obj.resolve(client, scope="in progress") for obj in validation_activity.inputs]
+        model_instance = [obj for obj in inputs if isinstance(obj, omcore.ModelVersion)][0]
         model_instance_id = model_instance.uuid
         model = model_instance.is_version_of(client)
-        test_instance = [obj for obj in validation_activity.inputs if obj.cls == omcmp.ValidationTest][0]
-        test_instance = test_instance.resolve(client, scope="in progress")
+        test_instance = [obj for obj in inputs if isinstance(obj, omcmp.ValidationTestVersion)][0]
         test_instance_id = test_instance.uuid
         test = test_instance.is_version_of(client)
-        additional_data = []
-        for item in as_list(validation_activity.outputs):
-            additional_data.append(File.from_kg_object(item))
-        data_type = set()
-        for item in test_instance.reference_data:
-            if hasattr(item, "iri"):  # File
-                data_type.add(item.format)
-        data_type = list(data_type)
-        if len(data_type) == 1:
-            data_type = data_type[0]
-        elif len(data_type) == 0:
-            data_type = None
+        # data_type = set()
+        # for item in as_list(test_instance.reference_data):
+        #     item = item.resolve(client, scope="in progress")
+        #     if hasattr(item, "iri"):  # File
+        #         data_type.add(item.format)
+        # data_type = list(data_type)
+        # if len(data_type) == 1:
+        #     data_type = data_type[0]
+        # elif len(data_type) == 0:
+        #     data_type = None
+        data_type = None
         return cls(
             id=validation_activity.uuid,
             model_instance_id=model_instance_id,
@@ -1107,7 +1193,7 @@ class ValidationResultSummary(BaseModel):
             score=validation_activity.score,
             score_type=ScoreType(test.score_type.resolve(client).name) if test.score_type else None,
             data_type=data_type,
-            timestamp=ensure_has_timezone(validation_activity.timestamp),
+            timestamp=ensure_has_timezone(validation_activity.started_at_time),
             model_id=model.uuid,
             model_name=model.name,
             model_alias=model.alias,
@@ -1115,26 +1201,6 @@ class ValidationResultSummary(BaseModel):
             test_id=test.uuid,
             test_name=test.name,
             test_alias=test.alias
-        )
-
-    @classmethod
-    def from_kg_query(cls, result):
-        return cls(
-            id=uuid_from_uri(result["uri"]),
-            model_instance_id=uuid_from_uri(result["model_instance"][0]["model_instance_id"]),
-            test_instance_id=uuid_from_uri(result["test_instance"][0]["test_instance_id"]),
-            test_version=result["test_instance"][0]["test_instance_version"],
-            score=result["score"],
-            score_type=result["test_instance"][0]["test"][0]["score_type"],
-            data_type=result["test_instance"][0]["test"][0]["data_type"],
-            timestamp=ensure_has_timezone(date_parser.parse(result["timestamp"])),
-            model_id=uuid_from_uri(result["model_instance"][0]["model"][0]["model_id"]),  # beware possibility of multiple models with different schema versions here
-            model_name=result["model_instance"][0]["model"][0]["model_name"],
-            model_alias=result["model_instance"][0]["model"][0]["model_alias"],
-            model_version=result["model_instance"][0]["model_instance_version"],
-            test_id=uuid_from_uri(result["test_instance"][0]["test"][0]["test_id"]),
-            test_name=result["test_instance"][0]["test"][0]["test_name"],
-            test_alias=result["test_instance"][0]["test"][0]["test_alias"],
         )
 
 
@@ -1249,6 +1315,26 @@ class ValidationResultWithTestAndModel(ValidationResult):
     test_instance: ValidationTestInstance
     model: ScientificModel
     test: ValidationTest
+
+    @classmethod
+    def from_kg_query(cls, item, client):
+        item.pop("@context")
+        item["id"] = client.uuid_from_uri(item["uri"])
+        item["model_instance_id"] = client.uuid_from_uri(item["model_instance_id"])
+        item["test_instance_id"] = client.uuid_from_uri(item["test_instance_id"])
+        item["model_instance"]["id"] = client.uuid_from_uri(item["model_instance"]["uri"])
+        item["test_instance"]["id"] = client.uuid_from_uri(item["test_instance"]["uri"])
+        item["model"]["id"] = client.uuid_from_uri(item["model"]["uri"])
+        item["test"]["id"] = client.uuid_from_uri(item["test"]["uri"])
+        item["model_instance"] = ModelInstance.from_kg_query(item["model_instance"], client)
+        item["test_instance"] = ValidationTestInstance.from_kg_query(item["test_instance"], client)
+        item["model"] = ScientificModel.from_kg_query(item["model"], client)
+        item["test"] = ValidationTest.from_kg_query(item["test"], client)
+
+        try:
+            return cls(**item)
+        except:
+            breakpoint()
 
     @classmethod
     def from_kg_object(cls, validation_activity, client):
