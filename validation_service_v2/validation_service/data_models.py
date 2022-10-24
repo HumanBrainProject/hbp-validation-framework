@@ -312,7 +312,7 @@ class ModelInstance(BaseModel):
             source = None
             hash = None
         licenses = [lic.resolve(client, scope="in progress") for lic in as_list(instance.licenses)]
-        content_types = [ct.resolve(client) for ct in as_list(instance.format)]
+        content_types = [ct.resolve(client) for ct in as_list(instance.formats)]
         instance_data = {
             "id": instance.uuid,
             "uri": instance.id,
@@ -350,7 +350,7 @@ class ModelInstance(BaseModel):
             description=self.description or "",
             version_identifier=self.version,
             #parameters=
-            format=get_term("ContentType", self.code_format),
+            formats=get_term("ContentType", self.code_format),
             repository=repository,
             licenses=get_term("License", self.license),
             release_date=self.timestamp if self.timestamp else date.today(),
