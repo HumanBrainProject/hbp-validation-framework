@@ -18,7 +18,7 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic import ValidationError
 
 from ..auth import get_kg_client_for_user_account, get_user_from_token, can_edit_collab, is_admin
-from ..data_models import ScoreType, ValidationResult, ValidationResultWithTestAndModel, ValidationResultSummary, ConsistencyError
+from ..data_models import ScoreType, ValidationResult, ValidationResultWithTestAndModel, ValidationResultSummary, ConsistencyError, space_from_project_id
 from ..queries import build_result_filters
 from .. import settings
 
@@ -94,55 +94,55 @@ from_index, token, response_model):
 
 
 def expand_combinations(D):
-    keys, values = zip(*D.items())
-    return [dict(zip(keys, v)) for v in itertools.product(*[as_list(v) for v in values])]
+    if D:
+        keys, values = zip(*D.items())
+        return [dict(zip(keys, v)) for v in itertools.product(*[as_list(v) for v in values])]
+    else:
+        return [D]
 
 
-def _query_results2(passed, project_id, model_instance_id, test_instance_id, model_id, test_id, model_alias, test_alias, score_type,  size,
-from_index, token):
-    # todo : more sophisticated handling of size and from_index
-    path = "/modelvalidation/simulation/validationresult/v0.1.0"
-    query_id = "test"  # "vf"
-    scope = STAGE_MAP["in progress"]
-    query_parameters = {
-        "start": 0,   #from_index,
-        "size": 100000,  #size,
-        "vocab": "https://schema.hbp.eu/myQuery/",
-        "scope": scope
-    }
-    for filter_name in ("passed", "project_id", "model_instance_id", "test_instance_id",
-                        "model_id", "test_id", "model_alias", "test_alias", "score_type"):
-        value = locals()[filter_name]
-        if value is not None:
-            query_parameters[filter_name] = value
-    # if we search for multiple values of model_id (for example) we have to send each query separately
-    # so we use expand_combinations to get the different queries
-    query_parameters_list = expand_combinations(query_parameters)
-    response = []
-    for query_parameters in query_parameters_list:
-        query_string = urlencode(query_parameters, doseq=True)
-        url = f"{path}/{query_id}/instances?" + query_string
-        print(url)
+def _query_results2(filters, project_id, kg_client, data_model, query_label, from_index, size):
+    filters = expand_combinations(filters)
+
+    if project_id:
+        spaces = [f"collab-{collab_id}" for collab_id in project_id]
+    else:
+        #spaces = ["computation"]
+        spaces = ["collab-model-validation"]  # during development
+
+    query = kg_client.retrieve_query(query_label)
+
+    if len(spaces) == 1 and len(filters) == 1:
+        # common, simple case
         try:
-            kg_response = kg_client._kg_query_client.get(url)
-        except HTTPError as err:
-            if err.response.status_code == 403:
-                kg_response = None
-            else:
-                raise
-        if kg_response and "results" in kg_response:
-            for result in kg_response["results"]:
+            test_results = kg_client.query(filters[0], query["@id"], space=spaces[0],
+                                           from_index=from_index, size=size, scope="in progress")
+        except Exception as err:
+            breakpoint()
+        return [
+            data_model.from_kg_query(item, kg_client)
+            for item in test_results.data
+        ]
+    else:
+        # more complex case for pagination
+        test_results = []
+        for space in spaces:
+            for filter in filters:
                 try:
-                    obj = ValidationResult.from_kg_query(result)
-                except ConsistencyError as err:  # todo: count these and report them in the response
-                    logger.warning(str(err))
-                else:
-                    response.append(obj)
-                if len(response) >= size + from_index:
+                    results = kg_client.query(filter, query["@id"], space=space,
+                        from_index=0, size=100000, scope="in progress")
+                except Exception as err:
+                    breakpoint()
+                test_results.extend(results.data)
+                if len(test_results) >= size + from_index:
                     break
-            if len(response) >= size + from_index:
+            if len(test_results) >= size + from_index:
                 break
-    return response[from_index:from_index + size]
+
+        return [
+            data_model.from_kg_query(item, kg_client)
+            for item in test_results[from_index:from_index + size]
+        ]
 
 
 @router.get("/results/", response_model=List[ValidationResult])
@@ -161,42 +161,29 @@ def query_results2(
     # from header
     token: HTTPAuthorizationCredentials = Depends(auth),
 ):
-    filter = {}
-    if model_instance_id:
-        filter["model_instance_id"] = [item.value for item in model_instance_id][0]
-    if test_instance_id:
-        filter["test_instance_id"] = [item.value for item in test_instance_id][0]
-    if model_id:
-        filter["model_id"] = [item.value for item in model_id][0]
-    if test_id:
-        filter["test_id"] = [item.value for item in test_id][0]
-    if model_alias:
-        filter["model_alias"] = [item.value for item in model_alias][0]
-    if test_alias:
-        filter["test_alias"] = [item.value for item in test_alias][0]
-    if score_type:
-        filter["score_type"] = [item.value for item in score_type][0]
-
-    if project_id:
-        spaces = [f"collab-{collab_id}" for collab_id in project_id]
-    else:
-        #spaces = ["computation"]
-        spaces = ["collab-model-validation"]  # during development
-
     kg_client = get_kg_client_for_user_account(token)
 
-    query = kg_client.retrieve_query("VF_ValidationResult")
+    # if we search for multiple values of model_id (for example) we have to send each query separately
+    # so we use expand_combinations to get the different queries
 
-    test_results = []
-    for space in spaces:
-        results = kg_client.query(filter, query["@id"], space=space,
-            from_index=from_index, size=size, scope="in progress")
-        test_results.extend(results.data)
+    filters = {}
+    if model_instance_id:
+        filters["model_instance_id"] = [kg_client.uri_from_uuid(id) for id in model_instance_id]
+    if test_instance_id:
+        filters["test_instance_id"] = [kg_client.uri_from_uuid(id) for id in test_instance_id]
+    if model_id:
+        filters["model_id"] = [kg_client.uri_from_uuid(id) for id in model_id]
+    if test_id:
+        filters["test_id"] = [kg_client.uri_from_uuid(id) for id in test_id]
+    if model_alias:
+        filters["model_alias"] = model_alias
+    if test_alias:
+        filters["test_alias"] = test_alias
+    if score_type:
+        filters["score_type"] = [item.value for item in score_type]
 
-    return [
-        ValidationResult.from_kg_query(item, kg_client)
-        for item in test_results
-    ]
+    return _query_results2(filters, project_id, kg_client, ValidationResult,
+                           "VF_ValidationResult", from_index, size)
 
 
 @router.get("/results/{result_id}", response_model=ValidationResult)
@@ -281,48 +268,8 @@ async def query_results_extended2(
     if score_type:
         filters["score_type"] = [item.value for item in score_type]
 
-    filters = expand_combinations(filters)
-
-    if project_id:
-        spaces = [f"collab-{collab_id}" for collab_id in project_id]
-    else:
-        #spaces = ["computation"]
-        spaces = ["collab-model-validation"]  # during development
-
-    query = kg_client.retrieve_query("VF_ValidationResultWithTestAndModel")
-
-    test_results = []
-    if len(spaces) == 1 and len(filters) == 1:
-        # common, simple case
-        try:
-            test_results = kg_client.query(filter, query["@id"], space=space,
-                                           from_index=from_index, size=size, scope="in progress")
-        except Exception as err:
-            breakpoint()
-        return [
-            ValidationResultWithTestAndModel.from_kg_query(item, kg_client)
-            for item in test_results
-        ]
-    else:
-        # more complex case for pagination
-        for space in spaces:
-            for filter in filters:
-                try:
-                    results = kg_client.query(filter, query["@id"], space=space,
-                        from_index=0, size=100000, scope="in progress")
-                except Exception as err:
-                    breakpoint()
-                test_results.extend(results.data)
-                if len(test_results) >= size + from_index:
-                    break
-            if len(test_results) >= size + from_index:
-                break
-
-        return [
-            ValidationResultWithTestAndModel.from_kg_query(item, kg_client)
-            for item in test_results[from_index:from_index + size]
-        ]
-
+    return _query_results2(filters, project_id, kg_client, ValidationResultWithTestAndModel,
+                           "VF_ValidationResultWithTestAndModel", from_index, size)
 
 
 @router.get("/results-extended/{result_id}", response_model=ValidationResultWithTestAndModel)
@@ -382,66 +329,46 @@ def query_results_summary2(
 
     kg_client = get_kg_client_for_user_account(token)
 
-    filter = {}
-    # todo: implement combinations where lists have more than one element
+    # if we search for multiple values of model_id (for example) we have to send each query separately
+    # so we use expand_combinations to get the different queries
+
+    filters = {}
     if model_instance_id:
-        filter["model_instance_id"] = kg_client.uri_from_uuid(model_instance_id[0])
+        filters["model_instance_id"] = [kg_client.uri_from_uuid(id) for id in model_instance_id]
     if test_instance_id:
-        filter["test_instance_id"] = kg_client.uri_from_uuid(test_instance_id[0])
+        filters["test_instance_id"] = [kg_client.uri_from_uuid(id) for id in test_instance_id]
     if model_id:
-        filter["model_id"] = kg_client.uri_from_uuid(model_id[0])
+        filters["model_id"] = [kg_client.uri_from_uuid(id) for id in model_id]
     if test_id:
-        filter["test_id"] = kg_client.uri_from_uuid(test_id[0])
+        filters["test_id"] = [kg_client.uri_from_uuid(id) for id in test_id]
     if model_alias:
-        filter["model_alias"] = model_alias[0]
+        filters["model_alias"] = model_alias
     if test_alias:
-        filter["test_alias"] = test_alias[0]
+        filters["test_alias"] = test_alias
     if score_type:
-        filter["score_type"] = [item.value for item in score_type][0]
+        filters["score_type"] = [item.value for item in score_type]
 
-    if project_id:
-        spaces = [f"collab-{collab_id}" for collab_id in project_id]
-    else:
-        #spaces = ["computation"]
-        spaces = ["collab-model-validation"]  # during development
-
-    query = kg_client.retrieve_query("VF_ValidationResultSummary")
-
-    test_results = []
-    for space in spaces:
-        try:
-            results = kg_client.query(filter, query["@id"], space=space,
-                from_index=from_index, size=size, scope="in progress")
-        except Exception as err:
-            breakpoint()
-        test_results.extend(results.data)
-
-    return [
-        ValidationResultSummary.from_kg_query(item, kg_client)
-        for item in test_results
-    ]
+    return _query_results2(filters, project_id, kg_client, ValidationResultSummary,
+                           "VF_ValidationResultSummary", from_index, size)
 
 
 @router.post("/results/", response_model=ValidationResult, status_code=status.HTTP_201_CREATED)
 def create_result(result: ValidationResult, token: HTTPAuthorizationCredentials = Depends(auth)):
-    raise HTTPException(
-        status_code=status.HTTP_501_NOT_IMPLEMENTED,
-        detail="Not yet migrated",
-    )
-
     logger.info("Beginning post result")
-    kg_objects = result.to_kg_objects(kg_client)
-    logger.info("Created objects")
-    for obj in kg_objects:
-        obj.save(kg_client)
-    logger.info("Saved objects")
-    result_kg = kg_objects[-2]
-    activity_kg = kg_objects[-1]
-    assert isinstance(result_kg, ValidationResultKG)
-    assert isinstance(activity_kg, ValidationActivity)
-    result_kg.generated_by = activity_kg
-    result_kg.save(kg_client)
-    return ValidationResult.from_kg_object(result_kg, kg_client)
+    kg_client = get_kg_client_for_user_account(token)
+
+    validation_activity = result.to_kg_objects(kg_client)
+    space = space_from_project_id(result.project_id)
+    activity_log = None
+    validation_activity.save(kg_client, space=space, recursive=True, activity_log=activity_log)
+
+    # for output in as_list(validation_activity.outputs):
+    #     output.save(kg_client, recursive=False, activity_log=activity_log, space=space)
+    # if validation_activity.custom_property_sets:
+    #     validation_activity.custom_property_sets.defined_by.save(kg_client, recursive=True, activity_log=activity_log, space=space)
+    # validation_activity.save(kg_client, recursive=False, activity_log=activity_log, space=space)
+
+    return ValidationResult.from_kg_object(validation_activity, kg_client)
 
 
 @router.delete("/results/{result_id}", status_code=status.HTTP_200_OK)

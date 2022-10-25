@@ -279,8 +279,19 @@ async def get_model2(
     """Retrieve information about a specific model identified by a UUID"""
     kg_client = get_kg_client_for_user_account(token)
     query = kg_client.retrieve_query("VF_ScientificModel")
-    filter = None
-    results = kg_client.query(filter, query["@id"], instance_id=model_id,
+    try:
+        UUID(model_id)
+    except ValueError:
+        filter = {
+            "alias": model_id
+        }
+        instance_id = None
+    else:
+        # model_id is a UUID
+        filter = None
+        instance_id = model_id
+
+    results = kg_client.query(filter, query["@id"], instance_id=instance_id,
                               size=1, scope="in progress")
 
     if results.total == 0:

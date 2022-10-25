@@ -39,8 +39,29 @@ def check_validation_result(result):
         assert isinstance(result["normalized_score"], float)
 
 
+def check_validation_result_summary(result):
+    datetime.fromisoformat(result["timestamp"])
+    UUID(result["model_instance_id"])
+    UUID(result["test_instance_id"])
+    UUID(result["id"])
+    UUID(result["model_id"])
+    UUID(result["test_id"])
+    assert isinstance(result["model_name"], str)
+    assert isinstance(result["test_name"], str)
+    assert isinstance(result["score"], float)
+    if result["score_type"]:
+        assert isinstance(result["score_type"], str)
+
+
+
 def test_list_results_no_auth():
     response = client.get(f"/results/")
+    assert response.status_code == 403
+    assert response.json() == {"detail": "Not authenticated"}
+
+
+def test_list_results_summary_no_auth():
+    response = client.get(f"/results-summary/")
     assert response.status_code == 403
     assert response.json() == {"detail": "Not authenticated"}
 
@@ -54,32 +75,41 @@ def test_list_results_nofilters():
         check_validation_result(result)
 
 
-# def test_list_results_filter_by_model_id():
-#     model_uuid = "528ec0e6-2f21-413c-9abd-d131f7150882"
-#     response = client.get(f"/results/?size=5&model_id={model_uuid}", headers=AUTH_HEADER)
-#     assert response.status_code == 200
-#     validation_results = response.json()
-#     assert len(validation_results) == 5
-#     response2 = client.get(f"/models/{model_uuid}", headers=AUTH_HEADER)
-#     model_project = response2.json()
-#     model_instance_ids = [inst["id"] for inst in model_project["instances"]]
-#     for validation_result in validation_results:
-#         check_validation_result(validation_result)
-#         assert validation_result["model_instance_id"] in model_instance_ids
+def test_list_results_nofilters():
+    response = client.get(f"/results-summary/?size=10", headers=AUTH_HEADER)
+    assert response.status_code == 200
+    validation_results = response.json()
+    assert len(validation_results) == 10
+    for result in validation_results:
+        check_validation_result_summary(result)
 
 
-# def test_list_results_filter_by_model_alias():
-#     model_alias = "bianchi_2012"
-#     response = client.get(f"/results/?size=5&model_alias={model_alias}", headers=AUTH_HEADER)
-#     assert response.status_code == 200
-#     validation_results = response.json()
-#     assert len(validation_results) == 5
-#     response2 = client.get(f"/models/{model_alias}", headers=AUTH_HEADER)
-#     model_project = response2.json()
-#     model_instance_ids = [inst["id"] for inst in model_project["instances"]]
-#     for validation_result in validation_results:
-#         check_validation_result(validation_result)
-#         assert validation_result["model_instance_id"] in model_instance_ids
+def test_list_results_filter_by_model_id():
+    model_uuid = "528ec0e6-2f21-413c-9abd-d131f7150882"
+    response = client.get(f"/results/?size=5&model_id={model_uuid}", headers=AUTH_HEADER)
+    assert response.status_code == 200
+    validation_results = response.json()
+    assert len(validation_results) == 5
+    response2 = client.get(f"/models/{model_uuid}", headers=AUTH_HEADER)
+    model_project = response2.json()
+    model_instance_ids = [inst["id"] for inst in model_project["instances"]]
+    for validation_result in validation_results:
+        check_validation_result(validation_result)
+        assert validation_result["model_instance_id"] in model_instance_ids
+
+
+def test_list_results_filter_by_model_alias():
+    model_alias = "bianchi_2012"
+    response = client.get(f"/results/?size=5&model_alias={model_alias}", headers=AUTH_HEADER)
+    assert response.status_code == 200
+    validation_results = response.json()
+    assert len(validation_results) == 5
+    response2 = client.get(f"/models/{model_alias}", headers=AUTH_HEADER)
+    model_project = response2.json()
+    model_instance_ids = [inst["id"] for inst in model_project["instances"]]
+    for validation_result in validation_results:
+        check_validation_result(validation_result)
+        assert validation_result["model_instance_id"] in model_instance_ids
 
 
 def test_list_results_filter_by_model_instance_id():
@@ -95,18 +125,31 @@ def test_list_results_filter_by_model_instance_id():
         assert validation_result["model_instance_id"] == model_instance_uuid
 
 
-# def test_list_results_filter_by_test_id():
-#     test_uuid = "100abccb-6d30-4c1e-a960-bc0489e0d82d"
-#     response = client.get(f"/results/?size=5&test_id={test_uuid}", headers=AUTH_HEADER)
-#     assert response.status_code == 200
-#     validation_results = response.json()
-#     assert len(validation_results) == 5
-#     response2 = client.get(f"/tests/{test_uuid}", headers=AUTH_HEADER)
-#     test_definition = response2.json()
-#     test_instance_ids = [inst["id"] for inst in test_definition["instances"]]
-#     for validation_result in validation_results:
-#         check_validation_result(validation_result)
-#         assert validation_result["test_instance_id"] in test_instance_ids
+def test_list_results_summary_filter_by_model_instance_id():
+    model_instance_uuid = "403d865e-417c-45fe-97cf-83a9613ae664"
+    response = client.get(
+        f"/results-summary/?size=5&model_instance_id={model_instance_uuid}", headers=AUTH_HEADER
+    )
+    assert response.status_code == 200
+    validation_results = response.json()
+    assert len(validation_results) == 5
+    for validation_result in validation_results:
+        check_validation_result_summary(validation_result)
+        assert validation_result["model_instance_id"] == model_instance_uuid
+
+
+def test_list_results_filter_by_test_id():
+    test_uuid = "100abccb-6d30-4c1e-a960-bc0489e0d82d"
+    response = client.get(f"/results/?size=5&test_id={test_uuid}", headers=AUTH_HEADER)
+    assert response.status_code == 200
+    validation_results = response.json()
+    assert len(validation_results) == 5
+    response2 = client.get(f"/tests/{test_uuid}", headers=AUTH_HEADER)
+    test_definition = response2.json()
+    test_instance_ids = [inst["id"] for inst in test_definition["instances"]]
+    for validation_result in validation_results:
+        check_validation_result(validation_result)
+        assert validation_result["test_instance_id"] in test_instance_ids
 
 
 def test_list_results_filter_by_test_instance_id():
@@ -122,18 +165,31 @@ def test_list_results_filter_by_test_instance_id():
         assert validation_result["test_instance_id"] == test_code_uuid
 
 
-# def test_list_results_filter_by_test_alias():
-#     test_alias = "hippo_somafeat_CA1_pyr_cACpyr"
-#     response = client.get(f"/results/?size=5&test_alias={test_alias}", headers=AUTH_HEADER)
-#     assert response.status_code == 200
-#     validation_results = response.json()
-#     assert len(validation_results) == 5
-#     response2 = client.get(f"/tests/{test_alias}", headers=AUTH_HEADER)
-#     test_definition = response2.json()
-#     test_instance_ids = [inst["id"] for inst in test_definition["instances"]]
-#     for validation_result in validation_results:
-#         check_validation_result(validation_result)
-#         assert validation_result["test_instance_id"] in test_instance_ids
+def test_list_results_summary_filter_by_test_instance_id():
+    test_code_uuid = "1d22e1c0-5a74-49b4-b114-41d233d3250a"
+    response = client.get(
+        f"/results-summary/?size=5&test_instance_id={test_code_uuid}", headers=AUTH_HEADER
+    )
+    assert response.status_code == 200
+    validation_results = response.json()
+    assert len(validation_results) == 5
+    for validation_result in validation_results:
+        check_validation_result_summary(validation_result)
+        assert validation_result["test_instance_id"] == test_code_uuid
+
+
+def test_list_results_filter_by_test_alias():
+    test_alias = "hippo_somafeat_CA1_pyr_cACpyr"
+    response = client.get(f"/results/?size=5&test_alias={test_alias}", headers=AUTH_HEADER)
+    assert response.status_code == 200
+    validation_results = response.json()
+    assert len(validation_results) == 5
+    response2 = client.get(f"/tests/{test_alias}", headers=AUTH_HEADER)
+    test_definition = response2.json()
+    test_instance_ids = [inst["id"] for inst in test_definition["instances"]]
+    for validation_result in validation_results:
+        check_validation_result(validation_result)
+        assert validation_result["test_instance_id"] in test_instance_ids
 
 
 def test_get_result_by_id_no_auth():
@@ -183,34 +239,34 @@ def test_get_result_with_test_and_model_by_id(caplog):
         assert "test_instance" in result
 
 
-# def test_create_and_delete_validation_result(caplog):
-    # caplog.set_level(logging.INFO)
-    # # create model and test
-    # response = client.post("/models/", json=_build_sample_model(), headers=AUTH_HEADER)
-    # assert response.status_code == 201
-    # model = response.json()
-    # response = client.post("/tests/", json=_build_sample_validation_test(), headers=AUTH_HEADER)
-    # assert response.status_code == 201
-    # validation_test = response.json()
+def test_create_and_delete_validation_result(caplog):
+    caplog.set_level(logging.INFO)
+    # create model and test
+    response = client.post("/models/", json=_build_sample_model(), headers=AUTH_HEADER)
+    assert response.status_code == 201
+    model = response.json()
+    response = client.post("/tests/", json=_build_sample_validation_test(), headers=AUTH_HEADER)
+    assert response.status_code == 201
+    validation_test = response.json()
 
-    # # create result
-    # logger.info("Creating sample result")
-    # payload = _build_sample_result(
-    #     model["instances"][0]["id"], validation_test["instances"][0]["id"]
-    # )
-    # logger.info(f"Payload = {payload}")
-    # response = client.post("/results/", json=payload, headers=AUTH_HEADER)
-    # assert response.status_code == 201
-    # posted_result = response.json()
-    # check_validation_result(posted_result)
+    # create result
+    logger.info("Creating sample result")
+    payload = _build_sample_result(
+        model["instances"][0]["id"], validation_test["instances"][0]["id"]
+    )
+    logger.info(f"Payload = {payload}")
+    response = client.post("/results/", json=payload, headers=AUTH_HEADER)
+    assert response.status_code == 201
+    posted_result = response.json()
+    check_validation_result(posted_result)
 
-    # # retrieve result
-    # response = client.get(f"/results/{posted_result['id']}", headers=AUTH_HEADER)
-    # assert response.status_code == 200
-    # retrieved_result = response.json()
-    # assert retrieved_result == posted_result
+    # retrieve result
+    response = client.get(f"/results/{posted_result['id']}", headers=AUTH_HEADER)
+    assert response.status_code == 200
+    retrieved_result = response.json()
+    assert retrieved_result == posted_result
 
-    # # delete everything
-    # response = client.delete(f"/models/{model['id']}", headers=AUTH_HEADER)
-    # response = client.delete(f"/tests/{validation_test['id']}", headers=AUTH_HEADER)
-    # response = client.delete(f"/results/{posted_result['id']}", headers=AUTH_HEADER)
+    # delete everything
+    response = client.delete(f"/models/{model['id']}", headers=AUTH_HEADER)
+    response = client.delete(f"/tests/{validation_test['id']}", headers=AUTH_HEADER)
+    response = client.delete(f"/results/{posted_result['id']}", headers=AUTH_HEADER)

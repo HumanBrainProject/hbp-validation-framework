@@ -133,14 +133,14 @@ def _build_sample_result(model_instance_id, test_instance_id):
             },
             {
                 "file_store": "drive",
-                "local_path": "/spiketrainsx2.h5",
-                "id": "adavison"
+                "local_path": "/spiketrainsx2.h5"
             }
         ],
         "score": 0.1234,
         "passed": True,
         "project_id": "model-validation",
         "normalized_score": 0.2468,
+        "timestamp": now.isoformat()
     }
 
 

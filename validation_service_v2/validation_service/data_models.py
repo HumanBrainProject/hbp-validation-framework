@@ -38,8 +38,46 @@ logger = logging.getLogger("validation_service_v2")
 EBRAINS_DRIVE_API = "https://drive.ebrains.eu/api2/"
 
 
+special_spaces = ("common", "computation", "controlled", "dataset", "files", "livepapers",
+                  "metadatamodel", "metric", "model", "myspace", "restricted", "software")
+
 def uuid_from_uri(uri):
     return uri.split("/")[-1]
+
+
+def space_from_project_id(project_id):
+    if project_id in special_spaces:
+        return project_id
+    else:
+        return f"collab-{project_id}"
+
+def project_id_from_space(space):
+    if space in special_spaces:
+        return space
+    elif space.startswith("private-"):
+        return "myspace"
+    else:
+        assert space.startswith("collab-")
+        return space[len("collab-"):]
+
+
+def is_private(space):
+    return space == "myspace" or space.startswith("collab-") or space.startswith("private")
+
+
+def filter_study_targets(study_targets):
+    cell_types = []
+    brain_regions = []
+    species = []
+    for item in as_list(study_targets):
+        item = item.resolve(kg_service_client, scope="in progress")
+        if isinstance(item, omterms.CellType):
+            cell_types.append(item.name)
+        elif isinstance(item, omterms.UBERONParcellation):
+            brain_regions.append(item.name)
+        elif isinstance(item, omterms.Species):
+            species.append(item.name)
+    return cell_types, brain_regions, species
 
 
 def ensure_has_timezone(timestamp):
@@ -64,7 +102,8 @@ def get_term_cache():
             omcore.License,
             omcore.ContentType,  # todo: filter to include only types relevant to modelling
             omcore.Organization,
-            omterms.Service
+            omterms.Service,
+            omterms.ActionStatusType
         ):
             objects = cls.list(kg_service_client, api="core", scope="in progress", size=10000)
             term_cache[cls.__name__] = {
@@ -226,6 +265,15 @@ License = Enum(
 )
 
 
+ActionStatusType = Enum(
+    "ActionStatusType",
+    [
+        (name.replace(" ", "_"), name)
+        for name in term_cache["ActionStatusType"]["names"]
+    ]
+)
+
+
 class Person(BaseModel):
     """A human person responsible for creating a model, running a simulation, etc."""
 
@@ -287,7 +335,8 @@ class ModelInstance(BaseModel):
     def from_kg_query(cls, item, client):
         item["id"] = client.uuid_from_uri(item["uri"])
         item["model_id"] = client.uuid_from_uri(item["model_id"])
-        item["timestamp"] = datetime.fromisoformat(item["timestamp"]).date()
+        if item["timestamp"]:
+            item["timestamp"] = datetime.fromisoformat(item["timestamp"]).date()
         item.pop("repository", None)
         try:
             return cls(**item)
@@ -325,7 +374,6 @@ class ModelInstance(BaseModel):
             "code_format": ContentType(content_types[0].name) if content_types else None,
             "source": source,
             "license": License(licenses[0].name) if licenses else None,
-            "script_id": None,  # field no-longer used, but kept to maintain backwards-compatibility
             "hash": hash
         }
         # instance_data["morphology"] = ?
@@ -347,7 +395,7 @@ class ModelInstance(BaseModel):
         # todo: handle morphology
         minst = omcore.ModelVersion(
             name=f"ModelInstance for {model_project.name} @ {self.version}",
-            description=self.description or "",
+            version_innovation=self.description or "",
             version_identifier=self.version,
             #parameters=
             formats=get_term("ContentType", self.code_format),
@@ -381,26 +429,6 @@ class ModelInstancePatch(BaseModel):
 class Image(BaseModel):
     caption: str = None
     url: HttpUrl
-
-
-def is_private(space):
-    return space == "myspace" or space.startswith("collab-")
-
-
-def filter_study_targets(study_targets):
-    cell_types = []
-    brain_regions = []
-    species = []
-    for item in as_list(study_targets):
-        item = item.resolve(kg_service_client, scope="in progress")
-        if isinstance(item, omterms.CellType):
-            cell_types.append(item.name)
-        elif isinstance(item, omterms.UBERONParcellation):
-            brain_regions.append(item.name)
-        elif isinstance(item, omterms.Species):
-            species.append(item.name)
-    return cell_types, brain_regions, species
-
 
 
 class ScientificModel(BaseModel):
@@ -439,6 +467,15 @@ class ScientificModel(BaseModel):
             ModelInstance.from_kg_query(instance, client)
             for instance in item.get("instances", [])
         ]
+        space = item["project_id"]  # what the query calls "project_id" is really the space
+        item["private"] = is_private(space)
+        item["project_id"] = project_id_from_space(space)
+        timestamps = [inst.timestamp
+                      for inst in item["instances"]
+                      if inst.timestamp is not None]
+        if timestamps:
+            item["date_created"] = min(timestamps)
+
         try:
             return cls(**item)
         except:
@@ -479,7 +516,7 @@ class ScientificModel(BaseModel):
                 owner=[Person.from_kg_object(p, client)
                        for p in custodians
                        if isinstance(p, omcore.Person)],
-                project_id=model_project.space,
+                project_id=project_id_from_space(model_project.space),
                 organization=organizations[0] if organizations else None,
                 private=is_private(model_project.space),
                 cell_type=cell_types[0] if cell_types else None,
@@ -601,7 +638,7 @@ class ScientificModelSummary(BaseModel):
                        for p in as_list(model_project.custodians)
                        #if isinstance(p, omcore.Person)],
                        if p.classes[0] == omcore.Person],
-                project_id=model_project.space,
+                project_id=project_id_from_space(model_project.space),
                 organization=organization,
                 private=is_private(model_project.space),
                 cell_type=cell_types[0] if cell_types else None,
@@ -679,7 +716,8 @@ class ValidationTestInstance(BaseModel):
     def from_kg_query(cls, item, client):
         item["id"] = client.uuid_from_uri(item["uri"])
         item["test_id"] = client.uuid_from_uri(item["test_id"])
-        item["timestamp"] = datetime.fromisoformat(item["timestamp"])
+        if item["timestamp"]:
+            item["timestamp"] = datetime.fromisoformat(item["timestamp"])
         try:
             return cls(**item)
         except:
@@ -783,7 +821,7 @@ class ValidationTest(BaseModel):
         data_locations = []
         for loc in item["data_location"]:
             for field in ("IRI", "URL", "name"):
-                if loc[field].startswith("http"):
+                if loc[field] and loc[field].startswith("http"):
                     data_locations.append(loc[field])
                     break
         item["data_location"] = data_locations
@@ -1047,7 +1085,7 @@ class File(BaseModel):
             file_store = None
         return cls(
             download_url=file_obj.iri.value,
-            hash=file_obj.hash.value if file_obj.hash else None,
+            hash=file_obj.hash.digest if file_obj.hash else None,
             size=file_obj.storage_size,
             content_type=file_obj.format.name if file_obj.format else None,
             local_path=local_path,
@@ -1084,11 +1122,12 @@ class File(BaseModel):
             id=id
         )
 
-    def to_kg_object(self, token=None):
+    def to_kg_object(self, client):
         if self.download_url is None:
             if self.file_store == "drive":
                 self.download_url = f"https://seafile-proxy.brainsimulation.eu{quote(self.local_path)}?username={self.id}"
-                if token:
+                if client:
+                    token = client._kg_client.instances._kg_config.token_handler.get_token()
                     self.download_url = self.get_share_link(token) or self.download_url
             elif self.file_store == "swift":
                 self.download_url = f"https://{self.file_store}-proxy.brainsimulation.eu{quote(self.local_path)}?username={self.id}"
@@ -1099,13 +1138,14 @@ class File(BaseModel):
                     status_code=status.HTTP_400_BAD_REQUEST,
                     detail=f"Unsupported file store: {self.file_store}",
                 )
-        return Distribution(
-            self.download_url,
-            size=self.size,
-            digest=self.hash,
-            digest_method="SHA-1",
-            content_type=self.content_type,
-            original_file_name=self.local_path
+        return omcore.File(
+            id=client.uri_from_uuid(self.id) if self.id else None,
+            name=self.local_path,
+            iri=IRI(self.download_url),
+            format=get_term("ContentType", self.content_type),
+            hash=omcore.Hash(algorithm="SHA-1", digest=self.hash),  # are we sure we're using SHA-1?
+            storage_size=self.size,
+            content_description=self.local_path
         )
 
     def get_share_link(self, token):
@@ -1113,7 +1153,7 @@ class File(BaseModel):
             home_dir = "/mnt/user/drive/My Libraries/My Library/"
             group_dir = "/mnt/user/drive/Shared with groups/"
             session = requests.Session()
-            session.headers['Authorization'] = f"Bearer {token.credentials}"
+            session.headers['Authorization'] = f"Bearer {token}"
             if self.local_path.startswith(home_dir):
                 repo_id = session.get(f"{EBRAINS_DRIVE_API}default-repo").json()["repo_id"]
                 relative_path = os.path.relpath(self.local_path, home_dir)
@@ -1237,77 +1277,82 @@ class ValidationResult(BaseModel):
             score=validation_activity.score,
             passed=None,
             timestamp=ensure_has_timezone(validation_activity.started_at_time),
-            project_id=validation_activity.space,
+            project_id=project_id_from_space(validation_activity.space),
             normalized_score=None,
         )
 
     @classmethod
-    def from_kg_query(cls, result):
-        additional_data = []
-        for item in sorted(result["results_storage"], key=lambda item: item["http://schema.org/downloadURL"]["@id"] ):
-            additional_data.append(
-                File.from_kg_query(item)
-            )
-        return cls(
-            id=uuid_from_uri(result["uri"]),
-            uri=result["uri"],
-            old_uuid=result["old_uuid"],
-            model_instance_id=uuid_from_uri(result["model_instance"][0]["model_instance_id"]),
-            test_instance_id=uuid_from_uri(result["test_instance"][0]["test_instance_id"]),
-            results_storage=additional_data,  # todo: handle collab storage redirects
-            score=result["score"],
-            passed=result["passed"],
-            timestamp=ensure_has_timezone(date_parser.parse(result["timestamp"])),
-            project_id=result["project_id"],
-            normalized_score=result["normalized_score"],
-        )
+    def from_kg_query(cls, item, client):
+        item.pop("@context")
+        item["id"] = client.uuid_from_uri(item["uri"])
+        item["model_instance_id"] = client.uuid_from_uri(item["model_instance_id"])
+        item["test_instance_id"] = client.uuid_from_uri(item["test_instance_id"])
+        item["project_id"] = project_id_from_space(item["project_id"])
 
-    def to_kg_objects(self, kg_client):
+        try:
+            return cls(**item)
+        except:
+            breakpoint()
+
+    def to_kg_objects(self, client):
         timestamp = ensure_has_timezone(self.timestamp) or datetime.now(timezone.utc)
 
         additional_data = [
-            fairgraph.analysis.AnalysisResult(
-                name=f"{file_obj.download_url} @ {timestamp.isoformat()}",
-                result_file=file_obj.to_kg_object(),
-                timestamp=timestamp,
-            )
+            File.to_kg_object(file_obj, client)
             for file_obj in self.results_storage
         ]
-        kg_objects = additional_data[:]
 
-        test_code = fairgraph.brainsimulation.ValidationScript.from_id(
-            str(self.test_instance_id), kg_client, api="nexus"
-        )
-        test_definition = test_code.test_definition.resolve(kg_client, api="nexus", scope="in progress")
-        model_instance = _get_model_instance_by_id_no_access_check(self.model_instance_id, kg_client)
-        reference_data = fairgraph.core.Collection(
-            f"Reference data for {test_definition.name}",
-            members=as_list(test_definition.reference_data),
-        )
-        kg_objects.append(reference_data)
+        model_version = omcore.ModelVersion.from_id(str(self.model_instance_id), client, scope="in progress")
+        if model_version is None:
+            raise HTTPException(
+               status_code=status.HTTP_400_BAD_REQUEST,
+               detail=f"There is no model instance with id {self.model_instance_id}",
+            )
+        test_version = omcmp.ValidationTestVersion.from_id(str(self.test_instance_id), client, scope="in progress")
+        if test_version is None:
+            raise HTTPException(
+               status_code=status.HTTP_400_BAD_REQUEST,
+               detail=f"There is no validation test instance with id {self.test_instance_id}",
+            )
 
-        result = fairgraph.brainsimulation.ValidationResult(
-            name=f"Validation results for model {self.model_instance_id} and test {self.test_instance_id} with timestamp {timestamp.isoformat()}",
-            generated_by=None,
+        user = omcore.Person.me(client)
+        additional_metadata = None
+        lookup_label=f"Validation results for model {self.model_instance_id} and test {self.test_instance_id} with timestamp {timestamp.isoformat()}",
+        if self.passed or self.normalized_score:
+            additional_metadata = omcore.CustomPropertySet(
+                defined_in=omcore.PropertyValueList(
+                    lookup_label=lookup_label,
+                    property_value_pairs=[
+                        omcore.NumericalProperty(name="passed", value=self.passed),
+                        omcore.NumericalProperty(name="normalized_score", value=self.normalized_score)
+                    ]
+                )
+            )
+        validation_activity = omcmp.ModelValidation(
+            lookup_label=lookup_label,
             description=None,
-            score=self.score,
-            normalized_score=self.normalized_score,
-            passed=self.passed,
-            timestamp=timestamp,
-            additional_data=additional_data,
-            collab_id=self.project_id,
+            ended_at_time=None,
+            environment=None,
+            inputs=[model_version, test_version],
+            launch_configuration=None,
+            outputs=additional_data,
+            custom_property_sets=additional_metadata,
+            recipe=None,
+            resource_usages=None,
+            started_at_time=self.timestamp,
+            started_by=user,
+            status=get_term("ActionStatusType", ActionStatusType.completed),
+            #study_targets=list(set(model.study_targets + test.study_targets)),
+            tags=None,
+            was_informed_by=None,
+            score=self.score
         )
+        if self.id:
+            validation_activity.id = client.uri_from_uuid(self.id)
+        if test_version.reference_data:
+            validation_activity.inputs.extend(as_list(test_version.reference_data))
 
-        activity = fairgraph.brainsimulation.ValidationActivity(
-            model_instance=model_instance,
-            test_script=test_code,
-            reference_data=reference_data,
-            timestamp=timestamp,
-            result=result,
-        )
-        kg_objects.append(result)
-        kg_objects.append(activity)
-        return kg_objects
+        return validation_activity
 
 
 class ValidationResultWithTestAndModel(ValidationResult):

@@ -21,8 +21,8 @@ RUN unset DEBIAN_FRONTEND
 
 RUN pip3 install --upgrade pip
 
-ADD https://api.github.com/repos/apdavison/fairgraph/git/refs/heads/validation-tests fairgraph_version.json
-RUN git clone https://github.com/apdavison/fairgraph.git --branch=validation-tests --single-branch
+ADD https://api.github.com/repos/apdavison/fairgraph/git/refs/heads/master fairgraph_version.json
+RUN git clone https://github.com/apdavison/fairgraph.git --branch=master --single-branch
 RUN pip3 install ./fairgraph
 
 ENV SITEDIR /home/docker/site
