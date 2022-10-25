@@ -338,6 +338,8 @@ class ModelInstance(BaseModel):
         if item["timestamp"]:
             item["timestamp"] = datetime.fromisoformat(item["timestamp"]).date()
         item.pop("repository", None)
+        if client.is_released(item["uri"]):
+            item["alternatives"].append(f"https://search.kg.ebrains.eu/instances/{item['id']}")
         try:
             return cls(**item)
         except:
@@ -350,6 +352,8 @@ class ModelInstance(BaseModel):
             mv.resolve(client, scope="in progress").homepage
             for mv in as_list(instance.is_alternative_version_of)
         ]
+        if instance.is_released(client):
+            alternatives.append(f"https://search.kg.ebrains.eu/instances/{instance.uuid}")
         if instance.repository:
             repository = instance.repository.resolve(client, scope="in progress")
             source = str(repository.iri)
@@ -370,7 +374,7 @@ class ModelInstance(BaseModel):
             "parameters": None,  # todo: get from instance.input_data
             "timestamp": instance.release_date,
             "model_id": model_id,
-            "alternatives": [mv.homepage for mv in alternatives if mv.homepage],
+            "alternatives": alternatives,
             "code_format": ContentType(content_types[0].name) if content_types else None,
             "source": source,
             "license": License(licenses[0].name) if licenses else None,
