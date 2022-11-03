@@ -11,7 +11,7 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic import ValidationError
 
 from ..auth import User
-from ..db import kg_client, _get_test_by_id_or_alias, _get_test_instance_by_id
+from ..db import kg_client, _get_test_by_id_or_alias, _get_test_instance_by_id, _check_service_status
 from ..data_models import (
     Person,
     Species,
@@ -151,6 +151,7 @@ def update_test(
     test_patch: ValidationTestPatch,
     token: HTTPAuthorizationCredentials = Depends(auth),
 ):
+    _check_service_status()
     # retrieve stored test
     test_definition = ValidationTestDefinition.from_uuid(str(test_id), kg_client, api="nexus", scope="latest")
     stored_test = ValidationTest.from_kg_object(test_definition, kg_client)
@@ -184,6 +185,7 @@ def update_test(
 
 @router.delete("/tests/{test_id}", status_code=status.HTTP_200_OK)
 async def delete_test(test_id: UUID, token: HTTPAuthorizationCredentials = Depends(auth)):
+    _check_service_status()
     # todo: handle non-existent UUID
     user = User(token)
     test_definition = ValidationTestDefinition.from_uuid(str(test_id), kg_client, api="nexus", scope="latest")
@@ -274,6 +276,7 @@ def create_test_instance(
     test_instance: ValidationTestInstance,
     token: HTTPAuthorizationCredentials = Depends(auth),
 ):
+    _check_service_status()
     user = User(token)
     test_definition = _get_test_by_id_or_alias(test_id, user)
     kg_object = test_instance.to_kg_objects(test_definition)[0]
@@ -292,6 +295,7 @@ def update_test_instance_by_id(
     test_instance_patch: ValidationTestInstancePatch,
     token: HTTPAuthorizationCredentials = Depends(auth),
 ):
+    _check_service_status()
     user = User(token)
     validation_script = _get_test_instance_by_id(test_instance_id, user)
     test_definition_kg = validation_script.test_definition.resolve(kg_client, api="nexus", scope="latest")
@@ -309,6 +313,7 @@ def update_test_instance(
     test_instance_patch: ValidationTestInstancePatch,
     token: HTTPAuthorizationCredentials = Depends(auth),
 ):
+    _check_service_status()
     user = User(token)
     validation_script = _get_test_instance_by_id(test_instance_id, user)
     test_definition_kg = _get_test_by_id_or_alias(test_id, user)
@@ -347,6 +352,7 @@ def _update_test_instance(validation_script, test_definition_kg, test_instance_p
 async def delete_test_instance_by_id(
     test_instance_id: UUID, token: HTTPAuthorizationCredentials = Depends(auth)
 ):
+    _check_service_status()
     # todo: handle non-existent UUID, inconsistent test_id and test_instance_id
     user = User(token)
     test_script = ValidationScript.from_uuid(str(test_instance_id), kg_client, api="nexus", scope="latest")
@@ -363,6 +369,7 @@ async def delete_test_instance_by_id(
 async def delete_test_instance(
     test_id: str, test_instance_id: UUID, token: HTTPAuthorizationCredentials = Depends(auth)
 ):
+    _check_service_status()
     # todo: handle non-existent UUID, inconsistent test_id and test_instance_id
     user = User(token)
     test_script = ValidationScript.from_uuid(str(test_instance_id), kg_client, api="nexus", scope="latest")

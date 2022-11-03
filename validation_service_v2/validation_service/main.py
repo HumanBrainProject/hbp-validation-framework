@@ -17,13 +17,19 @@ Using the [EBRAINS Knowledge Graph](https://kg.ebrains.eu) as its data store, th
   - a library of validation tests, implemented in Python, each linked to reference data;
   - a database of validation results.
 
-The Model Validation Service is used by the EBRAINS Model Catalog web app (new version coming soon).
+The Model Validation Service is used by the EBRAINS Model Catalog web app.
 A [Python client](https://hbp-validation-client.readthedocs.io/) for the service is also available.
 
 These pages provide interactive documentation. To try out queries, you will need an [EBRAINS user account](https://ebrains.eu/register/).
 Please [login here](https://validation-v2.brainsimulation.eu/login), then copy the "access token" into the dialog that appears when you click "Authorize" below.
 (this workflow will be simplified in the near future).
 """
+
+service_status = getattr(settings, "SERVICE_STATUS", "ok")
+if service_status != "ok":
+    warning_message = f"---\n> ⚠️ **_NOTE:_**  _{service_status}_\n---\n\n"
+    description = warning_message + description
+
 
 app = FastAPI(title="EBRAINS Model Validation Service", description=description, version="2.0")
 

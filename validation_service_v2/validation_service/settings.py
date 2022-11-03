@@ -14,3 +14,5 @@ EBRAINS_IAM_SECRET = os.environ.get("EBRAINS_IAM_SECRET")
 SESSIONS_SECRET_KEY = os.environ.get("SESSIONS_SECRET_KEY")
 ADMIN_COLLAB_ID = "model-validation"  # "13947"
 BASE_URL = os.environ.get("VALIDATION_SERVICE_BASE_URL")
+SERVICE_STATUS = os.environ.get("VF_SERVICE_STATUS", "ok")
+# e.g. SERVICE_STATUS = "The site is undergoing maintenance, and is currently in read-only mode."

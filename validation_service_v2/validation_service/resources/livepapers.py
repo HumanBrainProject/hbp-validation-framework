@@ -9,7 +9,7 @@ from fastapi import APIRouter, Depends, Header, Query, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from ..auth import get_kg_client, User
 from ..data_models import LivePaper, LivePaperSummary, ConsistencyError, AccessCode, Slug
-from ..db import _get_live_paper_by_id_or_alias
+from ..db import _get_live_paper_by_id_or_alias, _check_service_status
 import fairgraph.livepapers
 from fairgraph.base import KGQuery, as_list
 
@@ -111,6 +111,7 @@ async def create_live_paper(
     live_paper: LivePaper,
     token: HTTPAuthorizationCredentials = Depends(auth)
 ):
+    _check_service_status()
     logger.info("Beginning post live paper")
     if live_paper.id:
         raise HTTPException(
@@ -154,6 +155,7 @@ async def update_live_paper(
     live_paper: LivePaper,
     token: HTTPAuthorizationCredentials = Depends(auth)
 ):
+    _check_service_status()
     logger.info("Beginning put live paper")
     user = User(token)
     if not await user.can_edit_collab(live_paper.collab_id):
@@ -201,6 +203,7 @@ async def set_access_code(
     access_code: AccessCode,
     token: HTTPAuthorizationCredentials = Depends(auth)
 ):
+    _check_service_status()
     logger.info("Beginning set access code")
     user = User(token)
     lp = _get_live_paper_by_id_or_alias(lp_id, scope="in progress")

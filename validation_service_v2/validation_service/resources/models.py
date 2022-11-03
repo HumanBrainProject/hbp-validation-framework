@@ -10,7 +10,8 @@ from fastapi import APIRouter, Depends, Query, Path, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
 from ..auth import User
-from ..db import kg_client, _get_model_instance_by_id, _get_model_by_id_or_alias
+from ..db import kg_client, _get_model_instance_by_id, _get_model_by_id_or_alias, _check_service_status
+from .. import settings
 from ..data_models import (
     Person,
     Species,
@@ -34,8 +35,17 @@ router = APIRouter()
 
 
 @router.get("/")
-def read_root():
-    return {"Hello": "World"}
+async def about_this_api():
+    service_status = getattr(settings, "SERVICE_STATUS", "ok")
+    info = {
+        "about": "This is the EBRAINS Model Validation API",
+        "version": "2.0",
+        "status": service_status,
+        "links": {
+            "documentation": "/docs"
+        }
+    }
+    return info
 
 
 @router.get("/models/", response_model=List[ScientificModel])
@@ -171,6 +181,7 @@ async def get_model(
 async def create_model(
     model: ScientificModel, token: HTTPAuthorizationCredentials = Depends(auth)
 ):
+    _check_service_status()
     # check permissions
     if model.project_id is None:
         raise HTTPException(
@@ -209,6 +220,7 @@ async def update_model(
     model_patch: ScientificModelPatch,
     token: HTTPAuthorizationCredentials = Depends(auth),
 ):
+    _check_service_status()
     user = User(token)
     # if payload contains a project_id, check permissions for that id
     if model_patch.project_id and not await user.can_edit_collab(model_patch.project_id):
@@ -258,6 +270,7 @@ async def update_model(
 
 @router.delete("/models/{model_id}", status_code=status.HTTP_200_OK)
 async def delete_model(model_id: UUID, token: HTTPAuthorizationCredentials = Depends(auth)):
+    _check_service_status()
     # todo: handle non-existent UUID
     user = User(token)
     model_project = ModelProject.from_uuid(str(model_id), kg_client, api="nexus", scope="latest")
@@ -336,6 +349,7 @@ async def create_model_instance(
     model_instance: ModelInstance,
     token: HTTPAuthorizationCredentials = Depends(auth),
 ):
+    _check_service_status()
     user = User(token)
     model_project = await _get_model_by_id_or_alias(model_id, user)
     # check permissions for this model
@@ -371,6 +385,7 @@ async def update_model_instance_by_id(
     model_instance_patch: ModelInstancePatch,
     token: HTTPAuthorizationCredentials = Depends(auth),
 ):
+    _check_service_status()
     user = User(token)
     model_instance_kg, model_id = await _get_model_instance_by_id(model_instance_id, user)
     model_project = model_instance_kg.project.resolve(kg_client, api="nexus", scope="latest")
@@ -390,6 +405,7 @@ async def update_model_instance(
     model_instance_patch: ModelInstancePatch,
     token: HTTPAuthorizationCredentials = Depends(auth),
 ):
+    _check_service_status()
     user = User(token)
     model_instance_kg, model_id = await _get_model_instance_by_id(model_instance_id, user)
     model_project = await _get_model_by_id_or_alias(model_id, user)
@@ -423,6 +439,7 @@ async def _update_model_instance(model_instance_kg, model_project, model_instanc
 async def delete_model_instance_by_id(
     model_instance_id: UUID, token: HTTPAuthorizationCredentials = Depends(auth)
 ):
+    _check_service_status()
     user = User(token)
     model_instance_kg, model_id = await _get_model_instance_by_id(model_instance_id, user)
     model_project = model_instance_kg.project.resolve(kg_client, api="nexus", scope="latest")
@@ -433,6 +450,7 @@ async def delete_model_instance_by_id(
 async def delete_model_instance(
     model_id: UUID, model_instance_id: UUID, token: HTTPAuthorizationCredentials = Depends(auth)
 ):
+    _check_service_status()
     # todo: handle non-existent UUID
     user = User(token)
     model_project = ModelProject.from_uuid(str(model_id), kg_client, api="nexus", scope="latest")
