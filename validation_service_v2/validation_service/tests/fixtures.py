@@ -106,9 +106,9 @@ def _build_sample_validation_test():
         "cell_type": "hippocampus CA1 pyramidal neuron",
         "description": "description goes here",
         "data_location": ["http://example.com/my_data.csv"],
-        "data_type": "csv",
+        "data_type": "text/csv",
         "recording_modality": "patch clamp",
-        "test_type": "single cell activity",
+        "test_type": "single cell",
         "score_type": "z-score",
         "instances": [
             {

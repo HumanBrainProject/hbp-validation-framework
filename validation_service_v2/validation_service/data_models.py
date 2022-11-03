@@ -813,7 +813,7 @@ class ValidationTest(BaseModel):
     data_location: List[HttpUrl]
     data_type: str = None
     recording_modality: RecordingModality = None
-    test_type: ValidationTestType = None
+    test_type: ModelScope = None
     score_type: ScoreType = None
     instances: List[ValidationTestInstance] = None
     # todo: add "publication" field
@@ -866,21 +866,28 @@ class ValidationTest(BaseModel):
         else:
             data_location = None
             data_type = None
+        if len(instances) == 0:
+            implementation_status = ImplementationStatus.proposal
+        elif test_definition.is_released(client):
+            implementation_status = ImplementationStatus.published
+        else:
+            implementation_status = ImplementationStatus.dev
         obj = cls(
             id=test_definition.uuid,
             uri=test_definition.id,
             name=test_definition.name,
             alias=test_definition.alias,
-            #implementation_status=?  # get from release state and/or other metadata?
+            implementation_status=implementation_status,
             #custodians=test_definition.custodians,
             description=test_definition.description,
             author=[Person.from_kg_object(p, client) for p in as_list(test_definition.developers)],
             cell_type=cell_types[0] if cell_types else None,
             brain_region=brain_regions[0] if brain_regions else None,
             species=species[0] if species else None,
-            date_created=None,
+            date_created=min(inst.timestamp for inst in instances),
             data_location=data_location,
             data_type=data_type,
+            test_type=ModelScope(test_definition.model_scope.resolve(client).name) if test_definition.model_scope else None,
             #digital_identifier=test_definition.digital_identifier,
             recording_modality=RecordingModality(test_definition.experimental_technique.resolve(client).name) if test_definition.experimental_technique else None,
             instances=sorted(instances, key=lambda inst: inst.version),
