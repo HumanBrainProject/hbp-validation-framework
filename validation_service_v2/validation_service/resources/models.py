@@ -8,8 +8,9 @@ import fairgraph.openminds.core as omcore
 from fastapi import APIRouter, Depends, Query, Path, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
-from ..db import _get_model_instance_by_id, _get_model_by_id_or_alias
 from ..auth import User, get_kg_client_for_user_account, get_kg_client_for_service_account
+from ..db import _get_model_instance_by_id, _get_model_by_id_or_alias, _check_service_status
+from .. import settings
 from ..data_models import (
     Person,
     Species,
@@ -34,9 +35,11 @@ router = APIRouter()
 
 @router.get("/")
 async def about_this_api(token: HTTPAuthorizationCredentials = Depends(auth)):
+    service_status = getattr(settings, "SERVICE_STATUS", "ok")
     info = {
         "about": "This is the EBRAINS Model Validation API",
         "version": "2.5",
+        "status": service_status,
         "links": {
             "documentation": "/docs"
         }
@@ -44,6 +47,7 @@ async def about_this_api(token: HTTPAuthorizationCredentials = Depends(auth)):
     if token:
         user_info = await User(token).get_user_info()
         info["user"] = user_info["preferred_username"]
+    service_status = getattr(settings, "SERVICE_STATUS", "ok")
     return info
 
 
@@ -390,6 +394,7 @@ async def get_model(
 async def create_model(
     model: ScientificModel, token: HTTPAuthorizationCredentials = Depends(auth)
 ):
+    _check_service_status()
     user = User(token, allow_anonymous=False)
 
     # check permissions
@@ -436,6 +441,7 @@ async def update_model(
     model_patch: ScientificModelPatch,
     token: HTTPAuthorizationCredentials = Depends(auth),
 ):
+    _check_service_status()
     user = User(token, allow_anonymous=False)
 
     # if payload contains a project_id, check permissions for that id
@@ -493,6 +499,8 @@ async def update_model(
 @router.delete("/models/{model_id}", status_code=status.HTTP_200_OK)
 async def delete_model(model_id: UUID, token: HTTPAuthorizationCredentials = Depends(auth)):
     # todo: handle non-existent UUID
+    _check_service_status()
+
     user = User(token, allow_anonymous=False)
 
     kg_client = get_kg_client_for_user_account(token)
@@ -607,6 +615,7 @@ async def create_model_instance(
     model_instance: ModelInstance,
     token: HTTPAuthorizationCredentials = Depends(auth),
 ):
+    _check_service_status()
     user = User(token, allow_anonymous=False)
     kg_user_client = get_kg_client_for_user_account(token)
     model_project = _get_model_by_id_or_alias(model_id, kg_user_client, scope="any")
@@ -645,6 +654,7 @@ async def update_model_instance_by_id(
     model_instance_patch: ModelInstancePatch,
     token: HTTPAuthorizationCredentials = Depends(auth),
 ):
+    _check_service_status()
     user = User(token, allow_anonymous=False)
     kg_user_client = get_kg_client_for_user_account(token)
     model_instance_kg, model_id = _get_model_instance_by_id(model_instance_id, kg_user_client, scope="any")
@@ -665,6 +675,7 @@ async def update_model_instance(
     model_instance_patch: ModelInstancePatch,
     token: HTTPAuthorizationCredentials = Depends(auth),
 ):
+    _check_service_status()
     user = User(token, allow_anonymous=False)
     kg_user_client = get_kg_client_for_user_account(token)
     model_instance_kg, retrieved_model_id = _get_model_instance_by_id(model_instance_id, kg_user_client, scope="any")
@@ -707,6 +718,7 @@ async def _update_model_instance(model_instance_kg, model_project, model_instanc
 async def delete_model_instance_by_id(
     model_instance_id: UUID, token: HTTPAuthorizationCredentials = Depends(auth)
 ):
+    _check_service_status()
     user = User(token, allow_anonymous=False)
     kg_user_client = get_kg_client_for_user_account(token)
     model_instance_kg, model_id = _get_model_instance_by_id(model_instance_id, kg_user_client, scope="any")
@@ -727,6 +739,7 @@ async def delete_model_instance_by_id(
 async def delete_model_instance(
     model_id: UUID, model_instance_id: UUID, token: HTTPAuthorizationCredentials = Depends(auth)
 ):
+    _check_service_status()
     # todo: handle non-existent UUID
     user = User(token, allow_anonymous=False)
     kg_user_client = get_kg_client_for_user_account(token)

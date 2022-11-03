@@ -12,6 +12,7 @@ from pydantic import ValidationError
 
 from ..auth import get_kg_client_for_service_account, get_kg_client_for_user_account, User
 from ..db import _get_test_by_id_or_alias, _get_test_instance_by_id, _check_test_access
+from ..db import _check_service_status
 from ..data_models import (
     Person,
     Species,
@@ -302,6 +303,7 @@ def update_test(
     test_patch: ValidationTestPatch,
     token: HTTPAuthorizationCredentials = Depends(auth),
 ):
+    _check_service_status()
     user = User(token, allow_anonymous=False)
     # retrieve stored test
     kg_user_client = get_kg_client_for_user_account(token)
@@ -338,6 +340,7 @@ def update_test(
 
 @router.delete("/tests/{test_id}", status_code=status.HTTP_200_OK)
 async def delete_test(test_id: UUID, token: HTTPAuthorizationCredentials = Depends(auth)):
+    _check_service_status()
     user = User(token, allow_anonymous=False)
     # todo: handle non-existent UUID
     kg_client = get_kg_client_for_user_account(token)
@@ -455,6 +458,7 @@ def create_test_instance(
     test_instance: ValidationTestInstance,
     token: HTTPAuthorizationCredentials = Depends(auth),
 ):
+    _check_service_status()
     user = User(token, allow_anonymous=False)
     kg_client = get_kg_client_for_user_account(token)
     test_definition = _get_test_by_id_or_alias(test_id, kg_client, user)
@@ -475,6 +479,7 @@ def update_test_instance_by_id(
     test_instance_patch: ValidationTestInstancePatch,
     token: HTTPAuthorizationCredentials = Depends(auth),
 ):
+    _check_service_status()
     user = User(token, allow_anonymous=False)
     kg_client = get_kg_client_for_user_account(token)
     test_instance_kg = _get_test_instance_by_id(test_instance_id, kg_client)
@@ -496,6 +501,7 @@ def update_test_instance(
     test_instance_patch: ValidationTestInstancePatch,
     token: HTTPAuthorizationCredentials = Depends(auth),
 ):
+    _check_service_status()
     user = User(token, allow_anonymous=False)
     kg_client = get_kg_client_for_user_account(token)
     test_instance_kg = _get_test_instance_by_id(test_instance_id, kg_client)
@@ -519,6 +525,7 @@ def _update_test_instance(test_instance, test_definition_kg, test_instance_patch
 async def delete_test_instance_by_id(
     test_instance_id: UUID, token: HTTPAuthorizationCredentials = Depends(auth)
 ):
+    _check_service_status()
     # todo: handle non-existent UUID, inconsistent test_id and test_instance_id
     user = User(token, allow_anonymous=False)
     kg_client = get_kg_client_for_user_account(token)
@@ -541,6 +548,7 @@ async def delete_test_instance_by_id(
 async def delete_test_instance(
     test_id: str, test_instance_id: UUID, token: HTTPAuthorizationCredentials = Depends(auth)
 ):
+    _check_service_status()
     # todo: handle non-existent UUID, inconsistent test_id and test_instance_id
     user = User(token, allow_anonymous=False)
     kg_client = get_kg_client_for_user_account(token)

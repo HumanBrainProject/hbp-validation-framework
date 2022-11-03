@@ -12,7 +12,7 @@ from ..auth import (
     User
 )
 from ..data_models import LivePaper, LivePaperSummary, ConsistencyError, AccessCode, Slug
-from ..db import _get_live_paper_by_id_or_alias
+from ..db import _get_live_paper_by_id_or_alias, _check_service_status
 import fairgraph.openminds.core as omcore
 import fairgraph.openminds.publications as ompub
 from fairgraph.base_v3 import as_list
@@ -147,6 +147,7 @@ async def create_live_paper(
     live_paper: LivePaper,
     token: HTTPAuthorizationCredentials = Depends(auth)
 ):
+    _check_service_status()
     user = User(token, allow_anonymous=False)
     logger.info("Beginning post live paper")
     if live_paper.id:
@@ -213,6 +214,7 @@ async def update_live_paper(
     live_paper: LivePaper,
     token: HTTPAuthorizationCredentials = Depends(auth)
 ):
+    _check_service_status()
     logger.info("Beginning put live paper")
     user = User(token, allow_anonymous=False)
     if not (
@@ -269,6 +271,8 @@ async def set_access_code(
     access_code: AccessCode,
     token: HTTPAuthorizationCredentials = Depends(auth)
 ):
+    _check_service_status()
+
     raise HTTPException(
         status_code=status.HTTP_501_NOT_IMPLEMENTED,
         detail="Not yet migrated",
@@ -306,6 +310,7 @@ async def delete_live_paper(
     lp_id: UUID,    #todo: handle alias
     token: HTTPAuthorizationCredentials = Depends(auth)
 ):
+    _check_service_status()
     user = User(token, allow_anonymous=False)
     if not (
         await user.is_admin()

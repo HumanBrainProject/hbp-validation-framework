@@ -9,8 +9,17 @@ from fastapi import HTTPException, status
 from fairgraph.openminds.core import Model, ModelVersion, SoftwareVersion
 from fairgraph.openminds.computation import ValidationTest, ValidationTestVersion
 from fairgraph.openminds.publications import LivePaper
+from . import settings
 
 RETRY_INTERVAL = 60  # seconds
+
+
+def _check_service_status():
+    if getattr(settings, "SERVICE_STATUS", "ok") != "ok":
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=settings.SERVICE_STATUS
+        )
 
 
 def _get_model_by_id_or_alias(model_id, kg_client, scope):

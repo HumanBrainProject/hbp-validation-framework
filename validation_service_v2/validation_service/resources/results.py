@@ -20,6 +20,7 @@ from pydantic import ValidationError
 from ..auth import get_kg_client_for_service_account, get_kg_client_for_user_account, User
 from ..data_models import ScoreType, ValidationResult, ValidationResultWithTestAndModel, ValidationResultSummary, ConsistencyError, space_from_project_id
 from ..queries import build_result_filters, expand_combinations, model_is_public, test_is_public
+from ..db import _check_service_status
 from .. import settings
 
 
@@ -381,6 +382,7 @@ def query_results_summary(
 
 @router.post("/results/", response_model=ValidationResult, status_code=status.HTTP_201_CREATED)
 def create_result(result: ValidationResult, token: HTTPAuthorizationCredentials = Depends(auth)):
+    _check_service_status()
     logger.info("Beginning post result")
     user = User(token, allow_anonymous=False)
     kg_client = get_kg_client_for_user_account(token)
@@ -401,6 +403,7 @@ def create_result(result: ValidationResult, token: HTTPAuthorizationCredentials 
 
 @router.delete("/results/{result_id}", status_code=status.HTTP_200_OK)
 async def delete_result(result_id: UUID, token: HTTPAuthorizationCredentials = Depends(auth)):
+    _check_service_status()
     user = User(token, allow_anonymous=False)
     kg_client = get_kg_client_for_user_account(token)
     # todo: handle non-existent UUID

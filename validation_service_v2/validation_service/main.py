@@ -25,6 +25,12 @@ Please [login here](https://validation-v2.brainsimulation.eu/login), then copy t
 (this workflow will be simplified in the near future).
 """
 
+service_status = getattr(settings, "SERVICE_STATUS", "ok")
+if service_status != "ok":
+    warning_message = f"---\n> ⚠️ **_NOTE:_**  _{service_status}_\n---\n\n"
+    description = warning_message + description
+
+
 app = FastAPI(title="EBRAINS Model Validation Service", description=description, version="2.5")
 
 app.add_middleware(
