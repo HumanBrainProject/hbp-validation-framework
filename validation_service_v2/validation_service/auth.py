@@ -3,6 +3,7 @@ import logging
 import json
 
 from fairgraph import KGClient
+import fairgraph.openminds.core as omcore
 
 from fastapi import HTTPException, status
 from authlib.integrations.starlette_client import OAuth
@@ -43,30 +44,9 @@ def get_kg_client_for_user_account(token):
     return KGClient(token=token.credentials, host=settings.KG_CORE_API_HOST)
 
 
-async def get_user_from_token(user_token):
-    """
-    Get user id with token
-    :param request: request
-    :type request: str
-    :returns: res._content
-    :rtype: str
-    """
-    # collab v2 only
-    user_info = await oauth.ebrains.user_info(
-        token={"access_token": user_token, "token_type": "bearer"}
-    )
-    if "error" in user_info:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail=user_info["error_description"]
-        )
-    user_info["id"] = user_info["sub"]
-    user_info["username"] = user_info.get("preferred_username", "unknown")
-    return user_info
-
-
-async def get_collab_info(collab_id, user_token):
+async def get_collab_info(collab_id, token):
     collab_info_url = f"{settings.HBP_COLLAB_SERVICE_URL_V2}collabs/{collab_id}"
-    headers = {"Authorization": f"Bearer {user_token}"}
+    headers = {"Authorization": f"Bearer {token.credentials}"}
     res = requests.get(collab_info_url, headers=headers)
     try:
         response = res.json()
@@ -77,76 +57,119 @@ async def get_collab_info(collab_id, user_token):
     return response
 
 
-async def get_collab_permissions(collab_id, user_token):
-    userinfo = await oauth.ebrains.userinfo(
-        token={"access_token": user_token, "token_type": "bearer"}
-    )
-    if "error" in userinfo:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail=userinfo["error_description"]
-        )
-    target_team_names = {role: f"collab-{collab_id}-{role}"
-                         for role in ("viewer", "editor", "administrator")}
+class User:
 
-    highest_collab_role = None
-    for role, team_name in target_team_names.items():
-        if team_name in userinfo["roles"]["team"]:
-            highest_collab_role = role
-    if highest_collab_role == "viewer":
-        permissions = {"VIEW": True, "UPDATE": False}
-    elif highest_collab_role in ("editor", "administrator"):
-        permissions = {"VIEW": True, "UPDATE": True}
-    else:
-        assert highest_collab_role is None
-        collab_info = await get_collab_info(collab_id, user_token)
-        if collab_info.get("isPublic", False):  # will be False if 404 collab not found
-            permissions = {"VIEW": True, "UPDATE": False}
+    def __init__(self, token, allow_anonymous=False):
+        if token is None and not allow_anonymous:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="You need to provide a bearer token to access this resource"
+            )
+        self.token = token
+        self._user_info = None
+        self._collab_info = {}
+        self._connection_error = False
+
+    @property
+    def is_anonymous(self):
+        return self.token is None
+
+    async def get_user_info(self):
+        if self._user_info is None:
+            user_info = await oauth.ebrains.userinfo(
+                token={"access_token": self.token.credentials, "token_type": "bearer"}
+            )
+            if "error" in user_info:
+                raise HTTPException(
+                    status_code=status.HTTP_401_UNAUTHORIZED, detail=user_info["error_description"]
+                )
+            logger.debug(user_info)
+            # make this compatible with the v1 json
+            user_info["id"] = user_info["sub"]
+            user_info["username"] = user_info.get("preferred_username", "unknown")
+            self._user_info = user_info
+        return self._user_info
+
+    async def get_collab_info(self, collab_id):
+        if collab_id not in self._collab_info:
+            if not self._connection_error:
+                # if the Collab API is not responding, we set an error flag to avoid further
+                # requests and treat all collabs as private
+                try:
+                    self._collab_info[collab_id] = await get_collab_info(collab_id, self.token)
+                except requests.exceptions.ConnectionError as err:
+                    self._connection_error = True
+                    self._collab_info[collab_id] = {}
+            else:
+                self._collab_info[collab_id] = {}
+        return self._collab_info[collab_id]
+
+    async def get_person(self, kg_client):
+        user_info = await self.get_user_info()
+        family_name = user_info["family_name"]
+        given_name = user_info["given_name"]
+        person = omcore.Person.list(kg_client, family_name=family_name, given_name=given_name, api="nexus", scope="latest")
+        if person:
+            if isinstance(person, list):
+                logger.error("Found more than one person with this name")
+                return None
+            else:
+                return person
         else:
-            permissions = {"VIEW": False, "UPDATE": False}
-    return permissions
+            return None
 
+    async def get_collab_permissions(self, collab_id):
+        user_info = await self.get_user_info()
 
-async def can_edit_collab(collab_id, user_token):
-    if collab_id is None:
-        return False
-    try:
-        int(collab_id)
-    except ValueError:
-        permissions = await get_collab_permissions(collab_id, user_token)
-        return permissions.get("UPDATE", False)
-    else:
-        return False
+        target_team_names = {role: f"collab-{collab_id}-{role}"
+                            for role in ("viewer", "editor", "administrator")}
 
+        highest_collab_role = None
+        for role, team_name in target_team_names.items():
+            if team_name in user_info["roles"]["team"]:
+                highest_collab_role = role
+        if highest_collab_role == "viewer":
+            permissions = {"VIEW": True, "UPDATE": False}
+        elif highest_collab_role in ("editor", "administrator"):
+            permissions = {"VIEW": True, "UPDATE": True}
+        else:
+            assert highest_collab_role is None
+            collab_info = await self.get_collab_info(collab_id)
+            if collab_info.get("isPublic", False):  # will be False if 404 collab not found
+                permissions = {"VIEW": True, "UPDATE": False}
+            else:
+                permissions = {"VIEW": False, "UPDATE": False}
+        return permissions
 
-async def is_admin(user_token):
-    return await can_edit_collab(settings.ADMIN_COLLAB_ID, user_token)
-    # todo: replace this check with a group membership check for Collab v2
+    async def _have_collab_access(self, collab_id, permission_type):
+        if collab_id is None or self.token is None:
+            return False
+        try:
+            int(collab_id)
+        except ValueError:
+            permissions = await self.get_collab_permissions(collab_id)
+        else:
+            permissions = {}
+        if permissions.get(permission_type, False):
+            return True
+        else:
+            return self.is_admin()
 
+    async def can_view_collab(self, collab_id):
+        return self._have_collab_access(collab_id, "VIEW")
 
-async def can_view_collab(collab_id, user_token):
-    if collab_id is None:
-        return False
-    try:
-        int(collab_id)
-    except ValueError:
-        permissions = await get_collab_permissions(collab_id, user_token)
-        return permissions.get("VIEW", False)
-    else:
-        return False
+    async def can_edit_collab(self, collab_id):
+        return self._have_collab_access(collab_id, "UPDATE")
 
+    async def is_admin(self):
+        return await self.can_edit_collab(settings.ADMIN_COLLAB_ID)
+        # todo: replace this check with a group membership check
 
-async def get_editable_collabs(user_token):
-    # collab v2 only
-    userinfo = await oauth.ebrains.userinfo(
-        token={"access_token": user_token, "token_type": "bearer"}
-    )
-    if "error" in userinfo:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail=userinfo["error_description"]
-        )
-    editable_collab_ids = set()
-    for team_name in userinfo["roles"]["team"]:
-        if team_name.endswith("-editor") or team_name.endswith("-administrator"):
-            collab_id = "-".join(team_name.split("-")[1:-1])
-            editable_collab_ids.add(collab_id)
-    return sorted(editable_collab_ids)
+    async def get_editable_collabs(self):
+        user_info = await self.get_user_info()
+        editable_collab_ids = set()
+        for team_name in user_info["roles"]["team"]:
+            if team_name.endswith("-editor") or team_name.endswith("-administrator"):
+                collab_id = "-".join(team_name.split("-")[1:-1])
+                editable_collab_ids.add(collab_id)
+        return sorted(editable_collab_ids)

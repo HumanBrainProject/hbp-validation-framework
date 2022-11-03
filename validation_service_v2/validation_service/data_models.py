@@ -27,7 +27,7 @@ import fairgraph.openminds.publications as ompub
 from .examples import EXAMPLES
 from .db import (_get_model_by_id_or_alias, _get_model_instance_by_id,
                  _get_test_by_id_or_alias, _get_test_instance_by_id)
-from .auth import get_user_from_token, get_kg_client_for_service_account
+from .auth import get_kg_client_for_service_account
 
 
 kg_service_client = get_kg_client_for_service_account()
@@ -338,6 +338,8 @@ class ModelInstance(BaseModel):
         if item["timestamp"]:
             item["timestamp"] = datetime.fromisoformat(item["timestamp"]).date()
         item.pop("repository", None)
+        if item["version"] is None:
+            item["version"] = "unknown"
         if client.is_released(item["uri"]):
             item["alternatives"].append(f"https://search.kg.ebrains.eu/instances/{item['id']}")
         try:
@@ -346,16 +348,16 @@ class ModelInstance(BaseModel):
             breakpoint()
 
     @classmethod
-    def from_kg_object(cls, instance, client, model_id):
-        instance = instance.resolve(client, scope="in progress")
+    def from_kg_object(cls, instance, client, model_id, scope):
+        instance = instance.resolve(client, scope=scope)
         alternatives = [
-            mv.resolve(client, scope="in progress").homepage
+            mv.resolve(client, scope=scope).homepage
             for mv in as_list(instance.is_alternative_version_of)
         ]
         if instance.is_released(client):
             alternatives.append(f"https://search.kg.ebrains.eu/instances/{instance.uuid}")
         if instance.repository:
-            repository = instance.repository.resolve(client, scope="in progress")
+            repository = instance.repository.resolve(client, scope=scope)
             source = str(repository.iri)
             if not source.startswith("http"):
                 logger.error(f"Invalid URL: {source}")
@@ -364,7 +366,7 @@ class ModelInstance(BaseModel):
         else:
             source = None
             hash = None
-        licenses = [lic.resolve(client, scope="in progress") for lic in as_list(instance.licenses)]
+        licenses = [lic.resolve(client, scope="any") for lic in as_list(instance.licenses)]
         content_types = [ct.resolve(client) for ct in as_list(instance.formats)]
         instance_data = {
             "id": instance.uuid,
@@ -492,7 +494,9 @@ class ScientificModel(BaseModel):
         for inst_obj in as_list(model_project.versions):
             try:
                 inst_obj = inst_obj.resolve(client, scope=model_project.scope)
-                inst = ModelInstance.from_kg_object(inst_obj, client, model_id=model_project.uuid)
+                inst = ModelInstance.from_kg_object(inst_obj, client,
+                                                    model_id=model_project.uuid,
+                                                    scope=model_project.scope)
             except ResolutionFailure as err:
                 logger.warning(f"Problem retrieving model instance {inst_obj.id}: {err}")
             else:
@@ -1389,10 +1393,10 @@ class ValidationResultWithTestAndModel(ValidationResult):
     def from_kg_object(cls, validation_activity, client):
         vr = ValidationResult.from_kg_object(validation_activity, client)
 
-        model_instance_kg, model_id = _get_model_instance_by_id(vr.model_instance_id, client)
-        model_project = _get_model_by_id_or_alias(model_id, client)
+        model_instance_kg, model_id = _get_model_instance_by_id(vr.model_instance_id, client, scope="any")
+        model_project = _get_model_by_id_or_alias(model_id, client, scope="any")
 
-        model_instance = ModelInstance.from_kg_object(model_instance_kg, client, model_project.uuid)
+        model_instance = ModelInstance.from_kg_object(model_instance_kg, client, model_project.uuid, scope="any")
         model = ScientificModel.from_kg_object(model_project, client)
 
         test_script = _get_test_instance_by_id(vr.test_instance_id, client)

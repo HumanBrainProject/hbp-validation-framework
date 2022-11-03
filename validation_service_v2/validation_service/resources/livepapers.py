@@ -9,7 +9,7 @@ from fastapi import APIRouter, Depends, Header, Query, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from ..auth import (
     get_kg_client_for_user_account, get_kg_client_for_service_account,
-    can_edit_collab, is_admin, can_view_collab, get_editable_collabs
+    User
 )
 from ..data_models import LivePaper, LivePaperSummary, ConsistencyError, AccessCode, Slug
 from ..db import _get_live_paper_by_id_or_alias
@@ -40,6 +40,7 @@ async def query_live_papers(
     editable: bool = False,
     token: HTTPAuthorizationCredentials = Depends(auth)
 ):
+    user = User(token, allow_anonymous=False)
     kg_client = get_kg_client_for_user_account(token)
 
     # get all live papers that the user has view access to
@@ -48,13 +49,13 @@ async def query_live_papers(
                                                   space=LIVEPAPERS_SPACE, api="core"))}
     lps.update({
         lp.id: lp
-        for lp in as_list(ompub.LivePaper.list(kg_client, scope="in progress", size=1000,
+        for lp in as_list(ompub.LivePaper.list(kg_client, scope="any", size=1000,
                                                space=None, api="core"))
     })
 
     if editable:
         # include only those papers the user can edit
-        editable_collabs = await get_editable_collabs(token.credentials)
+        editable_collabs = await user.get_editable_collabs()
 
         accessible_lps = [
             lp for lp in lps.values()
@@ -90,8 +91,9 @@ async def get_live_paper(
     lp_id: Union[UUID, Slug],
     token: HTTPAuthorizationCredentials = Depends(auth)
 ):
+    user = User(token, allow_anonymous=False)
     kg_client = get_kg_client_for_user_account(token)
-    lp = _get_live_paper_by_id_or_alias(lp_id, kg_client, scope="in progress")
+    lp = _get_live_paper_by_id_or_alias(lp_id, kg_client, scope="any")
 
     def get_access_code(lp):  # to implement
         return None
@@ -100,8 +102,8 @@ async def get_live_paper(
         if (
             token.credentials == get_access_code(lp)
             or (lp.space.startswith("collab-")
-                and await can_view_collab(collab_id_from_space(lp.space), token.credentials))
-            or await is_admin(token.credentials)
+                and await user.can_view_collab(collab_id_from_space(lp.space)))
+            or await user.is_admin()
         ):
             try:
                 obj = LivePaper.from_kg_object(lp, kg_client)
@@ -145,6 +147,7 @@ async def create_live_paper(
     live_paper: LivePaper,
     token: HTTPAuthorizationCredentials = Depends(auth)
 ):
+    user = User(token, allow_anonymous=False)
     logger.info("Beginning post live paper")
     if live_paper.id:
         raise HTTPException(
@@ -159,8 +162,8 @@ async def create_live_paper(
 
     if not (
         live_paper.collab_id == "myspace"
-        or await can_edit_collab(live_paper.collab_id, token.credentials)
-        or await is_admin(token.credentials)
+        or await user.can_edit_collab(live_paper.collab_id)
+        or await user.is_admin()
     ):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -211,11 +214,11 @@ async def update_live_paper(
     token: HTTPAuthorizationCredentials = Depends(auth)
 ):
     logger.info("Beginning put live paper")
-
+    user = User(token, allow_anonymous=False)
     if not (
         live_paper.collab_id == "myspace"
-        or await can_edit_collab(live_paper.collab_id, token.credentials)
-        or await is_admin(token.credentials)
+        or await user.can_edit_collab(live_paper.collab_id)
+        or await user.is_admin()
     ):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -270,7 +273,7 @@ async def set_access_code(
         status_code=status.HTTP_501_NOT_IMPLEMENTED,
         detail="Not yet migrated",
     )
-
+    user = User(token, allow_anonymous=False)
     logger.info("Beginning set access code")
 
     kg_client = get_kg_client_for_user_account(token)
@@ -278,8 +281,8 @@ async def set_access_code(
 
     if lp:
         if not (
-            await can_edit_collab(lp.collab_id, token.credentials)
-            or await is_admin(token.credentials)
+            await user.can_edit_collab(lp.collab_id)
+            or await user.is_admin()
         ):
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
@@ -303,12 +306,13 @@ async def delete_live_paper(
     lp_id: UUID,    #todo: handle alias
     token: HTTPAuthorizationCredentials = Depends(auth)
 ):
+    user = User(token, allow_anonymous=False)
     if not (
-        await is_admin(token.credentials)
+        await user.is_admin()
     ):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail=f"Deleting live papers is restricted to administrators - please contact EBRAIN support",
+            detail=f"Deleting live papers is restricted to administrators - please contact EBRAINS support",
         )
 
     kg_user_client = get_kg_client_for_user_account(token)

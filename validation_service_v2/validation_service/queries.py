@@ -1,8 +1,18 @@
-from itertools import chain
+import itertools
+from fairgraph.base_v3 import as_list
 import fairgraph.openminds.core as omcore
 import fairgraph.openminds.computation as omcmp
 
 from .data_models import term_cache, Species, BrainRegion, CellType, ModelScope, AbstractionLevel
+
+
+def expand_combinations(D):
+    if D:
+        keys, values = zip(*D.items())
+        return [dict(zip(keys, v)) for v in itertools.product(*[as_list(v) for v in values])]
+    else:
+        return [D]
+
 
 def build_model_project_filters(
     alias,
@@ -159,9 +169,18 @@ def model_alias_exists(alias, client):
 
 def test_alias_exists(alias, client):
     if alias:
-        kg_space = "collab-model-validation"  # for development, to fix
-        test_with_same_alias = omcmp.ValidationTest.from_alias(alias, client, space=kg_space, scope="in progress")
+        # we deliberately use space=None to search across all spaces
+        test_with_same_alias = omcmp.ValidationTest.from_alias(alias, client, space=None, scope="in progress")
         if test_with_same_alias:
             # need this check because alias query doesn't do exact matching
             return test_with_same_alias.alias == alias
     return False
+
+
+def model_is_public(model_id, client):
+    model = omcore.Model.from_id(client, scope="any")
+    return model.space == "model"  # for now, restrict to released models in future once migration is complete
+
+
+def test_is_public(test_id, client):
+    return client.is_released(test_id)

@@ -10,8 +10,8 @@ from fastapi import APIRouter, Depends, Query, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic import ValidationError
 
-from ..auth import get_kg_client_for_user_account, get_user_from_token, can_edit_collab, is_admin
-from ..db import _get_test_by_id_or_alias, _get_test_instance_by_id
+from ..auth import get_kg_client_for_service_account, get_kg_client_for_user_account, User
+from ..db import _get_test_by_id_or_alias, _get_test_instance_by_id, _check_test_access
 from ..data_models import (
     Person,
     Species,
@@ -25,18 +25,102 @@ from ..data_models import (
     ValidationTestInstance,
     ValidationTestPatch,
     ValidationTestInstancePatch,
+    ImplementationStatus
 )
-from ..queries import build_validation_test_filters, test_alias_exists
+from ..queries import build_validation_test_filters, test_alias_exists, expand_combinations
 from .. import settings
 
 
 logger = logging.getLogger("validation_service_v2")
 
-auth = HTTPBearer()
+auth = HTTPBearer(auto_error=False)
 router = APIRouter()
 
 
-@router.get("/tests-old/")
+# @router.get("/tests-old/")
+# def query_tests_old(
+#     project_id: List[str] = Query(
+#         None, description="Find validation tests belonging to a specific project/projects"
+#     ),
+#     alias: List[str] = Query(None),
+#     id: List[UUID] = Query(None),
+#     name: List[str] = Query(None),
+#     implementation_status: str = Query(None),
+#     brain_region: List[BrainRegion] = Query(None),
+#     species: List[Species] = Query(None),
+#     cell_type: List[CellType] = Query(None),
+#     data_type: List[str] = Query(None),
+#     recording_modality: List[RecordingModality] = Query(None),
+#     test_type: List[ValidationTestType] = Query(None),
+#     score_type: List[ScoreType] = Query(None),
+#     author: List[str] = Query(None),
+#     size: int = Query(100),
+#     from_index: int = Query(0),
+#     summary: bool = Query(False, description="Return only summary information about each validation test"),
+#     # from header
+#     token: HTTPAuthorizationCredentials = Depends(auth),
+# ):
+#     # get the values of of the Enums
+#     if brain_region:
+#         brain_region = [item.value for item in brain_region]
+#     if species:
+#         species = [item.value for item in species]
+#     if cell_type:
+#         cell_type = [item.value for item in cell_type]
+#     if recording_modality:
+#         recording_modality = [item.value for item in recording_modality]
+#     if test_type:
+#         test_type = [item.value for item in test_type]
+#     if score_type:
+#         score_type = [item.value for item in score_type]
+
+#     filter_query = build_validation_test_filters(
+#         alias,
+#         id,
+#         name,
+#         implementation_status,
+#         brain_region,
+#         species,
+#         cell_type,
+#         data_type,
+#         recording_modality,
+#         test_type,
+#         score_type,
+#         author,
+#     )
+
+    # if project_id:
+    #     spaces = [f"collab-{collab_id}" for collab_id in project_id]
+    # else:
+    #     #spaces = ["computation"]
+    #     spaces = ["collab-model-validation"]  # during development
+    # kg_client = get_kg_client_for_user_account(token)
+
+
+    # test_definitions = []
+    # for space in spaces:
+    #     if len(filter_query) > 0:
+    #         logger.info("Searching for ValidationTest with the following query: {}".format(filter_query))
+    #         results = omcmp.ValidationTest.list(
+    #             kg_client, size=size, from_index=from_index, api="query", scope="in progress",
+    #             space=space, **filter_query)
+    #     else:
+    #         results = omcmp.ValidationTest.list(
+    #             kg_client, size=size, from_index=from_index, api="core", scope="in progress",
+    #             space=space)
+    #     test_definitions.extend(as_list(results))
+    # if summary:
+    #     cls = ValidationTestSummary
+    # else:
+    #     cls = ValidationTest
+
+    # return [
+    #     cls.from_kg_object(test_definition, kg_client)
+    #     for test_definition in as_list(test_definitions)
+    # ]
+
+
+@router.get("/tests/")
 def query_tests(
     project_id: List[str] = Query(
         None, description="Find validation tests belonging to a specific project/projects"
@@ -59,161 +143,149 @@ def query_tests(
     # from header
     token: HTTPAuthorizationCredentials = Depends(auth),
 ):
-    # get the values of of the Enums
-    if brain_region:
-        brain_region = [item.value for item in brain_region]
-    if species:
-        species = [item.value for item in species]
-    if cell_type:
-        cell_type = [item.value for item in cell_type]
-    if recording_modality:
-        recording_modality = [item.value for item in recording_modality]
-    if test_type:
-        test_type = [item.value for item in test_type]
-    if score_type:
-        score_type = [item.value for item in score_type]
 
-    filter_query = build_validation_test_filters(
-        alias,
-        id,
-        name,
-        implementation_status,
-        brain_region,
-        species,
-        cell_type,
-        data_type,
-        recording_modality,
-        test_type,
-        score_type,
-        author,
-    )
-
-    if project_id:
-        spaces = [f"collab-{collab_id}" for collab_id in project_id]
-    else:
-        #spaces = ["computation"]
-        spaces = ["collab-model-validation"]  # during development
-    kg_client = get_kg_client_for_user_account(token)
-
-
-    test_definitions = []
-    for space in spaces:
-        if len(filter_query) > 0:
-            logger.info("Searching for ValidationTest with the following query: {}".format(filter_query))
-            results = omcmp.ValidationTest.list(
-                kg_client, size=size, from_index=from_index, api="query", scope="in progress",
-                space=space, **filter_query)
+    user = User(token, allow_anonymous=True)
+    if user.is_anonymous:
+        if implementation_status:
+            if implementation_status != ImplementationStatus.published.value:
+                raise HTTPException(
+                    status_code=status.HTTP_401_UNAUTHORIZED,
+                    detail=f"To view unpublished tests you need to authenticate.",
+                )
         else:
-            results = omcmp.ValidationTest.list(
-                kg_client, size=size, from_index=from_index, api="core", scope="in progress",
-                space=space)
-        test_definitions.extend(as_list(results))
-    if summary:
-        cls = ValidationTestSummary
+            implementation_status = ImplementationStatus.published.value
+        kg_user_client = get_kg_client_for_service_account()
     else:
-        cls = ValidationTest
+        kg_user_client = get_kg_client_for_user_account(token)
+    scope = "any"   # not using release mechanism for the time being
 
-    return [
-        cls.from_kg_object(test_definition, kg_client)
-        for test_definition in as_list(test_definitions)
-    ]
+    if id:
+        # if specifying specific ids, we ignore any other search terms
+        test_definitions = []
+        for test_uuid in id:
+            test_definition = omcmp.ValidationTest.from_uuid(test_uuid, kg_user_client, scope=scope)
+            if test_definition:
+                test_definitions.append(test_definition)
+            else:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail=f"Either a validation test definition with identifier {test_uuid} does not exist, or you do not have access to it.",
+                )
+        if user.is_anonymous:
+            for td in test_definitions:
+                if td.is_released(kg_service_client):
+                     raise HTTPException(
+                        status_code=status.HTTP_401_UNAUTHORIZED,
+                        detail="Anonymous users may not view private validation test definitions"
+                    )
 
-
-@router.get("/tests/")
-def query_tests2(
-    project_id: List[str] = Query(
-        None, description="Find validation tests belonging to a specific project/projects"
-    ),
-    alias: List[str] = Query(None),
-    id: List[UUID] = Query(None),
-    name: List[str] = Query(None),
-    implementation_status: str = Query(None),
-    brain_region: List[BrainRegion] = Query(None),
-    species: List[Species] = Query(None),
-    cell_type: List[CellType] = Query(None),
-    data_type: List[str] = Query(None),
-    recording_modality: List[RecordingModality] = Query(None),
-    test_type: List[ValidationTestType] = Query(None),
-    score_type: List[ScoreType] = Query(None),
-    author: List[str] = Query(None),
-    size: int = Query(100),
-    from_index: int = Query(0),
-    summary: bool = Query(False, description="Return only summary information about each validation test"),
-    # from header
-    token: HTTPAuthorizationCredentials = Depends(auth),
-):
-    # get the values of of the Enums
-    filter = {}
-    if brain_region:
-        filter["brain_region"] = [item.value for item in brain_region][0]
-    if species:
-        filter["species"] = [item.value for item in species][0]
-    if cell_type:
-        filter["cell_type"] = [item.value for item in cell_type][0]
-    if recording_modality:
-        filter["recording_modality"] = [item.value for item in recording_modality][0]
-    if test_type:
-        filter["test_type"] = [item.value for item in test_type][0]
-    if data_type:
-        filter["data_type"] = [item.value for item in data_type][0]
-    if score_type:
-        filter["score_type"] = [item.value for item in score_type][0]
-
-    if author:
-        filter["author"] = author[0]
-    if name:
-        filter["name"] = name[0]
-    if alias:
-        filter["alias"] = alias[0]
-
-    # todo: handle implementation_status
-
-    if project_id:
-        spaces = [f"collab-{collab_id}" for collab_id in project_id]
     else:
-        #spaces = ["computation"]
-        spaces = ["collab-model-validation"]  # during development
 
-    kg_client = get_kg_client_for_user_account(token)
+        # get the values of of the Enums
+        filters = {}
+        if brain_region:
+            filters["brain_region"] = [item.value for item in brain_region]
+        if species:
+            filters["species"] = [item.value for item in species]
+        if cell_type:
+            filters["cell_type"] = [item.value for item in cell_type]
+        if recording_modality:
+            filters["recording_modality"] = [item.value for item in recording_modality]
+        if test_type:
+            filters["test_type"] = [item.value for item in test_type]
+        if data_type:
+            filters["data_type"] = [item.value for item in data_type]
+        if score_type:
+            filters["score_type"] = [item.value for item in score_type]
+        if author:
+            filters["author"] = author
+        if name:
+            filters["name"] = name
+        if alias:
+            filters["alias"] = alias
+        if implementation_status:
+            filters["implementation_status"] = implementation_status
 
-    if summary:
-        cls = ValidationTestSummary
-        query = kg_client.retrieve_query("VF_ValidationTestSummary")
-    else:
-        cls = ValidationTest
-        query = kg_client.retrieve_query("VF_ValidationTest")
+        filters = expand_combinations(filters)
 
-    test_definitions = []
-    for space in spaces:
-        results = kg_client.query(filter, query["@id"], space=space,
-            from_index=from_index, size=size, scope="in progress")
-        test_definitions.extend(results.data)
+        if project_id:
+            spaces = [f"collab-{collab_id}" for collab_id in project_id]
+        else:
+            spaces = ["computation"]
 
-    return [
-        cls.from_kg_query(item, kg_client)
-        for item in test_definitions
-    ]
+        kg_service_client = get_kg_client_for_service_account()
+
+        if summary:
+            cls = ValidationTestSummary
+            query = kg_service_client.retrieve_query("VF_ValidationTestSummary")
+        else:
+            cls = ValidationTest
+            query = kg_service_client.retrieve_query("VF_ValidationTest")
+
+        if len(spaces) == 1 and len(filters) == 1:
+            # common, simple case
+            try:
+                instances = kg_user_client.query(filters[0], query["@id"], space=spaces[0],
+                                                 from_index=from_index, size=size,
+                                                 scope=scope, id_key="uri").data
+            except Exception as err:
+                #breakpoint()
+                raise
+
+            return [
+                cls.from_kg_query(instance, kg_user_client)
+                for instance in instances
+            ]
+
+        else:
+            # more complex case for pagination
+            # inefficient if from_index is not 0
+            instances = {}
+            for space in spaces:
+                for filter in filters:
+                    try:
+                        results = kg_user_client.query(filter, query["@id"], space=space,
+                                                       from_index=0, size=100000, scope=scope)
+                    except Exception as err:
+                        #breakpoint()
+                        raise
+                    for instance in results.data:
+                        instances[instance["uri"]] = instance  # use dict to remove duplicates
+
+            return [
+                cls.from_kg_query(instance, kg_user_client)
+                for instance in list(instances.values())[from_index:from_index + size]
+            ]
 
 
 @router.get("/tests/{test_id}", response_model=ValidationTest)
 def get_test(test_id: str, token: HTTPAuthorizationCredentials = Depends(auth)):
-    kg_client = get_kg_client_for_user_account(token)
-    test_definition = _get_test_by_id_or_alias(test_id, kg_client)
+    user = User(token, allow_anonymous=True)
+    if user.is_anonymous:
+        kg_client = get_kg_client_for_service_account()
+    else:
+        kg_client = get_kg_client_for_user_account(token)
+    test_definition = _get_test_by_id_or_alias(test_id, kg_client, user)
     return ValidationTest.from_kg_object(test_definition, kg_client)
 
 
 @router.post("/tests/", response_model=ValidationTest, status_code=status.HTTP_201_CREATED)
 def create_test(test: ValidationTest, token: HTTPAuthorizationCredentials = Depends(auth)):
+    _check_service_status()
+    user = User(token, allow_anonymous=False)
     kg_user_client = get_kg_client_for_user_account(token)
+    kg_service_client = get_kg_client_for_service_account()
     # check uniqueness of alias
-    if test.alias and test_alias_exists(test.alias, kg_user_client):
+     # we use the service client to get the stored test to ensure the
+    # check for uniqueness considers _all_ stored tests
+    if test.alias and test_alias_exists(test.alias, kg_service_client):
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail=f"Another validation test with alias '{test.alias}' already exists.",
         )
     test_definition = test.to_kg_object()
     kg_space = "collab-model-validation"  # during development
-    if test_definition.exists(kg_user_client):
+    if test_definition.exists(kg_service_client):
         # see https://stackoverflow.com/questions/3825990/http-response-code-for-post-when-resource-already-exists
         # for a discussion of the most appropriate status code to use here
         raise HTTPException(
@@ -230,15 +302,20 @@ def update_test(
     test_patch: ValidationTestPatch,
     token: HTTPAuthorizationCredentials = Depends(auth),
 ):
+    user = User(token, allow_anonymous=False)
     # retrieve stored test
-    kg_client = get_kg_client_for_user_account(token)
-    test_definition = omcmp.ValidationTest.from_uuid(str(test_id), kg_client, scope="in progress")
-    stored_test = ValidationTest.from_kg_object(test_definition, kg_client)
-    # if alias changed, check uniqueness of new alias
+    kg_user_client = get_kg_client_for_user_account(token)
+    kg_service_client = get_kg_client_for_service_account()
+    test_definition = omcmp.ValidationTest.from_uuid(str(test_id), kg_user_client, scope="any")
+    stored_test = ValidationTest.from_kg_object(test_definition, kg_user_client)
+    # if alias changed, check uniqueness of new alias.
+    # we need to use the service client to check tests in "computation"
+    # and the user client to check private spaces
     if (
         test_patch.alias
         and test_patch.alias != stored_test.alias
-        and test_alias_exists(test_patch.alias, kg_client)
+        and (test_alias_exists(test_patch.alias, kg_service_client)
+             or test_alias_exists(test_patch.alias, kg_user_client))
     ):
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
@@ -255,16 +332,17 @@ def update_test(
         update_data["author"] = [Person(**p) for p in update_data["author"]]
     updated_test = stored_test.copy(update=update_data)
     updated_test_definition = updated_test.to_kg_object()
-    updated_test_definition.save(kg_client, recursive=True, space=test_definition.space)
-    return ValidationTest.from_kg_object(updated_test_definition, kg_client)
+    updated_test_definition.save(kg_user_client, recursive=True, space=test_definition.space)
+    return ValidationTest.from_kg_object(updated_test_definition, kg_user_client)
 
 
 @router.delete("/tests/{test_id}", status_code=status.HTTP_200_OK)
 async def delete_test(test_id: UUID, token: HTTPAuthorizationCredentials = Depends(auth)):
+    user = User(token, allow_anonymous=False)
     # todo: handle non-existent UUID
     kg_client = get_kg_client_for_user_account(token)
     test_definition = omcmp.ValidationTest.from_uuid(str(test_id), kg_client, scope="in progress")
-    if not await is_admin(token.credentials):
+    if not await user.is_admin():
         # todo: replace this check with a group membership check for Collab v2
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN, detail="Deleting tests is restricted to admins"
@@ -280,8 +358,12 @@ async def delete_test(test_id: UUID, token: HTTPAuthorizationCredentials = Depen
 def get_test_instances(
     test_id: str, version: str = Query(None), token: HTTPAuthorizationCredentials = Depends(auth)
 ):
-    kg_client = get_kg_client_for_user_account(token)
-    test_definition = _get_test_by_id_or_alias(test_id, kg_client)
+    user = User(token, allow_anonymous=True)
+    if user.is_anonymous:
+        kg_client = get_kg_client_for_service_account()
+    else:
+        kg_client = get_kg_client_for_user_account(token)
+    test_definition = _get_test_by_id_or_alias(test_id, kg_client, user)
     test_instances = [
         ValidationTestInstance.from_kg_object(inst, test_definition.uuid, kg_client)
         for inst in as_list(test_definition.versions)
@@ -295,25 +377,30 @@ def get_test_instances(
 def get_test_instance_from_instance_id(
     test_instance_id: UUID, token: HTTPAuthorizationCredentials = Depends(auth)
 ):
-    kg_client = get_kg_client_for_user_account(token)
+    user = User(token, allow_anonymous=True)
+    if user.is_anonymous:
+        kg_client = get_kg_client_for_service_account()
+    else:
+        kg_client = get_kg_client_for_user_account(token)
     inst = _get_test_instance_by_id(test_instance_id, kg_client)
     test_definition = omcmp.ValidationTest.list(kg_client, scope="in progress", space=inst.space, versions=inst)[0]
+    _check_test_access(test_definition, user)
     return ValidationTestInstance.from_kg_object(inst, test_definition.uuid, kg_client)
 
 
-@router.get("/tests/{test_id}/instances/in progress", response_model=ValidationTestInstance)
+@router.get("/tests/{test_id}/instances/latest", response_model=ValidationTestInstance)
 def get_latest_test_instance_given_test_id(
     test_id: str, token: HTTPAuthorizationCredentials = Depends(auth)
 ):
-    raise HTTPException(
-        status_code=status.HTTP_501_NOT_IMPLEMENTED,
-        detail="Not yet migrated",
-    )
-    kg_client = get_kg_client_for_user_account(token)
-    test_definition = _get_test_by_id_or_alias(test_id, token)
+    user = User(token, allow_anonymous=True)
+    if user.is_anonymous:
+        kg_client = get_kg_client_for_service_account()
+    else:
+        kg_client = get_kg_client_for_user_account(token)
+    test_definition = _get_test_by_id_or_alias(test_id, token, user)
     test_instances = [
-        ValidationTestInstance.from_kg_object(inst, test_definition.uuid, kg_client)
-        for inst in as_list(test_definition.versions.resolve(kg_client, scope="in progress"))
+        ValidationTestInstance.from_kg_object(inst.resolve(kg_client, scope="in progress"), test_definition.uuid, kg_client)
+        for inst in as_list(test_definition.versions)
     ]
     if len(test_instances) == 0:
         raise HTTPException(
@@ -328,8 +415,12 @@ def get_latest_test_instance_given_test_id(
 def get_test_instance_given_test_id(
     test_id: str, test_instance_id: UUID, token: HTTPAuthorizationCredentials = Depends(auth)
 ):
-    kg_client = get_kg_client_for_user_account(token)
-    test_definition = _get_test_by_id_or_alias(test_id, kg_client)
+    user = User(token, allow_anonymous=True)
+    if user.is_anonymous:
+        kg_client = get_kg_client_for_service_account()
+    else:
+        kg_client = get_kg_client_for_user_account(token)
+    test_definition = _get_test_by_id_or_alias(test_id, kg_client, user)
     for inst in as_list(test_definition.versions):
         if UUID(inst.uuid) == test_instance_id:
             return ValidationTestInstance.from_kg_object(inst, test_definition.uuid, kg_client)
@@ -343,8 +434,14 @@ def get_test_instance_given_test_id(
 def get_test_instance_from_instance_id(
     test_instance_id: UUID, token: HTTPAuthorizationCredentials = Depends(auth)
 ):
-    kg_client = get_kg_client_for_user_account(token)
+    user = User(token, allow_anonymous=True)
+    if user.is_anonymous:
+        kg_client = get_kg_client_for_service_account()
+    else:
+        kg_client = get_kg_client_for_user_account(token)
+
     test_instance_kg = _get_test_instance_by_id(test_instance_id, kg_client)
+    # todo: if anonymous, get parent ValidationTestDefinition and check access level
     return ValidationTestInstance.from_kg_object(test_instance_kg, kg_client)
 
 
@@ -358,8 +455,9 @@ def create_test_instance(
     test_instance: ValidationTestInstance,
     token: HTTPAuthorizationCredentials = Depends(auth),
 ):
+    user = User(token, allow_anonymous=False)
     kg_client = get_kg_client_for_user_account(token)
-    test_definition = _get_test_by_id_or_alias(test_id, kg_client)
+    test_definition = _get_test_by_id_or_alias(test_id, kg_client, user)
     test_instance_kg = test_instance.to_kg_object(ValidationTest.from_kg_object(test_definition, kg_client))
     test_instance_kg.save(kg_client, recursive=True, space=test_definition.space)
     test_definition.versions = as_list(test_definition.versions) + [test_instance_kg]
@@ -377,11 +475,13 @@ def update_test_instance_by_id(
     test_instance_patch: ValidationTestInstancePatch,
     token: HTTPAuthorizationCredentials = Depends(auth),
 ):
+    user = User(token, allow_anonymous=False)
     kg_client = get_kg_client_for_user_account(token)
     test_instance_kg = _get_test_instance_by_id(test_instance_id, kg_client)
     test_definition = omcmp.ValidationTest.list(
         kg_client, scope="in progress",
         space=test_instance_kg.space, versions=test_instance_kg)[0]
+    _check_test_access(test_definition, user)
     return _update_test_instance(test_instance_kg, test_definition, test_instance_patch, token)
 
 
@@ -396,9 +496,11 @@ def update_test_instance(
     test_instance_patch: ValidationTestInstancePatch,
     token: HTTPAuthorizationCredentials = Depends(auth),
 ):
+    user = User(token, allow_anonymous=False)
     kg_client = get_kg_client_for_user_account(token)
     test_instance_kg = _get_test_instance_by_id(test_instance_id, kg_client)
     test_definition_kg = _get_test_by_id_or_alias(test_id, kg_client)
+    _check_test_access(test_definition_kg, user)
     return _update_test_instance(test_instance_kg, test_definition_kg, test_instance_patch, kg_client)
 
 
@@ -418,9 +520,10 @@ async def delete_test_instance_by_id(
     test_instance_id: UUID, token: HTTPAuthorizationCredentials = Depends(auth)
 ):
     # todo: handle non-existent UUID, inconsistent test_id and test_instance_id
+    user = User(token, allow_anonymous=False)
     kg_client = get_kg_client_for_user_account(token)
     test_instance_kg = omcmp.ValidationTestVersion.from_uuid(str(test_instance_id), kg_client, scope="in progress")
-    if not await is_admin(token.credentials):
+    if not await user.is_admin():
         # todo: replace this check with a group membership check for Collab v2
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -439,15 +542,16 @@ async def delete_test_instance(
     test_id: str, test_instance_id: UUID, token: HTTPAuthorizationCredentials = Depends(auth)
 ):
     # todo: handle non-existent UUID, inconsistent test_id and test_instance_id
+    user = User(token, allow_anonymous=False)
     kg_client = get_kg_client_for_user_account(token)
     test_instance_kg = omcmp.ValidationTestVersion.from_uuid(str(test_instance_id), kg_client, scope="in progress")
-    if not await is_admin(token.credentials):
+    if not await user.is_admin():
         # todo: replace this check with a group membership check for Collab v2
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Deleting test instances is restricted to admins",
         )
-    test_definition = _get_test_by_id_or_alias(test_id, kg_client)
+    test_definition = _get_test_by_id_or_alias(test_id, kg_client, user)
     test_definition.versions = [obj for obj in test_definition.versions if obj.uuid != test_instance_id]
     test_definition.save(kg_client, recursive=False)
     test_instance_kg.delete(kg_client)

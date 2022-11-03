@@ -8,8 +8,8 @@ import fairgraph.openminds.core as omcore
 from fastapi import APIRouter, Depends, Query, Path, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
-from ..auth import can_edit_collab, is_admin, get_kg_client_for_user_account, get_kg_client_for_service_account
 from ..db import _get_model_instance_by_id, _get_model_by_id_or_alias
+from ..auth import User, get_kg_client_for_user_account, get_kg_client_for_service_account
 from ..data_models import (
     Person,
     Species,
@@ -23,26 +23,147 @@ from ..data_models import (
     ModelInstance,
     ModelInstancePatch,
 )
-from ..queries import build_model_project_filters, model_alias_exists
+from ..queries import build_model_project_filters, model_alias_exists, expand_combinations
 
 
 logger = logging.getLogger("validation_service_v2")
 
-auth = HTTPBearer()
+auth = HTTPBearer(auto_error=False)
 router = APIRouter()
 
 
 @router.get("/")
-def about_this_api():
-    return {
+async def about_this_api(token: HTTPAuthorizationCredentials = Depends(auth)):
+    info = {
         "about": "This is the EBRAINS Model Validation API",
+        "version": "2.5",
         "links": {
             "documentation": "/docs"
         }
     }
+    if token:
+        user_info = await User(token).get_user_info()
+        info["user"] = user_info["preferred_username"]
+    return info
 
 
-@router.get("/models-old/", response_model=List[ScientificModel])
+
+# @router.get("/models-old/", response_model=List[ScientificModel])
+# async def query_models_old(
+#     alias: List[str] = Query(
+#         None, description="A list of model aliases (short names) to search for"
+#     ),
+#     id: List[UUID] = Query(None, description="A list of specific model IDs to search for"),
+#     name: List[str] = Query(None, description="Model name(s) to search for"),
+#     brain_region: List[BrainRegion] = Query(
+#         None, description="Find models intended to represent this/these brain region(s)"
+#     ),
+#     species: List[Species] = Query(
+#         None, description="Find models intended to represent this/these species"
+#     ),
+#     cell_type: List[CellType] = Query(None, description="Find models of this/these cell type(s)"),
+#     model_scope: ModelScope = Query(None, description="Find models with a certain scope"),
+#     abstraction_level: AbstractionLevel = Query(
+#         None, description="Find models with a certain abstraction level"
+#     ),
+#     author: List[str] = Query(None, description="Find models by author (family name)"),
+#     owner: List[str] = Query(None, description="Find models by owner (family name)"),
+#     organization: List[str] = Query(None, description="Find models by organization"),
+#     project_id: List[str] = Query(
+#         None, description="Find models belonging to a specific project/projects"
+#     ),
+#     private: bool = Query(None, description="Limit the search to public or private models"),
+#     summary: bool = Query(False, description="Return only summary information about each model"),
+#     size: int = Query(100, description="Maximum number of responses"),
+#     from_index: int = Query(0, description="Index of the first response returned"),
+#     # from header
+#     token: HTTPAuthorizationCredentials = Depends(auth),
+# ):
+#     """
+#     Search the model catalog for specific models (identitified by their unique ID or by a short name / alias),
+#     and/or search by attributes of the models (e.g. the cell types being modelled, the type of model, the model author).
+#     """
+
+#     # If project_id is provided, we only return models from that project (collab)
+#     # If private is:
+#     #   - None: both public (released) and private models
+#     #   - True: only private models
+#     #   - False: only public models
+#     # In all cases, for private models the user must be a member
+#     # of the collab the model is associated with
+
+#     user = User(token, allow_anonymous=True)
+
+#     if private:
+#         if project_id:
+#             for collab_id in project_id:
+#                 if not await user.can_view_collab(collab_id):
+#                     raise HTTPException(
+#                         status_code=status.HTTP_403_FORBIDDEN,
+#                         detail="You are not a member of project #{collab_id}",
+#                     )
+#         else:
+#             raise HTTPException(
+#                 status_code=status.HTTP_400_BAD_REQUEST,
+#                 detail="To see private models, you must specify the project/collab id",
+#             )
+
+#     # get the values of the Enums
+#     if brain_region:
+#         brain_region = [item.value for item in brain_region]
+#     if species:
+#         species = [item.value for item in species]
+#     if cell_type:
+#         cell_type = [item.value for item in cell_type]
+#     if model_scope:
+#         model_scope = model_scope.value
+#     if abstraction_level:
+#         abstraction_level = abstraction_level.value
+
+#     filter_query = build_model_project_filters(
+#         alias,
+#         id,
+#         name,
+#         brain_region,
+#         species,
+#         cell_type,
+#         model_scope,
+#         abstraction_level,
+#         author,
+#         owner,
+#         organization
+#     )
+
+#     if project_id:
+#         spaces = [f"collab-{collab_id}" for collab_id in project_id]
+#     else:
+#         spaces = ["model"]
+#     kg_client = get_kg_client_for_user_account(token)
+
+#     model_projects = []
+#     for space in spaces:
+#         if len(filter_query) > 0:
+#             logger.info("Searching for ModelProject with the following query: {}".format(filter_query))
+#             # note that from_index is not currently supported by KGQuery.resolve
+#             results = omcore.Model.list(
+#                 kg_client, size=size, from_index=from_index, api="query", scope="in progress",
+#                 space=space, **filter_query)
+#         else:
+#             results = omcore.Model.list(
+#                 kg_client, size=size, from_index=from_index, api="core", scope="in progress",
+#                 space=space)
+#         model_projects.extend(as_list(results))
+#     if summary:
+#         cls = ScientificModelSummary
+#     else:
+#         cls = ScientificModel
+#     return [
+#         cls.from_kg_object(model_project, kg_client)
+#         for model_project in as_list(model_projects)
+#     ]
+
+
+@router.get("/models/", response_model=List[Union[ScientificModel, ScientificModelSummary]])
 async def query_models(
     alias: List[str] = Query(
         None, description="A list of model aliases (short names) to search for"
@@ -76,209 +197,173 @@ async def query_models(
     """
     Search the model catalog for specific models (identitified by their unique ID or by a short name / alias),
     and/or search by attributes of the models (e.g. the cell types being modelled, the type of model, the model author).
+
+    If specifying specific ids, all other search terms except "private" are ignored.
+
+    If project_id is provided, we only return models from that project (collab).
+
+    If private is:
+
+      - None: both public (released) and private models
+      - True: only private models
+      - False: only public models
+
+    In all cases, for private models the user must be a member of the collab the model is associated with.
     """
 
-    # If project_id is provided:
-    #     - private = None: both public and private models from that project (collab), if the user is a member
-    #     - private = True: only private models from that project, if that user is a member
-    #     - private = False: only public models from that project
-    # If project_id is not provided:
-    #     - private = None: only public models, from all projects
-    #     - private = True: 400? error "To see private models, you must specify the project/collab"
-    #     - private = False: only public models, from all projects
+    user = User(token, allow_anonymous=True)
 
-    if private:
-        if project_id:
-            for collab_id in project_id:
-                if not await can_edit_collab(collab_id, token.credentials):
-                    raise HTTPException(
-                        status_code=status.HTTP_403_FORBIDDEN,
-                        detail="You are not a member of project #{collab_id}",
-                    )
-        else:
+    if user.is_anonymous:
+        if private:
             raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="To see private models, you must specify the project/collab id",
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Anonymous users may not view private models",
             )
-
-    # get the values of the Enums
-    if brain_region:
-        brain_region = [item.value for item in brain_region]
-    if species:
-        species = [item.value for item in species]
-    if cell_type:
-        cell_type = [item.value for item in cell_type]
-    if model_scope:
-        model_scope = model_scope.value
-    if abstraction_level:
-        abstraction_level = abstraction_level.value
-
-    filter_query = build_model_project_filters(
-        alias,
-        id,
-        name,
-        brain_region,
-        species,
-        cell_type,
-        model_scope,
-        abstraction_level,
-        author,
-        owner,
-        organization
-    )
-
-    if project_id:
-        spaces = [f"collab-{collab_id}" for collab_id in project_id]
+        scope = "released"
+        kg_user_client = get_kg_client_for_service_account()
     else:
-        spaces = ["model"]
-    kg_client = get_kg_client_for_user_account(token)
+        scope = "any"
+        if private is False:
+            scope = "released"
+        if private is True:
+            scope = "in progress"  # or do we need a "never released" scope?
 
-    model_projects = []
-    for space in spaces:
-        if len(filter_query) > 0:
-            logger.info("Searching for ModelProject with the following query: {}".format(filter_query))
-            # note that from_index is not currently supported by KGQuery.resolve
-            results = omcore.Model.list(
-                kg_client, size=size, from_index=from_index, api="query", scope="in progress",
-                space=space, **filter_query)
-        else:
-            results = omcore.Model.list(
-                kg_client, size=size, from_index=from_index, api="core", scope="in progress",
-                space=space)
-        model_projects.extend(as_list(results))
-    if summary:
-        cls = ScientificModelSummary
+        if private:
+            if project_id:
+                for collab_id in project_id:
+                    if not await user.can_view_collab(collab_id):
+                        raise HTTPException(
+                            status_code=status.HTTP_403_FORBIDDEN,
+                            detail="You are not a member of project #{collab_id}",
+                        )
+            else:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="To see private models, you must specify the project/collab id",
+                )
+
+        kg_user_client = get_kg_client_for_user_account(token)
+
+    if id:
+        # if specifying specific ids, we ignore any other search terms
+        models = []
+        for model_uuid in id:
+            model = omcore.Model.from_uuid(model_uuid, kg_user_client, scope=scope)
+            if model:
+                models.append(model)
+            else:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail=f"Either a model with identifier {model_uuid} does not exist, or you do not have access to it.",
+                )
     else:
-        cls = ScientificModel
-    return [
-        cls.from_kg_object(model_project, kg_client)
-        for model_project in as_list(model_projects)
-    ]
 
+        # get the values of the Enums
+        filters = {}
+        if brain_region:
+            filters["brain_region"] = [item.value for item in brain_region]
+        if species:
+            filters["species"] = [item.value for item in species]
+        if cell_type:
+            filters["cell_type"] = [item.value for item in cell_type]
+        if model_scope:
+            filters["model_scope"] = model_scope.value
+        if abstraction_level:
+            filters["abstraction_level"] = abstraction_level.value
+        if author:
+            filters["author"] = author
+        if owner:
+            filters["owner"] = owner
+        if organization:
+            filters["organization"] = organization
+        if name:
+            filters["name"] = name
+        if alias:
+            filters["alias"] = alias
 
-@router.get("/models/", response_model=List[Union[ScientificModel, ScientificModelSummary]])
-async def query_models2(
-    alias: List[str] = Query(
-        None, description="A list of model aliases (short names) to search for"
-    ),
-    id: List[UUID] = Query(None, description="A list of specific model IDs to search for"),
-    name: List[str] = Query(None, description="Model name(s) to search for"),
-    brain_region: List[BrainRegion] = Query(
-        None, description="Find models intended to represent this/these brain region(s)"
-    ),
-    species: List[Species] = Query(
-        None, description="Find models intended to represent this/these species"
-    ),
-    cell_type: List[CellType] = Query(None, description="Find models of this/these cell type(s)"),
-    model_scope: ModelScope = Query(None, description="Find models with a certain scope"),
-    abstraction_level: AbstractionLevel = Query(
-        None, description="Find models with a certain abstraction level"
-    ),
-    author: List[str] = Query(None, description="Find models by author (family name)"),
-    owner: List[str] = Query(None, description="Find models by owner (family name)"),
-    organization: List[str] = Query(None, description="Find models by organization"),
-    project_id: List[str] = Query(
-        None, description="Find models belonging to a specific project/projects"
-    ),
-    private: bool = Query(None, description="Limit the search to public or private models"),
-    summary: bool = Query(False, description="Return only summary information about each model"),
-    size: int = Query(100, description="Maximum number of responses"),
-    from_index: int = Query(0, description="Index of the first response returned"),
-    # from header
-    token: HTTPAuthorizationCredentials = Depends(auth),
-):
-    """
-    Search the model catalog for specific models (identitified by their unique ID or by a short name / alias),
-    and/or search by attributes of the models (e.g. the cell types being modelled, the type of model, the model author).
-    """
+        filters = expand_combinations(filters)
 
-    if private:
         if project_id:
-            for collab_id in project_id:
-                if not await can_edit_collab(collab_id, token.credentials):
-                    raise HTTPException(
-                        status_code=status.HTTP_403_FORBIDDEN,
-                        detail="You are not a member of project #{collab_id}",
-                    )
+            spaces = [f"collab-{collab_id}" for collab_id in project_id]
         else:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="To see private models, you must specify the project/collab id",
-            )
+            spaces = ["model"]
 
-    # get the values of the Enums
-    filter = {}
-    if brain_region:
-        filter["brain_region"] = [item.value for item in brain_region][0]  # for now, take only first
-        # todo: expand lists across all fields into all combinations
-    if species:
-        filter["species"] = [item.value for item in species][0]
-    if cell_type:
-        filter["cell_type"] = [item.value for item in cell_type][0]
-    if model_scope:
-        filter["model_scope"] = model_scope.value
-    if abstraction_level:
-        filter["abstraction_level"] = abstraction_level.value
+        kg_service_client = get_kg_client_for_service_account()
 
-    if author:
-        filter["author"] = author[0]
-    if owner:
-        filter["owner"] = owner[0]
-    if organization:
-        filter["organization"] = organization[0]
-    if name:
-        filter["name"] = name[0]
-    if alias:
-        filter["alias"] = alias[0]
+        if summary:
+            cls = ScientificModelSummary
+            query = kg_service_client.retrieve_query("VF_ScientificModelSummary")
+        else:
+            cls = ScientificModel
+            query = kg_service_client.retrieve_query("VF_ScientificModel")
 
-    if project_id:
-        spaces = [f"collab-{collab_id}" for collab_id in project_id]
-    else:
-        spaces = ["model"]
+        if len(spaces) == 1 and len(filters) == 1:
+            # common, simple case
 
-    kg_client = get_kg_client_for_user_account(token)
+            try:
+                instances = kg_user_client.query(filters[0], query["@id"], space=spaces[0],
+                                                 from_index=from_index, size=size,
+                                                 scope=scope, id_key="uri").data
+            except Exception as err:
+                breakpoint()
 
-    if summary:
-        cls = ScientificModelSummary
-        query = kg_client.retrieve_query("VF_ScientificModelSummary")
-    else:
-        cls = ScientificModel
-        query = kg_client.retrieve_query("VF_ScientificModel")
+            return [
+                cls.from_kg_query(instance, kg_user_client)
+                for instance in instances
+            ]
 
-    models = []
-    for space in spaces:
-        results = kg_client.query(filter, query["@id"], space=space,
-            from_index=from_index, size=size, scope="in progress")
-        models.extend(results.data)
+        else:
+            # more complex case for pagination
+            # inefficient if from_index is not 0
+            instances = {}
+            for space in spaces:
+                for filter in filters:
+                    try:
+                        results = kg_user_client.query(filter, query["@id"], space=space,
+                                                       from_index=0, size=100000, scope=scope)
+                    except Exception as err:
+                        breakpoint()
+                    for instance in results.data:
+                        instances[instance["uri"]] = instance  # use dict to remove duplicates
 
-    return [
-        cls.from_kg_query(item, kg_client)
-        for item in models
-    ]
+            return [
+                cls.from_kg_query(instance, kg_user_client)
+                for instance in list(instances.values())[from_index:from_index + size]
+            ]
 
-@router.get("/models-old/{model_id}", response_model=ScientificModel)
+
+# @router.get("/models-old/{model_id}", response_model=ScientificModel)
+# async def get_model_old(
+#     model_id: str = Path(..., title="Model ID", description="ID of the model to be retrieved"),
+#     token: HTTPAuthorizationCredentials = Depends(auth),
+# ):
+#     """Retrieve information about a specific model identified by a UUID"""
+#     kg_client = get_kg_client_for_user_account(token)
+#     model_project = _get_model_by_id_or_alias(model_id, kg_client)
+#     if not model_project:
+#         raise HTTPException(
+#             status_code=status.HTTP_404_NOT_FOUND, detail=f"Model with ID '{model_id}' not found."
+#         )
+#     return ScientificModel.from_kg_object(model_project, kg_client)
+
+
+@router.get("/models/{model_id}", response_model=ScientificModel)
 async def get_model(
     model_id: str = Path(..., title="Model ID", description="ID of the model to be retrieved"),
     token: HTTPAuthorizationCredentials = Depends(auth),
 ):
     """Retrieve information about a specific model identified by a UUID"""
-    kg_client = get_kg_client_for_user_account(token)
-    model_project = _get_model_by_id_or_alias(model_id, kg_client)
-    if not model_project:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail=f"Model with ID '{model_id}' not found."
-        )
-    return ScientificModel.from_kg_object(model_project, kg_client)
+    user = User(token, allow_anonymous=True)
+    if user.is_anonymous:
+        kg_user_client = get_kg_client_for_service_account()
+        scope = "released"
+    else:
+        kg_user_client = get_kg_client_for_user_account(token)
+        scope = "any"
 
+    kg_service_client = get_kg_client_for_service_account()
 
-@router.get("/models/{model_id}", response_model=ScientificModel)
-async def get_model2(
-    model_id: str = Path(..., title="Model ID", description="ID of the model to be retrieved"),
-    token: HTTPAuthorizationCredentials = Depends(auth),
-):
-    """Retrieve information about a specific model identified by a UUID"""
-    kg_client = get_kg_client_for_user_account(token)
-    query = kg_client.retrieve_query("VF_ScientificModel")
+    query = kg_service_client.retrieve_query("VF_ScientificModel")
     try:
         UUID(model_id)
     except ValueError:
@@ -291,28 +376,30 @@ async def get_model2(
         filter = None
         instance_id = model_id
 
-    results = kg_client.query(filter, query["@id"], instance_id=instance_id,
-                              size=1, scope="in progress")
+    results = kg_user_client.query(filter, query["@id"], instance_id=instance_id,
+                                   size=1, scope=scope, id_key="uri")
 
     if results.total == 0:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail=f"Model with ID '{model_id}' not found."
         )
-    return ScientificModel.from_kg_query(results.data[0], kg_client)
+    return ScientificModel.from_kg_query(results.data[0], kg_user_client)
 
 
 @router.post("/models/", response_model=ScientificModel, status_code=status.HTTP_201_CREATED)
 async def create_model(
     model: ScientificModel, token: HTTPAuthorizationCredentials = Depends(auth)
 ):
+    user = User(token, allow_anonymous=False)
+
     # check permissions
     if model.project_id is None:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail=f"project_id must be provided"
         )
     if not (
-        await can_edit_collab(model.project_id, token.credentials)
-        or await is_admin(token.credentials)
+        await user.can_edit_collab(model.project_id)
+        or await user.is_admin()
     ):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -349,10 +436,12 @@ async def update_model(
     model_patch: ScientificModelPatch,
     token: HTTPAuthorizationCredentials = Depends(auth),
 ):
+    user = User(token, allow_anonymous=False)
+
     # if payload contains a project_id, check permissions for that id
     if model_patch.project_id and not (
-        await can_edit_collab(model_patch.project_id, token.credentials)
-        or await is_admin(token.credentials)
+        await user.can_edit_collab(model_patch.project_id)
+        or await user.is_admin()
     ):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -367,8 +456,8 @@ async def update_model(
     stored_model = ScientificModel.from_kg_object(model_project, kg_user_client)
     # if retrieved project_id is different to payload id, check permissions for that id
     if stored_model.project_id != model_patch.project_id and not (
-        await can_edit_collab(stored_model.project_id, token.credentials)
-        or await is_admin(token.credentials)
+        await user.can_edit_collab(stored_model.project_id)
+        or await user.is_admin()
     ):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -404,12 +493,20 @@ async def update_model(
 @router.delete("/models/{model_id}", status_code=status.HTTP_200_OK)
 async def delete_model(model_id: UUID, token: HTTPAuthorizationCredentials = Depends(auth)):
     # todo: handle non-existent UUID
+    user = User(token, allow_anonymous=False)
+
     kg_client = get_kg_client_for_user_account(token)
     model_project = omcore.Model.from_uuid(str(model_id), kg_client, scope="in progress")
+    if model_project is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Either a model with identifier {model_id} does not exist, or you do not have access to it.",
+        )
+
     collab_id = model_project.space[len("collab-"):]
     if not (
-        await can_edit_collab(collab_id, token.credentials)
-        or await is_admin(token.credentials)
+        await user.can_edit_collab(collab_id)
+        or await user.is_admin()
     ):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -426,10 +523,17 @@ async def delete_model(model_id: UUID, token: HTTPAuthorizationCredentials = Dep
 async def get_model_instances(
     model_id: str, version: str = None, token: HTTPAuthorizationCredentials = Depends(auth)
 ):
-    kg_client = get_kg_client_for_user_account(token)
-    model_project = _get_model_by_id_or_alias(model_id, kg_client)
+
+    user = User(token, allow_anonymous=True)
+    if user.is_anonymous:
+        kg_client = get_kg_client_for_service_account()
+        scope = "released"
+    else:
+        kg_client = get_kg_client_for_user_account(token)
+        scope = "any"
+    model_project = _get_model_by_id_or_alias(model_id, kg_client, scope)
     model_instances = [
-        ModelInstance.from_kg_object(inst, kg_client, model_project.uuid)
+        ModelInstance.from_kg_object(inst, kg_client, model_project.uuid, scope)
         for inst in as_list(model_project.versions)
     ]
     if version is not None:
@@ -441,19 +545,31 @@ async def get_model_instances(
 async def get_model_instance_from_instance_id(
     model_instance_id: UUID, token: HTTPAuthorizationCredentials = Depends(auth)
 ):
-    kg_client = get_kg_client_for_user_account(token)
-    inst, model_id = _get_model_instance_by_id(model_instance_id, kg_client)
-    return ModelInstance.from_kg_object(inst, kg_client, model_id)
+    user = User(token, allow_anonymous=True)
+    if user.is_anonymous:
+        kg_client = get_kg_client_for_service_account()
+        scope = "released"
+    else:
+        kg_client = get_kg_client_for_user_account(token)
+        scope = "any"
+    inst, model_id = _get_model_instance_by_id(model_instance_id, kg_client, scope)
+    return ModelInstance.from_kg_object(inst, kg_client, model_id, scope)
 
 
 @router.get("/models/{model_id}/instances/in progress", response_model=ModelInstance)
 async def get_latest_model_instance_given_model_id(
     model_id: str, token: HTTPAuthorizationCredentials = Depends(auth)
 ):
-    kg_client = get_kg_client_for_user_account(token)
-    model_project = _get_model_by_id_or_alias(model_id, kg_client)
+    user = User(token, allow_anonymous=True)
+    if user.is_anonymous:
+        kg_client = get_kg_client_for_service_account()
+        scope = "released"
+    else:
+        kg_client = get_kg_client_for_user_account(token)
+        scope = "any"
+    model_project = _get_model_by_id_or_alias(model_id, kg_client, scope)
     model_instances = [
-        ModelInstance.from_kg_object(inst, kg_client, model_project.uuid)
+        ModelInstance.from_kg_object(inst, kg_client, model_project.uuid, scope)
         for inst in as_list(model_project.versions)
     ]
     latest = sorted(model_instances, key=lambda inst: inst["timestamp"])[-1]
@@ -464,11 +580,17 @@ async def get_latest_model_instance_given_model_id(
 async def get_model_instance_given_model_id(
     model_id: str, model_instance_id: UUID, token: HTTPAuthorizationCredentials = Depends(auth)
 ):
-    kg_client = get_kg_client_for_user_account(token)
-    model_project = _get_model_by_id_or_alias(model_id, kg_client)
+    user = User(token, allow_anonymous=True)
+    if user.is_anonymous:
+        kg_client = get_kg_client_for_service_account()
+        scope = "released"
+    else:
+        kg_client = get_kg_client_for_user_account(token)
+        scope = "any"
+    model_project = _get_model_by_id_or_alias(model_id, kg_client, scope)
     for inst in as_list(model_project.versions):
         if UUID(inst.uuid) == model_instance_id:
-            return ModelInstance.from_kg_object(inst, kg_client, model_project.uuid)
+            return ModelInstance.from_kg_object(inst, kg_client, model_project.uuid, scope)
     raise HTTPException(
         status_code=status.HTTP_400_BAD_REQUEST,
         detail="Model ID/alias and model instance ID are inconsistent",
@@ -485,8 +607,9 @@ async def create_model_instance(
     model_instance: ModelInstance,
     token: HTTPAuthorizationCredentials = Depends(auth),
 ):
+    user = User(token, allow_anonymous=False)
     kg_user_client = get_kg_client_for_user_account(token)
-    model_project = _get_model_by_id_or_alias(model_id, kg_user_client)
+    model_project = _get_model_by_id_or_alias(model_id, kg_user_client, scope="any")
     # check permissions for this model
     if model_project.space is None:
         raise HTTPException(
@@ -495,8 +618,8 @@ async def create_model_instance(
         )
     collab_id = model_project.space[len("collab-"):]
     if not (
-        await can_edit_collab(collab_id, token.credentials)
-        or await is_admin(token.credentials)
+        await user.can_edit_collab(collab_id)
+        or await user.is_admin()
     ):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -513,7 +636,7 @@ async def create_model_instance(
     model_instance_kg.save(kg_user_client, space=model_project.space, recursive=True)
     model_project.versions = as_list(model_project.versions) + [model_instance_kg]
     model_project.save(kg_user_client, recursive=False)
-    return ModelInstance.from_kg_object(model_instance_kg, kg_user_client, model_project.uuid)
+    return ModelInstance.from_kg_object(model_instance_kg, kg_user_client, model_project.uuid, scope="any")
 
 
 @router.put("/models/query/instances/{model_instance_id}", response_model=ModelInstance)
@@ -522,11 +645,12 @@ async def update_model_instance_by_id(
     model_instance_patch: ModelInstancePatch,
     token: HTTPAuthorizationCredentials = Depends(auth),
 ):
+    user = User(token, allow_anonymous=False)
     kg_user_client = get_kg_client_for_user_account(token)
-    model_instance_kg, model_id = _get_model_instance_by_id(model_instance_id, kg_user_client)
-    model_project = _get_model_by_id_or_alias(model_id, kg_user_client)
+    model_instance_kg, model_id = _get_model_instance_by_id(model_instance_id, kg_user_client, scope="any")
+    model_project = _get_model_by_id_or_alias(model_id, kg_user_client, scope="any")
     return await _update_model_instance(
-        model_instance_kg, model_project, model_instance_patch, token
+        model_instance_kg, model_project, model_instance_patch, user
     )
 
 
@@ -541,16 +665,17 @@ async def update_model_instance(
     model_instance_patch: ModelInstancePatch,
     token: HTTPAuthorizationCredentials = Depends(auth),
 ):
+    user = User(token, allow_anonymous=False)
     kg_user_client = get_kg_client_for_user_account(token)
-    model_instance_kg, retrieved_model_id = _get_model_instance_by_id(model_instance_id, kg_user_client)
+    model_instance_kg, retrieved_model_id = _get_model_instance_by_id(model_instance_id, kg_user_client, scope="any")
     assert model_id == retrieved_model_id
-    model_project = _get_model_by_id_or_alias(model_id, kg_user_client)
+    model_project = _get_model_by_id_or_alias(model_id, kg_user_client, scope="any")
     return await _update_model_instance(
-        model_instance_kg, model_project, model_instance_patch, token
+        model_instance_kg, model_project, model_instance_patch, user
     )
 
 
-async def _update_model_instance(model_instance_kg, model_project, model_instance_patch, token):
+async def _update_model_instance(model_instance_kg, model_project, model_instance_patch, user):
     # check permissions for this model
     if model_project.space is None:
         raise HTTPException(
@@ -559,36 +684,37 @@ async def _update_model_instance(model_instance_kg, model_project, model_instanc
         )
     collab_id = model_project.space[len("collab-"):]
     if not (
-        await can_edit_collab(collab_id, token.credentials)
-        or await is_admin(token.credentials)
+        await user.can_edit_collab(collab_id)
+        or await user.is_admin()
     ):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail=f"This account is not a member of Collab #{model_project.project_id}",
         )
 
-    kg_user_client = get_kg_client_for_user_account(token)
+    kg_user_client = get_kg_client_for_user_account(user.token)
     stored_model_instance = ModelInstance.from_kg_object(
-        model_instance_kg, kg_user_client, model_project.uuid
+        model_instance_kg, kg_user_client, model_project.uuid, scope="any"
     )
     update_data = model_instance_patch.dict(exclude_unset=True)
     updated_model_instance = stored_model_instance.copy(update=update_data)
     model_instance_kg = updated_model_instance.to_kg_object(model_project)
     model_instance_kg.save(kg_user_client, space=model_project.space, recursive=True)
-    return ModelInstance.from_kg_object(model_instance_kg, kg_user_client, model_project.uuid)
+    return ModelInstance.from_kg_object(model_instance_kg, kg_user_client, model_project.uuid, scope="any")
 
 
 @router.delete("/models/query/instances/{model_instance_id}", status_code=status.HTTP_200_OK)
 async def delete_model_instance_by_id(
     model_instance_id: UUID, token: HTTPAuthorizationCredentials = Depends(auth)
 ):
+    user = User(token, allow_anonymous=False)
     kg_user_client = get_kg_client_for_user_account(token)
-    model_instance_kg, model_id = _get_model_instance_by_id(model_instance_id, kg_user_client)
-    model_project = _get_model_by_id_or_alias(model_id, kg_user_client)
+    model_instance_kg, model_id = _get_model_instance_by_id(model_instance_id, kg_user_client, scope="any")
+    model_project = _get_model_by_id_or_alias(model_id, kg_user_client, scope="any")
     collab_id = model_project.space[len("collab-"):]
     if not (
-        await can_edit_collab(collab_id, token.credentials)
-        or await is_admin(token.credentials)
+        await user.can_edit_collab(collab_id)
+        or await user.is_admin()
     ):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -602,13 +728,14 @@ async def delete_model_instance(
     model_id: UUID, model_instance_id: UUID, token: HTTPAuthorizationCredentials = Depends(auth)
 ):
     # todo: handle non-existent UUID
+    user = User(token, allow_anonymous=False)
     kg_user_client = get_kg_client_for_user_account(token)
-    model_instance_kg, model_id = _get_model_instance_by_id(model_instance_id, kg_user_client)
-    model_project = _get_model_by_id_or_alias(model_id, kg_user_client)
+    model_instance_kg, model_id = _get_model_instance_by_id(model_instance_id, kg_user_client, scope="any")
+    model_project = _get_model_by_id_or_alias(model_id, kg_user_client, scope="any")
     collab_id = model_project.space[len("collab-"):]
     if not (
-        await can_edit_collab(collab_id, token.credentials)
-        or await is_admin(token.credentials)
+        await user.can_edit_collab(collab_id)
+        or await user.is_admin()
     ):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
