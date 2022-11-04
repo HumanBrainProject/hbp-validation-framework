@@ -70,7 +70,7 @@ def filter_study_targets(study_targets):
     brain_regions = []
     species = []
     for item in as_list(study_targets):
-        item = item.resolve(kg_service_client, scope="in progress")
+        item = item.resolve(kg_service_client, scope="any")
         if isinstance(item, omterms.CellType):
             cell_types.append(item.name)
         elif isinstance(item, omterms.UBERONParcellation):
@@ -105,7 +105,7 @@ def get_term_cache():
             omterms.Service,
             omterms.ActionStatusType
         ):
-            objects = cls.list(kg_service_client, api="core", scope="in progress", size=10000)
+            objects = cls.list(kg_service_client, api="core", scope="any", size=10000)
             term_cache[cls.__name__] = {
                 "names": {obj.name: obj for obj in objects},
                 "ids": {obj.id: obj for obj in objects}
@@ -292,7 +292,7 @@ class Person(BaseModel):
 
     @classmethod
     def from_kg_object(cls, person, client):
-        person = person.resolve(client, scope="in progress")
+        person = person.resolve(client, scope="any")
         orcid = None
         if person.digital_identifiers:
             for digid in as_list(person.digital_identifiers):
@@ -300,7 +300,7 @@ class Person(BaseModel):
                     orcid = digid.identifier
                     break
                 elif isinstance(digid, KGProxy) and digid.cls == omcore.ORCID:
-                    orcid = digid.resolve(client, scope="in progress").identifier
+                    orcid = digid.resolve(client, scope="any").identifier
                     break
         return cls(given_name=person.given_name, family_name=person.family_name,
                    orcid=orcid)
@@ -342,10 +342,7 @@ class ModelInstance(BaseModel):
             item["version"] = "unknown"
         if client.is_released(item["uri"]):
             item["alternatives"].append(f"https://search.kg.ebrains.eu/instances/{item['id']}")
-        try:
-            return cls(**item)
-        except:
-            breakpoint()
+        return cls(**item)
 
     @classmethod
     def from_kg_object(cls, instance, client, model_id, scope):
@@ -482,10 +479,7 @@ class ScientificModel(BaseModel):
         if timestamps:
             item["date_created"] = min(timestamps)
 
-        try:
-            return cls(**item)
-        except:
-            breakpoint()
+        return cls(**item)
 
     @classmethod
     def from_kg_object(cls, model_project, client):
@@ -619,10 +613,7 @@ class ScientificModelSummary(BaseModel):
     def from_kg_query(cls, item, client):
         item.pop("@context")
         item["id"] = client.uuid_from_uri(item["uri"])
-        try:
-            return cls(**item)
-        except:
-            breakpoint()
+        return cls(**item)
 
     @classmethod
     def from_kg_object(cls, model_project, client):
@@ -726,16 +717,13 @@ class ValidationTestInstance(BaseModel):
         item["test_id"] = client.uuid_from_uri(item["test_id"])
         if item["timestamp"]:
             item["timestamp"] = datetime.fromisoformat(item["timestamp"])
-        try:
-            return cls(**item)
-        except:
-            breakpoint()
+        return cls(**item)
 
     @classmethod
     def from_kg_object(cls, test_version, test_uuid, client):
-        test_version = test_version.resolve(client, scope="in progress")
+        test_version = test_version.resolve(client, scope="any")
         if test_version.repository:
-            repository = test_version.repository.resolve(client, scope="in progress").iri.value
+            repository = test_version.repository.resolve(client, scope="any").iri.value
         else:
             repository = None
         return cls(
@@ -833,14 +821,11 @@ class ValidationTest(BaseModel):
                     data_locations.append(loc[field])
                     break
         item["data_location"] = data_locations
-        try:
-            return cls(**item)
-        except:
-            breakpoint()
+        return cls(**item)
 
     @classmethod
     def from_kg_object(cls, test_definition, client):
-        versions = [ver.resolve(client, scope="in progress") for ver in as_list(test_definition.versions)]
+        versions = [ver.resolve(client, scope="any") for ver in as_list(test_definition.versions)]
         instances = [
             ValidationTestInstance.from_kg_object(inst, test_definition.uuid, client) for inst in versions
         ]
@@ -848,7 +833,7 @@ class ValidationTest(BaseModel):
         if len(versions) > 0:
             latest_version = sorted(versions,
                                     key=lambda ver: ver.version_identifier)[-1]
-            reference_data = [item.resolve(client, scope="in progress")
+            reference_data = [item.resolve(client, scope="any")
                              for item in as_list(latest_version.reference_data)]
             data_location = []
             data_type = set()
@@ -972,10 +957,7 @@ class ValidationTestSummary(BaseModel):
     def from_kg_query(cls, item, client):
         item.pop("@context")
         item["id"] = client.uuid_from_uri(item["uri"])
-        try:
-            return cls(**item)
-        except:
-            breakpoint()
+        return cls(**item)
 
     @classmethod
     def from_kg_object(cls, test_definition, client):
@@ -1080,7 +1062,7 @@ class File(BaseModel):
 
     @classmethod
     def from_kg_object(cls, file_obj, client):
-        file_obj = file_obj.resolve(client, scope="in progress")
+        file_obj = file_obj.resolve(client, scope="any")
         url = file_obj.iri.value
         url_parts = urlparse(url)
         id = None
@@ -1214,15 +1196,12 @@ class ValidationResultSummary(BaseModel):
         item["test_instance_id"] = client.uuid_from_uri(item["test_instance_id"])
         item["model_id"] = client.uuid_from_uri(item["model_id"])
         item["test_id"] = client.uuid_from_uri(item["test_id"])
-        try:
-            return cls(**item)
-        except:
-            breakpoint()
+        return cls(**item)
 
     @classmethod
     def from_kg_object(cls, validation_activity, client):
         logger.info(validation_activity.inputs)
-        inputs = [obj.resolve(client, scope="in progress") for obj in validation_activity.inputs]
+        inputs = [obj.resolve(client, scope="any") for obj in validation_activity.inputs]
         model_instance = [obj for obj in inputs if isinstance(obj, omcore.ModelVersion)][0]
         model_instance_id = model_instance.uuid
         model = model_instance.is_version_of(client)
@@ -1231,7 +1210,7 @@ class ValidationResultSummary(BaseModel):
         test = test_instance.is_version_of(client)
         # data_type = set()
         # for item in as_list(test_instance.reference_data):
-        #     item = item.resolve(client, scope="in progress")
+        #     item = item.resolve(client, scope="any")
         #     if hasattr(item, "iri"):  # File
         #         data_type.add(item.format)
         # data_type = list(data_type)
@@ -1274,7 +1253,7 @@ class ValidationResult(BaseModel):
 
     @classmethod
     def from_kg_object(cls, validation_activity, client):
-        inputs = [obj.resolve(client, scope="in progress") for obj in validation_activity.inputs]
+        inputs = [obj.resolve(client, scope="any") for obj in validation_activity.inputs]
         model_instance = [obj for obj in inputs if isinstance(obj, omcore.ModelVersion)][0]
         model_instance_id = model_instance.uuid
         test_instance = [obj for obj in inputs if isinstance(obj, omcmp.ValidationTestVersion)][0]
@@ -1303,11 +1282,7 @@ class ValidationResult(BaseModel):
         item["model_instance_id"] = client.uuid_from_uri(item["model_instance_id"])
         item["test_instance_id"] = client.uuid_from_uri(item["test_instance_id"])
         item["project_id"] = project_id_from_space(item["project_id"])
-
-        try:
-            return cls(**item)
-        except:
-            breakpoint()
+        return cls(**item)
 
     def to_kg_objects(self, client):
         timestamp = ensure_has_timezone(self.timestamp) or datetime.now(timezone.utc)
@@ -1317,13 +1292,13 @@ class ValidationResult(BaseModel):
             for file_obj in self.results_storage
         ]
 
-        model_version = omcore.ModelVersion.from_id(str(self.model_instance_id), client, scope="in progress")
+        model_version = omcore.ModelVersion.from_id(str(self.model_instance_id), client, scope="any")
         if model_version is None:
             raise HTTPException(
                status_code=status.HTTP_400_BAD_REQUEST,
                detail=f"There is no model instance with id {self.model_instance_id}",
             )
-        test_version = omcmp.ValidationTestVersion.from_id(str(self.test_instance_id), client, scope="in progress")
+        test_version = omcmp.ValidationTestVersion.from_id(str(self.test_instance_id), client, scope="any")
         if test_version is None:
             raise HTTPException(
                status_code=status.HTTP_400_BAD_REQUEST,
@@ -1391,10 +1366,7 @@ class ValidationResultWithTestAndModel(ValidationResult):
         item["model"] = ScientificModel.from_kg_query(item["model"], client)
         item["test"] = ValidationTest.from_kg_query(item["test"], client)
 
-        try:
-            return cls(**item)
-        except:
-            breakpoint()
+        return cls(**item)
 
     @classmethod
     def from_kg_object(cls, validation_activity, client):
@@ -1631,11 +1603,11 @@ class PersonWithAffiliation(BaseModel):
     @classmethod
     def from_kg_object(cls, p, client):
         if isinstance(p, KGProxy):
-            pr = p.resolve(client, scope="in progress")
+            pr = p.resolve(client, scope="any")
         else:
             pr = p
         if pr.affiliations:
-            affiliations = [affil.resolve(client, scope="in progress", follow_links=1)
+            affiliations = [affil.resolve(client, scope="any", follow_links=1)
                             for affil in as_list(pr.affiliations)]
             affiliation = "; ".join((affil.organization.name for affil in affiliations if affil.organization and affil.organization.name))
             # todo: if affiliations have start/end dates, filter for the ones that match the datetimes
@@ -1668,8 +1640,8 @@ class LivePaperDataItem(BaseModel):
     @classmethod
     def from_kg_object(cls, data_item, kg_client):
         if isinstance(data_item, KGProxy):
-            data_item = data_item.resolve(kg_client, scope="in progress")
-        service_links = as_list(omcore.ServiceLink.list(kg_client, scope="in progress", space=data_item.space, data_location=data_item))
+            data_item = data_item.resolve(kg_client, scope="any")
+        service_links = as_list(omcore.ServiceLink.list(kg_client, scope="any", space=data_item.space, data_location=data_item))
         if service_links:
             view_url = service_links[0].open_data_in.resolve(kg_client, scope=service_links[0].scope).url.value
         else:
@@ -1683,7 +1655,7 @@ class LivePaperDataItem(BaseModel):
                 identifier=data_item.uuid
             )
         else:
-            resource_type = data_item.hosted_by.resolve(kg_client, scope="in progress")  # todo: use scope='released'
+            resource_type = data_item.hosted_by.resolve(kg_client, scope="any")  # todo: use scope='released'
             return cls(
                 url=data_item.iri.value,
                 label=data_item.name,
@@ -1732,8 +1704,8 @@ class LivePaperSection(BaseModel):
     @classmethod
     def from_kg_object(cls, section, kg_client):
         if isinstance(section, KGProxy):
-            section = section.resolve(kg_client, scope="in progress")
-        resource_items = ompub.LivePaperResourceItem.list(kg_client, size=1000, scope="in progress", space=section.space, is_part_of=section)
+            section = section.resolve(kg_client, scope="any")
+        resource_items = ompub.LivePaperResourceItem.list(kg_client, size=1000, scope="any", space=section.space, is_part_of=section)
         return cls(
             order=int(section.order),
             type=section.section_type,
@@ -1806,7 +1778,7 @@ class LivePaper(BaseModel):
                 return None
             return PersonWithAffiliation.from_kg_object(obj, kg_client)
 
-        scope = lp.scope or "in progress"
+        scope = lp.scope or "any"
         lpv = as_list(lp.versions)[-1]  # todo: sort by release_date and/or last_modified
         lpv = lpv.resolve(kg_client, scope=scope)
 
@@ -1852,7 +1824,7 @@ class LivePaper(BaseModel):
         # now remove possible duplicates
         original_authors = list(dict.fromkeys(original_authors))
         custodians = lpv.custodians or lp.custodians
-        sections = ompub.LivePaperSection.list(kg_client, size=1000, scope="in progress", space=lp.space, is_part_of=lpv)
+        sections = ompub.LivePaperSection.list(kg_client, size=1000, scope="any", space=lp.space, is_part_of=lpv)
         if lp.space.startswith("collab-"):
             collab_id = lp.space[7:]
         else:
@@ -1900,7 +1872,7 @@ class LivePaper(BaseModel):
         live_paper_authors = [p.to_kg_object() for p in as_list(self.created_author)]
 
         def get_journal_volume_issue(journal_name, volume, issue):
-            journal = ompub.Periodical.by_name(journal_name, kg_client, scope="in progress")  # also check "released"
+            journal = ompub.Periodical.by_name(journal_name, kg_client, scope="any")  # also check "released"
             volume = ompub.PublicationVolume(is_part_of=journal, volume_number=volume or "placeholder")
             if issue:
                 return ompub.PublicationIssue(is_part_of=volume, issue_number=issue)
@@ -1942,7 +1914,6 @@ class LivePaper(BaseModel):
             digital_identifier=omcore.DOI(identifier=self.doi) if self.doi else None,
             versions=[lpv]
         )
-        #breakpoint()
         if self.id:
             lp.id = lp.__class__.uri_from_uuid(self.id, kg_client)
         sections = sum([section.to_kg_objects(lpv, kg_client) for section in self.resources], [])
@@ -1970,7 +1941,7 @@ class LivePaperSummary(BaseModel):
 
     @classmethod
     def from_kg_object(cls, lp, kg_client):
-        scope = lp.scope or "in progress"
+        scope = lp.scope or "any"
         lpv = as_list(lp.versions)[-1]  # todo: sort by release_date and/or last_modified
         lpv = lpv.resolve(kg_client, scope=scope)
 

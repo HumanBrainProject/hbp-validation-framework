@@ -225,13 +225,9 @@ def query_tests(
 
         if len(spaces) == 1 and len(filters) == 1:
             # common, simple case
-            try:
-                instances = kg_user_client.query(filters[0], query["@id"], space=spaces[0],
-                                                 from_index=from_index, size=size,
-                                                 scope=scope, id_key="uri").data
-            except Exception as err:
-                #breakpoint()
-                raise
+            instances = kg_user_client.query(filters[0], query["@id"], space=spaces[0],
+                                             from_index=from_index, size=size,
+                                             scope=scope, id_key="uri").data
 
             return [
                 cls.from_kg_query(instance, kg_user_client)
@@ -244,12 +240,8 @@ def query_tests(
             instances = {}
             for space in spaces:
                 for filter in filters:
-                    try:
-                        results = kg_user_client.query(filter, query["@id"], space=space,
+                    results = kg_user_client.query(filter, query["@id"], space=space,
                                                        from_index=0, size=100000, scope=scope)
-                    except Exception as err:
-                        #breakpoint()
-                        raise
                     for instance in results.data:
                         instances[instance["uri"]] = instance  # use dict to remove duplicates
 

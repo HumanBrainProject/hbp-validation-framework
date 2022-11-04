@@ -204,7 +204,6 @@ async def create_live_paper(
         for obj in kg_objects[category]:
             obj.save(kg_client, space=kg_space, recursive=True)
     logger.info("Saved objects")
-    #breakpoint()
     return LivePaperSummary.from_kg_object(kg_objects["paper"][-1], kg_client)
 
 
