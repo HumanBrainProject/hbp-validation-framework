@@ -165,7 +165,7 @@ Species = Enum(
     "Species",
     [
         (name.replace(" ", "_"), name)
-        for name in term_cache["Species"]["names"]
+        for name in sorted(term_cache["Species"]["names"])
     ]
 )
 
@@ -174,7 +174,7 @@ BrainRegion = Enum(
     "BrainRegion",
     [
         (name.replace(" ", "_"), name)
-        for name in term_cache["UBERONParcellation"]["names"]
+        for name in sorted(term_cache["UBERONParcellation"]["names"])
     ]
 )
 
@@ -183,7 +183,7 @@ ModelScope = Enum(
     "ModelScope",
     [
         (name.replace(" ", "_").replace(":", "__"), name)
-        for name in term_cache["ModelScope"]["names"]
+        for name in sorted(term_cache["ModelScope"]["names"])
     ],
 )
 
@@ -192,7 +192,7 @@ AbstractionLevel = Enum(
     "AbstractionLevel",
     [
         (name.replace(" ", "_").replace(":", "__"), name)
-        for name in term_cache["ModelAbstractionLevel"]["names"]
+        for name in sorted(term_cache["ModelAbstractionLevel"]["names"])
     ],
 )
 
@@ -201,7 +201,7 @@ CellType = Enum(
     "CellType",
     [
         (name.replace(" ", "_"), name)
-        for name in term_cache["CellType"]["names"]
+        for name in sorted(term_cache["CellType"]["names"])
     ]
 )
 
@@ -231,7 +231,7 @@ RecordingModality = Enum(  # rename to something like DataType or ExperimentalTe
     "RecordingModality",
     [
         (name.replace(" ", "_"), name)
-        for name in term_cache["Technique"]["names"]
+        for name in sorted(term_cache["Technique"]["names"])
         # or could use ExperimentalApproach
         # ideally should filter techniques to include only those are recording techniques
     ]
@@ -251,7 +251,7 @@ ScoreType = Enum(
     "ScoreType",
     [
         (name.replace(" ", "_"), name)
-        for name in term_cache["DifferenceMeasure"]["names"]
+        for name in sorted(term_cache["DifferenceMeasure"]["names"])
     ]
 )
 
@@ -260,7 +260,7 @@ License = Enum(
     "License",
     [
         (name.replace(" ", "_"), name)
-        for name in term_cache["License"]["names"]
+        for name in sorted(term_cache["License"]["names"])
     ]
 )
 
@@ -269,7 +269,7 @@ ActionStatusType = Enum(
     "ActionStatusType",
     [
         (name.replace(" ", "_"), name)
-        for name in term_cache["ActionStatusType"]["names"]
+        for name in sorted(term_cache["ActionStatusType"]["names"])
     ]
 )
 
