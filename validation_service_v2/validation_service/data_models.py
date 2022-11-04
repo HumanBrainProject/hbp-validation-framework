@@ -954,7 +954,7 @@ class ValidationTestSummary(BaseModel):
     date_created: datetime = None
     data_type: str = None
     recording_modality: RecordingModality = None
-    test_type: ValidationTestType = None
+    test_type: ModelScope = None
     score_type: ScoreType = None
 
     @classmethod
@@ -1005,7 +1005,7 @@ class ValidationTestPatch(BaseModel):
     data_location: List[HttpUrl] = None
     data_type: str = None
     recording_modality: RecordingModality = None
-    test_type: ValidationTestType = None
+    test_type: ModelScope = None
     score_type: ScoreType = None
 
     @classmethod
