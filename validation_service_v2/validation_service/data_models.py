@@ -857,6 +857,10 @@ class ValidationTest(BaseModel):
             implementation_status = ImplementationStatus.published
         else:
             implementation_status = ImplementationStatus.dev
+        date_created = None
+        timestamps = [inst.timestamp for inst in instances if inst.timestamp is not None]
+        if timestamps:
+            date_created = min(timestamps)
         obj = cls(
             id=test_definition.uuid,
             uri=test_definition.id,
@@ -869,7 +873,7 @@ class ValidationTest(BaseModel):
             cell_type=cell_types[0] if cell_types else None,
             brain_region=brain_regions[0] if brain_regions else None,
             species=species[0] if species else None,
-            date_created=min(inst.timestamp for inst in instances),
+            date_created=date_created,
             data_location=data_location,
             data_type=data_type,
             test_type=ModelScope(test_definition.model_scope.resolve(client).name) if test_definition.model_scope else None,
