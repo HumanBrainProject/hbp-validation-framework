@@ -12,7 +12,6 @@ from ..data_models import (
     ModelScope,
     AbstractionLevel,
     RecordingModality,
-    ValidationTestType,
     ScoreType,
     ImplementationStatus,
     License,
@@ -52,9 +51,9 @@ def list_recording_modalities():
     return [item.value for item in RecordingModality]
 
 
-@router.get("/vocab/test-type/")  # deprecated - to remove
+@router.get("/vocab/test-type/")
 def list_test_types():
-    return [item.value for item in ValidationTestType]
+    return [item.value for item in ModelScope]
 
 
 @router.get("/vocab/score-type/")
@@ -108,7 +107,7 @@ def all_vocabularies():
         "cell_type": [item.value for item in CellType],
         "abstraction_level": [item.value for item in AbstractionLevel],
         "recording_modality": [item.value for item in RecordingModality],
-        "test_type": [item.value for item in ValidationTestType],  # deprecated, largely redundant with recording_modality
+        "test_type": [item.value for item in ModelScope],
         "score_type": [item.value for item in ScoreType],
         "implementation_status": [item.value for item in ImplementationStatus],
         "license": popular_licenses,

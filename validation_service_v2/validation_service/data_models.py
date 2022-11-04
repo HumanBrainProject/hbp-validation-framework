@@ -238,13 +238,13 @@ RecordingModality = Enum(  # rename to something like DataType or ExperimentalTe
 )
 
 
-class ValidationTestType(str, Enum):
-    # deprecated, largely redundant with RecordingModality
-    behaviour = "behaviour"
-    network_activity = "network activity"
-    network_structure = "network structure"
-    single_cell_activity = "single cell activity"
-    subcellular = "subcellular"
+# class ValidationTestType(str, Enum):
+#     # deprecated, largely redundant with RecordingModality
+#     behaviour = "behaviour"
+#     network_activity = "network activity"
+#     network_structure = "network structure"
+#     single_cell_activity = "single cell activity"
+#     subcellular = "subcellular"
 
 
 ScoreType = Enum(

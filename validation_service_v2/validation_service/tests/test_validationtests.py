@@ -11,9 +11,9 @@ from ..data_models import (
     BrainRegion,
     Species,
     ImplementationStatus,
+    ModelScope,
     ScoreType,
-    RecordingModality,
-    ValidationTestType,
+    RecordingModality
 )
 from .fixtures import _build_sample_validation_test, client, token, AUTH_HEADER
 
@@ -35,7 +35,7 @@ def check_validation_test(test_definition, expected_instances=0):
     if test_definition["score_type"]:
         assert test_definition["score_type"] in [item.value for item in ScoreType]
     if test_definition["test_type"]:
-        assert test_definition["test_type"] in [item.value for item in ValidationTestType]
+        assert test_definition["test_type"] in [item.value for item in ModelScope]
     if test_definition["recording_modality"]:
         assert test_definition["recording_modality"] in [item.value for item in RecordingModality]
     if test_definition["data_location"]:
