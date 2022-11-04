@@ -921,7 +921,7 @@ class ValidationTest(BaseModel):
             experimental_technique=get_term("Technique", self.recording_modality),
             #homepage=,
             #how_to_cite=,
-            #model_scope=None,   # re-curate by hand
+            model_scope=get_term("ModelScope", self.test_type),
             score_type=get_term("DifferenceMeasure", self.score_type),
             study_targets=study_targets
         )
