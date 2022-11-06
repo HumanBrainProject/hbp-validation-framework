@@ -359,6 +359,8 @@ class ModelInstance(BaseModel):
             if not source.startswith("http"):
                 logger.error(f"Invalid URL: {source}")
                 source = None
+            elif "modeldb" in source.lower():
+                alternatives.append(source)
             hash = getattr(repository.hash, "digest", None)
         else:
             source = None
