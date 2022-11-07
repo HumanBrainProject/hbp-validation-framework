@@ -452,7 +452,7 @@ async def update_model(
     kg_service_client = get_kg_client_for_service_account()
 
     # retrieve stored model
-    model_project = omcore.Model.from_uuid(str(model_id), kg_user_client, scope="in progress")
+    model_project = omcore.Model.from_uuid(str(model_id), kg_user_client, scope="any")
     stored_model = ScientificModel.from_kg_object(model_project, kg_user_client)
     # if retrieved project_id is different to payload id, check permissions for that id
     if stored_model.project_id != model_patch.project_id and not (
