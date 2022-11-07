@@ -342,6 +342,8 @@ class ModelInstance(BaseModel):
             item["version"] = "unknown"
         if client.is_released(item["uri"]):
             item["alternatives"].append(f"https://search.kg.ebrains.eu/instances/{item['id']}")
+        if "modeldb" in item["source"].lower():
+            item["alternatives"].append(item["source"])
         return cls(**item)
 
     @classmethod
