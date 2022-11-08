@@ -108,8 +108,8 @@ def _query_results(filters, project_id, kg_client, data_model, query_label, from
     if len(spaces) == 1 and len(filters) == 1:
         # common, simple case
         response = kg_client.query(filters[0], query["@id"], space=spaces[0],
-                                       from_index=from_index, size=size, scope="any",
-                                       id_key="uri")
+                                   from_index=from_index, size=size, scope="any",
+                                   id_key="uri")
         test_results = [
             data_model.from_kg_query(item, kg_client)
             for item in response.data

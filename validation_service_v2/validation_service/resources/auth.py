@@ -2,11 +2,11 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from starlette.requests import Request
 from httpx import HTTPStatusError
-from ..auth import oauth
+from ..auth import oauth, User
 from ..settings import BASE_URL
 
 router = APIRouter()
-auth = HTTPBearer()
+auth = HTTPBearer(auto_error=False)
 
 @router.get("/login")
 async def login_via_ebrains(request: Request):
@@ -40,30 +40,33 @@ async def list_projects(
     request: Request,
     token: HTTPAuthorizationCredentials = Depends(auth),
 ):
-    try:
-        user_info = await oauth.ebrains.userinfo(
-            token={"access_token": token.credentials, "token_type": "bearer"}
-        )
-    except HTTPStatusError as err:
-        if "401" in str(err):
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail=str(err),
-            )
-        else:
-            raise
-    roles = user_info.get("roles", {}).get("team", [])
-    projects = {}
-    for role in roles:
-        if role.startswith("collab-"):
-            project_id = "-".join(role.split("-")[1:-1])
-            if project_id not in projects:
-                projects[project_id] = {
-                    "project_id": project_id,
-                    "permissions": {"VIEW": False, "UPDATE": False}
-                }
-            if role.endswith("viewer"):  # todo: what about public collabs?
-                projects[project_id]["permissions"]["VIEW"] = True
-            elif role.endswith("editor") or role.endswith("administrator"):
-                projects[project_id]["permissions"] = {"VIEW": True, "UPDATE": True}
-    return list(projects.values())
+    user = User(token, allow_anonymous=True)
+    if user.is_anonymous:
+        return []
+    else:
+        user_info = await user.get_user_info()
+        try:
+            user_info = await user.get_user_info()
+        except HTTPStatusError as err:
+            if "401" in str(err):
+                raise HTTPException(
+                    status_code=status.HTTP_401_UNAUTHORIZED,
+                    detail=str(err),
+                )
+            else:
+                raise
+        roles = user_info.get("roles", {}).get("team", [])
+        projects = {}
+        for role in roles:
+            if role.startswith("collab-"):
+                project_id = "-".join(role.split("-")[1:-1])
+                if project_id not in projects:
+                    projects[project_id] = {
+                        "project_id": project_id,
+                        "permissions": {"VIEW": False, "UPDATE": False}
+                    }
+                if role.endswith("viewer"):  # todo: what about public collabs?
+                    projects[project_id]["permissions"]["VIEW"] = True
+                elif role.endswith("editor") or role.endswith("administrator"):
+                    projects[project_id]["permissions"] = {"VIEW": True, "UPDATE": True}
+        return list(projects.values())

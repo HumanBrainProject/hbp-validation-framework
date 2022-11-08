@@ -72,7 +72,7 @@ class User:
 
     @property
     def is_anonymous(self):
-        return self.token is None
+        return self.token is None or self.token.credentials == "undefined"
 
     async def get_user_info(self):
         if self._user_info is None:
