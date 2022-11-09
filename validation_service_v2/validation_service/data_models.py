@@ -344,6 +344,13 @@ class ModelInstance(BaseModel):
             item["alternatives"].append(f"https://search.kg.ebrains.eu/instances/{item['id']}")
         if item["source"] and "modeldb" in item["source"].lower():
             item["alternatives"].append(item["source"])
+        if item["inputData"]:
+            for input_url in item["inputData"]:
+                if input_url.endswith(".asc"):
+                    item["morphology"] = input_url
+                elif input_url.endswith("_meta.json"):
+                    item["parameters"] = input_url
+        item.pop("inputData", None)
         return cls(**item)
 
     @classmethod
