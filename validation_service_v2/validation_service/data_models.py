@@ -344,7 +344,12 @@ class ModelInstance(BaseModel):
             item["alternatives"].append(f"https://search.kg.ebrains.eu/instances/{item['id']}")
         if item["source"] and "modeldb" in item["source"].lower():
             item["alternatives"].append(item["source"])
-        if item["inputData"]:
+
+        # provide download zip link if source is a container folder
+        if item["source"] and "object.cscs.ch" in item["source"] and "?prefix" in item["source"] and item["source"][-1] == "/":
+            item["source"] = f"https://data.kg.ebrains.eu/zip?container={item['source']}"
+
+        if item.get("inputData", None):
             for input_url in item["inputData"]:
                 if input_url.endswith(".asc"):
                     item["morphology"] = input_url
@@ -370,6 +375,8 @@ class ModelInstance(BaseModel):
                 source = None
             elif "modeldb" in source.lower():
                 alternatives.append(source)
+            elif "object.cscs.ch" in source and "?prefix" in source and source[-1] == "/":
+                source = f"https://data.kg.ebrains.eu/zip?container={source}"
             hash = getattr(repository.hash, "digest", None)
         else:
             source = None
@@ -1393,7 +1400,7 @@ class ValidationResultWithTestAndModel(ValidationResult):
         model_instance = ModelInstance.from_kg_object(model_instance_kg, client, model_project.uuid, scope="any")
         model = ScientificModel.from_kg_object(model_project, client)
 
-        test_script = _get_test_instance_by_id(vr.test_instance_id, client)
+        test_script = _get_test_instance_by_id(vr.test_instance_id, client, scope="any")
         test_definition = test_script.is_version_of(client)
 
         test_instance = ValidationTestInstance.from_kg_object(test_script, test_definition.uuid, client)

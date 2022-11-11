@@ -65,21 +65,13 @@ def _get_model_instance_by_id(instance_id, kg_client, scope):
     return model_instance, model_project.uuid
 
 
-async def _check_test_access(test_definition, user):
-    if user.is_anonymous and test_definition.status != "published":
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail=f"Viewing unpublished tests requires authentication.",
-        )
-
-
-def _get_test_by_id_or_alias(test_id, kg_client, user):
+def _get_test_by_id_or_alias(test_id, kg_client, scope):
     try:
         test_id = UUID(test_id)
         get_test = ValidationTest.from_uuid
     except ValueError:
         get_test = ValidationTest.from_alias
-    test_definition = get_test(str(test_id), kg_client, scope="any")
+    test_definition = get_test(str(test_id), kg_client, scope=scope)
     if not test_definition:  # None or empty list
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -90,13 +82,12 @@ def _get_test_by_id_or_alias(test_id, kg_client, user):
         raise Exception(
             f"Found multiple tests (n={len(test_definition)}) with id/alias '{test_id}'"
         )
-    _check_test_access(test_definition, user)
     # todo: fairgraph should accept UUID object as well as str
     return test_definition
 
 
-def _get_test_instance_by_id(instance_id, kg_client):
-    test_instance = ValidationTestVersion.from_uuid(str(instance_id), kg_client, scope="any")
+def _get_test_instance_by_id(instance_id, kg_client, scope):
+    test_instance = ValidationTestVersion.from_uuid(str(instance_id), kg_client, scope=scope)
     if test_instance is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,

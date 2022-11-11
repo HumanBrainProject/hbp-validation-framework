@@ -11,7 +11,7 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic import ValidationError
 
 from ..auth import get_kg_client_for_service_account, get_kg_client_for_user_account, User
-from ..db import _get_test_by_id_or_alias, _get_test_instance_by_id, _check_test_access
+from ..db import _get_test_by_id_or_alias, _get_test_instance_by_id
 from ..db import _check_service_status
 from ..data_models import (
     Person,
@@ -129,7 +129,7 @@ def query_tests(
     alias: List[str] = Query(None),
     id: List[UUID] = Query(None),
     name: List[str] = Query(None),
-    implementation_status: str = Query(None),
+    implementation_status: ImplementationStatus = Query(None),
     brain_region: List[BrainRegion] = Query(None),
     species: List[Species] = Query(None),
     cell_type: List[CellType] = Query(None),
@@ -156,9 +156,13 @@ def query_tests(
         else:
             implementation_status = ImplementationStatus.published.value
         kg_user_client = get_kg_client_for_service_account()
+        scope = "released"
     else:
         kg_user_client = get_kg_client_for_user_account(token)
-    scope = "any"   # not using release mechanism for the time being
+        if implementation_status == ImplementationStatus.published.value:
+            scope = "released"
+        else:
+            scope = "any"
 
     if id:
         # if specifying specific ids, we ignore any other search terms
@@ -172,16 +176,7 @@ def query_tests(
                     status_code=status.HTTP_404_NOT_FOUND,
                     detail=f"Either a validation test definition with identifier {test_uuid} does not exist, or you do not have access to it.",
                 )
-        if user.is_anonymous:
-            for td in test_definitions:
-                if td.is_released(kg_service_client):
-                     raise HTTPException(
-                        status_code=status.HTTP_401_UNAUTHORIZED,
-                        detail="Anonymous users may not view private validation test definitions"
-                    )
-
     else:
-
         # get the values of of the Enums
         filters = {}
         if brain_region:
@@ -256,9 +251,11 @@ def get_test(test_id: str, token: HTTPAuthorizationCredentials = Depends(auth)):
     user = User(token, allow_anonymous=True)
     if user.is_anonymous:
         kg_client = get_kg_client_for_service_account()
+        scope = "released"
     else:
         kg_client = get_kg_client_for_user_account(token)
-    test_definition = _get_test_by_id_or_alias(test_id, kg_client, user)
+        scope = "any"
+    test_definition = _get_test_by_id_or_alias(test_id, kg_client, scope)
     return ValidationTest.from_kg_object(test_definition, kg_client)
 
 
@@ -356,9 +353,11 @@ def get_test_instances(
     user = User(token, allow_anonymous=True)
     if user.is_anonymous:
         kg_client = get_kg_client_for_service_account()
+        scope = "released"
     else:
         kg_client = get_kg_client_for_user_account(token)
-    test_definition = _get_test_by_id_or_alias(test_id, kg_client, user)
+        scope = "any"
+    test_definition = _get_test_by_id_or_alias(test_id, kg_client, scope)
     test_instances = [
         ValidationTestInstance.from_kg_object(inst, test_definition.uuid, kg_client)
         for inst in as_list(test_definition.versions)
@@ -375,11 +374,12 @@ def get_test_instance_from_instance_id(
     user = User(token, allow_anonymous=True)
     if user.is_anonymous:
         kg_client = get_kg_client_for_service_account()
+        scope = "released"
     else:
         kg_client = get_kg_client_for_user_account(token)
-    inst = _get_test_instance_by_id(test_instance_id, kg_client)
-    test_definition = omcmp.ValidationTest.list(kg_client, scope="in progress", space=inst.space, versions=inst)[0]
-    _check_test_access(test_definition, user)
+        scope = "any"
+    inst = _get_test_instance_by_id(test_instance_id, kg_client, scope)
+    test_definition = omcmp.ValidationTest.list(kg_client, scope=scope, space=inst.space, versions=inst)[0]
     return ValidationTestInstance.from_kg_object(inst, test_definition.uuid, kg_client)
 
 
@@ -390,9 +390,11 @@ def get_latest_test_instance_given_test_id(
     user = User(token, allow_anonymous=True)
     if user.is_anonymous:
         kg_client = get_kg_client_for_service_account()
+        scope = "released"
     else:
         kg_client = get_kg_client_for_user_account(token)
-    test_definition = _get_test_by_id_or_alias(test_id, token, user)
+        scope = "any"
+    test_definition = _get_test_by_id_or_alias(test_id, token, scope)
     test_instances = [
         ValidationTestInstance.from_kg_object(inst.resolve(kg_client, scope="in progress"), test_definition.uuid, kg_client)
         for inst in as_list(test_definition.versions)
@@ -413,9 +415,11 @@ def get_test_instance_given_test_id(
     user = User(token, allow_anonymous=True)
     if user.is_anonymous:
         kg_client = get_kg_client_for_service_account()
+        scope = "released"
     else:
         kg_client = get_kg_client_for_user_account(token)
-    test_definition = _get_test_by_id_or_alias(test_id, kg_client, user)
+        scope = "any"
+    test_definition = _get_test_by_id_or_alias(test_id, kg_client, scope)
     for inst in as_list(test_definition.versions):
         if UUID(inst.uuid) == test_instance_id:
             return ValidationTestInstance.from_kg_object(inst, test_definition.uuid, kg_client)
@@ -432,10 +436,12 @@ def get_test_instance_from_instance_id(
     user = User(token, allow_anonymous=True)
     if user.is_anonymous:
         kg_client = get_kg_client_for_service_account()
+        scope = "released"
     else:
         kg_client = get_kg_client_for_user_account(token)
+        scope = "any"
 
-    test_instance_kg = _get_test_instance_by_id(test_instance_id, kg_client)
+    test_instance_kg = _get_test_instance_by_id(test_instance_id, kg_client, scope)
     # todo: if anonymous, get parent ValidationTestDefinition and check access level
     return ValidationTestInstance.from_kg_object(test_instance_kg, kg_client)
 
@@ -453,7 +459,7 @@ def create_test_instance(
     _check_service_status()
     user = User(token, allow_anonymous=False)
     kg_client = get_kg_client_for_user_account(token)
-    test_definition = _get_test_by_id_or_alias(test_id, kg_client, user)
+    test_definition = _get_test_by_id_or_alias(test_id, kg_client, scope="any")
     test_instance_kg = test_instance.to_kg_object(ValidationTest.from_kg_object(test_definition, kg_client))
     test_instance_kg.save(kg_client, recursive=True, space=test_definition.space)
     test_definition.versions = as_list(test_definition.versions) + [test_instance_kg]
@@ -474,11 +480,10 @@ def update_test_instance_by_id(
     _check_service_status()
     user = User(token, allow_anonymous=False)
     kg_client = get_kg_client_for_user_account(token)
-    test_instance_kg = _get_test_instance_by_id(test_instance_id, kg_client)
+    test_instance_kg = _get_test_instance_by_id(test_instance_id, kg_client, scope="any")
     test_definition = omcmp.ValidationTest.list(
-        kg_client, scope="in progress",
+        kg_client, scope="any",
         space=test_instance_kg.space, versions=test_instance_kg)[0]
-    _check_test_access(test_definition, user)
     return _update_test_instance(test_instance_kg, test_definition, test_instance_patch, token)
 
 
@@ -496,9 +501,8 @@ def update_test_instance(
     _check_service_status()
     user = User(token, allow_anonymous=False)
     kg_client = get_kg_client_for_user_account(token)
-    test_instance_kg = _get_test_instance_by_id(test_instance_id, kg_client)
-    test_definition_kg = _get_test_by_id_or_alias(test_id, kg_client)
-    _check_test_access(test_definition_kg, user)
+    test_instance_kg = _get_test_instance_by_id(test_instance_id, kg_client, scope="any")
+    test_definition_kg = _get_test_by_id_or_alias(test_id, kg_client, scope="any")
     return _update_test_instance(test_instance_kg, test_definition_kg, test_instance_patch, kg_client)
 
 
@@ -551,7 +555,7 @@ async def delete_test_instance(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Deleting test instances is restricted to admins",
         )
-    test_definition = _get_test_by_id_or_alias(test_id, kg_client, user)
+    test_definition = _get_test_by_id_or_alias(test_id, kg_client, scope="any")
     test_definition.versions = [obj for obj in test_definition.versions if obj.uuid != test_instance_id]
     test_definition.save(kg_client, recursive=False)
     test_instance_kg.delete(kg_client)
