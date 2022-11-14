@@ -178,8 +178,10 @@ def test_alias_exists(alias, client):
 
 
 def model_is_public(model_id, client):
-    return client.is_released(model_id)
+    model_uri = client.uri_from_uuid(model_id)
+    return client.is_released(model_uri)
 
 
 def test_is_public(test_id, client):
-    return client.is_released(test_id)
+    test_uri = client.uri_from_uuid(test_id)
+    return client.is_released(test_uri)
