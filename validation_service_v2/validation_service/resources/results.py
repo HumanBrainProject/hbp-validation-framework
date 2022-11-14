@@ -100,8 +100,8 @@ def _query_results(filters, project_id, kg_client, data_model, query_label, from
     if project_id:
         spaces = [f"collab-{collab_id}" for collab_id in project_id]
     else:
-        #spaces = ["computation"]
-        spaces = ["collab-model-validation"]  # during development
+        spaces = ["computation"]  # or ``= [None]`` ? i.e. search across all spaces
+        #spaces = ["collab-model-validation"]  # during development
 
     query = kg_client.retrieve_query(query_label)
 
@@ -120,7 +120,7 @@ def _query_results(filters, project_id, kg_client, data_model, query_label, from
         for space in spaces:
             for filter in filters:
                 response = kg_client.query(filter, query["@id"], space=space,
-                                               from_index=0, size=100000, scope="any")
+                                           from_index=0, size=100000, scope="any")
                 items.extend(response.data)
                 if len(items) >= size + from_index:
                     break
@@ -143,7 +143,7 @@ def _query_results(filters, project_id, kg_client, data_model, query_label, from
 
 
 @router.get("/results/", response_model=List[ValidationResult])
-def query_results2(
+def query_results(
     #passed: List[bool] = Query(None),
     project_id: List[int] = Query(None),
     model_instance_id: List[UUID] = Query(None),
