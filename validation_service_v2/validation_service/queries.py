@@ -178,8 +178,7 @@ def test_alias_exists(alias, client):
 
 
 def model_is_public(model_id, client):
-    model = omcore.Model.from_id(client, scope="any")
-    return model.space == "model"  # for now, restrict to released models in future once migration is complete
+    return client.is_released(model_id)
 
 
 def test_is_public(test_id, client):
