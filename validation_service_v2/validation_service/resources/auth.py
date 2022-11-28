@@ -5,6 +5,7 @@ from httpx import HTTPStatusError
 from ..auth import oauth, User
 from ..settings import BASE_URL
 
+
 router = APIRouter()
 auth = HTTPBearer(auto_error=False)
 
@@ -38,13 +39,13 @@ async def auth_via_ebrains(request: Request):
 @router.get("/projects")
 async def list_projects(
     request: Request,
+    only_editable: bool = False,
     token: HTTPAuthorizationCredentials = Depends(auth),
 ):
     user = User(token, allow_anonymous=True)
     if user.is_anonymous:
         return []
     else:
-        user_info = await user.get_user_info()
         try:
             user_info = await user.get_user_info()
         except HTTPStatusError as err:
@@ -69,4 +70,10 @@ async def list_projects(
                     projects[project_id]["permissions"]["VIEW"] = True
                 elif role.endswith("editor") or role.endswith("administrator"):
                     projects[project_id]["permissions"] = {"VIEW": True, "UPDATE": True}
-        return list(projects.values())
+
+        projects = sorted(projects.values(), key=lambda p: p["project_id"])
+
+        if only_editable:
+            return [p for p in projects if p["permissions"]["UPDATE"]]
+        else:
+            return projects
