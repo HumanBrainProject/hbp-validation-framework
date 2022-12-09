@@ -1,4 +1,5 @@
 import os
+import json
 
 NEXUS_ENDPOINT = "https://nexus.humanbrainproject.org/v0"
 OIDC_HOST = "https://iam.ebrains.eu/auth/realms/hbp"
@@ -17,3 +18,11 @@ ADMIN_COLLAB_ID = "model-validation"  # "13947"
 BASE_URL = os.environ.get("VALIDATION_SERVICE_BASE_URL")
 SERVICE_STATUS = os.environ.get("VF_SERVICE_STATUS", "ok")
 # e.g. SERVICE_STATUS = "The site is undergoing maintenance, and is currently in read-only mode."
+
+this_dir = os.path.dirname(__file__)
+build_info_path = os.path.join(this_dir, "build_info.json")
+if os.path.exists(build_info_path):
+    with open(build_info_path, "r") as fp:
+        BUILD_INFO = json.load(fp)
+else:
+    BUILD_INFO = None

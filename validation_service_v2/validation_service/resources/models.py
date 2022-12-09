@@ -40,6 +40,8 @@ async def about_this_api(token: HTTPAuthorizationCredentials = Depends(auth)):
         "about": "This is the EBRAINS Model Validation API",
         "version": "2.5",
         "status": service_status,
+        "datastore": settings.KG_CORE_API_HOST,
+        "build": settings.BUILD_INFO,
         "links": {
             "documentation": "/docs"
         }
