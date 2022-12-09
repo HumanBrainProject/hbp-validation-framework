@@ -35,8 +35,6 @@ async def _check_model_access(model_project, user):
             )
 
 
-async def _get_model_by_id_or_alias(model_id, user):
-
 def _check_service_status():
     if getattr(settings, "SERVICE_STATUS", "ok") != "ok":
         raise HTTPException(
@@ -45,7 +43,7 @@ def _check_service_status():
         )
 
 
-def _get_model_by_id_or_alias(model_id, kg_client, scope):
+async def _get_model_by_id_or_alias(model_id, user):
     try:
         model_id = UUID(model_id)
         model_project = ModelProject.from_uuid(str(model_id), kg_client, api="nexus", scope="latest")
