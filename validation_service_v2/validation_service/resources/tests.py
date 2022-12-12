@@ -218,6 +218,12 @@ def query_tests(
             cls = ValidationTest
             query = kg_service_client.retrieve_query("VF_ValidationTest")
 
+        if query is None:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=f"Query could not be retrieved",
+            )
+
         if len(spaces) == 1 and len(filters) == 1:
             # common, simple case
             instances = kg_user_client.query(filters[0], query["@id"], space=spaces[0],
