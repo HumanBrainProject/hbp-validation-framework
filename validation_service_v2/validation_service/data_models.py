@@ -408,6 +408,7 @@ class ModelInstance(BaseModel):
 
     def to_kg_object(self, model_project):
         repository = omcore.FileRepository(
+            name=self.source,
             iri=self.source,
             #hosted_by=
             #repository_type=
@@ -415,7 +416,7 @@ class ModelInstance(BaseModel):
         )
         # todo: handle morphology
         minst = omcore.ModelVersion(
-            name=f"ModelInstance for {model_project.name} @ {self.version}",
+            name=model_project.name,
             version_innovation=self.description or "",
             version_identifier=self.version,
             #parameters=
