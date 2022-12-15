@@ -4,6 +4,7 @@ import logging
 
 from fairgraph.base_v3 import as_list
 import fairgraph.openminds.core as omcore
+import fairgraph.openminds.computation as omcmp
 
 from fastapi import APIRouter, Depends, Query, Path, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
@@ -426,6 +427,16 @@ async def create_model(
             status_code=status.HTTP_409_CONFLICT,
             detail=f"Another model with the same name already exists.",
         )
+
+    # check if kg space already exists, if not create and configure it
+    spaces = kg_user_client.spaces(permissions=["write"], names_only=True)
+    if kg_space not in spaces:
+        types = [omcore.Model, omcore.ModelVersion, omcore.FileRepository, omcore.File,
+                 omcore.Person, omcore.Organization, omcmp.ValidationTest,
+                 omcmp.ValidationTestVersion, omcmp.ModelValidation, omcore.PropertyValueList]
+        space_name = kg_user_client.configure_space(model.project_id, types)
+        assert space_name == kg_space
+
     model_project.save(kg_user_client, space=kg_space, recursive=True)
     model_project.scope = "in progress"
     return ScientificModel.from_kg_object(model_project, kg_user_client)
