@@ -377,8 +377,11 @@ async def get_model(
         filter = None
         instance_id = model_id
 
-    results = kg_user_client.query(filter, query["@id"], instance_id=instance_id,
-                                   size=1, scope=scope, id_key="uri")
+    try:
+        results = kg_user_client.query(filter, query["@id"], instance_id=instance_id,
+                                       size=1, scope=scope, id_key="uri")
+    except Exception as err:
+        raise Exception(f"{err} filter='{filter}' query_id='{query['@id']}' instance_id='{instance_id}', scope='{scope}'")
 
     if results.total == 0:
         raise HTTPException(
@@ -410,8 +413,11 @@ async def create_model(
 
     kg_user_client = get_kg_client_for_user_account(token)
     kg_service_client = get_kg_client_for_service_account()
-    # check uniqueness of alias, using service client we can check against aliases of all models
-    if model.alias and model_alias_exists(model.alias, kg_service_client):
+    # check uniqueness of alias, using service client to check in progress models in public spaces,
+    # and user client to check in collab spaces
+    if model.alias and (
+        model_alias_exists(model.alias, kg_service_client) or model_alias_exists(model.alias, kg_user_client)
+    ):
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail=f"Another model with alias '{model.alias}' already exists.",
@@ -434,7 +440,13 @@ async def create_model(
         types = [omcore.Model, omcore.ModelVersion, omcore.FileRepository, omcore.File,
                  omcore.Person, omcore.Organization, omcmp.ValidationTest,
                  omcmp.ValidationTestVersion, omcmp.ModelValidation, omcore.PropertyValueList]
-        space_name = kg_user_client.configure_space(model.project_id, types)
+        try:
+            space_name = kg_user_client.configure_space(model.project_id, types)
+        except Exception as err:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail=f"You do not have permission to save models in the KG space for collab '{model.project_id}'. Try one of: {spaces}"
+            )
         assert space_name == kg_space
 
     model_project.save(kg_user_client, space=kg_space, recursive=True)
@@ -477,10 +489,13 @@ async def update_model(
             detail=f"Access to this model is restricted to members of Collab #{stored_model.project_id}",
         )
     # if alias changed, check uniqueness of new alias
+    #   Note: we need to check with both the service client (can check "model" space for in_progress models)
+    #         and the user client (can check collab spaces it has access to)
     if (
         model_patch.alias
         and model_patch.alias != stored_model.alias
-        and model_alias_exists(model_patch.alias, kg_service_client)
+        and (model_alias_exists(model_patch.alias, kg_service_client)
+             or model_alias_exists(model_patch.alias, kg_user_client))
     ):
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,

@@ -155,22 +155,19 @@ def build_result_filters(
 
 
 def model_alias_exists(alias, client):
-    # todo: fix this to consider spaces
-    # we probably can't check for global uniqueness across spaces, but we
-    # can check in the "model" space, plus the space defined by the current project_id
-
-    # there would then have to be a check by curators when moving a private model
-    # to "model" and releasing it
     if alias:
-        model_with_same_alias = omcore.Model.from_alias(alias, client, space="model", scope="in progress")
-        return bool(model_with_same_alias)
+        # we deliberately use space=None to search across all spaces
+        model_with_same_alias = omcore.Model.from_alias(alias, client, space=None, scope="any")
+        if model_with_same_alias:
+            # need this check because alias query doesn't do exact matching
+            return model_with_same_alias.alias == alias
     return False
 
 
 def test_alias_exists(alias, client):
     if alias:
         # we deliberately use space=None to search across all spaces
-        test_with_same_alias = omcmp.ValidationTest.from_alias(alias, client, space=None, scope="in progress")
+        test_with_same_alias = omcmp.ValidationTest.from_alias(alias, client, space=None, scope="any")
         if test_with_same_alias:
             # need this check because alias query doesn't do exact matching
             return test_with_same_alias.alias == alias
