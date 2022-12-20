@@ -317,7 +317,7 @@ class ModelInstance(BaseModel):
     uri: HttpUrl = None
     version: str
     description: str = None
-    parameters: str = None  # or dict?
+    parameters: HttpUrl = None
     code_format: ContentType = None
     source: AnyUrl = None  # should be required
     license: License = None  # use Enum
@@ -327,9 +327,8 @@ class ModelInstance(BaseModel):
     model_id: UUID = None  # id of parent model
     alternatives: List[HttpUrl] = None  # alternative representations, e.g. EBRAINS Search, ModelDB
 
-    class Config:
-        extra = "allow"  # we temporarily store the IDs of sub-objects (e.g. ModelScript)
-        # during object updates
+    class Config:  # can probably remove this
+        extra = "allow"
 
     @classmethod
     def from_kg_query(cls, item, client):
@@ -351,9 +350,10 @@ class ModelInstance(BaseModel):
 
         if item.get("inputData", None):
             for input_url in item["inputData"]:
-                if input_url.endswith(".asc"):
+                _, extension = os.path.splitext(urlparse(input_url).path)
+                if extension.lower() == ".asc":
                     item["morphology"] = input_url
-                elif input_url.endswith("_meta.json"):
+                elif extension.lower() in (".json", ".yml", ".yaml", ".cfg", ".config", ".toml"):
                     item["parameters"] = input_url
         item.pop("inputData", None)
         return cls(**item)
@@ -397,8 +397,13 @@ class ModelInstance(BaseModel):
             "license": License(licenses[0].name) if licenses else None,
             "hash": hash
         }
-        # instance_data["morphology"] = ?
-        # instance_data["morphology_id"] = ?
+        if instance.input_data:
+            for input_url in instance.input_data:
+                _, extension = os.path.splitext(urlparse(input_url.url).path)
+                if extension.lower() == ".asc":
+                    instance_data["morphology"] = input_url.url
+                elif extension.lower() in (".json", ".yml", ".yaml", ".cfg", ".config", ".toml"):
+                    instance_data["parameters"] = input_url.url
         try:
             obj = cls(**instance_data)
         except ValidationError as err:
@@ -412,14 +417,18 @@ class ModelInstance(BaseModel):
             iri=self.source,
             #hosted_by=
             #repository_type=
-            hash=omcore.Hash(algorithm="SHA-1", digest=self.hash)  # are we sure we're using SHA-1
+            hash=omcore.Hash(algorithm="SHA-1", digest=self.hash)  # are we sure we're using SHA-1?
         )
-        # todo: handle morphology
+        input_data = []
+        if self.morphology:
+            input_data.append(omcore.URL(url=self.morphology))
+        if self.parameters:
+            input_data.append(omcore.URL(url=self.parameters))
         minst = omcore.ModelVersion(
             name=model_project.name,
             version_innovation=self.description or "",
             version_identifier=self.version,
-            #parameters=
+            input_data=input_data,
             formats=get_term("ContentType", self.code_format),
             repository=repository,
             licenses=get_term("License", self.license),
@@ -435,17 +444,16 @@ class ModelInstancePatch(BaseModel):
     uri: HttpUrl = None
     version: str = None
     description: str = None
-    parameters: str = None
-    code_format: str = None
+    parameters: HttpUrl = None
+    code_format: ContentType = None
     source: HttpUrl = None
     license: License = None
     hash: str = None
     timestamp: datetime = None
     morphology: HttpUrl = None
 
-    class Config:
-        extra = "allow"  # we temporarily store the IDs of sub-objects (e.g. ModelScript)
-        # during object updates
+    class Config:  # can probably remove this
+        extra = "allow"
 
 
 class Image(BaseModel):
@@ -725,7 +733,7 @@ class ValidationTestInstance(BaseModel):
     repository: HttpUrl
     version: str
     description: str = None
-    parameters: str = None  # or dict?
+    parameters: HttpUrl = None
     path: str
     timestamp: datetime = None
     test_id: UUID = None
@@ -798,7 +806,7 @@ class ValidationTestInstancePatch(BaseModel):
     repository: HttpUrl = None
     version: str = None
     description: str = None
-    parameters: str = None
+    parameters: HttpUrl = None
     path: str = None
     timestamp: datetime = None
     test_id: UUID = None
