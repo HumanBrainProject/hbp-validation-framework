@@ -1,4 +1,6 @@
+from datetime import datetime
 from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.responses import RedirectResponse
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from starlette.requests import Request
 from httpx import HTTPStatusError
@@ -10,30 +12,38 @@ router = APIRouter()
 auth = HTTPBearer(auto_error=False)
 
 @router.get("/login")
-async def login_via_ebrains(request: Request):
+async def login_via_ebrains(request: Request, state: str = None):
     redirect_uri = BASE_URL + "/auth"
-    return await oauth.ebrains.authorize_redirect(request, redirect_uri)
+    kwargs = {}
+    if state:
+        kwargs["state"] = state
+    return await oauth.ebrains.authorize_redirect(request, redirect_uri, **kwargs)
 
 
 @router.get("/auth")
 async def auth_via_ebrains(request: Request):
     token = await oauth.ebrains.authorize_access_token(request)
-    user = await oauth.ebrains.parse_id_token(request, token)
-    user2 = await oauth.ebrains.userinfo(token=token)
-    user.update(user2)
-    response = {
-        "access_token": token["access_token"],
-        "user": {
-            "name": user["name"],
-            "user_id_v1": user.get("mitreid-sub"),
-            "username": user["preferred_username"],
-            "given_name": user["given_name"],
-            "family_name": user["family_name"]
-            # todo: add group info
-        },
-    }
-    full_response = {"token": token, "user": user}
-    return full_response
+
+    if request.query_params["state"] == "modelcatalog":
+        return RedirectResponse("https://model-catalog-dev.brainsimulation.eu")
+    else:
+        user = token["userinfo"]
+        user2 = await oauth.ebrains.userinfo(token=token)
+        user.update(user2)
+        response = {
+            "access_token": token["access_token"],
+            "token_expires": datetime.fromtimestamp(token["expires_at"]),
+            "user": {
+                "name": user["name"],
+                "username": user["preferred_username"],
+                "given_name": user["given_name"],
+                "family_name": user["family_name"],
+                "team": user["roles"].get("team", []),
+                "group": user["roles"].get("group", []),
+            },
+            "state": request.query_params["state"]
+        }
+        return response
 
 
 @router.get("/projects")

@@ -21,10 +21,10 @@ oauth.register(
     server_metadata_url=settings.EBRAINS_IAM_CONF_URL,
     client_id=settings.EBRAINS_IAM_CLIENT_ID,
     client_secret=settings.EBRAINS_IAM_SECRET,
-    userinfo_endpoint=f"{settings.HBP_IDENTITY_SERVICE_URL_V2}/userinfo",
+    userinfo_endpoint=f"{settings.HBP_IDENTITY_SERVICE_URL}/userinfo",
     client_kwargs={
         #"scope": "openid profile collab.drive clb.drive:read clb.drive:write group team web-origins roles email",
-        "scope": "openid profile collab.drive group roles email",
+        "scope": "openid profile collab.drive group team roles",
         "trust_env": False,
     },
 )
@@ -46,7 +46,7 @@ def get_kg_client_for_user_account(token):
 
 
 async def get_collab_info(collab_id, token):
-    collab_info_url = f"{settings.HBP_COLLAB_SERVICE_URL_V2}collabs/{collab_id}"
+    collab_info_url = f"{settings.HBP_COLLAB_SERVICE_URL}collabs/{collab_id}"
     headers = {"Authorization": f"Bearer {token.credentials}"}
     res = requests.get(collab_info_url, headers=headers)
     try:
