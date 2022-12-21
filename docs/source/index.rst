@@ -9,7 +9,7 @@ Welcome to Validation Framework REST API documentation
 General Info
 ------------
 
-* Collabs on the HBP Collaboratory can be either public or private. Public
+* Collabs on the EBRAINS Collaboratory can be either public or private. Public
   Collabs can be accessed by all registered users, whereas private Collabs
   require the user to be granted permission for access.
 
@@ -96,7 +96,7 @@ General Info
 REST APIs
 ---------
 
-The HBP validation framework offers the below described APIs.
+The EBRAINS validation framework offers the below described APIs.
 These can be accessed through the following base URL: https://validation-v1.brainsimulation.eu
 
 .. toctree::

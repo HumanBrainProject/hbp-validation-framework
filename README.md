@@ -1,5 +1,5 @@
-HBP Validation Framework
-========================
+EBRAINS Validation Framework
+============================
 
 This repository contains code related to the Human Brain Project Validation Framework.
 
