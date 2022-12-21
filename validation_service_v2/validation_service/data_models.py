@@ -360,15 +360,15 @@ class ModelInstance(BaseModel):
 
     @classmethod
     def from_kg_object(cls, instance, client, model_id, scope):
-        instance = instance.resolve(client, scope=scope)
+        instance = instance.resolve(client, scope=scope, follow_links=1)
         alternatives = [
-            mv.resolve(client, scope=scope).homepage
+            mv.homepage
             for mv in as_list(instance.is_alternative_version_of)
         ]
         if instance.is_released(client):
             alternatives.append(f"https://search.kg.ebrains.eu/instances/{instance.uuid}")
         if instance.repository:
-            repository = instance.repository.resolve(client, scope=scope)
+            repository = instance.repository
             source = str(repository.iri)
             if not source.startswith("http"):
                 logger.error(f"Invalid URL: {source}")
@@ -381,8 +381,8 @@ class ModelInstance(BaseModel):
         else:
             source = None
             hash = None
-        licenses = [lic.resolve(client, scope="any") for lic in as_list(instance.licenses)]
-        content_types = [ct.resolve(client) for ct in as_list(instance.formats)]
+        licenses = as_list(instance.licenses)
+        content_types = as_list(instance.formats)
         instance_data = {
             "id": instance.uuid,
             "uri": instance.id,
@@ -766,14 +766,6 @@ class ValidationTestInstance(BaseModel):
         )
 
     def to_kg_object(self, test_definition):
-        reference_data = None
-        if test_definition.data_location:
-            reference_data = [
-                omcore.URL(
-                    url=IRI(url)
-                )
-                for url in test_definition.data_location
-            ]
         if self.repository:
             repository = omcore.FileRepository(
                 name=self.repository,
@@ -788,7 +780,7 @@ class ValidationTestInstance(BaseModel):
             description=None,  # inherits from parent
             developers=None,   # inherits from parent
             entry_point=self.path,
-            reference_data=reference_data,
+            reference_data=None,  # mismatch with openMINDS, to be fixed in API v3
             release_date=None,
             repository=repository,
             version_identifier=self.version,

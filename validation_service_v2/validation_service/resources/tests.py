@@ -190,7 +190,7 @@ def query_tests(
         if test_type:
             filters["test_type"] = [item.value for item in test_type]
         if data_type:
-            filters["data_type"] = [item.value for item in data_type]
+            filters["data_type"] = [item for item in data_type]
         if score_type:
             filters["score_type"] = [item.value for item in score_type]
         if author:
@@ -261,7 +261,21 @@ def get_test(test_id: str, token: HTTPAuthorizationCredentials = Depends(auth)):
     else:
         kg_client = get_kg_client_for_user_account(token)
         scope = "any"
-    test_definition = _get_test_by_id_or_alias(test_id, kg_client, scope)
+    try:
+        test_definition = _get_test_by_id_or_alias(test_id, kg_client, scope)
+    except Exception as err:
+        if "401" in str(err):
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail=f"Unauthorized. If you think you should be able to access this test, perhaps your token has expired."
+            )
+        else:
+            # todo: extract error code from exception
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Invalid test_id: '{test_id}'"
+            )
+
     return ValidationTest.from_kg_object(test_definition, kg_client)
 
 
@@ -271,10 +285,12 @@ def create_test(test: ValidationTest, token: HTTPAuthorizationCredentials = Depe
     user = User(token, allow_anonymous=False)
     kg_user_client = get_kg_client_for_user_account(token)
     kg_service_client = get_kg_client_for_service_account()
-    # check uniqueness of alias
-     # we use the service client to get the stored test to ensure the
-    # check for uniqueness considers _all_ stored tests
-    if test.alias and test_alias_exists(test.alias, kg_service_client):
+
+    # check uniqueness of alias, using service client to check in progress models in public spaces,
+    # and user client to check in collab spaces
+    if test.alias and (
+        test_alias_exists(test.alias, kg_service_client) or test_alias_exists(test.alias, kg_user_client)
+    ):
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail=f"Another validation test with alias '{test.alias}' already exists.",
@@ -400,7 +416,7 @@ def get_latest_test_instance_given_test_id(
     else:
         kg_client = get_kg_client_for_user_account(token)
         scope = "any"
-    test_definition = _get_test_by_id_or_alias(test_id, token, scope)
+    test_definition = _get_test_by_id_or_alias(test_id, kg_client, scope)
     test_instances = [
         ValidationTestInstance.from_kg_object(inst.resolve(kg_client, scope="in progress"), test_definition.uuid, kg_client)
         for inst in as_list(test_definition.versions)
@@ -410,7 +426,8 @@ def get_latest_test_instance_given_test_id(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Test definition {test_id} has no code associated with it",
         )
-    latest = sorted(test_instances, key=lambda inst: inst.timestamp)[-1]
+    missing_timestamp = datetime(1, 1, 1)
+    latest = sorted(test_instances, key=lambda inst: inst.timestamp or missing_timestamp)[-1]
     return latest
 
 
@@ -466,6 +483,12 @@ def create_test_instance(
     user = User(token, allow_anonymous=False)
     kg_client = get_kg_client_for_user_account(token)
     test_definition = _get_test_by_id_or_alias(test_id, kg_client, scope="any")
+    existing_versions = [obj.resolve(kg_client, scope="any") for obj in as_list(test_definition.versions)]
+    if test_instance.version in (obj.version_identifier for obj in existing_versions):
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=f"Validation test {test_id} already has a version '{test_instance.version}"
+        )
     test_instance_kg = test_instance.to_kg_object(ValidationTest.from_kg_object(test_definition, kg_client))
     test_instance_kg.save(kg_client, recursive=True, space=test_definition.space)
     test_definition.versions = as_list(test_definition.versions) + [test_instance_kg]
@@ -490,7 +513,7 @@ def update_test_instance_by_id(
     test_definition = omcmp.ValidationTest.list(
         kg_client, scope="any",
         space=test_instance_kg.space, versions=test_instance_kg)[0]
-    return _update_test_instance(test_instance_kg, test_definition, test_instance_patch, token)
+    return _update_test_instance(test_instance_kg, test_definition, test_instance_patch, kg_client)
 
 
 @router.put(
@@ -513,14 +536,14 @@ def update_test_instance(
 
 
 def _update_test_instance(test_instance, test_definition_kg, test_instance_patch, kg_client):
-    stored_test_instance = ValidationTestInstance.from_kg_object(test_instance, kg_client)
+    stored_test_instance = ValidationTestInstance.from_kg_object(test_instance, test_definition_kg.uuid, kg_client)
     update_data = test_instance_patch.dict(exclude_unset=True)
     updated_test_instance = stored_test_instance.copy(update=update_data)
     test_instance_kg = updated_test_instance.to_kg_object(test_definition_kg)
     assert test_instance_kg.id == test_instance.id
-    assert stored_test_instance.space is not None
-    test_instance_kg.save(kg_client, recursive=True, space=stored_test_instance.space)
-    return ValidationTestInstance.from_kg_object(test_instance_kg, kg_client)
+    assert test_instance.space is not None
+    test_instance_kg.save(kg_client, recursive=True, space=test_instance.space)
+    return ValidationTestInstance.from_kg_object(test_instance_kg, test_definition_kg.uuid, kg_client)
 
 
 @router.delete("/tests/query/instances/{test_instance_id}", status_code=status.HTTP_200_OK)
@@ -541,7 +564,7 @@ async def delete_test_instance_by_id(
     test_definition = omcmp.ValidationTest.list(
         kg_client, scope="in progress",
         space=test_instance_kg.space, versions=test_instance_kg)[0]
-    test_definition.versions = [obj for obj in test_definition.versions if obj.uuid != test_instance_id]
+    test_definition.versions = [obj for obj in as_list(test_definition.versions) if obj.uuid != test_instance_id]
     test_definition.save(kg_client, recursive=False)
     test_instance_kg.delete(kg_client)
 

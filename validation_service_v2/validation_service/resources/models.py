@@ -306,10 +306,19 @@ async def query_models(
 
         if len(spaces) == 1 and len(filters) == 1:
             # common, simple case
-
-            instances = kg_user_client.query(filters[0], query["@id"], space=spaces[0],
-                                             from_index=from_index, size=size,
-                                             scope=scope, id_key="uri").data
+            try:
+                instances = kg_user_client.query(filters[0], query["@id"], space=spaces[0],
+                                                 from_index=from_index, size=size,
+                                                 scope=scope, id_key="uri").data
+            except Exception as err:
+                if "401" in str(err):
+                    raise HTTPException(
+                        status_code=status.HTTP_401_UNAUTHORIZED,
+                        detail=f"Unauthorized for space {spaces[0]}. "
+                               "If you think you should be able to access this space, perhaps your token has expired."
+                    )
+                else:
+                    raise
 
             return [
                 cls.from_kg_query(instance, kg_user_client)
@@ -381,7 +390,11 @@ async def get_model(
         results = kg_user_client.query(filter, query["@id"], instance_id=instance_id,
                                        size=1, scope=scope, id_key="uri")
     except Exception as err:
-        raise Exception(f"{err} filter='{filter}' query_id='{query['@id']}' instance_id='{instance_id}', scope='{scope}'")
+        # todo: extract status code from err
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"{err} filter='{filter}' query_id='{query['@id']}' instance_id='{instance_id}', scope='{scope}'"
+        )
 
     if results.total == 0:
         raise HTTPException(
@@ -701,8 +714,8 @@ async def update_model_instance(
     user = User(token, allow_anonymous=False)
     kg_user_client = get_kg_client_for_user_account(token)
     model_instance_kg, retrieved_model_id = _get_model_instance_by_id(model_instance_id, kg_user_client, scope="any")
-    assert model_id == retrieved_model_id
     model_project = _get_model_by_id_or_alias(model_id, kg_user_client, scope="any")
+    assert model_id == retrieved_model_id or model_id == model_project.alias
     return await _update_model_instance(
         model_instance_kg, model_project, model_instance_patch, user
     )
