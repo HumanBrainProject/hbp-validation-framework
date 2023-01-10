@@ -2,14 +2,14 @@
 # Build an image for deploying the EBRAINS Validation Service
 #
 # To build the image, from the parent directory:
-#   docker build -t hbp_validation_service_v2 -f deployment/Dockerfile .
+#   docker build -t validation_service_v3beta -f deployment/Dockerfile .
 #
 # To run the application:
 #   docker run -d -p 443 -v /etc/letsencrypt:/etc/letsencrypt \
 #              -e KG_SERVICE_ACCOUNT_REFRESH_TOKEN \
 #              -e KG_SERVICE_ACCOUNT_CLIENT_ID \
 #              -e KG_SERVICE_ACCOUNT_SECRET \
-#              hbp_validation_service_v2
+#              validation_service_v3beta
 
 FROM debian:bullseye-slim
 
