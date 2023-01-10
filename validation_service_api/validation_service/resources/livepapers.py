@@ -18,7 +18,7 @@ import fairgraph.openminds.publications as ompub
 from fairgraph.base_v3 import as_list
 
 LIVEPAPERS_SPACE = "livepapers"
-logger = logging.getLogger("validation_service_v2")
+logger = logging.getLogger("validation_service_api")
 
 auth = HTTPBearer()
 router = APIRouter()

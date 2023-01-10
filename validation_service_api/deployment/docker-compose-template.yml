@@ -1,0 +1,18 @@
+version: '3'
+services:
+  web:
+    image: docker-registry.ebrains.eu/model-catalog/validation_service-v3beta:prod
+    container_name: vf-api-v3beta
+    ports:
+      - "443:443"
+    volumes:
+      - /etc/letsencrypt:/etc/letsencrypt
+    environment:
+      - KG_SERVICE_ACCOUNT_CLIENT_ID=kg-client-model-catalog
+      - KG_SERVICE_ACCOUNT_SECRET=
+      - EBRAINS_IAM_CLIENT_ID=model-validation-service
+      - EBRAINS_IAM_SECRET=
+      - SESSIONS_SECRET_KEY=
+      - KG_CORE_API_HOST=core.kg.ebrains.eu
+      - VALIDATION_SERVICE_BASE_URL=https://validation.brainsimulation.eu
+      - VF_SERVICE_STATUS=ok

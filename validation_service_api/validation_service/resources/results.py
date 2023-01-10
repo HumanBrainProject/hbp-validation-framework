@@ -24,7 +24,7 @@ from ..db import _check_service_status
 from .. import settings
 
 
-logger = logging.getLogger("validation_service_v2")
+logger = logging.getLogger("validation_service_api")
 
 auth = HTTPBearer()
 router = APIRouter()

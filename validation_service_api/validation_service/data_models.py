@@ -33,7 +33,7 @@ from .auth import get_kg_client_for_service_account
 kg_service_client = get_kg_client_for_service_account()
 term_cache = {}
 
-logger = logging.getLogger("validation_service_v2")
+logger = logging.getLogger("validation_service_api")
 
 EBRAINS_DRIVE_API = "https://drive.ebrains.eu/api2/"
 

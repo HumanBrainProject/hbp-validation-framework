@@ -31,7 +31,7 @@ if service_status != "ok":
     description = warning_message + description
 
 
-app = FastAPI(title="EBRAINS Model Validation Service", description=description, version="2.5")
+app = FastAPI(title="EBRAINS Model Validation Service", description=description, version="3beta")
 
 app.add_middleware(
     SessionMiddleware,

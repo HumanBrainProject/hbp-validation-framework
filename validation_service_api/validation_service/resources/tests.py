@@ -32,7 +32,7 @@ from ..queries import build_validation_test_filters, test_alias_exists, expand_c
 from .. import settings
 
 
-logger = logging.getLogger("validation_service_v2")
+logger = logging.getLogger("validation_service_api")
 
 auth = HTTPBearer(auto_error=False)
 router = APIRouter()

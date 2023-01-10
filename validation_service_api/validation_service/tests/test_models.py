@@ -214,7 +214,7 @@ def test_create_and_delete_network_model(caplog):
 
 def test_create_model_with_minimal_data(caplog):
     payload = {
-        "name": f"TestModel API v2 {datetime.now(timezone.utc).isoformat()}",
+        "name": f"TestModel API v3beta {datetime.now(timezone.utc).isoformat()}",
         "author": [{"given_name": "Frodo", "family_name": "Baggins"}],
         "owner": [{"given_name": "Frodo", "family_name": "Baggins"}],
         "project_id": "model-validation",

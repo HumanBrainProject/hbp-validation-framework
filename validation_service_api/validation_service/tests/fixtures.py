@@ -23,8 +23,8 @@ AUTH_HEADER = {"Authorization": f"{token.scheme} {token.credentials}"}
 def private_model():
     kg_client = get_kg_client_for_user_account(token)
     test_model = omcore.Model(
-        name="TestModel API v2.5",
-        alias="TestModel-API-v2.5",
+        name="TestModel API v3beta",
+        alias="TestModel-API-v3beta",
         abstraction_level=omterms.ModelAbstractionLevel.by_name(
             "spiking neurons: biophysical", kg_client),
         custodians=omcore.Person(given_name="Frodo", family_name="Baggins"),
@@ -61,8 +61,8 @@ def released_model():
 def _build_sample_model():
     now = datetime.now(timezone.utc)
     return {
-        "name": f"TestModel API v2 {now.isoformat()}",
-        "alias": f"TestModel-APIv2-{now.isoformat()}",
+        "name": f"TestModel API v3beta {now.isoformat()}",
+        "alias": f"TestModel-APIv3beta-{now.isoformat()}",
         "author": [
             {"given_name": "Frodo", "family_name": "Baggins"},
             {"given_name": "Tom", "family_name": "Bombadil"},
@@ -94,8 +94,8 @@ def _build_sample_model():
 def _build_sample_validation_test():
     now = datetime.now(timezone.utc)
     return {
-        "name": f"TestValidationTestDefinition API v2 {now.isoformat()}",
-        "alias": f"TestValidationTestDefinition-APIv2-{now.isoformat()}",
+        "name": f"TestValidationTestDefinition API v3beta {now.isoformat()}",
+        "alias": f"TestValidationTestDefinition-APIv3beta-{now.isoformat()}",
         "author": [
             {"given_name": "Frodo", "family_name": "Baggins"},
             {"given_name": "Tom", "family_name": "Bombadil"},
@@ -146,7 +146,7 @@ def _build_sample_result(model_instance_id, test_instance_id):
 
 def _build_sample_live_paper():
     now = datetime.now(timezone.utc)
-    alias = f"testlivepaper-apiv2p5-{now.strftime('%Y%m%d-%H%M%S')}"
+    alias = f"testlivepaper-apiv3beta-{now.strftime('%Y%m%d-%H%M%S')}"
     return {
         "lp_tool_version": "0.1",
         "alias": alias,
@@ -164,7 +164,7 @@ def _build_sample_live_paper():
         ],
         "approved_author": {"firstname": "Tom", "lastname": "Bombadil"},
         "year": now.date().isoformat(),
-        "live_paper_title": f"TestLivePaper API v2.5 {now.isoformat()}",
+        "live_paper_title": f"TestLivePaper API v3beta {now.isoformat()}",
         "associated_paper_title": "Neuroanatomy of Old Man Willow",
         "journal": "eLife",
         "url": f"https://example.com/{alias}",

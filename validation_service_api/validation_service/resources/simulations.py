@@ -22,7 +22,7 @@ from ..data_models import Simulation, ConsistencyError
 from .. import settings
 
 
-logger = logging.getLogger("validation_service_v2")
+logger = logging.getLogger("validation_service_api")
 
 auth = HTTPBearer()
 router = APIRouter()

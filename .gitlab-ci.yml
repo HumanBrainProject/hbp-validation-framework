@@ -6,11 +6,11 @@ build_api_development_image:
   rules:
       - if: '$CI_COMMIT_REF_NAME == "development"'
         changes:
-          - validation_service_v2/**/*
+          - validation_service_api/**/*
           - .gitlab-ci.yml
   script:
-    - bash validation_service_v2/deployment/get_build_info.sh development
-    - docker build -f validation_service_v2/deployment/Dockerfile.dev -t docker-registry.ebrains.eu/model-catalog/validation_service-v3:dev ./validation_service_v2
+    - bash validation_service_api/deployment/get_build_info.sh development
+    - docker build -f validation_service_api/deployment/Dockerfile.dev -t docker-registry.ebrains.eu/model-catalog/validation_service-v3:dev ./validation_service_api
     - docker login -u $DOCKER_REGISTRY_USER -p $DOCKER_REGISTRY_SECRET docker-registry.ebrains.eu
     - docker push docker-registry.ebrains.eu/model-catalog/validation_service-v3:dev
   tags:
@@ -22,11 +22,11 @@ build_api_staging_image:
   rules:
       - if: '$CI_COMMIT_REF_NAME == "staging"'
         changes:
-          - validation_service_v2/**/*
+          - validation_service_api/**/*
           - .gitlab-ci.yml
   script:
-    - bash validation_service_v2/deployment/get_build_info.sh staging
-    - docker build -f validation_service_v2/deployment/Dockerfile.staging -t docker-registry.ebrains.eu/model-catalog/validation_service-v3beta:staging ./validation_service_v2
+    - bash validation_service_api/deployment/get_build_info.sh staging
+    - docker build -f validation_service_api/deployment/Dockerfile.staging -t docker-registry.ebrains.eu/model-catalog/validation_service-v3beta:staging ./validation_service_api
     - docker login -u $DOCKER_REGISTRY_USER -p $DOCKER_REGISTRY_SECRET docker-registry.ebrains.eu
     - docker push docker-registry.ebrains.eu/model-catalog/validation_service-v3beta:staging
   tags:
@@ -38,11 +38,11 @@ build_api_prod_image:
   rules:
       - if: '$CI_COMMIT_REF_NAME == "master"'
         changes:
-          - validation_service_v2/**/*
+          - validation_service_api/**/*
           - .gitlab-ci.yml
   script:
-    - bash validation_service_v2/deployment/get_build_info.sh production
-    - docker build -f validation_service_v2/deployment/Dockerfile.prod -t docker-registry.ebrains.eu/model-catalog/validation_service-v3beta:prod ./validation_service_v2
+    - bash validation_service_api/deployment/get_build_info.sh production
+    - docker build -f validation_service_api/deployment/Dockerfile.prod -t docker-registry.ebrains.eu/model-catalog/validation_service-v3beta:prod ./validation_service_api
     - docker login -u $DOCKER_REGISTRY_USER -p $DOCKER_REGISTRY_SECRET docker-registry.ebrains.eu
     - docker push docker-registry.ebrains.eu/model-catalog/validation_service-v3beta:prod
   tags:

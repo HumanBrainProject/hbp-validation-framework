@@ -10,7 +10,7 @@ from authlib.integrations.starlette_client import OAuth
 
 from . import settings
 
-logger = logging.getLogger("validation_service_v2")
+logger = logging.getLogger("validation_service_api")
 
 kg_client_for_service_account = None
 

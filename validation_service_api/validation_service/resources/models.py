@@ -28,7 +28,7 @@ from ..data_models import (
 from ..queries import build_model_project_filters, model_alias_exists, expand_combinations
 
 
-logger = logging.getLogger("validation_service_v2")
+logger = logging.getLogger("validation_service_api")
 
 auth = HTTPBearer(auto_error=False)
 router = APIRouter()
@@ -39,7 +39,7 @@ async def about_this_api(token: HTTPAuthorizationCredentials = Depends(auth)):
     service_status = getattr(settings, "SERVICE_STATUS", "ok")
     info = {
         "about": "This is the EBRAINS Model Validation API",
-        "version": "2.5",
+        "version": "3beta",
         "status": service_status,
         "datastore": settings.KG_CORE_API_HOST,
         "build": settings.BUILD_INFO,

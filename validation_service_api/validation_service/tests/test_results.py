@@ -16,7 +16,7 @@ from .fixtures import (
 )
 
 
-logger = logging.getLogger("validation_service_v2")
+logger = logging.getLogger("validation_service_api")
 
 
 def assert_is_valid_url(url):
