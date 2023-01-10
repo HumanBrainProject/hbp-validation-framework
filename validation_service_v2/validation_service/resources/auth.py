@@ -27,9 +27,9 @@ async def auth_via_ebrains(request: Request):
     if request.query_params["state"] == "modelcatalog":
         return RedirectResponse("https://model-catalog-dev.brainsimulation.eu")
     else:
-        user = token["userinfo"]
-        user2 = await oauth.ebrains.userinfo(token=token)
-        user.update(user2)
+        #user = token["userinfo"]
+        user = await oauth.ebrains.userinfo(token=token)
+        #user.update(user2)
         response = {
             "access_token": token["access_token"],
             "token_expires": datetime.fromtimestamp(token["expires_at"]),

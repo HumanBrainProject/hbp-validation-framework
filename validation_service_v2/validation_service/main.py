@@ -21,7 +21,7 @@ The Model Validation Service is used by the EBRAINS Model Catalog web app.
 A [Python client](https://hbp-validation-client.readthedocs.io/) for the service is also available.
 
 These pages provide interactive documentation. To try out queries, you will need an [EBRAINS user account](https://ebrains.eu/register/).
-Please [login here](https://validation-v2.brainsimulation.eu/login), then copy the "access token" into the dialog that appears when you click "Authorize" below.
+Please [login here](/login), then copy the "access token" into the dialog that appears when you click "Authorize" below.
 (this workflow will be simplified in the near future).
 """
 
