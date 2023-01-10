@@ -24,9 +24,9 @@ build_api_staging_image:
           - validation_service_v2/**/*
   script:
     - bash validation_service_v2/deployment/get_build_info.sh staging
-    - docker build -f validation_service_v2/deployment/Dockerfile.staging -t docker-registry.ebrains.eu/model-catalog/validation_service-v2:staging ./validation_service_v2
+    - docker build -f validation_service_v2/deployment/Dockerfile.staging -t docker-registry.ebrains.eu/model-catalog/validation_service-v3beta:staging ./validation_service_v2
     - docker login -u $DOCKER_REGISTRY_USER -p $DOCKER_REGISTRY_SECRET docker-registry.ebrains.eu
-    - docker push docker-registry.ebrains.eu/model-catalog/validation_service-v2:staging
+    - docker push docker-registry.ebrains.eu/model-catalog/validation_service-v3beta:staging
   tags:
     - shell-runner
 
@@ -39,8 +39,8 @@ build_api_prod_image:
           - validation_service_v2/**/*
   script:
     - bash validation_service_v2/deployment/get_build_info.sh production
-    - docker build -f validation_service_v2/deployment/Dockerfile.prod -t docker-registry.ebrains.eu/model-catalog/validation_service-v2:prod ./validation_service_v2
+    - docker build -f validation_service_v2/deployment/Dockerfile.prod -t docker-registry.ebrains.eu/model-catalog/validation_service-v3beta:prod ./validation_service_v2
     - docker login -u $DOCKER_REGISTRY_USER -p $DOCKER_REGISTRY_SECRET docker-registry.ebrains.eu
-    - docker push docker-registry.ebrains.eu/model-catalog/validation_service-v2:prod
+    - docker push docker-registry.ebrains.eu/model-catalog/validation_service-v3beta:prod
   tags:
     - shell-runner
