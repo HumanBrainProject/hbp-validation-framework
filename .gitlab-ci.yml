@@ -7,6 +7,7 @@ build_api_development_image:
       - if: '$CI_COMMIT_REF_NAME == "development"'
         changes:
           - validation_service_v2/**/*
+          - .gitlab-ci.yml
   script:
     - bash validation_service_v2/deployment/get_build_info.sh development
     - docker build -f validation_service_v2/deployment/Dockerfile.dev -t docker-registry.ebrains.eu/model-catalog/validation_service-v3:dev ./validation_service_v2
@@ -22,6 +23,7 @@ build_api_staging_image:
       - if: '$CI_COMMIT_REF_NAME == "staging"'
         changes:
           - validation_service_v2/**/*
+          - .gitlab-ci.yml
   script:
     - bash validation_service_v2/deployment/get_build_info.sh staging
     - docker build -f validation_service_v2/deployment/Dockerfile.staging -t docker-registry.ebrains.eu/model-catalog/validation_service-v3beta:staging ./validation_service_v2
@@ -37,6 +39,7 @@ build_api_prod_image:
       - if: '$CI_COMMIT_REF_NAME == "master"'
         changes:
           - validation_service_v2/**/*
+          - .gitlab-ci.yml
   script:
     - bash validation_service_v2/deployment/get_build_info.sh production
     - docker build -f validation_service_v2/deployment/Dockerfile.prod -t docker-registry.ebrains.eu/model-catalog/validation_service-v3beta:prod ./validation_service_v2
