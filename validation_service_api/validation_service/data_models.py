@@ -398,7 +398,7 @@ class ModelInstance(BaseModel):
             "hash": hash
         }
         if instance.input_data:
-            for input_url in instance.input_data:
+            for input_url in as_list(instance.input_data):
                 _, extension = os.path.splitext(urlparse(input_url.url).path)
                 if extension.lower() == ".asc":
                     instance_data["morphology"] = input_url.url
@@ -1632,7 +1632,7 @@ class PersonWithAffiliation(BaseModel):
         if pr.affiliations:
             affiliations = [affil.resolve(client, scope="any", follow_links=1)
                             for affil in as_list(pr.affiliations)]
-            affiliation = "; ".join((affil.organization.name for affil in affiliations if affil.organization and affil.organization.name))
+            affiliation = "; ".join((affil.member_of.name for affil in affiliations if affil.member_of and affil.member_of.name))
             # todo: if affiliations have start/end dates, filter for the ones that match the datetimes
             #       associated with the paper/live paper
         else:
@@ -1641,9 +1641,9 @@ class PersonWithAffiliation(BaseModel):
 
     def to_kg_object(self):
         p = omcore.Person(family_name=self.lastname, given_name=self.firstname)
-        if self.affiliation and not (p.affiliations and p.affiliations[0].organization.name == self.affiliation):
+        if self.affiliation and not (p.affiliations and p.affiliations[0].member_of.name == self.affiliation):
             org = omcore.Organization(name=self.affiliation)
-            p.affiliations = omcore.Affiliation(organization=org)
+            p.affiliations = omcore.Affiliation(member_of=org)
         return p
 
     def __eq__(self, other):

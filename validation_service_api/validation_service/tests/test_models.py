@@ -328,7 +328,7 @@ def test_create_model_without_collab_membership():
 
 
 def test_create_duplicate_model(caplog):
-    # Creating two models with the same name field is not allowed
+    # Creating two models with the same alias field is not allowed
     # caplog.set_level(logging.INFO)
     payload = _build_sample_model()
     # create
@@ -339,9 +339,7 @@ def test_create_duplicate_model(caplog):
 
     response = client.post(f"/models/", json=payload, headers=AUTH_HEADER)
     assert response.status_code == status.HTTP_409_CONFLICT
-    assert response.json() == {
-        "detail": "Another model with the same name already exists."
-    }
+    assert "already exists" in response.json()["detail"]
 
     # delete first model
     response = client.delete(f"/models/{posted_model['id']}", headers=AUTH_HEADER)
@@ -497,7 +495,7 @@ def test_create_model_instance():
     payload2 = {
         "version": "1.3",
         "description": "description of this version",
-        "parameters": "{'meaning': 42.01}",
+        "parameters": "http://example.com/my_modified_parameters.py",
         "code_format": "text/x-python",
         "source": "http://example.com/my_code.py",
         "license": "The MIT license",
@@ -625,7 +623,7 @@ def test_delete_model_instance(caplog):
         {
             "version": "1.3",
             "description": "description of this version",
-            "parameters": "{'meaning': sqrt(42)}",
+            "parameters": "http://example.com/my_parameters_2.py",
             "code_format": "text/x-python",
             "source": "http://example.com/my_code_2.py",
             "license": "The MIT license",

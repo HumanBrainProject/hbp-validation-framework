@@ -82,7 +82,7 @@ def _build_sample_model():
             {
                 "version": "1.23",
                 "description": "description of this version",
-                "parameters": "{'meaning': 42}",
+                "parameters": "http://example.com/my_parameters.py",
                 "code_format": "text/x-python",
                 "source": "http://example.com/my_code.py",
                 "license": "The MIT license",
@@ -114,7 +114,7 @@ def _build_sample_validation_test():
             {
                 "version": "1.23",
                 "description": "description of this version",
-                "parameters": "{'meaning': 42}",
+                "parameters": "http://example.com/my_parameters.py",
                 "path": "mylib.tests.MeaningOfLifeTest",
                 "repository": "http://example.com/my_code.py",
             }

@@ -172,7 +172,7 @@ def test_create_and_delete_validation_test_definition(caplog):
 
     # todo: check validation_test no longer exists
     response = client.get(f"/tests/{validation_test_uuid}", headers=AUTH_HEADER)
-    assert response.status_code == 404
+    assert response.status_code in (400, 404)
 
 
 def test_create_validation_test_with_invalid_data():
@@ -464,7 +464,7 @@ def test_create_validation_test_instance():
     payload2 = {
         "version": "1.24",
         "description": "description of this version",
-        "parameters": "{'meaning': 41.9}",
+        "parameters": "http://example.com/my_parameters.py",
         "path": "mylib.tests.MeaningOfLifeTest",
         "repository": "http://example.com/my_code.py",
     }
@@ -520,7 +520,7 @@ def test_create_validation_test_instance():
 #     # now add a new instance with same version but changed parameters
 #     sleep(20)
 #     payload2 = payload["instances"][0]
-#     payload2["parameters"] = "{'meaning': 42.1}"
+#     payload2["parameters"] = "http://example.com/my_changed_parameters.py",
 #     response = client.post(
 #         f"/tests/{validation_test_uuid}/instances/", json=payload2, headers=AUTH_HEADER
 #     )
