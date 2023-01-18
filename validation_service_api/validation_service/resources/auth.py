@@ -41,7 +41,8 @@ async def auth_via_ebrains(request: Request):
                 "team": user["roles"].get("team", []),
                 "group": user["roles"].get("group", []),
             },
-            "state": request.query_params["state"]
+            "state": request.query_params["state"],
+            "scopes": token["scope"]
         }
         return response
 
