@@ -811,6 +811,7 @@ class ValidationTest(BaseModel):
     implementation_status: ImplementationStatus = ImplementationStatus.proposal
     author: List[Person]
     project_id: str = None  # make this required?
+    private: bool = True
     cell_type: CellType = None
     brain_region: BrainRegion = None
     species: Species = None
@@ -829,6 +830,9 @@ class ValidationTest(BaseModel):
     def from_kg_query(cls, item, client):
         item.pop("@context", None)
         item["id"] = client.uuid_from_uri(item["uri"])
+        space = item["project_id"]  # what the query calls "project_id" is really the space
+        item["private"] = is_private(space)
+        item["project_id"] = project_id_from_space(space)
         item["instances"] = [
             ValidationTestInstance.from_kg_query(instance, client)
             for instance in item.get("instances", [])
@@ -886,6 +890,7 @@ class ValidationTest(BaseModel):
             name=test_definition.name,
             alias=test_definition.alias,
             implementation_status=implementation_status,
+            private=is_private(test_definition.space),
             #custodians=test_definition.custodians,
             description=test_definition.description,
             author=[Person.from_kg_object(p, client) for p in as_list(test_definition.developers)],
@@ -966,6 +971,7 @@ class ValidationTestSummary(BaseModel):
     name: str
     alias: str = None
     implementation_status: ImplementationStatus = ImplementationStatus.proposal
+    private: bool = True
     author: List[Person]
     cell_type: CellType = None
     brain_region: BrainRegion = None
@@ -991,6 +997,7 @@ class ValidationTestSummary(BaseModel):
             name=test_definition.name,
             alias=test_definition.alias,
             implementation_status=None,  # to fix (test_definition.status or ImplementationStatus.proposal.value),
+            private=is_private(test_definition),
             author=[Person.from_kg_object(p, client) for p in as_list(test_definition.developers)],
             cell_type=test_definition.celltype.label if test_definition.celltype else None,
             brain_region=test_definition.brain_region.label
