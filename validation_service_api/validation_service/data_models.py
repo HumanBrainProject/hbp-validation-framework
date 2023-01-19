@@ -690,7 +690,6 @@ class ScientificModelPatch(BaseModel):
     owner: List[Person] = None
     project_id: str = None
     organization: str = None
-    private: bool = None
     cell_type: CellType = None
     model_scope: ModelScope = None
     abstraction_level: AbstractionLevel = None
