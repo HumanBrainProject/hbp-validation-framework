@@ -159,6 +159,7 @@ def test_create_and_delete_validation_test_definition(caplog):
     posted_validation_test = response.json()
     check_validation_test(posted_validation_test, expected_instances=len(payload["instances"]))
 
+
     # check we can retrieve validation_test
     sleep(15)  # need to wait a short time to allow Nexus to become consistent
     validation_test_uuid = posted_validation_test["id"]
@@ -166,6 +167,7 @@ def test_create_and_delete_validation_test_definition(caplog):
     assert response.status_code == 200
     retrieved_validation_test = response.json()
     assert retrieved_validation_test == posted_validation_test
+    assert retrieved_validation_test["data_location"] == payload["data_location"]
 
     # delete again
     response = client.delete(f"/tests/{validation_test_uuid}", headers=AUTH_HEADER)

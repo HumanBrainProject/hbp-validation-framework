@@ -772,6 +772,11 @@ class ValidationTestInstance(BaseModel):
             )
         else:
             repository = None
+        reference_data = [
+            omcore.URL(url=IRI(url))
+            for url in test_definition.data_location
+            # mismatch with openMINDS - all instances have same test data, to be fixed in API v3
+        ]
         test_version = omcmp.ValidationTestVersion(
             name=f"Implementation of {test_definition.name}, version '{self.version}'",
             alias=f"{test_definition.alias}-{self.version}",
@@ -779,7 +784,7 @@ class ValidationTestInstance(BaseModel):
             description=None,  # inherits from parent
             developers=None,   # inherits from parent
             entry_point=self.path,
-            reference_data=None,  # mismatch with openMINDS, to be fixed in API v3
+            reference_data=reference_data,
             release_date=None,
             repository=repository,
             version_identifier=self.version,
@@ -913,13 +918,6 @@ class ValidationTest(BaseModel):
         developers = [person.to_kg_object() for person in self.author]
         #timestamp = ensure_has_timezone(self.date_created) or datetime.now(timezone.utc)
         timestamp = None
-        data_files = [
-            omcore.File(
-                name="Reference data #{} for validation test '{}'".format(i + 1, self.name),
-                iri=IRI(url),
-            )
-            for i, url in enumerate(self.data_location)
-        ]
         study_targets = []
         if self.species:
             species = get_term("Species", self.species)
@@ -954,12 +952,10 @@ class ValidationTest(BaseModel):
             test_definition.id = str(self.uri)
 
         if self.instances:
-            test_versions = []
-            for instance in self.instances:
-                test_versions = [
-                    instance.to_kg_object(self)
-                    for instance in self.instances
-                ]
+            test_versions = [
+                instance.to_kg_object(test_definition=self)
+                for instance in self.instances
+            ]
             test_definition.versions = test_versions
 
         return test_definition
