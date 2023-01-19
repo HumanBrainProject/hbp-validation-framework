@@ -100,6 +100,7 @@ def _build_sample_validation_test():
             {"given_name": "Frodo", "family_name": "Baggins"},
             {"given_name": "Tom", "family_name": "Bombadil"},
         ],
+        "project_id": "model-validation",
         "implementation_status": "proposal",
         "species": "Mus musculus",
         "brain_region": "CA1 field of hippocampus",

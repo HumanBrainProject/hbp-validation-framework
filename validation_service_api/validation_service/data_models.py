@@ -472,7 +472,7 @@ class ScientificModel(BaseModel):
     alias: str = None
     author: List[Person]
     owner: List[Person]
-    project_id: str = None
+    project_id: str = None  # make this required?
     organization: str = None
     private: bool = True
     cell_type: CellType = None
@@ -811,6 +811,7 @@ class ValidationTest(BaseModel):
     alias: str = None
     implementation_status: ImplementationStatus = ImplementationStatus.proposal
     author: List[Person]
+    project_id: str = None  # make this required?
     cell_type: CellType = None
     brain_region: BrainRegion = None
     species: Species = None
@@ -889,6 +890,7 @@ class ValidationTest(BaseModel):
             #custodians=test_definition.custodians,
             description=test_definition.description,
             author=[Person.from_kg_object(p, client) for p in as_list(test_definition.developers)],
+            project_id=project_id_from_space(test_definition.space),
             cell_type=cell_types[0] if cell_types else None,
             brain_region=brain_regions[0] if brain_regions else None,
             species=species[0] if species else None,

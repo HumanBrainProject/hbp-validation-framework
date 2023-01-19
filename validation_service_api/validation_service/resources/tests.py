@@ -280,9 +280,24 @@ def get_test(test_id: str, token: HTTPAuthorizationCredentials = Depends(auth)):
 
 
 @router.post("/tests/", response_model=ValidationTest, status_code=status.HTTP_201_CREATED)
-def create_test(test: ValidationTest, token: HTTPAuthorizationCredentials = Depends(auth)):
+async def create_test(test: ValidationTest, token: HTTPAuthorizationCredentials = Depends(auth)):
     _check_service_status()
     user = User(token, allow_anonymous=False)
+
+    # check permissions
+    if test.project_id is None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail=f"project_id must be provided"
+        )
+    if not (
+        await user.can_edit_collab(test.project_id)
+        or await user.is_admin()
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=f"This account is not a member of Collab #{test.project_id}",
+        )
+
     kg_user_client = get_kg_client_for_user_account(token)
     kg_service_client = get_kg_client_for_service_account()
 
@@ -296,7 +311,8 @@ def create_test(test: ValidationTest, token: HTTPAuthorizationCredentials = Depe
             detail=f"Another validation test with alias '{test.alias}' already exists.",
         )
     test_definition = test.to_kg_object()
-    kg_space = "collab-model-validation"  # during development
+    kg_space = f"collab-{test.project_id}"
+
     if test_definition.exists(kg_service_client):
         # see https://stackoverflow.com/questions/3825990/http-response-code-for-post-when-resource-already-exists
         # for a discussion of the most appropriate status code to use here
@@ -304,6 +320,9 @@ def create_test(test: ValidationTest, token: HTTPAuthorizationCredentials = Depe
             status_code=status.HTTP_409_CONFLICT,
             detail=f"Another validation test with the same name and timestamp already exists.",
         )
+
+    # todo: check if kg space already exists, if not create and configure it
+
     test_definition.save(kg_user_client, recursive=True, space=kg_space)
     return ValidationTest.from_kg_object(test_definition, kg_user_client)
 

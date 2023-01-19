@@ -20,6 +20,7 @@ from .fixtures import _build_sample_validation_test, client, token, AUTH_HEADER
 
 def check_validation_test(test_definition, expected_instances=0):
     assert isinstance(test_definition["name"], str)
+    assert isinstance(test_definition["project_id"], str)
     assert isinstance(test_definition["description"], str)
     if test_definition["alias"]:
         assert isinstance(test_definition["alias"], str)
