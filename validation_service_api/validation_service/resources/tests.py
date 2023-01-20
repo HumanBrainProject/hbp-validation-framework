@@ -4,6 +4,7 @@ from datetime import datetime
 import logging
 
 from fairgraph.base_v3 import KGQuery, as_list
+import fairgraph.openminds.core as omcore
 import fairgraph.openminds.computation as omcmp
 
 from fastapi import APIRouter, Depends, Query, HTTPException, status
@@ -321,7 +322,20 @@ async def create_test(test: ValidationTest, token: HTTPAuthorizationCredentials 
             detail=f"Another validation test with the same name and timestamp already exists.",
         )
 
-    # todo: check if kg space already exists, if not create and configure it
+    # check if kg space already exists, if not create and configure it
+    spaces = kg_user_client.spaces(permissions=["write"], names_only=True)
+    if kg_space not in spaces:
+        types = [omcore.Model, omcore.ModelVersion, omcore.FileRepository, omcore.File,
+                 omcore.Person, omcore.Organization, omcmp.ValidationTest,
+                 omcmp.ValidationTestVersion, omcmp.ModelValidation, omcore.PropertyValueList]
+        try:
+            space_name = kg_user_client.configure_space(test.project_id, types)
+        except Exception as err:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail=f"You do not have permission to save models in the KG space for collab '{test.project_id}'. Try one of: {spaces}"
+            )
+        assert space_name == kg_space
 
     test_definition.save(kg_user_client, recursive=True, space=kg_space)
     return ValidationTest.from_kg_object(test_definition, kg_user_client)
