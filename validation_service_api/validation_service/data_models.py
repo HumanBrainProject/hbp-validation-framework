@@ -729,7 +729,7 @@ class ValidationTestInstance(BaseModel):
     id: UUID = None
     uri: HttpUrl = None
     old_uuid: UUID = None
-    repository: HttpUrl
+    repository: HttpUrl = None
     version: str
     description: str = None
     parameters: HttpUrl = None
