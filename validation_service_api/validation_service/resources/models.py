@@ -299,10 +299,18 @@ async def query_models(
 
         if summary:
             cls = ScientificModelSummary
-            query = kg_service_client.retrieve_query("VF_ScientificModelSummary")
+            query_label = "VF_ScientificModelSummary"
         else:
             cls = ScientificModel
-            query = kg_service_client.retrieve_query("VF_ScientificModel")
+            query_label = "VF_ScientificModel"
+
+        query = kg_service_client.retrieve_query(query_label)
+
+        if query is None:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=f"Query '{query_label}' could not be retrieved",
+            )
 
         if len(spaces) == 1 and len(filters) == 1:
             # common, simple case
@@ -374,6 +382,11 @@ async def get_model(
     kg_service_client = get_kg_client_for_service_account()
 
     query = kg_service_client.retrieve_query("VF_ScientificModel")
+    if query is None:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Query 'VF_ScientificModel' could not be retrieved",
+        )
     try:
         UUID(model_id)
     except ValueError:

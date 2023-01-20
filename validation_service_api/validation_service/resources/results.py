@@ -94,24 +94,30 @@ router = APIRouter()
 #     ]
 
 
-def _query_results(filters, project_id, kg_client, data_model, query_label, from_index, size, user):
+def _query_results(filters, project_id, kg_user_client, data_model, query_label, from_index, size, user):
     filters = expand_combinations(filters)
 
     if project_id:
         spaces = [f"collab-{collab_id}" for collab_id in project_id]
     else:
         spaces = ["computation"]  # or ``= [None]`` ? i.e. search across all spaces
-        #spaces = ["collab-model-validation"]  # during development
 
-    query = kg_client.retrieve_query(query_label)
+    kg_service_client = get_kg_client_for_service_account()
+
+    query = kg_service_client.retrieve_query(query_label)
+    if query is None:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Query '{query_label}' could not be retrieved",
+        )
 
     if len(spaces) == 1 and len(filters) == 1:
         # common, simple case
-        response = kg_client.query(filters[0], query["@id"], space=spaces[0],
+        response = kg_user_client.query(filters[0], query["@id"], space=spaces[0],
                                    from_index=from_index, size=size, scope="any",
                                    id_key="uri")
         test_results = [
-            data_model.from_kg_query(item, kg_client)
+            data_model.from_kg_query(item, kg_user_client)
             for item in response.data
         ]
     else:
@@ -119,7 +125,7 @@ def _query_results(filters, project_id, kg_client, data_model, query_label, from
         items = []
         for space in spaces:
             for filter in filters:
-                response = kg_client.query(filter, query["@id"], space=space,
+                response = kg_user_client.query(filter, query["@id"], space=space,
                                            from_index=0, size=100000, scope="any")
                 items.extend(response.data)
                 if len(items) >= size + from_index:
@@ -128,12 +134,11 @@ def _query_results(filters, project_id, kg_client, data_model, query_label, from
                 break
 
         test_results = [
-            data_model.from_kg_query(item, kg_client)
+            data_model.from_kg_query(item, kg_user_client)
             for item in items[from_index:from_index + size]
         ]
 
     if user.is_anonymous:
-        kg_service_client = get_kg_client_for_service_account()
         test_results = [
             test_result for test_result in test_results
             if (model_is_public(test_result.model_id, kg_service_client)

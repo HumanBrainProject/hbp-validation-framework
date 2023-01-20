@@ -214,15 +214,16 @@ def query_tests(
 
         if summary:
             cls = ValidationTestSummary
-            query = kg_service_client.retrieve_query("VF_ValidationTestSummary")
+            query_label = "VF_ValidationTestSummary"
         else:
             cls = ValidationTest
-            query = kg_service_client.retrieve_query("VF_ValidationTest")
+            query_label = "VF_ValidationTest"
+        query = kg_service_client.retrieve_query(query_label)
 
         if query is None:
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail=f"Query could not be retrieved",
+                detail=f"Query '{query_label}' could not be retrieved",
             )
 
         if len(spaces) == 1 and len(filters) == 1:
