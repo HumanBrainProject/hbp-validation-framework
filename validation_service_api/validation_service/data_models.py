@@ -309,6 +309,11 @@ class Person(BaseModel):
         obj = omcore.Person(family_name=self.family_name, given_name=self.given_name)
         if self.orcid:
             obj.digital_identifiers = [omcore.ORCID(identifier=self.orcid)]
+
+        # allow creating missing authors (e.g. in private space) but not modifying existing ones
+        # (because often the user will not have the required permissions)
+        obj.allow_update = False
+
         return obj
 
 
