@@ -465,7 +465,7 @@ def test_list_model_instances_by_model_id():
 
 
 def test_get_model_instance_by_id():
-    instance_uuid = "a7915504-1f7a-4fed-8f68-e7e8f99529c2"
+    instance_uuid = "ef213a1a-136e-4853-836b-15d151277b9f"
     response = client.get(f"/models/query/instances/{instance_uuid}", headers=AUTH_HEADER)
     assert response.status_code == 200
     model_instance = response.json()
@@ -474,7 +474,7 @@ def test_get_model_instance_by_id():
 
 def test_get_model_instance_by_project_and_id():
     model_uuid = "cb62b56e-bdfa-4016-81cd-c9dbc834cebc"
-    instance_uuid = "a7915504-1f7a-4fed-8f68-e7e8f99529c2"
+    instance_uuid = "ef213a1a-136e-4853-836b-15d151277b9f"
     response = client.get(f"/models/{model_uuid}/instances/{instance_uuid}", headers=AUTH_HEADER)
     assert response.status_code == 200
     model_instance = response.json()

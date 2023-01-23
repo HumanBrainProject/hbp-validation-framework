@@ -17,7 +17,7 @@ from fastapi.encoders import jsonable_encoder
 from fastapi import HTTPException, status
 
 from fairgraph.base_v3 import KGProxy, as_list, IRI
-from fairgraph.errors import ResolutionFailure
+from fairgraph.errors import ResolutionFailure, AuthenticationError
 import fairgraph
 import fairgraph.openminds.core as omcore
 import fairgraph.openminds.computation as omcmp
@@ -344,7 +344,12 @@ class ModelInstance(BaseModel):
         item.pop("repository", None)
         if item["version"] is None:
             item["version"] = "unknown"
-        if client.is_released(item["uri"]):
+        try:
+            if client.is_released(item["uri"]):
+                item["alternatives"].append(f"https://search.kg.ebrains.eu/instances/{item['id']}")
+        except AuthenticationError:
+            # user clients generally cannot access unreleased data
+            # so if we get this error, the item has almost certainly been released
             item["alternatives"].append(f"https://search.kg.ebrains.eu/instances/{item['id']}")
         if item["source"] and "modeldb" in item["source"].lower():
             item["alternatives"].append(item["source"])

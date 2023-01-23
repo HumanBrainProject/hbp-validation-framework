@@ -5,6 +5,7 @@ import logging
 from fairgraph.base_v3 import as_list
 import fairgraph.openminds.core as omcore
 import fairgraph.openminds.computation as omcmp
+from fairgraph.errors import ResolutionFailure
 
 from fastapi import APIRouter, Depends, Query, Path, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
@@ -588,10 +589,15 @@ async def get_model_instances(
         kg_client = get_kg_client_for_user_account(token)
         scope = "any"
     model_project = _get_model_by_id_or_alias(model_id, kg_client, scope)
-    model_instances = [
-        ModelInstance.from_kg_object(inst, kg_client, model_project.uuid, scope)
-        for inst in as_list(model_project.versions)
-    ]
+    model_instances = []
+    for inst in as_list(model_project.versions):
+        try:
+            model_instance = ModelInstance.from_kg_object(inst, kg_client, model_project.uuid, scope)
+        except ResolutionFailure:
+            pass
+        else:
+            model_instances.append(model_instance)
+
     if version is not None:
         model_instances = [inst for inst in model_instances if inst.version == version]
     return model_instances
