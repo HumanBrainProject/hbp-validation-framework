@@ -74,14 +74,22 @@ def test_get_validation_test_by_id_no_auth():
 
 def test_get_validation_test_by_id(caplog):
     # caplog.set_level(logging.DEBUG)
-    test_ids = ("01c68387-fcc4-4fd3-85f0-6eb8ce4467a1",)
-    for validation_test_uuid in test_ids:
-        # first is private (but test user has access), second is public
-        # todo: test with a second user, who does not have access
+    test_ids = {
+        "public": ["100abccb-6d30-4c1e-a960-bc0489e0d82d"],
+        "private": ["01c68387-fcc4-4fd3-85f0-6eb8ce4467a1"]
+    }
+    for validation_test_uuid in test_ids["public"]:
+        # first is public, second is private
+        # todo: test with a second user, who does have access to the private test
         response = client.get(f"/tests/{validation_test_uuid}", headers=AUTH_HEADER)
         assert response.status_code == 200
         validation_test = response.json()
         check_validation_test(validation_test)
+    for validation_test_uuid in test_ids["private"]:
+        # first is public, second is private
+        # todo: test with a second user, who does have access to the private test
+        response = client.get(f"/tests/{validation_test_uuid}", headers=AUTH_HEADER)
+        assert response.status_code == 400
 
 
 @pytest.mark.xfail  # test to be updated
