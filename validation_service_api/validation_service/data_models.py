@@ -292,7 +292,11 @@ class Person(BaseModel):
 
     @classmethod
     def from_kg_object(cls, person, client):
-        person = person.resolve(client, scope="any")
+        try:
+            person = person.resolve(client, scope="any")
+        except ResolutionFailure as err:
+            logger.warn(str(err))
+            return None
         orcid = None
         if person.digital_identifiers:
             for digid in as_list(person.digital_identifiers):
@@ -871,8 +875,14 @@ class ValidationTest(BaseModel):
         if len(versions) > 0:
             latest_version = sorted(versions,
                                     key=lambda ver: ver.version_identifier)[-1]
-            reference_data = [item.resolve(client, scope="any")
-                             for item in as_list(latest_version.reference_data)]
+            reference_data = []
+            for item in as_list(latest_version.reference_data):
+                try:
+                    rdi = item.resolve(client, scope="any")
+                except ResolutionFailure as err:
+                    logger.warning(str(err))
+                else:
+                    reference_data.append(rdi)
             data_location = []
             data_type = set()
             for item in reference_data:
@@ -899,6 +909,11 @@ class ValidationTest(BaseModel):
         timestamps = [inst.timestamp for inst in instances if inst.timestamp is not None]
         if timestamps:
             date_created = min(timestamps)
+        authors = []
+        for p in as_list(test_definition.developers):
+            person = Person.from_kg_object(p, client)
+            if person:
+                authors.append(person)
         obj = cls(
             id=test_definition.uuid,
             uri=test_definition.id,
@@ -908,7 +923,7 @@ class ValidationTest(BaseModel):
             private=is_private(test_definition.space),
             #custodians=test_definition.custodians,
             description=test_definition.description,
-            author=[Person.from_kg_object(p, client) for p in as_list(test_definition.developers)],
+            author=authors,
             project_id=project_id_from_space(test_definition.space),
             cell_type=cell_types[0] if cell_types else None,
             brain_region=brain_regions[0] if brain_regions else None,
@@ -1980,7 +1995,13 @@ class LivePaperSummary(BaseModel):
     def from_kg_object(cls, lp, kg_client):
         scope = lp.scope or "any"
         lpv = as_list(lp.versions)[-1]  # todo: sort by release_date and/or last_modified
-        lpv = lpv.resolve(kg_client, scope=scope)
+        try:
+            lpv = lpv.resolve(kg_client, scope=scope)
+        except ResolutionFailure as err:
+            # this shouldn't happen in general, but sometimes occurs on staging
+            # when kg-ppd is in an inconsistent state
+            logger.warning(str(err))
+            return None
 
         associated_paper_title = None
         associated_paper_release_date = None

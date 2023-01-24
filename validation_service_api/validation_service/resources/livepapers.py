@@ -69,10 +69,12 @@ async def query_live_papers(
     else:
         accessible_lps = lps.values()
     # todo: think about sorting
-    return [
-        LivePaperSummary.from_kg_object(lp, kg_client)
-        for lp in accessible_lps
-    ]
+    summaries = []
+    for lp in accessible_lps:
+        summary = LivePaperSummary.from_kg_object(lp, kg_client)
+        if lp:
+            summaries.append(summary)
+    return summaries
 
 
 @router.get("/livepapers-published/", response_model=List[LivePaperSummary])
