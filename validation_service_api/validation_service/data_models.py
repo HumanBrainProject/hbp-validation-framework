@@ -2035,19 +2035,23 @@ class LivePaperSummary(BaseModel):
             collab_id = lp.space[7:]
         else:
             collab_id = lp.space
-        return cls(
-            modified_date=lpv.last_modified,
-            live_paper_title=lpv.name or lp.name,
-            associated_paper_title=associated_paper_title,
-            citation=associated_paper_citation,
-            year=associated_paper_release_date,
-            collab_id=collab_id,
-            doi=lp_doi,
-            alias=lp.alias,
-            id=lp.uuid,
-            detail_path=f"/livepapers/{lp.uuid}"
-        )
-
+        try:
+            obj = cls(
+                modified_date=lpv.last_modified,
+                live_paper_title=lpv.name or lp.name,
+                associated_paper_title=associated_paper_title,
+                citation=associated_paper_citation,
+                year=associated_paper_release_date,
+                collab_id=collab_id,
+                doi=lp_doi,
+                alias=lp.alias,
+                id=lp.uuid,
+                detail_path=f"/livepapers/{lp.uuid}"
+            )
+        except ValidationError as err:
+            logger.error(f"Unable to return LivePaperSummary: {err}")
+            obj = None
+        return obj
 
 
 class AccessCode(BaseModel):

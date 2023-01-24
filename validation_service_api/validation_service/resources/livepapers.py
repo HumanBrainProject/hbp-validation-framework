@@ -72,7 +72,7 @@ async def query_live_papers(
     summaries = []
     for lp in accessible_lps:
         summary = LivePaperSummary.from_kg_object(lp, kg_client)
-        if lp:
+        if summary:
             summaries.append(summary)
     return summaries
 
