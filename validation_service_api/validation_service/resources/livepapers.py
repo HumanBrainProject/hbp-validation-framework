@@ -204,7 +204,7 @@ async def create_live_paper(
 
     for category in ("people", "paper", "sections"):  # the order is important
         for obj in kg_objects[category]:
-            obj.save(kg_client, space=kg_space, recursive=True)
+            obj.save(kg_client, space=kg_space, recursive=True, ignore_auth_errors=True)
     logger.info("Saved objects")
     return LivePaperSummary.from_kg_object(kg_objects["paper"][-1], kg_client)
 
