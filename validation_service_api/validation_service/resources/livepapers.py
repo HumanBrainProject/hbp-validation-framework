@@ -37,21 +37,20 @@ def collab_id_from_space(space):
 
 @router.get("/livepapers/", response_model=List[LivePaperSummary])
 async def query_live_papers(
+    title: str = Query(None, description="Live paper title to search for"),
     editable: bool = False,
     token: HTTPAuthorizationCredentials = Depends(auth)
 ):
     user = User(token, allow_anonymous=False)
     kg_client = get_kg_client_for_user_account(token)
 
+    filters = {}
+    if title:
+        filters["name"] = title
+
     # get all live papers that the user has view access to
     lps = {lp.id: lp
-           for lp in as_list(ompub.LivePaper.list(kg_client, scope="released", size=1000,
-                                                  space=LIVEPAPERS_SPACE, api="core"))}
-    lps.update({
-        lp.id: lp
-        for lp in as_list(ompub.LivePaper.list(kg_client, scope="any", size=1000,
-                                               space=None, api="core"))
-    })
+            for lp in as_list(ompub.LivePaper.list(kg_client, scope="any", size=1000, **filters))}
 
     if editable:
         # include only those papers the user can edit

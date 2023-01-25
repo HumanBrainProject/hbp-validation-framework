@@ -1673,6 +1673,7 @@ class PersonWithAffiliation(BaseModel):
         if self.affiliation and not (p.affiliations and p.affiliations[0].member_of.name == self.affiliation):
             org = omcore.Organization(name=self.affiliation)
             p.affiliations = omcore.Affiliation(member_of=org)
+        p.allow_update = False
         return p
 
     def __eq__(self, other):
