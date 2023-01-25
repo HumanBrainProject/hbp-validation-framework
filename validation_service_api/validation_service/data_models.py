@@ -2054,6 +2054,62 @@ class LivePaperSummary(BaseModel):
             obj = None
         return obj
 
+    @classmethod
+    def from_kg_query(cls, item, client):
+        if item["versions"]:
+            versions = sorted(item["versions"], key=lambda ver: ver["modified_date"])
+            lpv = versions[-1]
+        associated_paper_title = None
+        associated_paper_release_date = None
+        associated_paper_citation = None
+        if lpv["related_publication"]:
+            rel_pub = lpv["related_publication"]["citation_data"]
+            associated_paper_title = rel_pub["title"]
+            associated_paper_release_date = datetime.fromisoformat(rel_pub["publication_date"])
+            associated_paper_citation = get_citation_string(rel_pub)
+        if item["space"].startswith("collab-"):
+            collab_id = item["space"][7:]
+        else:
+            collab_id = item["space"]
+        uuid=client.uuid_from_uri(item["id"])
+        try:
+            obj = cls(
+                modified_date=lpv["modified_date"],
+                live_paper_title=lpv["name"] or item["name"],
+                associated_paper_title=associated_paper_title,
+                citation=associated_paper_citation,
+                year=associated_paper_release_date,
+                collab_id=collab_id,
+                doi=lpv["lp_doi"],
+                alias=item["alias"],
+                id=uuid,
+                detail_path=f"/livepapers/{uuid}"
+            )
+        except ValidationError as err:
+            logger.error(f"Unable to return LivePaperSummary: {err}")
+            obj = None
+        return obj
+
+
+def get_citation_string(citation_data):
+    authors = citation_data["authors"]
+    if len(authors) == 1:
+        author_str = f"{authors[0]['given_name']} {authors[0]['family_name']}"
+    elif len(authors) > 1:
+        author_str = ", ".join(f"{au['given_name']} {au['family_name']}" for au in authors[:-1])
+        author_str += " & " + f"{authors[-1]['given_name']} {authors[-1]['family_name']}"
+    title = citation_data["title"]
+    if title and title[-1] != ".":
+        title += "."
+    journal_name, volume_number, issue_number = None, None, None
+    if citation_data["is_part_of"]:
+        volume_number = citation_data["is_part_of"]["volume_number"]
+        if citation_data["is_part_of"]["is_part_of"]:
+            journal_name = citation_data["is_part_of"]["is_part_of"]["journal"]
+    pagination = citation_data["pagination"]
+    date_published = datetime.fromisoformat(citation_data["publication_date"])
+    return f"{author_str} ({date_published.year}). {title} {journal_name}, {volume_number}: {pagination}."
+
 
 class AccessCode(BaseModel):
     value: str

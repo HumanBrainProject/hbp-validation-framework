@@ -42,35 +42,42 @@ async def query_live_papers(
     token: HTTPAuthorizationCredentials = Depends(auth)
 ):
     user = User(token, allow_anonymous=False)
-    kg_client = get_kg_client_for_user_account(token)
+    kg_user_client = get_kg_client_for_user_account(token)
+    kg_service_client = get_kg_client_for_service_account()
 
     filters = {}
     if title:
         filters["name"] = title
 
-    # get all live papers that the user has view access to
-    lps = {lp.id: lp
-            for lp in as_list(ompub.LivePaper.list(kg_client, scope="any", size=1000, **filters))}
+    query_label = "LP_LivePapers_summary"
+    query = kg_service_client.retrieve_query(query_label)
+    if query is None:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Query '{query_label}' could not be retrieved",
+        )
+
+    lps = kg_user_client.query(filters, query["@id"], scope="any", id_key="id").data
 
     if editable:
         # include only those papers the user can edit
         editable_collabs = await user.get_editable_collabs()
 
         accessible_lps = [
-            lp for lp in lps.values()
-            if lp.space == "myspace" or collab_id_from_space(lp.space) in editable_collabs
+            lp for lp in lps
+            if lp["space"] == "myspace" or collab_id_from_space(lp["space"]) in editable_collabs
         ]
         # alternative implementation, profile these
         # accessible_lps = [
         #     lp for lp in lps
-        #     if lp.space == "myspace" or await can_edit_collab(collab_id_from_space(lp.space), token.credentials)
+        #     if lp["space"] == "myspace" or await can_edit_collab(collab_id_from_space(lp["space"])), token.credentials)
         # ]
     else:
-        accessible_lps = lps.values()
+        accessible_lps = lps
     # todo: think about sorting
     summaries = []
     for lp in accessible_lps:
-        summary = LivePaperSummary.from_kg_object(lp, kg_client)
+        summary = LivePaperSummary.from_kg_query(lp, kg_user_client)
         if summary:
             summaries.append(summary)
     return summaries
