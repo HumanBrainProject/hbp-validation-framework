@@ -179,12 +179,14 @@ async def create_live_paper(
             detail=f"This account is not a member of Collab #{live_paper.collab_id}",
         )
 
-    kg_client = get_kg_client_for_user_account(token)
+    kg_user_client = get_kg_client_for_user_account(token)
+    kg_service_client = get_kg_client_for_service_account()
 
-    kg_objects = live_paper.to_kg_objects(kg_client)
+    kg_objects = live_paper.to_kg_objects(kg_user_client)
     assert isinstance(kg_objects["paper"][-1], ompub.LivePaper)
 
-    if kg_objects["paper"][-1].exists(kg_client):
+    # use both service client (for checking curated spaces) and user client (for checking private spaces)
+    if kg_objects["paper"][-1].exists(kg_service_client) or kg_objects["paper"][-1].exists(kg_user_client):
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail=f"Another live paper with the same name already exists.",
@@ -194,12 +196,12 @@ async def create_live_paper(
         kg_space = live_paper.collab_id
     else:
         kg_space = f"collab-{live_paper.collab_id}"
-    if kg_space not in kg_client.spaces():
+    if kg_space not in kg_user_client.spaces():
         # configure space the first time it is used
         types = [omcore.DOI, omcore.ISBN, omcore.ISSN, omcore.URL, omcore.ServiceLink,
                  omcore.Person, omcore.Organization] + ompub.list_kg_classes()
         try:
-            kg_client.configure_space("live-paper-2022-appukuttan-davison", types)
+            kg_user_client.configure_space("live-paper-2022-appukuttan-davison", types)
         except Exception as err:
             # todo: more fine-grained error reporting. Check content of Exception,
             #       403 may not be appropriate
@@ -210,9 +212,9 @@ async def create_live_paper(
 
     for category in ("people", "paper", "sections"):  # the order is important
         for obj in kg_objects[category]:
-            obj.save(kg_client, space=kg_space, recursive=True, ignore_auth_errors=True)
+            obj.save(kg_user_client, space=kg_space, recursive=True, ignore_auth_errors=True)
     logger.info("Saved objects")
-    return LivePaperSummary.from_kg_object(kg_objects["paper"][-1], kg_client)
+    return LivePaperSummary.from_kg_object(kg_objects["paper"][-1], kg_user_client)
 
 
 @router.put("/livepapers/{lp_id}", status_code=status.HTTP_200_OK)
@@ -250,6 +252,8 @@ async def update_live_paper(
     logger.info("Created objects")
 
     if not kg_objects["paper"][-1].exists(kg_client):
+        # here we use only the user client to check existence, since we have
+        # to be able to write to it anyway
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Live paper with id {lp_id} not found.",

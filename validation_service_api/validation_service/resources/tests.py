@@ -316,7 +316,8 @@ async def create_test(test: ValidationTest, token: HTTPAuthorizationCredentials 
     test_definition = test.to_kg_object()
     kg_space = f"collab-{test.project_id}"
 
-    if test_definition.exists(kg_service_client):
+    # use both service client (for checking curated spaces) and user client (for checking private spaces)
+    if test_definition.exists(kg_service_client) or test_definition.exists(kg_user_client):
         # see https://stackoverflow.com/questions/3825990/http-response-code-for-post-when-resource-already-exists
         # for a discussion of the most appropriate status code to use here
         raise HTTPException(

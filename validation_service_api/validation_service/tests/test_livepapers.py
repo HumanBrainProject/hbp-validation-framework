@@ -6,11 +6,27 @@ from .fixtures import client, token, AUTH_HEADER, _build_sample_live_paper
 
 
 def check_live_paper(output, input, mode="summmary"):
-    keys = ["alias", "associated_paper_title", "collab_id", "doi", "id",
-            "live_paper_title", "modified_date", "year"] # "citation" <-- to fix
+    keys = [
+        "alias",
+        "associated_paper_title",
+        "collab_id",
+        "doi",
+        "id",
+        "live_paper_title",
+        "modified_date",
+        "year",
+    ]  # "citation" <-- to fix
     if mode == "full":
-        keys += ["abstract", "associated_paper_doi", "journal", "license",
-                 "name", "resources_description", "url", "version"]
+        keys += [
+            "abstract",
+            "associated_paper_doi",
+            "journal",
+            "license",
+            "name",
+            "resources_description",
+            "url",
+            "version",
+        ]
     for key in keys:
         if key in input:
             assert output[key] == input[key]
@@ -27,14 +43,14 @@ def check_live_paper(output, input, mode="summmary"):
         assert len(output["resources"]) == len(input["resources"])
         for section_out, section_in in zip(
             sorted(output["resources"], key=lambda sec: sec["order"]),
-            sorted(input["resources"], key=lambda sec: sec["order"])
+            sorted(input["resources"], key=lambda sec: sec["order"]),
         ):
             for key in ("description", "title", "type"):  # , "icon"): <-- todo
                 assert section_out[key] == section_in[key]
             assert len(section_out["data"]) == len(section_in["data"])
             for data_item_in, data_item_out in zip(
                 sorted(section_out["data"], key=lambda item: item["label"]),
-                sorted(section_in["data"], key=lambda item: item["label"])
+                sorted(section_in["data"], key=lambda item: item["label"]),
             ):
                 for key in ("label", "type", "url", "view_url"):
                     assert data_item_out[key] == data_item_in[key]
@@ -43,11 +59,24 @@ def check_live_paper(output, input, mode="summmary"):
 def test_migration():
     alias = "2016-eyal-et-al"
     new = client.get(f"/livepapers/{alias}", headers=AUTH_HEADER).json()
-    old = requests.get(f"https://validation-v2.brainsimulation.eu/livepapers/{alias}",
-                       headers=AUTH_HEADER).json()
-    for key in ("abstract", "alias", "associated_paper_doi", "associated_paper_title", "doi", "id",
-                "journal", "live_paper_title", "modified_date", "resources_description", "url",
-                "year"):
+    old = requests.get(
+        f"https://validation-v2.brainsimulation.eu/livepapers/{alias}",
+        headers=AUTH_HEADER,
+    ).json()
+    for key in (
+        "abstract",
+        "alias",
+        "associated_paper_doi",
+        "associated_paper_title",
+        "doi",
+        "id",
+        "journal",
+        "live_paper_title",
+        "modified_date",
+        "resources_description",
+        "url",
+        "year",
+    ):
         assert new[key] == old[key]
     for key in ("created_author", "corresponding_author", "authors"):
         assert len(new[key]) == len(old[key])
@@ -59,7 +88,7 @@ def test_migration():
     # iterate over sections
     for new_section, old_section in zip(
         sorted(new["resources"], key=lambda sec: sec["order"]),
-        sorted(old["resources"], key=lambda sec: sec["order"])
+        sorted(old["resources"], key=lambda sec: sec["order"]),
     ):
         for key in ("description", "icon", "title", "type"):
             assert new_section["description"] == old_section["description"]
@@ -118,7 +147,9 @@ def test_update_live_paper(caplog):
     # update
     updated_payload = payload.copy()
     updated_payload.update(changes)
-    response = client.put(f"/livepapers/{posted_lp['id']}", json=updated_payload, headers=AUTH_HEADER)
+    response = client.put(
+        f"/livepapers/{posted_lp['id']}", json=updated_payload, headers=AUTH_HEADER
+    )
     assert response.status_code == 200
 
     # get updated
@@ -130,3 +161,47 @@ def test_update_live_paper(caplog):
     # delete everything
     response = client.delete(f"/livepapers/{posted_lp['id']}", headers=AUTH_HEADER)
     assert response.status_code == 200
+
+
+def test_minimal_with_existing_author(caplog):
+    payload = {
+        "id": None,
+        "lp_tool_version": "0.2",
+        "standalone": True,
+        "modified_date": "2023-01-26T08:15:19.132000+00:00",
+        "authors": [
+            {"firstname": "Andrew", "lastname": "Davison", "affiliation": "NeuroPSI"}
+        ],
+        "corresponding_author": [
+            {"firstname": "Andrew", "lastname": "Davison", "affiliation": "NeuroPSI"}
+        ],
+        "created_author": [
+            {"firstname": "Andrew", "lastname": "Davison", "affiliation": "NeuroPSI"}
+        ],
+        "approved_author": {
+            "firstname": "Andrew",
+            "lastname": "Davison",
+            "affiliation": "NeuroPSI",
+        },
+        "year": None,
+        "associated_paper_title": None,  # todo: test with empty string "",
+        "live_paper_title": "Minimal example of a live paper for testing",
+        "doi": None,
+        "paper_published": True,
+        "journal": None,
+        "url": None,
+        "citation": None,
+        "associated_paper_doi": None,
+        "abstract": None,
+        "license": "Creative Commons Attribution 4.0 International",
+        "collab_id": "model-validation",
+        "resources_description": "In this article we demonstrate ...",
+        "resources": [],
+    }
+    response = client.post(f"/livepapers/", json=payload, headers=AUTH_HEADER)
+    assert response.status_code == 201
+    posted_lp = response.json()
+    payload["id"] = posted_lp["id"]
+    check_live_paper(posted_lp, payload, mode="summary")
+    # delete again
+    response = client.delete(f"/livepapers/{posted_lp['id']}", headers=AUTH_HEADER)

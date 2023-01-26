@@ -451,9 +451,8 @@ async def create_model(
         )
     model_project = model.to_kg_object()
     kg_space = f"collab-{model.project_id}"
-    #if model.description == "RAISE EXCEPTION":
-    #    raise Exception()
-    if model_project.exists(kg_user_client):
+    # use both service client (for checking curated spaces) and user client (for checking private spaces)
+    if model_project.exists(kg_service_client) or model_project.exists(kg_user_client):
         # see https://stackoverflow.com/questions/3825990/http-response-code-for-post-when-resource-already-exists
         # for a discussion of the most appropriate status code to use here
         raise HTTPException(
@@ -672,6 +671,7 @@ async def create_model_instance(
     _check_service_status()
     user = User(token, allow_anonymous=False)
     kg_user_client = get_kg_client_for_user_account(token)
+    kg_service_client = get_kg_client_for_service_account()
     model_project = _get_model_by_id_or_alias(model_id, kg_user_client, scope="any")
     # check permissions for this model
     if model_project.space is None:
@@ -690,7 +690,8 @@ async def create_model_instance(
         )
     model_instance_kg = model_instance.to_kg_object(model_project)
     # check if an identical model instance already exists, raise an error if so
-    if model_instance_kg.exists(kg_user_client):
+    # use both service client (for checking curated spaces) and user client (for checking private spaces)
+    if model_instance_kg.exists(kg_service_client) or model_instance_kg.exists(kg_user_client):
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail=f"Another model instance with the same name already exists.",
