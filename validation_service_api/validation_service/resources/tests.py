@@ -313,7 +313,7 @@ async def create_test(test: ValidationTest, token: HTTPAuthorizationCredentials 
             status_code=status.HTTP_409_CONFLICT,
             detail=f"Another validation test with alias '{test.alias}' already exists.",
         )
-    test_definition = test.to_kg_object()
+    test_definition = test.to_kg_object(kg_user_client)
     kg_space = f"collab-{test.project_id}"
 
     # use both service client (for checking curated spaces) and user client (for checking private spaces)
@@ -387,7 +387,7 @@ def update_test(
     if "author" in update_data:
         update_data["author"] = [Person(**p) for p in update_data["author"]]
     updated_test = stored_test.copy(update=update_data)
-    updated_test_definition = updated_test.to_kg_object()
+    updated_test_definition = updated_test.to_kg_object(kg_user_client)
     updated_test_definition.save(kg_user_client, recursive=True, space=test_definition.space)
     return ValidationTest.from_kg_object(updated_test_definition, kg_user_client)
 

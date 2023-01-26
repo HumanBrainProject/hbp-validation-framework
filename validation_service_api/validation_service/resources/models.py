@@ -449,7 +449,7 @@ async def create_model(
             status_code=status.HTTP_409_CONFLICT,
             detail=f"Another model with alias '{model.alias}' already exists.",
         )
-    model_project = model.to_kg_object()
+    model_project = model.to_kg_object(kg_user_client)
     kg_space = f"collab-{model.project_id}"
     # use both service client (for checking curated spaces) and user client (for checking private spaces)
     if model_project.exists(kg_service_client) or model_project.exists(kg_user_client):
@@ -538,7 +538,7 @@ async def update_model(
         if field in ("author", "owner"):
             update_data[field] = [Person(**p) for p in update_data[field]]
     updated_model = stored_model.copy(update=update_data)
-    updated_model_project = updated_model.to_kg_object()
+    updated_model_project = updated_model.to_kg_object(kg_user_client)
     updated_model_project.save(kg_user_client, space=model_project.space, recursive=True)
     updated_model_project.scope = "in progress"
     return ScientificModel.from_kg_object(updated_model_project, kg_user_client)

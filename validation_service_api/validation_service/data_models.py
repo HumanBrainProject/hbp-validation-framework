@@ -309,10 +309,14 @@ class Person(BaseModel):
         return cls(given_name=person.given_name, family_name=person.family_name,
                    orcid=orcid)
 
-    def to_kg_object(self):
-        obj = omcore.Person(family_name=self.family_name, given_name=self.given_name)
-        if self.orcid:
-            obj.digital_identifiers = [omcore.ORCID(identifier=self.orcid)]
+    def to_kg_object(self, client):
+        candidates = omcore.Person.list(client, scope="any", family_name=self.family_name, given_name=self.given_name)
+        if candidates:
+            obj = as_list(candidates)[0]  # could perhaps look through for closest match if there are more than one
+        else:
+            obj = omcore.Person(family_name=self.family_name, given_name=self.given_name)
+            if self.orcid:
+                obj.digital_identifiers = [omcore.ORCID(identifier=self.orcid)]
 
         # allow creating missing authors (e.g. in private space) but not modifying existing ones
         # (because often the user will not have the required permissions)
@@ -581,9 +585,9 @@ class ScientificModel(BaseModel):
             raise
         return obj
 
-    def to_kg_object(self):
-        authors = [person.to_kg_object() for person in self.author]
-        owners = [person.to_kg_object() for person in self.owner]
+    def to_kg_object(self, client):
+        authors = [person.to_kg_object(client) for person in self.author]
+        owners = [person.to_kg_object(client) for person in self.owner]
         if self.organization:
             owners.append(omcore.Organization(name=self.organization))
 
@@ -939,8 +943,8 @@ class ValidationTest(BaseModel):
         )
         return obj
 
-    def to_kg_object(self):
-        developers = [person.to_kg_object() for person in self.author]
+    def to_kg_object(self, client):
+        developers = [person.to_kg_object(client) for person in self.author]
         #timestamp = ensure_has_timezone(self.date_created) or datetime.now(timezone.utc)
         timestamp = None
         study_targets = []
