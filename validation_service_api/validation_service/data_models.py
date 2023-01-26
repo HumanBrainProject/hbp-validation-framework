@@ -2056,37 +2056,40 @@ class LivePaperSummary(BaseModel):
 
     @classmethod
     def from_kg_query(cls, item, client):
+        uuid=client.uuid_from_uri(item["id"])
         if item["versions"]:
             versions = sorted(item["versions"], key=lambda ver: ver["modified_date"])
             lpv = versions[-1]
-        associated_paper_title = None
-        associated_paper_release_date = None
-        associated_paper_citation = None
-        if lpv["related_publication"]:
-            rel_pub = lpv["related_publication"]["citation_data"]
-            associated_paper_title = rel_pub["title"]
-            associated_paper_release_date = datetime.fromisoformat(rel_pub["publication_date"])
-            associated_paper_citation = get_citation_string(rel_pub)
-        if item["space"].startswith("collab-"):
-            collab_id = item["space"][7:]
+            associated_paper_title = None
+            associated_paper_release_date = None
+            associated_paper_citation = None
+            if lpv["related_publication"]:
+                rel_pub = lpv["related_publication"]["citation_data"]
+                associated_paper_title = rel_pub["title"]
+                associated_paper_release_date = datetime.fromisoformat(rel_pub["publication_date"])
+                associated_paper_citation = get_citation_string(rel_pub)
+            if item["space"].startswith("collab-"):
+                collab_id = item["space"][7:]
+            else:
+                collab_id = item["space"]
+            try:
+                obj = cls(
+                    modified_date=lpv["modified_date"],
+                    live_paper_title=lpv["name"] or item["name"],
+                    associated_paper_title=associated_paper_title,
+                    citation=associated_paper_citation,
+                    year=associated_paper_release_date,
+                    collab_id=collab_id,
+                    doi=lpv["lp_doi"],
+                    alias=item["alias"],
+                    id=uuid,
+                    detail_path=f"/livepapers/{uuid}"
+                )
+            except ValidationError as err:
+                logger.error(f"Unable to return LivePaperSummary: {err}")
+                obj = None
         else:
-            collab_id = item["space"]
-        uuid=client.uuid_from_uri(item["id"])
-        try:
-            obj = cls(
-                modified_date=lpv["modified_date"],
-                live_paper_title=lpv["name"] or item["name"],
-                associated_paper_title=associated_paper_title,
-                citation=associated_paper_citation,
-                year=associated_paper_release_date,
-                collab_id=collab_id,
-                doi=lpv["lp_doi"],
-                alias=item["alias"],
-                id=uuid,
-                detail_path=f"/livepapers/{uuid}"
-            )
-        except ValidationError as err:
-            logger.error(f"Unable to return LivePaperSummary: {err}")
+            logger.error(f"Unable to return LivePaperSummary: no versions. Item name is {item['name']} with uuid {uuid}")
             obj = None
         return obj
 
