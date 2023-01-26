@@ -1668,11 +1668,15 @@ class PersonWithAffiliation(BaseModel):
             affiliation = None
         return cls(firstname=pr.given_name, lastname=pr.family_name, affiliation=affiliation)
 
-    def to_kg_object(self):
-        p = omcore.Person(family_name=self.lastname, given_name=self.firstname)
-        if self.affiliation and not (p.affiliations and p.affiliations[0].member_of.name == self.affiliation):
-            org = omcore.Organization(name=self.affiliation)
-            p.affiliations = omcore.Affiliation(member_of=org)
+    def to_kg_object(self, client):
+        candidates = omcore.Person.list(client, scope="any", family_name=self.lastname, given_name=self.firstname)
+        if candidates:
+            p = as_list(candidates)[0]  # could perhaps look through for closest match if there are more than one
+        else:
+            p = omcore.Person.list(family_name=self.lastname, given_name=self.firstname)
+            if self.affiliation and not (p.affiliations and p.affiliations[0].member_of.name == self.affiliation):
+                org = omcore.Organization(name=self.affiliation)
+                p.affiliations = omcore.Affiliation(member_of=org)
         p.allow_update = False
         return p
 
@@ -1917,12 +1921,12 @@ class LivePaper(BaseModel):
         )
 
     def to_kg_objects(self, kg_client):
-        original_authors = [p.to_kg_object() for p in self.authors]
+        original_authors = [p.to_kg_object(kg_client) for p in self.authors]
         if self.approved_author:
-            custodian = self.approved_author.to_kg_object()
+            custodian = self.approved_author.to_kg_object(kg_client)
         else:
             custodian = None
-        live_paper_authors = [p.to_kg_object() for p in as_list(self.created_author)]
+        live_paper_authors = [p.to_kg_object(kg_client) for p in as_list(self.created_author)]
 
         def get_journal_volume_issue(journal_name, volume, issue):
             journal = ompub.Periodical.by_name(journal_name, kg_client, scope="any")  # also check "released"
@@ -1937,7 +1941,7 @@ class LivePaper(BaseModel):
                 name=self.associated_paper_title,
                 iri=self.url,
                 authors=original_authors,
-                custodians=self.corresponding_author[0].to_kg_object(),
+                custodians=self.corresponding_author[0].to_kg_object(kg_client),
                 digital_identifier=omcore.DOI(identifier=self.associated_paper_doi) if self.associated_paper_doi else None,
                 is_part_of=get_journal_volume_issue(self.journal, self.associated_paper_volume, self.associated_paper_issue),
                 pagination=self.associated_paper_pagination,
