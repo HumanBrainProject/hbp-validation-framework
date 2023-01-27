@@ -504,6 +504,12 @@ async def update_model(
 
     # retrieve stored model
     model_project = omcore.Model.from_uuid(str(model_id), kg_user_client, scope="any")
+    if model_project is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Either a model with identifier {model_id} does not exist, or you do not have access to it.",
+        )
+
     stored_model = ScientificModel.from_kg_object(model_project, kg_user_client)
     # if retrieved project_id is different to payload id, check permissions for that id
     if stored_model.project_id != model_patch.project_id and not (
