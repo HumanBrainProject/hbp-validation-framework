@@ -1940,16 +1940,23 @@ class LivePaper(BaseModel):
             else:
                 return volume
 
-        if self.associated_paper_title and self.journal and self.year:
+        if self.associated_paper_title:
+            date_published = None
+            journal_info = None
+            if self.year:
+                date_published = self.year
+            if self.journal:
+                journal_info = get_journal_volume_issue(self.journal, self.associated_paper_volume, self.associated_paper_issue)
+
             related_pub = ompub.ScholarlyArticle(
                 name=self.associated_paper_title,
                 iri=self.url,
                 authors=original_authors,
                 custodians=self.corresponding_author[0].to_kg_object(kg_client),
                 digital_identifier=omcore.DOI(identifier=self.associated_paper_doi) if self.associated_paper_doi else None,
-                is_part_of=get_journal_volume_issue(self.journal, self.associated_paper_volume, self.associated_paper_issue),
+                is_part_of=journal_info,
                 pagination=self.associated_paper_pagination,
-                date_published=self.year,
+                date_published=date_published,
                 abstract=self.abstract
             )
         else:
