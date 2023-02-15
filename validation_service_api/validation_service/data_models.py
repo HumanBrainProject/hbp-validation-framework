@@ -1677,7 +1677,7 @@ class PersonWithAffiliation(BaseModel):
         if candidates:
             p = as_list(candidates)[0]  # could perhaps look through for closest match if there are more than one
         else:
-            p = omcore.Person.list(family_name=self.lastname, given_name=self.firstname)
+            p = omcore.Person(family_name=self.lastname, given_name=self.firstname)
             if self.affiliation and not (p.affiliations and p.affiliations[0].member_of.name == self.affiliation):
                 org = omcore.Organization(name=self.affiliation)
                 p.affiliations = omcore.Affiliation(member_of=org)
