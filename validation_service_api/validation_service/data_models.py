@@ -1965,12 +1965,19 @@ class LivePaper(BaseModel):
         if alias is None:
             alias = slugify(self.live_paper_title)
         version = self.version or "v0"
+        if related_pub:
+            if related_pub.digital_identifier:
+                associated_publication = related_pub.digital_identifier
+            else:
+                associated_publication = related_pub
+        else:
+            associated_publication = None
         lpv = ompub.LivePaperVersion(
             name=self.live_paper_title,
             alias=f"{alias}-{version}",
             last_modified=self.modified_date,
             version_identifier=version,
-            related_publications=related_pub.digital_identifier if related_pub else None,
+            related_publications=associated_publication,
             license=term_cache["License"]["names"].get(self.license, None)
         )
         lp = ompub.LivePaper(
