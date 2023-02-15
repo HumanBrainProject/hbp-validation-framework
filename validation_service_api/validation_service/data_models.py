@@ -1843,7 +1843,7 @@ class LivePaper(BaseModel):
         lpv = as_list(lp.versions)[-1]  # todo: sort by release_date and/or last_modified
         lpv = lpv.resolve(kg_client, scope=scope)
 
-        related_publication_dois = as_list(lpv.related_publications)
+        related_publication_identifiers = as_list(lpv.related_publications)
         associated_paper_title = None
         associated_paper_release_date = None
         associated_paper_doi = None
@@ -1856,13 +1856,21 @@ class LivePaper(BaseModel):
         corresponding_author = None
         journal_name = None
 
-        if len(related_publication_dois) > 0:
-            related_publication_doi = related_publication_dois[0].resolve(kg_client, scope=scope)  #? or maybe need to check both scopes
+        if len(related_publication_identifiers) > 0:
+            related_publication_identifier = related_publication_identifiers[0].resolve(kg_client, scope=scope)  #? or maybe need to check both scopes
             # to do: generalise the following to chapter, book, ...
-            related_publications = as_list(ompub.ScholarlyArticle.list(kg_client, scope=scope, space=lp.space,
-                                                                       digital_identifier=related_publication_doi))
-            if len(related_publications) > 0:
-                related_publication = related_publications[0].resolve(kg_client, follow_links=1, scope=scope)
+            if isinstance(related_publication_identifier, ompub.ScholarlyArticle):
+                related_publication = related_publication_identifier
+                related_publications = [related_publication]
+            elif isinstance(related_publication_identifiers, omcore.DOI):
+                related_publications = as_list(ompub.ScholarlyArticle.list(kg_client, scope=scope, space=lp.space,
+                                                                           digital_identifier=related_publication_identifier))
+                if len(related_publications) > 0:
+                    related_publication = related_publications[0].resolve(kg_client, follow_links=1, scope=scope)
+            else:
+                related_publication = None
+                related_publications = []
+            if related_publication:
                 associated_paper_title = related_publication.name
                 associated_paper_release_date = related_publication.date_published
                 associated_paper_doi = related_publication.digital_identifier.identifier if related_publication.digital_identifier else None
@@ -2029,20 +2037,27 @@ class LivePaperSummary(BaseModel):
         associated_paper_title = None
         associated_paper_release_date = None
         associated_paper_citation = None
-        related_publication_dois = as_list(lpv.related_publications)
-        if len(related_publication_dois) > 0:
+        related_publication_identifiers = as_list(lpv.related_publications)
+        if len(related_publication_identifiers) > 0:
             try:
-                related_publication_doi = related_publication_dois[0].resolve(kg_client, scope=scope)
+                related_publication_identifier = related_publication_identifiers[0].resolve(kg_client, scope=scope)
             except ResolutionFailure as err:
                 logger.warn(str(err))
-                related_publication_doi = None
+                related_publication_identifier = None
             # to do: generalise the following to chapter, book, ...
             # also search in livepapers space if that's different from lp.space
-            if related_publication_doi:
-                related_publications = as_list(ompub.ScholarlyArticle.list(kg_client, scope=scope, space=lp.space,
-                                                                        digital_identifier=related_publication_doi))
-                if len(related_publications) > 0:
-                    related_publication = related_publications[0].resolve(kg_client, follow_links=1, scope=scope)
+            related_publication = None
+            if related_publication_identifier:
+                if isinstance(related_publication_identifier, ompub.ScholarlyArticle):
+                    related_publication = related_publication_identifier
+                elif isinstance(related_publication_identifier, omcore.DOI):
+                    related_publications = as_list(ompub.ScholarlyArticle.list(kg_client, scope=scope, space=lp.space,
+                                                                            digital_identifier=related_publication_identifier))
+                    if len(related_publications) > 0:
+                        related_publication = related_publications[0].resolve(kg_client, follow_links=1, scope=scope)
+                else:
+                    logger.warn(f"Can't handle {type(related_publication_identifier)} yet")
+                if related_publication:
                     associated_paper_title = related_publication.name
                     associated_paper_release_date = related_publication.date_published
                     associated_paper_citation = related_publication.get_citation_string(kg_client)
