@@ -1874,17 +1874,17 @@ class LivePaper(BaseModel):
                 associated_paper_title = related_publication.name
                 associated_paper_release_date = related_publication.date_published
                 associated_paper_doi = related_publication.digital_identifier.identifier if related_publication.digital_identifier else None
-                associated_paper_url = related_publication.iri.value
+                associated_paper_url = related_publication.iri.value if related_publication.iri else None
                 associated_paper_abstract = related_publication.abstract
                 associated_paper_citation = related_publication.get_citation_string(kg_client)
                 associated_paper_pagination = related_publication.pagination
                 corresponding_author = get_people(related_publication.custodians)
-                (_journal,
-                 _volume,
-                 _issue) = related_publication.get_journal(kg_client, True, True) if related_publication.is_part_of else None
-                journal_name = _journal.name if _journal else None
-                associated_paper_volume = _volume.volume_number if _volume else None
-                associated_paper_issue = _issue.issue_number if _issue else None
+                journal_info = related_publication.get_journal(kg_client, True, True) if related_publication.is_part_of else None
+                if journal_info:
+                    (_journal, _volume, _issue) = journal_info
+                    journal_name = _journal.name if _journal else None
+                    associated_paper_volume = _volume.volume_number if _volume else None
+                    associated_paper_issue = _issue.issue_number if _issue else None
         else:
             related_publications = []
         original_authors = []

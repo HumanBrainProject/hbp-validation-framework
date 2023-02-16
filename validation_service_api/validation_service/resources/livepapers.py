@@ -201,7 +201,7 @@ async def create_live_paper(
         types = [omcore.DOI, omcore.ISBN, omcore.ISSN, omcore.URL, omcore.ServiceLink,
                  omcore.Person, omcore.Organization] + ompub.list_kg_classes()
         try:
-            kg_user_client.configure_space("live-paper-2022-appukuttan-davison", types)
+            kg_user_client.configure_space(kg_space, types)
         except Exception as err:
             # todo: more fine-grained error reporting. Check content of Exception,
             #       403 may not be appropriate
