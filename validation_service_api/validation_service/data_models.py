@@ -1663,9 +1663,9 @@ class PersonWithAffiliation(BaseModel):
         else:
             pr = p
         if pr.affiliations:
-            affiliations = [affil.resolve(client, scope="any", follow_links=1)
+            affiliations = [affil.resolve(client, scope="any", follow_links=2)
                             for affil in as_list(pr.affiliations)]
-            affiliation = "; ".join((affil.member_of.name for affil in affiliations if affil.member_of and affil.member_of.name))
+            affiliation = "; ".join((affil.member_of.name for affil in affiliations if affil.member_of and hasattr(affil.member_of, "name")))
             # todo: if affiliations have start/end dates, filter for the ones that match the datetimes
             #       associated with the paper/live paper
         else:
@@ -1871,6 +1871,7 @@ class LivePaper(BaseModel):
                 related_publication = None
                 related_publications = []
             if related_publication:
+                related_publication.resolve(kg_client, scope=scope, follow_links=1)
                 associated_paper_title = related_publication.name
                 associated_paper_release_date = related_publication.date_published
                 associated_paper_doi = related_publication.digital_identifier.identifier if related_publication.digital_identifier else None
@@ -1892,6 +1893,7 @@ class LivePaper(BaseModel):
             original_authors.extend(get_people(rel_pub.authors))
         # now remove possible duplicates
         original_authors = list(dict.fromkeys(original_authors))
+
         custodians = lpv.custodians or lp.custodians
         sections = ompub.LivePaperSection.list(kg_client, size=1000, scope="any", space=lp.space, is_part_of=lpv)
         if lp.space.startswith("collab-"):
@@ -2138,6 +2140,8 @@ def get_citation_string(citation_data):
     elif len(authors) > 1:
         author_str = ", ".join(f"{au['given_name']} {au['family_name']}" for au in authors[:-1])
         author_str += " & " + f"{authors[-1]['given_name']} {authors[-1]['family_name']}"
+    else:
+        author_str = ""
     title = citation_data["title"]
     if title and title[-1] != ".":
         title += "."
