@@ -467,7 +467,7 @@ async def create_model(
                  omcore.Person, omcore.Organization, omcmp.ValidationTest,
                  omcmp.ValidationTestVersion, omcmp.ModelValidation, omcore.PropertyValueList]
         try:
-            space_name = kg_user_client.configure_space(model.project_id, types)
+            space_name = kg_user_client.configure_space(kg_space, types)
         except Exception as err:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
