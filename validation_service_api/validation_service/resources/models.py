@@ -400,21 +400,26 @@ async def get_model(
         filter = None
         instance_id = model_id
 
-    try:
-        results = kg_user_client.query(filter, query["@id"], instance_id=instance_id,
-                                       size=1, scope=scope, id_key="uri")
-    except Exception as err:
-        # todo: extract status code from err
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"{err} filter='{filter}' query_id='{query['@id']}' instance_id='{instance_id}', scope='{scope}'"
-        )
+    if filter:
+        try:
+            results = kg_user_client.query(filter, query["@id"], instance_id=instance_id,
+                                        size=1, scope=scope, id_key="uri")
+        except Exception as err:
+            # todo: extract status code from err
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"{err} filter='{filter}' query_id='{query['@id']}' instance_id='{instance_id}', scope='{scope}'"
+            )
 
-    if results.total == 0:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail=f"Model with ID '{model_id}' not found."
-        )
-    return ScientificModel.from_kg_query(results.data[0], kg_user_client)
+        if results.total == 0:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail=f"Model with ID '{model_id}' not found."
+            )
+        return ScientificModel.from_kg_query(results.data[0], kg_user_client)
+
+    else:
+        obj = omcore.Model.from_id(instance_id, kg_user_client, scope=scope)
+        return ScientificModel.from_kg_object(obj, kg_user_client)
 
 
 @router.post("/models/", response_model=ScientificModel, status_code=status.HTTP_201_CREATED)
