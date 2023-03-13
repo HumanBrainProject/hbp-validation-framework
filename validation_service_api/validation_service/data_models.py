@@ -327,7 +327,7 @@ class Person(BaseModel):
 
 class ModelInstance(BaseModel):
     id: UUID = None
-    uri: HttpUrl = None
+    uri: HttpUrl
     version: str
     description: str = None
     parameters: HttpUrl = None
