@@ -467,7 +467,7 @@ class ModelInstancePatch(BaseModel):
     source: HttpUrl = None
     license: License = None
     hash: str = None
-    timestamp: datetime = None
+    timestamp: date = None
     morphology: HttpUrl = None
 
     class Config:  # can probably remove this
