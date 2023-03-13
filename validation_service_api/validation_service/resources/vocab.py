@@ -72,17 +72,17 @@ class LicenseFilterOptions(str, Enum):
 
 
 popular_licenses = [
-    "Apache License 2.0",
-    'BSD 2-Clause "Simplified" License',
-    'BSD 3-Clause "New" or "Revised" License',
+    "Apache License, Version 2.0",
+    "The 2-Clause BSD License",
+    "The 3-Clause BSD License",
     "Creative Commons Attribution 4.0 International",
-    "Creative Commons Attribution Non Commercial 4.0 International",
-    "Creative Commons Attribution Share Alike 4.0 International",
-    "Creative Commons Zero v1.0 Universal",
+    "Creative Commons Attribution-NonCommercial 4.0 International",
+    "Creative Commons Attribution-ShareAlike 4.0 International",
+    "Creative Commons Zero 1.0 Universal",
     "GNU General Public License v2.0 or later",
     "GNU General Public License v3.0 or later",
     "GNU Lesser General Public License v3.0 or later",
-    "MIT License",
+    "The MIT license",
 ]
 
 
