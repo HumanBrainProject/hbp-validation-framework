@@ -256,7 +256,7 @@ async def query_models(
         # if specifying specific ids, we ignore any other search terms
         models = []
         for model_uuid in id:
-            model = omcore.Model.from_uuid(model_uuid, kg_user_client, scope=scope)
+            model = omcore.Model.from_uuid(str(model_uuid), kg_user_client, scope=scope)
             if model:
                 models.append(model)
             else:
