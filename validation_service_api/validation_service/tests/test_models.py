@@ -604,7 +604,7 @@ def test_create_duplicate_model_instance(caplog):
     model_uuid = posted_model["id"]
 
     # now try to add the same instance again
-    sleep(15)
+    sleep(20)
     payload2 = posted_model["instances"][0]
     response = client.post(f"/models/{model_uuid}/instances/", json=payload2, headers=AUTH_HEADER)
     assert response.status_code == status.HTTP_409_CONFLICT

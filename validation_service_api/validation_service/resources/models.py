@@ -2,7 +2,7 @@ from uuid import UUID
 from typing import List, Union
 import logging
 
-from fairgraph.base_v3 import as_list
+from fairgraph.base import as_list
 import fairgraph.openminds.core as omcore
 import fairgraph.openminds.computation as omcmp
 from fairgraph.errors import ResolutionFailure
@@ -316,9 +316,10 @@ async def query_models(
         if len(spaces) == 1 and len(filters) == 1:
             # common, simple case
             try:
-                instances = kg_user_client.query(filters[0], query["@id"], space=spaces[0],
+                instances = kg_user_client.query(filters[0], query, space=spaces[0],
                                                  from_index=from_index, size=size,
-                                                 scope=scope, id_key="uri").data
+                                                 scope=scope, id_key="uri",
+                                                 use_stored_query=True).data
             except Exception as err:
                 if "401" in str(err):
                     raise HTTPException(
@@ -340,8 +341,9 @@ async def query_models(
             instances = {}
             for space in spaces:
                 for filter in filters:
-                    results = kg_user_client.query(filter, query["@id"], space=space,
-                                                   from_index=0, size=100000, scope=scope)
+                    results = kg_user_client.query(filter, query, space=space,
+                                                   from_index=0, size=100000, scope=scope,
+                                                   use_stored_query=True)
                     for instance in results.data:
                         instances[instance["uri"]] = instance  # use dict to remove duplicates
 
@@ -402,8 +404,9 @@ async def get_model(
 
     if filter:
         try:
-            results = kg_user_client.query(filter, query["@id"], instance_id=instance_id,
-                                        size=1, scope=scope, id_key="uri")
+            results = kg_user_client.query(filter, query, instance_id=instance_id,
+                                        size=1, scope=scope, id_key="uri",
+                                        use_stored_query=True)
         except Exception as err:
             # todo: extract status code from err
             raise HTTPException(
@@ -419,6 +422,10 @@ async def get_model(
 
     else:
         obj = omcore.Model.from_id(instance_id, kg_user_client, scope=scope)
+        if obj is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail=f"Model with ID '{instance_id}' not found."
+            )
         return ScientificModel.from_kg_object(obj, kg_user_client)
 
 

@@ -202,7 +202,8 @@ def test_get_result_by_id_no_auth():
 
 def test_get_result_by_id(caplog):
     # caplog.set_level(logging.DEBUG)
-    test_ids = ("2cd2576e-a72f-4c30-a600-a5ae79bdd20b", "2b8a9066-a2f2-4e48-8bad-7c7aab19af41")
+    #test_ids = ("2cd2576e-a72f-4c30-a600-a5ae79bdd20b", "2b8a9066-a2f2-4e48-8bad-7c7aab19af41")
+    test_ids = ("2f44a1b5-ae88-45ff-be0a-c7e37c199eb1", "568eea1f-03c3-49fc-9b81-8267a103f199")
     for result_uuid in test_ids:
         response = client.get(f"/results/{result_uuid}", headers=AUTH_HEADER)
         assert response.status_code == 200
@@ -226,7 +227,8 @@ def test_list_results_with_test_and_model():
 
 def test_get_result_with_test_and_model_by_id(caplog):
     # caplog.set_level(logging.DEBUG)
-    test_ids = ("2cd2576e-a72f-4c30-a600-a5ae79bdd20b", "2b8a9066-a2f2-4e48-8bad-7c7aab19af41")
+    #test_ids = ("2cd2576e-a72f-4c30-a600-a5ae79bdd20b", "2b8a9066-a2f2-4e48-8bad-7c7aab19af41")
+    test_ids = ("2f44a1b5-ae88-45ff-be0a-c7e37c199eb1", "568eea1f-03c3-49fc-9b81-8267a103f199")
     for result_uuid in test_ids:
         response = client.get(f"/results-extended/{result_uuid}", headers=AUTH_HEADER)
         assert response.status_code == 200

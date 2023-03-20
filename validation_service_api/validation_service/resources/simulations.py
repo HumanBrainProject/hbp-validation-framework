@@ -8,8 +8,8 @@ import logging
 import itertools
 from requests.exceptions import HTTPError
 
-from fairgraph.client_v3 import STAGE_MAP
-from fairgraph.base_v3 import as_list
+from fairgraph.client import STAGE_MAP
+from fairgraph.base import as_list
 import fairgraph.brainsimulation
 import fairgraph.openminds.core as omcore
 

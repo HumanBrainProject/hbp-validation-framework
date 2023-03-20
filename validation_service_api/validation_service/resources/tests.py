@@ -3,7 +3,7 @@ from typing import List
 from datetime import datetime
 import logging
 
-from fairgraph.base_v3 import KGQuery, as_list
+from fairgraph.base import KGQuery, as_list
 from fairgraph.errors import AuthenticationError
 import fairgraph.openminds.core as omcore
 import fairgraph.openminds.computation as omcmp
@@ -229,9 +229,10 @@ def query_tests(
 
         if len(spaces) == 1 and len(filters) == 1:
             # common, simple case
-            instances = kg_user_client.query(filters[0], query["@id"], space=spaces[0],
+            instances = kg_user_client.query(filters[0], query, space=spaces[0],
                                              from_index=from_index, size=size,
-                                             scope=scope, id_key="uri").data
+                                             scope=scope, id_key="uri", use_stored_query=True
+                                             ).data
 
             return [
                 cls.from_kg_query(instance, kg_user_client)
@@ -244,8 +245,9 @@ def query_tests(
             instances = {}
             for space in spaces:
                 for filter in filters:
-                    results = kg_user_client.query(filter, query["@id"], space=space,
-                                                       from_index=0, size=100000, scope=scope)
+                    results = kg_user_client.query(filter, query, space=space,
+                                                   from_index=0, size=100000, scope=scope,
+                                                   use_stored_query=True)
                     for instance in results.data:
                         instances[instance["uri"]] = instance  # use dict to remove duplicates
 

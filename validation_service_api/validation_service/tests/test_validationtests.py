@@ -401,7 +401,8 @@ def test_changing_to_invalid_alias():
 
 
 def test_list_validation_test_instances_by_validation_test_id():
-    validation_test_uuid = "01c68387-fcc4-4fd3-85f0-6eb8ce4467a1"
+    #validation_test_uuid = "01c68387-fcc4-4fd3-85f0-6eb8ce4467a1"  # private
+    validation_test_uuid = "100abccb-6d30-4c1e-a960-bc0489e0d82d"  # public
     response1 = client.get(f"/tests/{validation_test_uuid}", headers=AUTH_HEADER)
     assert response1.status_code == 200
     test_definition = response1.json()
@@ -414,7 +415,8 @@ def test_list_validation_test_instances_by_validation_test_id():
 
 
 def test_get_validation_test_instance_by_id():
-    instance_uuid = "46e376a8-8c46-44ce-aa76-020d35114703"
+    #instance_uuid = "46e376a8-8c46-44ce-aa76-020d35114703"  # private
+    instance_uuid = "1d22e1c0-5a74-49b4-b114-41d233d3250a"   # public
     response = client.get(f"/tests/query/instances/{instance_uuid}", headers=AUTH_HEADER)
     assert response.status_code == 200
     validation_test_instance = response.json()
@@ -422,8 +424,10 @@ def test_get_validation_test_instance_by_id():
 
 
 def test_get_validation_test_instance_by_test_id_and_id():
-    validation_test_uuid = "01c68387-fcc4-4fd3-85f0-6eb8ce4467a1"
-    instance_uuid = "46e376a8-8c46-44ce-aa76-020d35114703"
+    #validation_test_uuid = "01c68387-fcc4-4fd3-85f0-6eb8ce4467a1"  # private
+    #instance_uuid = "46e376a8-8c46-44ce-aa76-020d35114703"         # private
+    validation_test_uuid = "100abccb-6d30-4c1e-a960-bc0489e0d82d"   # public
+    instance_uuid = "1d22e1c0-5a74-49b4-b114-41d233d3250a"          # public
     response = client.get(
         f"/tests/{validation_test_uuid}/instances/{instance_uuid}", headers=AUTH_HEADER
     )

@@ -8,8 +8,9 @@ import logging
 import itertools
 from requests.exceptions import HTTPError
 
-from fairgraph.client_v3 import STAGE_MAP
-from fairgraph.base_v3 import KGQuery, as_list
+from fairgraph.client import STAGE_MAP
+from fairgraph.base import KGQuery, as_list
+from fairgraph.errors import ResolutionFailure
 import fairgraph.openminds.core as omcore
 import fairgraph.openminds.computation as omcmp
 
@@ -113,9 +114,9 @@ def _query_results(filters, project_id, kg_user_client, data_model, query_label,
 
     if len(spaces) == 1 and len(filters) == 1:
         # common, simple case
-        response = kg_user_client.query(filters[0], query["@id"], space=spaces[0],
+        response = kg_user_client.query(filters[0], query, space=spaces[0],
                                    from_index=from_index, size=size, scope="any",
-                                   id_key="uri")
+                                   id_key="uri", use_stored_query=True)
         test_results = [
             data_model.from_kg_query(item, kg_user_client)
             for item in response.data
@@ -125,8 +126,9 @@ def _query_results(filters, project_id, kg_user_client, data_model, query_label,
         items = []
         for space in spaces:
             for filter in filters:
-                response = kg_user_client.query(filter, query["@id"], space=space,
-                                           from_index=0, size=100000, scope="any")
+                response = kg_user_client.query(filter, query, space=space,
+                                           from_index=0, size=100000, scope="any",
+                                           use_stored_query=True)
                 items.extend(response.data)
                 if len(items) >= size + from_index:
                     break
@@ -299,11 +301,11 @@ async def get_result_extended(result_id: UUID,
         kg_client = get_kg_client_for_service_account()
     else:
         kg_client = get_kg_client_for_user_account(token)
-    validation_activity = omcmp.ModelValidation.from_uuid(str(result_id), kg_client, scope="in progress")
+    validation_activity = omcmp.ModelValidation.from_uuid(str(result_id), kg_client, scope="any")
     if validation_activity:
         try:
             obj = ValidationResultWithTestAndModel.from_kg_object(validation_activity, kg_client)
-        except ConsistencyError as err:
+        except (ConsistencyError, ResolutionFailure) as err:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(err))
     else:
         raise HTTPException(
