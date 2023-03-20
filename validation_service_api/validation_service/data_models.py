@@ -16,8 +16,8 @@ from pydantic import BaseModel, HttpUrl, AnyUrl, validator, ValidationError, con
 from fastapi.encoders import jsonable_encoder
 from fastapi import HTTPException, status
 
-from fairgraph.base_v3 import KGProxy, as_list, IRI
-from fairgraph.errors import ResolutionFailure, AuthenticationError
+from fairgraph.base import KGProxy, as_list, IRI
+from fairgraph.errors import ResolutionFailure, AuthenticationError, AuthorizationError
 import fairgraph
 import fairgraph.openminds.core as omcore
 import fairgraph.openminds.computation as omcmp
@@ -38,8 +38,10 @@ logger = logging.getLogger("validation_service_api")
 EBRAINS_DRIVE_API = "https://drive.ebrains.eu/api2/"
 
 
-special_spaces = ("common", "computation", "controlled", "dataset", "files", "livepapers",
-                  "metadatamodel", "metric", "model", "myspace", "restricted", "software")
+special_spaces = ("common", "computation", "controlled", "dataset", "files", "in-depth",
+                  "livepapers", "metadatamodel", "metric", "model", "myspace", "restricted",
+                  "software", "spatial", "tutorial", "webservice"
+                  )
 
 def uuid_from_uri(uri):
     return uri.split("/")[-1]
@@ -304,8 +306,12 @@ class Person(BaseModel):
                     orcid = digid.identifier
                     break
                 elif isinstance(digid, KGProxy) and digid.cls == omcore.ORCID:
-                    orcid = digid.resolve(client, scope="any").identifier
-                    break
+                    try:
+                        orcid = digid.resolve(client, scope="any").identifier
+                    except ResolutionFailure:
+                        pass
+                    else:
+                        break
         return cls(given_name=person.given_name, family_name=person.family_name,
                    orcid=orcid)
 
@@ -327,7 +333,7 @@ class Person(BaseModel):
 
 class ModelInstance(BaseModel):
     id: UUID = None
-    uri: HttpUrl
+    uri: HttpUrl = None
     version: str
     description: str = None
     parameters: HttpUrl = None
@@ -355,7 +361,7 @@ class ModelInstance(BaseModel):
         try:
             if client.is_released(item["uri"]):
                 item["alternatives"].append(f"https://search.kg.ebrains.eu/instances/{item['id']}")
-        except AuthenticationError:
+        except (AuthenticationError, AuthorizationError):
             # user clients generally cannot access unreleased data
             # so if we get this error, the item has almost certainly been released
             item["alternatives"].append(f"https://search.kg.ebrains.eu/instances/{item['id']}")
@@ -381,7 +387,7 @@ class ModelInstance(BaseModel):
         instance = instance.resolve(client, scope=scope, follow_links=1)
         alternatives = [
             mv.homepage
-            for mv in as_list(instance.is_alternative_version_of)
+            for mv in as_list(instance.is_alternative_version_of) if mv.homepage
         ]
         if instance.is_released(client):
             alternatives.append(f"https://search.kg.ebrains.eu/instances/{instance.uuid}")
@@ -417,11 +423,11 @@ class ModelInstance(BaseModel):
         }
         if instance.input_data:
             for input_url in as_list(instance.input_data):
-                _, extension = os.path.splitext(urlparse(input_url.url).path)
+                _, extension = os.path.splitext(urlparse(input_url.iri.value).path)
                 if extension.lower() == ".asc":
-                    instance_data["morphology"] = input_url.url
+                    instance_data["morphology"] = input_url.iri.value
                 elif extension.lower() in (".json", ".yml", ".yaml", ".cfg", ".config", ".toml"):
-                    instance_data["parameters"] = input_url.url
+                    instance_data["parameters"] = input_url.iri.value
         try:
             obj = cls(**instance_data)
         except ValidationError as err:
@@ -439,9 +445,9 @@ class ModelInstance(BaseModel):
         )
         input_data = []
         if self.morphology:
-            input_data.append(omcore.URL(url=self.morphology))
+            input_data.append(omcore.WebResource(iri=IRI(str(self.morphology))))
         if self.parameters:
-            input_data.append(omcore.URL(url=self.parameters))
+            input_data.append(omcore.WebResource(iri=IRI(str(self.parameters))))
         minst = omcore.ModelVersion(
             name=model_project.name,
             version_innovation=self.description or "",
@@ -791,7 +797,7 @@ class ValidationTestInstance(BaseModel):
         else:
             repository = None
         reference_data = [
-            omcore.URL(url=IRI(url))
+            omcore.WebResource(iri=IRI(url))
             for url in test_definition.data_location
             # mismatch with openMINDS - all instances have same test data, to be fixed in API v3
         ]
@@ -890,11 +896,9 @@ class ValidationTest(BaseModel):
             data_location = []
             data_type = set()
             for item in reference_data:
-                if hasattr(item, "iri"):  # File
+                if hasattr(item, "iri"):  # File or WebResource
                     data_location.append(item.iri.value)
                     data_type.add(item.format)
-                elif hasattr(item, "url"):  # URL
-                    data_location.append(item.url.value)
             data_type = list(data_type)
             if len(data_type) == 1:
                 data_type = data_type[0]
@@ -937,7 +941,7 @@ class ValidationTest(BaseModel):
             data_type=data_type,
             test_type=ModelScope(test_definition.model_scope.resolve(client).name) if test_definition.model_scope else None,
             #digital_identifier=test_definition.digital_identifier,
-            recording_modality=RecordingModality(test_definition.experimental_technique.resolve(client).name) if test_definition.experimental_technique else None,
+            recording_modality=RecordingModality(test_definition.reference_data_acquisitions.resolve(client).name) if test_definition.reference_data_acquisitions else None,
             instances=sorted(instances, key=lambda inst: inst.version),
             score_type=ScoreType(test_definition.score_type.resolve(client).name) if test_definition.score_type else None,
         )
@@ -970,7 +974,7 @@ class ValidationTest(BaseModel):
             description=self.description,
             developers=developers,
             #digital_identifier=,
-            experimental_technique=get_term("Technique", self.recording_modality),
+            reference_data_acquisitions=get_term("Technique", self.recording_modality),
             #homepage=,
             #how_to_cite=,
             model_scope=get_term("ModelScope", self.test_type),
@@ -1283,7 +1287,7 @@ class ValidationResultSummary(BaseModel):
             score=validation_activity.score,
             score_type=ScoreType(test.score_type.resolve(client).name) if test.score_type else None,
             data_type=data_type,
-            timestamp=ensure_has_timezone(validation_activity.started_at_time),
+            timestamp=ensure_has_timezone(validation_activity.start_time),
             model_id=model.uuid,
             model_name=model.name,
             model_alias=model.alias,
@@ -1326,7 +1330,7 @@ class ValidationResult(BaseModel):
             results_storage=additional_data,
             score=validation_activity.score,
             passed=None,
-            timestamp=ensure_has_timezone(validation_activity.started_at_time),
+            timestamp=ensure_has_timezone(validation_activity.start_time),
             project_id=project_id_from_space(validation_activity.space),
             normalized_score=None,
         )
@@ -1366,18 +1370,18 @@ class ValidationResult(BaseModel):
         lookup_label=f"Validation results for model {self.model_instance_id} and test {self.test_instance_id} with timestamp {timestamp.isoformat()}",
         if self.passed or self.normalized_score:
             additional_metadata = omcore.CustomPropertySet(
-                defined_in=omcore.PropertyValueList(
+                data_location=omcore.PropertyValueList(
                     lookup_label=lookup_label,
                     property_value_pairs=[
-                        omcore.NumericalProperty(name="passed", value=self.passed),
-                        omcore.NumericalProperty(name="normalized_score", value=self.normalized_score)
+                        omcore.NumericalProperty(name="passed", values=self.passed),
+                        omcore.NumericalProperty(name="normalized_score", values=self.normalized_score)
                     ]
                 )
             )
         validation_activity = omcmp.ModelValidation(
             lookup_label=lookup_label,
             description=None,
-            ended_at_time=None,
+            end_time=None,
             environment=None,
             inputs=[model_version, test_version],
             launch_configuration=None,
@@ -1385,7 +1389,7 @@ class ValidationResult(BaseModel):
             custom_property_sets=additional_metadata,
             recipe=None,
             resource_usages=None,
-            started_at_time=self.timestamp,
+            start_time=self.timestamp,
             started_by=user,
             status=get_term("ActionStatusType", ActionStatusType.completed),
             #study_targets=list(set(model.study_targets + test.study_targets)),
@@ -1704,7 +1708,7 @@ class LivePaperDataItem(BaseModel):
             data_item = data_item.resolve(kg_client, scope="any")
         service_links = as_list(omcore.ServiceLink.list(kg_client, scope="any", space=data_item.space, data_location=data_item))
         if service_links:
-            view_url = service_links[0].open_data_in.resolve(kg_client, scope=service_links[0].scope).url.value
+            view_url = service_links[0].open_data_in.value
         else:
             view_url = None
         if data_item.hosted_by is None:  # or data_item.resource_type.name == "URL":
@@ -1744,9 +1748,9 @@ class LivePaperDataItem(BaseModel):
         kg_objects = [resource_item]
         if self.view_url:
             service_link = omcore.ServiceLink(
-                name=self.label,
+                display_label=self.label,
                 data_location=resource_item,
-                open_data_in=omcore.URL(url=IRI(self.view_url)),
+                open_data_in=IRI(self.view_url),
                 service=lookup_service(self.view_url),
                 preview_image=None
             )
@@ -1769,7 +1773,7 @@ class LivePaperSection(BaseModel):
         resource_items = ompub.LivePaperResourceItem.list(kg_client, size=1000, scope="any", space=section.space, is_part_of=section)
         return cls(
             order=int(section.order),
-            type=section.section_type,
+            type=section.type,
             title=section.name,
             icon=None,  # todo: generate based on section_type
             description=section.description,
@@ -1780,7 +1784,7 @@ class LivePaperSection(BaseModel):
     def to_kg_objects(self, kg_live_paper, kg_client):
         section = ompub.LivePaperSection(
             order=self.order,
-            section_type=self.type,
+            type=self.type,
             name=self.title,
             description=self.description,
             is_part_of=kg_live_paper)
@@ -1862,7 +1866,7 @@ class LivePaper(BaseModel):
             if isinstance(related_publication_identifier, ompub.ScholarlyArticle):
                 related_publication = related_publication_identifier
                 related_publications = [related_publication]
-            elif isinstance(related_publication_identifiers, omcore.DOI):
+            elif isinstance(related_publication_identifier, omcore.DOI):
                 related_publications = as_list(ompub.ScholarlyArticle.list(kg_client, scope=scope, space=lp.space,
                                                                            digital_identifier=related_publication_identifier))
                 if len(related_publications) > 0:
@@ -1873,7 +1877,7 @@ class LivePaper(BaseModel):
             if related_publication:
                 related_publication.resolve(kg_client, scope=scope, follow_links=1)
                 associated_paper_title = related_publication.name
-                associated_paper_release_date = related_publication.date_published
+                associated_paper_release_date = related_publication.publication_date
                 associated_paper_doi = related_publication.digital_identifier.identifier if related_publication.digital_identifier else None
                 associated_paper_url = related_publication.iri.value if related_publication.iri else None
                 associated_paper_abstract = related_publication.abstract
@@ -1906,8 +1910,9 @@ class LivePaper(BaseModel):
                 live_paper_doi = lpv.digital_identifier.resolve(kg_client, scope=scope).identifier
             except ResolutionFailure as err:
                 logger.warn(str(err))
+        #breakpoint()
         return cls(
-            modified_date=lpv.last_modified,
+            modified_date=lpv.modification_date,
             alias=lp.alias,
             version=lpv.version_identifier,
             authors=original_authors,
@@ -1966,7 +1971,7 @@ class LivePaper(BaseModel):
                 digital_identifier=omcore.DOI(identifier=self.associated_paper_doi) if self.associated_paper_doi else None,
                 is_part_of=journal_info,
                 pagination=self.associated_paper_pagination,
-                date_published=date_published,
+                publication_date=date_published,
                 abstract=self.abstract
             )
         else:
@@ -1985,7 +1990,7 @@ class LivePaper(BaseModel):
         lpv = ompub.LivePaperVersion(
             name=self.live_paper_title,
             alias=f"{alias}-{version}",
-            last_modified=self.modified_date,
+            modification_date=self.modified_date,
             version_identifier=version,
             related_publications=associated_publication,
             license=term_cache["License"]["names"].get(self.license, None)
@@ -2005,6 +2010,7 @@ class LivePaper(BaseModel):
         people = {}
         for person in original_authors + live_paper_authors + [custodian]:
             people[person.full_name] = person
+        #breakpoint()
         return {
             "people": people.values(),
             "sections": sections,
@@ -2061,7 +2067,7 @@ class LivePaperSummary(BaseModel):
                     logger.warn(f"Can't handle {type(related_publication_identifier)} yet")
                 if related_publication:
                     associated_paper_title = related_publication.name
-                    associated_paper_release_date = related_publication.date_published
+                    associated_paper_release_date = related_publication.publication_date
                     associated_paper_citation = related_publication.get_citation_string(kg_client)
         if lpv.digital_identifier:
             try:
@@ -2075,9 +2081,10 @@ class LivePaperSummary(BaseModel):
             collab_id = lp.space[7:]
         else:
             collab_id = lp.space
+        #breakpoint()
         try:
             obj = cls(
-                modified_date=lpv.last_modified,
+                modified_date=lpv.modification_date,
                 live_paper_title=lpv.name or lp.name,
                 associated_paper_title=associated_paper_title,
                 citation=associated_paper_citation,

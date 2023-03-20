@@ -15,7 +15,7 @@ from ..data_models import LivePaper, LivePaperSummary, ConsistencyError, AccessC
 from ..db import _get_live_paper_by_id_or_alias, _check_service_status
 import fairgraph.openminds.core as omcore
 import fairgraph.openminds.publications as ompub
-from fairgraph.base_v3 import as_list
+from fairgraph.base import as_list
 
 LIVEPAPERS_SPACE = "livepapers"
 logger = logging.getLogger("validation_service_api")
@@ -57,7 +57,7 @@ async def query_live_papers(
             detail=f"Query '{query_label}' could not be retrieved",
         )
 
-    lps = kg_user_client.query(filters, query["@id"], scope="any", id_key="id").data
+    lps = kg_user_client.query(filters, query, scope="any", id_key="id", use_stored_query=True).data
 
     if editable:
         # include only those papers the user can edit
@@ -196,9 +196,9 @@ async def create_live_paper(
         kg_space = live_paper.collab_id
     else:
         kg_space = f"collab-{live_paper.collab_id}"
-    if kg_space not in kg_user_client.spaces():
+    if kg_space not in kg_user_client.spaces(names_only=True):
         # configure space the first time it is used
-        types = [omcore.DOI, omcore.ISBN, omcore.ISSN, omcore.URL, omcore.ServiceLink,
+        types = [omcore.DOI, omcore.ISBN, omcore.ISSN, omcore.WebResource, omcore.ServiceLink,
                  omcore.Person, omcore.Organization] + ompub.list_kg_classes()
         try:
             kg_user_client.configure_space(kg_space, types)

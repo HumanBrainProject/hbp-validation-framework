@@ -56,51 +56,6 @@ def check_live_paper(output, input, mode="summmary"):
                     assert data_item_out[key] == data_item_in[key]
 
 
-def test_migration():
-    alias = "2016-eyal-et-al"
-    new = client.get(f"/livepapers/{alias}", headers=AUTH_HEADER).json()
-    old = requests.get(
-        f"https://validation-v2.brainsimulation.eu/livepapers/{alias}",
-        headers=AUTH_HEADER,
-    ).json()
-    for key in (
-        "abstract",
-        "alias",
-        "associated_paper_doi",
-        "associated_paper_title",
-        "doi",
-        "id",
-        "journal",
-        "live_paper_title",
-        "modified_date",
-        "resources_description",
-        "url",
-        "year",
-    ):
-        assert new[key] == old[key]
-    for key in ("created_author", "corresponding_author", "authors"):
-        assert len(new[key]) == len(old[key])
-        assert new[key][0]["lastname"] == old[key][0]["lastname"]
-        assert new[key][0]["firstname"] == old[key][0]["firstname"]
-
-    assert new["license"] is not None
-    assert new["citation"] is not None
-    # iterate over sections
-    for new_section, old_section in zip(
-        sorted(new["resources"], key=lambda sec: sec["order"]),
-        sorted(old["resources"], key=lambda sec: sec["order"]),
-    ):
-        for key in ("description", "icon", "title", "type"):
-            assert new_section["description"] == old_section["description"]
-        # iterate over data items
-        for new_item, old_item in zip(
-            sorted(new_section["data"], key=lambda item: item["label"]),
-            sorted(old_section["data"], key=lambda item: item["label"]),
-        ):
-            for key in ("type", "url", "view_url"):
-                assert new_item[key] == old_item[key]
-
-
 def test_create_and_delete_live_paper(caplog):
     caplog.set_level(logging.DEBUG)
 
@@ -112,7 +67,7 @@ def test_create_and_delete_live_paper(caplog):
     check_live_paper(posted_lp, payload, mode="summary")
 
     # check we can retrieve live paper
-    sleep(5)  # need to wait a short time to allow KG to become consistent
+    sleep(10)  # need to wait a short time to allow KG to become consistent
     lp_uuid = posted_lp["id"]
     response = client.get(f"/livepapers/{lp_uuid}", headers=AUTH_HEADER)
     assert response.status_code == 200
