@@ -171,7 +171,7 @@ async def about_this_api(token: HTTPAuthorizationCredentials = Depends(auth)):
 #     ]
 
 
-@router.get("/models/", response_model=List[Union[ScientificModelSummary, ScientificModel]])
+@router.get("/models/", response_model=List[Union[ScientificModel, ScientificModelSummary]])
 async def query_models(
     alias: List[str] = Query(
         None, description="A list of model aliases (short names) to search for"
