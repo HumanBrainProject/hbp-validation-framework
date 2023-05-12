@@ -26,12 +26,12 @@ def check_model(model):
         assert model["brain_region"] in [item.value for item in BrainRegion]
     if model["species"]:
         assert model["species"] in [item.value for item in Species]
-    if model["images"]:
+    if "images" in model and model["images"]:
         assert isinstance(model["images"], list)
         if len(model["images"]) > 0:
             assert "url" in model["images"][0]
             assert "caption" in model["images"][0]
-    if model["instances"]:
+    if "instances" in model and model["instances"]:
         check_model_instance(model["instances"][0])
 
 
