@@ -15,7 +15,7 @@ from ..data_models import LivePaper, LivePaperSummary, ConsistencyError, AccessC
 from ..db import _get_live_paper_by_id_or_alias, _check_service_status
 import fairgraph.openminds.core as omcore
 import fairgraph.openminds.publications as ompub
-from fairgraph.base import as_list
+from fairgraph.utility import as_list
 
 LIVEPAPERS_SPACE = "livepapers"
 logger = logging.getLogger("validation_service_api")
@@ -57,7 +57,7 @@ async def query_live_papers(
             detail=f"Query '{query_label}' could not be retrieved",
         )
 
-    lps = kg_user_client.query(filters, query, scope="any", id_key="id", use_stored_query=True).data
+    lps = kg_user_client.query(query, filters, scope="any", id_key="id", use_stored_query=True).data
 
     if editable:
         # include only those papers the user can edit

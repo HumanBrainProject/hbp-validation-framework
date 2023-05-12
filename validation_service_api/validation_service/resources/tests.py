@@ -3,7 +3,8 @@ from typing import List
 from datetime import datetime
 import logging
 
-from fairgraph.base import KGQuery, as_list
+from fairgraph.kgquery import KGQuery
+from fairgraph.utility import as_list
 from fairgraph.errors import AuthenticationError
 import fairgraph.openminds.core as omcore
 import fairgraph.openminds.computation as omcmp
@@ -229,7 +230,7 @@ def query_tests(
 
         if len(spaces) == 1 and len(filters) == 1:
             # common, simple case
-            instances = kg_user_client.query(filters[0], query, space=spaces[0],
+            instances = kg_user_client.query(query, filters[0], space=spaces[0],
                                              from_index=from_index, size=size,
                                              scope=scope, id_key="uri", use_stored_query=True
                                              ).data
@@ -245,7 +246,7 @@ def query_tests(
             instances = {}
             for space in spaces:
                 for filter in filters:
-                    results = kg_user_client.query(filter, query, space=space,
+                    results = kg_user_client.query(query, filter, space=space,
                                                    from_index=0, size=100000, scope=scope,
                                                    use_stored_query=True)
                     for instance in results.data:

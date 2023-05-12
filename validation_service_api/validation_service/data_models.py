@@ -16,7 +16,8 @@ from pydantic import BaseModel, HttpUrl, AnyUrl, validator, ValidationError, con
 from fastapi.encoders import jsonable_encoder
 from fastapi import HTTPException, status
 
-from fairgraph.base import KGProxy, as_list, IRI
+from fairgraph import KGProxy, IRI
+from fairgraph.utility import as_list
 from fairgraph.errors import ResolutionFailure, AuthenticationError, AuthorizationError
 import fairgraph
 import fairgraph.openminds.core as omcore

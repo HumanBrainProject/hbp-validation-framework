@@ -9,7 +9,7 @@ import itertools
 from requests.exceptions import HTTPError
 
 from fairgraph.client import STAGE_MAP
-from fairgraph.base import as_list
+from fairgraph.utility import as_list
 import fairgraph.brainsimulation
 import fairgraph.openminds.core as omcore
 

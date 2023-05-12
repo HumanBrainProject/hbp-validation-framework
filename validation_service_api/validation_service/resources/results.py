@@ -9,7 +9,8 @@ import itertools
 from requests.exceptions import HTTPError
 
 from fairgraph.client import STAGE_MAP
-from fairgraph.base import KGQuery, as_list
+from fairgraph.kgquery import KGQuery
+from fairgraph.utility import as_list
 from fairgraph.errors import ResolutionFailure
 import fairgraph.openminds.core as omcore
 import fairgraph.openminds.computation as omcmp
@@ -114,9 +115,9 @@ def _query_results(filters, project_id, kg_user_client, data_model, query_label,
 
     if len(spaces) == 1 and len(filters) == 1:
         # common, simple case
-        response = kg_user_client.query(filters[0], query, space=spaces[0],
-                                   from_index=from_index, size=size, scope="any",
-                                   id_key="uri", use_stored_query=True)
+        response = kg_user_client.query(query, filters[0], space=spaces[0],
+                                        from_index=from_index, size=size, scope="any",
+                                        id_key="uri", use_stored_query=True)
         test_results = [
             data_model.from_kg_query(item, kg_user_client)
             for item in response.data
@@ -126,9 +127,9 @@ def _query_results(filters, project_id, kg_user_client, data_model, query_label,
         items = []
         for space in spaces:
             for filter in filters:
-                response = kg_user_client.query(filter, query, space=space,
-                                           from_index=0, size=100000, scope="any",
-                                           use_stored_query=True)
+                response = kg_user_client.query(query, filter, space=space,
+                                                from_index=0, size=100000, scope="any",
+                                                use_stored_query=True)
                 items.extend(response.data)
                 if len(items) >= size + from_index:
                     break

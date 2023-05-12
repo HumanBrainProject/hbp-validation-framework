@@ -2,7 +2,7 @@ from uuid import UUID
 from typing import List, Union
 import logging
 
-from fairgraph.base import as_list
+from fairgraph.utility import as_list
 import fairgraph.openminds.core as omcore
 import fairgraph.openminds.computation as omcmp
 from fairgraph.errors import ResolutionFailure
@@ -316,7 +316,7 @@ async def query_models(
         if len(spaces) == 1 and len(filters) == 1:
             # common, simple case
             try:
-                instances = kg_user_client.query(filters[0], query, space=spaces[0],
+                instances = kg_user_client.query(query, filters[0], space=spaces[0],
                                                  from_index=from_index, size=size,
                                                  scope=scope, id_key="uri",
                                                  use_stored_query=True).data
@@ -341,7 +341,7 @@ async def query_models(
             instances = {}
             for space in spaces:
                 for filter in filters:
-                    results = kg_user_client.query(filter, query, space=space,
+                    results = kg_user_client.query(query, filter, space=space,
                                                    from_index=0, size=100000, scope=scope,
                                                    use_stored_query=True)
                     for instance in results.data:
@@ -404,9 +404,9 @@ async def get_model(
 
     if filter:
         try:
-            results = kg_user_client.query(filter, query, instance_id=instance_id,
-                                        size=1, scope=scope, id_key="uri",
-                                        use_stored_query=True)
+            results = kg_user_client.query(query, filter, instance_id=instance_id,
+                                           size=1, scope=scope, id_key="uri",
+                                           use_stored_query=True)
         except Exception as err:
             # todo: extract status code from err
             raise HTTPException(
