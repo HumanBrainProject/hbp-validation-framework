@@ -195,6 +195,7 @@ async def query_models(
     project_id: List[str] = Query(
         None, description="Find models belonging to a specific project/projects"
     ),
+    format: str = Query(None, description="Model format expressed as a content type"),
     private: bool = Query(None, description="Limit the search to public or private models"),
     summary: bool = Query(False, description="Return only summary information about each model"),
     size: int = Query(100, description="Maximum number of responses"),
@@ -288,6 +289,8 @@ async def query_models(
             filters["name"] = name
         if alias:
             filters["alias"] = alias
+        if format:
+            filters["format"] = format
 
         filters = expand_combinations(filters)
 

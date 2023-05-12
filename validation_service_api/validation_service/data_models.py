@@ -507,6 +507,7 @@ class ScientificModel(BaseModel):
     species: Species = None
     description: str
     date_created: date = None
+    format: List[str] = None
     images: List[Image] = None
     old_uuid: UUID = None
     instances: List[ModelInstance] = None
@@ -660,6 +661,7 @@ class ScientificModelSummary(BaseModel):
     species: Species = None
     description: str
     date_created: datetime = None
+    format: List[str] = None
 
     @classmethod
     def from_kg_query(cls, item, client):
