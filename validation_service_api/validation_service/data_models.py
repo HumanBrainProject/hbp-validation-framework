@@ -541,6 +541,7 @@ class ScientificModel(BaseModel):
         for inst_obj in as_list(model_project.versions):
             try:
                 inst_obj = inst_obj.resolve(client, scope=model_project.scope)
+                assert isinstance(inst_obj, omcore.ModelVersion)
                 inst = ModelInstance.from_kg_object(inst_obj, client,
                                                     model_id=model_project.uuid,
                                                     scope=model_project.scope)
@@ -779,6 +780,10 @@ class ValidationTestInstance(BaseModel):
             repository = test_version.repository.resolve(client, scope="any").iri.value
         else:
             repository = None
+        if test_version.configuration:
+            parameters = test_version.configuration.resolve(client, scope="any").iri.value
+        else:
+            parameters = None
         return cls(
             uri=test_version.id,
             id=test_version.uuid,
@@ -788,7 +793,7 @@ class ValidationTestInstance(BaseModel):
             repository=repository,
             version=test_version.version_identifier,
             test_id=test_uuid,
-            #parameters=?
+            parameters=parameters
         )
 
     def to_kg_object(self, test_definition):
@@ -804,6 +809,10 @@ class ValidationTestInstance(BaseModel):
             for url in test_definition.data_location
             # mismatch with openMINDS - all instances have same test data, to be fixed in API v3
         ]
+        if self.parameters:
+            configuration = omcore.WebResource(iri=IRI(self.parameters))
+        else:
+            configuration = None
         test_version = omcmp.ValidationTestVersion(
             name=f"Implementation of {test_definition.name}, version '{self.version}'",
             alias=f"{test_definition.alias}-{self.version}",
@@ -816,6 +825,7 @@ class ValidationTestInstance(BaseModel):
             repository=repository,
             version_identifier=self.version,
             version_innovation=self.description,
+            configuration=configuration
         )
         if self.uri:
             test_version.id = str(self.uri)
