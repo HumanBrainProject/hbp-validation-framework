@@ -16,6 +16,7 @@ ADMIN_COLLAB_ID = "model-validation"  # "13947"
 BASE_URL = os.environ.get("VALIDATION_SERVICE_BASE_URL")
 SERVICE_STATUS = os.environ.get("VF_SERVICE_STATUS", "ok")
 # e.g. SERVICE_STATUS = "The site is undergoing maintenance, and is currently in read-only mode."
+AUTHENTICATION_TIMEOUT = 20
 
 this_dir = os.path.dirname(__file__)
 build_info_path = os.path.join(this_dir, "build_info.json")

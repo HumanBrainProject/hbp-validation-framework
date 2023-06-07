@@ -7,6 +7,7 @@ import fairgraph.openminds.core as omcore
 
 from fastapi import HTTPException, status
 from authlib.integrations.starlette_client import OAuth
+from httpx import Timeout
 
 from . import settings
 
@@ -26,6 +27,7 @@ oauth.register(
         #"scope": "openid profile collab.drive clb.drive:read clb.drive:write group team web-origins roles email",
         "scope": "openid profile collab.drive group team roles",
         "trust_env": False,
+        "timeout": Timeout(timeout=settings.AUTHENTICATION_TIMEOUT)
     },
 )
 
