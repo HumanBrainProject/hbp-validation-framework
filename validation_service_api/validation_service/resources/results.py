@@ -392,13 +392,12 @@ def create_result(result: ValidationResult, token: HTTPAuthorizationCredentials 
     validation_activity = result.to_kg_objects(kg_client)
     space = space_from_project_id(result.project_id)
     activity_log = None
-    validation_activity.save(kg_client, space=space, recursive=True, activity_log=activity_log)
 
-    # for output in as_list(validation_activity.outputs):
-    #     output.save(kg_client, recursive=False, activity_log=activity_log, space=space)
-    # if validation_activity.custom_property_sets:
-    #     validation_activity.custom_property_sets.defined_by.save(kg_client, recursive=True, activity_log=activity_log, space=space)
-    # validation_activity.save(kg_client, recursive=False, activity_log=activity_log, space=space)
+    for output in as_list(validation_activity.outputs):
+        output.save(kg_client, recursive=False, activity_log=activity_log, space=space)
+    if validation_activity.custom_property_sets:
+        validation_activity.custom_property_sets.data_location.save(kg_client, recursive=True, activity_log=activity_log, space=space)
+    validation_activity.save(kg_client, recursive=False, activity_log=activity_log, space=space)
 
     return ValidationResult.from_kg_object(validation_activity, kg_client)
 
