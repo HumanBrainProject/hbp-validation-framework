@@ -345,7 +345,8 @@ async def query_models(
             for space in spaces:
                 for filter in filters:
                     results = kg_user_client.query(query, filter, space=space,
-                                                   from_index=0, size=100000, scope=scope,
+                                                   from_index=0, size=100000,
+                                                   scope=scope, id_key="uri",
                                                    use_stored_query=True)
                     for instance in results.data:
                         instances[instance["uri"]] = instance  # use dict to remove duplicates
