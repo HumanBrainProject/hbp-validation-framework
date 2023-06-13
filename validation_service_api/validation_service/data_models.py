@@ -218,7 +218,7 @@ ContentType = Enum(
     "ContentType",
     [
         (get_identifier(obj.uuid, "ct"), obj.name)
-        for obj in term_cache["ContentType"]["names"].values()
+        for obj in sorted(term_cache["ContentType"]["names"].values(), key=lambda obj: obj.name)
     ]
 )
 

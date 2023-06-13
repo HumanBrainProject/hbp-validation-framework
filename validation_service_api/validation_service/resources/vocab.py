@@ -15,6 +15,7 @@ from ..data_models import (
     ScoreType,
     ImplementationStatus,
     License,
+    ContentType
 )
 
 
@@ -66,6 +67,65 @@ def list_implementation_status_values():
     return [item.value for item in ImplementationStatus]
 
 
+class ContentTypeFilterOptions(str, Enum):
+    models = "models"
+    all = "all"
+
+
+model_content_types = [
+  "application/json",
+  "application/ld+json",
+  "application/octet-stream",
+  "application/sbml+xml",
+  "application/vnd.arbor-simulator+python",
+  "application/vnd.bbp.bluron",
+  "application/vnd.bbp.simulation.blueconfig",
+  "application/vnd.bluebrainproject.bluepyopt",
+  "application/vnd.commonworkflowlanguage.cmdline",
+  "application/vnd.commonworkflowlanguage.workflow",
+  "application/vnd.mathworks.live-script+zip",
+  "application/vnd.ms-excel",
+  "application/vnd.nest-simulator+python",
+  "application/vnd.neuralensemble.pynn",
+  "application/vnd.neuroml",
+  "application/vnd.neuron-simulator+hoc",
+  "application/vnd.neuron-simulator+python",
+  "application/vnd.neuron.mod",
+  "application/vnd.nineml",
+  "application/vnd.sciunit.model",
+  "application/vnd.sciunit.test",
+  "application/vnd.snakemake.snakefile",
+  "application/vnd.sonata",
+  "application/vnd.sonata.nest",
+  "application/vnd.sonata.neuron",
+  "application/vnd.sonata.pynn",
+  "application/vnd.thevirtualbrain",
+  "application/vnd.thevirtualbrain.metadata+tsv",
+  "application/vnd.x-matlab-data",
+  "application/x-ipynb+json",
+  "application/xml",
+  "application/yaml",
+  "application/zip",
+  "text/plain",
+  "text/x-matlab",
+  "text/x-python",
+  "text/x-python.2",
+  "text/x-python.3",
+]
+
+
+@router.get("/vocab/content-type/")
+def list_content_type_values(
+    filter: ContentTypeFilterOptions = Query(
+        None, description="Return all content types or only those applicable to computational models"
+    ),
+):
+    if filter == ContentTypeFilterOptions.models:
+        return model_content_types
+    else:
+        return [item.value for item in ContentType]
+
+
 class LicenseFilterOptions(str, Enum):
     popular = "popular"
     all = "all"
@@ -111,4 +171,5 @@ def all_vocabularies():
         "score_type": [item.value for item in ScoreType],
         "implementation_status": [item.value for item in ImplementationStatus],
         "license": popular_licenses,
+        "content_type": model_content_types
     }
