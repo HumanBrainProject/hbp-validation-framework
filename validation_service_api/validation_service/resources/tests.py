@@ -204,13 +204,12 @@ def query_tests(
             filters["alias"] = alias
         if implementation_status:
             filters["implementation_status"] = implementation_status
+        if project_id:
+            filters["space"] = [f"collab-{collab_id}" for collab_id in project_id]
+        else:
+            filters["space"] = ["computation"]
 
         filters = expand_combinations(filters)
-
-        if project_id:
-            spaces = [f"collab-{collab_id}" for collab_id in project_id]
-        else:
-            spaces = ["computation"]
 
         kg_service_client = get_kg_client_for_service_account()
 
@@ -228,9 +227,9 @@ def query_tests(
                 detail=f"Query '{query_label}' could not be retrieved",
             )
 
-        if len(spaces) == 1 and len(filters) == 1:
+        if len(filters) == 1:
             # common, simple case
-            instances = kg_user_client.query(query, filters[0], space=spaces[0],
+            instances = kg_user_client.query(query, filters[0],
                                              from_index=from_index, size=size,
                                              scope=scope, id_key="uri", use_stored_query=True
                                              ).data
@@ -244,13 +243,12 @@ def query_tests(
             # more complex case for pagination
             # inefficient if from_index is not 0
             instances = {}
-            for space in spaces:
-                for filter in filters:
-                    results = kg_user_client.query(query, filter, space=space,
-                                                   from_index=0, size=100000,
-                                                   scope=scope, id_key="uri", use_stored_query=True)
-                    for instance in results.data:
-                        instances[instance["uri"]] = instance  # use dict to remove duplicates
+            for filter in filters:
+                results = kg_user_client.query(query, filter,
+                                               from_index=0, size=100000,
+                                               scope=scope, id_key="uri", use_stored_query=True)
+                for instance in results.data:
+                    instances[instance["uri"]] = instance  # use dict to remove duplicates
 
             return [
                 cls.from_kg_query(instance, kg_user_client)

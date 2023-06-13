@@ -96,13 +96,8 @@ router = APIRouter()
 #     ]
 
 
-def _query_results(filters, project_id, kg_user_client, data_model, query_label, from_index, size, user):
+def _query_results(filters, kg_user_client, data_model, query_label, from_index, size, user):
     filters = expand_combinations(filters)
-
-    if project_id:
-        spaces = [f"collab-{collab_id}" for collab_id in project_id]
-    else:
-        spaces = ["computation"]  # or ``= [None]`` ? i.e. search across all spaces
 
     kg_service_client = get_kg_client_for_service_account()
 
@@ -113,9 +108,9 @@ def _query_results(filters, project_id, kg_user_client, data_model, query_label,
             detail=f"Query '{query_label}' could not be retrieved",
         )
 
-    if len(spaces) == 1 and len(filters) == 1:
+    if len(filters) == 1:
         # common, simple case
-        response = kg_user_client.query(query, filters[0], space=spaces[0],
+        response = kg_user_client.query(query, filters[0],
                                         from_index=from_index, size=size, scope="any",
                                         id_key="uri", use_stored_query=True)
         test_results = [
@@ -125,14 +120,11 @@ def _query_results(filters, project_id, kg_user_client, data_model, query_label,
     else:
         # more complex case for pagination
         items = []
-        for space in spaces:
-            for filter in filters:
-                response = kg_user_client.query(query, filter, space=space,
-                                                from_index=0, size=100000, scope="any",
-                                                use_stored_query=True)
-                items.extend(response.data)
-                if len(items) >= size + from_index:
-                    break
+        for filter in filters:
+            response = kg_user_client.query(query, filter,
+                                            from_index=0, size=100000, scope="any",
+                                            use_stored_query=True)
+            items.extend(response.data)
             if len(items) >= size + from_index:
                 break
 
@@ -195,8 +187,10 @@ def query_results(
         filters["test_alias"] = test_alias
     if score_type:
         filters["score_type"] = [item.value for item in score_type]
+    if project_id:
+        filters["space"] = [f"collab-{collab_id}" for collab_id in project_id]
 
-    return _query_results(filters, project_id, kg_client, ValidationResult,
+    return _query_results(filters, kg_client, ValidationResult,
                            "VF_ValidationResult", from_index, size, user)
 
 
@@ -289,8 +283,11 @@ async def query_results_extended(
         filters["test_alias"] = test_alias
     if score_type:
         filters["score_type"] = [item.value for item in score_type]
+    if project_id:
+        filters["space"] = [f"collab-{collab_id}" for collab_id in project_id]
 
-    return _query_results(filters, project_id, kg_client, ValidationResultWithTestAndModel,
+
+    return _query_results(filters, kg_client, ValidationResultWithTestAndModel,
                           "VF_ValidationResultWithTestAndModel", from_index, size, user)
 
 
@@ -377,8 +374,11 @@ def query_results_summary(
         filters["test_alias"] = test_alias
     if score_type:
         filters["score_type"] = [item.value for item in score_type]
+    if project_id:
+        filters["space"] = [f"collab-{collab_id}" for collab_id in project_id]
 
-    return _query_results(filters, project_id, kg_client, ValidationResultSummary,
+
+    return _query_results(filters, kg_client, ValidationResultSummary,
                           "VF_ValidationResultSummary", from_index, size, user)
 
 
