@@ -1014,6 +1014,7 @@ class ValidationTestSummary(BaseModel):
     alias: str = None
     implementation_status: ImplementationStatus = ImplementationStatus.proposal
     private: bool = True
+    project_id: str = None  # make this required?
     author: List[Person]
     cell_type: CellType = None
     brain_region: BrainRegion = None
@@ -1029,6 +1030,9 @@ class ValidationTestSummary(BaseModel):
     def from_kg_query(cls, item, client):
         item.pop("@context")
         item["id"] = client.uuid_from_uri(item["uri"])
+        space = item.get("project_id", None)  # what the query calls "project_id" is really the space
+        if space:
+            item["project_id"] = project_id_from_space(space)
         return cls(**item)
 
     @classmethod
