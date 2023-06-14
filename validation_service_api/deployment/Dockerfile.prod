@@ -11,9 +11,9 @@
 #              -e KG_SERVICE_ACCOUNT_SECRET \
 #              validation_service_v3beta
 
-FROM debian:bullseye-slim
+FROM docker-registry.ebrains.eu/model-catalog/debian:bullseye-slim
 
-MAINTAINER Andrew Davison <andrew.davison@cnrs.fr>
+LABEL org.opencontainers.image.authors="Andrew Davison <andrew.davison@cnrs.fr>"
 
 ENV DEBIAN_FRONTEND noninteractive
 RUN apt-get update --fix-missing; apt-get -y -q install python-pkg-resources python3-pkg-resources python3-pip supervisor build-essential nginx-extras git wget
