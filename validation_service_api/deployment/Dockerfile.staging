@@ -11,7 +11,7 @@
 #              -e KG_SERVICE_ACCOUNT_SECRET \
 #              validation_service_v3beta
 
-FROM debian:bullseye-slim
+FROM docker-registry.ebrains.eu/model-catalog/debian:bullseye-slim
 
 MAINTAINER Andrew Davison <andrew.davison@cnrs.fr>
 
