@@ -385,7 +385,17 @@ class ModelInstance(BaseModel):
 
     @classmethod
     def from_kg_object(cls, instance, client, model_id, scope):
-        instance = instance.resolve(client, scope=scope, follow_links=1)
+        instance = instance.resolve(
+            client,
+            scope=scope,
+            follow_links={
+                "is_alternative_version_of": {},
+                "repository": {},
+                "licenses": {},
+                "formats": {},
+                "input_data": {}
+            }
+        )
         alternatives = [
             mv.homepage
             for mv in as_list(instance.is_alternative_version_of) if mv.homepage
@@ -424,6 +434,8 @@ class ModelInstance(BaseModel):
         }
         if instance.input_data:
             for input_url in as_list(instance.input_data):
+                if isinstance(input_url, KGProxy):  # this should not be needed, should have been resolved already
+                    input_url = input_url.resolve(client, scope=scope)
                 _, extension = os.path.splitext(urlparse(input_url.iri.value).path)
                 if extension.lower() == ".asc":
                     instance_data["morphology"] = input_url.iri.value
@@ -1456,7 +1468,7 @@ class ValidationResultWithTestAndModel(ValidationResult):
         model = ScientificModel.from_kg_object(model_project, client)
 
         test_script = _get_test_instance_by_id(vr.test_instance_id, client, scope="any")
-        test_definition = test_script.is_version_of(client)
+        test_definition = test_script.is_version_of.resolve(client, scope="any")
 
         test_instance = ValidationTestInstance.from_kg_object(test_script, test_definition.uuid, client)
         test = ValidationTest.from_kg_object(test_definition, client)
@@ -1684,8 +1696,10 @@ class PersonWithAffiliation(BaseModel):
         else:
             pr = p
         if pr.affiliations:
-            affiliations = [affil.resolve(client, scope="any", follow_links=2)
-                            for affil in as_list(pr.affiliations)]
+            affiliations = [
+                affil.resolve(client, scope="any", follow_links={"member_of": {}})
+                for affil in as_list(pr.affiliations)
+            ]
             affiliation = "; ".join((affil.member_of.name for affil in affiliations if affil.member_of and hasattr(affil.member_of, "name")))
             # todo: if affiliations have start/end dates, filter for the ones that match the datetimes
             #       associated with the paper/live paper
@@ -1887,12 +1901,28 @@ class LivePaper(BaseModel):
                 related_publications = as_list(ompub.ScholarlyArticle.list(kg_client, scope=scope, space=lp.space,
                                                                            digital_identifier=related_publication_identifier))
                 if len(related_publications) > 0:
-                    related_publication = related_publications[0].resolve(kg_client, follow_links=1, scope=scope)
+                    related_publication = related_publications[0].resolve(
+                        kg_client,
+                        follow_links={
+                            "digital_identifier": {},
+                            "is_part_of": {"is_part_of": {}},
+                            "custodians": {}
+                        },
+                        scope=scope
+                    )
             else:
                 related_publication = None
                 related_publications = []
             if related_publication:
-                related_publication.resolve(kg_client, scope=scope, follow_links=1)
+                related_publication.resolve(
+                    kg_client,
+                    scope=scope,
+                    follow_links={
+                        "digital_identifier": {},
+                        "is_part_of": {"is_part_of": {}},
+                        "custodians": {}
+                    }
+                )
                 associated_paper_title = related_publication.name
                 associated_paper_release_date = related_publication.publication_date
                 associated_paper_doi = related_publication.digital_identifier.identifier if related_publication.digital_identifier else None
@@ -2079,7 +2109,15 @@ class LivePaperSummary(BaseModel):
                     related_publications = as_list(ompub.ScholarlyArticle.list(kg_client, scope=scope, space=lp.space,
                                                                             digital_identifier=related_publication_identifier))
                     if len(related_publications) > 0:
-                        related_publication = related_publications[0].resolve(kg_client, follow_links=1, scope=scope)
+                        related_publication = related_publications[0].resolve(
+                            kg_client,
+                            follow_links={
+                                "digital_identifier": {},
+                                "is_part_of": {"is_part_of": {}},
+                                "custodians": {}
+                            },
+                            scope=scope
+                        )
                 else:
                     logger.warn(f"Can't handle {type(related_publication_identifier)} yet")
                 if related_publication:
@@ -2126,11 +2164,11 @@ class LivePaperSummary(BaseModel):
             associated_paper_title = None
             associated_paper_release_date = None
             associated_paper_citation = None
-            if lpv.get("related_publication_link", None):
-                rel_pub = lpv["related_publication_link"]["related_publication"]
-                associated_paper_title = rel_pub["associated_paper_title"]
-                associated_paper_release_date = datetime.fromisoformat(rel_pub["associated_paper_release_date"])
-                associated_paper_citation = get_citation_string_from_query(rel_pub)
+            if lpv["related_publication"]:
+                rel_pub = lpv["related_publication"]["citation_data"]
+                associated_paper_title = rel_pub["title"]
+                associated_paper_release_date = datetime.fromisoformat(rel_pub["publication_date"])
+                associated_paper_citation = get_citation_string(rel_pub)
             if item["space"].startswith("collab-"):
                 collab_id = item["space"][7:]
             else:
@@ -2177,29 +2215,6 @@ def get_citation_string(citation_data):
     pagination = citation_data["pagination"]
     date_published = datetime.fromisoformat(citation_data["publication_date"])
     return f"{author_str} ({date_published.year}). {title} {journal_name}, {volume_number}: {pagination}."
-
-
-def get_citation_string_from_query(citation_data):
-    authors = citation_data["associated_paper_authors"]
-    if len(authors) == 1:
-        author_str = f"{authors[0]['given_name']} {authors[0]['family_name']}"
-    elif len(authors) > 1:
-        author_str = ", ".join(f"{au['given_name']} {au['family_name']}" for au in authors[:-1])
-        author_str += " & " + f"{authors[-1]['given_name']} {authors[-1]['family_name']}"
-    else:
-        author_str = ""
-    title = citation_data["associated_paper_title"]
-    if title and title[-1] != ".":
-        title += "."
-    journal_name, volume_number, issue_number = None, None, None
-    if citation_data["is_part_of"]:
-        volume_number = citation_data["is_part_of"]["associated_paper_volume"]
-        if citation_data["is_part_of"]["is_part_of"]:
-            journal_name = citation_data["is_part_of"]["is_part_of"]["associated_paper_journal"]
-    pagination = citation_data["associated_paper_pagination"]
-    date_published = datetime.fromisoformat(citation_data["associated_paper_release_date"])
-    return f"{author_str} ({date_published.year}). {title} {journal_name}, {volume_number}: {pagination}."
-
 
 
 class AccessCode(BaseModel):
