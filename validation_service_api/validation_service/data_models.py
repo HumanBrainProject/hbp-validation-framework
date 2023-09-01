@@ -371,8 +371,15 @@ class ModelInstance(BaseModel):
 
         # provide download zip link if source is a container folder
         if item["source"] and "object.cscs.ch" in item["source"] and "?prefix" in item["source"] and item["source"][-1] == "/":
-            item["source"] = f"https://data.kg.ebrains.eu/zip?container={item['source']}"
-
+            if "hippocampus_optimization" in item["source"]:
+                # Special case for BlueNaaS - link directly to the zip file within the container.
+                # We'd like to do this in a cleaner way.
+                # As a start, probably base it on content type rather than URL
+                container, prefix = item["source"].split("?prefix=")
+                model_name = prefix.split("/")[-2]
+                item["source"] = f"{container}/{prefix}{model_name}.zip"
+            else:
+                item["source"] = f"https://data.kg.ebrains.eu/zip?container={item['source']}"
         if item.get("inputData", None):
             for input_url in item["inputData"]:
                 _, extension = os.path.splitext(urlparse(input_url).path)
@@ -411,7 +418,15 @@ class ModelInstance(BaseModel):
             elif "modeldb" in source.lower():
                 alternatives.append(source)
             elif "object.cscs.ch" in source and "?prefix" in source and source[-1] == "/":
-                source = f"https://data.kg.ebrains.eu/zip?container={source}"
+                if "hippocampus_optimization" in source:
+                    # Special case for BlueNaaS - link directly to the zip file within the container.
+                    # We'd like to do this in a cleaner way.
+                    # As a start, probably base it on content type rather than URL
+                    container, prefix = source.split("?prefix=")
+                    model_name = prefix.split("/")[-2]
+                    source = f"{container}/{prefix}{model_name}.zip"
+                else:
+                    source = f"https://data.kg.ebrains.eu/zip?container={source}"
             hash = getattr(repository.hash, "digest", None)
         else:
             source = None
