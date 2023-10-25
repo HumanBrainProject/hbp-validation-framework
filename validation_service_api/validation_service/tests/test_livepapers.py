@@ -1,7 +1,11 @@
+from glob import glob
+import json
+import os
 from time import sleep
-import requests
+from uuid import UUID
 import logging
 
+import pytest
 from .fixtures import client, token, AUTH_HEADER, _build_sample_live_paper
 
 
@@ -160,3 +164,48 @@ def test_minimal_with_existing_author(caplog):
     check_live_paper(posted_lp, payload, mode="summary")
     # delete again
     response = client.delete(f"/livepapers/{posted_lp['id']}", headers=AUTH_HEADER)
+
+
+def _get_published_papers():
+    skip = [
+
+    ]
+    file_paths = []
+    this_dir = os.path.dirname(__file__)
+    glob_pattern = os.path.join(this_dir, "test_data/livepapers/*.json")
+    for file_path in glob(glob_pattern):
+        file_label = os.path.basename(file_path).split(".")[0]
+        if file_label not in skip:
+            try:
+                UUID(file_label)
+            except ValueError:
+                pass
+            else:
+                file_paths.append(file_path)
+    return file_paths
+
+
+@pytest.mark.parametrize("file_path", _get_published_papers()) #[("3+5", 8), ("2+4", 6), ("6*9", 42)])
+def test_published_papers(file_path):
+    """For published live papers, check the API gives the expected results."""
+    file_label = os.path.basename(file_path).split(".")[0]
+    lp_uuid = file_label
+    with open(file_path) as fp:
+        expected_lp = json.load(fp)
+
+    response = client.get(f"/livepapers-published/{lp_uuid}", headers=AUTH_HEADER)
+    assert response.status_code == 200
+    retrieved_lp = response.json()
+
+    for key in ("modified_date",):
+        # certain fields should be ignored in the comparison
+        for d in (retrieved_lp, expected_lp):
+            d.pop(key)
+        for resource_key in ("icon",):
+            for d in (retrieved_lp, expected_lp):
+                for item in d["resources"]:
+                    item.pop(resource_key)
+                    # temporary special case
+                    if item["data"] and item["data"][0]["label"] == "control_3-4_months/191129004_S24.abf":
+                        item["data"] = []
+    assert retrieved_lp == expected_lp

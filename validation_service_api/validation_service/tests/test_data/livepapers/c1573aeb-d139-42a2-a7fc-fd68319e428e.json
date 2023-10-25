@@ -1,0 +1,1312 @@
+{
+  "abstract": "The peak conductance of many ion channel types measured in any given animal is highly variable across neurons, both within and between neuronal populations. The current view is that this occurs  because a neuron needs to adapt its intrinsic electrophysiological properties either to maintain the same operative range in the presence of abnormal inputs or to compensate for the effects of  pathological conditions. Limited experimental and modeling evidence suggests this might be  implemented via the correlation and/or degeneracy in the function of multiple types of conductances. To study this mechanism in hippocampal CA1 neurons and interneurons, we systematically generated a set of morphologically and biophysically accurate models. We then analyzed the ensembles of peak conductance obtained for each model neuron. The results suggest that the set of conductances expressed in the various neuron types may be divided into two groups: one group is responsible for the major characteristics of the firing behavior in each population and the other more involved with  degeneracy. These models provide experimentally testable predictions on the combination and relative proportion of the different conductance types that should be present in hippocampal CA1  pyramidal cells and interneurons.",
+  "alias": "2018-migliore-et-al",
+  "approved_author": {
+    "affiliation": "Institute of Biophysics, National Research Council, Palermo, Italy",
+    "firstname": "Luca L.",
+    "lastname": "Bologna"
+  },
+  "associated_paper_doi": "https://doi.org/10.1371/journal.pcbi.1006423",
+  "associated_paper_title": "The physiological variability of channel density in hippocampal CA1 pyramidal cells and interneurons explored using a unified data-driven modeling workflow",
+  "authors": [
+    {
+      "affiliation": "Institute of Biophysics, National Research Council, Palermo, Italy",
+      "firstname": "Rosanna",
+      "lastname": "Migliore"
+    },
+    {
+      "affiliation": "Institute of Biophysics, National Research Council, Palermo, Italy",
+      "firstname": "Carmen A.",
+      "lastname": "Lupascu"
+    },
+    {
+      "affiliation": "Institute of Biophysics, National Research Council, Palermo, Italy",
+      "firstname": "Luca L.",
+      "lastname": "Bologna"
+    },
+    {
+      "affiliation": "Blue Brain Project, \u00c9cole Polytechnique F\u00e9d\u00e9rale de Lausanne, Geneva, Switzerland",
+      "firstname": "Armando",
+      "lastname": "Romani"
+    },
+    {
+      "affiliation": "Blue Brain Project, \u00c9cole Polytechnique F\u00e9d\u00e9rale de Lausanne, Geneva, Switzerland",
+      "firstname": "Jean-Denis",
+      "lastname": "Courcol"
+    },
+    {
+      "affiliation": "Blue Brain Project, \u00c9cole Polytechnique F\u00e9d\u00e9rale de Lausanne, Geneva, Switzerland",
+      "firstname": "Stefano",
+      "lastname": "Antonel"
+    },
+    {
+      "affiliation": "Blue Brain Project, \u00c9cole Polytechnique F\u00e9d\u00e9rale de Lausanne, Geneva, Switzerland",
+      "firstname": "Werner A.H.",
+      "lastname": "Van Geit"
+    },
+    {
+      "affiliation": "UCL School of Pharmacy, University College London, London, UK",
+      "firstname": "Alex M.",
+      "lastname": "Thomson"
+    },
+    {
+      "affiliation": "UCL School of Pharmacy, University College London, London, UK",
+      "firstname": "Audrey",
+      "lastname": "Mercer"
+    },
+    {
+      "affiliation": "UCL School of Pharmacy, University College London, London, UK; School of Life Sciences, University of Westminster, London, UK",
+      "firstname": "Sigrun",
+      "lastname": "Lange"
+    },
+    {
+      "affiliation": "UCL School of Pharmacy, University College London, London, UK",
+      "firstname": "Joanne",
+      "lastname": "Falck"
+    },
+    {
+      "affiliation": "Blue Brain Project, \u00c9cole Polytechnique F\u00e9d\u00e9rale de Lausanne, Geneva, Switzerland",
+      "firstname": "Christian A.",
+      "lastname": "R\u00f6ssert"
+    },
+    {
+      "affiliation": "Blue Brain Project, \u00c9cole Polytechnique F\u00e9d\u00e9rale de Lausanne, Geneva, Switzerland",
+      "firstname": "Ying",
+      "lastname": "Shi"
+    },
+    {
+      "affiliation": "Laboratory of Neural Microcircuitry (LNMC), Brain Mind Institute, EPFL, Lausanne, Switzerland",
+      "firstname": "Olivier",
+      "lastname": "Hagens"
+    },
+    {
+      "affiliation": "Laboratory of Neural Microcircuitry (LNMC), Brain Mind Institute, EPFL, Lausanne, Switzerland",
+      "firstname": "Maurizio",
+      "lastname": "Pezzoli"
+    },
+    {
+      "affiliation": "Institute of Experimental Medicine, Budapest, Hungary; Faculty of Information Technology and Bionics, P\u00e1zm\u00e1ny P\u00e9ter Catholic University, Budapest, Hungary",
+      "firstname": "Tamás F.",
+      "lastname": "Freund"
+    },
+    {
+      "affiliation": "Institute of Experimental Medicine, Budapest, Hungary; Faculty of Information Technology and Bionics, P\u00e1zm\u00e1ny P\u00e9ter Catholic University, Budapest, Hungary",
+      "firstname": "Szabolcs",
+      "lastname": "Kali"
+    },
+    {
+      "affiliation": "Blue Brain Project, \u00c9cole Polytechnique F\u00e9d\u00e9rale de Lausanne, Geneva, Switzerland",
+      "firstname": "Eilif B.",
+      "lastname": "Muller"
+    },
+    {
+      "affiliation": "Blue Brain Project, \u00c9cole Polytechnique F\u00e9d\u00e9rale de Lausanne, Geneva, Switzerland",
+      "firstname": "Felix",
+      "lastname": "Sch\u00fcrmann"
+    },
+    {
+      "affiliation": "Blue Brain Project, \u00c9cole Polytechnique F\u00e9d\u00e9rale de Lausanne, Geneva, Switzerland",
+      "firstname": "Henry",
+      "lastname": "Markram"
+    },
+    {
+      "affiliation": "Institute of Biophysics, National Research Council, Palermo, Italy",
+      "firstname": "Michele",
+      "lastname": "Migliore"
+    }
+  ],
+  "citation": "Rosanna Migliore, Carmen A. Lupascu, Luca L. Bologna, Armando Romani, Jean-Denis Courcol, Stefano Antonel, Werner A.H. Van Geit, Alex M. Thomson, Audrey Mercer, Sigrun Lange, Joanne Falck, Christian A. Rössert, Ying Shi, Olivier Hagens, Maurizio Pezzoli, Tamás F. Freund, Szabolcs Kali, Eilif B. Muller, Felix Schürmann, Henry Markram & Michele Migliore (2018). The physiological variability of channel density in hippocampal CA1 pyramidal cells and interneurons explored using a unified data-driven modeling workflow. PLOS Computational Biology, 14: e1006423.",
+  "collab_id": "livepapers",
+  "corresponding_author": [
+    {
+      "affiliation": "Institute of Biophysics, National Research Council, Palermo, Italy",
+      "firstname": "Rosanna",
+      "lastname": "Migliore"
+    }
+  ],
+  "created_author": [
+    {
+      "affiliation": "Institute of Biophysics, National Research Council, Palermo, Italy",
+      "firstname": "Luca L.",
+      "lastname": "Bologna"
+    }
+  ],
+  "doi": "https://doi.org/10.25493/EF9C-ZKU",
+  "id": "c1573aeb-d139-42a2-a7fc-fd68319e428e",
+  "associated_paper_pagination": "e1006423",
+  "associated_paper_volume": "14",
+  "associated_paper_issue": null,
+  "journal": "PLOS Computational Biology",
+  "license": "Creative Commons Attribution 4.0 International",
+  "live_paper_title": "The physiological variability of channel density in hippocampal CA1 pyramidal cells and interneurons explored using a unified data-driven modeling workflow",
+  "lp_tool_version": "0.1",
+  "modified_date": "2021-08-10T09:26:55.917000+00:00",
+  "resources": [
+    {
+      "data": [
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2018_migliore_et_al/morphologies/010710HP2.asc",
+          "label": "010710HP2",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "235c3b24-6e3b-41c5-a73d-544ea848ea55"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2018_migliore_et_al/morphologies/011017HP2.asc",
+          "label": "011017HP2",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "cb438e98-6c97-4198-a2a9-cd5acc6628d9"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2018_migliore_et_al/morphologies/011023HP2.asc",
+          "label": "011023HP2",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "3e90db41-70fb-4097-b8ae-535e15ca8beb"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2018_migliore_et_al/morphologies/011127HP1.asc",
+          "label": "011127HP1",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "e9595bc3-cf01-413c-b7d2-dfd56df5cd91"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2018_migliore_et_al/morphologies/031031AM1.asc",
+          "label": "031031AM1",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "98c583dc-78f0-48e7-a3c8-cacb4d306cfd"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2018_migliore_et_al/morphologies/060314AM2.asc",
+          "label": "060314AM2",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "4b8a5298-408f-4574-8f91-de23481aee49"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2018_migliore_et_al/morphologies/970509HP2.asc",
+          "label": "970509HP2",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "24dce732-84d6-499e-9a64-587104cef64c"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2018_migliore_et_al/morphologies/970627BHP1.asc",
+          "label": "970627BHP1",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "8f5b4275-d578-4601-845e-b6bccc208a7b"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2018_migliore_et_al/morphologies/970717D.asc",
+          "label": "970717D",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "acd72b86-91f5-430d-a2fb-855a6e4da950"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2018_migliore_et_al/morphologies/970911C.asc",
+          "label": "970911C",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "4d13c196-9eb8-424c-9db4-662c8dc263d7"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2018_migliore_et_al/morphologies/971114B.asc",
+          "label": "971114B",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "9027963d-464c-46ec-83b8-78ade9b82437"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2018_migliore_et_al/morphologies/980120A.asc",
+          "label": "980120A",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "7ec11727-a8a7-4c36-aa22-5d813124bcf6"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2018_migliore_et_al/morphologies/980513B.asc",
+          "label": "980513B",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "7b4df456-8a1d-48be-95d8-73265b5a2c71"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2018_migliore_et_al/morphologies/990111HP2.asc",
+          "label": "990111HP2",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "e537fd75-425e-4314-b884-d453cba95f90"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2018_migliore_et_al/morphologies/990611HP2.asc",
+          "label": "990611HP2",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "dcacdaf0-a6b4-49ef-afb4-cab6e0c96bb7"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2018_migliore_et_al/morphologies/990827IN5HP3.asc",
+          "label": "990827IN5HP3",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "42da8cc5-34e0-4068-bd4a-6f17dc18165f"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2018_migliore_et_al/morphologies/dend-050921AM2_axon-051208AM2.asc",
+          "label": "dend-050921AM2_axon-051208AM2",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "f58621ed-7921-42e8-947d-17216afa40d4"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2018_migliore_et_al/morphologies/dend-990803_axon-051208AM2.asc",
+          "label": "dend-990803_axon-051208AM2",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "2282f5b8-7a0e-4ac7-8ac5-53f3bdc09a9a"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2018_migliore_et_al/morphologies/mpg141017_a1-2_idC.asc",
+          "label": "mpg141017_a1-2_idC",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "0fb788dd-d41e-4ff3-8ee5-bbff5fa76115"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2018_migliore_et_al/morphologies/mpg141208_B_idA.asc",
+          "label": "mpg141208_B_idA",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "61bbbc4a-4607-4884-bdbc-3bce5c3346e0"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2018_migliore_et_al/morphologies/mpg141209_A_idA.asc",
+          "label": "mpg141209_A_idA",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "c9393914-4bc7-4030-8655-42e45b9410ac"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2018_migliore_et_al/morphologies/mpg141209_B_idA.asc",
+          "label": "mpg141209_B_idA",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "db579848-ad61-4ea0-bff9-6d143e98f8f1"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2018_migliore_et_al/morphologies/mpg141215_A_idA.asc",
+          "label": "mpg141215_A_idA",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "8adf8fc0-98f1-4873-86b3-ff59e5b2e4a7"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2018_migliore_et_al/morphologies/mpg141216_A_idA.asc",
+          "label": "mpg141216_A_idA",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "4773f8ea-9664-45a5-9cd9-28acc401e35f"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2018_migliore_et_al/morphologies/mpg141217_A_idB.asc",
+          "label": "mpg141217_A_idB",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "f5431853-0d4b-4693-afad-db522be1ce08"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2018_migliore_et_al/morphologies/mpg150305_A_idB.asc",
+          "label": "mpg150305_A_idB",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "e398b3a3-cba2-439e-84c7-447af0863d5f"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2018_migliore_et_al/morphologies/oh140521_B0_Rat_idA.asc",
+          "label": "oh140521_B0_Rat_idA",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "16dfd953-4430-43ff-b79d-b6e8e7f1e46d"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2018_migliore_et_al/morphologies/oh140521_B0_Rat_idC.asc",
+          "label": "oh140521_B0_Rat_idC",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "b62d6419-dc8a-429d-a8d6-49f1fb7f9b28"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2018_migliore_et_al/morphologies/oh140807_A0_idA.asc",
+          "label": "oh140807_A0_idA",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "42b09775-2a36-4b19-81aa-a3f6b104c8bb"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2018_migliore_et_al/morphologies/oh140807_A0_idB.asc",
+          "label": "oh140807_A0_idB",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "9a0b17a1-3bf2-4cc6-905f-ab4f02d21439"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2018_migliore_et_al/morphologies/oh140807_A0_idC.asc",
+          "label": "oh140807_A0_idC",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "5d7e3186-afc4-4489-8e6b-4f06df436a5a"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2018_migliore_et_al/morphologies/oh140807_A0_idF.asc",
+          "label": "oh140807_A0_idF",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "c13e931c-213d-4a31-a2c2-5369868db683"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2018_migliore_et_al/morphologies/oh140807_A0_idG.asc",
+          "label": "oh140807_A0_idG",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "5d1b3316-a757-4d9d-9279-eda18666b629"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2018_migliore_et_al/morphologies/oh140807_A0_idH.asc",
+          "label": "oh140807_A0_idH",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "34a2fc5a-d32a-4d1a-97cc-10d7f2cb7a2f"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2018_migliore_et_al/morphologies/oh140807_A0_idJ.asc",
+          "label": "oh140807_A0_idJ",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "f60275a5-1080-4e73-a63c-f11add08a51d"
+        }
+      ],
+      "description": "Morphology files (in .asc format) used in the paper for each etype (see Table S5 of the Supplementary Material):",
+      "icon": "settings_input_antenna",
+      "order": 0,
+      "title": "Morphologies",
+      "type": "section_morphology"
+    },
+    {
+      "data": [
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2018_migliore_et_al/exp_data/abf-int-bAC/Ivy_960711AHP3/96711008.abf",
+          "label": "abf-int-bAC/Ivy_960711AHP3/96711008.abf#-#int-bAC",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "a96555ba-5bbe-4720-ac62-66b945c7ed40"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2018_migliore_et_al/exp_data/abf-int-bAC/PVBC_990111ABHP1/99111000.abf",
+          "label": "abf-int-bAC/PVBC_990111ABHP1/99111000.abf#-#int-bAC",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "0fa329a3-b8e8-45e9-80ff-062a342b27dc"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2018_migliore_et_al/exp_data/abf-int-bAC/PVBC_990111ABHP1/99111001.abf",
+          "label": "abf-int-bAC/PVBC_990111ABHP1/99111001.abf#-#int-bAC",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "220eb756-1364-469d-a0dc-9dcccee08a7d"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2018_migliore_et_al/exp_data/abf-int-bAC/PVBC_990111ABHP1/99111002.abf",
+          "label": "abf-int-bAC/PVBC_990111ABHP1/99111002.abf#-#int-bAC",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "b94f9f94-0970-4143-8bb2-b73877479e35"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2018_migliore_et_al/exp_data/abf-int-bAC/SP_AA_970911C/97911000.abf",
+          "label": "abf-int-bAC/SP_AA_970911C/97911000.abf#-#int-bAC",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "d02f8b2d-2416-4a84-b251-6ec385b9c3f9"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2018_migliore_et_al/exp_data/abf-int-bAC/SP_AA_970911C/97911001.abf",
+          "label": "abf-int-bAC/SP_AA_970911C/97911001.abf#-#int-bAC",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "b1134980-b83f-413d-8f79-126bdc8f2d06"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2018_migliore_et_al/exp_data/abf-int-bAC/SP_AA_970911C/97911002.abf",
+          "label": "abf-int-bAC/SP_AA_970911C/97911002.abf#-#int-bAC",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "8a91e9fb-603b-4489-85f7-489e053bc39e"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2018_migliore_et_al/exp_data/abf-int-bAC/SP_BS/95810035.abf",
+          "label": "abf-int-bAC/SP_BS/95810035.abf#-#int-bAC",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "db6fa05e-7786-4060-8744-247218c4d599"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2018_migliore_et_al/exp_data/abf-int-bAC/SP_BS/95810036.abf",
+          "label": "abf-int-bAC/SP_BS/95810036.abf#-#int-bAC",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "641b38e4-6def-4a58-a170-b013da786c8b"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2018_migliore_et_al/exp_data/abf-int-cAC/OLM_980205FHP/98205021.abf",
+          "label": "abf-int-cAC/OLM_980205FHP/98205021.abf#-#int-cAC",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "61590bd4-1d0d-4b7e-9a8e-85ab964adad4"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2018_migliore_et_al/exp_data/abf-int-cAC/OLM_980205FHP/98205022.abf",
+          "label": "abf-int-cAC/OLM_980205FHP/98205022.abf#-#int-cAC",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "98e02a3b-561f-445d-86dd-f4b8e58ed480"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2018_migliore_et_al/exp_data/abf-int-cAC/OLM_980205FHP/98205024.abf",
+          "label": "abf-int-cAC/OLM_980205FHP/98205024.abf#-#int-cAC",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "ad5aecb7-92a6-4fd8-88a9-aff61e0ab899"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2018_migliore_et_al/exp_data/abf-int-cAC/OLM_980205FHP/98205025.abf",
+          "label": "abf-int-cAC/OLM_980205FHP/98205025.abf#-#int-cAC",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "1a8a8567-27ac-4f4a-8f25-5797cd7be530"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2018_migliore_et_al/exp_data/abf-int-cAC/SO_OLM_970428A1/97428000.abf",
+          "label": "abf-int-cAC/SO_OLM_970428A1/97428000.abf#-#int-cAC",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "31a90bc9-defe-4ab5-aab9-d5de449ff666"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2018_migliore_et_al/exp_data/abf-int-cAC/SO_OLM_970428A1/97428001.abf",
+          "label": "abf-int-cAC/SO_OLM_970428A1/97428001.abf#-#int-cAC",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "2aa7dbe4-ddc2-4aa6-8771-da2b38be4e3d"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2018_migliore_et_al/exp_data/abf-int-cAC/SO_Tri_970509HP2/97509008.abf",
+          "label": "abf-int-cAC/SO_Tri_970509HP2/97509008.abf#-#int-cAC",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "084255fd-e56f-43b8-a90c-cf8ba6af0d1e"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2018_migliore_et_al/exp_data/abf-int-cAC/SO_Tri_970509HP2/97509009.abf",
+          "label": "abf-int-cAC/SO_Tri_970509HP2/97509009.abf#-#int-cAC",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "c28b8501-c38c-4e82-8c12-549e8bf3667b"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2018_migliore_et_al/exp_data/abf-int-cAC/SO_Tri_970509HP2/97509010.abf",
+          "label": "abf-int-cAC/SO_Tri_970509HP2/97509010.abf#-#int-cAC",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "27e08c32-36b4-404d-8509-eccee444cd94"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2018_migliore_et_al/exp_data/abf-int-cAC/SO_Tri_970509HP2/97509011.abf",
+          "label": "abf-int-cAC/SO_Tri_970509HP2/97509011.abf#-#int-cAC",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "d1d48e82-2db4-4abb-9dc5-779237e69a65"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2018_migliore_et_al/exp_data/abf-int-cNAC/PVBC_981215GHP4/98D15008.abf",
+          "label": "abf-int-cNAC/PVBC_981215GHP4/98D15008.abf#-#int-cNAC",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "e917511c-3839-4702-8359-fa2c93330132"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2018_migliore_et_al/exp_data/abf-int-cNAC/PVBC_981215GHP4/98D15009.abf",
+          "label": "abf-int-cNAC/PVBC_981215GHP4/98D15009.abf#-#int-cNAC",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "e6ebc9fe-3d59-4cd3-87c4-91ae9db508c1"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2018_migliore_et_al/exp_data/abf-int-cNAC/PVBC_990111HP2/99111004.abf",
+          "label": "abf-int-cNAC/PVBC_990111HP2/99111004.abf#-#int-cNAC",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "4b00178d-e16c-4c2c-b3e7-ef382388de73"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2018_migliore_et_al/exp_data/abf-int-cNAC/PVBC_990111HP2/99111006.abf",
+          "label": "abf-int-cNAC/PVBC_990111HP2/99111006.abf#-#int-cNAC",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "02deef9b-16cf-4150-9915-18ffa6802a1e"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2018_migliore_et_al/exp_data/abf-int-cNAC/SP_BS/95817000.abf",
+          "label": "abf-int-cNAC/SP_BS/95817000.abf#-#int-cNAC",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "3b113b4c-b7d1-47ee-aaeb-ded68c0e41d4"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2018_migliore_et_al/exp_data/abf-int-cNAC/SP_BS/95817001.abf",
+          "label": "abf-int-cNAC/SP_BS/95817001.abf#-#int-cNAC",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "bdbce59e-b033-4931-8d29-ab3c516ec9b5"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2018_migliore_et_al/exp_data/abf-int-cNAC/SP_BS/95817002.abf",
+          "label": "abf-int-cNAC/SP_BS/95817002.abf#-#int-cNAC",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "0fa25f99-4938-4c7e-9aa7-4a41fb3497d7"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2018_migliore_et_al/exp_data/abf-int-cNAC/SP_BS_980513B/98513011.abf",
+          "label": "abf-int-cNAC/SP_BS_980513B/98513011.abf#-#int-cNAC",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "ecf629dc-2ba6-49f0-a22e-8a3c77e35412"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2018_migliore_et_al/exp_data/abf-int-cNAC/SP_Ivy_970717D/97717005.abf",
+          "label": "abf-int-cNAC/SP_Ivy_970717D/97717005.abf#-#int-cNAC",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "4506f931-bce1-42bb-8895-c8f0d8b992be"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2018_migliore_et_al/exp_data/abf-pyr-cAC/95810005/95810005.abf",
+          "label": "abf-pyr-cAC/95810005/95810005.abf#-#pyr-cAC",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "7f037ca4-c365-4b9f-9762-8cef7897fa7d"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2018_migliore_et_al/exp_data/abf-pyr-cAC/95810005/95810006.abf",
+          "label": "abf-pyr-cAC/95810005/95810006.abf#-#pyr-cAC",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "85be4cfd-ea3e-45c9-b4e8-2521f2d41154"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2018_migliore_et_al/exp_data/abf-pyr-cAC/95810005/95810007.abf",
+          "label": "abf-pyr-cAC/95810005/95810007.abf#-#pyr-cAC",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "b558cdd7-155a-46ff-8710-523636e947ff"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2018_migliore_et_al/exp_data/abf-pyr-cAC/95810005/95810008.abf",
+          "label": "abf-pyr-cAC/95810005/95810008.abf#-#pyr-cAC",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "ac3105c5-d75c-4bac-befa-f4222453ab21"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2018_migliore_et_al/exp_data/abf-pyr-cAC/95810010/95810010.abf",
+          "label": "abf-pyr-cAC/95810010/95810010.abf#-#pyr-cAC",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "3eb68482-487f-440d-affe-d89f5fe34ba6"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2018_migliore_et_al/exp_data/abf-pyr-cAC/95810011/95810011.abf",
+          "label": "abf-pyr-cAC/95810011/95810011.abf#-#pyr-cAC",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "fd4ea32e-a7a7-4a6c-9fde-bae53445aeda"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2018_migliore_et_al/exp_data/abf-pyr-cAC/95810012/95810012.abf",
+          "label": "abf-pyr-cAC/95810012/95810012.abf#-#pyr-cAC",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "52180864-6abb-456f-970e-d454d493854b"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2018_migliore_et_al/exp_data/abf-pyr-cAC/95810012/95810013.abf",
+          "label": "abf-pyr-cAC/95810012/95810013.abf#-#pyr-cAC",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "ed078abd-f761-4bc0-b7ee-01862fb00871"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2018_migliore_et_al/exp_data/abf-pyr-cAC/95810012/95810014.abf",
+          "label": "abf-pyr-cAC/95810012/95810014.abf#-#pyr-cAC",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "60b9597d-6df3-4256-8e40-79b55fcc7b7d"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2018_migliore_et_al/exp_data/abf-pyr-cAC/95810012/95810015.abf",
+          "label": "abf-pyr-cAC/95810012/95810015.abf#-#pyr-cAC",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "c7c84cb0-d846-4724-b291-c6a5909bbab7"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2018_migliore_et_al/exp_data/abf-pyr-cAC/95810012/95810026.abf",
+          "label": "abf-pyr-cAC/95810012/95810026.abf#-#pyr-cAC",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "fde5c8f4-4830-4e91-a444-dde345c7b38e"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2018_migliore_et_al/exp_data/abf-pyr-cAC/95810012/95810027.abf",
+          "label": "abf-pyr-cAC/95810012/95810027.abf#-#pyr-cAC",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "60afc8b7-6d03-4cd9-bbfb-3e11a87ef06c"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2018_migliore_et_al/exp_data/abf-pyr-cAC/95810012/95810028.abf",
+          "label": "abf-pyr-cAC/95810012/95810028.abf#-#pyr-cAC",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "3be0c02a-2703-46ae-8dcb-fa040c62b0b6"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2018_migliore_et_al/exp_data/abf-pyr-cAC/95810012/95810029.abf",
+          "label": "abf-pyr-cAC/95810012/95810029.abf#-#pyr-cAC",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "7c470afe-da5c-49ba-ba75-18be40a3eae3"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2018_migliore_et_al/exp_data/abf-pyr-cAC/95810022/95810022.abf",
+          "label": "abf-pyr-cAC/95810022/95810022.abf#-#pyr-cAC",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "b3826933-b920-4cf5-9ff9-2260ea04b09f"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2018_migliore_et_al/exp_data/abf-pyr-cAC/95810022/95810023.abf",
+          "label": "abf-pyr-cAC/95810022/95810023.abf#-#pyr-cAC",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "c9b6e340-a5ab-4957-b017-d1d0ab9ebc9d"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2018_migliore_et_al/exp_data/abf-pyr-cAC/95810022/95810024.abf",
+          "label": "abf-pyr-cAC/95810022/95810024.abf#-#pyr-cAC",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "5944b875-edcc-4244-a373-f34edbf5aa2c"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2018_migliore_et_al/exp_data/abf-pyr-cAC/95810022/95810025.abf",
+          "label": "abf-pyr-cAC/95810022/95810025.abf#-#pyr-cAC",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "e7f81eb2-2072-4aad-b44a-33266f8f320f"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2018_migliore_et_al/exp_data/abf-pyr-cAC/95810030/95810030.abf",
+          "label": "abf-pyr-cAC/95810030/95810030.abf#-#pyr-cAC",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "0e6e0b40-164a-418f-a509-12d3fcbceffc"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2018_migliore_et_al/exp_data/abf-pyr-cAC/95810031/95810031.abf",
+          "label": "abf-pyr-cAC/95810031/95810031.abf#-#pyr-cAC",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "d5b1ee0c-8917-4175-ae19-dd626d1f88de"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2018_migliore_et_al/exp_data/abf-pyr-cAC/95810032/95810032.abf",
+          "label": "abf-pyr-cAC/95810032/95810032.abf#-#pyr-cAC",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "a03a4819-fb5a-4aaa-b948-615e5c0f160c"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2018_migliore_et_al/exp_data/abf-pyr-cAC/95810033/95810033.abf",
+          "label": "abf-pyr-cAC/95810033/95810033.abf#-#pyr-cAC",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "bf9aee8b-34f0-4ec0-930a-da3cb94cabf7"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2018_migliore_et_al/exp_data/abf-pyr-cAC/95810037/95810037.abf",
+          "label": "abf-pyr-cAC/95810037/95810037.abf#-#pyr-cAC",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "59bf7fe3-79de-4989-bbb1-437ff319f0da"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2018_migliore_et_al/exp_data/abf-pyr-cAC/95810037/95810038.abf",
+          "label": "abf-pyr-cAC/95810037/95810038.abf#-#pyr-cAC",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "5ccd24b4-e0d5-4245-8efa-460c77c24cf8"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2018_migliore_et_al/exp_data/abf-pyr-cAC/95810037/95810039.abf",
+          "label": "abf-pyr-cAC/95810037/95810039.abf#-#pyr-cAC",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "4a656423-419b-4cee-8274-316173847453"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2018_migliore_et_al/exp_data/abf-pyr-cAC/95810037/95810040.abf",
+          "label": "abf-pyr-cAC/95810037/95810040.abf#-#pyr-cAC",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "7808de68-8268-4e05-8383-b1e1bf7afa61"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2018_migliore_et_al/exp_data/abf-pyr-cAC/95810037/95810041.abf",
+          "label": "abf-pyr-cAC/95810037/95810041.abf#-#pyr-cAC",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "3d0077d7-66f9-42f6-b9db-a77587bb2737"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2018_migliore_et_al/exp_data/abf-pyr-cAC/95817003/95817003.abf",
+          "label": "abf-pyr-cAC/95817003/95817003.abf#-#pyr-cAC",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "289769fe-6aa2-472f-b3e0-c97e7de31d6f"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2018_migliore_et_al/exp_data/abf-pyr-cAC/95817004/95817004.abf",
+          "label": "abf-pyr-cAC/95817004/95817004.abf#-#pyr-cAC",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "d777cc3b-f5f7-4083-bcbc-d15e5ca78c42"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2018_migliore_et_al/exp_data/abf-pyr-cAC/95817005/95817005.abf",
+          "label": "abf-pyr-cAC/95817005/95817005.abf#-#pyr-cAC",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "ec84fc81-9b8e-4fb1-92d8-860ff8db5924"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2018_migliore_et_al/exp_data/abf-pyr-cAC/95817005/95817006.abf",
+          "label": "abf-pyr-cAC/95817005/95817006.abf#-#pyr-cAC",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "20e307d0-fd76-4fb8-ba21-15e3aaa60728"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2018_migliore_et_al/exp_data/abf-pyr-cAC/95817007/95817007.abf",
+          "label": "abf-pyr-cAC/95817007/95817007.abf#-#pyr-cAC",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "b81b5eaa-5af4-412f-8686-670a5eb45ce6"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2018_migliore_et_al/exp_data/abf-pyr-cAC/95817007/95817008.abf",
+          "label": "abf-pyr-cAC/95817007/95817008.abf#-#pyr-cAC",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "fd20f4c0-c464-4485-b81c-79b3ea7819b9"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2018_migliore_et_al/exp_data/abf-pyr-cAC/95822000/95822000.abf",
+          "label": "abf-pyr-cAC/95822000/95822000.abf#-#pyr-cAC",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "27a1bad0-86f7-4528-9f67-afe490127ca8"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2018_migliore_et_al/exp_data/abf-pyr-cAC/95822000/95822001.abf",
+          "label": "abf-pyr-cAC/95822000/95822001.abf#-#pyr-cAC",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "06604b2d-d82b-48b2-8d84-3fe943476c31"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2018_migliore_et_al/exp_data/abf-pyr-cAC/95822002/95822002.abf",
+          "label": "abf-pyr-cAC/95822002/95822002.abf#-#pyr-cAC",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "e9506e38-da4f-48df-bf7c-6bbd169b3e59"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2018_migliore_et_al/exp_data/abf-pyr-cAC/95822002/95822003.abf",
+          "label": "abf-pyr-cAC/95822002/95822003.abf#-#pyr-cAC",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "2e0ec1ba-a4ee-47bc-b170-edc8acc6c641"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2018_migliore_et_al/exp_data/abf-pyr-cAC/95822007/95822009.abf",
+          "label": "abf-pyr-cAC/95822007/95822009.abf#-#pyr-cAC",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "b08861aa-7652-4f58-9563-01640bd374c4"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2018_migliore_et_al/exp_data/abf-pyr-cAC/95822010/95822010.abf",
+          "label": "abf-pyr-cAC/95822010/95822010.abf#-#pyr-cAC",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "e7bb1118-3fb4-4e07-b887-4ed8777445ce"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2018_migliore_et_al/exp_data/abf-pyr-cAC/95822010/95822011.abf",
+          "label": "abf-pyr-cAC/95822010/95822011.abf#-#pyr-cAC",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "110542a5-5eff-44ec-82d2-6ecf78d7fb19"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2018_migliore_et_al/exp_data/abf-pyr-cAC/95824000/95824000.abf",
+          "label": "abf-pyr-cAC/95824000/95824000.abf#-#pyr-cAC",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "8f2436de-5cc7-4da1-b339-677e326dae35"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2018_migliore_et_al/exp_data/abf-pyr-cAC/95824004/95824004.abf",
+          "label": "abf-pyr-cAC/95824004/95824004.abf#-#pyr-cAC",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "6eeddeb7-273c-4aaa-987c-47027e13a710"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2018_migliore_et_al/exp_data/abf-pyr-cAC/95824006/95824006.abf",
+          "label": "abf-pyr-cAC/95824006/95824006.abf#-#pyr-cAC",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "fd247901-0e1c-4fe9-b443-1df38b336706"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2018_migliore_et_al/exp_data/abf-pyr-cAC/95831000/95831000.abf",
+          "label": "abf-pyr-cAC/95831000/95831000.abf#-#pyr-cAC",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "f8d59637-73d9-4ba0-a9d0-e83e654d3305"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2018_migliore_et_al/exp_data/abf-pyr-cAC/95831002/95831002.abf",
+          "label": "abf-pyr-cAC/95831002/95831002.abf#-#pyr-cAC",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "2dd02a90-9c12-43a8-9130-9d28d15345d3"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2018_migliore_et_al/exp_data/abf-pyr-cAC/95831003/95831003.abf",
+          "label": "abf-pyr-cAC/95831003/95831003.abf#-#pyr-cAC",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "d4718314-86e0-48f7-a0d7-2586153a910d"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2018_migliore_et_al/exp_data/abf-pyr-cAC/95831004/95831004.abf",
+          "label": "abf-pyr-cAC/95831004/95831004.abf#-#pyr-cAC",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "55ad3c4a-4094-4128-a60e-6bb66a5e8a46"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2018_migliore_et_al/exp_data/abf-pyr-cAC/95912005/95912005.abf",
+          "label": "abf-pyr-cAC/95912005/95912005.abf#-#pyr-cAC",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "c06a9498-0d26-4e69-9345-51c62b21e1e9"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2018_migliore_et_al/exp_data/abf-pyr-cAC/95912005/95912006.abf",
+          "label": "abf-pyr-cAC/95912005/95912006.abf#-#pyr-cAC",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "467cc4b8-52f7-427a-97a0-3514a8ad22db"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2018_migliore_et_al/exp_data/abf-pyr-cAC/95914002/95914002.abf",
+          "label": "abf-pyr-cAC/95914002/95914002.abf#-#pyr-cAC",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "b072ac15-fef7-4f52-8a45-5a793245a30e"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2018_migliore_et_al/exp_data/abf-pyr-cAC/95914002/95914003.abf",
+          "label": "abf-pyr-cAC/95914002/95914003.abf#-#pyr-cAC",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "56600c2b-030d-4954-aed2-7efc82b20dcc"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2018_migliore_et_al/exp_data/abf-pyr-cAC/95914002/95914004.abf",
+          "label": "abf-pyr-cAC/95914002/95914004.abf#-#pyr-cAC",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "663c7c59-0c53-47b9-9f50-6a2a05b327f9"
+        }
+      ],
+      "description": null,
+      "icon": "timeline",
+      "order": 1,
+      "title": "Electrophysiological Traces",
+      "type": "section_traces"
+    },
+    {
+      "data": [],
+      "description": "<p>A reduced self-consistent set of files needed to reproduce&nbsp;Fig.4A of the paper is available on\n    <a href=\"https://senselab.med.yale.edu/modeldb/enterCode.cshtml?model=244688#tabs-1\" target=\"_blank\">ModelDB</a>.\n    <br>\n    <br>Use the BSP Neuron As A Service (NaaS) tool to do in silico experiments with the single cell models shown in Fig.4A:\n    <br>\n    <span style=\"margin-left:25px\">> Start by clicking on any button below to run a simulation.</span>\n    <br>\n    <span style=\"margin-left:25px\">> After entering the NaaS page, click on the \"Simulation\" tab, adjust the current strength with the appropriate value, and run the simulation by clicking the \"Start simulation\" button.</span>\n</p>\n<div style=\"margin-left:25px\">\n    <table>\n        <tbody>\n        <tr>\n            <td>\n                <button class=\"btn waves-effect waves-light\" onclick=\"window.open('https://blue-naas.humanbrainproject.eu/#/url/EBRAINS_live_papers/2018_migliore_et_al/models/CA1_int_bAC_011023HP2_20180116154023/CA1_int_bAC_011023HP2_20180116154023.zip?amp=0.6')\">int bAC 0.6 nA\n                <i class=\"material-icons right\">play_arrow</i>\n                </button>\n            </td>\n            <td>\n                <button class=\"btn waves-effect waves-light\" onclick=\"window.open('https://blue-naas.humanbrainproject.eu/#/url/EBRAINS_live_papers/2018_migliore_et_al/models/CA1_int_cAC_980120A_20180115155814/CA1_int_cAC_980120A_20180115155814.zip?amp=0.4')\">int cAC 0.4 nA\n                <i class=\"material-icons right\">play_arrow</i>\n                </button>\n            </td>\n            <td>\n                <button class=\"btn waves-effect waves-light\" onclick=\"window.open('https://blue-naas.humanbrainproject.eu/#/url/EBRAINS_live_papers/2018_migliore_et_al/models/CA1_int_cNAC_980513B_20180119155127/CA1_int_cNAC_980513B_20180119155127.zip?amp=0.4')\">int cNAC 0.4 nA\n                <i class=\"material-icons right\">play_arrow</i>\n                </button>\n            </td>\n            <td>\n                <span class=\"d-inline-block\" tabindex=\"0\" data-toggle=\"tooltip\" title=\"Available soon\">\n                <button class=\"btn waves-effect waves-light\" onclick=\"window.open('https://blue-naas.humanbrainproject.eu/#/url/EBRAINS_live_papers/2018_migliore_et_al/models/CA1_pyr_cACpyr_mpg141208_B_idA_20170915151855/CA1_pyr_cACpyr_mpg141208_B_idA_20170915151855.zip?amp=0.4')\">pyr cAC 0.4 nA\n                <i class=\"material-icons right\">play_arrow</i>\n                </button>\n                </span>\n            </td>\n        </tr>\n        <tr>\n            <td>\n                <span class=\"d-inline-block\" tabindex=\"0\" data-toggle=\"tooltip\" title=\"Available soon\">\n                <button class=\"btn waves-effect waves-light\" onclick=\"window.open('https://blue-naas.humanbrainproject.eu/#/url/EBRAINS_live_papers/2018_migliore_et_al/models/CA1_int_bAC_971114B_20180117154233/CA1_int_bAC_971114B_20180117154233.zip?amp=1.0')\">int bAC 1.0 nA\n                <i class=\"material-icons right\">play_arrow</i>\n                </button>\n                </span>\n            </td>\n            <td>\n                <button class=\"btn waves-effect waves-light\" onclick=\"window.open('https://blue-naas.humanbrainproject.eu/#/url/EBRAINS_live_papers/2018_migliore_et_al/models/CA1_int_cAC_980513B_20180119155952/CA1_int_cAC_980513B_20180119155952.zip?amp=0.6')\">int cAC 0.6 nA\n                <i class=\"material-icons right\">play_arrow</i>\n                </button>\n            </td>\n            <td>\n                <button class=\"btn waves-effect waves-light\" onclick=\"window.open('https://blue-naas.humanbrainproject.eu/#/url/EBRAINS_live_papers/2018_migliore_et_al/models/CA1_int_cNAC_060314AM2_20180120154747/CA1_int_cNAC_060314AM2_20180120154747.zip?amp=0.8')\">int cNAC 0.8 nA\n                <i class=\"material-icons right\">play_arrow</i>\n                </button>\n            </td>\n            <td>\n                <button class=\"btn waves-effect waves-light\" onclick=\"window.open('https://blue-naas.humanbrainproject.eu/#/url/EBRAINS_live_papers/2018_migliore_et_al/models/CA1_pyr_cACpyr_mpg141209_A_idA_20170912152008/CA1_pyr_cACpyr_mpg141209_A_idA_20170912152008.zip?amp=0.8')\">pyr cAC 0.8 nA\n                <i class=\"material-icons right\">play_arrow</i>\n                </button>\n            </td>\n        </tr>\n        </tbody>\n    </table>\n</div>",
+      "icon": "note_add",
+      "order": 2,
+      "title": "ModelDB link and test simulations",
+      "type": "section_custom"
+    },
+    {
+      "data": [
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/Migliore_2018_CA1/models/CA1_int_bAC_011017HP2_20180110153901/CA1_int_bAC_011017HP2_20180110153901.zip",
+          "label": "CA1_int_bAC_011017HP2_20180110153901",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2018-migliore-et-al/Model%20Catalog#model_id.fde75d28-ac90-479d-9946-5130e5262941",
+          "type": "URL",
+          "identifier": "41ca9c82-0e45-4a0c-a359-5f4f27c728d9"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/Migliore_2018_CA1/models/CA1_int_bAC_011023HP2_20180116154023/CA1_int_bAC_011023HP2_20180116154023.zip",
+          "label": "CA1_int_bAC_011023HP2_20180116154023",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2018-migliore-et-al/Model%20Catalog#model_id.ab570001-df66-466c-bc6f-1b44cd324222",
+          "type": "URL",
+          "identifier": "9f4b869c-45f2-419d-8992-feb00867ed88"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/Migliore_2018_CA1/models/CA1_int_bAC_011127HP1_20180120115056/CA1_int_bAC_011127HP1_20180120115056.zip",
+          "label": "CA1_int_bAC_011127HP1_20180120115056",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2018-migliore-et-al/Model%20Catalog#model_id.f854ebcd-7ebc-48a6-b4ff-a4d63cebf0fe",
+          "type": "URL",
+          "identifier": "ed4d88e9-cc97-4916-936c-7032848ae132"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/Migliore_2018_CA1/models/CA1_int_bAC_060314AM2_20180120154128/CA1_int_bAC_060314AM2_20180120154128.zip",
+          "label": "CA1_int_bAC_060314AM2_20180120154128",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2018-migliore-et-al/Model%20Catalog#model_id.d249dc18-24a0-434f-8a3f-de5b5719904e",
+          "type": "URL",
+          "identifier": "5491ae91-dc94-415b-b0f3-cf416867beef"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/Migliore_2018_CA1/models/CA1_int_bAC_971114B_20180117154233/CA1_int_bAC_971114B_20180117154233.zip",
+          "label": "CA1_int_bAC_971114B_20180117154233",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2018-migliore-et-al/Model%20Catalog#model_id.746e5d32-499f-4374-b31c-10ad0883fa2e",
+          "type": "URL",
+          "identifier": "58039738-5fff-44ff-a5df-b1202044ce38"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/Migliore_2018_CA1/models/CA1_int_bAC_980120A_20180119154402/CA1_int_bAC_980120A_20180119154402.zip",
+          "label": "CA1_int_bAC_980120A_20180119154402",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2018-migliore-et-al/Model%20Catalog#model_id.f1e1e6f1-a55c-4a7e-aa25-6054b09d9001",
+          "type": "URL",
+          "identifier": "8f5274de-e953-4d05-87ec-8829c4f2b964"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/Migliore_2018_CA1/models/CA1_int_cAC_010710HP2_20180118155959/CA1_int_cAC_010710HP2_20180118155959.zip",
+          "label": "CA1_int_cAC_010710HP2_20180118155959",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2018-migliore-et-al/Model%20Catalog#model_id.26ca36cf-ae09-431f-9769-1a44a3e9a2e1",
+          "type": "URL",
+          "identifier": "2c2d8f06-fd37-4f0c-b558-cab69287e74f"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/Migliore_2018_CA1/models/CA1_int_cAC_011017HP2_20180121160005/CA1_int_cAC_011017HP2_20180121160005.zip",
+          "label": "CA1_int_cAC_011017HP2_20180121160005",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2018-migliore-et-al/Model%20Catalog#model_id.1538e395-a6a4-4687-8cef-b1c35bb753f3",
+          "type": "URL",
+          "identifier": "c58c6da2-b7aa-4e5b-a18c-0d834f425d3b"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/Migliore_2018_CA1/models/CA1_int_cAC_031031AM1_20180201104443/CA1_int_cAC_031031AM1_20180201104443.zip",
+          "label": "CA1_int_cAC_031031AM1_20180201104443",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2018-migliore-et-al/Model%20Catalog#model_id.b5ef2c2e-f0bf-4624-a579-7e1be74f8800",
+          "type": "URL",
+          "identifier": "55bada1c-963c-4da4-b605-5e88a8a0741e"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/Migliore_2018_CA1/models/CA1_int_cAC_970627BHP1_20180120160112/CA1_int_cAC_970627BHP1_20180120160112.zip",
+          "label": "CA1_int_cAC_970627BHP1_20180120160112",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2018-migliore-et-al/Model%20Catalog#model_id.050e6a65-d4c7-46d6-83be-12de4a841427",
+          "type": "URL",
+          "identifier": "3187fb1e-c3d9-4318-aae1-eb2591c3c2d8"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/Migliore_2018_CA1/models/CA1_int_cAC_980120A_20180115155814/CA1_int_cAC_980120A_20180115155814.zip",
+          "label": "CA1_int_cAC_980120A_20180115155814",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2018-migliore-et-al/Model%20Catalog#model_id.5c99fef5-4279-4b81-a7a7-35aeb870d446",
+          "type": "URL",
+          "identifier": "e392dbc6-8198-4950-8f3f-33cb76ecff37"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/Migliore_2018_CA1/models/CA1_int_cAC_980513B_20180119155952/CA1_int_cAC_980513B_20180119155952.zip",
+          "label": "CA1_int_cAC_980513B_20180119155952",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2018-migliore-et-al/Model%20Catalog#model_id.0ea33005-c741-49b0-b96c-2c265e0401d6",
+          "type": "URL",
+          "identifier": "e946d1dc-d1f0-45b6-97c2-00ad915435bf"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/Migliore_2018_CA1/models/CA1_int_cAC_990611HP2_20180122160209/CA1_int_cAC_990611HP2_20180122160209.zip",
+          "label": "CA1_int_cAC_990611HP2_20180122160209",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2018-migliore-et-al/Model%20Catalog#model_id.bc860e5e-d6cc-4a59-b452-0652982fc45d",
+          "type": "URL",
+          "identifier": "3013331a-fdb1-4ad1-bfe8-341423387fb5"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/Migliore_2018_CA1/models/CA1_int_cAC_990827IN5HP3_20180122140555/CA1_int_cAC_990827IN5HP3_20180122140555.zip",
+          "label": "CA1_int_cAC_990827IN5HP3_20180122140555",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2018-migliore-et-al/Model%20Catalog#model_id.d43c7f90-4414-42d0-a28c-d5b2ea6e1865",
+          "type": "URL",
+          "identifier": "21b1c544-f963-4959-8c60-27beca093ea2"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/Migliore_2018_CA1/models/CA1_int_cNAC_010710HP2_20180119154335/CA1_int_cNAC_010710HP2_20180119154335.zip",
+          "label": "CA1_int_cNAC_010710HP2_20180119154335",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2018-migliore-et-al/Model%20Catalog#model_id.1b6e4e06-7a4f-4b8c-be64-937f98011e0d",
+          "type": "URL",
+          "identifier": "f7f0b3f6-20c1-45c6-b312-6457c248f434"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/Migliore_2018_CA1/models/CA1_int_cNAC_011017HP2_20180119154507/CA1_int_cNAC_011017HP2_20180119154507.zip",
+          "label": "CA1_int_cNAC_011017HP2_20180119154507",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2018-migliore-et-al/Model%20Catalog#model_id.b2fcb737-cfd8-49ae-b4be-16c2f3934d40",
+          "type": "URL",
+          "identifier": "7c8b47d0-69af-4d29-b71b-a8b0ff9abe88"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/Migliore_2018_CA1/models/CA1_int_cNAC_011023HP2_20180118154613/CA1_int_cNAC_011023HP2_20180118154613.zip",
+          "label": "CA1_int_cNAC_011023HP2_20180118154613",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2018-migliore-et-al/Model%20Catalog#model_id.dda2285d-042b-4ced-9035-b84c866ec2db",
+          "type": "URL",
+          "identifier": "83421f63-b7b2-4565-8717-aeff15dd18eb"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/Migliore_2018_CA1/models/CA1_int_cNAC_060314AM2_20180120154747/CA1_int_cNAC_060314AM2_20180120154747.zip",
+          "label": "CA1_int_cNAC_060314AM2_20180120154747",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2018-migliore-et-al/Model%20Catalog#model_id.839a7a2e-b2d1-492b-b0a0-c0d14485c7e2",
+          "type": "URL",
+          "identifier": "677fed67-34d2-4293-80a2-7b246637b605"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/Migliore_2018_CA1/models/CA1_int_cNAC_970509HP2_20180117154753/CA1_int_cNAC_970509HP2_20180117154753.zip",
+          "label": "CA1_int_cNAC_970509HP2_20180117154753",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2018-migliore-et-al/Model%20Catalog#model_id.5078e019-5047-417c-b91c-560a32624e1e",
+          "type": "URL",
+          "identifier": "fe8be7dc-6975-40a8-9901-b59913e5f3b4"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/Migliore_2018_CA1/models/CA1_int_cNAC_970627BHP1_20180120154830/CA1_int_cNAC_970627BHP1_20180120154830.zip",
+          "label": "CA1_int_cNAC_970627BHP1_20180120154830",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2018-migliore-et-al/Model%20Catalog#model_id.f92aa627-0485-4745-a806-d6f8e1a244c5",
+          "type": "URL",
+          "identifier": "6a9be586-7ef1-4ab8-925a-c0fecd03c7d4"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/Migliore_2018_CA1/models/CA1_int_cNAC_970717D_20180118154811/CA1_int_cNAC_970717D_20180118154811.zip",
+          "label": "CA1_int_cNAC_970717D_20180118154811",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2018-migliore-et-al/Model%20Catalog#model_id.fd992a51-0efa-4439-a620-f4dbd7bcc6d0",
+          "type": "URL",
+          "identifier": "227ba2c0-0e92-4166-8e94-753b17c74795"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/Migliore_2018_CA1/models/CA1_int_cNAC_970911C_20180120154902/CA1_int_cNAC_970911C_20180120154902.zip",
+          "label": "CA1_int_cNAC_970911C_20180120154902",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2018-migliore-et-al/Model%20Catalog#model_id.01006de7-e861-45fb-abf4-3c84e609d33b",
+          "type": "URL",
+          "identifier": "b5f1f2ad-cad7-43b9-aa5f-23a1316c78fc"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/Migliore_2018_CA1/models/CA1_int_cNAC_971114B_20180119155005/CA1_int_cNAC_971114B_20180119155005.zip",
+          "label": "CA1_int_cNAC_971114B_20180119155005",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2018-migliore-et-al/Model%20Catalog#model_id.aa0911ad-abad-4bac-8b1d-28796bfb3df0",
+          "type": "URL",
+          "identifier": "e1c3ea6e-727f-48f2-9c87-b9f259ed85d3"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/Migliore_2018_CA1/models/CA1_int_cNAC_980120A_20180119155115/CA1_int_cNAC_980120A_20180119155115.zip",
+          "label": "CA1_int_cNAC_980120A_20180119155115",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2018-migliore-et-al/Model%20Catalog#model_id.4d5963ac-6237-4375-9181-a7e27eed9b01",
+          "type": "URL",
+          "identifier": "a18711a7-aa20-43a0-9f68-058228c41451"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/Migliore_2018_CA1/models/CA1_int_cNAC_980513B_20180119155127/CA1_int_cNAC_980513B_20180119155127.zip",
+          "label": "CA1_int_cNAC_980513B_20180119155127",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2018-migliore-et-al/Model%20Catalog#model_id.90228422-0a03-4101-ad1c-a0c316ef06f7",
+          "type": "URL",
+          "identifier": "43251e0d-a141-4e1a-b776-21674f89fc21"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/Migliore_2018_CA1/models/CA1_int_cNAC_990111HP2_20180118155424/CA1_int_cNAC_990111HP2_20180118155424.zip",
+          "label": "CA1_int_cNAC_990111HP2_20180118155424",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2018-migliore-et-al/Model%20Catalog#model_id.16df7702-2dae-41dd-8c6b-727efd252c41",
+          "type": "URL",
+          "identifier": "6b66fb94-4ba0-44b7-b6fd-03cb2a12d752"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/Migliore_2018_CA1/models/CA1_int_cNAC_990611HP2_20180120155246/CA1_int_cNAC_990611HP2_20180120155246.zip",
+          "label": "CA1_int_cNAC_990611HP2_20180120155246",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2018-migliore-et-al/Model%20Catalog#model_id.c46f8421-7efc-4fb3-9b1c-fa67b055dfb6",
+          "type": "URL",
+          "identifier": "2db01996-d85b-4579-857e-968a4fa508ea"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/Migliore_2018_CA1/models/CA1_pyr_cACpyr_dend-050921AM2_axon-051208AM2_20170915145830/CA1_pyr_cACpyr_dend-050921AM2_axon-051208AM2_20170915145830.zip",
+          "label": "CA1_pyr_cACpyr_dend-050921AM2_axon-051208AM2_20170915145830",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2018-migliore-et-al/Model%20Catalog#model_id.92c8c288-4685-42e5-a6b4-917bc7bbca80",
+          "type": "URL",
+          "identifier": "445cd373-11de-422c-a605-217aae34510c"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/Migliore_2018_CA1/models/CA1_pyr_cACpyr_dend-990803_axon-051208AM2_20170909151002/CA1_pyr_cACpyr_dend-990803_axon-051208AM2_20170909151002.zip",
+          "label": "CA1_pyr_cACpyr_dend-990803_axon-051208AM2_20170909151002",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2018-migliore-et-al/Model%20Catalog#model_id.51c0cd91-1d69-46e6-844c-45b00bfaa0f8",
+          "type": "URL",
+          "identifier": "b05d2e85-3852-4d39-87ff-62a9c4a1d4ab"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/Migliore_2018_CA1/models/CA1_pyr_cACpyr_mpg141017_a1-2_idC_20170918151638/CA1_pyr_cACpyr_mpg141017_a1-2_idC_20170918151638.zip",
+          "label": "CA1_pyr_cACpyr_mpg141017_a1-2_idC_20170918151638",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2018-migliore-et-al/Model%20Catalog#model_id.69ceab71-a633-4ae1-bfa6-3c7e2227411c",
+          "type": "URL",
+          "identifier": "1e568868-e28c-4e05-b6f8-b6d9c4246d67"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/Migliore_2018_CA1/models/CA1_pyr_cACpyr_mpg141208_B_idA_20170915151855/CA1_pyr_cACpyr_mpg141208_B_idA_20170915151855.zip",
+          "label": "CA1_pyr_cACpyr_mpg141208_B_idA_20170915151855",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2018-migliore-et-al/Model%20Catalog#model_id.00f2e856-27a8-4b8d-9ec3-4e2581c546e4",
+          "type": "URL",
+          "identifier": "6b1da338-598f-4047-ae86-23ea5cc9558b"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/Migliore_2018_CA1/models/CA1_pyr_cACpyr_mpg141209_A_idA_20170912152008/CA1_pyr_cACpyr_mpg141209_A_idA_20170912152008.zip",
+          "label": "CA1_pyr_cACpyr_mpg141209_A_idA_20170912152008",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2018-migliore-et-al/Model%20Catalog#model_id.91cb3d67-c16b-41f7-99ab-0958c94816cc",
+          "type": "URL",
+          "identifier": "92316682-1f51-4b79-b5b6-545fa9add44d"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/Migliore_2018_CA1/models/CA1_pyr_cACpyr_mpg141209_B_idA_20170915152336/CA1_pyr_cACpyr_mpg141209_B_idA_20170915152336.zip",
+          "label": "CA1_pyr_cACpyr_mpg141209_B_idA_20170915152336",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2018-migliore-et-al/Model%20Catalog#model_id.f9c28959-3e98-4df7-b94c-a570d94e5807",
+          "type": "URL",
+          "identifier": "24ecbe24-0fce-4acb-adac-79f5893be6db"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/Migliore_2018_CA1/models/CA1_pyr_cACpyr_mpg141215_A_idA_20170915152442/CA1_pyr_cACpyr_mpg141215_A_idA_20170915152442.zip",
+          "label": "CA1_pyr_cACpyr_mpg141215_A_idA_20170915152442",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2018-migliore-et-al/Model%20Catalog#model_id.f4b45fdd-e314-440c-9839-da004fdc4f24",
+          "type": "URL",
+          "identifier": "8c3acfed-ba96-4b0b-8155-8f1d9c8cd999"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/Migliore_2018_CA1/models/CA1_pyr_cACpyr_mpg141216_A_idA_20171003152605/CA1_pyr_cACpyr_mpg141216_A_idA_20171003152605.zip",
+          "label": "CA1_pyr_cACpyr_mpg141216_A_idA_20171003152605",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2018-migliore-et-al/Model%20Catalog#model_id.0caddd5d-4cdb-460f-8862-7567ebc70420",
+          "type": "URL",
+          "identifier": "27a86de3-8bf1-421c-bca8-81df79af9294"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/Migliore_2018_CA1/models/CA1_pyr_cACpyr_mpg141217_A_idB_20170915111538/CA1_pyr_cACpyr_mpg141217_A_idB_20170915111538.zip",
+          "label": "CA1_pyr_cACpyr_mpg141217_A_idB_20170915111538",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2018-migliore-et-al/Model%20Catalog#model_id.3fb6752b-8438-49e5-b836-294fb8d6c432",
+          "type": "URL",
+          "identifier": "987a225f-f351-42f3-8814-c8c693db9387"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/Migliore_2018_CA1/models/CA1_pyr_cACpyr_mpg150305_A_idB_20170915111718/CA1_pyr_cACpyr_mpg150305_A_idB_20170915111718.zip",
+          "label": "CA1_pyr_cACpyr_mpg150305_A_idB_20170915111718",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2018-migliore-et-al/Model%20Catalog#model_id.394528b6-0414-48e3-a9d9-882fb321cf0e",
+          "type": "URL",
+          "identifier": "a93dcbf1-1c58-4486-88c2-2285179ba7dc"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/Migliore_2018_CA1/models/CA1_pyr_cACpyr_oh140521_B0_Rat_idA_20170915111955/CA1_pyr_cACpyr_oh140521_B0_Rat_idA_20170915111955.zip",
+          "label": "CA1_pyr_cACpyr_oh140521_B0_Rat_idA_20170915111955",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2018-migliore-et-al/Model%20Catalog#model_id.f6821bf3-b65b-4701-879d-4bf1886b9aac",
+          "type": "URL",
+          "identifier": "d446df03-d3b1-465f-ba26-22e418e9ac20"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/Migliore_2018_CA1/models/CA1_pyr_cACpyr_oh140521_B0_Rat_idC_20170915112201/CA1_pyr_cACpyr_oh140521_B0_Rat_idC_20170915112201.zip",
+          "label": "CA1_pyr_cACpyr_oh140521_B0_Rat_idC_20170915112201",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2018-migliore-et-al/Model%20Catalog#model_id.4a3278f5-f74e-47e6-b785-492e85cceaf7",
+          "type": "URL",
+          "identifier": "aa905fc4-d10a-4b50-a370-6ff63d2d6cd3"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/Migliore_2018_CA1/models/CA1_pyr_cACpyr_oh140807_A0_idA_20170915112548/CA1_pyr_cACpyr_oh140807_A0_idA_20170915112548.zip",
+          "label": "CA1_pyr_cACpyr_oh140807_A0_idA_20170915112548",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2018-migliore-et-al/Model%20Catalog#model_id.a8101bf9-6f07-46d7-8fbd-7c30785ad6c7",
+          "type": "URL",
+          "identifier": "0367bbab-e83f-4581-ad77-a0a5aa86367a"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/Migliore_2018_CA1/models/CA1_pyr_cACpyr_oh140807_A0_idB_20170915112605/CA1_pyr_cACpyr_oh140807_A0_idB_20170915112605.zip",
+          "label": "CA1_pyr_cACpyr_oh140807_A0_idB_20170915112605",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2018-migliore-et-al/Model%20Catalog#model_id.fa18a8fe-5c89-49e2-9121-7cd8d27d9c1f",
+          "type": "URL",
+          "identifier": "892029b2-1ad6-4fe0-ab36-85e7264e0218"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/Migliore_2018_CA1/models/CA1_pyr_cACpyr_oh140807_A0_idC_20170912112759/CA1_pyr_cACpyr_oh140807_A0_idC_20170912112759.zip",
+          "label": "CA1_pyr_cACpyr_oh140807_A0_idC_20170912112759",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2018-migliore-et-al/Model%20Catalog#model_id.3515ec61-5053-48ff-8d39-39c99870a2f8",
+          "type": "URL",
+          "identifier": "19da394d-6611-494d-b6f5-ebabfcbdeb2f"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/Migliore_2018_CA1/models/CA1_pyr_cACpyr_oh140807_A0_idF_20171003112912/CA1_pyr_cACpyr_oh140807_A0_idF_20171003112912.zip",
+          "label": "CA1_pyr_cACpyr_oh140807_A0_idF_20171003112912",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2018-migliore-et-al/Model%20Catalog#model_id.a1dbb6f8-769f-4f72-9e2b-09586f4cefb8",
+          "type": "URL",
+          "identifier": "4c586c8d-fe57-4687-af0a-cf3eb30d9b15"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/Migliore_2018_CA1/models/CA1_pyr_cACpyr_oh140807_A0_idG_20170915113354/CA1_pyr_cACpyr_oh140807_A0_idG_20170915113354.zip",
+          "label": "CA1_pyr_cACpyr_oh140807_A0_idG_20170915113354",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2018-migliore-et-al/Model%20Catalog#model_id.81036bdb-5c5f-4bcf-9baa-24d62f9bdf45",
+          "type": "URL",
+          "identifier": "6d35c772-3b25-437e-8a66-447ce9259dd2"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/Migliore_2018_CA1/models/CA1_pyr_cACpyr_oh140807_A0_idH_20170915113422/CA1_pyr_cACpyr_oh140807_A0_idH_20170915113422.zip",
+          "label": "CA1_pyr_cACpyr_oh140807_A0_idH_20170915113422",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2018-migliore-et-al/Model%20Catalog#model_id.6966e59a-a7ae-4b55-b8f9-c7ef290a2c5a",
+          "type": "URL",
+          "identifier": "f9b5d79a-919c-4062-9660-5155f2550c19"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/Migliore_2018_CA1/models/CA1_pyr_cACpyr_oh140807_A0_idJ_20170915113621/CA1_pyr_cACpyr_oh140807_A0_idJ_20170915113621.zip",
+          "label": "CA1_pyr_cACpyr_oh140807_A0_idJ_20170915113621",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2018-migliore-et-al/Model%20Catalog#model_id.a3a600b5-9db0-49e7-b4fb-d577aeda6474",
+          "type": "URL",
+          "identifier": "0de3cc47-8578-43d9-b492-5bd37df49594"
+        }
+      ],
+      "description": "The optimization results for each morphology are individually available in the Model Catalog at the following links:",
+      "icon": "local_play",
+      "order": 3,
+      "title": "Optimizations",
+      "type": "section_models"
+    }
+  ],
+  "resources_description": "Data and models: all data and models used in the paper are available at the links reported below, grouped into the following categories:    ",
+  "url": "https://doi.org/10.1371/journal.pcbi.1006423",
+  "version": "1",
+  "year": "2018-01-01"
+}

@@ -1,0 +1,101 @@
+{
+    "abstract": "Age-dependent accumulation of amyloid-beta provoking increasing brain amyloidopathy, triggers abnormal patterns of neuron activity and circuit synchronization in Alzheimer\u2019s disease (AD) as observed in human AD patients and AD mouse models. Recent studies on AD mouse models, mimicking this age-dependent amyloidopathy, identified alterations in CA1 neuron excitability. However, these models generally also overexpress mutated amyloid precursor protein (APP) and presenilin 1 (PS1) and there is a lack of a clear correlation of neuronal excitability alterations with progressive amyloidopathy. The active development of computational models of AD points out the need of collecting such experimental data to build a reliable disease model exhibiting AD-like disease progression. We therefore used the feature extraction tool of the Human Brain Project (HBP) Brain Simulation Platform to systematically analyze the excitability profile of CA1 pyramidal neuron in the APPPS1 mouse model. We identified specific features of neuron excitability that best correlate either with over-expression of mutated APP and PS1 or increasing ABeta-amyloidopathy. Notably, we report strong alterations in membrane time constant and action potential width and weak alterations in firing behavior. Also, using a CA1 pyramidal neuron model, we evidence amyloidopathy-dependent alterations in Ih. Finally, cluster analysis of these recordings showed that we could reliably assign a trace to its correct group, opening the door to a more refined, less variable analysis of AD-affected neurons. This inter-disciplinary analysis, bringing together experimentalists and modelers, helps to further unravel the neuronal mechanisms most affected by AD and to build a biologically-plausible computational model of the AD brain.",
+    "alias": "2021-vitale-et-al",
+    "approved_author": {
+        "affiliation": "Institute of Biophysics, National Research Council, Palermo, Italy",
+        "firstname": "Paola",
+        "lastname": "Vitale"
+    },
+    "associated_paper_doi": "https://doi.org/10.3389/fnagi.2021.668948",
+    "associated_paper_title": "Analysis of Age-Dependent Alterations in Excitability Properties of CA1 Pyramidal Neurons in an APPPS1 Model of Alzheimer's Disease",
+    "associated_paper_issue": null,
+    "associated_paper_pagination": "668948",
+    "associated_paper_volume": "13",
+    "authors": [
+        {
+            "affiliation": "Institute of Biophysics, National Research Council, Palermo, Italy",
+            "firstname": "Paola",
+            "lastname": "Vitale"
+        },
+        {
+            "affiliation": "Institute of Molecular and Cellular Pharmacology, CNRS, UMR7275, Universit\u00e9 C\u00f4te d\u2019Azur, Valbonne, France",
+            "firstname": "Ana Rita",
+            "lastname": "Salgueiro-Pereira"
+        },
+        {
+            "affiliation": "Institute of Biophysics, National Research Council, Palermo, Italy",
+            "firstname": "Carmen A.",
+            "lastname": "Lupascu"
+        },
+        {
+            "affiliation": "Biomedical Center, Ludwig-Maximilians-Universität München, Germany",
+            "firstname": "Michael",
+            "lastname": "Willem"
+        },
+        {
+            "affiliation": "Institute of Biophysics, National Research Council, Palermo, Italy",
+            "firstname": "Rosanna",
+            "lastname": "Migliore"
+        },
+        {
+            "affiliation": "Institute of Biophysics, National Research Council, Palermo, Italy",
+            "firstname": "Michele",
+            "lastname": "Migliore"
+        },
+        {
+            "affiliation": "Institute of Molecular and Cellular Pharmacology, CNRS, UMR7275, Universit\u00e9 C\u00f4te d\u2019Azur, Valbonne, France",
+            "firstname": "H\u00e9l\u00e8ne",
+            "lastname": "Marie"
+        }
+    ],
+    "citation": "Paola Vitale, Ana Rita Salgueiro-Pereira, Carmen A. Lupascu, Michael Willem, Rosanna Migliore, Michele Migliore & Hélène Marie (2021). Analysis of Age-Dependent Alterations in Excitability Properties of CA1 Pyramidal Neurons in an APPPS1 Model of Alzheimer's Disease. Frontiers in Aging Neuroscience, 13: 668948.",
+    "collab_id": "livepapers",
+    "corresponding_author": [
+        {
+            "affiliation": "Institute of Biophysics, National Research Council, Palermo, Italy",
+            "firstname": "Michele",
+            "lastname": "Migliore"
+        },
+        {
+            "affiliation": "Institute of Molecular and Cellular Pharmacology, CNRS, UMR7275, Universit\u00e9 C\u00f4te d\u2019Azur, Valbonne, France",
+            "firstname": "H\u00e9l\u00e8ne",
+            "lastname": "Marie"
+        }
+    ],
+    "created_author": [
+        {
+            "affiliation": "Institute of Biophysics, National Research Council, Palermo, Italy",
+            "firstname": "Paola",
+            "lastname": "Vitale"
+        }
+    ],
+    "doi": "https://doi.org/10.25493/D4PT-QNB",
+    "id": "3dce6a30-b879-4393-9c38-2f5906f949ad",
+    "journal": "Frontiers in Aging Neuroscience",
+    "license": "Creative Commons Attribution-NonCommercial 4.0 International",
+    "live_paper_title": "Analysis of Age-Dependent Alterations in Excitability Properties of CA1 Pyramidal Neurons in an APPPS1 Model of Alzheimer\u2019s Disease",
+    "lp_tool_version": "0.1",
+    "modified_date": "2021-08-02T10:49:02.857000+00:00",
+    "resources": [
+        {
+            "data": [],
+            "description": "<p/>Download the experimental data of the main manuscript at the following <a href=\"https://search.kg.ebrains.eu/instances/Dataset/bd5f91ff-e829-4b85-92eb-fc56991541f1\" target=\"_blank\">link</a>.</p>",
+            "icon": "timeline",
+            "order": 0,
+            "title": "Experimental Data",
+            "type": "section_custom"
+        },
+        {
+            "data": [],
+            "description": "<p>A reduced self-consistent set of files needed to reproduce&nbsp;Fig. 3d of the paper is available on\n   <a href=\"https://senselab.med.yale.edu/ModelDB/showmodel?model=266848#tabs-1\" target=\"_blank\">ModelDB</a>.\n</p>",
+            "icon": "note_add",
+            "order": 1,
+            "title": "ModelDB link",
+            "type": "section_custom"
+        }
+    ],
+    "resources_description": "Data and models: data and models used in the paper are available at the links reported below.",
+    "url": "https://www.frontiersin.org/articles/10.3389/fnagi.2021.668948/full",
+    "version": "1",
+    "year": "2021-06-23"
+}

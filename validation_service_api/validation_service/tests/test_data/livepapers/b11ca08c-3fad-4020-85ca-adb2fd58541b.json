@@ -1,0 +1,219 @@
+{
+    "lp_tool_version": "0.1",
+    "id": "b11ca08c-3fad-4020-85ca-adb2fd58541b",
+    "alias": "2023-vanderlande-et-al",
+    "version": "v1",
+    "modified_date": "2023-09-26T07:33:39.011000+00:00",
+    "authors": [
+        {
+            "firstname": "Glenn J.M.",
+            "lastname": "van der Lande",
+            "affiliation": "GIGA-Consciousness, Coma Science Group, University of Li\u00e8ge, Belgium; Centre du Cerveau, University Hospital of Li\u00e8ge, Belgium"
+        },
+        {
+            "firstname": "Arnau",
+            "lastname": "Manasanch",
+            "affiliation": "Institut d'Investigacions Biom\u00e8diques August Pi i Sunyer (IDIBAPS), Barcelona, Spain"
+        },
+        {
+            "firstname": "Diana",
+            "lastname": "Casas-Torremocha",
+            "affiliation": "Institut d'Investigacions Biom\u00e8diques August Pi i Sunyer (IDIBAPS), Barcelona, Spain"
+        },
+        {
+            "firstname": "Leonardo",
+            "lastname": "Dalla Porta",
+            "affiliation": "Institut d'Investigacions Biom\u00e8diques August Pi i Sunyer (IDIBAPS), Barcelona, Spain"
+        },
+        {
+            "firstname": "Olivia",
+            "lastname": "Gosseries",
+            "affiliation": "GIGA-Consciousness, Coma Science Group, University of Li\u00e8ge, Belgium; Centre du Cerveau, University Hospital of Li\u00e8ge, Belgium"
+        },
+        {
+            "firstname": "Naji",
+            "lastname": "Alnagger",
+            "affiliation": "GIGA-Consciousness, Coma Science Group, University of Li\u00e8ge, Belgium; Centre du Cerveau, University Hospital of Li\u00e8ge, Belgium"
+        },
+        {
+            "firstname": "Alice",
+            "lastname": "Barra",
+            "affiliation": "GIGA-Consciousness, Coma Science Group, University of Li\u00e8ge, Belgium; Centre du Cerveau, University Hospital of Li\u00e8ge, Belgium"
+        },
+        {
+            "firstname": "Jorge F.",
+            "lastname": "Mej\u00edas",
+            "affiliation": "Cognitive and Systems Neuroscience Group, Swammerdam Institute for Life Sciences, University of Amsterdam, the Netherlands"
+        },
+        {
+            "firstname": "Rajanikant",
+            "lastname": "Panda",
+            "affiliation": "GIGA-Consciousness, Coma Science Group, University of Li\u00e8ge, Belgium; Centre du Cerveau, University Hospital of Li\u00e8ge, Belgium"
+        },
+        {
+            "firstname": "Fabio",
+            "lastname": "Riefolo",
+            "affiliation": "Biomedical Institute for Bioengineering of Catalonia (IBEC), Barcelona Institute of Science and Technology, Spain; Institute Biomedical Research Networking Center in Bioengineering, Biomaterials, and Nanomedicine (CIBER-BBN), Madrid, Spain; Teamit Institute, Barcelona, Spain"
+        },
+        {
+            "firstname": "Aurore",
+            "lastname": "Thibaut",
+            "affiliation": "GIGA-Consciousness, Coma Science Group, University of Li\u00e8ge, Belgium; Centre du Cerveau, University Hospital of Li\u00e8ge, Belgium"
+        },
+        {
+            "firstname": "Vincent",
+            "lastname": "Bonhomme",
+            "affiliation": "Department of Anesthesia and Intensive Care Medicine, Li\u00e8ge University Hospital, Belgium; Anesthesia and Perioperative Neuroscience Laboratory, GIGA-Consciousness Thematic Unit, University of Li\u00e8ge, Belgium"
+        },
+        {
+            "firstname": "Bertrand",
+            "lastname": "Thirion",
+            "affiliation": "Inria Saclay - \u00cele-de-France Research Centre"
+        },
+        {
+            "firstname": "Francisco",
+            "lastname": "Clasca",
+            "affiliation": "Department of Anatomy and Neuroscience, School of Medicine, Universidad Aut\u00f3noma de Madrid, Spain"
+        },
+        {
+            "firstname": "Pau",
+            "lastname": "Gorostiza",
+            "affiliation": "Biomedical Institute for Bioengineering of Catalonia (IBEC), Barcelona Institute of Science and Technology, Spain; Institute Biomedical Research Networking Center in Bioengineering, Biomaterials, and Nanomedicine (CIBER-BBN), Madrid, Spain; Catalan Institution for Research and Advanced Studies, Barcelona, Spain"
+        },
+        {
+            "firstname": "Maria Victoria",
+            "lastname": "S\u00e1nchez-Vives",
+            "affiliation": "Institut d'Investigacions Biom\u00e8diques August Pi i Sunyer (IDIBAPS), Barcelona, Spain; Catalan Institution for Research and Advanced Studies, Barcelona, Spain"
+        },
+        {
+            "firstname": "Gustavo",
+            "lastname": "Deco",
+            "affiliation": "Catalan Institution for Research and Advanced Studies, Barcelona, Spain; Computational Neuroscience Group, Center for Brain and Cognition, Universitat Pompeu Fabra, Barcelona, Spain"
+        },
+        {
+            "firstname": "Steven",
+            "lastname": "Laureys",
+            "affiliation": "GIGA-Consciousness, Coma Science Group, University of Li\u00e8ge, Belgium; Centre du Cerveau, University Hospital of Li\u00e8ge, Belgium; Joint International Research Unit on Consciousness, CERVO Brain Research Centre, U Laval, Canada; International Consciousness Science Institute, Hangzhou Normal University, Hangzhou, China"
+        },
+        {
+            "firstname": "Gorka",
+            "lastname": "Zamora-L\u00f3pez",
+            "affiliation": "Computational Neuroscience Group, Center for Brain and Cognition, Universitat Pompeu Fabra, Barcelona, Spain"
+        },
+        {
+            "firstname": "Jitka",
+            "lastname": "Annen",
+            "affiliation": "GIGA-Consciousness, Coma Science Group, University of Li\u00e8ge, Belgium; Centre du Cerveau, University Hospital of Li\u00e8ge, Belgium; Joint International Research Unit on Consciousness, CERVO Brain Research Centre, U Laval, Canada; International Consciousness Science Institute, Hangzhou Normal University, Hangzhou, China"
+        }
+    ],
+    "corresponding_author": [
+        {
+            "firstname": "Glenn J.M.",
+            "lastname": "van der Lande",
+            "affiliation": "GIGA-Consciousness, Coma Science Group, University of Li\u00e8ge, Belgium; Centre du Cerveau, University Hospital of Li\u00e8ge, Belgium"
+        }
+    ],
+    "created_author": [
+        {
+            "firstname": "Arnau",
+            "lastname": "Manasanch",
+            "affiliation": "Institut d'Investigacions Biom\u00e8diques August Pi i Sunyer (IDIBAPS), Barcelona, Spain"
+        }
+    ],
+    "approved_author": {
+        "firstname": "Arnau",
+        "lastname": "Manasanch",
+        "affiliation": "Institut d'Investigacions Biom\u00e8diques August Pi i Sunyer (IDIBAPS), Barcelona, Spain"
+    },
+    "year": "2023-01-01",
+    "live_paper_title": "Live Paper: Identification and neuromodulation of brain states to promote recovery of consciousness",
+    "associated_paper_title": "Identification and neuromodulation of brain states to promote recovery of consciousness",
+    "journal": "Zenodo",
+    "url": "https://zenodo.org/record/8377867",
+    "citation": "Glenn J.M. van der Lande, Arnau Manasanch, Diana Casas-Torremocha, Leonardo Dalla Porta, Olivia Gosseries, Naji Alnagger, Alice Barra, Jorge F. Mej\u00edas, Rajanikant Panda, Fabio Riefolo, Aurore Thibaut, Vincent Bonhomme, Bertrand Thirion, Francisco Clasca, Pau Gorostiza, Maria Victoria S\u00e1nchez-Vives, Gustavo Deco, Steven Laureys, Gorka Zamora-L\u00f3pez & Jitka Annen (2023). Identification and neuromodulation of brain states to promote recovery of consciousness. Zenodo, : .",
+    "doi": null,
+    "associated_paper_doi": "https://doi.org/10.5281/zenodo.8377866",
+    "associated_paper_volume": "",
+    "associated_paper_issue": null,
+    "associated_paper_pagination": null,
+    "abstract": "Experimental and clinical studies of consciousness identify brain states (i.e., transient, relevant features of the brain associated with the state of consciousness) in a non-systematic manner and largely independent from the research into the induction of state changes. In this narrative review with a focus on patients with a disorder of consciousness (DoC), we synthesize advances on the identification of brain states associated with consciousness in animal models and physiological (sleep), pharmacological (anesthesia) and pathological (DoC) states of altered consciousness in human. We show that in reduced consciousness the frequencies in which the brain operates are slowed down and that the pattern of functional communication in the brain is sparser, less efficient, and less complex. The results also\nhighlight damaged resting state networks, in particular the default mode network, decreased connectivity in long-range connections and in the thalamocortical loops. Next, we show that therapeutic approaches to treat DoC, through pharmacology (e.g., amantadine, zolpidem), and (non-)invasive brain stimulation (e.g., transcranial current stimulation, deep brain stimulation) have shown some effectiveness to promote consciousness recovery. It seems that these deteriorated features of conscious\nbrain states may improve in response to these neuromodulation approaches, yet, targeting often remains non-specific and does not always lead to (behavioral) improvements. Furthermore, in silico model-based approaches allow the development of personalized assessment of the effect of treatment on brain-wide dynamics. Although still in infancy, the fields of brain state identification and neuromodulation of brain states in relation to consciousness are showing fascinating developments that, when united, might propel the development of new and better targeted techniques for DoC. For example, brain states could be identified in a predictive setting, and the theoretical and empirical testing (i.e., in animals, under anesthesia and patients with a DoC) of neuromodulation techniques to promote consciousness could be investigated. This review further helps to identify where challenges and opportunities lay for the maturation of brain state research in the context of states of consciousness. Finally, it aids in recognizing possibilities and obstacles for the clinical translation of these diagnostic techniques and neuromodulation treatment options across both the multi-modal and multi-species approaches outlined throughout the review. This paper presents interactive figures, supported by the Live Paper initiative of the Human Brain Project, enabling the interaction with data and figures illustrating the concepts in the paper through EBRAINS (go to https://wiki.ebrains.eu/bin/view/Collabs/live-paper-states-altered-consciousness and get started with an EBRAINS account).",
+    "license": "GNU General Public License v3.0 or later",
+    "resources_description": "The resources from this paper are linked below. You will find the associated datasets and models as well as a Live Figure that is executable in EBRAINS (with an EBRAINS account)",
+    "collab_id": "livepapers",
+    "resources": [
+        {
+            "order": 0,
+            "type": "section_generic",
+            "title": "Datasets",
+            "icon": "",
+            "description": null,
+            "data": [
+                {
+                    "url": "https://search.kg.ebrains.eu/instances/68a61eab-7ba9-47cf-be78-b9addd64bb2f",
+                    "label": "FDG-PET/CT data of healthy volunteers and patients with disorders of consciousness",
+                    "view_url": "https://search.kg.ebrains.eu/instances/68a61eab-7ba9-47cf-be78-b9addd64bb2f",
+                    "type": "URL",
+                    "identifier": "ce5af091-fa30-5cb2-b7ec-f9657e922963"
+                },
+                {
+                    "url": "https://search.kg.ebrains.eu/instances/8ddf749f-fb1d-4d16-acc3-fbde91b90e24",
+                    "label": "Individual Brain Charting",
+                    "view_url": "https://search.kg.ebrains.eu/instances/8ddf749f-fb1d-4d16-acc3-fbde91b90e24",
+                    "type": "URL",
+                    "identifier": "75aaa80b-b3e0-50fa-8a7d-63ac7357eff1"
+                },
+                {
+                    "url": "https://search.kg.ebrains.eu/instances/b5998ae0-7237-4626-8ca6-e9fe2e8389c9",
+                    "label": "Optimisation of photostimulation targeting muscarinic receptors",
+                    "view_url": "https://search.kg.ebrains.eu/instances/b5998ae0-7237-4626-8ca6-e9fe2e8389c9",
+                    "type": "URL",
+                    "identifier": "4eab276d-df7a-5a22-949a-611b1aeee608"
+                },
+                {
+                    "url": "https://search.kg.ebrains.eu/instances/ab2d4db0-4c97-442c-82f9-a3dade301e9f",
+                    "label": "TMS-EEG perturbation in patients with disorders of consciousness (v1)",
+                    "view_url": "https://search.kg.ebrains.eu/instances/ab2d4db0-4c97-442c-82f9-a3dade301e9f",
+                    "type": "URL",
+                    "identifier": "1eff8adb-6c1d-545b-b775-0902fd3afea1"
+                }
+            ]
+        },
+        {
+            "order": 1,
+            "type": "section_generic",
+            "title": "Live Figures",
+            "icon": "format_list_bulleted",
+            "description": "The following Live Figures can be executed in the links below in the JupyterLab instance hosted in EBRAINS. For that, you should have an EBRAINS account.",
+            "data": [
+                {
+                    "url": "https://data.kg.ebrains.eu/zip?container=https://data-proxy.ebrains.eu/api/v1/buckets/live-papers?prefix=2023_vanderlande_et_al/LiveFigure_tDCS/",
+                    "label": "Changes in TMS-triggered slow wave activity in DoC after tDCS treatment",
+                    "view_url": "https://lab.ch.ebrains.eu/hub/user-redirect/lab/tree/shared/Live%20Paper%3A%20Identification%20and%20neuromodulation%20of%20brain%20states%20to%20promote%20recovery%20of%20consciousness/LiveFigure_tDCS/tDCS.ipynb",
+                    "type": "URL",
+                    "identifier": "c9fe5287-2738-455b-9c44-633796966b54"
+                },
+                {
+                    "url": "https://data.kg.ebrains.eu/zip?container=https://data-proxy.ebrains.eu/api/v1/buckets/live-papers?prefix=2023_vanderlande_et_al/LiveFigure_Photopharmacology/",
+                    "label": "Control of brain state transitions with a photoswitchable muscarinic agonist",
+                    "view_url": "https://lab.ch.ebrains.eu/hub/user-redirect/lab/tree/shared/Live%20Paper%3A%20Identification%20and%20neuromodulation%20of%20brain%20states%20to%20promote%20recovery%20of%20consciousness/live_figure_3_photopharma/live_figure_3_photopharma.ipynb",
+                    "type": "URL",
+                    "identifier": "02dff6d3-4c23-4df9-97f1-2cf35997103d"
+                },
+                {
+                    "url": "https://data.kg.ebrains.eu/zip?container=https://data-proxy.ebrains.eu/api/v1/buckets/live-papers?prefix=2023_vanderlande_et_al/LiveFigure_ArousalAwareness/",
+                    "label": "Disorders of Consciousness and Examples of Brain States",
+                    "view_url": "https://lab.ch.ebrains.eu/hub/user-redirect/lab/tree/shared/Live%20Paper%3A%20Identification%20and%20neuromodulation%20of%20brain%20states%20to%20promote%20recovery%20of%20consciousness/LiveFigure_ArousalAwareness/ArousalAwareness.ipynb",
+                    "type": "URL",
+                    "identifier": "cace458e-b32b-4946-ae27-4b87905cbafc"
+                },
+                {
+                    "url": "https://data.kg.ebrains.eu/zip?container=https://data-proxy.ebrains.eu/api/v1/buckets/live-papers?prefix=2023_vanderlande_et_al/LiveFigure_Dynamics/",
+                    "label": "Functional connectivity patterns for dynamic resting-state fMRI analyses in Disorders of Consciousness",
+                    "view_url": "https://lab.ch.ebrains.eu/hub/user-redirect/lab/tree/shared/Live%20Paper%3A%20Identification%20and%20neuromodulation%20of%20brain%20states%20to%20promote%20recovery%20of%20consciousness/LiveFigure_Dynamics/Dynamics.ipynb",
+                    "type": "URL",
+                    "identifier": "44aeab66-d2dd-467d-8b5d-46c505a1698e"
+                }
+            ]
+        }
+    ]
+}

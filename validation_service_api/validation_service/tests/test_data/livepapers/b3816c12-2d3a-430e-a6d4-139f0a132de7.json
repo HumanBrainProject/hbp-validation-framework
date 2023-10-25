@@ -1,0 +1,136 @@
+{
+    "abstract": "In the last decade, optical imaging methods have significantly improved our understanding of the information processing principles in the brain. Although many promising tools have been designed, sensors of membrane potential are lagging behind the rest. Semiconductor nanoparticles are an attractive alternative to classical voltage indicators, such as voltage-sensitive dyes and proteins. Such nanoparticles exhibit high sensitivity to external electric fields via the quantum-confined Stark effect. Here we report the development of lipid-coated semiconductor voltage-sensitive nanorods (vsNRs) that self-insert into the neuronal membrane. We describe a workflow to detect and process the photoluminescent signal of vsNRs after wide-field time-lapse recordings. We also present data indicating that vsNRs are feasible for sensing membrane potential in neurons at a single-particle level. This shows the potential of vsNRs for detection of neuronal activity with unprecedentedly high spatial and temporal resolution.",
+    "alias": "2019-ludwig-et-al",
+    "approved_author": {
+        "affiliation": "L'Ecole Normale Sup\u00e9rieure, Institute of Biology (IBENS), Paris Sciences et Lettres (PSL), CNRS UMR 8197, Inserm 1024, Paris, France",
+        "firstname": "Antoine",
+        "lastname": "Triller"
+    },
+    "associated_paper_doi": "https://doi.org/10.1101/838342",
+    "associated_paper_title": "Feasibility analysis of semiconductor voltage nanosensors for neuronal membrane potential sensing",
+    "associated_paper_volume": null,
+    "associated_paper_issue": null,
+    "associated_paper_pagination": "838342",
+    "authors": [
+        {
+            "affiliation": "L'Ecole Normale Sup\u00e9rieure, Institute of Biology (IBENS), Paris Sciences et Lettres (PSL), CNRS UMR 8197, Inserm 1024, Paris, France; Neuroscience Center, Helsinki Institute of Life Science, University of Helsinki, Finland",
+            "firstname": "Anastasia",
+            "lastname": "Ludwig"
+        },
+        {
+            "affiliation": "L'Ecole Normale Sup\u00e9rieure, Institute of Biology (IBENS), Paris Sciences et Lettres (PSL), CNRS UMR 8197, Inserm 1024, Paris, France",
+            "firstname": "Pablo",
+            "lastname": "Serna"
+        },
+        {
+            "affiliation": "Department of Physics, Institute for Nanotechnology and Advanced Materials, Bar-Ilan University, Ramat-Gan, Israel",
+            "firstname": "Lion",
+            "lastname": "Morgenstein"
+        },
+        {
+            "affiliation": "Department of Physics of Complex Systems, Weizmann Institute of Science, Rehovot, Israel",
+            "firstname": "Gaoling",
+            "lastname": "Yang"
+        },
+        {
+            "affiliation": "Department of Physics of Complex Systems, Weizmann Institute of Science, Rehovot, Israel",
+            "firstname": "Omri",
+            "lastname": "Bar-Elli"
+        },
+        {
+            "affiliation": "Departments of Chemistry, Molecular & Cell Biology, and Helen Wills Neuroscience Institute, University of California, Berkeley, CA, USA",
+            "firstname": "Gloria",
+            "lastname": "Ortiz"
+        },
+        {
+            "affiliation": "Departments of Chemistry, Molecular & Cell Biology, and Helen Wills Neuroscience Institute, University of California, Berkeley, CA, USA",
+            "firstname": "Evan",
+            "lastname": "Miller"
+        },
+        {
+            "affiliation": "Department of Physics of Complex Systems, Weizmann Institute of Science, Rehovot, Israel",
+            "firstname": "Dan",
+            "lastname": "Oron"
+        },
+        {
+            "affiliation": "Department of Physics, Institute for Nanotechnology and Advanced Materials, Bar-Ilan University, Ramat-Gan, Israel",
+            "firstname": "Asaf",
+            "lastname": "Grupi"
+        },
+        {
+            "affiliation": "Department of Chemistry and Biochemistry, Department of Physiology, and California NanoSystems Institute, University of California Los Angeles, Los Angeles, CA, USA; Department of Physics, Institute for Nanotechnology and Advanced Materials, Bar-Ilan University, Ramat-Gan, Israel",
+            "firstname": "Shimon",
+            "lastname": "Weiss"
+        },
+        {
+            "affiliation": "L'Ecole Normale Sup\u00e9rieure, Institute of Biology (IBENS), Paris Sciences et Lettres (PSL), CNRS UMR 8197, Inserm 1024, Paris, France",
+            "firstname": "Antoine",
+            "lastname": "Triller"
+        }
+    ],
+    "citation": "Anastasia Ludwig, Pablo Serna, Lion Morgenstein, Gaoling Yang, Omri Bar-Elli, Gloria Ortiz, Evan Miller, Dan Oron, Asaf Grupi, Shimon Weiss & Antoine Triller (2019). Feasibility analysis of semiconductor voltage nanosensors for neuronal membrane potential sensing. bioRxiv, 838342.",
+    "collab_id": "livepapers",
+    "corresponding_author": [
+        {
+            "affiliation": "L'Ecole Normale Sup\u00e9rieure, Institute of Biology (IBENS), Paris Sciences et Lettres (PSL), CNRS UMR 8197, Inserm 1024, Paris, France; Neuroscience Center, Helsinki Institute of Life Science, University of Helsinki, Finland",
+            "firstname": "Anastasia",
+            "lastname": "Ludwig"
+        },
+        {
+            "affiliation": "L'Ecole Normale Sup\u00e9rieure, Institute of Biology (IBENS), Paris Sciences et Lettres (PSL), CNRS UMR 8197, Inserm 1024, Paris, France",
+            "firstname": "Antoine",
+            "lastname": "Triller"
+        }
+    ],
+    "created_author": [
+        {
+            "affiliation": "L'Ecole Normale Sup\u00e9rieure, Institute of Biology (IBENS), Paris Sciences et Lettres (PSL), CNRS UMR 8197, Inserm 1024, Paris, France",
+            "firstname": "Antoine",
+            "lastname": "Triller"
+        }
+    ],
+    "doi": "https://doi.org/10.25493/2AAE-GAX",
+    "id": "b3816c12-2d3a-430e-a6d4-139f0a132de7",
+    "journal": "bioRxiv",
+    "license": "Creative Commons Attribution 4.0 International",
+    "live_paper_title": "Feasibility analysis of semiconductor voltage nanosensors for neuronal membrane potential sensing",
+    "lp_tool_version": "0.1",
+    "modified_date": "2021-08-02T10:45:09.330000+00:00",
+    "resources": [
+        {
+            "data": [
+                {
+                    "identifier": "2add1101-98d8-45dd-8e53-b204c738eb47",
+                    "label": "Analysis signal of vsNRs",
+                    "type": "URL",
+                    "url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2019-ludwig-et-al/Jupyter%20Notebook",
+                    "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2019-ludwig-et-al/Jupyter%20Notebook"
+                },
+                {
+                    "identifier": "e2616e8b-22bd-491c-ac76-cc40058bb95e",
+                    "label": "EBRAINS Collab",
+                    "type": "URL",
+                    "url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2019-ludwig-et-al/",
+                    "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2019-ludwig-et-al/"
+                }
+            ],
+            "description": "The following jupyter notebooks guide the user through the analysis protocols outlined in the manuscript.",
+            "icon": "note_add",
+            "order": 0,
+            "title": "Use Cases",
+            "type": "section_generic"
+        },
+        {
+            "data": [],
+            "description": "<p>The source code is available on github at the following <a href=\"https://github.com/pabloserna/Nanorods\" target=\"_blank\">url</a>.\n   Please refer to the README file for more details.\n</p>",
+            "icon": "note_add",
+            "order": 1,
+            "title": "Source Code",
+            "type": "section_custom"
+        }
+    ],
+    "resources_description": "Here you can find the resources referred to in the manuscript.",
+    "url": "https://www.biorxiv.org/content/10.1101/838342v1",
+    "version": "1",
+    "year": "2019-05-26"
+}

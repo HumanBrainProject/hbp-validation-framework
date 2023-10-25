@@ -1,0 +1,545 @@
+{
+  "abstract": "Anatomically and biophysically detailed data-driven neuronal models have become widely used tools for understanding and predicting the behavior and function of neurons. Due to the increasing availability of experimental data from anatomical and electrophysiological measurements as well as the growing number of computational and software tools that enable accurate neuronal modeling, there are now a large number of different models of many cell types available in the literature. These models were usually built to capture a few important or interesting properties of the given neuron type, and it is often unknown how they would behave outside their original context. In addition, there is currently no simple way of quantitatively comparing different models regarding how closely they match specific experimental observations. This limits the evaluation, re-use and further development of the existing models. Further, the development of new models could also be significantly facilitated by the ability to rapidly test the behavior of model candidates against the relevant collection of experimental data. We address these problems for the representative case of the CA1 pyramidal cell of the rat hippocampus by developing an open-source Python test suite, which makes it possible to automatically and systematically test multiple properties of models by making quantitative comparisons between the models and electrophysiological data. The tests cover various aspects of somatic behavior, and signal propagation and integration in apical dendrites. To demonstrate the utility of our approach, we applied our tests to compare the behavior of several different rat hippocampal CA1 pyramidal cell models from the ModelDB database against electrophysiological data available in the literature, and evaluated how well these models match experimental observations in different domains. We also show how we employed the test suite to aid the development of models within the European Human Brain Project (HBP), and describe the integration of the tests into the validation framework developed in the HBP, with the aim of facilitating more reproducible and transparent model building in the neuroscience community.",
+  "alias": "2021-saray-et-al",
+  "approved_author": {
+    "affiliation": "Paris-Saclay Institute of Neuroscience, Centre National de la Recherche Scientifique, Universit\u00e9 Paris-Saclay, Saclay, France",
+    "firstname": "Shailesh",
+    "lastname": "Appukuttan"
+  },
+  "associated_paper_doi": "https://doi.org/10.1371/journal.pcbi.1008114",
+  "associated_paper_title": "HippoUnit: A software tool for the automated testing and systematic comparison of detailed models of hippocampal neurons based on electrophysiological data",
+  "authors": [
+    {
+      "affiliation": "Institute of Experimental Medicine, Budapest, Hungary; Faculty of Information Technology and Bionics, P\u00e1zm\u00e1ny P\u00e9ter Catholic University, Budapest, Hungary",
+      "firstname": "S\u00e1ra",
+      "lastname": "S\u00e1ray"
+    },
+    {
+      "affiliation": "Blue Brain Project, \u00c9cole Polytechnique F\u00e9d\u00e9rale de Lausanne, Geneva, Switzerland",
+      "firstname": "Christian A.",
+      "lastname": "R\u00f6ssert"
+    },
+    {
+      "affiliation": "Paris-Saclay Institute of Neuroscience, Centre National de la Recherche Scientifique, Universit\u00e9 Paris-Saclay, Saclay, France",
+      "firstname": "Shailesh",
+      "lastname": "Appukuttan"
+    },
+    {
+      "affiliation": "Institute of Biophysics, National Research Council, Palermo, Italy",
+      "firstname": "Rosanna",
+      "lastname": "Migliore"
+    },
+    {
+      "affiliation": "Institute of Biophysics, National Research Council, Palermo, Italy",
+      "firstname": "Paola",
+      "lastname": "Vitale"
+    },
+    {
+      "affiliation": "Institute of Biophysics, National Research Council, Palermo, Italy",
+      "firstname": "Carmen A.",
+      "lastname": "Lupascu"
+    },
+    {
+      "affiliation": "Institute of Biophysics, National Research Council, Palermo, Italy",
+      "firstname": "Luca L.",
+      "lastname": "Bologna"
+    },
+    {
+      "affiliation": "Blue Brain Project, \u00c9cole Polytechnique F\u00e9d\u00e9rale de Lausanne, Geneva, Switzerland",
+      "firstname": "Werner A.H.",
+      "lastname": "Van Geit"
+    },
+    {
+      "affiliation": "Blue Brain Project, \u00c9cole Polytechnique F\u00e9d\u00e9rale de Lausanne, Geneva, Switzerland",
+      "firstname": "Armando",
+      "lastname": "Romani"
+    },
+    {
+      "affiliation": "Paris-Saclay Institute of Neuroscience, Centre National de la Recherche Scientifique, Universit\u00e9 Paris-Saclay, Saclay, France",
+      "firstname": "Andrew P.",
+      "lastname": "Davison"
+    },
+    {
+      "affiliation": "Blue Brain Project, \u00c9cole Polytechnique F\u00e9d\u00e9rale de Lausanne, Geneva, Switzerland; Department of Neurosciences, Faculty of Medicine, University of Montreal, Montreal, Canada; CHU Sainte-Justine Research Center, Montreal, Canada; Quebec Artificial Intelligence Institute (Mila), Montreal, Canada",
+      "firstname": "Eilif B.",
+      "lastname": "Muller"
+    },
+    {
+      "affiliation": "Institute of Experimental Medicine, Budapest, Hungary; Faculty of Information Technology and Bionics, P\u00e1zm\u00e1ny P\u00e9ter Catholic University, Budapest, Hungary",
+      "firstname": "Tam\u00e1s F.",
+      "lastname": "Freund"
+    },
+    {
+      "affiliation": "Institute of Experimental Medicine, Budapest, Hungary; Faculty of Information Technology and Bionics, P\u00e1zm\u00e1ny P\u00e9ter Catholic University, Budapest, Hungary",
+      "firstname": "Szabolcs",
+      "lastname": "K\u00e1li"
+    }
+  ],
+  "citation": "Sára Sáray, Christian A. Rössert, Shailesh Appukuttan, Rosanna Migliore, Paola Vitale, Carmen A. Lupascu, Luca L. Bologna, Werner A.H. Van Geit, Armando Romani, Andrew P. Davison, Eilif B. Muller, Tamás F. Freund & Szabolcs Káli (2021). HippoUnit: A software tool for the automated testing and systematic comparison of detailed models of hippocampal neurons based on electrophysiological data. PLOS Computational Biology, 17: e1008114.",
+  "collab_id": "livepapers",
+  "corresponding_author": [
+    {
+      "affiliation": "Institute of Experimental Medicine, Budapest, Hungary; Faculty of Information Technology and Bionics, P\u00e1zm\u00e1ny P\u00e9ter Catholic University, Budapest, Hungary",
+      "firstname": "Szabolcs",
+      "lastname": "K\u00e1li"
+    }
+  ],
+  "created_author": [
+    {
+      "affiliation": "Paris-Saclay Institute of Neuroscience, Centre National de la Recherche Scientifique, Universit\u00e9 Paris-Saclay, Saclay, France",
+      "firstname": "Shailesh",
+      "lastname": "Appukuttan"
+    }
+  ],
+  "doi": "https://doi.org/10.25493/YSY5-YR5",
+  "id": "bee280cc-8184-4380-a2cb-a74b131de611",
+  "associated_paper_volume": "17",
+  "associated_paper_issue": null,
+  "associated_paper_pagination": "e1008114",
+  "journal": "PLOS Computational Biology",
+  "license": "Creative Commons Attribution-NonCommercial 4.0 International",
+  "live_paper_title": "HippoUnit: A software tool for the automated testing and systematic comparison of detailed models of hippocampal neurons based on electrophysiological data",
+  "lp_tool_version": "0.1",
+  "modified_date": "2021-10-13T16:35:38.436000+00:00",
+  "resources": [
+    {
+      "data": [
+        {
+          "identifier": "f7111c85-40c0-4abd-bf9b-d6ad06efd112",
+          "label": " CA1_Bianchi_2012",
+          "type": "URL",
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2021_saray_et_al/models/CA1_Bianchi_2012.zip",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2021-saray-et-al/Model%20Catalog#model_id.528ec0e6-2f21-413c-9abd-d131f7150882"
+        },
+        {
+          "identifier": "709a0219-9022-4140-8508-761ddaf9ae50",
+          "label": "CA1_Gomez_2011",
+          "type": "URL",
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2021_saray_et_al/models/CA1_Gomez_2011.zip",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2021-saray-et-al/Model%20Catalog#model_id.fea885ca-03a9-4352-a360-6908a79b1415"
+        },
+        {
+          "identifier": "d2485bb5-3bf6-474b-a33b-464705b2007a",
+          "label": "Golding_et_al_2001",
+          "type": "URL",
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2021_saray_et_al/models/Golding_et_al_2001_dichotomy.zip",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2021-saray-et-al/Model%20Catalog#model_id.3772094a-8e2d-4075-8f05-9be62c8d8a5d"
+        },
+        {
+          "identifier": "e8b30fc6-d661-477e-b798-68f14e5cc044",
+          "label": "Katz_et_al_2009",
+          "type": "URL",
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2021_saray_et_al/models/Katz_et_al_2009_2stageintegration_code.zip",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2021-saray-et-al/Model%20Catalog#model_id.b2d853aa-ebef-40a5-8af9-aefe0b566c45"
+        },
+        {
+          "identifier": "89919a28-f6a2-4111-a9d9-54a6b02f1127",
+          "label": "Migliore_et_al_2011",
+          "type": "URL",
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2021_saray_et_al/models/Migliore_et_al_2011_Schizophr.zip",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2021-saray-et-al/Model%20Catalog#model_id.3ff4367a-ea8f-402c-b75f-5bdeed876940"
+        },
+        {
+          "identifier": "d7ce3e34-6cb0-430b-9344-bb51f1df4325",
+          "label": "Poirazi_et_al_2003",
+          "type": "URL",
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2021_saray_et_al/models/Poirazi_et_al_2003_CA1_multi.zip",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2021-saray-et-al/Model%20Catalog#model_id.4c5d8992-f2d4-43ad-bb27-23b98836e59b"
+        }
+      ],
+      "description": null,
+      "icon": "local_activity",
+      "order": 0,
+      "title": "Models from literature",
+      "type": "section_models"
+    },
+    {
+      "data": [
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/hippocampus_optimization/rat/CA1/v4.0.5/optimizations_Python3/CA1_int_bAC_011017HP2_20190329115307/CA1_int_bAC_011017HP2_20190329115307.zip",
+          "label": "CA1_int_bAC_011017HP2_20190329115307",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2021-saray-et-al/Model%20Catalog#model_id.df83ff36-5182-497a-b94a-ff0f11fb32a8",
+          "type": "URL",
+          "identifier": "0c8d0be7-208a-4851-a908-2f97b07ba649"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/hippocampus_optimization/rat/CA1/v4.0.5/optimizations_Python3/CA1_int_bAC_011023HP2_20190329115556/CA1_int_bAC_011023HP2_20190329115556.zip",
+          "label": "CA1_int_bAC_011023HP2_20190329115556",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2021-saray-et-al/Model%20Catalog#model_id.933b6b54-d458-40ce-bfb9-0d8236f9e837",
+          "type": "URL",
+          "identifier": "16f81889-5867-45d3-8d95-3eb2ff7a8b1d"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/hippocampus_optimization/rat/CA1/v4.0.5/optimizations_Python3/CA1_int_bAC_011127HP1_20190329115610/CA1_int_bAC_011127HP1_20190329115610.zip",
+          "label": "CA1_int_bAC_011127HP1_20190329115610",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2021-saray-et-al/Model%20Catalog#model_id.a8e7bfa3-d873-4e47-b70c-e529fc70eff5",
+          "type": "URL",
+          "identifier": "f26fe53a-c9e6-47d6-837a-dd183d2abf62"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/hippocampus_optimization/rat/CA1/v4.0.5/optimizations_Python3/CA1_int_bAC_060314AM2_20190329115909/CA1_int_bAC_060314AM2_20190329115909.zip",
+          "label": "CA1_int_bAC_060314AM2_20190329115909",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2021-saray-et-al/Model%20Catalog#model_id.2073be15-1354-493c-9d00-0097d4f19432",
+          "type": "URL",
+          "identifier": "6dbe877d-9c44-43de-9935-284bd4c6924c"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/hippocampus_optimization/rat/CA1/v4.0.5/optimizations_Python3/CA1_int_bAC_971114B_20190329120113/CA1_int_bAC_971114B_20190329120113.zip",
+          "label": "CA1_int_bAC_971114B_20190329120113",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2021-saray-et-al/Model%20Catalog#model_id.73460bbd-e902-476a-943e-f09c151a3b81",
+          "type": "URL",
+          "identifier": "f8678139-124d-4845-a037-73cdc7192f00"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/hippocampus_optimization/rat/CA1/v4.0.5/optimizations_Python3/CA1_int_bAC_980120A_20190329120234/CA1_int_bAC_980120A_20190329120234.zip",
+          "label": "CA1_int_bAC_980120A_20190329120234",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2021-saray-et-al/Model%20Catalog#model_id.142fbe6f-b007-4049-a59e-433e09df8280",
+          "type": "URL",
+          "identifier": "01ac47d9-6892-410f-b03c-79a24a4c8ecb"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/hippocampus_optimization/rat/CA1/v4.0.5/optimizations_Python3/CA1_int_cAC_010710HP2_20190328145252/CA1_int_cAC_010710HP2_20190328145252.zip",
+          "label": "CA1_int_cAC_010710HP2_20190328145252",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2021-saray-et-al/Model%20Catalog#model_id.a73f94cf-0ccb-42f8-94a2-ad95ecb5cba4",
+          "type": "URL",
+          "identifier": "0e334c0c-fbb8-459c-8e33-ad5dc2536f94"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/hippocampus_optimization/rat/CA1/v4.0.5/optimizations_Python3/CA1_int_cAC_011017HP2_20190328145524/CA1_int_cAC_011017HP2_20190328145524.zip",
+          "label": "CA1_int_cAC_011017HP2_20190328145524",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2021-saray-et-al/Model%20Catalog#model_id.3241346a-7656-46c8-8db7-9a902f157ef4",
+          "type": "URL",
+          "identifier": "57b4038b-2887-4f07-8415-5cf607f5b37a"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/hippocampus_optimization/rat/CA1/v4.0.5/optimizations_Python3/CA1_int_cAC_031031AM1_20190328150015/CA1_int_cAC_031031AM1_20190328150015.zip",
+          "label": "CA1_int_cAC_031031AM1_20190328150015",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2021-saray-et-al/Model%20Catalog#model_id.c3e51ddc-3c5d-4d32-9bc8-0c9e9174c470",
+          "type": "URL",
+          "identifier": "82ee8b4e-4a78-49bd-8963-857552935ba4"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/hippocampus_optimization/rat/CA1/v4.0.5/optimizations_Python3/CA1_int_cAC_970627BHP1_20190328160727/CA1_int_cAC_970627BHP1_20190328160727.zip",
+          "label": "CA1_int_cAC_970627BHP1_20190328160727",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2021-saray-et-al/Model%20Catalog#model_id.5a17a502-a07f-47ce-9d88-bbe99c3760b5",
+          "type": "URL",
+          "identifier": "8a70b28e-c31f-4d11-9327-185b8bdaeab4"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/hippocampus_optimization/rat/CA1/v4.0.5/optimizations_Python3/CA1_int_cAC_980120A_20190328160925/CA1_int_cAC_980120A_20190328160925.zip",
+          "label": "CA1_int_cAC_980120A_20190328160925",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2021-saray-et-al/Model%20Catalog#model_id.d46d20f5-5f74-48dd-a156-f487714d4d79",
+          "type": "URL",
+          "identifier": "0eceb58e-1ad9-4998-85bb-1b149db59ed1"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/hippocampus_optimization/rat/CA1/v4.0.5/optimizations_Python3/CA1_int_cAC_980513B_20190328161527/CA1_int_cAC_980513B_20190328161527.zip",
+          "label": "CA1_int_cAC_980513B_20190328161527",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2021-saray-et-al/Model%20Catalog#model_id.3c600230-3e20-4349-9959-733d1e48eb15",
+          "type": "URL",
+          "identifier": "8a6020a9-82b6-4e29-93ce-5222c5192c7b"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/hippocampus_optimization/rat/CA1/v4.0.5/optimizations_Python3/CA1_int_cAC_990611HP2_20190328162145/CA1_int_cAC_990611HP2_20190328162145.zip",
+          "label": "CA1_int_cAC_990611HP2_20190328162145",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2021-saray-et-al/Model%20Catalog#model_id.54e67d53-85ae-4aab-9242-bb9e41118a3a",
+          "type": "URL",
+          "identifier": "0f14ef09-610b-42b5-8d9f-32ca00bf0623"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/hippocampus_optimization/rat/CA1/v4.0.5/optimizations_Python3/CA1_int_cNAC_010710HP2_20190328163258/CA1_int_cNAC_010710HP2_20190328163258.zip",
+          "label": "CA1_int_cNAC_010710HP2_20190328163258",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2021-saray-et-al/Model%20Catalog#model_id.134f30cd-f5e1-4885-9b82-04db8c643e0f",
+          "type": "URL",
+          "identifier": "c7c30fde-0b41-4f41-b7cc-99b3626270f0"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/hippocampus_optimization/rat/CA1/v4.0.5/optimizations_Python3/CA1_int_cNAC_011017HP2_20190328164612/CA1_int_cNAC_011017HP2_20190328164612.zip",
+          "label": "CA1_int_cNAC_011017HP2_20190328164612",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2021-saray-et-al/Model%20Catalog#model_id.7896b92a-62e1-41b0-b5ca-0faed66e5c7d",
+          "type": "URL",
+          "identifier": "afdf871c-14f5-46ed-aa6a-aa1c18c31aa8"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/hippocampus_optimization/rat/CA1/v4.0.5/optimizations_Python3/CA1_int_cNAC_011023HP2_20190328164923/CA1_int_cNAC_011023HP2_20190328164923.zip",
+          "label": "CA1_int_cNAC_011023HP2_20190328164923",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2021-saray-et-al/Model%20Catalog#model_id.b6574eba-7098-4572-a926-1f3c52d48b27",
+          "type": "URL",
+          "identifier": "441cc03a-6773-4cf0-ad88-291286e7aaa3"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/hippocampus_optimization/rat/CA1/v4.0.5/optimizations_Python3/CA1_int_cNAC_060314AM2_20190328165336/CA1_int_cNAC_060314AM2_20190328165336.zip",
+          "label": "CA1_int_cNAC_060314AM2_20190328165336",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2021-saray-et-al/Model%20Catalog#model_id.03d26f01-9197-4fae-97d7-09b33274b76f",
+          "type": "URL",
+          "identifier": "97cb7eaa-a9e5-4be2-ad07-e069bdc4f2a8"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/hippocampus_optimization/rat/CA1/v4.0.5/optimizations_Python3/CA1_int_cNAC_970509HP2_20190305115627/CA1_int_cNAC_970509HP2_20190305115627.zip",
+          "label": "CA1_int_cNAC_970509HP2_20190305115627",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2021-saray-et-al/Model%20Catalog#model_id.1912605a-6d21-45bf-b2a2-b981297b9af0",
+          "type": "URL",
+          "identifier": "5c3b7283-1dd1-48d6-8d7c-a4562f24280a"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/hippocampus_optimization/rat/CA1/v4.0.5/optimizations_Python3/CA1_int_cNAC_970627BHP1_20190306162834/CA1_int_cNAC_970627BHP1_20190306162834.zip",
+          "label": "CA1_int_cNAC_970627BHP1_20190306162834",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2021-saray-et-al/Model%20Catalog#model_id.82b0efd7-39a6-4f13-a706-4f918a7be6b9",
+          "type": "URL",
+          "identifier": "f0353e5b-fcca-44c6-8272-f93cd9b00aee"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/hippocampus_optimization/rat/CA1/v4.0.5/optimizations_Python3/CA1_int_cNAC_970717D_20190307182510/CA1_int_cNAC_970717D_20190307182510.zip",
+          "label": "CA1_int_cNAC_970717D_20190307182510",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2021-saray-et-al/Model%20Catalog#model_id.e6cb6107-542e-4c3b-a117-c06d64cf4725",
+          "type": "URL",
+          "identifier": "ce519f43-4617-43b0-a60e-904a98ab8169"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/hippocampus_optimization/rat/CA1/v4.0.5/optimizations_Python3/CA1_int_cNAC_970911C_20190305120404/CA1_int_cNAC_970911C_20190305120404.zip",
+          "label": "CA1_int_cNAC_970911C_20190305120404",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2021-saray-et-al/Model%20Catalog#model_id.c45ae1c6-d06a-44b1-99a3-64be8290e414",
+          "type": "URL",
+          "identifier": "4c691712-f935-4394-88fa-8765dade9bf5"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/hippocampus_optimization/rat/CA1/v4.0.5/optimizations_Python3/CA1_int_cNAC_971114B_20190329154607/CA1_int_cNAC_971114B_20190329154607.zip",
+          "label": "CA1_int_cNAC_971114B_20190329154607",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2021-saray-et-al/Model%20Catalog#model_id.9f39cd68-ed86-4eb3-ab51-5ab02e2e8ecb",
+          "type": "URL",
+          "identifier": "d9b1c077-cbe2-44d9-abc9-1b48cd119db1"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/hippocampus_optimization/rat/CA1/v4.0.5/optimizations_Python3/CA1_int_cNAC_980120A_20190329155034/CA1_int_cNAC_980120A_20190329155034.zip",
+          "label": "CA1_int_cNAC_980120A_20190329155034",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2021-saray-et-al/Model%20Catalog#model_id.fb2ca773-ade4-4efa-bc2a-398fbd521d69",
+          "type": "URL",
+          "identifier": "2d4bd501-bea7-4b0f-9656-a4b5786d1b71"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/hippocampus_optimization/rat/CA1/v4.0.5/optimizations_Python3/CA1_int_cNAC_980513B_20190329155523/CA1_int_cNAC_980513B_20190329155523.zip",
+          "label": "CA1_int_cNAC_980513B_20190329155523",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2021-saray-et-al/Model%20Catalog#model_id.579f94f0-9e84-42bb-a659-9bda95d0e01a",
+          "type": "URL",
+          "identifier": "fd4c005d-b09f-4145-b637-899bec18be1e"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/hippocampus_optimization/rat/CA1/v4.0.5/optimizations_Python3/CA1_int_cNAC_990111HP2_20190329155703/CA1_int_cNAC_990111HP2_20190329155703.zip",
+          "label": "CA1_int_cNAC_990111HP2_20190329155703",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2021-saray-et-al/Model%20Catalog#model_id.34432e96-b549-4372-8612-825ac740fcbd",
+          "type": "URL",
+          "identifier": "76b60ba8-bc77-437e-94f9-66bbe576a41d"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/hippocampus_optimization/rat/CA1/v4.0.5/optimizations_Python3/CA1_int_cNAC_990611HP2_20190328165521/CA1_int_cNAC_990611HP2_20190328165521.zip",
+          "label": "CA1_int_cNAC_990611HP2_20190328165521",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2021-saray-et-al/Model%20Catalog#model_id.eebc06b3-0b6d-4a88-9143-88bf5576eec1",
+          "type": "URL",
+          "identifier": "eaaa2901-3c72-4ad8-b9a7-16153e76760c"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/hippocampus_optimization/rat/CA1/v4.0.5/optimizations_Python3/CA1_pyr_cACpyr_mpg141017_a1-2_idC_20190328143405/CA1_pyr_cACpyr_mpg141017_a1-2_idC_20190328143405.zip",
+          "label": "CA1_pyr_cACpyr_mpg141017_a1-2_idC_20190328143405",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2021-saray-et-al/Model%20Catalog#model_id.5ebea063-65e6-4e3e-86cc-fd367555c134",
+          "type": "URL",
+          "identifier": "8efbb13d-b7ab-432a-997e-2e0d9295b1b6"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/hippocampus_optimization/rat/CA1/v4.0.5/optimizations_Python3/CA1_pyr_cACpyr_mpg141208_B_idA_20190328144006/CA1_pyr_cACpyr_mpg141208_B_idA_20190328144006.zip",
+          "label": "CA1_pyr_cACpyr_mpg141208_B_idA_20190328144006",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2021-saray-et-al/Model%20Catalog#model_id.01da73a6-8715-431b-aaa7-efcd9358c786",
+          "type": "URL",
+          "identifier": "96420f87-0217-4388-8c4f-13ed5654d969"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/hippocampus_optimization/rat/CA1/v4.0.5/optimizations_Python3/CA1_pyr_cACpyr_mpg141209_A_idA_20190328144646/CA1_pyr_cACpyr_mpg141209_A_idA_20190328144646.zip",
+          "label": "CA1_pyr_cACpyr_mpg141209_A_idA_20190328144646",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2021-saray-et-al/Model%20Catalog#model_id.21e7142a-bfed-4227-9080-3fd2445c92d9",
+          "type": "URL",
+          "identifier": "221befea-697b-4d95-8956-efad6433daec"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/hippocampus_optimization/rat/CA1/v4.0.5/optimizations_Python3/CA1_pyr_cACpyr_mpg141216_A_idA_20190305133333/CA1_pyr_cACpyr_mpg141216_A_idA_20190305133333.zip",
+          "label": "CA1_pyr_cACpyr_mpg141216_A_idA_20190305133333",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2021-saray-et-al/Model%20Catalog#model_id.9d3e727c-d69b-4021-881b-b45e7ce51000",
+          "type": "URL",
+          "identifier": "85e7432f-9f2e-4e78-833d-831ef8cb6125"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/hippocampus_optimization/rat/CA1/v4.0.5/optimizations_Python3/CA1_pyr_cACpyr_mpg141217_A_idB_20190305112803/CA1_pyr_cACpyr_mpg141217_A_idB_20190305112803.zip",
+          "label": "CA1_pyr_cACpyr_mpg141217_A_idB_20190305112803",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2021-saray-et-al/Model%20Catalog#model_id.d5326edf-05e6-4239-a04f-4d55d928d818",
+          "type": "URL",
+          "identifier": "93295a0d-d412-4399-8327-0e165c60bcf9"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/hippocampus_optimization/rat/CA1/v4.0.5/optimizations_Python3/CA1_pyr_cACpyr_mpg150305_A_idB_20190305112012/CA1_pyr_cACpyr_mpg150305_A_idB_20190305112012.zip",
+          "label": "CA1_pyr_cACpyr_mpg150305_A_idB_20190305112012",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2021-saray-et-al/Model%20Catalog#model_id.03e67e24-6df5-405a-8299-7d797ecee58b",
+          "type": "URL",
+          "identifier": "c740d987-ee98-46ad-a4e6-7ec9acbec52b"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/hippocampus_optimization/rat/CA1/v4.0.5/optimizations_Python3/CA1_pyr_cACpyr_oh140807_A0_idA_20190305112828/CA1_pyr_cACpyr_oh140807_A0_idA_20190305112828.zip",
+          "label": "CA1_pyr_cACpyr_oh140807_A0_idA_20190305112828",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2021-saray-et-al/Model%20Catalog#model_id.066e7c4c-2e67-449c-80c7-d6bcca2dc1dd",
+          "type": "URL",
+          "identifier": "c22cbf4c-8210-413b-9d0b-4377004f7949"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/hippocampus_optimization/rat/CA1/v4.0.5/optimizations_Python3/CA1_pyr_cACpyr_oh140807_A0_idB_20190305105211/CA1_pyr_cACpyr_oh140807_A0_idB_20190305105211.zip",
+          "label": "CA1_pyr_cACpyr_oh140807_A0_idB_20190305105211",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2021-saray-et-al/Model%20Catalog#model_id.78b677c8-f21c-4278-b49a-265e3222f4f7",
+          "type": "URL",
+          "identifier": "02f29936-0d69-439f-a314-04e8062c335b"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/hippocampus_optimization/rat/CA1/v4.0.5/optimizations_Python3/CA1_pyr_cACpyr_oh140807_A0_idC_20190305103627/CA1_pyr_cACpyr_oh140807_A0_idC_20190305103627.zip",
+          "label": "CA1_pyr_cACpyr_oh140807_A0_idC_20190305103627",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2021-saray-et-al/Model%20Catalog#model_id.dd371bcb-98b0-44b2-bc37-aa35f8f40616",
+          "type": "URL",
+          "identifier": "adac9399-f26a-4ecd-baf5-c979761d45c0"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/hippocampus_optimization/rat/CA1/v4.0.5/optimizations_Python3/CA1_pyr_cACpyr_oh140807_A0_idF_20190305115459/CA1_pyr_cACpyr_oh140807_A0_idF_20190305115459.zip",
+          "label": "CA1_pyr_cACpyr_oh140807_A0_idF_20190305115459",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2021-saray-et-al/Model%20Catalog#model_id.e3afdf2b-1402-479a-9bf2-3c00b2114481",
+          "type": "URL",
+          "identifier": "ffacf704-c163-4f5c-bab2-d9a0cf2ee910"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/hippocampus_optimization/rat/CA1/v4.0.5/optimizations_Python3/CA1_pyr_cACpyr_oh140807_A0_idG_20190328143451/CA1_pyr_cACpyr_oh140807_A0_idG_20190328143451.zip",
+          "label": "CA1_pyr_cACpyr_oh140807_A0_idG_20190328143451",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2021-saray-et-al/Model%20Catalog#model_id.2224111c-348b-4fc3-b685-680898e57c5a",
+          "type": "URL",
+          "identifier": "fdd91c31-6ec7-41d3-b752-e6eefba5f4f6"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/hippocampus_optimization/rat/CA1/v4.0.5/optimizations_Python3/CA1_pyr_cACpyr_oh140807_A0_idH_20190328143152/CA1_pyr_cACpyr_oh140807_A0_idH_20190328143152.zip",
+          "label": "CA1_pyr_cACpyr_oh140807_A0_idH_20190328143152",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2021-saray-et-al/Model%20Catalog#model_id.1842d8a7-630c-4b42-a5b0-e359edd8bf37",
+          "type": "URL",
+          "identifier": "d7dcffe2-ede0-4e13-b42c-5765f3c57721"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/hippocampus_optimization/rat/CA1/v4.0.5/optimizations_Python3/CA1_pyr_cACpyr_oh140807_A0_idJ_20190328142723/CA1_pyr_cACpyr_oh140807_A0_idJ_20190328142723.zip",
+          "label": "CA1_pyr_cACpyr_oh140807_A0_idJ_20190328142723",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2021-saray-et-al/Model%20Catalog#model_id.b86f93c8-cd89-4e1d-863e-1604525bf376",
+          "type": "URL",
+          "identifier": "2f02de73-429d-4b13-aede-54f0cf0a2a18"
+        }
+      ],
+      "description": "The original versions of the models were reported in the live paper for Migliore et al. 2018.\nBelow we list the modified version (v4) of these models employed in the current study.",
+      "icon": "local_play",
+      "order": 1,
+      "title": "Models from Migliore et al. 2018",
+      "type": "section_models"
+    },
+    {
+      "data": [
+        {
+          "identifier": "6e2fffbe-fed0-4e67-abab-3ea65dc9ae78",
+          "label": "Backpropagating AP Test: CA1",
+          "type": "URL",
+          "url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2021-saray-et-al/Model%20Catalog#test_id.4d1210a6-e674-4cb6-a9cd-981a11d31175",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2021-saray-et-al/Model%20Catalog#test_id.4d1210a6-e674-4cb6-a9cd-981a11d31175"
+        },
+        {
+          "identifier": "8e0ea670-b1bb-49da-ab2b-89ff1c764458",
+          "label": "Depolarization Block Test: CA1",
+          "type": "URL",
+          "url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2021-saray-et-al/Model%20Catalog#test_id.ec94d91b-323c-4199-a800-d04bed79bc08",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2021-saray-et-al/Model%20Catalog#test_id.ec94d91b-323c-4199-a800-d04bed79bc08"
+        },
+        {
+          "identifier": "81d020c5-b278-42f8-ad93-83dde30443a1",
+          "label": "Oblique Integration Test: CA1",
+          "type": "URL",
+          "url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2021-saray-et-al/Model%20Catalog#test_id.e316f735-42d5-43f8-8729-6ac2e626353d",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2021-saray-et-al/Model%20Catalog#test_id.e316f735-42d5-43f8-8729-6ac2e626353d"
+        },
+        {
+          "identifier": "fbc7f96a-e99b-4fb9-8c62-1551d20848f3",
+          "label": "PSP Attenuation Test: CA1",
+          "type": "URL",
+          "url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2021-saray-et-al/Model%20Catalog#test_id.dd0842c0-c016-42be-98a6-18d32c2e9a3b",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2021-saray-et-al/Model%20Catalog#test_id.dd0842c0-c016-42be-98a6-18d32c2e9a3b"
+        },
+        {
+          "identifier": "b0679e8c-8210-4d32-90d4-d47a05d15c97",
+          "label": "Somatic Features Test: CA1_Pyr_PatchClamp",
+          "type": "URL",
+          "url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2021-saray-et-al/Model%20Catalog#test_id.4bfa8342-226b-4a65-8385-49942d576020",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2021-saray-et-al/Model%20Catalog#test_id.4bfa8342-226b-4a65-8385-49942d576020"
+        },
+        {
+          "identifier": "1cd7052b-6c0b-4e59-98cf-84ee711aef64",
+          "label": "Somatic Features Test: CA1_int_bAC",
+          "type": "URL",
+          "url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2021-saray-et-al/Model%20Catalog#test_id.9b8f350f-1089-42d0-a953-289bf20e0f96",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2021-saray-et-al/Model%20Catalog#test_id.9b8f350f-1089-42d0-a953-289bf20e0f96"
+        },
+        {
+          "identifier": "21283ca5-0945-40f6-8c1c-64f40b6498c5",
+          "label": "Somatic Features Test: CA1_int_cAC",
+          "type": "URL",
+          "url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2021-saray-et-al/Model%20Catalog#test_id.c0f52baf-53fc-45e5-8ac6-7bfa626e5f99",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2021-saray-et-al/Model%20Catalog#test_id.c0f52baf-53fc-45e5-8ac6-7bfa626e5f99"
+        },
+        {
+          "identifier": "5ab1790d-5893-4081-b8b7-bdf263528f6c",
+          "label": "Somatic Features Test: CA1_int_cNAC",
+          "type": "URL",
+          "url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2021-saray-et-al/Model%20Catalog#test_id.52443043-b79e-44c8-bda6-2d16e6a2e02e",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2021-saray-et-al/Model%20Catalog#test_id.52443043-b79e-44c8-bda6-2d16e6a2e02e"
+        },
+        {
+          "identifier": "d4d2697f-2f7f-45bc-be1a-94355e7b23d5",
+          "label": "Somatic Features Test: CA1_pyr_cACpyr",
+          "type": "URL",
+          "url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2021-saray-et-al/Model%20Catalog#test_id.100abccb-6d30-4c1e-a960-bc0489e0d82d",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2021-saray-et-al/Model%20Catalog#test_id.100abccb-6d30-4c1e-a960-bc0489e0d82d"
+        }
+      ],
+      "description": "The following tests are part of the HippoUnit test suite. They have been registered on the HBP validation framework, where further details can be accessed.",
+      "icon": "iso",
+      "order": 2,
+      "title": "HippoUnit validation tests",
+      "type": "section_generic"
+    },
+    {
+      "data": [
+        {
+          "identifier": "ad279c42-94fe-4028-a72a-404aad36d36e",
+          "label": "Summary of score for all models validated with HippoUnit",
+          "type": "URL",
+          "url": "https://drive.ebrains.eu/f/7d90a05d2a324eb994a8/?dl=1",
+          "view_url": "https://lab.ch.ebrains.eu/hub/user-redirect/lab/tree/shared/Live%20Paper%3A%202021_saray_et_al/ScoreTables-HippoUnitPaper.ipynb"
+        },
+        {
+          "identifier": "5fad074f-cd35-499e-9dcd-66fa7a0de5f6",
+          "label": "Validation of models from Migliore et al. 2018",
+          "type": "URL",
+          "url": "https://drive.ebrains.eu/f/8874347c928342d0b13d/?dl=1",
+          "view_url": "https://lab.ch.ebrains.eu/hub/user-redirect/lab/tree/shared/Live%20Paper%3A%202021_saray_et_al/Hippocampus%20Single%20Cell%20Validation.ipynb"
+        },
+        {
+          "identifier": "8965fe07-1dd1-4e8c-bced-ed6f991c5602",
+          "label": "Validation of models from literature",
+          "type": "URL",
+          "url": "https://drive.ebrains.eu/f/24942140a845499fb39c/?dl=1",
+          "view_url": "https://lab.ch.ebrains.eu/hub/user-redirect/lab/tree/shared/Live%20Paper%3A%202021_saray_et_al/published_models_validation_Python3.ipynb"
+        }
+      ],
+      "description": "The following Jupyter notebooks help demonstrate how the tests available in HippoUnit can be used to validate computational models.",
+      "icon": "book",
+      "order": 3,
+      "title": "Jupyter Notebooks",
+      "type": "section_generic"
+    }
+  ],
+  "resources_description": "All info related to models, tests used in the paper are available at the links provided below, grouped into the following categories:",
+  "url": "https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1008114",
+  "version": "1",
+  "year": "2021-01-29"
+}

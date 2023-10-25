@@ -1,0 +1,91 @@
+{
+    "abstract": "Reconstructing neuronal microcircuits through computational models is fundamental to simulate local neuronal dynamics. Here a scaffold model of the cerebellum has been developed in order to flexibly place neurons in space, connect them synaptically, and endow neurons and synapses with biologically-grounded mechanisms. The scaffold model can keep neuronal morphology separated from network connectivity, which can in turn be obtained from convergence/divergence ratios and axonal/dendritic field 3D geometries. We first tested the scaffold on the cerebellar microcircuit, which presents a challenging 3D organization, at the same time providing appropriate datasets to validate emerging network behaviors. The scaffold was designed to integrate the cerebellar cortex with deep cerebellar nuclei (DCN), including different neuronal types: Golgi cells, granule cells, Purkinje cells, stellate cells, basket cells, and DCN principal cells. Mossy fiber inputs were conveyed through the glomeruli. An anisotropic volume (0.077 mm3) of mouse cerebellum was reconstructed, in which point-neuron models were tuned toward the specific discharge properties of neurons and were connected by exponentially decaying excitatory and inhibitory synapses. Simulations using both pyNEST and pyNEURON showed the emergence of organized spatio-temporal patterns of neuronal activity similar to those revealed experimentally in response to background noise and burst stimulation of mossy fiber bundles. Different configurations of granular and molecular layer connectivity consistently modified neuronal activation patterns, revealing the importance of structural constraints for cerebellar network functioning. The scaffold provided thus an effective workflow accounting for the complex architecture of the cerebellar network. In principle, the scaffold can incorporate cellular mechanisms at multiple levels of detail and be tuned to test different structural and functional hypotheses. A future implementation using detailed 3D multi-compartment neuron models and dynamic synapses will be needed to investigate the impact of single neuron properties on network computation.",
+    "alias": "2019-casali-et-al",
+    "approved_author": {
+        "affiliation": "Department of Brain and Behavioral Sciences, University of Pavia, Italy; Brain Connectivity Center, IRCCS Mondino Foundation, Pavia, Italy",
+        "firstname": "Egidio",
+        "lastname": "D'Angelo"
+    },
+    "associated_paper_doi": "https://doi.org/10.3389/fninf.2019.00037",
+    "associated_paper_title": "Reconstruction and Simulation of a Scaffold Model of the Cerebellar Network",
+    "authors": [
+        {
+            "affiliation": "Department of Brain and Behavioral Sciences, University of Pavia, Italy",
+            "firstname": "Stefano",
+            "lastname": "Casali"
+        },
+        {
+            "affiliation": "Department of Brain and Behavioral Sciences, University of Pavia, Italy",
+            "firstname": "Elisa",
+            "lastname": "Marenzi"
+        },
+        {
+            "affiliation": "Department of Brain and Behavioral Sciences, University of Pavia, Italy",
+            "firstname": "Chaitanya",
+            "lastname": "Medini"
+        },
+        {
+            "affiliation": "Department of Brain and Behavioral Sciences, University of Pavia, Italy",
+            "firstname": "Claudia",
+            "lastname": "Casellato"
+        },
+        {
+            "affiliation": "Department of Brain and Behavioral Sciences, University of Pavia, Italy; Brain Connectivity Center, IRCCS Mondino Foundation, Pavia, Italy",
+            "firstname": "Egidio",
+            "lastname": "D'Angelo"
+        }
+    ],
+    "citation": "Stefano Casali, Elisa Marenzi, Chaitanya Medini, Claudia Casellato & Egidio D'Angelo (2019). Reconstruction and Simulation of a Scaffold Model of the Cerebellar Network. Frontiers in Neuroinformatics, 13: 37.",
+    "collab_id": "livepapers",
+    "corresponding_author": [
+        {
+            "affiliation": "Department of Brain and Behavioral Sciences, University of Pavia, Italy; Brain Connectivity Center, IRCCS Mondino Foundation, Pavia, Italy",
+            "firstname": "Egidio",
+            "lastname": "D'Angelo"
+        },
+        {
+            "affiliation": "Department of Brain and Behavioral Sciences, University of Pavia, Italy",
+            "firstname": "Claudia",
+            "lastname": "Casellato"
+        }
+    ],
+    "created_author": [
+        {
+            "affiliation": "Department of Brain and Behavioral Sciences, University of Pavia, Italy; Brain Connectivity Center, IRCCS Mondino Foundation, Pavia, Italy",
+            "firstname": "Egidio",
+            "lastname": "D'Angelo"
+        }
+    ],
+    "doi": "https://doi.org/10.25493/68XT-RB1",
+    "id": "44f1d119-6233-44c4-9584-b2352a4c254e",
+    "journal": "Frontiers in Neuroinformatics",
+    "associated_paper_volume": "13",
+    "associated_paper_issue": null,
+    "associated_paper_pagination": "37",
+    "license": "Creative Commons Attribution-NonCommercial 4.0 International",
+    "live_paper_title": "Reconstruction and Simulation of a Scaffold Model of the Cerebellar Network",
+    "lp_tool_version": "0.1",
+    "modified_date": "2021-08-02T10:42:14.298000+00:00",
+    "resources": [
+        {
+            "data": [],
+            "description": "<p>The complete source code, used for the reconstruction and simulations described in paper, and compliant with the SONATA format, can be accessed and downloaded at the following github <a href=\"https://github.com/SelezioneCasuale/scaffold_model_cerebellum\" target=\"_blank\">link</a>.\n   <br>\n   <br>\n   Please refer to the README file of the github repository for more details.\n</p>",
+            "icon": "note_add",
+            "order": 0,
+            "title": "Source Code",
+            "type": "section_custom"
+        },
+        {
+            "data": [],
+            "description": "<p>\n   <span class=\"txt_style1\">The reconstruction and the functional simulations of the cerebellar microcircuit procedures, presented in the paper, are available among the \n   <a href=\"https://collab.humanbrainproject.eu/#/collab/1655/nav/28538\" target=\"_blank\">\n   <span class=\"color_link\">Brain Simulation Platform</span></a> Online Use Cases, as python Jupyter Notebooks.\n   <br>\n   <br>\n   For <i>circuit building</i>: select the \"Cells Placement\" or the \"Connectome\" panel in the <a href='https://collab.humanbrainproject.eu/#/collab/1655/nav/66853' target=\"_blank\">\"Circuit Building\"</a> item of the Online Use Cases. Successively, click on the \"Rat Cerebellum Volume\" panel and follow the instruction to run the Jupyter Notebook.<br>\n   <br>\n   For <i>functional simulation</i>: select the \"Cerebellum\" panel in the <a href=\"https://collab.humanbrainproject.eu/#/collab/1655/nav/66856\" target=\"_blank\">\"Brain Area Circuit In Silico Experiments\"</a> item of the Online Use Cases. Successively, click on the \"Functional Simulations with Point Neurons\" panel and follow the instructions to run the Jupyter Notebook.\n   <br>\n   <br>\n   Please refer to the python code and the inline comments, which you will find in the Jupyter Notebooks, for details on how to reproduce Fig. 2 and Fig. 3 of the paper.\n   </span>\n</p>",
+            "icon": "local_activity",
+            "order": 1,
+            "title": "Test Simulations",
+            "type": "section_custom"
+        }
+    ],
+    "resources_description": "Data and models: all data and models used in the paper are available at the links reported below, grouped into the following categories:",
+    "url": "https://www.frontiersin.org/articles/10.3389/fninf.2019.00037/full",
+    "version": "1",
+    "year": "2019-05-15"
+}
