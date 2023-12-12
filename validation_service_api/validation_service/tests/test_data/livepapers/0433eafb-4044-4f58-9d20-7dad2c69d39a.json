@@ -1,0 +1,392 @@
+{
+  "abstract": "The anatomy and physiology of synaptic connections in rodent hippocampal CA1 have been exhaustively characterized in recent decades. Yet, the resulting knowledge remains disparate and difficult to reconcile. Here, we present a data-driven approach to integrate the current state-of-the-art knowledge on the synaptic anatomy and physiology of rodent hippocampal CA1, including axo-dendritic innervation patterns, number of synapses per connection, quantal conductances, neurotransmitter release probability, and short-term plasticity into a single coherent resource. First, we undertook an extensive literature review of paired-recordings of hippocampal neurons and compiled experimental data on their synaptic anatomy and physiology. The data collected in this manner is sparse and inhomogeneous due to the diversity of experimental techniques used by different groups, which necessitates the need for an integrative framework to unify these data. To this end, we extended a previously developed workflow for the neocortex to constrain a unifying in silico reconstruction of the synaptic physiology of CA1 connections. Our work identifies gaps in the existing knowledge and provides a complementary resource towards a more complete quantification of synaptic anatomy and physiology in the rodent hippocampal CA1 region.",
+  "alias": "2020-ecker-et-al",
+  "approved_author": {
+    "affiliation": "Blue Brain Project, \u00c9cole Polytechnique F\u00e9d\u00e9rale de Lausanne, Geneva, Switzerland",
+    "firstname": "Andr\u00e1s",
+    "lastname": "Ecker"
+  },
+  "associated_paper_doi": "https://doi.org/10.1002/hipo.23220",
+  "associated_paper_title": "Data\u2010driven integration of hippocampal CA1 synaptic physiology in silico",
+  "associated_paper_volume": "30",
+  "associated_paper_issue": null,
+  "associated_paper_pagination": "1129-1145",
+  "authors": [
+    {
+      "affiliation": "Blue Brain Project, \u00c9cole Polytechnique F\u00e9d\u00e9rale de Lausanne, Geneva, Switzerland",
+      "firstname": "Andr\u00e1s",
+      "lastname": "Ecker"
+    },
+    {
+      "affiliation": "Blue Brain Project, \u00c9cole Polytechnique F\u00e9d\u00e9rale de Lausanne, Geneva, Switzerland",
+      "firstname": "Armando",
+      "lastname": "Romani"
+    },
+    {
+      "affiliation": "Institute of Experimental Medicine, Budapest, Hungary; Faculty of Information Technology and Bionics, P\u00e1zm\u00e1ny P\u00e9ter Catholic University, Budapest, Hungary",
+      "firstname": "S\u00e1ra",
+      "lastname": "S\u00e1ray"
+    },
+    {
+      "affiliation": "Institute of Experimental Medicine, Budapest, Hungary; Faculty of Information Technology and Bionics, P\u00e1zm\u00e1ny P\u00e9ter Catholic University, Budapest, Hungary",
+      "firstname": "Szabolcs",
+      "lastname": "K\u00e1li"
+    },
+    {
+      "affiliation": "Institute of Biophysics, National Research Council, Palermo, Italy",
+      "firstname": "Michele",
+      "lastname": "Migliore"
+    },
+    {
+      "affiliation": "UCL School of Pharmacy, University College London, London, UK",
+      "firstname": "Joanne",
+      "lastname": "Falck"
+    },
+    {
+      "affiliation": "UCL School of Pharmacy, University College London, London, UK; School of Life Sciences, University of Westminster, London, UK",
+      "firstname": "Sigrun",
+      "lastname": "Lange"
+    },
+    {
+      "affiliation": "UCL School of Pharmacy, University College London, London, UK",
+      "firstname": "Audrey",
+      "lastname": "Mercer"
+    },
+    {
+      "affiliation": "UCL School of Pharmacy, University College London, London, UK",
+      "firstname": "Alex M.",
+      "lastname": "Thomson"
+    },
+    {
+      "affiliation": "Blue Brain Project, \u00c9cole Polytechnique F\u00e9d\u00e9rale de Lausanne, Geneva, Switzerland",
+      "firstname": "Eilif B.",
+      "lastname": "Muller"
+    },
+    {
+      "affiliation": "Blue Brain Project, \u00c9cole Polytechnique F\u00e9d\u00e9rale de Lausanne, Geneva, Switzerland",
+      "firstname": "Michael W.",
+      "lastname": "Reimann"
+    },
+    {
+      "affiliation": "Blue Brain Project, \u00c9cole Polytechnique F\u00e9d\u00e9rale de Lausanne, Geneva, Switzerland",
+      "firstname": "Srikanth",
+      "lastname": "Ramaswamy"
+    }
+  ],
+  "citation": "András Ecker, Armando Romani, Sára Sáray, Szabolcs Káli, Michele Migliore, Joanne Falck, Sigrun Lange, Audrey Mercer, Alex M. Thomson, Eilif B. Muller, Michael W. Reimann & Srikanth Ramaswamy (2020). Data‐driven integration of hippocampal CA1 synaptic physiology in silico. Hippocampus, 30: 1129-1145.",
+  "collab_id": "livepapers",
+  "corresponding_author": [
+    {
+      "affiliation": "Blue Brain Project, \u00c9cole Polytechnique F\u00e9d\u00e9rale de Lausanne, Geneva, Switzerland",
+      "firstname": "Andr\u00e1s",
+      "lastname": "Ecker"
+    },
+    {
+      "affiliation": "Blue Brain Project, \u00c9cole Polytechnique F\u00e9d\u00e9rale de Lausanne, Geneva, Switzerland",
+      "firstname": "Srikanth",
+      "lastname": "Ramaswamy"
+    }
+  ],
+  "created_author": [
+    {
+      "affiliation": "Blue Brain Project, \u00c9cole Polytechnique F\u00e9d\u00e9rale de Lausanne, Geneva, Switzerland",
+      "firstname": "Andr\u00e1s",
+      "lastname": "Ecker"
+    }
+  ],
+  "doi": "https://doi.org/10.25493/E145-BQH",
+  "id": "0433eafb-4044-4f58-9d20-7dad2c69d39a",
+  "journal": "Hippocampus",
+  "license": "Creative Commons Attribution-NonCommercial 4.0 International",
+  "live_paper_title": "Data\u2010driven integration of hippocampal CA1 synaptic physiology in silico",
+  "lp_tool_version": "0.1",
+  "modified_date": "2021-08-10T10:52:03.325000+00:00",
+  "resources": [
+    {
+      "data": [
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/hippocampus_optimization/rat/CA1/v4.0.5/optimizations_Python3/CA1_int_bAC_011017HP2_20190329115307/CA1_int_bAC_011017HP2_20190329115307.zip",
+          "label": "CA1_int_bAC_011017HP2_20190329115307",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2020-ecker-et-al/Model%20Catalog#model_id.df83ff36-5182-497a-b94a-ff0f11fb32a8",
+          "type": "URL",
+          "identifier": "b35abc08-8215-4e16-8801-9c4de5746d67"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/hippocampus_optimization/rat/CA1/v4.0.5/optimizations_Python3/CA1_int_bAC_011023HP2_20190329115556/CA1_int_bAC_011023HP2_20190329115556.zip",
+          "label": "CA1_int_bAC_011023HP2_20190329115556",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2020-ecker-et-al/Model%20Catalog#model_id.933b6b54-d458-40ce-bfb9-0d8236f9e837",
+          "type": "URL",
+          "identifier": "a96b017a-bd60-44dd-8e0f-acceee3f3f6b"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/hippocampus_optimization/rat/CA1/v4.0.5/optimizations_Python3/CA1_int_bAC_011127HP1_20190329115610/CA1_int_bAC_011127HP1_20190329115610.zip",
+          "label": "CA1_int_bAC_011127HP1_20190329115610",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2020-ecker-et-al/Model%20Catalog#model_id.a8e7bfa3-d873-4e47-b70c-e529fc70eff5",
+          "type": "URL",
+          "identifier": "5fcb6c65-d80e-4e76-8726-9ed1d0698cf2"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/hippocampus_optimization/rat/CA1/v4.0.5/optimizations_Python3/CA1_int_bAC_060314AM2_20190329115909/CA1_int_bAC_060314AM2_20190329115909.zip",
+          "label": "CA1_int_bAC_060314AM2_20190329115909",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2020-ecker-et-al/Model%20Catalog#model_id.2073be15-1354-493c-9d00-0097d4f19432",
+          "type": "URL",
+          "identifier": "1b453e55-d074-43fc-8d88-604b969f03b2"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/hippocampus_optimization/rat/CA1/v4.0.5/optimizations_Python3/CA1_int_bAC_971114B_20190329120113/CA1_int_bAC_971114B_20190329120113.zip",
+          "label": "CA1_int_bAC_971114B_20190329120113",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2020-ecker-et-al/Model%20Catalog#model_id.73460bbd-e902-476a-943e-f09c151a3b81",
+          "type": "URL",
+          "identifier": "1439aa44-25a1-4eac-813a-0163b0bdd91c"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/hippocampus_optimization/rat/CA1/v4.0.5/optimizations_Python3/CA1_int_bAC_980120A_20190329120234/CA1_int_bAC_980120A_20190329120234.zip",
+          "label": "CA1_int_bAC_980120A_20190329120234",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2020-ecker-et-al/Model%20Catalog#model_id.142fbe6f-b007-4049-a59e-433e09df8280",
+          "type": "URL",
+          "identifier": "8512b468-9987-4b4e-9595-c4aaf2f42689"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/hippocampus_optimization/rat/CA1/v4.0.5/optimizations_Python3/CA1_int_cAC_010710HP2_20190328145252/CA1_int_cAC_010710HP2_20190328145252.zip",
+          "label": "CA1_int_cAC_010710HP2_20190328145252",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2020-ecker-et-al/Model%20Catalog#model_id.a73f94cf-0ccb-42f8-94a2-ad95ecb5cba4",
+          "type": "URL",
+          "identifier": "aaf927e1-9b2e-4fa0-89ed-e315e39f5124"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/hippocampus_optimization/rat/CA1/v4.0.5/optimizations_Python3/CA1_int_cAC_011017HP2_20190328145524/CA1_int_cAC_011017HP2_20190328145524.zip",
+          "label": "CA1_int_cAC_011017HP2_20190328145524",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2020-ecker-et-al/Model%20Catalog#model_id.3241346a-7656-46c8-8db7-9a902f157ef4",
+          "type": "URL",
+          "identifier": "b1face55-7561-46ce-9a43-4130a32d332d"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/hippocampus_optimization/rat/CA1/v4.0.5/optimizations_Python3/CA1_int_cAC_031031AM1_20190328150015/CA1_int_cAC_031031AM1_20190328150015.zip",
+          "label": "CA1_int_cAC_031031AM1_20190328150015",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2020-ecker-et-al/Model%20Catalog#model_id.c3e51ddc-3c5d-4d32-9bc8-0c9e9174c470",
+          "type": "URL",
+          "identifier": "e10d59c0-ea47-4e36-9545-637a4ebda2c8"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/hippocampus_optimization/rat/CA1/v4.0.5/optimizations_Python3/CA1_int_cAC_970627BHP1_20190328160727/CA1_int_cAC_970627BHP1_20190328160727.zip",
+          "label": "CA1_int_cAC_970627BHP1_20190328160727",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2020-ecker-et-al/Model%20Catalog#model_id.5a17a502-a07f-47ce-9d88-bbe99c3760b5",
+          "type": "URL",
+          "identifier": "5311394f-8e8a-4f4b-b844-1ef33e8e28dc"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/hippocampus_optimization/rat/CA1/v4.0.5/optimizations_Python3/CA1_int_cAC_980120A_20190328160925/CA1_int_cAC_980120A_20190328160925.zip",
+          "label": "CA1_int_cAC_980120A_20190328160925",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2020-ecker-et-al/Model%20Catalog#model_id.d46d20f5-5f74-48dd-a156-f487714d4d79",
+          "type": "URL",
+          "identifier": "1a28b653-30eb-434b-94c5-a5c57f03c33b"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/hippocampus_optimization/rat/CA1/v4.0.5/optimizations_Python3/CA1_int_cAC_980513B_20190328161527/CA1_int_cAC_980513B_20190328161527.zip",
+          "label": "CA1_int_cAC_980513B_20190328161527",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2020-ecker-et-al/Model%20Catalog#model_id.3c600230-3e20-4349-9959-733d1e48eb15",
+          "type": "URL",
+          "identifier": "af69f3e9-4ae1-4c79-a138-196463ec8584"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/hippocampus_optimization/rat/CA1/v4.0.5/optimizations_Python3/CA1_int_cAC_990611HP2_20190328162145/CA1_int_cAC_990611HP2_20190328162145.zip",
+          "label": "CA1_int_cAC_990611HP2_20190328162145",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2020-ecker-et-al/Model%20Catalog#model_id.54e67d53-85ae-4aab-9242-bb9e41118a3a",
+          "type": "URL",
+          "identifier": "cfca060d-2284-4273-bcad-a1c30865dbbe"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/hippocampus_optimization/rat/CA1/v4.0.5/optimizations_Python3/CA1_int_cNAC_010710HP2_20190328163258/CA1_int_cNAC_010710HP2_20190328163258.zip",
+          "label": "CA1_int_cNAC_010710HP2_20190328163258",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2020-ecker-et-al/Model%20Catalog#model_id.134f30cd-f5e1-4885-9b82-04db8c643e0f",
+          "type": "URL",
+          "identifier": "6ef25ec0-8a25-4dfa-b29d-f0ddfdec4670"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/hippocampus_optimization/rat/CA1/v4.0.5/optimizations_Python3/CA1_int_cNAC_011017HP2_20190328164612/CA1_int_cNAC_011017HP2_20190328164612.zip",
+          "label": "CA1_int_cNAC_011017HP2_20190328164612",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2020-ecker-et-al/Model%20Catalog#model_id.7896b92a-62e1-41b0-b5ca-0faed66e5c7d",
+          "type": "URL",
+          "identifier": "3d19559c-7f24-44bd-9eb3-f063b7090c8f"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/hippocampus_optimization/rat/CA1/v4.0.5/optimizations_Python3/CA1_int_cNAC_011023HP2_20190328164923/CA1_int_cNAC_011023HP2_20190328164923.zip",
+          "label": "CA1_int_cNAC_011023HP2_20190328164923",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2020-ecker-et-al/Model%20Catalog#model_id.b6574eba-7098-4572-a926-1f3c52d48b27",
+          "type": "URL",
+          "identifier": "34ee8e4e-2db0-4ed3-b883-11db6466c0f9"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/hippocampus_optimization/rat/CA1/v4.0.5/optimizations_Python3/CA1_int_cNAC_060314AM2_20190328165336/CA1_int_cNAC_060314AM2_20190328165336.zip",
+          "label": "CA1_int_cNAC_060314AM2_20190328165336",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2020-ecker-et-al/Model%20Catalog#model_id.03d26f01-9197-4fae-97d7-09b33274b76f",
+          "type": "URL",
+          "identifier": "98a44d03-fb39-45b3-a86a-1c2a961dca5e"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/hippocampus_optimization/rat/CA1/v4.0.5/optimizations_Python3/CA1_int_cNAC_970509HP2_20190305115627/CA1_int_cNAC_970509HP2_20190305115627.zip",
+          "label": "CA1_int_cNAC_970509HP2_20190305115627",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2020-ecker-et-al/Model%20Catalog#model_id.1912605a-6d21-45bf-b2a2-b981297b9af0",
+          "type": "URL",
+          "identifier": "ec7d1b7c-3599-4af1-8808-2f690d7df435"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/hippocampus_optimization/rat/CA1/v4.0.5/optimizations_Python3/CA1_int_cNAC_970627BHP1_20190306162834/CA1_int_cNAC_970627BHP1_20190306162834.zip",
+          "label": "CA1_int_cNAC_970627BHP1_20190306162834",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2020-ecker-et-al/Model%20Catalog#model_id.82b0efd7-39a6-4f13-a706-4f918a7be6b9",
+          "type": "URL",
+          "identifier": "f4341500-42b0-4e1d-b1dc-7c6f5bed114c"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/hippocampus_optimization/rat/CA1/v4.0.5/optimizations_Python3/CA1_int_cNAC_970717D_20190307182510/CA1_int_cNAC_970717D_20190307182510.zip",
+          "label": "CA1_int_cNAC_970717D_20190307182510",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2020-ecker-et-al/Model%20Catalog#model_id.e6cb6107-542e-4c3b-a117-c06d64cf4725",
+          "type": "URL",
+          "identifier": "f0c24aae-10b0-4511-9b83-041149bc1b53"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/hippocampus_optimization/rat/CA1/v4.0.5/optimizations_Python3/CA1_int_cNAC_970911C_20190305120404/CA1_int_cNAC_970911C_20190305120404.zip",
+          "label": "CA1_int_cNAC_970911C_20190305120404",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2020-ecker-et-al/Model%20Catalog#model_id.c45ae1c6-d06a-44b1-99a3-64be8290e414",
+          "type": "URL",
+          "identifier": "d96d51a6-957b-4060-b537-7d7c1e4fe862"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/hippocampus_optimization/rat/CA1/v4.0.5/optimizations_Python3/CA1_int_cNAC_971114B_20190329154607/CA1_int_cNAC_971114B_20190329154607.zip",
+          "label": "CA1_int_cNAC_971114B_20190329154607",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2020-ecker-et-al/Model%20Catalog#model_id.9f39cd68-ed86-4eb3-ab51-5ab02e2e8ecb",
+          "type": "URL",
+          "identifier": "6940a156-b449-494c-84fc-68d7f96698d3"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/hippocampus_optimization/rat/CA1/v4.0.5/optimizations_Python3/CA1_int_cNAC_980120A_20190329155034/CA1_int_cNAC_980120A_20190329155034.zip",
+          "label": "CA1_int_cNAC_980120A_20190329155034",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2020-ecker-et-al/Model%20Catalog#model_id.fb2ca773-ade4-4efa-bc2a-398fbd521d69",
+          "type": "URL",
+          "identifier": "70bb5b1c-3e59-4c0e-8b51-f9dfdf584c45"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/hippocampus_optimization/rat/CA1/v4.0.5/optimizations_Python3/CA1_int_cNAC_980513B_20190329155523/CA1_int_cNAC_980513B_20190329155523.zip",
+          "label": "CA1_int_cNAC_980513B_20190329155523",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2020-ecker-et-al/Model%20Catalog#model_id.579f94f0-9e84-42bb-a659-9bda95d0e01a",
+          "type": "URL",
+          "identifier": "89d7b0bd-cf64-47dd-816b-edf3963aca23"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/hippocampus_optimization/rat/CA1/v4.0.5/optimizations_Python3/CA1_int_cNAC_990111HP2_20190329155703/CA1_int_cNAC_990111HP2_20190329155703.zip",
+          "label": "CA1_int_cNAC_990111HP2_20190329155703",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2020-ecker-et-al/Model%20Catalog#model_id.34432e96-b549-4372-8612-825ac740fcbd",
+          "type": "URL",
+          "identifier": "7ee017af-f44b-43f8-a6c7-f0b6e95c2bc8"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/hippocampus_optimization/rat/CA1/v4.0.5/optimizations_Python3/CA1_int_cNAC_990611HP2_20190328165521/CA1_int_cNAC_990611HP2_20190328165521.zip",
+          "label": "CA1_int_cNAC_990611HP2_20190328165521",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2020-ecker-et-al/Model%20Catalog#model_id.eebc06b3-0b6d-4a88-9143-88bf5576eec1",
+          "type": "URL",
+          "identifier": "2c350875-53a3-470e-a8ec-bb2c8f8c3ce3"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/hippocampus_optimization/rat/CA1/v4.0.5/optimizations_Python3/CA1_pyr_cACpyr_mpg141017_a1-2_idC_20190328143405/CA1_pyr_cACpyr_mpg141017_a1-2_idC_20190328143405.zip",
+          "label": "CA1_pyr_cACpyr_mpg141017_a1-2_idC_20190328143405",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2020-ecker-et-al/Model%20Catalog#model_id.5ebea063-65e6-4e3e-86cc-fd367555c134",
+          "type": "URL",
+          "identifier": "51c054b2-ea82-4658-a196-db4edf1f4dad"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/hippocampus_optimization/rat/CA1/v4.0.5/optimizations_Python3/CA1_pyr_cACpyr_mpg141208_B_idA_20190328144006/CA1_pyr_cACpyr_mpg141208_B_idA_20190328144006.zip",
+          "label": "CA1_pyr_cACpyr_mpg141208_B_idA_20190328144006",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2020-ecker-et-al/Model%20Catalog#model_id.01da73a6-8715-431b-aaa7-efcd9358c786",
+          "type": "URL",
+          "identifier": "92034637-d825-4ed5-a996-efabd3a4cf00"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/hippocampus_optimization/rat/CA1/v4.0.5/optimizations_Python3/CA1_pyr_cACpyr_mpg141209_A_idA_20190328144646/CA1_pyr_cACpyr_mpg141209_A_idA_20190328144646.zip",
+          "label": "CA1_pyr_cACpyr_mpg141209_A_idA_20190328144646",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2020-ecker-et-al/Model%20Catalog#model_id.21e7142a-bfed-4227-9080-3fd2445c92d9",
+          "type": "URL",
+          "identifier": "e4dc7be2-fdd1-4f9f-8371-7cfa0428f67f"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/hippocampus_optimization/rat/CA1/v4.0.5/optimizations_Python3/CA1_pyr_cACpyr_mpg141216_A_idA_20190305133333/CA1_pyr_cACpyr_mpg141216_A_idA_20190305133333.zip",
+          "label": "CA1_pyr_cACpyr_mpg141216_A_idA_20190305133333",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2020-ecker-et-al/Model%20Catalog#model_id.9d3e727c-d69b-4021-881b-b45e7ce51000",
+          "type": "URL",
+          "identifier": "81a3da38-c5a7-4bb1-9dfe-83b6b913c455"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/hippocampus_optimization/rat/CA1/v4.0.5/optimizations_Python3/CA1_pyr_cACpyr_mpg141217_A_idB_20190305112803/CA1_pyr_cACpyr_mpg141217_A_idB_20190305112803.zip",
+          "label": "CA1_pyr_cACpyr_mpg141217_A_idB_20190305112803",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2020-ecker-et-al/Model%20Catalog#model_id.d5326edf-05e6-4239-a04f-4d55d928d818",
+          "type": "URL",
+          "identifier": "591e1e19-fd28-497b-b8c7-be4aaa85e66d"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/hippocampus_optimization/rat/CA1/v4.0.5/optimizations_Python3/CA1_pyr_cACpyr_mpg150305_A_idB_20190305112012/CA1_pyr_cACpyr_mpg150305_A_idB_20190305112012.zip",
+          "label": "CA1_pyr_cACpyr_mpg150305_A_idB_20190305112012",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2020-ecker-et-al/Model%20Catalog#model_id.03e67e24-6df5-405a-8299-7d797ecee58b",
+          "type": "URL",
+          "identifier": "d3685046-b4bc-4e37-bc87-d9f459da4a6f"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/hippocampus_optimization/rat/CA1/v4.0.5/optimizations_Python3/CA1_pyr_cACpyr_oh140807_A0_idA_20190305112828/CA1_pyr_cACpyr_oh140807_A0_idA_20190305112828.zip",
+          "label": "CA1_pyr_cACpyr_oh140807_A0_idA_20190305112828",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2020-ecker-et-al/Model%20Catalog#model_id.066e7c4c-2e67-449c-80c7-d6bcca2dc1dd",
+          "type": "URL",
+          "identifier": "6d79da99-b0fc-4fcb-815d-06c925eed823"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/hippocampus_optimization/rat/CA1/v4.0.5/optimizations_Python3/CA1_pyr_cACpyr_oh140807_A0_idB_20190305105211/CA1_pyr_cACpyr_oh140807_A0_idB_20190305105211.zip",
+          "label": "CA1_pyr_cACpyr_oh140807_A0_idB_20190305105211",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2020-ecker-et-al/Model%20Catalog#model_id.78b677c8-f21c-4278-b49a-265e3222f4f7",
+          "type": "URL",
+          "identifier": "a9291e8d-79aa-4f1b-b7cd-e59dcbf88150"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/hippocampus_optimization/rat/CA1/v4.0.5/optimizations_Python3/CA1_pyr_cACpyr_oh140807_A0_idC_20190305103627/CA1_pyr_cACpyr_oh140807_A0_idC_20190305103627.zip",
+          "label": "CA1_pyr_cACpyr_oh140807_A0_idC_20190305103627",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2020-ecker-et-al/Model%20Catalog#model_id.dd371bcb-98b0-44b2-bc37-aa35f8f40616",
+          "type": "URL",
+          "identifier": "8e739084-ac5b-4469-b119-864a454d73dd"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/hippocampus_optimization/rat/CA1/v4.0.5/optimizations_Python3/CA1_pyr_cACpyr_oh140807_A0_idF_20190305115459/CA1_pyr_cACpyr_oh140807_A0_idF_20190305115459.zip",
+          "label": "CA1_pyr_cACpyr_oh140807_A0_idF_20190305115459",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2020-ecker-et-al/Model%20Catalog#model_id.e3afdf2b-1402-479a-9bf2-3c00b2114481",
+          "type": "URL",
+          "identifier": "2067af18-c4f9-4ec0-9eec-152420ee6e96"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/hippocampus_optimization/rat/CA1/v4.0.5/optimizations_Python3/CA1_pyr_cACpyr_oh140807_A0_idG_20190328143451/CA1_pyr_cACpyr_oh140807_A0_idG_20190328143451.zip",
+          "label": "CA1_pyr_cACpyr_oh140807_A0_idG_20190328143451",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2020-ecker-et-al/Model%20Catalog#model_id.2224111c-348b-4fc3-b685-680898e57c5a",
+          "type": "URL",
+          "identifier": "de692336-ef51-4942-88a6-c340895b4a5b"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/hippocampus_optimization/rat/CA1/v4.0.5/optimizations_Python3/CA1_pyr_cACpyr_oh140807_A0_idH_20190328143152/CA1_pyr_cACpyr_oh140807_A0_idH_20190328143152.zip",
+          "label": "CA1_pyr_cACpyr_oh140807_A0_idH_20190328143152",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2020-ecker-et-al/Model%20Catalog#model_id.1842d8a7-630c-4b42-a5b0-e359edd8bf37",
+          "type": "URL",
+          "identifier": "8fd0cfda-2192-412c-a857-558a72fe99e2"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/hippocampus_optimization/rat/CA1/v4.0.5/optimizations_Python3/CA1_pyr_cACpyr_oh140807_A0_idJ_20190328142723/CA1_pyr_cACpyr_oh140807_A0_idJ_20190328142723.zip",
+          "label": "CA1_pyr_cACpyr_oh140807_A0_idJ_20190328142723",
+          "view_url": "https://wiki.ebrains.eu/bin/view/Collabs/live-paper-2020-ecker-et-al/Model%20Catalog#model_id.b86f93c8-cd89-4e1d-863e-1604525bf376",
+          "type": "URL",
+          "identifier": "fdd5cafb-58b9-4f4a-b44a-df82b155d64e"
+        }
+      ],
+      "description": null,
+      "icon": "local_play",
+      "order": 0,
+      "title": "Optimized Models",
+      "type": "section_models"
+    }
+  ],
+  "resources_description": "All info related to models, tests used in the paper are available at the links provided below, grouped into the following categories:",
+  "url": "https://onlinelibrary.wiley.com/doi/epdf/10.1002/hipo.23220",
+  "version": "1",
+  "year": "2020-06-10"
+}

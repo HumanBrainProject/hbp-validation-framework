@@ -1,0 +1,84 @@
+{
+    "abstract": "Brain connectivity at the single neuron level can provide fundamental insights into how information is integrated and propagated within and between brain regions. However, it is almost impossible to adequately study this problem experimentally and, despite intense efforts in the field, no mathematical description has been obtained so far. Here, we present a mathematical framework based on a graph-theoretical approach that, starting from experimental data obtained from a few small subsets of neurons, can quantitatively explain and predict the corresponding full network properties. This model also changes the paradigm with which large-scale model networks can be built, from using probabilistic/empiric connections or limited data, to a process that can algorithmically generate neuronal networks connected as in the real system.",
+    "alias": "2020-giacopelli-et-al",
+    "approved_author": {
+        "affiliation": "Department of Mathematics and Informatics, University of Palermo, Italy; Institute of Biophysics, National Research Council, Palermo, Italy",
+        "firstname": "Domenico",
+        "lastname": "Tegolo"
+    },
+    "associated_paper_doi": "https://doi.org/10.1016/j.amc.2020.125150",
+    "associated_paper_title": "Graph-theoretical derivation of brain structural connectivity",
+    "authors": [
+        {
+            "affiliation": "Department of Mathematics and Informatics, University of Palermo, Italy; Institute of Biophysics, National Research Council, Palermo, Italy",
+            "firstname": "Giuseppe",
+            "lastname": "Giacopelli"
+        },
+        {
+            "affiliation": "Institute of Biophysics, National Research Council, Palermo, Italy",
+            "firstname": "Michele",
+            "lastname": "Migliore"
+        },
+        {
+            "affiliation": "Department of Mathematics and Informatics, University of Palermo, Italy; Institute of Biophysics, National Research Council, Palermo, Italy",
+            "firstname": "Domenico",
+            "lastname": "Tegolo"
+        }
+    ],
+    "citation": "Giuseppe Giacopelli, Michele Migliore & Domenico Tegolo (2020). Graph-theoretical derivation of brain structural connectivity. Applied Mathematics and Computation, 377: 125150.",
+    "collab_id": "livepapers",
+    "corresponding_author": [
+        {
+            "affiliation": "Department of Mathematics and Informatics, University of Palermo, Italy; Institute of Biophysics, National Research Council, Palermo, Italy",
+            "firstname": "Domenico",
+            "lastname": "Tegolo"
+        }
+    ],
+    "created_author": [
+        {
+            "affiliation": "Department of Mathematics and Informatics, University of Palermo, Italy; Institute of Biophysics, National Research Council, Palermo, Italy",
+            "firstname": "Domenico",
+            "lastname": "Tegolo"
+        }
+    ],
+    "doi": "https://doi.org/10.25493/RHR6-3F4",
+    "id": "d36d1804-5b02-4e9b-bfbd-04f0de59686b",
+    "associated_paper_volume": "377",
+    "associated_paper_issue": null,
+    "associated_paper_pagination": "125150",
+    "journal": "Applied Mathematics and Computation",
+    "license": "Creative Commons Attribution-NonCommercial 4.0 International",
+    "live_paper_title": "Graph-theoretical derivation of brain structural connectivity",
+    "lp_tool_version": "0.1",
+    "modified_date": "2021-08-03T12:59:43.240000+00:00",
+    "resources": [
+        {
+            "data": [],
+            "description": "<p>\n   <span class=\"txt_style1\">The connectivity matrices of the Markram's model can be found\n   <a href=\"https://bbp.epfl.ch/nmc-portal/downloads\" target=\"_blank\">\n   <span class=\"color_link\">here.</span>\n   </a>\n   </span>\n</p>",
+            "icon": "settings_input_antenna",
+            "order": 0,
+            "title": "Data",
+            "type": "section_custom"
+        },
+        {
+            "data": [],
+            "description": "<p>A reduced self-consistent set of files to reproduce the figures 3B and 5A of the paper is available on\n   <a href=\"https://senselab.med.yale.edu/modeldb/enterCode?model=261881\" target=\"_blank\">ModelDB</a>.",
+            "icon": "note_add",
+            "order": 1,
+            "title": "ModelDB link and test simulation",
+            "type": "section_custom"
+        },
+        {
+            "data": [],
+            "description": "<p>\n   <span class=\"txt_style1\">A Web Application to run the code is available at this <a target=\"_blank\" href=\"https://bsp-gtalg.cineca.it/model/\">link</a>*.\n   <br>\n   <br>\n   <small><i>* in order to access the web application you need an account on the HBP Collaboratory Platform. If you do not have one, please request it by sending an email to: <b>support AT humanbrainproject.eu</b></i></small>\n   </span>\n</p>",
+            "icon": "local_play",
+            "order": 2,
+            "title": "Web Application",
+            "type": "section_custom"
+        }
+    ],
+    "resources_description": "Models and Web App: all the models used in the paper and the Web Application are available at the links reported below:",
+    "url": "https://www.sciencedirect.com/science/article/pii/S0096300320301193",
+    "version": "1",
+    "year": "2020-03-03"
+}

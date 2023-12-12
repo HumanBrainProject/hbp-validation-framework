@@ -1,0 +1,135 @@
+{
+    "id": "1c1f53e4-55d1-45a3-a63a-a16c491a07f4",
+    "lp_tool_version": "0.1",
+    "alias": "2023-farisco-et-al",
+    "modified_date": "2023-09-26T15:00:55.441Z",
+    "authors": [
+        {
+            "firstname": "Michele",
+            "lastname": "Farisco",
+            "affiliation": "Centre for Research Ethics and Bioethics, Uppsala University, Uppsala, Sweden; Biogem Molecular Biology and Genetics Research Institute, Ariano Irpino (AV), Italy"
+        },
+        {
+            "firstname": "Kathinka",
+            "lastname": "Evers",
+            "affiliation": "Centre for Research Ethics and Bioethics, Uppsala University, Uppsala, Sweden; Biogem Molecular Biology and Genetics Research Institute, Ariano Irpino (AV), Italy"
+        },
+        {
+            "firstname": "Jitka",
+            "lastname": "Annen",
+            "affiliation": "GIGA-Consciousness, Coma Science Group, University of Liège, Belgium; Centre du Cerveau, University Hospital of Liège, Belgium; Joint International Research Unit on Consciousness, CERVO Brain Research Centre, U Laval, Canada; International Consciousness Science Institute, Hangzhou Normal University, Hangzhou, China"
+        },
+        {
+            "firstname": "Veronique",
+            "lastname": "Baldin",
+            "affiliation": "ALIS, French Association of Locked-in Syndrome, Boulogne-Billancourt, France"
+        },
+        {
+            "firstname": "Alessandra",
+            "lastname": "Camassa",
+            "affiliation": "Institut d'Investigacions Biomèdiques August Pi i Sunyer (IDIBAPS), Barcelona, Spain"
+        },
+        {
+            "firstname": "Benedetta",
+            "lastname": "Cecconi",
+            "affiliation": "GIGA-Consciousness, Coma Science Group, University of Liège, Belgium"
+        },
+        {
+            "firstname": "Gustavo",
+            "lastname": "Deco",
+            "affiliation": "Catalan Institution for Research and Advanced Studies, Barcelona, Spain; Computational Neuroscience Group, Center for Brain and Cognition, Universitat Pompeu Fabra, Barcelona, Spain"
+        },
+        {
+            "firstname": "Steven",
+            "lastname": "Laureys",
+            "affiliation": "GIGA-Consciousness, Coma Science Group, University of Liège, Belgium; Centre du Cerveau, University Hospital of Liège, Belgium; Joint International Research Unit on Consciousness, CERVO Brain Research Centre, U Laval, Canada; International Consciousness Science Institute, Hangzhou Normal University, Hangzhou, China"
+        },
+        {
+            "firstname": "Rajanikant",
+            "lastname": "Panda",
+            "affiliation": "GIGA-Consciousness, Coma Science Group, University of Liège, Belgium; Centre du Cerveau, University Hospital of Liège, Belgium"
+        },
+        {
+            "firstname": "Arnau",
+            "lastname": "Manasanch",
+            "affiliation": "Institut d'Investigacions Biomèdiques August Pi i Sunyer (IDIBAPS), Barcelona, Spain"
+        },
+        {
+            "firstname": "Maria Victoria",
+            "lastname": "Sánchez-Vives",
+            "affiliation": "Institut d'Investigacions Biomèdiques August Pi i Sunyer (IDIBAPS), Barcelona, Spain; Catalan Institution for Research and Advanced Studies, Barcelona, Spain"
+        },
+        {
+            "firstname": "Gorka",
+            "lastname": "Zamora-López",
+            "affiliation": "Computational Neuroscience Group, Center for Brain and Cognition, Universitat Pompeu Fabra, Barcelona, Spain"
+        }
+    ],
+    "corresponding_author": [
+        {
+            "firstname": "Michele",
+            "lastname": "Farisco",
+            "affiliation": "Centre for Research Ethics and Bioethics, Uppsala University, Uppsala, Sweden; Biogem Molecular Biology and Genetics Research Institute, Ariano Irpino (AV), Italy"
+        }
+    ],
+    "created_author": [
+        {
+            "firstname": "Arnau",
+            "lastname": "Manasanch",
+            "affiliation": "Institut d'Investigacions Biomèdiques August Pi i Sunyer (IDIBAPS), Barcelona, Spain"
+        }
+    ],
+    "approved_author": {
+        "firstname": "Arnau",
+        "lastname": "Manasanch",
+        "affiliation": "Institut d'Investigacions Biomèdiques August Pi i Sunyer (IDIBAPS), Barcelona, Spain"
+    },
+    "year": "2023-09-23",
+    "associated_paper_title": "Advancing the science of consciousness: from ethics to clinical care",
+    "live_paper_title": "Advancing the science of consciousness: from ethics to clinical care",
+    "doi": null,
+    "journal": null,
+    "url": "https://psyarxiv.com/sutrc/",
+    "citation": "Michele Farisco, Kathinka Evers, Jitka Annen, Veronique Baldin, Alessandra Camassa, Benedetta Cecconi, Gustavo Deco, Steven Laureys, Rajanikant Panda, Arnau Manasanch, Maria Victoria Sánchez-Vives & Gorka Zamora-López (2023). Advancing the science of consciousness: from ethics to clinical care. , .",
+    "associated_paper_doi": "https://doi.org/10.31234/osf.io/sutrc",
+    "abstract": "Significant advances in the scientific investigation of the neurobiology of consciousness have been slow to be translated into clinical settings, limited by factors of conceptual (e.g., what is consciousness?), methodological (e.g., how to identify reliable indicators of consciousness?), and technical (e.g., how to improve sensitivity and specificity of the technological identification of consciousness?) nature. In the present paper we aim at reducing the gap between research, clinical practice, patients’ and their caregivers’ needs regarding disorders of consciousness. By implementing a multidisciplinary and multidimensional approach, the paper focuses on disorders of consciousness: it starts from the review of some of the most promising measures of consciousness from brain activity (i.e., spectral measures, measures of functional connectivity, complexity-based measures). Next the paper introduces brain responses to illusions as a new indicator of consciousness (i.e., a feature that facilitates the attribution of consciousness), and illustrates the clinical operationalization of the indicators of consciousness through the case of virtual reality. Finally, the paper analyzes a set of urgent ethical issues and describes a model for assessing and dealing with those issues, concluding by elaborating key recommendations for improving the clinical treatment of patients with disorders of consciousness through a better translation of research into clinics.",
+    "license": "GNU General Public License v3.0 or later",
+    "collab_id": "livepapers",
+    "resources_description": "The resources from this paper are linked below. You will find the associated dataset and model as well as a Live Figure that is executable in EBRAINS (with an EBRAINS account).",
+    "resources": [
+        {
+            "order": 0,
+            "type": "section_generic",
+            "title": "Data, Model and Live Figure",
+            "icon": "",
+            "description": "This section includes the data, model and Live Figure presented in the paper.",
+            "data": [
+                {
+                    "url": "https://data.kg.ebrains.eu/zip?container=https://data-proxy.ebrains.eu/api/v1/buckets/live-papers?prefix=2023-farisco-et-al/",
+                    "label": "Live Figure",
+                    "view_url": "https://lab.ch.ebrains.eu/hub/user-redirect/lab/tree/shared/Live%20Paper%20Ethics%20and%20Clinical%20Care/Live%20Figure/live_figure_clinical_cases.ipynb",
+                    "type": "URL",
+                    "identifier": "f8f1ab49-e9fc-4c30-8add-d7ad85c6fe3c"
+                },
+                {
+                    "url": "https://search.kg.ebrains.eu/instances/Dataset/9a05f491-3ef7-47be-93b2-0a6d8cd43ae0",
+                    "label": "Results for complexity measures and a read-out of the state of cortical circuits after injury",
+                    "view_url": null,
+                    "type": "URL",
+                    "identifier": "fbe0f0b9-43d0-4f52-ae12-e19cc1a7392a"
+                },
+                {
+                    "url": "https://wiki.ebrains.eu/bin/view/Collabs/showcase-3-tvb-brain-states-modelling",
+                    "label": "TVB Model",
+                    "view_url": null,
+                    "type": "URL",
+                    "identifier": "b29a150d-7ff4-4771-ad0c-522b5fa7bbbc"
+                }
+            ]
+        }
+    ],
+    "version": "v1",
+    "associated_paper_volume": null,
+    "associated_paper_issue": null,
+    "associated_paper_pagination": null
+}

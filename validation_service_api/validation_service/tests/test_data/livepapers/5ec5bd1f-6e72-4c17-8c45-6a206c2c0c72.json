@@ -1,0 +1,790 @@
+{
+  "lp_tool_version": "0.1",
+  "id": "5ec5bd1f-6e72-4c17-8c45-6a206c2c0c72",
+  "alias": "2022-appukuttan-davison",
+  "modified_date": "2022-10-06T14:54:33.241000+00:00",
+  "version": "1",
+  "authors": [
+    {
+      "firstname": "Shailesh",
+      "lastname": "Appukuttan",
+      "affiliation": "Paris-Saclay Institute of Neuroscience, Centre National de la Recherche Scientifique, Universit\u00e9 Paris-Saclay, Saclay, France"
+    },
+    {
+      "firstname": "Andrew P.",
+      "lastname": "Davison",
+      "affiliation": "Paris-Saclay Institute of Neuroscience, Centre National de la Recherche Scientifique, Universit\u00e9 Paris-Saclay, Saclay, France"
+    }
+  ],
+  "corresponding_author": [
+    {
+      "firstname": "Shailesh",
+      "lastname": "Appukuttan",
+      "affiliation": "Paris-Saclay Institute of Neuroscience, Centre National de la Recherche Scientifique, Universit\u00e9 Paris-Saclay, Saclay, France"
+    }
+  ],
+  "created_author": [
+    {
+      "firstname": "Shailesh",
+      "lastname": "Appukuttan",
+      "affiliation": "Paris-Saclay Institute of Neuroscience, Centre National de la Recherche Scientifique, Universit\u00e9 Paris-Saclay, Saclay, France"
+    }
+  ],
+  "approved_author": {
+    "firstname": "Shailesh",
+    "lastname": "Appukuttan",
+    "affiliation": "Paris-Saclay Institute of Neuroscience, Centre National de la Recherche Scientifique, Universit\u00e9 Paris-Saclay, Saclay, France"
+  },
+  "year": "2022-01-01",
+  "live_paper_title": "Reproducing and quantitatively validating a biologically-constrained point-neuron model of CA1 pyramidal cells",
+  "associated_paper_title": "Reproducing and quantitatively validating a biologically-constrained point-neuron model of CA1 pyramidal cells",
+  "journal": "Frontiers in Integrative Neuroscience",
+  "url": "https://doi.org/10.3389/fnint.2022.1041423",
+  "citation": "Shailesh Appukuttan & Andrew P. Davison (2022). Reproducing and quantitatively validating a biologically-constrained point-neuron model of CA1 pyramidal cells. Frontiers in Integrative Neuroscience, 16: 1041423.",
+  "doi": null,
+  "associated_paper_doi": "https://doi.org/10.3389/fnint.2022.1041423",
+  "associated_paper_volume": "16",
+  "associated_paper_issue": null,
+  "associated_paper_pagination": "1041423",
+  "abstract": "We have attempted to reproduce a biologically-constrained point-neuron model of CA1 pyramidal cells. The original models, developed for Brian simulator, captured the frequency-current profiles of both strongly and weakly adapting cells. As part of the present study, we reproduced the model for different simulators, namely Brian2 and NEURON. The reproductions were attempted independent of the original Brian implementation, relying solely on the published article.\n\nThe different implementations were quantitatively validated, to evaluate how well they mirror the original model. Additional tests were developed and packaged into a test suite, that helped further characterize and compare various aspects of these models, beyond the scope of the original study. Overall, we were able to reproduce the core features of the model, but observed certain unaccountable discrepancies.\n\nWe demonstrate an approach for undertaking these evaluations, using the SciUnit framework, that allows for such quantitative validations of scientific models, to verify their accurate replication and/or reproductions. All resources employed and developed in our study have been publicly shared via the EBRAINS Live Papers platform.",
+  "license": "Creative Commons Attribution-NonCommercial 4.0 International",
+  "resources_description": "All resources that were created and/or employed in our study, have been publicly shared here through this Live Paper. In addition, all the models and tests discussed in this study have been registered on the EBRAINS Model Validation Framework, thereby providing access to additional relevant metadata. Every validation result, along with data files and figures produced as part of the evaluation, are linked to the models and the tests, and publicly available online. These measures greatly help in satisfying the Findable (F), Accessible (A), and Reusable (R) aspects of the FAIR principles for sharing scientific data. Our <a href=\"https://github.com/appukuttan-shailesh/Ferguson2014_Repro\" target=\"_blank\">GitHub repository</a> also provides access to the files associated with this study.",
+  "collab_id": "livepapers",
+  "resources": [
+    {
+      "order": 0,
+      "type": "section_custom",
+      "title": "Original Study",
+      "icon": "insert_drive_file",
+      "description": "<p><b>Title: </b></p>\n<p>\n  <pre style=\"width:100%; background-color: #F0F4C3\">\n  Simple, biologically-constrained CA1 pyramidal cell models using an intact, whole hippocampus context\n</pre>\n\n</p>\n<p>&nbsp;</p>\n<p><b>Link to article:</b></p>\n<p>\n  <pre style=\"width:100%; background-color: #F0F4C3\">\n  <a href=\"https://doi.org/10.12688/f1000research.3894.2\"\n    >https://doi.org/10.12688/f1000research.3894.2</a\n  ></pre>\n</p>\n<p>&nbsp;</p>\n<p><b>Citation:</b></p>\n<p>\n  <pre style=\"width:100%; background-color: #F0F4C3; white-space: pre-wrap; word-break: keep-all\">\n    Ferguson KA, Huh CYL, Amilhon B&nbsp;<em>et al.</em>&nbsp;Simple, biologically-constrained CA1 pyramidal cell models using an intact, whole hippocampus context [version 2; peer review: 2 approved]</span>.&nbsp;<em>F1000Research</em>&nbsp;2015,&nbsp;<b>3</b>:104</pre>\n</p>",
+      "data": []
+    },
+    {
+      "order": 1,
+      "type": "section_traces",
+      "title": "Experimental Recordings",
+      "icon": "timeline",
+      "description": "These traces are provided by Ferguson et al. (2014) as part of their publication. All rights for the same belong to the original authors/publishers. Source page:\n  <pre style=\"width:100%; background-color: #F0F4C3\">\n  <a href=\"https://zenodo.org/record/17794#.Yxc739JByus\" target=\"_blank\">https://zenodo.org/record/17794#.Yxc739JByus</a>\n</pre>",
+      "data": [
+        {
+          "url": "https://zenodo.org/record/17794/files/PYR1.abf?download=1",
+          "label": "PYR1.abf",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "1c135bb3-2f79-4e60-8e02-58b9ab092533"
+        },
+        {
+          "url": "https://zenodo.org/record/17794/files/PYR2.abf?download=1",
+          "label": "PYR2.abf",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "6cfae2b5-42ac-4167-9356-623c5061c9ae"
+        },
+        {
+          "url": "https://zenodo.org/record/17794/files/PYR3.abf?download=1",
+          "label": "PYR3.abf",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "d4fc903a-0005-4638-8231-61184c4b6abc"
+        },
+        {
+          "url": "https://zenodo.org/record/17794/files/PYR4.abf?download=1",
+          "label": "PYR4.abf",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "97e7a2d7-371b-4524-93bf-1f6902b18cbe"
+        },
+        {
+          "url": "https://zenodo.org/record/17794/files/PYR5_rebound.abf?download=1",
+          "label": "PYR5_rebound.abf",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "bc9980a8-529f-41ce-b78d-15c1daf9d670"
+        }
+      ]
+    },
+    {
+      "order": 2,
+      "type": "section_models",
+      "title": "Model Source Code",
+      "icon": "local_play",
+      "description": null,
+      "data": [
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2022_appukuttan_davison/models/Neuron/Pyr.mod",
+          "label": "Mod file - Main Model#-#NEURON",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "92580fbe-deae-40f7-a306-7d662e3363de"
+        },
+        {
+          "url": "https://senselab.med.yale.edu/modeldb/eavBinDown?o=182515&a=23&mime=application/zip",
+          "label": "Original model on ModelDB #-#Main",
+          "view_url": null,
+          "type": "ModelDB",
+          "identifier": "0d9469ef-cbf2-447f-ab4c-29f25d55393f"
+        },
+        {
+          "url": "https://senselab.med.yale.edu/modeldb/eavBinDown?o=182515&a=23&mime=application/zip",
+          "label": "Original model on ModelDB #-#Original",
+          "view_url": null,
+          "type": "ModelDB",
+          "identifier": "7ad4769a-2947-4842-a893-4ec9295e00c1"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2022_appukuttan_davison/models/Brian2/weakly_adapting_Pyr_model.py",
+          "label": "Pyr Cell (without SciUnit)#-#Brian2",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "4a151207-f82b-4277-85ea-434b8f7629d4"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2022_appukuttan_davison/models/Brian2/strongly_adapting_Pyr_model.py",
+          "label": "Pyr Cell (without SciUnit)#-#Brian2",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "b9243ee5-1b33-45b4-9922-004e40db34a1"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2022_appukuttan_davison/models/Neuron/strongly_adapting_Pyr_model.py",
+          "label": "Pyr Cell (without SciUnit)#-#NEURON",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "c74ad5a5-b7b1-4d31-af37-d9e789872c68"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2022_appukuttan_davison/models/Brian1/run_Brian1_stimarg.py",
+          "label": "Pyr Cell - Specify Stim#-#Brian1",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "d15b68a0-694a-4aa3-b8cb-7040145268cc"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2022_appukuttan_davison/models/Brian2/run_Brian2_stimarg.py",
+          "label": "Pyr Cell - Specify Stim#-#Brian2",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "abdf22e0-cf93-474e-be89-44372f28e8dd"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2022_appukuttan_davison/models/Neuron/run_Neuron_stimarg.py",
+          "label": "Pyr Cell - Specify Stim#-#NEURON",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "d72ab8cf-7c0f-4a9e-9d57-ad0ede0bba58"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2022_appukuttan_davison/models/Neuron/generic_Pyr_model_Neuron_with_mod_file.zip",
+          "label": "Pyr Cell Template + Mod#-#NEURON",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "b1f58f15-3ba0-4e7c-b48c-9645b330e78d"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2022_appukuttan_davison/models/Brian1/generic_Pyr_model_Brian1.py",
+          "label": "Pyr Cell Template#-#Brian1",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "c3679605-1c62-4f37-b94e-ccf4807bb9ae"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2022_appukuttan_davison/models/Brian2/generic_Pyr_model_Brian2.py",
+          "label": "Pyr Cell Template#-#Brian2",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "9fb0c039-29bc-4939-b599-7158aefb1465"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2022_appukuttan_davison/models/Neuron/generic_Pyr_model_Neuron.py",
+          "label": "Pyr Cell Template#-#NEURON",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "85f8b46e-e2e1-416f-92df-c868381f732d"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2022_appukuttan_davison/models/Original/strongly_adapting_PYR_model.py",
+          "label": "Pyr_Strong - Basic#-#Original",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "7f3a924b-901c-4d53-a511-239a2f29a322"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2022_appukuttan_davison/models/Original/strongly_adapting_PYR_model_FI.py",
+          "label": "Pyr_Strong - Run FI Sims#-#Original",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "828ff9f8-d03e-4373-ae25-2d09abe21546"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2022_appukuttan_davison/models/Original/strongly_adapting_PYR_model_stimarg.py",
+          "label": "Pyr_Strong - Specify Stim#-#Original",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "6b0bf1eb-7d92-4299-b460-8a534870accb"
+        },
+        {
+          "url": "https://model-catalog.brainsimulation.eu/#model_alias.ferg2014_strong",
+          "label": "Pyr_Strong model#-#Main",
+          "view_url": "https://model-catalog.brainsimulation.eu/#model_alias.ferg2014_strong",
+          "type": "URL",
+          "identifier": "1336d5ca-49c4-4e18-b671-147f1c76ca31"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2022_appukuttan_davison/models/Original/weakly_adapting_PYR_model1.py",
+          "label": "Pyr_Weak1 - Basic#-#Original",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "21a98e8e-ec5f-4eac-80b5-ade635709bbd"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2022_appukuttan_davison/models/Original/weakly_adapting_PYR_model1_FI.py",
+          "label": "Pyr_Weak1 - Run FI Sims#-#Original",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "8eabbecf-bd98-43bd-9599-f37ba8ae15f5"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2022_appukuttan_davison/models/Original/weakly_adapting_PYR_model1_stimarg.py",
+          "label": "Pyr_Weak1 - Specify Stim#-#Original",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "a6a5231e-466d-47d6-89f4-56bdd9a70374"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2022_appukuttan_davison/models/Original/weakly_adapting_PYR_model1_vary_vinit.py",
+          "label": "Pyr_Weak1 - Vary V_init#-#Original",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "d3f631d0-0a95-4db0-908b-af54a72a4af4"
+        },
+        {
+          "url": "https://model-catalog.brainsimulation.eu/#model_alias.ferg2014_weak1",
+          "label": "Pyr_Weak1 model#-#Main",
+          "view_url": "https://model-catalog.brainsimulation.eu/#model_alias.ferg2014_weak1",
+          "type": "URL",
+          "identifier": "04ae5956-ad36-4965-9409-19b9fdd25d27"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2022_appukuttan_davison/models/Original/weakly_adapting_PYR_model2.py",
+          "label": "Pyr_Weak2 - Basic#-#Original",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "305e2c3f-dbb2-4ecb-ae3a-48c62aaefbcf"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2022_appukuttan_davison/models/Original/weakly_adapting_PYR_model2_FI.py",
+          "label": "Pyr_Weak2 - Run FI Sims#-#Original",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "d8de8282-ae16-4cc9-8d5f-fdf0d4fc27d1"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2022_appukuttan_davison/models/Original/weakly_adapting_PYR_model2_stimarg.py",
+          "label": "Pyr_Weak2 - Specify Stim#-#Original",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "bfc3cf15-6692-4eab-9232-21c615622cbe"
+        },
+        {
+          "url": "https://model-catalog.brainsimulation.eu/#model_alias.ferg2014_weak2",
+          "label": "Pyr_Weak2 model#-#Main",
+          "view_url": "https://model-catalog.brainsimulation.eu/#model_alias.ferg2014_weak2",
+          "type": "URL",
+          "identifier": "f5c4b57b-4061-4339-81b5-393a554a550e"
+        }
+      ]
+    },
+    {
+      "order": 3,
+      "type": "section_generic",
+      "title": "Scripts: Analysis & Plotting",
+      "icon": "format_list_bulleted",
+      "description": null,
+      "data": [
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2022_appukuttan_davison/scripts_analysis/script_01_compare_FI_6panels.py",
+          "label": "script_01_compare_FI_6panels.py",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "13e7cf73-7b17-47f2-819c-df633f6ffa75"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2022_appukuttan_davison/scripts_analysis/script_02_compare_depol_6panels.py",
+          "label": "script_02_compare_depol_6panels.py",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "1765fef2-aa1f-41f6-a5d5-e31fb14880ef"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2022_appukuttan_davison/scripts_analysis/script_03_compare_hyperpol_6panels.py",
+          "label": "script_03_compare_hyperpol_6panels.py",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "72a8d29a-dac3-4a3f-b05b-b2cf23411480"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2022_appukuttan_davison/scripts_analysis/script_04_original_vary_vstart.py",
+          "label": "script_04_original_vary_vstart.py",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "fe744c4b-e934-484e-b72a-bd110c6bfe68"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2022_appukuttan_davison/scripts_analysis/script_05_create_table_FI_test.py",
+          "label": "script_05_create_table_FI_test.py",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "ba07e53b-8578-4956-8ecb-6cc7031b76aa"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2022_appukuttan_davison/scripts_analysis/script_06_create_table_eFELfeatureTest.py",
+          "label": "script_06_create_table_eFELfeatureTest.py",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "b86f53a2-5c03-408a-ba7e-3cff92606a03"
+        },
+        {
+          "url": "https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2022_appukuttan_davison/scripts_analysis/script_07_compare_feature.py",
+          "label": "script_07_compare_feature.py",
+          "view_url": null,
+          "type": "URL",
+          "identifier": "c20d226d-57f4-4b00-852e-49dc465e2cfa"
+        }
+      ]
+    },
+    {
+      "order": 4,
+      "type": "section_generic",
+      "title": "EBRAINS Model Catalog",
+      "icon": "collections_bookmark",
+      "description": null,
+      "data": [
+        {
+          "url": "https://model-catalog.brainsimulation.eu/#test_alias.ferg2014_ap1_amp_strong",
+          "label": "AP1_amp - Pyr_Strong#-#eFELfeatureTest",
+          "view_url": "https://model-catalog.brainsimulation.eu/#test_alias.ferg2014_ap1_amp_strong",
+          "type": "URL",
+          "identifier": "78dfce68-1754-4e7a-8151-06023b5ae5cf"
+        },
+        {
+          "url": "https://model-catalog.brainsimulation.eu/#test_alias.ferg2014_ap1_amp_weak1",
+          "label": "AP1_amp - Pyr_Weak1#-#eFELfeatureTest",
+          "view_url": "https://model-catalog.brainsimulation.eu/#test_alias.ferg2014_ap1_amp_weak1",
+          "type": "URL",
+          "identifier": "d24e0904-3309-4d8f-86d2-8f3fd7239436"
+        },
+        {
+          "url": "https://model-catalog.brainsimulation.eu/#test_alias.ferg2014_ap1_amp_weak2",
+          "label": "AP1_amp - Pyr_Weak2#-#eFELfeatureTest",
+          "view_url": "https://model-catalog.brainsimulation.eu/#test_alias.ferg2014_ap1_amp_weak2",
+          "type": "URL",
+          "identifier": "a163536d-5a82-49ec-a2e4-92e09a2d65ed"
+        },
+        {
+          "url": "https://model-catalog.brainsimulation.eu/#test_alias.ferg2014_ap1_peak_strong",
+          "label": "AP1_peak - Pyr_Strong#-#eFELfeatureTest",
+          "view_url": "https://model-catalog.brainsimulation.eu/#test_alias.ferg2014_ap1_peak_strong",
+          "type": "URL",
+          "identifier": "a7353ae0-9375-415c-8974-79716817f887"
+        },
+        {
+          "url": "https://model-catalog.brainsimulation.eu/#test_alias.ferg2014_ap1_peak_weak1",
+          "label": "AP1_peak - Pyr_Weak1#-#eFELfeatureTest",
+          "view_url": "https://model-catalog.brainsimulation.eu/#test_alias.ferg2014_ap1_peak_weak1",
+          "type": "URL",
+          "identifier": "24ace948-958f-493a-8778-711ecf61978c"
+        },
+        {
+          "url": "https://model-catalog.brainsimulation.eu/#test_alias.ferg2014_ap1_peak_weak2",
+          "label": "AP1_peak - Pyr_Weak2#-#eFELfeatureTest",
+          "view_url": "https://model-catalog.brainsimulation.eu/#test_alias.ferg2014_ap1_peak_weak2",
+          "type": "URL",
+          "identifier": "25e7dca8-b010-4881-85e2-6d75fafc8b8c"
+        },
+        {
+          "url": "https://model-catalog.brainsimulation.eu/#test_alias.ferg2014_ap1_width_strong",
+          "label": "AP1_width - Pyr_Strong#-#eFELfeatureTest",
+          "view_url": "https://model-catalog.brainsimulation.eu/#test_alias.ferg2014_ap1_width_strong",
+          "type": "URL",
+          "identifier": "572afc37-d5a4-46d4-a2bc-a93c5ec74296"
+        },
+        {
+          "url": "https://model-catalog.brainsimulation.eu/#test_alias.ferg2014_ap1_width_weak1",
+          "label": "AP1_width - Pyr_Weak1#-#eFELfeatureTest",
+          "view_url": "https://model-catalog.brainsimulation.eu/#test_alias.ferg2014_ap1_width_weak1",
+          "type": "URL",
+          "identifier": "5955f4fa-7d50-469b-9abb-b45129c5cc5f"
+        },
+        {
+          "url": "https://model-catalog.brainsimulation.eu/#test_alias.ferg2014_ap1_width_weak2",
+          "label": "AP1_width - Pyr_Weak2#-#eFELfeatureTest",
+          "view_url": "https://model-catalog.brainsimulation.eu/#test_alias.ferg2014_ap1_width_weak2",
+          "type": "URL",
+          "identifier": "7991c4a2-e57d-486b-8027-bc1ddbbca268"
+        },
+        {
+          "url": "https://model-catalog.brainsimulation.eu/#test_alias.ferg2014_ap2_amp_strong",
+          "label": "AP2_amp - Pyr_Strong#-#eFELfeatureTest",
+          "view_url": "https://model-catalog.brainsimulation.eu/#test_alias.ferg2014_ap2_amp_strong",
+          "type": "URL",
+          "identifier": "57b86763-fca9-495c-97cb-c9a9974ae1a7"
+        },
+        {
+          "url": "https://model-catalog.brainsimulation.eu/#test_alias.ferg2014_ap2_amp_weak1",
+          "label": "AP2_amp - Pyr_Weak1#-#eFELfeatureTest",
+          "view_url": "https://model-catalog.brainsimulation.eu/#test_alias.ferg2014_ap2_amp_weak1",
+          "type": "URL",
+          "identifier": "be0da6ae-28a4-4454-bea5-18c351e2e9ac"
+        },
+        {
+          "url": "https://model-catalog.brainsimulation.eu/#test_alias.ferg2014_ap2_amp_weak2",
+          "label": "AP2_amp - Pyr_Weak2#-#eFELfeatureTest",
+          "view_url": "https://model-catalog.brainsimulation.eu/#test_alias.ferg2014_ap2_amp_weak2",
+          "type": "URL",
+          "identifier": "382de69e-c697-4958-b85c-1e5d206289d0"
+        },
+        {
+          "url": "https://model-catalog.brainsimulation.eu/#test_alias.ferg2014_ap2_peak_strong",
+          "label": "AP2_peak - Pyr_Strong#-#eFELfeatureTest",
+          "view_url": "https://model-catalog.brainsimulation.eu/#test_alias.ferg2014_ap2_peak_strong",
+          "type": "URL",
+          "identifier": "ce9c62e1-ef9c-4c72-b0cb-c12b3ac81379"
+        },
+        {
+          "url": "https://model-catalog.brainsimulation.eu/#test_alias.ferg2014_ap2_peak_weak1",
+          "label": "AP2_peak - Pyr_Weak1#-#eFELfeatureTest",
+          "view_url": "https://model-catalog.brainsimulation.eu/#test_alias.ferg2014_ap2_peak_weak1",
+          "type": "URL",
+          "identifier": "82f32263-6cf5-4088-a062-96a7ac41779d"
+        },
+        {
+          "url": "https://model-catalog.brainsimulation.eu/#test_alias.ferg2014_ap2_peak_weak2",
+          "label": "AP2_peak - Pyr_Weak2#-#eFELfeatureTest",
+          "view_url": "https://model-catalog.brainsimulation.eu/#test_alias.ferg2014_ap2_peak_weak2",
+          "type": "URL",
+          "identifier": "57a0db43-d816-4ce5-abda-da6bd41c053b"
+        },
+        {
+          "url": "https://model-catalog.brainsimulation.eu/#test_alias.ferg2014_ap2_width_strong",
+          "label": "AP2_width - Pyr_Strong#-#eFELfeatureTest",
+          "view_url": "https://model-catalog.brainsimulation.eu/#test_alias.ferg2014_ap2_width_strong",
+          "type": "URL",
+          "identifier": "f44abde9-3989-45fb-93fa-3d8347c88ed2"
+        },
+        {
+          "url": "https://model-catalog.brainsimulation.eu/#test_alias.ferg2014_ap2_width_weak1",
+          "label": "AP2_width - Pyr_Weak1#-#eFELfeatureTest",
+          "view_url": "https://model-catalog.brainsimulation.eu/#test_alias.ferg2014_ap2_width_weak1",
+          "type": "URL",
+          "identifier": "d4b4ba77-59dc-4c9f-98e8-e33eb144fe74"
+        },
+        {
+          "url": "https://model-catalog.brainsimulation.eu/#test_alias.ferg2014_ap2_width_weak2",
+          "label": "AP2_width - Pyr_Weak2#-#eFELfeatureTest",
+          "view_url": "https://model-catalog.brainsimulation.eu/#test_alias.ferg2014_ap2_width_weak2",
+          "type": "URL",
+          "identifier": "982d020a-d5dc-4962-b90d-f372f744ff43"
+        },
+        {
+          "url": "https://model-catalog.brainsimulation.eu/#test_alias.ferg2014_aplast_amp_strong",
+          "label": "APlast_amp - Pyr_Strong#-#eFELfeatureTest",
+          "view_url": "https://model-catalog.brainsimulation.eu/#test_alias.ferg2014_aplast_amp_strong",
+          "type": "URL",
+          "identifier": "0d3af3f1-629a-42b8-95e2-d9b0195e7d6a"
+        },
+        {
+          "url": "https://model-catalog.brainsimulation.eu/#test_alias.ferg2014_aplast_amp_weak1",
+          "label": "APlast_amp - Pyr_Weak1#-#eFELfeatureTest",
+          "view_url": "https://model-catalog.brainsimulation.eu/#test_alias.ferg2014_aplast_amp_weak1",
+          "type": "URL",
+          "identifier": "73d9de86-e507-42e8-b615-f41980f3fd90"
+        },
+        {
+          "url": "https://model-catalog.brainsimulation.eu/#test_alias.ferg2014_aplast_amp_weak2",
+          "label": "APlast_amp - Pyr_Weak2#-#eFELfeatureTest",
+          "view_url": "https://model-catalog.brainsimulation.eu/#test_alias.ferg2014_aplast_amp_weak2",
+          "type": "URL",
+          "identifier": "e4f056e5-c745-4d0d-b1fc-563f851ef0c4"
+        },
+        {
+          "url": "https://model-catalog.brainsimulation.eu/#test_alias.ferg2014_aplast_width_strong",
+          "label": "APlast_width - Pyr_Strong#-#eFELfeatureTest",
+          "view_url": "https://model-catalog.brainsimulation.eu/#test_alias.ferg2014_aplast_width_strong",
+          "type": "URL",
+          "identifier": "43d6d16e-e4e2-4dba-b7e1-1c5b84454967"
+        },
+        {
+          "url": "https://model-catalog.brainsimulation.eu/#test_alias.ferg2014_aplast_width_weak1",
+          "label": "APlast_width - Pyr_Weak1#-#eFELfeatureTest",
+          "view_url": "https://model-catalog.brainsimulation.eu/#test_alias.ferg2014_aplast_width_weak1",
+          "type": "URL",
+          "identifier": "9a476017-024b-4b29-8170-30a9abb5e466"
+        },
+        {
+          "url": "https://model-catalog.brainsimulation.eu/#test_alias.ferg2014_aplast_width_weak2",
+          "label": "APlast_width - Pyr_Weak2#-#eFELfeatureTest",
+          "view_url": "https://model-catalog.brainsimulation.eu/#test_alias.ferg2014_aplast_width_weak2",
+          "type": "URL",
+          "identifier": "9ecfc48c-d723-4963-a03f-eb2768c6adb6"
+        },
+        {
+          "url": "https://model-catalog.brainsimulation.eu/#test_alias.ferg2014_ffinal_strong_55",
+          "label": "Final frequency - Pyr_Strong -55mV#-#Ferg2014_APFrequencyTest",
+          "view_url": "https://model-catalog.brainsimulation.eu/#test_alias.ferg2014_ffinal_strong_55",
+          "type": "URL",
+          "identifier": "422abe7a-70e8-47cf-85b1-b3381d089e05"
+        },
+        {
+          "url": "https://model-catalog.brainsimulation.eu/#test_alias.ferg2014_ffinal_strong_65",
+          "label": "Final frequency - Pyr_Strong -65mV#-#Ferg2014_APFrequencyTest",
+          "view_url": "https://model-catalog.brainsimulation.eu/#test_alias.ferg2014_ffinal_strong_65",
+          "type": "URL",
+          "identifier": "2eb3cc12-e7b6-4e4c-9fc3-4008da060750"
+        },
+        {
+          "url": "https://model-catalog.brainsimulation.eu/#test_alias.ferg2014_ffinal_weak1_55",
+          "label": "Final frequency - Pyr_Weak1 -55mV#-#Ferg2014_APFrequencyTest",
+          "view_url": "https://model-catalog.brainsimulation.eu/#test_alias.ferg2014_ffinal_weak1_55",
+          "type": "URL",
+          "identifier": "85587d4b-2a4d-426d-9613-7644d79390b3"
+        },
+        {
+          "url": "https://model-catalog.brainsimulation.eu/#test_alias.ferg2014_ffinal_weak1_65",
+          "label": "Final frequency - Pyr_Weak1 -65mV#-#Ferg2014_APFrequencyTest",
+          "view_url": "https://model-catalog.brainsimulation.eu/#test_alias.ferg2014_ffinal_weak1_65",
+          "type": "URL",
+          "identifier": "dba984ce-61d2-4c32-8373-b91c85d8645e"
+        },
+        {
+          "url": "https://model-catalog.brainsimulation.eu/#test_alias.ferg2014_ffinal_weak2_55",
+          "label": "Final frequency - Pyr_Weak2 -55mV#-#Ferg2014_APFrequencyTest",
+          "view_url": "https://model-catalog.brainsimulation.eu/#test_alias.ferg2014_ffinal_weak2_55",
+          "type": "URL",
+          "identifier": "b11e7bc5-7dab-468d-b628-0b5e0e7cde09"
+        },
+        {
+          "url": "https://model-catalog.brainsimulation.eu/#test_alias.ferg2014_ffinal_weak2_65",
+          "label": "Final frequency - Pyr_Weak2 -65mV#-#Ferg2014_APFrequencyTest",
+          "view_url": "https://model-catalog.brainsimulation.eu/#test_alias.ferg2014_ffinal_weak2_65",
+          "type": "URL",
+          "identifier": "547169f8-0505-461f-b824-4e93fd3aaf75"
+        },
+        {
+          "url": "https://model-catalog.brainsimulation.eu/#test_alias.ferg2014_finitial_strong_55",
+          "label": "Initial frequency - Pyr_Strong -55mV#-#Ferg2014_APFrequencyTest",
+          "view_url": "https://model-catalog.brainsimulation.eu/#test_alias.ferg2014_finitial_strong_55",
+          "type": "URL",
+          "identifier": "ef741c69-c58e-4c9c-97c3-5317ebb9c657"
+        },
+        {
+          "url": "https://model-catalog.brainsimulation.eu/#test_alias.ferg2014_finitial_strong_65",
+          "label": "Initial frequency - Pyr_Strong -65mV#-#Ferg2014_APFrequencyTest",
+          "view_url": "https://model-catalog.brainsimulation.eu/#test_alias.ferg2014_finitial_strong_65",
+          "type": "URL",
+          "identifier": "37d4db21-5c38-4eac-ade9-d699574ef356"
+        },
+        {
+          "url": "https://model-catalog.brainsimulation.eu/#test_alias.ferg2014_finitial_weak1_55",
+          "label": "Initial frequency - Pyr_Weak1 -55mV#-#Ferg2014_APFrequencyTest",
+          "view_url": "https://model-catalog.brainsimulation.eu/#test_alias.ferg2014_finitial_weak1_55",
+          "type": "URL",
+          "identifier": "f69a3cf7-cde5-41f3-b097-b27da2b53f31"
+        },
+        {
+          "url": "https://model-catalog.brainsimulation.eu/#test_alias.ferg2014_finitial_weak1_65",
+          "label": "Initial frequency - Pyr_Weak1 -65mV#-#Ferg2014_APFrequencyTest",
+          "view_url": "https://model-catalog.brainsimulation.eu/#test_alias.ferg2014_finitial_weak1_65",
+          "type": "URL",
+          "identifier": "f8e131ca-089a-4f24-94fc-825ea6606e44"
+        },
+        {
+          "url": "https://model-catalog.brainsimulation.eu/#test_alias.ferg2014_finitial_weak2_55",
+          "label": "Initial frequency - Pyr_Weak2 -55mV#-#Ferg2014_APFrequencyTest",
+          "view_url": "https://model-catalog.brainsimulation.eu/#test_alias.ferg2014_finitial_weak2_55",
+          "type": "URL",
+          "identifier": "1b7bad9c-57a4-4d67-93c4-4a2d68693736"
+        },
+        {
+          "url": "https://model-catalog.brainsimulation.eu/#test_alias.ferg2014_finitial_weak2_65",
+          "label": "Initial frequency - Pyr_Weak2 -65mV#-#Ferg2014_APFrequencyTest",
+          "view_url": "https://model-catalog.brainsimulation.eu/#test_alias.ferg2014_finitial_weak2_65",
+          "type": "URL",
+          "identifier": "d4efb9d1-899b-4680-8e98-8ad825e3639b"
+        },
+        {
+          "url": "https://model-catalog.brainsimulation.eu/#model_alias.ferg2014_strong",
+          "label": "Pyr_Strong#-#Models",
+          "view_url": "https://model-catalog.brainsimulation.eu/#model_alias.ferg2014_strong",
+          "type": "URL",
+          "identifier": "9a638ecd-a19d-4ac7-901c-f4650382a680"
+        },
+        {
+          "url": "https://model-catalog.brainsimulation.eu/#model_alias.ferg2014_weak1",
+          "label": "Pyr_Weak1#-#Models",
+          "view_url": "https://model-catalog.brainsimulation.eu/#model_alias.ferg2014_weak1",
+          "type": "URL",
+          "identifier": "74c5aa72-6bed-49a5-8463-286f7ee53df8"
+        },
+        {
+          "url": "https://model-catalog.brainsimulation.eu/#model_alias.ferg2014_weak2",
+          "label": "Pyr_Weak2#-#Models",
+          "view_url": "https://model-catalog.brainsimulation.eu/#model_alias.ferg2014_weak2",
+          "type": "URL",
+          "identifier": "48b49fef-f71a-4ff6-9b63-98dd0d37af65"
+        },
+        {
+          "url": "https://model-catalog.brainsimulation.eu/#test_alias.ferg2014_iv_curve_strong",
+          "label": "iv_curve - Pyr_Strong#-#eFELfeatureTest",
+          "view_url": "https://model-catalog.brainsimulation.eu/#test_alias.ferg2014_iv_curve_strong",
+          "type": "URL",
+          "identifier": "fb50fc80-0784-4d52-b62a-b7740a5ea3be"
+        },
+        {
+          "url": "https://model-catalog.brainsimulation.eu/#test_alias.ferg2014_iv_curve_weak1",
+          "label": "iv_curve - Pyr_Weak1#-#eFELfeatureTest",
+          "view_url": "https://model-catalog.brainsimulation.eu/#test_alias.ferg2014_iv_curve_weak1",
+          "type": "URL",
+          "identifier": "6457e072-77c8-4d21-b4dd-f67dbc70baac"
+        },
+        {
+          "url": "https://model-catalog.brainsimulation.eu/#test_alias.ferg2014_iv_curve_weak2",
+          "label": "iv_curve - Pyr_Weak2#-#eFELfeatureTest",
+          "view_url": "https://model-catalog.brainsimulation.eu/#test_alias.ferg2014_iv_curve_weak2",
+          "type": "URL",
+          "identifier": "acfa4533-42c3-4454-a3b3-8433b4329297"
+        },
+        {
+          "url": "https://model-catalog.brainsimulation.eu/#test_alias.ferg2014_spikecount_strong",
+          "label": "spikecount - Pyr_Strong#-#eFELfeatureTest",
+          "view_url": "https://model-catalog.brainsimulation.eu/#test_alias.ferg2014_spikecount_strong",
+          "type": "URL",
+          "identifier": "ed62b2ce-78c1-46ba-89a6-2e1ce59ba770"
+        },
+        {
+          "url": "https://model-catalog.brainsimulation.eu/#test_alias.ferg2014_spikecount_weak1",
+          "label": "spikecount - Pyr_Weak1#-#eFELfeatureTest",
+          "view_url": "https://model-catalog.brainsimulation.eu/#test_alias.ferg2014_spikecount_weak1",
+          "type": "URL",
+          "identifier": "9cd895d1-97ca-42e4-bb44-08cb37922a51"
+        },
+        {
+          "url": "https://model-catalog.brainsimulation.eu/#test_alias.ferg2014_spikecount_weak2",
+          "label": "spikecount - Pyr_Weak2#-#eFELfeatureTest",
+          "view_url": "https://model-catalog.brainsimulation.eu/#test_alias.ferg2014_spikecount_weak2",
+          "type": "URL",
+          "identifier": "2898ebe3-8d34-4106-8a78-f660de03e7f2"
+        },
+        {
+          "url": "https://model-catalog.brainsimulation.eu/#test_alias.ferg2014_time_to_first_spike_strong",
+          "label": "time_to_first_spike - Pyr_Strong#-#eFELfeatureTest",
+          "view_url": "https://model-catalog.brainsimulation.eu/#test_alias.ferg2014_time_to_first_spike_strong",
+          "type": "URL",
+          "identifier": "baf1d699-8bd4-4e8b-af68-24800d23d167"
+        },
+        {
+          "url": "https://model-catalog.brainsimulation.eu/#test_alias.ferg2014_time_to_first_spike_weak1",
+          "label": "time_to_first_spike - Pyr_Weak1#-#eFELfeatureTest",
+          "view_url": "https://model-catalog.brainsimulation.eu/#test_alias.ferg2014_time_to_first_spike_weak1",
+          "type": "URL",
+          "identifier": "e38445c1-90e1-45f8-b2dc-2808b19981f8"
+        },
+        {
+          "url": "https://model-catalog.brainsimulation.eu/#test_alias.ferg2014_time_to_first_spike_weak2",
+          "label": "time_to_first_spike - Pyr_Weak2#-#eFELfeatureTest",
+          "view_url": "https://model-catalog.brainsimulation.eu/#test_alias.ferg2014_time_to_first_spike_weak2",
+          "type": "URL",
+          "identifier": "c158ef03-c005-4e05-826e-2905768c14fc"
+        },
+        {
+          "url": "https://model-catalog.brainsimulation.eu/#test_alias.ferg2014_time_to_last_spike_strong",
+          "label": "time_to_last_spike - Pyr_Strong#-#eFELfeatureTest",
+          "view_url": "https://model-catalog.brainsimulation.eu/#test_alias.ferg2014_time_to_last_spike_strong",
+          "type": "URL",
+          "identifier": "4923761d-d1e9-41f8-b797-2f1f47f5774a"
+        },
+        {
+          "url": "https://model-catalog.brainsimulation.eu/#test_alias.ferg2014_time_to_last_spike_weak1",
+          "label": "time_to_last_spike - Pyr_Weak1#-#eFELfeatureTest",
+          "view_url": "https://model-catalog.brainsimulation.eu/#test_alias.ferg2014_time_to_last_spike_weak1",
+          "type": "URL",
+          "identifier": "d5983f82-de75-4ccf-92a6-72bf8ba83b63"
+        },
+        {
+          "url": "https://model-catalog.brainsimulation.eu/#test_alias.ferg2014_time_to_last_spike_weak2",
+          "label": "time_to_last_spike - Pyr_Weak2#-#eFELfeatureTest",
+          "view_url": "https://model-catalog.brainsimulation.eu/#test_alias.ferg2014_time_to_last_spike_weak2",
+          "type": "URL",
+          "identifier": "fd42fc7a-e43b-4eea-952a-feda47bc6079"
+        },
+        {
+          "url": "https://model-catalog.brainsimulation.eu/#test_alias.ferg2014_time_to_second_spike_strong",
+          "label": "time_to_second_spike - Pyr_Strong#-#eFELfeatureTest",
+          "view_url": "https://model-catalog.brainsimulation.eu/#test_alias.ferg2014_time_to_second_spike_strong",
+          "type": "URL",
+          "identifier": "3475f001-a001-4d3d-970e-bcda397cddd5"
+        },
+        {
+          "url": "https://model-catalog.brainsimulation.eu/#test_alias.ferg2014_time_to_second_spike_weak1",
+          "label": "time_to_second_spike - Pyr_Weak1#-#eFELfeatureTest",
+          "view_url": "https://model-catalog.brainsimulation.eu/#test_alias.ferg2014_time_to_second_spike_weak1",
+          "type": "URL",
+          "identifier": "318b4861-378b-4bee-9cbb-ae03b356f15a"
+        },
+        {
+          "url": "https://model-catalog.brainsimulation.eu/#test_alias.ferg2014_time_to_second_spike_weak2",
+          "label": "time_to_second_spike - Pyr_Weak2#-#eFELfeatureTest",
+          "view_url": "https://model-catalog.brainsimulation.eu/#test_alias.ferg2014_time_to_second_spike_weak2",
+          "type": "URL",
+          "identifier": "9628f882-26bf-4690-88e9-1e50d837532e"
+        }
+      ]
+    },
+    {
+      "order": 5,
+      "type": "section_custom",
+      "title": "eFELunit Test Suite",
+      "icon": "exposure",
+      "description": "<p>\n  A test suite, named <b>eFELunit</b>, was developed in Python as a\n  distributable package, containing several validation tests in addition to\n  those described in the original study. This allows for a more comprehensive\n  evaluation of the various aspects of the different implementations of the\n  model.\n</p>\n<div>\n  <div style=\"padding: 20px; width:100%; height:100%; display: flex; align-items: center; justify-content: center\">\n    <img src=\"https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2022_appukuttan_davison/figures/SciUnit.png\" alt=\"SciUnit framework based test development\" height=\"300\" />\n  </div>\n  <p>\nFigure shows the SciUnit based workflow of running validation tests. The capability acts as an interface between\nthe models and tests, and defines the functionalities demanded from the models. The solid arrows\nindicate the functions (in red) that are to be implemented by our models; these functions represent\nmore granular functionalities. The function (in blue) combines these more basic functions, to provide\na more comprehensive workflow, and can be directly utilized (shown by dashed arrows) by the tests to\nevaluate the model.</p>\n</div>\n<p>You can pip install the package as follows:</p>\n<pre style=\"width:100%; background-color: #F0F4C3\">\n  pip install eFELunit\n</pre>\n<p><i>(note: use version >= 2.0.3)</i></p>\n<p><b>Example usage:</b></p>\n<p><pre style=\"width:100%; background-color: #F0F4C3\">\n  data = [{\"i_inj\": \"50 pA\", \"value\": \"60.99 mV\"}, {...}] # specify reference data\n  from eFELunit.tests import eFELfeatureTest\n  test = eFELfeatureTest(data, feature=\"AP1_amp\", force_run=True)\n  from Brian2.generic_Pyr_model_Brian2 import CA1_Pyr_Brian2_Template\n  model = CA1_Pyr_Brian2_Template(type='strong')\n  test.judge(model, deep_error=True)</pre\n></p>\n<p><b>Currently available features:</b></p>\n<p><pre style=\"width:100%; background-color: #F0F4C3\">\n  'spikecount', \n  'time_to_first_spike', \n  'time_to_second_spike', \n  'time_to_last_spike', \n  'AP1_amp', \n  'AP2_amp', \n  'APlast_amp', \n  'AP1_peak',\n  'AP2_peak',\n  'AP1_width', \n  'AP2_width', \n  'APlast_width', \n  'iv_curve'</pre\n></p>",
+      "data": []
+    },
+    {
+      "order": 6,
+      "type": "section_generic",
+      "title": "Jupyter Notebooks",
+      "icon": "format_list_bulleted",
+      "description": "These Jupyter Notebook will allow you to run sample simulations for the <b>Brian2</b> and <b>NEURON</b> models from our study. They are implemented to be interactive: you can specify the model variant and the feature to be evaluated.\n<br/><br/>\nThe notebooks are stored on the EBRAINS Collaboratory. If you have an EBRAINS account, you can clone the notebooks, edit and run them in your own workspace. If you do not yet have an EBRAINS account, you can request the same for free. To do so, please visit: <a href=\"https://ebrains.eu/register\" target=\"_blank\">https://ebrains.eu/register</a>",
+      "data": [
+        {
+          "url": "https://drive.ebrains.eu/f/866f3b248bd54af9ade1/?dl=1",
+          "label": "Brian2 Example",
+          "view_url": "https://lab.ch.ebrains.eu/hub/user-redirect/lab/tree/shared/Live%20Paper%3A%202022_Appukuttan_Davison/Brian2_eFELunit_example.ipynb",
+          "type": "URL",
+          "identifier": "4c2fb19b-a27d-40b3-8e5a-a6042d7d2149"
+        },
+        {
+          "url": "https://drive.ebrains.eu/f/877ad732f9724052bf30/?dl=1",
+          "label": "NEURON Example",
+          "view_url": "https://lab.ch.ebrains.eu/hub/user-redirect/lab/tree/shared/Live%20Paper%3A%202022_Appukuttan_Davison/Neuron_eFELunit_example.ipynb",
+          "type": "URL",
+          "identifier": "cc8bece4-0446-482b-8f90-b53ebeca7682"
+        }
+      ]
+    },
+    {
+      "order": 7,
+      "type": "section_custom",
+      "title": "Creating Python3 Virtual Environment",
+      "icon": "settings_brightness",
+      "description": "<p>\n  We shall make use of the <b>virtualenvwrapper</b> helper package for managing virtual environments.\n</p>\n<p>You can pip install this package as follows:</p>\n<pre style=\"width:100%; background-color: #F0F4C3\">\n  pip install virtualenvwrapper\n</pre>\n<p><i>(for more detailed installation instructions, <a href=\"https://virtualenvwrapper.readthedocs.io/en/latest/install.html\" target=\"_blank\">click here</a>)</i></p>\n<p>&nbsp;</p>\n<h5><b>Python3 virtual environment:</b></h5>\n<p>\n  Create a virtual environment named <b>py3venv</b>:\n  <pre style=\"width:100%; background-color: #F0F4C3\">\n  mkvirtualenv --python=\"/usr/bin/python3\" py3venv</pre>\n  Run using <code>python</code> command.\n  <pre>\n  Python 3.8.10 (default, Jun 22 2022, 20:18:18)\n  [GCC 9.4.0] on linux</pre>\n</p>\n<p>\n  Next, we install all the required packages:\n  <pre style=\"width:100%; background-color: #F0F4C3\">\n  pip install scipy</pre>\n  <pre>\n  Successfully installed numpy-1.23.2 scipy-1.9.1</pre>\n\n  <pre style=\"width:100%; background-color: #F0F4C3; white-space: pre-wrap; word-break: keep-all\">\n  pip install brian2</pre>\n  <pre>\n  Successfully installed MarkupSafe-2.1.1 brian2-2.5.1 cython-0.29.32 jinja2-3.1.2 mpmath-1.2.1 pyparsing-3.0.9 sympy-1.11.1</pre>\n\n  <pre style=\"width:100%; background-color: #F0F4C3\">\n  pip install neuron</pre>\n  <pre>\n  Successfully installed neuron-8.2.1</pre>\n\n  <pre style=\"width:100%; background-color: #F0F4C3\">\n  pip install sciunit</pre>\n  <pre style=\"white-space: pre-wrap; word-break: keep-all\">\n  Successfully installed asttokens-2.0.8 attrs-22.1.0 backcall-0.2.0 beautifulsoup4-4.11.1 bleach-5.0.1 bs4-0.0.1 cerberus-1.3.4 cycler-0.11.0 debugpy-1.6.3 decorator-5.1.1 deepdiff-5.8.1 defusedxml-0.7.1 entrypoints-0.4 executing-1.0.0 fastjsonschema-2.16.1 fonttools-4.37.1 gitdb-4.0.9 gitpython-3.1.27 importlib-metadata-3.10.1 importlib-resources-5.9.0 ipykernel-6.15.2 ipython-8.5.0 jedi-0.18.1 jsonpickle-2.2.0 jsonschema-4.15.0 jupyter-client-7.3.5 jupyter-core-4.11.1 jupyterlab-pygments-0.2.2 kiwisolver-1.4.4 lxml-4.9.1 matplotlib-3.5.3 matplotlib-inline-0.1.6 mistune-2.0.4 nbclient-0.6.7 nbconvert-7.0.0 nbformat-5.4.0 nest-asyncio-1.5.5 ordered-set-4.1.0 packaging-21.3 pandas-1.4.4 pandocfilters-1.5.0 parso-0.8.3 pexpect-4.8.0 pickleshare-0.7.5 pillow-9.2.0 pkgutil-resolve-name-1.3.10 prompt-toolkit-3.0.31 psutil-5.9.2 ptyprocess-0.7.0 pure-eval-0.2.2 pygments-2.13.0 pyrsistent-0.18.1 python-dateutil-2.8.2 pytz-2022.2.1 pyzmq-23.2.1 quantities-0.13.0 sciunit-0.2.7 six-1.16.0 smmap-5.0.0 soupsieve-2.3.2.post1 stack-data-0.5.0 tinycss2-1.1.1 tornado-6.2 traitlets-5.3.0 wcwidth-0.2.5 webencodings-0.5.1 zipp-3.8.1</pre>\n\n  <pre style=\"width:100%; background-color: #F0F4C3\">\n  pip install efel</pre>\n  <pre>\n  Successfully installed efel-4.1.1</pre>\n\n  <pre style=\"width:100%; background-color: #F0F4C3; white-space: pre-wrap; word-break: keep-all\">\n  pip install pathos</pre>\n  <pre>\n  Successfully installed dill-0.3.5.1 multiprocess-0.70.13 pathos-0.2.9 pox-0.3.1 ppft-1.7.6.5</pre>\n\n  <pre style=\"width:100%; background-color: #F0F4C3\">\n  pip install eFELunit</pre>\n  <pre>\n  Successfully installed eFELunit-2.0.3 neo-0.11.0</pre>\n</p>\n<p>\n  <a href=\"https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2022_appukuttan_davison/misc/py3venv_pip_freeze.txt\" target=\"_blank\">Click here</a> to download the output of <code>pip freeze</code> for this virtual environment.\n</p>\n<p><br/></p>\n<h6><b>Example simulation:</b></h6>\n<p>\n  (from within Brian2 directory of <a href=\"https://github.com/appukuttan-shailesh/Ferguson2014_Repro\" target=\"_blank\">GitHub repo</a>)\n  <br />Run using <code>python</code> command.\n  <pre style=\"width:100%; background-color: #F0F4C3\">\n  from generic_Pyr_model_Brian2 import CA1_Pyr_Brian2_Template\n  pyr = CA1_Pyr_Brian2_Template(type='strong')\n  print(pyr.name)\n  pyr.run_sample_sim()</pre>\n</p>",
+      "data": []
+    },
+    {
+      "order": 8,
+      "type": "section_custom",
+      "title": "Creating Python2 Virtual Environment",
+      "icon": "settings_brightness",
+      "description": "<p>\n  We shall make use of the <b>virtualenvwrapper</b> helper package for managing virtual environments.\n</p>\n<p>You can pip install this package as follows:</p>\n<pre style=\"width:100%; background-color: #F0F4C3\">\n  pip install virtualenvwrapper\n</pre>\n<p><i>(for more detailed installation instructions, <a href=\"https://virtualenvwrapper.readthedocs.io/en/latest/install.html\" target=\"_blank\">click here</a>)</i></p>\n<p>&nbsp;</p>\n<h5><b>Python2 virtual environment:</b></h5>\n<p>\n  Create a virtual environment named <b>py2venv</b>:\n  <pre style=\"width:100%; background-color: #F0F4C3\">\n  mkvirtualenv --python=\"/usr/bin/python2\" py2venv</pre>\n  Run using <code>python2</code> command.\n  <pre>\n  Python 2.7.18 (default, Jul  1 2022, 12:27:04) \n  [GCC 9.4.0] on linux2</pre>\n</p>\n<p>\n  Next, we install all the required packages:\n  <pre style=\"width:100%; background-color: #F0F4C3\">\n  pip install scipy</pre>\n  <pre>\n  Successfully installed numpy-1.16.6 scipy-1.2.3</pre>\n\n  <pre style=\"width:100%; background-color: #F0F4C3\">\n  pip install brian</pre>\n  <pre>\n  Successfully installed brian-1.4.4</pre>\n\n  <pre style=\"width:100%; background-color: #F0F4C3\">\n  pip install sympy</pre>\n  <pre>\n  Successfully installed mpmath-1.2.1 sympy-1.5.1</pre>\n\n  <pre style=\"width:100%; background-color: #F0F4C3\">\n  pip install pathlib</pre>\n  <pre>\n  Successfully installed pathlib-1.0.1</pre>\n\n  <pre style=\"width:100%; background-color: #F0F4C3\">\n  pip install sciunit==0.2.2</pre>\n  <pre style=\"white-space: pre-wrap; word-break: keep-all\">\n  Successfully installed MarkupSafe-1.1.1 attrs-21.4.0 backports-abc-0.5 backports.functools-lru-cache-1.6.4 backports.shutil-get-terminal-size-1.0.0 backports.tempfile-1.0 backports.weakref-1.0.post1 beautifulsoup4-4.9.3 bleach-3.3.1 bs4-0.0.1 cerberus-1.3.4 configparser-4.0.2 contextlib2-0.6.0.post1 cycler-0.10.0 cypy-0.2.0 decorator-4.4.2 defusedxml-0.7.1 entrypoints-0.3 enum34-1.1.10 functools32-3.2.3.post2 futures-3.3.0 gitdb2-2.0.6 gitpython-2.1.15 importlib-metadata-2.1.3 ipykernel-4.10.1 ipython-5.10.0 ipython-genutils-0.2.0 jinja2-2.11.3 jsonschema-3.2.0 jupyter-client-5.3.5 jupyter-core-4.6.3 kiwisolver-1.1.0 lxml-4.9.1 matplotlib-2.2.5 mistune-0.8.4 nbconvert-5.6.1 nbformat-4.4.0 packaging-20.9 pandas-0.24.2 pandocfilters-1.5.0 pathlib2-2.3.7.post1 pexpect-4.8.0 pickleshare-0.7.5 prompt-toolkit-1.0.18 ptyprocess-0.7.0 pygments-2.5.2 pyparsing-2.4.7 pyrsistent-0.16.1 python-dateutil-2.8.2 pytz-2022.2.1 pyzmq-19.0.2 quantities-0.12.1 scandir-1.10.0 sciunit-0.2.2.1 simplegeneric-0.8.1 singledispatch-3.7.0 six-1.16.0 smmap-3.0.5 smmap2-3.0.1 soupsieve-1.9.6 subprocess32-3.5.4 testpath-0.4.4 tornado-5.1.1 traitlets-4.3.3 typing-3.10.0.0 wcwidth-0.2.5 webencodings-0.5.1 zipp-1.2.0</pre>\n\n  <pre style=\"width:100%; background-color: #F0F4C3\">\n  pip install efel==3.2.4</pre>\n  <pre>\n  Successfully installed efel-3.2.4</pre>\n\n  <pre style=\"width:100%; background-color: #F0F4C3; white-space: pre-wrap; word-break: keep-all\">\n  pip install pathos</pre>\n  <pre>\n  Successfully installed dill-0.3.5.1 multiprocess-0.70.13 pathos-0.2.9 pox-0.3.1 ppft-1.7.6.5</pre>\n\n  <pre style=\"width:100%; background-color: #F0F4C3\">\n  pip install eFELunit</pre>\n  <pre>\n  Successfully installed eFELunit-2.0.1 neo-0.8.0</pre>\n</p>\n<p>\n  <a href=\"https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2022_appukuttan_davison/misc/py2venv_pip_freeze.txt\" target=\"_blank\">Click here</a> to download the output of <code>pip freeze</code> for this virtual environment.\n</p>\n<p><br/></p>\n<h6><b>Example simulation:</b></h6>\n<p>\n  (from within Brian1 directory of <a href=\"https://github.com/appukuttan-shailesh/Ferguson2014_Repro\" target=\"_blank\">GitHub repo</a>)\n  <br />Run using <code>python2</code> command.\n  <pre style=\"width:100%; background-color: #F0F4C3\">\n  from generic_Pyr_model_Brian1 import CA1_Pyr_Brian1_Template\n  pyr = CA1_Pyr_Brian1_Template(type='strong')\n  print(pyr.name)\n  pyr.run_sample_sim()</pre>\n</p>",
+      "data": []
+    }
+  ]
+}

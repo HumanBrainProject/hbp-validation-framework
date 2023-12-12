@@ -1705,7 +1705,7 @@ class PersonWithAffiliation(BaseModel):
     affiliation: str = None
 
     @classmethod
-    def from_kg_object(cls, p, client):
+    def from_kg_object(cls, p, client, reference_date=None):
         if isinstance(p, KGProxy):
             pr = p.resolve(client, scope="any")
         else:
@@ -1715,9 +1715,22 @@ class PersonWithAffiliation(BaseModel):
                 affil.resolve(client, scope="any", follow_links={"member_of": {}})
                 for affil in as_list(pr.affiliations)
             ]
-            affiliation = "; ".join((affil.member_of.name for affil in affiliations if affil.member_of and hasattr(affil.member_of, "name")))
-            # todo: if affiliations have start/end dates, filter for the ones that match the datetimes
-            #       associated with the paper/live paper
+            affiliation_strs = []
+            for affil in affiliations:
+                if affil.member_of and hasattr(affil.member_of, "name"):
+                    if reference_date:
+                        start_date = affil.start_date and affil.start_date or datetime(1, 1, 1)
+                        end_date = affil.end_date and affil.end_date or datetime(9999, 12, 31)
+                        if start_date <= reference_date <= end_date:
+                            affiliation_strs.append(affil.member_of.name)
+                    else:
+                        affiliation_strs.append(affil.member_of.name)
+            if affiliation_strs:
+                affiliation = "; ".join(affiliation_strs)
+            else:
+                affiliation = None
+            # todo: need a better way to handle affiliations for publications than the start and end dates
+            #       as publications often reflect work done in a previous institution.
         else:
             affiliation = None
         return cls(firstname=pr.given_name, lastname=pr.family_name, affiliation=affiliation)
@@ -1823,8 +1836,8 @@ class LivePaperSection(BaseModel):
             title=section.name,
             icon=None,  # todo: generate based on section_type
             description=section.description,
-            data=[LivePaperDataItem.from_kg_object(item, kg_client)
-                  for item in as_list(resource_items)]
+            data=sorted([LivePaperDataItem.from_kg_object(item, kg_client)
+                  for item in as_list(resource_items)], key=lambda item: item.label)
         )
 
     def to_kg_objects(self, kg_live_paper, kg_client):
@@ -1879,15 +1892,18 @@ class LivePaper(BaseModel):
 
     @classmethod
     def from_kg_object(cls, lp, kg_client):
-        def get_people(obj):
+        def get_people(obj, reference_date=None):
             if obj is None:
                 return None
-            return [PersonWithAffiliation.from_kg_object(p, kg_client) for p in as_list(obj)]
+            return [
+                PersonWithAffiliation.from_kg_object(p, kg_client, reference_date=reference_date)
+                for p in as_list(obj)
+            ]
 
-        def get_person(obj):
+        def get_person(obj, reference_date=None):
             if obj is None:
                 return None
-            return PersonWithAffiliation.from_kg_object(obj, kg_client)
+            return PersonWithAffiliation.from_kg_object(obj, kg_client, reference_date=reference_date)
 
         scope = lp.scope or "any"
         lpv = as_list(lp.versions)[-1]  # todo: sort by release_date and/or last_modified
@@ -1925,6 +1941,8 @@ class LivePaper(BaseModel):
                         },
                         scope=scope
                     )
+                else:
+                    related_publication = None
             else:
                 related_publication = None
                 related_publications = []
@@ -1945,18 +1963,20 @@ class LivePaper(BaseModel):
                 associated_paper_abstract = related_publication.abstract
                 associated_paper_citation = related_publication.get_citation_string(kg_client)
                 associated_paper_pagination = related_publication.pagination
-                corresponding_author = get_people(related_publication.custodians)
+                corresponding_author = get_people(related_publication.custodians, reference_date=associated_paper_release_date)
                 journal_info = related_publication.get_journal(kg_client, True, True) if related_publication.is_part_of else None
                 if journal_info:
                     (_journal, _volume, _issue) = journal_info
                     journal_name = _journal.name if _journal else None
                     associated_paper_volume = _volume.volume_number if _volume else None
                     associated_paper_issue = _issue.issue_number if _issue else None
+                    if associated_paper_volume == "placeholder":
+                        associated_paper_volume = None
         else:
             related_publications = []
         original_authors = []
         for rel_pub in related_publications:
-            original_authors.extend(get_people(rel_pub.authors))
+            original_authors.extend(get_people(rel_pub.authors, reference_date=associated_paper_release_date))
         # now remove possible duplicates
         original_authors = list(dict.fromkeys(original_authors))
 
@@ -1972,21 +1992,21 @@ class LivePaper(BaseModel):
                 live_paper_doi = lpv.digital_identifier.resolve(kg_client, scope=scope).identifier
             except ResolutionFailure as err:
                 logger.warn(str(err))
-        #breakpoint()
         return cls(
             modified_date=lpv.modification_date,
             alias=lp.alias,
             version=lpv.version_identifier,
             authors=original_authors,
             corresponding_author=corresponding_author,
-            created_author=get_people(lp.authors),
-            approved_author=get_person(as_list(custodians)[0]) if custodians else None,
+            created_author=get_people(lp.authors, reference_date=associated_paper_release_date),
+            approved_author=get_person(as_list(custodians)[0], reference_date=associated_paper_release_date) if custodians else None,
             year=associated_paper_release_date,  # what if multiple related pubs - for now we assume only one
             associated_paper_title=associated_paper_title,
             live_paper_title=lpv.name or lp.name,
             journal=journal_name,
             associated_paper_volume=associated_paper_volume,
             associated_paper_issue=associated_paper_issue,
+            associated_paper_pagination=associated_paper_pagination,
             url=associated_paper_url,
             citation=associated_paper_citation,
             doi=live_paper_doi,

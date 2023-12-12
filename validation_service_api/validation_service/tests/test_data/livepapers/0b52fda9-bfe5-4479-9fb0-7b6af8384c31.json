@@ -1,0 +1,88 @@
+{
+    "abstract": "Detailed conductance-based nonlinear neuron models consisting of thousands of synapses are key for understanding of the computational properties of single neurons and large neuronal networks, and for interpreting experimental results. Simulations of these models are computationally expensive, considerably curtailing their utility. Neuron_Reduce is a new analytical approach to reduce the morphological complexity and computational time of nonlinear neuron models. Synapses and active membrane channels are mapped to the reduced model preserving their transfer impedance to the soma; synapses with identical transfer impedance are merged into one NEURON process still retaining their individual activation times. Neuron_Reduce accelerates the simulations by 40-250 folds for a variety of cell types and realistic number (10,000-100,000) of synapses while closely replicating voltage dynamics and specific dendritic computations. The reduced neuron-models will enable realistic simulations of neural networks at unprecedented scale, including networks emerging from micro-connectomics efforts and biologically-inspired \"deep networks\". Neuron_Reduce is publicly available and is straightforward to implement.",
+    "alias": "2020-amsalem-et-al",
+    "approved_author": {
+        "affiliation": "Department of Neurobiology, Hebrew University of Jerusalem, Jerusalem, Israel",
+        "firstname": "Oren",
+        "lastname": "Amsalem"
+    },
+    "associated_paper_doi": "https://doi.org/10.1038/s41467-019-13932-6",
+    "associated_paper_title": "An efficient analytical reduction of detailed nonlinear neuron models",
+    "authors": [
+        {
+            "affiliation": "Department of Neurobiology, Hebrew University of Jerusalem, Jerusalem, Israel",
+            "firstname": "Oren",
+            "lastname": "Amsalem"
+        },
+        {
+            "affiliation": "Department of Neurobiology, Hebrew University of Jerusalem, Jerusalem, Israel",
+            "firstname": "Guy",
+            "lastname": "Eyal"
+        },
+        {
+            "affiliation": "Department of Neurobiology, Hebrew University of Jerusalem, Jerusalem, Israel",
+            "firstname": "Noa",
+            "lastname": "Rogozinski"
+        },
+        {
+            "affiliation": "Blue Brain Project, \u00c9cole Polytechnique F\u00e9d\u00e9rale de Lausanne, Geneva, Switzerland",
+            "firstname": "Michael",
+            "lastname": "Gevaert"
+        },
+        {
+            "affiliation": "Blue Brain Project, \u00c9cole Polytechnique F\u00e9d\u00e9rale de Lausanne, Geneva, Switzerland",
+            "firstname": "Pramod S.",
+            "lastname": "Kumbhar"
+        },
+        {
+            "affiliation": "Blue Brain Project, \u00c9cole Polytechnique F\u00e9d\u00e9rale de Lausanne, Geneva, Switzerland",
+            "firstname": "Felix",
+            "lastname": "Sch\u00fcrmann"
+        },
+        {
+            "affiliation": "Department of Neurobiology, Hebrew University of Jerusalem, Jerusalem, Israel; Edmond and Lily Safra Center for Brain Sciences, Hebrew University of Jerusalem, Jerusalem, Israel",
+            "firstname": "Idan",
+            "lastname": "Segev"
+        }
+    ],
+    "citation": "Oren Amsalem, Guy Eyal, Noa Rogozinski, Michael Gevaert, Pramod S. Kumbhar, Felix Schürmann & Idan Segev (2021). An efficient analytical reduction of detailed nonlinear neuron models. Nature Communications, 11: 288.",
+    "collab_id": "livepapers",
+    "corresponding_author": [
+        {
+            "affiliation": "Department of Neurobiology, Hebrew University of Jerusalem, Jerusalem, Israel",
+            "firstname": "Oren",
+            "lastname": "Amsalem"
+        }
+    ],
+    "created_author": [
+        {
+            "affiliation": "Department of Neurobiology, Hebrew University of Jerusalem, Jerusalem, Israel",
+            "firstname": "Oren",
+            "lastname": "Amsalem"
+        }
+    ],
+    "doi": "https://doi.org/10.25493/1D2M-CV0",
+    "id": "0b52fda9-bfe5-4479-9fb0-7b6af8384c31",
+    "journal": "Nature Communications",
+    "associated_paper_volume": "11",
+    "associated_paper_issue": null,
+    "associated_paper_pagination": "288",
+    "license": "Creative Commons Attribution-NonCommercial 4.0 International",
+    "live_paper_title": "An efficient analytical reduction of detailed nonlinear neuron models",
+    "lp_tool_version": "0.1",
+    "modified_date": "2021-08-10T08:41:53.320000+00:00",
+    "resources": [
+        {
+            "data": [],
+            "description": "<link href=\"https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2020_amsalem_et_al/static/css/gwdiframe_style.css\" rel=\"stylesheet\" data-version=\"5\" data-exports-type=\"gwd-iframe\">\n<script type=\"text/javascript\" src=\"https://cdn.pydata.org/bokeh/release/bokeh-0.13.0.min.js\"></script>\n<script data-source=\"https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2020_amsalem_et_al/static/js/googbase_min.js\" data-version=\"4\" data-exports-type=\"googbase\" src=\"https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2020_amsalem_et_al/static/js/googbase_min.js\"></script>\n<script data-source=\"https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2020_amsalem_et_al/static/js/gwd_webcomponents_min.js\" data-version=\"6\" data-exports-type=\"gwd_webcomponents\" src=\"https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2020_amsalem_et_al/static/js/gwd_webcomponents_min.js\"></script>\n<script data-source=\"./static/js/gwdiframe_min.js\" data-version=\"5\" data-exports-type=\"gwd-iframe\" src=\"https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2020_amsalem_et_al/static/js/gwdiframe_min.js\"></script>\n<link rel=\"stylesheet\" type=\"text/css\" href=\"https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2020_amsalem_et_al/static/css/amsalem_et_al_2020.css\">\n\n<div class=\"\" style=\"text-align:center; display:block; overflow:auto\">\n   <div class=\"col-md-5\" style=\"text-align:center\">\n      <gwd-iframe id=\"gwd-iframe_1-llb\" \n         source=\"https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2020_amsalem_et_al/morphs/detailed_model/cell1.html\" \n         class=\"gwd-iframe-1ixy-llb\" scrolling=\"no\"></gwd-iframe>\n      <p>\n         <a target=\"_blank\" href=\"https://blue-naas.humanbrainproject.eu/#/url/EBRAINS_live_papers/2020_amsalem_et_al/neuron_reduce/detailed.zip?dt=0.025&tstop=2500&dur=0&amp=0&celsius=37\">\n         Click here to run simulation \n         </a>\n      </p>\n   </div>\n   <div class=\"col-md-2\" style=\"text-align:center;padding: 10% 0\">\n      <div class=\"gwd-p-1ae8-llb gwd-span-1qfx\" style=\"text-align:center;\">\u2192</div>\n      <div class=\"gwd-span-1skk-llb\" style=\"text-align:center\">Neuron Reduce</div>\n   </div>\n   <div class=\"col-md-5\" style=\"text-align:center\">\n      <gwd-iframe id=\"gwd-iframe_2-llb\" source=\"https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2020_amsalem_et_al/morphs/simplified_model/cell1_reduced.html\" class=\"gwd-iframe-1ixy-llb\" scrolling=\"no\"></gwd-iframe>\n      <p>\n         <a target=\"_blank\" href=\"https://blue-naas.humanbrainproject.eu/#/url/EBRAINS_live_papers/2020_amsalem_et_al/neuron_reduce/simplified.zip?dt=0.025&tstop=2500&dur=0&amp=0&celsius=37\"> \n         Click here to run simulation \n         </a> \n      </p>\n   </div>\n</div>\n\n<div class=\"\" style=\"text-align:center;\">\n    <div style=\"padding: 3px 0\">\n        <div class=\"col-md-offset-3 col-md-2 gwd-left-arrow-llb gwd-span-1qfx\" scrolling=\"no\" style=\"text-align:center;\">\u2192</div>\n    </div>\n    <div style=\"padding: 9px 0\">\n        <div class=\"col-md-offset-2 col-md-2 gwd-right-arrow-llb gwd-span-1qfx\" scrolling=\"no\" style=\"text-align:center;\">\u2192</div>\n    </div>\n</div>\n\n<div class=\"\" style=\"text-align:center; display:block; overflow:auto;width:100%\">\n    <gwd-iframe id=\"ccfedb82-4def-4711-8f43-7e5561c54dd0\" source=\"https://object.cscs.ch/v1/AUTH_c0a333ecf7c045809321ce9d9ecdfdea/EBRAINS_live_papers/2020_amsalem_et_al/traces/test133.html\" class=\"gwd-visualizer-view-1iw1-llb\" scrolling=\"no\"></gwd-iframe>\n</div>\n<br>\n<div class=\"\">Detailed instruction and source code is available on GitHub: <a target=\"_blank\" href=https://github.com/orena1/neuron_reduce>https://github.com/orena1/neuron_reduce</div>",
+            "icon": "pageview",
+            "order": 0,
+            "title": "Demonstration",
+            "type": "section_custom"
+        }
+    ],
+    "resources_description": null,
+    "url": "https://www.nature.com/articles/s41467-019-13932-6",
+    "version": "1",
+    "year": "2021-08-10"
+}
