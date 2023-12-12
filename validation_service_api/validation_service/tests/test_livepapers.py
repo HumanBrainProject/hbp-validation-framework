@@ -209,3 +209,17 @@ def test_published_papers(file_path):
                     if item["data"] and item["data"][0]["label"] == "control_3-4_months/191129004_S24.abf":
                         item["data"] = []
     assert retrieved_lp == expected_lp
+
+
+def test_published_paper_list():
+    """For published live papers, check the API gives the expected results."""
+    this_dir = os.path.dirname(__file__)
+    file_path = f"{this_dir}/test_data/livepapers/summary.json"
+    with open(file_path) as fp:
+        expected = json.load(fp)
+
+    response = client.get(f"/livepapers-published/", headers=AUTH_HEADER)
+    assert response.status_code == 200
+    retrieved = response.json()
+
+    assert retrieved == expected

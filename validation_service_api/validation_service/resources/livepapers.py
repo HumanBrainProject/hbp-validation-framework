@@ -80,7 +80,7 @@ async def query_live_papers(
         summary = LivePaperSummary.from_kg_query(lp, kg_user_client)
         if summary:
             summaries.append(summary)
-    return summaries
+    return sorted(summaries, key=lambda lp: lp.year)
 
 
 @router.get("/livepapers-published/", response_model=List[LivePaperSummary])
@@ -88,10 +88,13 @@ async def query_released_live_papers():
     # check - do we need service account, or will any user account get released instances?
     kg_client = get_kg_client_for_service_account()
     lps = ompub.LivePaper.list(kg_client, scope="released", size=1000, space=LIVEPAPERS_SPACE)
-    return [
-        LivePaperSummary.from_kg_object(lp, kg_client)
-        for lp in as_list(lps)
-    ]
+    return sorted(
+        [
+            LivePaperSummary.from_kg_object(lp, kg_client)
+            for lp in as_list(lps)
+        ],
+        key=lambda lp: lp.year
+    )
 
 
 @router.get("/livepapers/{lp_id}", response_model=LivePaper)
