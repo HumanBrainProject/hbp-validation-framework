@@ -80,7 +80,7 @@ async def query_live_papers(
         summary = LivePaperSummary.from_kg_query(lp, kg_user_client)
         if summary:
             summaries.append(summary)
-    return sorted(summaries, key=lambda lp: lp.year)
+    return sorted(summaries, key=lambda lp: lp.year or 1970)
 
 
 @router.get("/livepapers-published/", response_model=List[LivePaperSummary])
