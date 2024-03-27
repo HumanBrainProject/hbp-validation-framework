@@ -1929,7 +1929,7 @@ class LivePaper(BaseModel):
                 related_publication = related_publication_identifier
                 related_publications = [related_publication]
             elif isinstance(related_publication_identifier, omcore.DOI):
-                related_publications = as_list(ompub.ScholarlyArticle.list(kg_client, scope=scope, space=lp.space,
+                related_publications = as_list(ompub.ScholarlyArticle.list(kg_client, scope=scope,
                                                                            digital_identifier=related_publication_identifier))
                 if len(related_publications) > 0:
                     related_publication = related_publications[0].resolve(
