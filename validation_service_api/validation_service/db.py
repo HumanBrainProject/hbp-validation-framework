@@ -8,7 +8,6 @@ from time import sleep
 from fastapi import HTTPException, status
 from fairgraph.openminds.core import Model, ModelVersion, SoftwareVersion
 from fairgraph.openminds.computation import ValidationTest, ValidationTestVersion
-from fairgraph.openminds.publications import LivePaper
 from . import settings
 
 RETRY_INTERVAL = 60  # seconds
@@ -94,19 +93,3 @@ def _get_test_instance_by_id(instance_id, kg_client, scope):
             detail=f"Test instance with ID '{instance_id}' not found.",
         )
     return test_instance
-
-
-def _get_live_paper_by_id_or_alias(lp_id, kg_client, scope):
-
-    if isinstance(lp_id, UUID):
-        identifier_type = "ID"
-        live_paper = LivePaper.from_uuid(str(lp_id), kg_client, scope=scope)
-    else:
-        identifier_type = "alias"
-        live_paper = LivePaper.from_alias(lp_id, kg_client, space=LivePaper.default_space, scope=scope)
-    if not live_paper:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Live paper with {identifier_type} '{lp_id}' not found.",
-        )
-    return live_paper
