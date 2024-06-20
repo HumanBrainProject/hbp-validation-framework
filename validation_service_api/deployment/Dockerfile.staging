@@ -5,45 +5,25 @@
 #   docker build -t validation_service_v3beta -f deployment/Dockerfile .
 #
 # To run the application:
-#   docker run -d -p 443 -v /etc/letsencrypt:/etc/letsencrypt \
+#   docker run -d -p 80 \
 #              -e KG_SERVICE_ACCOUNT_REFRESH_TOKEN \
 #              -e KG_SERVICE_ACCOUNT_CLIENT_ID \
 #              -e KG_SERVICE_ACCOUNT_SECRET \
 #              validation_service_v3beta
 
-FROM docker-registry.ebrains.eu/model-catalog/debian:bullseye-slim
+FROM docker-registry.ebrains.eu/model-catalog/python:3.11
 
-MAINTAINER Andrew Davison <andrew.davison@cnrs.fr>
+LABEL org.opencontainers.image.authors="Andrew Davison <andrew.davison@cnrs.fr>"
 
-ENV DEBIAN_FRONTEND noninteractive
-RUN apt-get update --fix-missing; apt-get -y -q install python-pkg-resources python3-pkg-resources python3-pip supervisor build-essential nginx-extras git wget
-RUN unset DEBIAN_FRONTEND
+WORKDIR /code
 
-RUN pip3 install --upgrade pip
+COPY requirements.txt.lock /code/requirements.txt
+RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
 
-ADD https://api.github.com/repos/HumanBrainProject/fairgraph/git/refs/heads/master fairgraph_version.json
-RUN git clone https://github.com/HumanBrainProject/fairgraph.git --branch=master --single-branch
-RUN pip3 install ./fairgraph
+COPY validation_service /code/validation_service
+COPY deployment/build_info.json /code/validation_service/build_info.json
 
-ENV SITEDIR /home/docker/site
+RUN useradd appuser --uid 1001
+USER appuser
 
-COPY requirements.txt.lock $SITEDIR/
-RUN pip3 install -r $SITEDIR/requirements.txt.lock
-
-COPY validation_service $SITEDIR/validation_service
-RUN wget https://raw.githubusercontent.com/spdx/license-list-data/master/json/licenses.json -O $SITEDIR/validation_service/spdx_licences.json
-COPY deployment/build_info.json $SITEDIR/validation_service
-
-ENV PYTHONPATH  /home/docker:/home/docker/site:/usr/local/lib/python3.9/dist-packages:/usr/lib/python3.9/dist-packages
-
-RUN echo "daemon off;" >> /etc/nginx/nginx.conf
-RUN rm /etc/nginx/sites-enabled/default
-COPY deployment/nginx-app-staging.conf /etc/nginx/sites-enabled/nginx-app.conf
-COPY deployment/supervisor-app.conf /etc/supervisor/conf.d/
-#RUN ln -sf /dev/stdout /var/log/nginx/access.log
-#RUN ln -sf /dev/stderr /var/log/nginx/error.log
-
-EXPOSE 443
-#EXPOSE 80
-
-CMD ["supervisord", "-n", "-c", "/etc/supervisor/conf.d/supervisor-app.conf"]
+CMD ["uvicorn", "validation_service.main:app", "--proxy-headers", "--host", "0.0.0.0", "--port", "80", "--timeout-keep-alive", "600"]
