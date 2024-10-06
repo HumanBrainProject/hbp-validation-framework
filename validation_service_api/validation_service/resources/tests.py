@@ -203,6 +203,8 @@ def query_tests(
         if alias:
             filters["alias"] = alias
         if implementation_status:
+            # todo: this doesn't work, and requires checking release status,
+            #       hence this filter needs to be applied to the results of the query
             filters["implementation_status"] = implementation_status
         if project_id:
             filters["space"] = [f"collab-{collab_id}" for collab_id in project_id]
@@ -235,7 +237,7 @@ def query_tests(
                                              ).data
 
             return [
-                cls.from_kg_query(instance, kg_user_client)
+                cls.from_kg_query(instance, kg_user_client, kg_service_client)
                 for instance in instances
             ]
 
@@ -251,7 +253,7 @@ def query_tests(
                     instances[instance["uri"]] = instance  # use dict to remove duplicates
 
             return [
-                cls.from_kg_query(instance, kg_user_client)
+                cls.from_kg_query(instance, kg_user_client, kg_service_client)
                 for instance in list(instances.values())[from_index:from_index + size]
             ]
 

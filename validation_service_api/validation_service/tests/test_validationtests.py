@@ -61,9 +61,9 @@ def assert_is_valid_url(url):
     except ValueError:
         raise AssertionError
 
-@pytest.mark.xfail  # todo: should pass when using a released instance
+
 def test_get_validation_test_by_id_no_auth():
-    test_ids = ("01c68387-fcc4-4fd3-85f0-6eb8ce4467a1",)
+    test_ids = ("90ae68fa-a9e6-49dd-947a-908ab9a6dee2",)
     for validation_test_uuid in test_ids:
         response = client.get(f"/tests/{validation_test_uuid}")
         assert response.status_code == 200
@@ -92,11 +92,13 @@ def test_get_validation_test_by_id(caplog):
         assert response.status_code == 400
 
 
-@pytest.mark.xfail  # test to be updated
 def test_list_validation_tests_no_auth():
     response = client.get(f"/tests/")
-    assert response.status_code == 403
-    assert response.json() == {"detail": "Not authenticated"}
+    assert response.status_code == 200
+    validation_tests = response.json()
+    for validation_test in validation_tests:
+        check_validation_test(validation_test)
+        assert validation_test["implementation_status"] == "published"
 
 
 def test_list_validation_tests_nofilters():

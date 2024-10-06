@@ -896,16 +896,22 @@ class ValidationTest(BaseModel):
     # todo: add "publication" field
 
     @classmethod
-    def from_kg_query(cls, item, client):
+    def from_kg_query(cls, item, user_client, service_client):
         item.pop("@context", None)
-        item["id"] = client.uuid_from_uri(item["uri"])
+        item["id"] = user_client.uuid_from_uri(item["uri"])
         space = item["project_id"]  # what the query calls "project_id" is really the space
         item["private"] = is_private(space)
         item["project_id"] = project_id_from_space(space)
         item["instances"] = [
-            ValidationTestInstance.from_kg_query(instance, client)
+            ValidationTestInstance.from_kg_query(instance, user_client)
             for instance in item.get("instances", [])
         ]
+        if len(item["instances"]) == 0:
+            item["implementation_status"] = ImplementationStatus.proposal
+        elif service_client.is_released(item["uri"]):
+            item["implementation_status"] = ImplementationStatus.published
+        else:
+            item["implementation_status"] = ImplementationStatus.dev
         data_locations = []
         for loc in item["data_location"]:
             for field in ("IRI", "URL", "name"):
