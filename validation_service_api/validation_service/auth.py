@@ -153,16 +153,13 @@ class User:
             permissions = await self.get_collab_permissions(collab_id)
         else:
             permissions = {}
-        if permissions.get(permission_type, False):
-            return True
-        else:
-            return self.is_admin()
+        return permissions.get(permission_type, False)
 
     async def can_view_collab(self, collab_id):
-        return self._have_collab_access(collab_id, "VIEW")
+        return await self._have_collab_access(collab_id, "VIEW")
 
     async def can_edit_collab(self, collab_id):
-        return self._have_collab_access(collab_id, "UPDATE")
+        return await self._have_collab_access(collab_id, "UPDATE")
 
     async def is_admin(self):
         return await self.can_edit_collab(settings.ADMIN_COLLAB_ID)
