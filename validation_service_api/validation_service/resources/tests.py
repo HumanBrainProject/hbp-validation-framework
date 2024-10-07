@@ -556,9 +556,10 @@ def update_test_instance_by_id(
     user = User(token, allow_anonymous=False)
     kg_client = get_kg_client_for_user_account(token)
     test_instance_kg = _get_test_instance_by_id(test_instance_id, kg_client, scope="any")
-    test_definition = omcmp.ValidationTest.list(
+    test_definition_kg = omcmp.ValidationTest.list(
         kg_client, scope="any",
         space=test_instance_kg.space, versions=test_instance_kg)[0]
+    test_definition = ValidationTest.from_kg_object(test_definition_kg, kg_client)
     return _update_test_instance(test_instance_kg, test_definition, test_instance_patch, kg_client)
 
 

@@ -580,7 +580,7 @@ def test_update_test_instance():
     assert response.status_code == 200
 
     # now retrieve the test and check the instance has been updated
-    sleep(15)  # need to wait a short time to allow Nexus to become consistent
+    sleep(15)  # need to wait a short time to allow KG to become consistent
     response = client.get(f"/tests/{test_uuid}", headers=AUTH_HEADER)
     assert response.status_code == 200
     retrieved_test = response.json()
@@ -590,6 +590,48 @@ def test_update_test_instance():
     )  # should be unchanged
     assert retrieved_test["instances"][0]["repository"] == payload2["repository"]
     assert retrieved_test["instances"][0]["description"] == payload2["description"]
+
+    # delete again
+    response = client.delete(f"/tests/{test_uuid}", headers=AUTH_HEADER)
+    assert response.status_code == 200
+
+
+def test_update_test_instance_without_test_id():
+    # first create a test project
+    payload1 = _build_sample_validation_test()
+    response = client.post(f"/tests/", json=payload1, headers=AUTH_HEADER)
+    assert response.status_code == 201
+    posted_test = response.json()
+    check_validation_test(posted_test)
+    assert len(posted_test["instances"]) == 1
+    test_uuid = posted_test["id"]
+    test_instance_uuid = posted_test["instances"][0]["id"]
+
+    # now edit the instance
+    payload2 = {
+        "description": "a more detailed description of this version",
+        "repository": "http://example.com/my_code_in_a_new_location.py",
+        "path": "hbp_validation_framework.sample.SampleTest",
+        "parameters": "http://example.com/modified_config.json",
+    }
+    response = client.put(
+        f"/tests/query/instances/{test_instance_uuid}", json=payload2, headers=AUTH_HEADER
+    )
+    assert response.status_code == 200
+
+    # now retrieve the test and check the instance has been updated
+    sleep(15)  # need to wait a short time to allow KG to become consistent
+    response = client.get(f"/tests/{test_uuid}", headers=AUTH_HEADER)
+    assert response.status_code == 200
+    retrieved_test = response.json()
+    assert len(retrieved_test["instances"]) == 1
+    assert (
+        retrieved_test["instances"][0]["version"] == payload1["instances"][0]["version"]
+    )  # should be unchanged
+    assert retrieved_test["instances"][0]["repository"] == payload2["repository"]
+    assert retrieved_test["instances"][0]["description"] == payload2["description"]
+    assert retrieved_test["instances"][0]["path"] == payload2["path"]
+    assert retrieved_test["instances"][0]["parameters"] == payload2["parameters"]
 
     # delete again
     response = client.delete(f"/tests/{test_uuid}", headers=AUTH_HEADER)
