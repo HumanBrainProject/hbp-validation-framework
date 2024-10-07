@@ -578,18 +578,19 @@ def update_test_instance(
     kg_client = get_kg_client_for_user_account(token)
     test_instance_kg = _get_test_instance_by_id(test_instance_id, kg_client, scope="any")
     test_definition_kg = _get_test_by_id_or_alias(test_id, kg_client, scope="any")
-    return _update_test_instance(test_instance_kg, test_definition_kg, test_instance_patch, kg_client)
+    test_definition = ValidationTest.from_kg_object(test_definition_kg, kg_client)
+    return _update_test_instance(test_instance_kg, test_definition, test_instance_patch, kg_client)
 
 
-def _update_test_instance(test_instance, test_definition_kg, test_instance_patch, kg_client):
-    stored_test_instance = ValidationTestInstance.from_kg_object(test_instance, test_definition_kg.uuid, kg_client)
+def _update_test_instance(test_instance, test_definition, test_instance_patch, kg_client):
+    stored_test_instance = ValidationTestInstance.from_kg_object(test_instance, test_definition.id, kg_client)
     update_data = test_instance_patch.dict(exclude_unset=True)
     updated_test_instance = stored_test_instance.copy(update=update_data)
-    test_instance_kg = updated_test_instance.to_kg_object(test_definition_kg)
+    test_instance_kg = updated_test_instance.to_kg_object(test_definition)
     assert test_instance_kg.id == test_instance.id
     assert test_instance.space is not None
     test_instance_kg.save(kg_client, recursive=True, space=test_instance.space)
-    return ValidationTestInstance.from_kg_object(test_instance_kg, test_definition_kg.uuid, kg_client)
+    return ValidationTestInstance.from_kg_object(test_instance_kg, test_definition.id, kg_client)
 
 
 @router.delete("/tests/query/instances/{test_instance_id}", status_code=status.HTTP_200_OK)

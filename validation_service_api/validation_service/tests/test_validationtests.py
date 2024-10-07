@@ -130,6 +130,16 @@ def test_list_validation_tests_filter_by_species():
         assert validation_test["species"] == "Rattus norvegicus"
 
 
+def test_list_validation_tests_filter_by_cell_type():
+    response = client.get(f"/tests/?size=5&cell_type=hippocampus%20CA1%20pyramidal%20neuron", headers=AUTH_HEADER)
+    assert response.status_code == 200
+    validation_tests = response.json()
+    assert len(validation_tests) == 5
+    for validation_test in validation_tests:
+        check_validation_test(validation_test)
+        assert validation_test["cell_type"] == "hippocampus CA1 pyramidal neuron"
+
+
 def test_list_validation_tests_filter_by_author():
     response = client.get(f"/tests/?size=5&author=Appukuttan", headers=AUTH_HEADER)
     assert response.status_code == 200
@@ -548,42 +558,42 @@ def test_create_validation_test_instance():
 #     assert response.status_code == 200
 
 
-# def test_update_test_instance():
-#     # first create a test project
-#     payload1 = _build_sample_validation_test()
-#     response = client.post(f"/tests/", json=payload1, headers=AUTH_HEADER)
-#     assert response.status_code == 201
-#     posted_test = response.json()
-#     check_validation_test(posted_test)
-#     assert len(posted_test["instances"]) == 1
-#     test_uuid = posted_test["id"]
-#     test_instance_uuid = posted_test["instances"][0]["id"]
+def test_update_test_instance():
+    # first create a test project
+    payload1 = _build_sample_validation_test()
+    response = client.post(f"/tests/", json=payload1, headers=AUTH_HEADER)
+    assert response.status_code == 201
+    posted_test = response.json()
+    check_validation_test(posted_test)
+    assert len(posted_test["instances"]) == 1
+    test_uuid = posted_test["id"]
+    test_instance_uuid = posted_test["instances"][0]["id"]
 
-#     # now edit the instance
-#     payload2 = {
-#         "description": "a more detailed description of this version",
-#         "repository": "http://example.com/my_code_in_a_new_location.py",
-#     }
-#     response = client.put(
-#         f"/tests/{test_uuid}/instances/{test_instance_uuid}", json=payload2, headers=AUTH_HEADER
-#     )
-#     assert response.status_code == 200
+    # now edit the instance
+    payload2 = {
+        "description": "a more detailed description of this version",
+        "repository": "http://example.com/my_code_in_a_new_location.py",
+    }
+    response = client.put(
+        f"/tests/{test_uuid}/instances/{test_instance_uuid}", json=payload2, headers=AUTH_HEADER
+    )
+    assert response.status_code == 200
 
-#     # now retrieve the test and check the instance has been updated
-#     sleep(15)  # need to wait a short time to allow Nexus to become consistent
-#     response = client.get(f"/tests/{test_uuid}", headers=AUTH_HEADER)
-#     assert response.status_code == 200
-#     retrieved_test = response.json()
-#     assert len(retrieved_test["instances"]) == 1
-#     assert (
-#         retrieved_test["instances"][0]["version"] == payload1["instances"][0]["version"]
-#     )  # should be unchanged
-#     assert retrieved_test["instances"][0]["repository"] == payload2["repository"]
-#     assert retrieved_test["instances"][0]["description"] == payload2["description"]
+    # now retrieve the test and check the instance has been updated
+    sleep(15)  # need to wait a short time to allow Nexus to become consistent
+    response = client.get(f"/tests/{test_uuid}", headers=AUTH_HEADER)
+    assert response.status_code == 200
+    retrieved_test = response.json()
+    assert len(retrieved_test["instances"]) == 1
+    assert (
+        retrieved_test["instances"][0]["version"] == payload1["instances"][0]["version"]
+    )  # should be unchanged
+    assert retrieved_test["instances"][0]["repository"] == payload2["repository"]
+    assert retrieved_test["instances"][0]["description"] == payload2["description"]
 
-#     # delete again
-#     response = client.delete(f"/tests/{test_uuid}", headers=AUTH_HEADER)
-#     assert response.status_code == 200
+    # delete again
+    response = client.delete(f"/tests/{test_uuid}", headers=AUTH_HEADER)
+    assert response.status_code == 200
 
 
 # def test_update_test_instance_version():
