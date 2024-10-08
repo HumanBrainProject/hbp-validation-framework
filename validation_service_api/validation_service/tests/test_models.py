@@ -318,7 +318,6 @@ def test_create_model_with_existing_alias():
     }
 
 
-@pytest.mark.xfail  # need to test with non-admin user
 def test_create_model_without_collab_membership():
     payload = _build_sample_model()
     payload["project_id"] = "636"
@@ -410,7 +409,6 @@ def test_update_model_with_invalid_data():
     assert response.status_code == 200
 
 
-@pytest.mark.xfail  # need to test with non-admin user
 def test_changing_project_id():
     # if test user isn't a member of the new collab, returns 403
     payload = _build_sample_model()
