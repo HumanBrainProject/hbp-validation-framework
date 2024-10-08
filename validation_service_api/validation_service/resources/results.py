@@ -114,7 +114,7 @@ def _query_results(filters, kg_user_client, data_model, query_label, from_index,
                                         from_index=from_index, size=size, scope="any",
                                         id_key="uri", use_stored_query=True)
         test_results = [
-            data_model.from_kg_query(item, kg_user_client)
+            data_model.from_kg_query(item, kg_user_client, kg_service_client)
             for item in response.data
         ]
     else:
@@ -129,7 +129,7 @@ def _query_results(filters, kg_user_client, data_model, query_label, from_index,
                 break
 
         test_results = [
-            data_model.from_kg_query(item, kg_user_client)
+            data_model.from_kg_query(item, kg_user_client, kg_service_client)
             for item in items[from_index:from_index + size]
         ]
 

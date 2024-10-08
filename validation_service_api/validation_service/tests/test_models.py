@@ -9,7 +9,7 @@ from fastapi import status
 import pytest
 
 from ..data_models import BrainRegion, Species
-from .fixtures import _build_sample_model, private_model, released_model, client, token, AUTH_HEADER
+from .fixtures import _build_sample_model, private_model, released_model, client, token, AUTH_HEADER, TEST_PROJECT
 
 
 def check_model(model):
@@ -214,10 +214,10 @@ def test_create_and_delete_network_model(caplog):
 
 def test_create_model_with_minimal_data(caplog):
     payload = {
-        "name": f"TestModel API v3beta {datetime.now(timezone.utc).isoformat()}",
+        "name": f"TestModel API v3beta {datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%S.%f')}",
         "author": [{"given_name": "Frodo", "family_name": "Baggins"}],
         "owner": [{"given_name": "Frodo", "family_name": "Baggins"}],
-        "project_id": "model-validation",
+        "project_id": TEST_PROJECT,
         "description": "description goes here",
     }
     # create

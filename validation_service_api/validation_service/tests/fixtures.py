@@ -4,7 +4,7 @@ from fastapi.testclient import TestClient
 from fastapi.security.http import HTTPAuthorizationCredentials
 
 import fairgraph.openminds.core as omcore
-import fairgraph.openminds.controlledterms as omterms
+import fairgraph.openminds.controlled_terms as omterms
 
 from ..main import app
 from ..auth import get_kg_client_for_user_account
@@ -17,14 +17,19 @@ token = HTTPAuthorizationCredentials(
     credentials = os.environ["VF_TEST_TOKEN"]
 )
 AUTH_HEADER = {"Authorization": f"{token.scheme} {token.credentials}"}
+#TEST_SPACE = "myspace"
+#TEST_PROJECT = "myspace"
+TEST_PROJECT = "validation-framework-testing"
+TEST_SPACE = f"collab-{TEST_PROJECT}"
 
 
 @pytest.fixture(scope="session")
 def private_model():
     kg_client = get_kg_client_for_user_account(token)
+    now = datetime.now(timezone.utc)
     test_model = omcore.Model(
-        name="TestModel API v3beta",
-        alias="TestModel-API-v3beta",
+        name=f"TestModel API v3beta {now.strftime('%Y-%m-%dT%H:%M:%S.%f')}",
+        alias=f"TestModel-APIv3-beta-{now.strftime('%Y-%m-%dT%H:%M:%S.%f')}",
         abstraction_level=omterms.ModelAbstractionLevel.by_name(
             "spiking neurons: biophysical", kg_client),
         custodians=omcore.Person(given_name="Frodo", family_name="Baggins"),
@@ -45,8 +50,10 @@ def private_model():
                 "hippocampus CA1 pyramidal neuron", kg_client)
         ]
     )
-    test_model.save(kg_client, space="myspace")
-    return test_model
+    test_model.save(kg_client, space=TEST_SPACE)
+    yield test_model
+    # cleanup
+    test_model.delete(kg_client)
 
 
 @pytest.fixture(scope="session")
@@ -61,14 +68,14 @@ def released_model():
 def _build_sample_model():
     now = datetime.now(timezone.utc)
     return {
-        "name": f"TestModel API v3beta {now.isoformat()}",
-        "alias": f"TestModel-APIv3beta-{now.isoformat()}",
+        "name": f"TestModel API v3beta {now.strftime('%Y-%m-%dT%H:%M:%S.%f')}",
+        "alias": f"TestModel-APIv3-beta-{now.strftime('%Y-%m-%dT%H:%M:%S.%f')}",
         "author": [
             {"given_name": "Frodo", "family_name": "Baggins"},
             {"given_name": "Tom", "family_name": "Bombadil"},
         ],
         "owner": [{"given_name": "Frodo", "family_name": "Baggins"}],
-        "project_id": "model-validation",
+        "project_id": TEST_PROJECT,
         "organization": "HBP-SGA3-WP5",
         "private": True,
         "species": "Chlorocebus aethiops sabaeus",
@@ -76,7 +83,7 @@ def _build_sample_model():
         "model_scope": "network",
         "abstraction_level": "spiking neurons: point neuron",
         "cell_type": None,
-        "description": "description goes here",
+        "description": "This is not a real model, it is an entry created by automated tests, and will be deleted.",
         "images": [{"caption": "Figure 1", "url": "http://example.com/figure_1.png"}],
         "instances": [
             {
@@ -94,13 +101,13 @@ def _build_sample_model():
 def _build_sample_validation_test():
     now = datetime.now(timezone.utc)
     return {
-        "name": f"TestValidationTestDefinition API v3beta {now.isoformat()}",
-        "alias": f"TestValidationTestDefinition-APIv3beta-{now.isoformat()}",
+        "name": f"TestValidationTestDefinition API v3beta {now.strftime('%Y-%m-%dT%H:%M:%S.%f')}",
+        "alias": f"TestValidationTestDefinition-APIv3beta-{now.strftime('%Y-%m-%dT%H:%M:%S.%f')}",
         "author": [
             {"given_name": "Frodo", "family_name": "Baggins"},
             {"given_name": "Tom", "family_name": "Bombadil"},
         ],
-        "project_id": "model-validation",
+        "project_id": TEST_PROJECT,
         "implementation_status": "proposal",
         "species": "Mus musculus",
         "brain_region": "CA1 field of hippocampus",
@@ -139,7 +146,7 @@ def _build_sample_result(model_instance_id, test_instance_id):
         ],
         "score": 0.1234,
         "passed": True,
-        "project_id": "model-validation",
+        "project_id": TEST_PROJECT,
         "normalized_score": 0.2468,
         "timestamp": now.isoformat()
     }

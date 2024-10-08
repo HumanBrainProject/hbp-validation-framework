@@ -1271,7 +1271,7 @@ class ValidationResultSummary(BaseModel):
     test_alias: str = None
 
     @classmethod
-    def from_kg_query(cls, item, client):
+    def from_kg_query(cls, item, client, service_client=None):
         item.pop("@context")
         item["id"] = client.uuid_from_uri(item["uri"])
         item["model_instance_id"] = client.uuid_from_uri(item["model_instance_id"])
@@ -1358,7 +1358,7 @@ class ValidationResult(BaseModel):
         )
 
     @classmethod
-    def from_kg_query(cls, item, client):
+    def from_kg_query(cls, item, client, service_client=None):
         item.pop("@context")
         item["id"] = client.uuid_from_uri(item["uri"])
         item["model_instance_id"] = client.uuid_from_uri(item["model_instance_id"])
@@ -1434,7 +1434,7 @@ class ValidationResultWithTestAndModel(ValidationResult):
     test: ValidationTest
 
     @classmethod
-    def from_kg_query(cls, item, client):
+    def from_kg_query(cls, item, client, service_client=None):
         item.pop("@context")
         item["id"] = client.uuid_from_uri(item["uri"])
         item["model_instance_id"] = client.uuid_from_uri(item["model_instance_id"])
@@ -1446,7 +1446,7 @@ class ValidationResultWithTestAndModel(ValidationResult):
         item["model_instance"] = ModelInstance.from_kg_query(item["model_instance"], client)
         item["test_instance"] = ValidationTestInstance.from_kg_query(item["test_instance"], client)
         item["model"] = ScientificModel.from_kg_query(item["model"], client)
-        item["test"] = ValidationTest.from_kg_query(item["test"], client)
+        item["test"] = ValidationTest.from_kg_query(item["test"], client, service_client)
 
         return cls(**item)
 
