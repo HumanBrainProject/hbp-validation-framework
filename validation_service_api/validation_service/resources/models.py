@@ -36,7 +36,7 @@ router = APIRouter()
 
 
 @router.get("/")
-async def about_this_api(token: HTTPAuthorizationCredentials = Depends(auth)):
+async def api_status(token: HTTPAuthorizationCredentials = Depends(auth)):
     service_status = getattr(settings, "SERVICE_STATUS", "ok")
     info = {
         "about": "This is the EBRAINS Model Validation API",
@@ -53,6 +53,39 @@ async def about_this_api(token: HTTPAuthorizationCredentials = Depends(auth)):
         info["user"] = user_info["preferred_username"]
     service_status = getattr(settings, "SERVICE_STATUS", "ok")
     return info
+
+
+@router.get("/about")
+async def about_this_api():
+    service_metadata = {
+        "@context": "https://servicemeta.apps.tc.humanbrainproject.eu/context/servicemeta.jsonld",
+        "type": "WebApplication",
+        "name": "Model Validation Service API",
+        "alternateName": "model-validation-api",
+        "author": [
+            {
+                "id": "https://orcid.org/0000-0002-4793-7541",
+                "type": "Person",
+                "familyName": "Davison",
+                "givenName": "Andrew P.",
+            },
+            {"type": "Person", "familyName": "Appukuttan", "givenName": "Shailesh"},
+        ],
+        "copyrightYear": "2022",
+        "dateModified": "2023-10-01",
+        "documentation": "https://model-validation-api.apps.ebrains.eu/docs",
+        "funding": [{
+            "awardNumber": "945539",
+            "awardName": "Human Brain Project Specific Grant Agreement 3 (HBP SGA3)",
+            "acknowledgement": "This project/research has received funding from the European Union’s Horizon 2020 Framework Programme for Research and Innovation under the Specific Grant Agreement No. 945539 (Human Brain Project SGA3)."
+        }],
+        "inputFormat": ["json"],
+        "outputFormat": ["json"],
+        "releaseNotes": "Uses KG v3 and openMINDS schemas",
+        "url": "https://model-validation-api.apps.ebrains.eu/",
+        "version": "v3beta",
+    }
+    return service_metadata
 
 
 @router.get("/models/", response_model=List[Union[ScientificModel, ScientificModelSummary]])
