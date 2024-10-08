@@ -32,70 +32,6 @@ auth = HTTPBearer()
 router = APIRouter()
 
 
-# @router.get("/results-old/", response_model=List[ValidationResult])
-# def query_results_old(
-#     #passed: List[bool] = Query(None),
-#     project_id: List[int] = Query(None),
-#     model_instance_id: List[UUID] = Query(
-#         None
-#     ),
-#     test_instance_id: List[UUID] = Query(None),
-#     #model_id: List[UUID] = Query(None),
-#     #test_id: List[UUID] = Query(None),
-#     #model_alias: List[str] = Query(None),
-#     #test_alias: List[str] = Query(None),
-#     score_type: List[ScoreType] = None,
-#     size: int = Query(100),
-#     from_index: int = Query(0),
-#     # from header
-#     token: HTTPAuthorizationCredentials = Depends(auth),
-# ):
-#     passed = None
-#     model_id = None
-#     test_id = None
-#     model_alias = None
-#     test_alias = None
-#     return _query_results_old(passed, project_id, model_instance_id, test_instance_id, model_id, test_id, model_alias, test_alias, score_type,  size,
-# from_index, token, response_model=ValidationResult)
-
-
-# def _query_results_old(passed, project_id, model_instance_id, test_instance_id, model_id, test_id, model_alias, test_alias, score_type,  size,
-# from_index, token, response_model):
-#     kg_client = get_kg_client_for_user_account(token)
-#     filter_query = build_result_filters(
-#         model_instance_id,
-#         test_instance_id,
-#         model_id,
-#         test_id,
-#         model_alias,
-#         test_alias,
-#         score_type,
-#         passed,
-#         kg_client,
-#     )
-#     if project_id:
-#         spaces = [f"collab-{collab_id}" for collab_id in project_id]
-#     else:
-#         spaces = ["collab-model-validation"]
-
-#     validation_results = []
-#     for space in spaces:
-#         if len(filter_query) > 0:
-#             logger.info("Searching for ModelValidations with the following query: {}".format(filter_query))
-#             results = omcmp.ModelValidation.list(
-#                 kg_client, size=size, from_index=from_index, api="query", scope="in progress",
-#                 space=space, **filter_query)
-#         else:
-#             results = omcmp.ModelValidation.list(
-#                 kg_client, size=size, from_index=from_index, api="core", scope="in progress",
-#                 space=space)
-#         validation_results.extend(as_list(results))
-#     return [
-#         response_model.from_kg_object(validation_result, kg_client)
-#         for validation_result in as_list(validation_results)
-#     ]
-
-
 def _query_results(filters, kg_user_client, data_model, query_label, from_index, size, user):
     filters = expand_combinations(filters)
 
@@ -216,33 +152,6 @@ def get_result(result_id: UUID, token: HTTPAuthorizationCredentials = Depends(au
     return obj
 
 
-# @router.get("/results-extended-old/", response_model=List[ValidationResultWithTestAndModel])
-# async def query_results_extended_old(
-#     #passed: List[bool] = Query(None),
-#     project_id: List[int] = Query(None),
-#     model_instance_id: List[UUID] = Query(
-#         None
-#     ),  # todo: rename this 'model_instance_id' for consistency
-#     test_instance_id: List[UUID] = Query(None),
-#     #model_id: List[UUID] = Query(None),
-#     #test_id: List[UUID] = Query(None),
-#     #model_alias: List[str] = Query(None),
-#     #test_alias: List[str] = Query(None),
-#     score_type: List[ScoreType] = None,
-#     size: int = Query(100),
-#     from_index: int = Query(0),
-#     # from header
-#     token: HTTPAuthorizationCredentials = Depends(auth),
-# ):
-#     passed = None
-#     model_id = None
-#     test_id = None
-#     model_alias = None
-#     test_alias = None
-#     return _query_results_old(passed, project_id, model_instance_id, test_instance_id, model_id, test_id, model_alias, test_alias, score_type,  size,
-# from_index, token, response_model=ValidationResultWithTestAndModel)
-
-
 @router.get("/results-extended/", response_model=List[ValidationResultWithTestAndModel])
 async def query_results_extended(
     #passed: List[bool] = Query(None),
@@ -311,26 +220,6 @@ async def get_result_extended(result_id: UUID,
             detail=f"Validation result {result_id} not found.",
         )
     return obj
-
-
-# @router.get("/results-summary-old/", response_model=List[ValidationResultSummary])
-# async def query_results_summary_old(
-#     passed: List[bool] = Query(None),
-#     project_id: List[int] = Query(None),
-#     model_instance_id: List[UUID] = Query(None),
-#     test_instance_id: List[UUID] = Query(None),
-#     model_id: List[UUID] = Query(None),
-#     test_id: List[UUID] = Query(None),
-#     model_alias: List[str] = Query(None),
-#     test_alias: List[str] = Query(None),
-#     score_type: List[ScoreType] = Query(None),
-#     size: int = Query(100),
-#     from_index: int = Query(0),
-#     # from header
-#     token: HTTPAuthorizationCredentials = Depends(auth),
-# ):
-#     return _query_results_old(passed, project_id, model_instance_id, test_instance_id, model_id, test_id, model_alias, test_alias, score_type,  size,
-# from_index, token, response_model=ValidationResultSummary)
 
 
 @router.get("/results-summary/", response_model=List[ValidationResultSummary])
