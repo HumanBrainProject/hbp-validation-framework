@@ -12,6 +12,19 @@ The token should be stored in an environment variable `VF_TEST_TOKEN`.
 - pytest
 - pytest-asyncio
 
+## Environment
+
+The following environment variables need to be set:
+
+- KG_SERVICE_ACCOUNT_CLIENT_ID
+- KG_SERVICE_ACCOUNT_SECRET
+- EBRAINS_IAM_BASE_URL
+- EBRAINS_IAM_CLIENT_ID
+- EBRAINS_IAM_SECRET
+- SESSIONS_SECRET_KEY
+- KG_CORE_API_HOST
+- VALIDATION_SERVICE_BASE_URL
+
 ## Running tests
 
 From the "validation_service_api" subdirectory, run:

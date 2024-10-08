@@ -437,8 +437,8 @@ class ModelInstance(BaseModel):
 
     def to_kg_object(self, model_project):
         repository = omcore.FileRepository(
-            name=self.source,
-            iri=self.source,
+            name=str(self.source),
+            iri=IRI(str(self.source)),
             #hosted_by=
             #repository_type=
             hash=omcore.Hash(algorithm="SHA-1", digest=self.hash)  # are we sure we're using SHA-1?
@@ -1220,7 +1220,7 @@ class File(BaseModel):
         return omcore.File(
             id=client.uri_from_uuid(self.id) if self.id else None,
             name=self.local_path,
-            iri=IRI(self.download_url),
+            iri=IRI(str(self.download_url)),
             format=get_term("ContentType", self.content_type),
             hash=omcore.Hash(algorithm="SHA-1", digest=self.hash),  # are we sure we're using SHA-1?
             storage_size=self.size,
