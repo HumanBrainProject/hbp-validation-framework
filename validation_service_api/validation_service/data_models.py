@@ -133,34 +133,6 @@ def get_term_name_from_id(cls_name, attr):
     return None
 
 
-def lookup_service(view_url):
-    service_map = {
-        "https://celltypes.brain-map.org": "Allen Institute Cell Types Data Portal",
-        "https://kg.ebrains.eu/search/?facet_type[0]=Dataset": "EBRAINS Knowledge Graph Search UI",
-        "https://lab.ch.ebrains.eu/hub/user-redirect/lab": "EBRAINS Collaboratory Lab",
-        "https://live-papers.brainsimulation.eu/resources/notebooks": None,  # Jupyter notebooks, direct download
-        "https://model-catalog.brainsimulation.eu": "EBRAINS Model Catalog",
-        "https://neuromorpho.org": "NeuroMorpho.Org",
-        "https://object.cscs.ch/v1/AUTH_": None,  # all the examples are PNGs, which are viewed directly in the browser
-        "https://senselab.med.yale.edu/modeldb": "ModelDB",
-        "https://zenodo.org": "Zenodo"
-    }
-    service_name = None
-    if view_url.startswith("https://wiki.ebrains.eu"):
-        if "Model%20Catalog" in view_url:
-            service_name = "EBRAINS Model Catalog"
-        else:
-            service_name = "EBRAINS Collaboratory Wiki"
-    else:
-        for prefix, service_name in service_map.items():
-            if view_url.startswith(prefix):
-                break
-    if service_name:
-        return term_cache["Service"]["names"].get(service_name, None)
-    else:
-        return None
-
-
 Slug = constr(regex=r"^\w[\w\-]+$", to_lower=True, strip_whitespace=True)
 
 
