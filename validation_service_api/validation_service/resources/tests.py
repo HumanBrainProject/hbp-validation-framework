@@ -320,7 +320,7 @@ async def delete_test(test_id: UUID, token: HTTPAuthorizationCredentials = Depen
     kg_client = get_kg_client_for_user_account(token)
     test_definition = omcmp.ValidationTest.from_uuid(str(test_id), kg_client, scope="in progress")
     test_definition.delete(kg_client)
-    for test_version in as_list(test_definition.versions):
+    for test_version in as_list(test_definition.has_versions):
         # todo: we should possibly also delete repositories,
         # but need to check they're not shared with other instances
         test_version.delete(kg_client)
@@ -340,7 +340,7 @@ def get_test_instances(
     test_definition = _get_test_by_id_or_alias(test_id, kg_client, scope)
     test_instances = [
         ValidationTestInstance.from_kg_object(inst, test_definition.uuid, kg_client)
-        for inst in as_list(test_definition.versions)
+        for inst in as_list(test_definition.has_versions)
     ]
     if version:
         test_instances = [inst for inst in test_instances if inst.version == version]
@@ -359,7 +359,7 @@ def get_test_instance_from_instance_id(
         kg_client = get_kg_client_for_user_account(token)
         scope = "any"
     inst = _get_test_instance_by_id(test_instance_id, kg_client, scope)
-    test_definition = omcmp.ValidationTest.list(kg_client, scope=scope, space=inst.space, versions=inst)[0]
+    test_definition = omcmp.ValidationTest.list(kg_client, scope=scope, space=inst.space, has_versions=inst)[0]
     return ValidationTestInstance.from_kg_object(inst, test_definition.uuid, kg_client)
 
 
@@ -377,7 +377,7 @@ def get_latest_test_instance_given_test_id(
     test_definition = _get_test_by_id_or_alias(test_id, kg_client, scope)
     test_instances = [
         ValidationTestInstance.from_kg_object(inst.resolve(kg_client, scope="in progress"), test_definition.uuid, kg_client)
-        for inst in as_list(test_definition.versions)
+        for inst in as_list(test_definition.has_versions)
     ]
     if len(test_instances) == 0:
         raise HTTPException(
@@ -401,7 +401,7 @@ def get_test_instance_given_test_id(
         kg_client = get_kg_client_for_user_account(token)
         scope = "any"
     test_definition = _get_test_by_id_or_alias(test_id, kg_client, scope)
-    for inst in as_list(test_definition.versions):
+    for inst in as_list(test_definition.has_versions):
         if UUID(inst.uuid) == test_instance_id:
             return ValidationTestInstance.from_kg_object(inst, test_definition.uuid, kg_client)
     raise HTTPException(
@@ -441,7 +441,7 @@ def create_test_instance(
     user = User(token, allow_anonymous=False)
     kg_client = get_kg_client_for_user_account(token)
     test_definition = _get_test_by_id_or_alias(test_id, kg_client, scope="any")
-    existing_versions = [obj.resolve(kg_client, scope="any") for obj in as_list(test_definition.versions)]
+    existing_versions = [obj.resolve(kg_client, scope="any") for obj in as_list(test_definition.has_versions)]
     if test_instance.version in (obj.version_identifier for obj in existing_versions):
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
@@ -449,7 +449,7 @@ def create_test_instance(
         )
     test_instance_kg = test_instance.to_kg_object(ValidationTest.from_kg_object(test_definition, kg_client))
     test_instance_kg.save(kg_client, recursive=True, space=test_definition.space)
-    test_definition.versions = as_list(test_definition.versions) + [test_instance_kg]
+    test_definition.has_versions = as_list(test_definition.has_versions) + [test_instance_kg]
     test_definition.save(kg_client, recursive=False)
     return ValidationTestInstance.from_kg_object(test_instance_kg, test_definition.uuid, kg_client)
 
@@ -470,7 +470,7 @@ def update_test_instance_by_id(
     test_instance_kg = _get_test_instance_by_id(test_instance_id, kg_client, scope="any")
     test_definition_kg = omcmp.ValidationTest.list(
         kg_client, scope="any",
-        space=test_instance_kg.space, versions=test_instance_kg)[0]
+        space=test_instance_kg.space, has_versions=test_instance_kg)[0]
     test_definition = ValidationTest.from_kg_object(test_definition_kg, kg_client)
     return _update_test_instance(test_instance_kg, test_definition, test_instance_patch, kg_client)
 
@@ -523,8 +523,8 @@ async def delete_test_instance_by_id(
         )
     test_definition = omcmp.ValidationTest.list(
         kg_client, scope="in progress",
-        space=test_instance_kg.space, versions=test_instance_kg)[0]
-    test_definition.versions = [obj for obj in as_list(test_definition.versions) if obj.uuid != test_instance_id]
+        space=test_instance_kg.space, has_versions=test_instance_kg)[0]
+    test_definition.has_versions = [obj for obj in as_list(test_definition.has_versions) if obj.uuid != test_instance_id]
     test_definition.save(kg_client, recursive=False)
     test_instance_kg.delete(kg_client)
 
@@ -545,6 +545,6 @@ async def delete_test_instance(
             detail="Deleting test instances is restricted to admins",
         )
     test_definition = _get_test_by_id_or_alias(test_id, kg_client, scope="any")
-    test_definition.versions = [obj for obj in test_definition.versions if obj.uuid != test_instance_id]
+    test_definition.has_versions = [obj for obj in test_definition.has_versions if obj.uuid != test_instance_id]
     test_definition.save(kg_client, recursive=False)
     test_instance_kg.delete(kg_client)

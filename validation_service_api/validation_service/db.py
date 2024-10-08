@@ -46,13 +46,13 @@ def _get_model_instance_by_id(instance_id, kg_client, scope):
         )
 
     model_project = Model.list(kg_client, scope=scope, space=model_instance.space,
-                               versions=model_instance)
+                               has_versions=model_instance)
     if not model_project:
         # we could get an empty response if the model_project has just been
         # updated and the KG is not consistent, so we wait and try again
         sleep(RETRY_INTERVAL)
         model_project = Model.list(kg_client, scope=scope, space=model_instance.space,
-                                   versions=model_instance)
+                                   has_versions=model_instance)
         if not model_project:
             # in case of a dangling model instance, where the parent model_project
             # has been deleted but the instance wasn't

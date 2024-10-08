@@ -17,3 +17,7 @@ The token should be stored in an environment variable `VF_TEST_TOKEN`.
 From the "validation_service_api" subdirectory, run:
 
   $ pytest validation_service/tests
+
+To measure test coverage, run as follows:
+
+  $ pytest validation_service/tests --cov=validation_service --cov-report term --cov-report html

@@ -37,7 +37,7 @@ def private_model():
         developers=[omcore.Person(given_name="Frodo", family_name="Baggins"),
                     omcore.Person(given_name="Tom", family_name="Bombadil")],
         digital_identifier=None,
-        versions=None,
+        has_versions=None,
         homepage=None,
         how_to_cite=None,
         model_scope=omterms.ModelScope.by_name(

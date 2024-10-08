@@ -458,7 +458,7 @@ async def delete_model(model_id: UUID, token: HTTPAuthorizationCredentials = Dep
             detail=f"Access to this model is restricted to members of Collab #{collab_id}",
         )
     model_project.delete(kg_client)
-    for model_instance in as_list(model_project.versions):
+    for model_instance in as_list(model_project.has_versions):
         # todo: we should possibly also delete repositories,
         # but need to check they're not shared with other instances
         model_instance.delete(kg_client)
@@ -478,7 +478,7 @@ async def get_model_instances(
         scope = "any"
     model_project = _get_model_by_id_or_alias(model_id, kg_client, scope)
     model_instances = []
-    for inst in as_list(model_project.versions):
+    for inst in as_list(model_project.has_versions):
         try:
             model_instance = ModelInstance.from_kg_object(inst, kg_client, model_project.uuid, scope)
         except ResolutionFailure:
@@ -520,7 +520,7 @@ async def get_latest_model_instance_given_model_id(
     model_project = _get_model_by_id_or_alias(model_id, kg_client, scope)
     model_instances = [
         ModelInstance.from_kg_object(inst, kg_client, model_project.uuid, scope)
-        for inst in as_list(model_project.versions)
+        for inst in as_list(model_project.has_versions)
     ]
     latest = sorted(model_instances, key=lambda inst: inst["timestamp"])[-1]
     return latest
@@ -538,7 +538,7 @@ async def get_model_instance_given_model_id(
         kg_client = get_kg_client_for_user_account(token)
         scope = "any"
     model_project = _get_model_by_id_or_alias(model_id, kg_client, scope)
-    for inst in as_list(model_project.versions):
+    for inst in as_list(model_project.has_versions):
         if UUID(inst.uuid) == model_instance_id:
             return ModelInstance.from_kg_object(inst, kg_client, model_project.uuid, scope)
     raise HTTPException(
@@ -587,7 +587,7 @@ async def create_model_instance(
         )
     # otherwise save to KG
     model_instance_kg.save(kg_user_client, space=model_project.space, recursive=True)
-    model_project.versions = as_list(model_project.versions) + [model_instance_kg]
+    model_project.has_versions = as_list(model_project.has_versions) + [model_instance_kg]
     model_project.save(kg_user_client, recursive=False)
     return ModelInstance.from_kg_object(model_instance_kg, kg_user_client, model_project.uuid, scope="any")
 
@@ -624,7 +624,7 @@ async def update_model_instance(
     kg_user_client = get_kg_client_for_user_account(token)
     model_instance_kg, retrieved_model_id = _get_model_instance_by_id(model_instance_id, kg_user_client, scope="any")
     model_project = _get_model_by_id_or_alias(model_id, kg_user_client, scope="any")
-    assert model_id == retrieved_model_id or model_id == model_project.alias
+    assert model_id == retrieved_model_id or model_id == model_project.short_name
     return await _update_model_instance(
         model_instance_kg, model_project, model_instance_patch, user
     )
@@ -702,7 +702,7 @@ async def delete_model_instance(
 
 
 async def _delete_model_instance(model_instance_id, model_project, kg_user_client):
-    model_instances = as_list(model_project.versions)
+    model_instances = as_list(model_project.has_versions)
     n_start = len(model_instances)
     for model_instance in model_instances[:]:
         # todo: we should possibly also delete child objects (repository, etc.),
@@ -713,5 +713,5 @@ async def _delete_model_instance(model_instance_id, model_project, kg_user_clien
             break
     if n_start > 0:
         assert len(model_instances) == n_start - 1
-    model_project.versions = model_instances
+    model_project.has_versions = model_instances
     model_project.save(kg_user_client, recursive=False)

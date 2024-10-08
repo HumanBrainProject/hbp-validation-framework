@@ -160,7 +160,7 @@ def model_alias_exists(alias, client):
         model_with_same_alias = omcore.Model.from_alias(alias, client, space=None, scope="any")
         if model_with_same_alias:
             # need this check because alias query doesn't do exact matching
-            return model_with_same_alias.alias == alias
+            return model_with_same_alias.short_name == alias
     return False
 
 
@@ -170,7 +170,7 @@ def test_alias_exists(alias, client):
         test_with_same_alias = omcmp.ValidationTest.from_alias(alias, client, space=None, scope="any")
         if test_with_same_alias:
             # need this check because alias query doesn't do exact matching
-            return test_with_same_alias.alias == alias
+            return test_with_same_alias.short_name == alias
     return False
 
 

@@ -22,7 +22,7 @@ from fairgraph.errors import ResolutionFailure, AuthenticationError, Authorizati
 import fairgraph
 import fairgraph.openminds.core as omcore
 import fairgraph.openminds.computation as omcmp
-import fairgraph.openminds.controlledterms as omterms
+import fairgraph.openminds.controlled_terms as omterms
 import fairgraph.openminds.publications as ompub
 
 from .examples import EXAMPLES
@@ -537,7 +537,7 @@ class ScientificModel(BaseModel):
     def from_kg_object(cls, model_project, client):
         assert model_project.scope is not None
         instances = []
-        for inst_obj in as_list(model_project.versions):
+        for inst_obj in as_list(model_project.has_versions):
             try:
                 inst_obj = inst_obj.resolve(client, scope=model_project.scope)
                 assert isinstance(inst_obj, omcore.ModelVersion)
@@ -564,8 +564,8 @@ class ScientificModel(BaseModel):
             data = dict(
                 id=model_project.uuid,
                 uri=model_project.id,
-                name=model_project.name,
-                alias=model_project.alias,
+                name=model_project.full_name,
+                alias=model_project.short_name,
                 author=[Person.from_kg_object(p, client)
                         for p in as_list(model_project.developers)],
                 owner=[Person.from_kg_object(p, client)
@@ -614,8 +614,8 @@ class ScientificModel(BaseModel):
                 study_targets.append(cell_type)
 
         model_project = omcore.Model(
-            name=self.name,
-            alias=self.alias,
+            full_name=self.name,
+            short_name=self.alias,
             description=self.description,
             abstraction_level=get_term("ModelAbstractionLevel", self.abstraction_level),
             model_scope=get_term("ModelScope", self.model_scope),
@@ -636,7 +636,7 @@ class ScientificModel(BaseModel):
                     instance.to_kg_object(model_project)
                     for instance in self.instances
                 ]
-            model_project.versions = model_versions
+            model_project.has_versions = model_versions
         return model_project
 
 
@@ -683,8 +683,8 @@ class ScientificModelSummary(BaseModel):
             obj = cls(
                 id=model_project.uuid,
                 uri=model_project.id,
-                name=model_project.name,
-                alias=model_project.alias,
+                name=model_project.full_name,
+                alias=model_project.short_name,
                 author=[Person.from_kg_object(p, client)
                         for p in as_list(model_project.developers)],
                 owner=[Person.from_kg_object(p, client)
@@ -895,7 +895,7 @@ class ValidationTest(BaseModel):
 
     @classmethod
     def from_kg_object(cls, test_definition, client):
-        versions = [ver.resolve(client, scope="any") for ver in as_list(test_definition.versions)]
+        versions = [ver.resolve(client, scope="any") for ver in as_list(test_definition.has_versions)]
         instances = [
             ValidationTestInstance.from_kg_object(inst, test_definition.uuid, client) for inst in versions
         ]
@@ -943,8 +943,8 @@ class ValidationTest(BaseModel):
         obj = cls(
             id=test_definition.uuid,
             uri=test_definition.id,
-            name=test_definition.name,
-            alias=test_definition.alias,
+            name=test_definition.full_name,
+            alias=test_definition.short_name,
             implementation_status=implementation_status,
             private=is_private(test_definition.space),
             #custodians=test_definition.custodians,
@@ -986,8 +986,8 @@ class ValidationTest(BaseModel):
         if self.alias is None:
             self.alias = slugify(self.name)
         test_definition = omcmp.ValidationTest(
-            name=self.name,
-            alias=self.alias,
+            full_name=self.name,
+            short_name=self.alias,
             custodians=developers,
             description=self.description,
             developers=developers,
@@ -1007,7 +1007,7 @@ class ValidationTest(BaseModel):
                 instance.to_kg_object(test_definition=self)
                 for instance in self.instances
             ]
-            test_definition.versions = test_versions
+            test_definition.has_versions = test_versions
 
         return test_definition
 
@@ -1045,8 +1045,8 @@ class ValidationTestSummary(BaseModel):
         obj = cls(
             id=test_definition.uuid,
             uri=test_definition.id,
-            name=test_definition.name,
-            alias=test_definition.alias,
+            name=test_definition.full_name,
+            alias=test_definition.short_name,
             implementation_status=None,  # to fix (test_definition.status or ImplementationStatus.proposal.value),
             private=is_private(test_definition),
             author=[Person.from_kg_object(p, client) for p in as_list(test_definition.developers)],
@@ -1311,12 +1311,12 @@ class ValidationResultSummary(BaseModel):
             data_type=data_type,
             timestamp=ensure_has_timezone(validation_activity.start_time),
             model_id=model.uuid,
-            model_name=model.name,
-            model_alias=model.alias,
+            model_name=model.full_name,
+            model_alias=model.short_name,
             model_version=model_instance.version_identifier,
             test_id=test.uuid,
-            test_name=test.name,
-            test_alias=test.alias
+            test_name=test.full_name,
+            test_alias=test.short_name
         )
 
 
