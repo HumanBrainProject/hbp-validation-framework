@@ -402,11 +402,6 @@ async def delete_test(test_id: UUID, token: HTTPAuthorizationCredentials = Depen
     # todo: handle non-existent UUID
     kg_client = get_kg_client_for_user_account(token)
     test_definition = omcmp.ValidationTest.from_uuid(str(test_id), kg_client, scope="in progress")
-    if not await user.is_admin():
-        # todo: replace this check with a group membership check for Collab v2
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN, detail="Deleting tests is restricted to admins"
-        )
     test_definition.delete(kg_client)
     for test_version in as_list(test_definition.versions):
         # todo: we should possibly also delete repositories,

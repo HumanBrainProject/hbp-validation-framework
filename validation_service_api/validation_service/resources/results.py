@@ -408,11 +408,6 @@ async def delete_result(result_id: UUID, token: HTTPAuthorizationCredentials = D
     user = User(token, allow_anonymous=False)
     kg_client = get_kg_client_for_user_account(token)
     # todo: handle non-existent UUID
-    if not await user.is_admin():
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Deleting validation results is restricted to admins",
-        )
     result = omcmp.ModelValidation.from_uuid(str(result_id), kg_client, scope="any")
     for item in as_list(result.outputs):
         item.delete(kg_client)
