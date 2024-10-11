@@ -602,6 +602,7 @@ async def create_model_instance(
             detail=f"Unable to determine access permissions - please contact EBRAINS support"
         )
     collab_id = model_project.space[len("collab-"):]
+    assert len(collab_id) > 0, f"{model_id} {model_project.space}"
     if not (
         await user.can_edit_collab(collab_id)
         or await user.is_admin()

@@ -48,6 +48,7 @@ def get_kg_client_for_user_account(token):
 
 
 async def get_collab_info(collab_id, token):
+    assert len(collab_id) > 0
     collab_info_url = f"{settings.HBP_COLLAB_SERVICE_URL}collabs/{collab_id}"
     headers = {"Authorization": f"Bearer {token.credentials}"}
     res = requests.get(collab_info_url, headers=headers)
@@ -57,6 +58,7 @@ async def get_collab_info(collab_id, token):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid collab id"
         )
+    assert isinstance(response, dict), collab_info_url
     return response
 
 
@@ -138,6 +140,7 @@ class User:
         else:
             assert highest_collab_role is None
             collab_info = await self.get_collab_info(collab_id)
+            assert isinstance(collab_info, dict), f"{collab_id}: {collab_info}"
             if collab_info.get("isPublic", False):  # will be False if 404 collab not found
                 permissions = {"VIEW": True, "UPDATE": False}
             else:
