@@ -25,6 +25,8 @@ from ..data_models import (
     ScientificModelPatch,
     ModelInstance,
     ModelInstancePatch,
+    project_id_from_space,
+    special_spaces
 )
 from ..queries import build_model_project_filters, model_alias_exists, expand_combinations
 
@@ -596,13 +598,20 @@ async def create_model_instance(
     kg_service_client = get_kg_client_for_service_account()
     model_project = _get_model_by_id_or_alias(model_id, kg_user_client, scope="any")
     # check permissions for this model
-    if model_project.space is None:
+    collab_id = model_instance.project_id
+    if collab_id is None:
+        if model_project.space is None:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Unable to determine access permissions - please contact EBRAINS support"
+            )
+        else:
+            collab_id = project_id_from_space(model_project.space)
+    if collab_id in special_spaces:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Unable to determine access permissions - please contact EBRAINS support"
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=f"Cannot create new model instances in space {collab_id}, please use a private or collab space",
         )
-    collab_id = model_project.space[len("collab-"):]
-    assert len(collab_id) > 0, f"{model_id} {model_project.space}"
     if not (
         await user.can_edit_collab(collab_id)
         or await user.is_admin()

@@ -307,6 +307,7 @@ class Person(BaseModel):
 class ModelInstance(BaseModel):
     id: UUID = None
     uri: HttpUrl = None
+    project_id: str = None
     version: str
     description: str = None
     parameters: HttpUrl = None
@@ -326,6 +327,8 @@ class ModelInstance(BaseModel):
     def from_kg_query(cls, item, client):
         item["id"] = client.uuid_from_uri(item["uri"])
         item["model_id"] = client.uuid_from_uri(item["model_id"])
+        space = item["project_id"]  # what the query calls "project_id" is really the space
+        item["project_id"] = project_id_from_space(space)
         if item["timestamp"]:
             item["timestamp"] = datetime.fromisoformat(item["timestamp"]).date()
         item.pop("repository", None)
@@ -408,6 +411,7 @@ class ModelInstance(BaseModel):
         instance_data = {
             "id": instance.uuid,
             "uri": instance.id,
+            "project_id": project_id_from_space(instance.space),
             "version": instance.version_identifier or "unknown",
             "description": instance.version_innovation,
             "parameters": None,  # todo: get from instance.input_data
@@ -496,7 +500,7 @@ class ScientificModel(BaseModel):
     alias: str = None
     author: List[Person]
     owner: List[Person]
-    project_id: str = None  # make this required?
+    project_id: str
     organization: str = None
     private: bool = True
     cell_type: CellType = None
