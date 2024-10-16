@@ -5,7 +5,7 @@ import logging
 from fairgraph.utility import as_list
 import fairgraph.openminds.core as omcore
 import fairgraph.openminds.computation as omcmp
-from fairgraph.errors import ResolutionFailure
+from fairgraph.errors import ResolutionFailure, AuthorizationError, ResourceExistsError
 
 from fastapi import APIRouter, Depends, Query, Path, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
@@ -26,6 +26,7 @@ from ..data_models import (
     ModelInstance,
     ModelInstancePatch,
     project_id_from_space,
+    space_from_project_id,
     special_spaces
 )
 from ..queries import build_model_project_filters, model_alias_exists, expand_combinations
@@ -393,7 +394,9 @@ async def create_model(
             )
         assert space_name == kg_space
 
-    model_project.save(kg_user_client, space=kg_space, recursive=True)
+    # todo: we might want to save the tree explicitly rather than recursively,
+    #       to have more control over when we ignore duplicates
+    model_project.save(kg_user_client, space=kg_space, recursive=True, ignore_duplicates=True)
     model_project.scope = "in progress"
     return ScientificModel.from_kg_object(model_project, kg_user_client)
 
@@ -629,9 +632,15 @@ async def create_model_instance(
             detail=f"Another model instance with the same name already exists.",
         )
     # otherwise save to KG
-    model_instance_kg.save(kg_user_client, space=model_project.space, recursive=True)
+    target_space = space_from_project_id(collab_id)
+    model_instance_kg.save(kg_user_client, space=target_space, recursive=True)
     model_project.has_versions = as_list(model_project.has_versions) + [model_instance_kg]
-    model_project.save(kg_user_client, recursive=False)
+    try:
+        model_project.save(kg_user_client, recursive=False)
+    except AuthorizationError:
+        # if the model project has already been published we may not be able
+        # to save with user client, so use service client
+        model_project.save(kg_service_client, recursive=False)
     return ModelInstance.from_kg_object(model_instance_kg, kg_user_client, model_project.uuid, scope="any")
 
 
@@ -708,18 +717,18 @@ async def delete_model_instance_by_id(
     _check_service_status()
     user = User(token, allow_anonymous=False)
     kg_user_client = get_kg_client_for_user_account(token)
+    kg_service_client = get_kg_client_for_service_account()
     model_instance_kg, model_id = _get_model_instance_by_id(model_instance_id, kg_user_client, scope="any")
-    model_project = _get_model_by_id_or_alias(model_id, kg_user_client, scope="any")
-    collab_id = model_project.space[len("collab-"):]
+    collab_id = project_id_from_space(model_instance_kg.space)
     if not (
         await user.can_edit_collab(collab_id)
         or await user.is_admin()
     ):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail=f"Access to this model is restricted to members of Collab #{model_project.collab_id}",
+            detail=f"Access to this model is restricted to members of Collab #{model_instance_kg.space}",
         )
-    await _delete_model_instance(model_instance_id, model_project, kg_user_client)
+    await _delete_model_instance(model_instance_id, model_id, kg_user_client, kg_service_client)
 
 
 @router.delete("/models/{model_id}/instances/{model_instance_id}", status_code=status.HTTP_200_OK)
@@ -730,21 +739,27 @@ async def delete_model_instance(
     # todo: handle non-existent UUID
     user = User(token, allow_anonymous=False)
     kg_user_client = get_kg_client_for_user_account(token)
+    kg_service_client = get_kg_client_for_service_account()
     model_instance_kg, model_id = _get_model_instance_by_id(model_instance_id, kg_user_client, scope="any")
-    model_project = _get_model_by_id_or_alias(model_id, kg_user_client, scope="any")
-    collab_id = model_project.space[len("collab-"):]
+    collab_id = project_id_from_space(model_instance_kg.space)
     if not (
         await user.can_edit_collab(collab_id)
         or await user.is_admin()
     ):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail=f"Access to this model is restricted to members of Collab #{model_project.collab_id}",
+            detail=f"Access to this model is restricted to members of Collab #{model_instance_kg.space}",
         )
-    await _delete_model_instance(model_instance_id, model_project, kg_user_client)
+    await _delete_model_instance(model_instance_id, model_id, kg_user_client, kg_service_client)
 
 
-async def _delete_model_instance(model_instance_id, model_project, kg_user_client):
+async def _delete_model_instance(model_instance_id, model_id, kg_user_client, kg_service_client):
+    try:
+        model_project = _get_model_by_id_or_alias(model_id, kg_user_client, scope="in progress", use_cache=False)
+        kg_client_for_model = kg_user_client
+    except HTTPException:
+        model_project = _get_model_by_id_or_alias(model_id, kg_service_client, scope="in progress", use_cache=False)
+        kg_client_for_model = kg_service_client
     model_instances = as_list(model_project.has_versions)
     n_start = len(model_instances)
     for model_instance in model_instances[:]:
@@ -757,4 +772,4 @@ async def _delete_model_instance(model_instance_id, model_project, kg_user_clien
     if n_start > 0:
         assert len(model_instances) == n_start - 1
     model_project.has_versions = model_instances
-    model_project.save(kg_user_client, recursive=False)
+    model_project.save(kg_client_for_model, recursive=False)

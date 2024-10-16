@@ -9,7 +9,10 @@ from fastapi import status
 import pytest
 
 from ..data_models import BrainRegion, Species
-from .fixtures import _build_sample_model, private_model, released_model, client, token, AUTH_HEADER, TEST_PROJECT
+from .fixtures import (
+    _build_sample_model, private_model, released_model, client, token,
+    AUTH_HEADER, ADMIN_AUTH_HEADER, TEST_PROJECT
+)
 
 
 def check_model(model):
@@ -652,6 +655,53 @@ def test_delete_model_instance(caplog):
     # delete the model
     response = client.delete(f"/models/{model_uuid}", headers=AUTH_HEADER)
     assert response.status_code == 200
+
+
+def test_add_instance_to_published_model(caplog):
+    # We retrieve a model in the "model" space that has been released
+    # A normal user should be able to add an instance to this model
+    # but should not be able to change any other metadata.
+    published_model_uuid = "e919d175-b831-4295-b84c-9b00c944f0e3"  # Olfactory bulb network model 2003
+    response = client.get(f"/models/{published_model_uuid}")
+    assert response.status_code == 200
+    published_model = response.json()
+    assert len(published_model["instances"]) == 3  # three published versions
+    assert published_model["project_id"] == "model"
+    now = datetime.now(timezone.utc)
+    new_instance = {
+        "version": f"test-{now.strftime('%Y-%m-%dT%H:%M:%S.%f')}",
+        "description": "This is fake data for testing",
+        "code_format": "application/vnd.neuron-simulator+hoc",
+        "source": "http://example.com/fake_olfactory_bulb_model_for_testing",
+        "license": "The MIT license",
+        "project_id": TEST_PROJECT
+    }
+    response = client.post(f"/models/{published_model_uuid}/instances/", json=new_instance, headers=AUTH_HEADER)
+    assert response.status_code == 201
+    new_instance_uuid = response.json()["id"]
+
+    # get the model project again without authentication - should still have 3 (published) instances
+    response = client.get(f"/models/{published_model_uuid}")
+    assert response.status_code == 200
+    published_model_again = response.json()
+    assert len(published_model_again["instances"]) == 3  # three published versions
+
+    # get the model project again with an admin account - should now have 4 instances - 3 published plus one unpublished
+    # note that this doesn't work with a normal user account, which can't get in-progress info from "model" space
+    response = client.get(f"/models/{published_model_uuid}", headers=ADMIN_AUTH_HEADER)
+    assert response.status_code == 200
+    published_model_again = response.json()
+    assert len(published_model_again["instances"]) == 4
+
+    # cleanup: delete model instance again
+    response = client.delete(f"/models/{published_model_uuid}/instances/{new_instance_uuid}", headers=AUTH_HEADER)
+    assert response.status_code == 200
+
+    # get the model project one last time with admin account - should be back to the three published instances
+    response = client.get(f"/models/{published_model_uuid}", headers=ADMIN_AUTH_HEADER)
+    assert response.status_code == 200
+    published_model_again = response.json()
+    assert len(published_model_again["instances"]) == 3
 
 
 def test_hhnb_models(caplog):

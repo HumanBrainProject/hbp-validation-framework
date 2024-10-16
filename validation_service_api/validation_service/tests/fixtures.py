@@ -17,6 +17,14 @@ token = HTTPAuthorizationCredentials(
     credentials = os.environ["VF_TEST_TOKEN"]
 )
 AUTH_HEADER = {"Authorization": f"{token.scheme} {token.credentials}"}
+if "VF_ADMIN_TOKEN" in os.environ:
+    admin_token = HTTPAuthorizationCredentials(
+        scheme="Bearer",
+        credentials = os.environ["VF_ADMIN_TOKEN"]
+    )
+    ADMIN_AUTH_HEADER = {"Authorization": f"{admin_token.scheme} {admin_token.credentials}"}
+else:
+    ADMIN_AUTH_HEADER = None
 #TEST_SPACE = "myspace"
 #TEST_PROJECT = "myspace"
 TEST_PROJECT = "validation-framework-testing"

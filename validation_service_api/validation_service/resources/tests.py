@@ -261,7 +261,7 @@ async def create_test(test: ValidationTest, token: HTTPAuthorizationCredentials 
         assert space_name == kg_space
 
     try:
-        test_definition.save(kg_user_client, recursive=True, space=kg_space)
+        test_definition.save(kg_user_client, recursive=True, space=kg_space, ignore_duplicates=True)
     except AuthenticationError as err:
         user_info = await user.get_user_info()
         raise HTTPException(

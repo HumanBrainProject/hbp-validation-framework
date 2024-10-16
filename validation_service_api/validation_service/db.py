@@ -9,6 +9,7 @@ from fastapi import HTTPException, status
 from fairgraph.openminds.core import Model, ModelVersion, SoftwareVersion
 from fairgraph.openminds.computation import ValidationTest, ValidationTestVersion
 from . import settings
+from .auth import get_kg_client_for_service_account
 
 RETRY_INTERVAL = 60  # seconds
 
@@ -21,13 +22,13 @@ def _check_service_status():
         )
 
 
-def _get_model_by_id_or_alias(model_id, kg_client, scope):
+def _get_model_by_id_or_alias(model_id, kg_client, scope, use_cache=False):
     try:
         model_id = UUID(model_id)
         get_model = Model.from_uuid
     except ValueError:
         get_model = Model.from_alias
-    model_project = get_model(str(model_id), kg_client, scope=scope)
+    model_project = get_model(str(model_id), kg_client, scope=scope, use_cache=use_cache)
     if not model_project:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -45,21 +46,24 @@ def _get_model_instance_by_id(instance_id, kg_client, scope):
             detail=f"Model instance with ID '{instance_id}' not found.",
         )
 
-    model_project = Model.list(kg_client, scope=scope, space=model_instance.space,
-                               has_versions=model_instance)
+    model_project = Model.list(kg_client, scope=scope, has_versions=model_instance, use_cache=False)
     if not model_project:
         # we could get an empty response if the model_project has just been
         # updated and the KG is not consistent, so we wait and try again
         sleep(RETRY_INTERVAL)
-        model_project = Model.list(kg_client, scope=scope, space=model_instance.space,
-                                   has_versions=model_instance)
+        model_project = Model.list(kg_client, scope=scope, has_versions=model_instance, use_cache=False)
         if not model_project:
-            # in case of a dangling model instance, where the parent model_project
-            # has been deleted but the instance wasn't
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Model instance with ID '{instance_id}' no longer exists.",
-            )
+            # try the service client
+            kg_service_client = get_kg_client_for_service_account()
+            model_project = Model.list(kg_service_client, scope="in progress", has_versions=model_instance, use_cache=False)
+            if not model_project:
+                raise Exception("foo")
+                # in case of a dangling model instance, where the parent model_project
+                # has been deleted but the instance wasn't
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail=f"Model instance with ID '{instance_id}' no longer exists.",
+                )
     model_project = model_project[0]
     return model_instance, model_project.uuid
 
