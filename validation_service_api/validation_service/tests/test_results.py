@@ -3,6 +3,7 @@ from uuid import UUID
 from datetime import datetime
 from urllib.parse import urlparse
 import logging
+from time import sleep
 
 from fastapi import status
 
@@ -261,6 +262,8 @@ def test_create_and_delete_validation_result(caplog):
     assert response.status_code == 201
     posted_result = response.json()
     check_validation_result(posted_result)
+
+    sleep(30)
 
     # retrieve result
     response = client.get(f"/results/{posted_result['id']}", headers=AUTH_HEADER)

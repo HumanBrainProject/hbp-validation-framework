@@ -1,4 +1,4 @@
-from uuid import UUID
+from uuid import UUID, uuid4
 from enum import Enum
 from typing import List
 from datetime import datetime
@@ -15,7 +15,7 @@ from fairgraph.errors import ResolutionFailure
 import fairgraph.openminds.core as omcore
 import fairgraph.openminds.computation as omcmp
 
-from fastapi import APIRouter, Depends, Header, Query, HTTPException, status
+from fastapi import APIRouter, Depends, Header, Query, HTTPException, status, BackgroundTasks
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic import ValidationError
 
@@ -271,25 +271,42 @@ def query_results_summary(
                           "VF_ValidationResultSummary", from_index, size, user)
 
 
+def _save_result(validation_activity, kg_client):
+    # todo: move this function to db module
+    activity_log = None
+    logger.warning(f"Saving outputs ({datetime.now().isoformat()})")
+    for output in as_list(validation_activity.outputs):
+        logger.warning(f"  - {output.iri} ({datetime.now().isoformat()})")
+        output.save(kg_client, recursive=False, activity_log=activity_log, space=validation_activity.space)
+    logger.warning(f"Saving custom_property_sets.data_location ({datetime.now().isoformat()})")
+    if validation_activity.custom_property_sets:
+        validation_activity.custom_property_sets.data_location.save(
+            kg_client, recursive=True, activity_log=activity_log, space=validation_activity.space
+        )
+    logger.warning(f"Saving ModelValidation object ({datetime.now().isoformat()})")
+    validation_activity.save(kg_client, recursive=False, activity_log=activity_log, space=validation_activity.space)
+    logger.warning(f"Background task complete: results saved for model validation {validation_activity.uuid}")
+
+
+
 @router.post("/results/", response_model=ValidationResult, status_code=status.HTTP_201_CREATED)
-def create_result(result: ValidationResult, token: HTTPAuthorizationCredentials = Depends(auth)):
+async def create_result(
+    result: ValidationResult,
+    background_tasks: BackgroundTasks,
+    token: HTTPAuthorizationCredentials = Depends(auth)
+):
     _check_service_status()
     logger.warning(f"Beginning post result ({datetime.now().isoformat()})")
     user = User(token, allow_anonymous=False)
     kg_client = get_kg_client_for_user_account(token)
 
     validation_activity = result.to_kg_objects(kg_client)
-    space = space_from_project_id(result.project_id)
-    activity_log = None
+    # we set our own ID, since we need to return this before the save operation completes
+    validation_activity.id = kg_client.uri_from_uuid(uuid4())
+    validation_activity._space = space_from_project_id(result.project_id)
 
-    logger.warning(f"Saving outputs ({datetime.now().isoformat()})")
-    for output in as_list(validation_activity.outputs):
-        output.save(kg_client, recursive=False, activity_log=activity_log, space=space)
-    logger.warning(f"Saving custom_property_sets.data_location ({datetime.now().isoformat()})")
-    if validation_activity.custom_property_sets:
-        validation_activity.custom_property_sets.data_location.save(kg_client, recursive=True, activity_log=activity_log, space=space)
-    logger.warning(f"Saving ModelValidation object ({datetime.now().isoformat()})")
-    validation_activity.save(kg_client, recursive=False, activity_log=activity_log, space=space)
+    background_tasks.add_task(_save_result, validation_activity, kg_client)
+
     logger.warning(f"Returning validation result ({datetime.now().isoformat()})")
     return ValidationResult.from_kg_object(validation_activity, kg_client)
 
