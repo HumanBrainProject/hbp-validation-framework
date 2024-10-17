@@ -25,10 +25,9 @@ def _check_service_status():
 def _get_model_by_id_or_alias(model_id, kg_client, scope, use_cache=False):
     try:
         model_id = UUID(model_id)
-        get_model = Model.from_uuid
+        model_project = Model.from_uuid(str(model_id), kg_client, scope=scope, use_cache=use_cache)
     except ValueError:
-        get_model = Model.from_alias
-    model_project = get_model(str(model_id), kg_client, scope=scope, use_cache=use_cache)
+        model_project = Model.from_alias(model_id, kg_client, scope=scope)
     if not model_project:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
