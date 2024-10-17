@@ -611,11 +611,12 @@ async def create_model_instance(
         else:
             collab_id = project_id_from_space(model_project.space)
     if collab_id in special_spaces:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail=f"Cannot create new model instances in space {collab_id}, please use a private or collab space",
-        )
-    if not (
+        if collab_id != "myspace":
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail=f"Cannot create new model instances in space {collab_id}, please use a private or collab space",
+            )
+    elif not (
         await user.can_edit_collab(collab_id)
         or await user.is_admin()
     ):
