@@ -44,29 +44,35 @@ def _query_results(filters, kg_user_client, data_model, query_label, from_index,
             detail=f"Query '{query_label}' could not be retrieved",
         )
 
+    items = {}
     if len(filters) == 1:
         # common, simple case
-        response = kg_user_client.query(query, filters[0],
-                                        from_index=from_index, size=size, scope="any",
-                                        id_key="uri", use_stored_query=True)
+        for kg_client in (kg_user_client, kg_service_client):
+            response = kg_client.query(query, filters[0],
+                                       from_index=from_index, size=size, scope="any",
+                                       id_key="uri", use_stored_query=True)
+            for item in response.data:
+                items[item["uri"]] = item
         test_results = [
             data_model.from_kg_query(item, kg_user_client, kg_service_client)
-            for item in response.data
+            for item in items.values()
         ]
     else:
         # more complex case for pagination
-        items = []
-        for filter in filters:
-            response = kg_user_client.query(query, filter,
-                                            from_index=0, size=100000, scope="any",
-                                            use_stored_query=True)
-            items.extend(response.data)
-            if len(items) >= size + from_index:
-                break
+        # very inefficient when from_index is non-zero
+        for kg_client in (kg_user_client, kg_service_client):
+            for filter in filters:
+                response = kg_client.query(query, filter,
+                                           from_index=0, size=100000, scope="any",
+                                           use_stored_query=True)
+                for item in response.data:
+                    items[item["uri"]] = item
+                if len(items) >= size + from_index:
+                    break
 
         test_results = [
             data_model.from_kg_query(item, kg_user_client, kg_service_client)
-            for item in items[from_index:from_index + size]
+            for item in items.values()[from_index:from_index + size]
         ]
 
     if user.is_anonymous:
@@ -75,6 +81,7 @@ def _query_results(filters, kg_user_client, data_model, query_label, from_index,
             if (model_is_public(test_result.model_id, kg_service_client)
                 and test_is_public(test_result.test_id, kg_service_client))
         ]
+    # TODO: filter returned instances according to collab access permissions.
     return test_results
 
 
@@ -124,7 +131,7 @@ def query_results(
     if score_type:
         filters["score_type"] = [item.value for item in score_type]
     if project_id:
-        filters["space"] = [f"collab-{collab_id}" for collab_id in project_id]
+        filters["space"] = [space_from_project_id(collab_id) for collab_id in project_id]
 
     return _query_results(filters, kg_client, ValidationResult,
                            "VF_ValidationResult", from_index, size, user)
