@@ -44,6 +44,9 @@ special_spaces = ("common", "computation", "controlled", "dataset", "files", "in
                   "software", "spatial", "tutorial", "webservice"
                   )
 
+BYTES = omterms.UnitOfMeasurement(id="https://kg.ebrains.eu/api/instances/6899d989-f510-43ad-b613-19c029b59ab2")
+
+
 def uuid_from_uri(uri):
     return uri.split("/")[-1]
 
@@ -1166,10 +1169,24 @@ class File(BaseModel):
             file_store = "swift"
         else:
             file_store = None
+
+        def get_storage_size_in_bytes(sso):
+            if sso:
+                if isinstance(sso, omcore.QuantitativeValue):
+                    # todo: check unit is bytes, or do conversion
+                    return sso.value
+                elif isinstance(sso, int):
+                    # shouldn't happen, but there may be some invalid data in the KG
+                    return sso
+                else:
+                    raise TypeError(f"Expecting a QuantitativeValue or an int for storage size, not a {type(sso)}")
+            else:
+                return None
+
         return cls(
             download_url=file_obj.iri.value,
             hash=file_obj.hash.digest if file_obj.hash else None,
-            size=file_obj.storage_size,
+            size=get_storage_size_in_bytes(file_obj.storage_size),
             content_type=file_obj.format.name if file_obj.format else None,
             local_path=local_path,
             file_store=file_store,
@@ -1227,7 +1244,10 @@ class File(BaseModel):
             iri=IRI(str(self.download_url)),
             format=get_term("ContentType", self.content_type),
             hash=omcore.Hash(algorithm="SHA-1", digest=self.hash),  # are we sure we're using SHA-1?
-            storage_size=self.size,
+            storage_size=omcore.QuantitativeValue(
+                value=self.size,
+                unit=BYTES
+            ),
             content_description=self.local_path
         )
 
