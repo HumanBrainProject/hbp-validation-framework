@@ -517,6 +517,7 @@ class ScientificModel(BaseModel):
     images: List[Image] = None
     old_uuid: UUID = None
     instances: List[ModelInstance] = None
+    validation_count: int = 0
 
     class Config:
         schema_extra = {"example": EXAMPLES["ScientificModel"]}
@@ -669,11 +670,13 @@ class ScientificModelSummary(BaseModel):
     description: str
     date_created: datetime = None
     format: List[str] = None
+    validation_count: int = 0
 
     @classmethod
     def from_kg_query(cls, item, client):
         item.pop("@context")
         item["id"] = client.uuid_from_uri(item["uri"])
+        item["validation_count"] = len(item.pop("validations", []))
         return cls(**item)
 
     @classmethod

@@ -118,6 +118,7 @@ async def query_models(
     format: str = Query(None, description="Model format expressed as a content type"),
     private: bool = Query(None, description="Limit the search to public or private models"),
     summary: bool = Query(False, description="Return only summary information about each model"),
+    validated: bool = Query(False, description="Limit the search to models for which there are validation results"),
     size: int = Query(100, description="Maximum number of responses"),
     from_index: int = Query(0, description="Index of the first response returned"),
     # from header
@@ -222,7 +223,10 @@ async def query_models(
 
         if summary:
             cls = ScientificModelSummary
-            query_label = "VF_ScientificModelSummary"
+            if validated:
+                query_label = "VF_ValidatedScientificModelSummary"
+            else:
+                query_label = "VF_ScientificModelSummary"
         else:
             cls = ScientificModel
             query_label = "VF_ScientificModel"
