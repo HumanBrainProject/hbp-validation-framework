@@ -1185,7 +1185,7 @@ class File(BaseModel):
 
         return cls(
             download_url=file_obj.iri.value,
-            hash=file_obj.hash.digest if file_obj.hash else None,
+            hash=file_obj.hashes.digest if file_obj.hashes else None,  # todo: fix this to handle possible multiple hashes
             size=get_storage_size_in_bytes(file_obj.storage_size),
             content_type=file_obj.format.name if file_obj.format else None,
             local_path=local_path,
@@ -1243,7 +1243,7 @@ class File(BaseModel):
             name=self.local_path,
             iri=IRI(str(self.download_url)),
             format=get_term("ContentType", self.content_type),
-            hash=omcore.Hash(algorithm="SHA-1", digest=self.hash),  # are we sure we're using SHA-1?
+            hashes=omcore.Hash(algorithm="SHA-1", digest=self.hash),  # are we sure we're using SHA-1?
             storage_size=omcore.QuantitativeValue(
                 value=self.size,
                 unit=BYTES
