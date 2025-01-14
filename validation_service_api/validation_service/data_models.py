@@ -1042,9 +1042,9 @@ class ValidationTestSummary(BaseModel):
     score_type: ScoreType = None
 
     @classmethod
-    def from_kg_query(cls, item, client):
+    def from_kg_query(cls, item, user_client, service_client):
         item.pop("@context")
-        item["id"] = client.uuid_from_uri(item["uri"])
+        item["id"] = user_client.uuid_from_uri(item["uri"])
         space = item.get("project_id", None)  # what the query calls "project_id" is really the space
         if space:
             item["project_id"] = project_id_from_space(space)

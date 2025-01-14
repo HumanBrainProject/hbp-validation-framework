@@ -64,7 +64,7 @@ def _query_results(filters, kg_user_client, data_model, query_label, from_index,
             for filter in filters:
                 response = kg_client.query(query, filter,
                                            from_index=0, size=100000, scope="any",
-                                           use_stored_query=True)
+                                           id_key="uri", use_stored_query=True)
                 for item in response.data:
                     items[item["uri"]] = item
                 if len(items) >= size + from_index:
@@ -72,7 +72,7 @@ def _query_results(filters, kg_user_client, data_model, query_label, from_index,
 
         test_results = [
             data_model.from_kg_query(item, kg_user_client, kg_service_client)
-            for item in items.values()[from_index:from_index + size]
+            for item in list(items.values())[from_index:from_index + size]
         ]
 
     if user.is_anonymous:
