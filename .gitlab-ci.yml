@@ -26,6 +26,7 @@ build_api_staging_image:
           - .gitlab-ci.yml
   script:
     - bash validation_service_api/deployment/get_build_info.sh staging
+    - cat validation_service_api/deployment/build_info.json
     - docker build -f validation_service_api/deployment/Dockerfile.staging -t docker-registry.ebrains.eu/model-catalog/validation_service-v3beta:staging ./validation_service_api
     - docker login -u $DOCKER_REGISTRY_USER -p $DOCKER_REGISTRY_SECRET docker-registry.ebrains.eu
     - docker push docker-registry.ebrains.eu/model-catalog/validation_service-v3beta:staging
