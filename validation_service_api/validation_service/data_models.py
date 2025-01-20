@@ -1,7 +1,7 @@
 import os
-from uuid import UUID, uuid5
+from uuid import UUID, uuid4
 from enum import Enum
-from typing import List
+from typing import List, Optional
 from datetime import datetime, timezone, date
 import logging
 import json
@@ -12,11 +12,11 @@ from urllib.parse import urlparse, parse_qs, quote
 from dateutil import parser as date_parser
 import requests
 
-from pydantic import BaseModel, HttpUrl, AnyUrl, validator, ValidationError, constr
+from pydantic import BaseModel, HttpUrl, AnyUrl, validator, ValidationError, constr, root_validator
 from fastapi.encoders import jsonable_encoder
 from fastapi import HTTPException, status
 
-from fairgraph import KGProxy, IRI
+from fairgraph import KGProxy, KGObject, IRI
 from fairgraph.utility import as_list
 from fairgraph.errors import ResolutionFailure, AuthenticationError, AuthorizationError
 import fairgraph
@@ -1767,8 +1767,6 @@ def slugify(name):
     return slug.lower()
 
 
-
-
 def get_citation_string(citation_data):
     authors = citation_data["authors"]
     if len(authors) == 1:
@@ -1789,3 +1787,76 @@ def get_citation_string(citation_data):
     pagination = citation_data["pagination"]
     date_published = datetime.fromisoformat(citation_data["publication_date"])
     return f"{author_str} ({date_published.year}). {title} {journal_name}, {volume_number}: {pagination}."
+
+
+class PublicationStatus(str, Enum):
+    draft = "draft"
+    submitted = "submitted"
+    published = "published"
+
+
+class NewComment(BaseModel):
+    about: UUID
+    content: str
+
+    def to_kg_object(self, kg_client, commenter):
+        about = KGObject.from_id(str(self.about), kg_client)
+        # by definition this is a new object, so we create its UUID
+        # now to avoid taking time for the "exists()" query
+        id = kg_client.uri_from_uuid(str(uuid4()))
+        return omcore.Comment(
+            id=id,
+            about=about,
+            comment=self.content,
+            commenter=commenter,
+            timestamp=datetime.now(timezone.utc)
+        )
+
+
+class Comment(BaseModel):
+    """Users may comment on models, validation tests or validation results."""
+    about: UUID
+    content: str
+    commenter: Person
+    timestamp: datetime
+    status: PublicationStatus = PublicationStatus.draft
+    id: UUID = None
+
+    @classmethod
+    def from_kg_object(cls, comment, kg_client):
+        obj = cls(
+            about=UUID(comment.about.uuid),
+            content=comment.comment,
+            commenter=Person.from_kg_object(comment.commenter, kg_client),
+            timestamp=comment.timestamp,
+            id=comment.uuid
+        )
+        if comment.space in ("myspace", kg_client._private_space):
+            obj.status = PublicationStatus.draft
+        elif comment.is_released(kg_client):
+            obj.status = PublicationStatus.published
+        else:
+            obj.status = PublicationStatus.submitted
+        return obj
+
+    def to_kg_object(self, kg_client):
+        about = KGObject.from_id(str(self.about), kg_client)
+        return omcore.Comment(
+            about=about,
+            comment=self.content,
+            commenter=self.commenter.to_kg_object(kg_client),
+            timestamp=self.timestamp,
+            id=kg_client.uri_from_uuid(self.id) if self.id else None
+        )
+
+
+class CommentPatch(BaseModel):
+    """Comments may be edited by their authors."""
+    content: Optional[str] = None
+    status: Optional[PublicationStatus] = None
+
+    @root_validator()
+    def check_not_empty(cls, values):
+        if (values.get('content') is None) and (values.get("status") is None):
+            raise ValueError('either content or status is required')
+        return values
