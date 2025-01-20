@@ -113,11 +113,14 @@ class User:
         user_info = await self.get_user_info()
         family_name = user_info["family_name"]
         given_name = user_info["given_name"]
-        person = omcore.Person.list(kg_client, family_name=family_name, given_name=given_name, api="nexus", scope="latest")
+        person = omcore.Person.list(kg_client, family_name=family_name, given_name=given_name, scope="any")
         if person:
             if isinstance(person, list):
-                logger.error("Found more than one person with this name")
-                return None
+                if len(person) > 1:
+                    logger.error("Found more than one person with this name")
+                    return None
+                else:
+                    return person[0]
             else:
                 return person
         else:
