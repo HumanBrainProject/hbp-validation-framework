@@ -55,9 +55,9 @@ async def query_comments(
             kg_user_client,
             scope="any",
             follow_links={"commenter": {}},
-            api="query",
             size=size,
             from_index=from_index,
+            **filters
         )
     except AuthenticationError as err:
         raise HTTPException(
