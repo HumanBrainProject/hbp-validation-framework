@@ -4,8 +4,9 @@ from fastapi.responses import RedirectResponse
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from starlette.requests import Request
 from httpx import HTTPStatusError
-from ..auth import oauth, User
+from ..auth import oauth, User, get_kg_client_for_user_account
 from ..settings import BASE_URL
+from ..data_models import Person
 
 
 router = APIRouter()
@@ -88,3 +89,19 @@ async def list_projects(
             return [p for p in projects if p["permissions"]["UPDATE"]]
         else:
             return projects
+
+@router.get("/me")
+async def get_person(
+    request: Request,
+    token: HTTPAuthorizationCredentials = Depends(auth),
+):
+    kg_user_client = get_kg_client_for_user_account(token)
+    user = User(token, allow_anonymous=False)
+    kg_person = await user.get_person(kg_user_client)
+    if kg_person:
+        return Person.from_kg_object(kg_person, kg_user_client)
+    else:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="There is no Knowledge Graph entry for this user. Please contact support."
+        )
