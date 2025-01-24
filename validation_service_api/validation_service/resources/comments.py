@@ -180,3 +180,19 @@ async def update_comment(
                 )
 
     return Comment.from_kg_object(original_comment, kg_user_client)
+
+
+@router.delete("/comments/{comment_id}")
+async def delete_comment(
+    comment_id: UUID = Path(
+        ..., title="Comment ID", description="ID of the comment to be deleted"
+    ),
+    token: HTTPAuthorizationCredentials = Depends(auth),
+):
+    """Delete a specific comment identified by a UUID"""
+    kg_user_client = get_kg_client_for_user_account(token)
+    response = kg_user_client.delete_instance(comment_id, ignore_not_found=True, ignore_errors=True)
+    if response:  # error
+        logger.error(str(response))
+        # todo: better error handling
+    return None
