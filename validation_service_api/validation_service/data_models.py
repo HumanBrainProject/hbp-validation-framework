@@ -314,6 +314,7 @@ class ModelInstance(BaseModel):
     version: str
     description: str = None
     parameters: HttpUrl = None
+    path: str = None
     code_format: ContentType = None
     source: AnyUrl = None  # should be required
     license: License = None  # use Enum
@@ -346,6 +347,7 @@ class ModelInstance(BaseModel):
             item["alternatives"].append(f"https://search.kg.ebrains.eu/instances/{item['id']}")
         if item["source"] and "modeldb" in item["source"].lower():
             item["alternatives"].append(item["source"])
+        item["path"] = item.pop("entry_point", None)
 
         # provide download zip link if source is a container folder
         if item["source"] and "object.cscs.ch" in item["source"] and "?prefix" in item["source"] and item["source"][-1] == "/":
@@ -418,6 +420,7 @@ class ModelInstance(BaseModel):
             "version": instance.version_identifier or "unknown",
             "description": instance.version_innovation,
             "parameters": None,  # todo: get from instance.input_data
+            "path": instance.entry_point,
             "timestamp": instance.release_date,
             "model_id": model_id,
             "alternatives": alternatives,
@@ -464,6 +467,7 @@ class ModelInstance(BaseModel):
             repository=repository,
             licenses=get_term("License", self.license),
             release_date=self.timestamp if self.timestamp else date.today(),
+            entry_point=self.path
         )
         if self.uri:
             minst.id = str(self.uri)
@@ -476,6 +480,7 @@ class ModelInstancePatch(BaseModel):
     version: str = None
     description: str = None
     parameters: HttpUrl = None
+    path: str = None
     code_format: ContentType = None
     source: HttpUrl = None
     license: License = None
@@ -1796,11 +1801,12 @@ class PublicationStatus(str, Enum):
 
 
 class NewComment(BaseModel):
-    about: UUID
+    about: str
     content: str
 
     def to_kg_object(self, kg_client, commenter):
-        about = KGObject.from_id(str(self.about), kg_client)
+        about_uuid = self.about.split("/")[-1]
+        about = KGObject.from_id(about_uuid, kg_client)
         # by definition this is a new object, so we create its UUID
         # now to avoid taking time for the "exists()" query
         id = kg_client.uri_from_uuid(str(uuid4()))
@@ -1813,9 +1819,14 @@ class NewComment(BaseModel):
         )
 
 
+type_map = {
+    "Model": "models",
+    "ValidationTest": "tests"
+}
+
 class Comment(BaseModel):
     """Users may comment on models, validation tests or validation results."""
-    about: UUID
+    about: str
     content: str
     commenter: Person
     timestamp: datetime
@@ -1824,8 +1835,13 @@ class Comment(BaseModel):
 
     @classmethod
     def from_kg_object(cls, comment, kg_client):
+        if isinstance(comment.about, KGProxy):
+            obj_type = type_map[comment.about.classes[0].__name__]
+        else:
+            assert isinstance(comment.about, KGObject)
+            obj_type = type_map[comment.about.__class__.__name__]
         obj = cls(
-            about=UUID(comment.about.uuid),
+            about=f"/{obj_type}/{comment.about.uuid}",
             content=comment.comment,
             commenter=Person.from_kg_object(comment.commenter, kg_client),
             timestamp=comment.timestamp,
@@ -1840,7 +1856,7 @@ class Comment(BaseModel):
         return obj
 
     def to_kg_object(self, kg_client):
-        about = KGObject.from_id(str(self.about), kg_client)
+        about = KGObject.from_id(self.about.split("/")[-1], kg_client)
         return omcore.Comment(
             about=about,
             comment=self.content,
