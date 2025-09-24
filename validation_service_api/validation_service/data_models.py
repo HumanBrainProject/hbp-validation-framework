@@ -433,11 +433,23 @@ class ModelInstance(BaseModel):
             for input_url in as_list(instance.input_data):
                 if isinstance(input_url, KGProxy):  # this should not be needed, should have been resolved already
                     input_url = input_url.resolve(client, scope=scope)
-                _, extension = os.path.splitext(urlparse(input_url.iri.value).path)
+                # this assumes input_url is a WebResource or File, but it could also be a DOI or FileBundle,
+                # which do not have an "iri" property
+                if hasattr(input_url, "iri"):
+                    resolved_url = input_url.iri.value
+                elif hasattr(input_url, "identifier"):
+                    if input_url.identifier.startswith("http"):
+                        resolved_url = input_url.identifier
+                    else:
+                        #assume input_url.identifier.startswith("10")
+                        resolved_url = f"https://doi.org/{input_url.identifier}"
+                else:
+                    raise NotImplementedError(f"Cannot handle FileBundle as input_data ({instance.id})")
+                _, extension = os.path.splitext(urlparse(resolved_url).path)
                 if extension.lower() == ".asc":
-                    instance_data["morphology"] = input_url.iri.value
+                    instance_data["morphology"] = resolved_url
                 elif extension.lower() in (".json", ".yml", ".yaml", ".cfg", ".config", ".toml"):
-                    instance_data["parameters"] = input_url.iri.value
+                    instance_data["parameters"] = resolved_url
         try:
             obj = cls(**instance_data)
         except ValidationError as err:
