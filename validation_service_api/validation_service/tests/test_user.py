@@ -25,10 +25,10 @@ async def test_user__is_admin():
 
 
 @pytest.mark.asyncio
-async def test_user_info():
+async def test_user_teams():
     user = User(token, allow_anonymous=False)
-    user_info = await user.get_user_info()
-    assert "collab-model-validation-administrator" not in user_info["roles"]["team"]
+    teams = await user.get_teams()
+    assert "collab-model-validation-administrator" not in teams
 
 
 @pytest.mark.asyncio

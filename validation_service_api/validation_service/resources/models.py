@@ -52,8 +52,8 @@ async def api_status(token: HTTPAuthorizationCredentials = Depends(auth)):
         }
     }
     if token:
-        user_info = await User(token).get_user_info()
-        info["user"] = user_info["preferred_username"]
+        identity = await User(token).get_identity()
+        info["user"] = identity["preferred_username"]
     service_status = getattr(settings, "SERVICE_STATUS", "ok")
     return info
 

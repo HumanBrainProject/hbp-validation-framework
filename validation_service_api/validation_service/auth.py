@@ -1,3 +1,4 @@
+import base64
 import requests
 import logging
 import json
@@ -7,7 +8,7 @@ import fairgraph.openminds.core as omcore
 
 from fastapi import HTTPException, status
 from authlib.integrations.starlette_client import OAuth
-from httpx import Timeout
+from httpx import AsyncClient, Timeout
 
 from . import settings
 
@@ -30,6 +31,18 @@ oauth.register(
         "timeout": Timeout(timeout=settings.AUTHENTICATION_TIMEOUT)
     },
 )
+
+
+def _decode_jwt_payload(token_str: str) -> dict:
+    try:
+        payload_b64 = token_str.split(".")[1]
+        payload_b64 += "=" * (4 - len(payload_b64) % 4)
+        return json.loads(base64.urlsafe_b64decode(payload_b64))
+    except Exception as err:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail=f"Could not decode token: {err}"
+        )
 
 
 def get_kg_client_for_service_account():
@@ -71,7 +84,8 @@ class User:
                 detail="You need to provide a bearer token to access this resource"
             )
         self.token = token
-        self._user_info = None
+        self._identity = None
+        self._teams = None
         self._collab_info = {}
         self._connection_error = False
 
@@ -79,33 +93,32 @@ class User:
     def is_anonymous(self):
         return self.token is None or self.token.credentials == "undefined"
 
-    async def get_user_info(self):
-        if self._user_info is None:
-            user_info = await oauth.ebrains.userinfo(
-                token={"access_token": self.token.credentials, "token_type": "bearer"}
-            )
-            if "error" in user_info:
-                raise HTTPException(
-                    status_code=status.HTTP_401_UNAUTHORIZED, detail=user_info["error_description"]
-                )
-            elif user_info.get("statusCode", None) == 401:
-                raise HTTPException(
-                    status_code=status.HTTP_401_UNAUTHORIZED, detail=user_info["message"]
-                )
-            elif user_info.get("statusCode", None) == 500:
-                raise HTTPException(
-                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                    detail=f'Problem getting user_info: {user_info["message"]}'
-                )
-            logger.debug(user_info)
-            try:
-                # make this compatible with the v1 json
-                user_info["id"] = user_info["sub"]
-                user_info["username"] = user_info.get("preferred_username", "unknown")
-            except KeyError:
-                raise Exception(user_info)
-            self._user_info = user_info
-        return self._user_info
+    async def get_identity(self):
+        if self._identity is None:
+            payload = _decode_jwt_payload(self.token.credentials)
+            username = payload.get("preferred_username", "unknown")
+            self._identity = {
+                "sub": payload["sub"],
+                "id": payload["sub"],
+                "preferred_username": username,
+                "username": username,
+                "given_name": payload.get("given_name", ""),
+                "family_name": payload.get("family_name", ""),
+            }
+        return self._identity
+
+    async def get_teams(self):
+        if self._teams is None:
+            identity = await self.get_identity()
+            url = f"{settings.EBRAINS_IDM_API_URL}/teams"
+            headers = {"Authorization": f"Bearer {self.token.credentials}"}
+            params = {"username": identity["username"]}
+            async with AsyncClient() as client:
+                res = await client.get(url, headers=headers, params=params,
+                                       timeout=settings.AUTHENTICATION_TIMEOUT)
+            res.raise_for_status()
+            self._teams = [t["name"] for t in res.json() if isinstance(t, dict) and "name" in t]
+        return self._teams
 
     async def get_collab_info(self, collab_id):
         if collab_id not in self._collab_info:
@@ -122,9 +135,9 @@ class User:
         return self._collab_info[collab_id]
 
     async def get_person(self, kg_client):
-        user_info = await self.get_user_info()
-        family_name = user_info["family_name"]
-        given_name = user_info["given_name"]
+        identity = await self.get_identity()
+        family_name = identity["family_name"]
+        given_name = identity["given_name"]
         person = omcore.Person.list(kg_client, family_name=family_name, given_name=given_name, scope="any")
         if person:
             if isinstance(person, list):
@@ -139,14 +152,14 @@ class User:
             return None
 
     async def get_collab_permissions(self, collab_id):
-        user_info = await self.get_user_info()
+        teams = await self.get_teams()
 
         target_team_names = {role: f"collab-{collab_id}-{role}"
                             for role in ("viewer", "editor", "administrator")}
 
         highest_collab_role = None
         for role, team_name in target_team_names.items():
-            if team_name in user_info["roles"]["team"]:
+            if team_name in teams:
                 highest_collab_role = role
         if highest_collab_role == "viewer":
             permissions = {"VIEW": True, "UPDATE": False}
@@ -184,9 +197,9 @@ class User:
         # todo: replace this check with a group membership check
 
     async def get_editable_collabs(self):
-        user_info = await self.get_user_info()
+        teams = await self.get_teams()
         editable_collab_ids = set()
-        for team_name in user_info["roles"]["team"]:
+        for team_name in teams:
             if team_name.endswith("-editor") or team_name.endswith("-administrator"):
                 collab_id = "-".join(team_name.split("-")[1:-1])
                 editable_collab_ids.add(collab_id)

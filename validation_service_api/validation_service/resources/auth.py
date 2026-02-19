@@ -59,7 +59,7 @@ async def list_projects(
         return []
     else:
         try:
-            user_info = await user.get_user_info()
+            teams = await user.get_teams()
         except HTTPStatusError as err:
             if "401" in str(err):
                 raise HTTPException(
@@ -68,9 +68,8 @@ async def list_projects(
                 )
             else:
                 raise
-        roles = user_info.get("roles", {}).get("team", [])
         projects = {}
-        for role in roles:
+        for role in teams:
             if role.startswith("collab-"):
                 project_id = "-".join(role.split("-")[1:-1])
                 if project_id not in projects:
