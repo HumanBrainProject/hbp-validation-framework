@@ -88,6 +88,10 @@ class User:
                 raise HTTPException(
                     status_code=status.HTTP_401_UNAUTHORIZED, detail=user_info["error_description"]
                 )
+            elif user_info.get("statusCode", None) == 401:
+                raise HTTPException(
+                    status_code=status.HTTP_401_UNAUTHORIZED, detail=user_info["message"]
+                )
             logger.debug(user_info)
             # make this compatible with the v1 json
             user_info["id"] = user_info["sub"]
