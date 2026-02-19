@@ -92,10 +92,18 @@ class User:
                 raise HTTPException(
                     status_code=status.HTTP_401_UNAUTHORIZED, detail=user_info["message"]
                 )
+            elif user_info.get("statusCode", None) == 500:
+                raise HTTPException(
+                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    detail=f'Problem getting user_info: {user_info["message"]}'
+                )
             logger.debug(user_info)
-            # make this compatible with the v1 json
-            user_info["id"] = user_info["sub"]
-            user_info["username"] = user_info.get("preferred_username", "unknown")
+            try:
+                # make this compatible with the v1 json
+                user_info["id"] = user_info["sub"]
+                user_info["username"] = user_info.get("preferred_username", "unknown")
+            except KeyError:
+                raise Exception(user_info)
             self._user_info = user_info
         return self._user_info
 
