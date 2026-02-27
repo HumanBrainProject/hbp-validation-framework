@@ -34,6 +34,6 @@ class MockKGClient:
         return {"@id": "not_a_real_id", "query_label": query_label}
 
     def query(
-        self, query, filter=None, space=None, from_index=0, size=100, scope="released"
+        self, query, filter=None, space=None, from_index=0, size=100, release_status="released"
     ):
         return MockKGResult()

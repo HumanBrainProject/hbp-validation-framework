@@ -138,7 +138,7 @@ class User:
         identity = await self.get_identity()
         family_name = identity["family_name"]
         given_name = identity["given_name"]
-        person = omcore.Person.list(kg_client, family_name=family_name, given_name=given_name, scope="any")
+        person = omcore.Person.list(kg_client, family_name=family_name, given_name=given_name, release_status="any")
         if person:
             if isinstance(person, list):
                 if len(person) > 1:

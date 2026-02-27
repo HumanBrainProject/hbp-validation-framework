@@ -100,7 +100,7 @@ def _build_sample_model():
                 "parameters": "http://example.com/my_parameters.py",
                 "code_format": "text/x-python",
                 "source": "http://example.com/my_code.py",
-                "license": "The MIT license",
+                "license": "MIT License",
             }
         ],
     }

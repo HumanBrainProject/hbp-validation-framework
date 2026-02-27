@@ -1,3 +1,4 @@
+from datetime import date
 from uuid import UUID
 from typing import List, Union
 import logging
@@ -105,7 +106,7 @@ async def query_models(
         None, description="Find models intended to represent this/these species"
     ),
     cell_type: List[CellType] = Query(None, description="Find models of this/these cell type(s)"),
-    model_scope: ModelScope = Query(None, description="Find models with a certain scope"),
+    model_scope: ModelScope = Query(None, description="Find models with a certain release_status"),
     abstraction_level: AbstractionLevel = Query(
         None, description="Find models with a certain abstraction level"
     ),
@@ -149,14 +150,14 @@ async def query_models(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Anonymous users may not view private models",
             )
-        scope = "released"
+        release_status = "released"
         kg_user_client = get_kg_client_for_service_account()
     else:
-        scope = "any"
+        release_status = "any"
         if private is False:
-            scope = "released"
+            release_status = "released"
         if private is True:
-            scope = "in progress"  # or do we need a "never released" scope?
+            release_status = "in progress"  # or do we need a "never released" release_status?
 
         if private:
             if project_id:
@@ -178,7 +179,7 @@ async def query_models(
         # if specifying specific ids, we ignore any other search terms
         models = []
         for model_uuid in id:
-            model = omcore.Model.from_uuid(str(model_uuid), kg_user_client, scope=scope)
+            model = omcore.Model.from_uuid(str(model_uuid), kg_user_client, release_status=release_status)
             if model:
                 models.append(model)
             else:
@@ -244,7 +245,7 @@ async def query_models(
             try:
                 instances = kg_user_client.query(query, filters[0],
                                                  from_index=from_index, size=size,
-                                                 scope=scope, id_key="uri",
+                                                 release_status=release_status, id_key="uri",
                                                  use_stored_query=True).data
             except Exception as err:
                 if "401" in str(err):
@@ -256,10 +257,10 @@ async def query_models(
                 else:
                     raise
 
-            return [
+            return sorted([
                 cls.from_kg_query(instance, kg_user_client)
                 for instance in instances
-            ]
+            ], key=lambda m: m.date_created or date(1, 1, 1))
 
         else:
             # more complex case for pagination
@@ -268,15 +269,15 @@ async def query_models(
             for filter in filters:
                 results = kg_user_client.query(query, filter,
                                                from_index=0, size=100000,
-                                               scope=scope, id_key="uri",
+                                               release_status=release_status, id_key="uri",
                                                use_stored_query=True)
                 for instance in results.data:
                     instances[instance["uri"]] = instance  # use dict to remove duplicates
 
-            return [
+            return sorted([
                 cls.from_kg_query(instance, kg_user_client)
                 for instance in list(instances.values())[from_index:from_index + size]
-            ]
+            ], key=lambda m: m.date_created or date(1, 1, 1))
 
 
 @router.get("/models/{model_id}", response_model=ScientificModel)
@@ -288,10 +289,10 @@ async def get_model(
     user = User(token, allow_anonymous=True)
     if user.is_anonymous:
         kg_user_client = get_kg_client_for_service_account()
-        scope = "released"
+        release_status = "released"
     else:
         kg_user_client = get_kg_client_for_user_account(token)
-        scope = "any"
+        release_status = "any"
 
     kg_service_client = get_kg_client_for_service_account()
 
@@ -316,13 +317,13 @@ async def get_model(
     if filter:
         try:
             results = kg_user_client.query(query, filter, instance_id=instance_id,
-                                           size=1, scope=scope, id_key="uri",
+                                           size=1, release_status=release_status, id_key="uri",
                                            use_stored_query=True)
         except Exception as err:
             # todo: extract status code from err
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"{err} filter='{filter}' query_id='{query['@id']}' instance_id='{instance_id}', scope='{scope}'"
+                detail=f"{err} filter='{filter}' query_id='{query['@id']}' instance_id='{instance_id}', release_status='{release_status}'"
             )
 
         if results.total == 0:
@@ -332,7 +333,7 @@ async def get_model(
         return ScientificModel.from_kg_query(results.data[0], kg_user_client)
 
     else:
-        obj = omcore.Model.from_id(instance_id, kg_user_client, scope=scope)
+        obj = omcore.Model.from_id(instance_id, kg_user_client, release_status=release_status)
         if obj is None:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND, detail=f"Model with ID '{instance_id}' not found."
@@ -401,7 +402,7 @@ async def create_model(
     # todo: we might want to save the tree explicitly rather than recursively,
     #       to have more control over when we ignore duplicates
     model_project.save(kg_user_client, space=kg_space, recursive=True, ignore_duplicates=True)
-    model_project.scope = "in progress"
+    model_project.release_status = "in progress"
     return ScientificModel.from_kg_object(model_project, kg_user_client)
 
 
@@ -428,7 +429,7 @@ async def update_model(
     kg_service_client = get_kg_client_for_service_account()
 
     # retrieve stored model
-    model_project = omcore.Model.from_uuid(str(model_id), kg_user_client, scope="any")
+    model_project = omcore.Model.from_uuid(str(model_id), kg_user_client, release_status="any")
     if model_project is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -439,7 +440,7 @@ async def update_model(
     # if retrieved project_id is different to payload id, check permissions for that id
     if stored_model.project_id != model_patch.project_id and not (
         await user.can_edit_collab(stored_model.project_id)
-        or await user.is_admin()
+        or await user.is_admin()  # todo: check if project_id exists
     ):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -471,7 +472,7 @@ async def update_model(
     updated_model = stored_model.copy(update=update_data)
     updated_model_project = updated_model.to_kg_object(kg_user_client)
     updated_model_project.save(kg_user_client, space=model_project.space, recursive=True)
-    updated_model_project.scope = "in progress"
+    updated_model_project.release_status = "in progress"
     return ScientificModel.from_kg_object(updated_model_project, kg_user_client)
 
 
@@ -483,7 +484,7 @@ async def delete_model(model_id: UUID, token: HTTPAuthorizationCredentials = Dep
     user = User(token, allow_anonymous=False)
 
     kg_client = get_kg_client_for_user_account(token)
-    model_project = omcore.Model.from_uuid(str(model_id), kg_client, scope="in progress")
+    model_project = omcore.Model.from_uuid(str(model_id), kg_client, release_status="in progress")
     if model_project is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -514,15 +515,15 @@ async def get_model_instances(
     user = User(token, allow_anonymous=True)
     if user.is_anonymous:
         kg_client = get_kg_client_for_service_account()
-        scope = "released"
+        release_status = "released"
     else:
         kg_client = get_kg_client_for_user_account(token)
-        scope = "any"
-    model_project = _get_model_by_id_or_alias(model_id, kg_client, scope)
+        release_status = "any"
+    model_project = _get_model_by_id_or_alias(model_id, kg_client, release_status)
     model_instances = []
     for inst in as_list(model_project.has_versions):
         try:
-            model_instance = ModelInstance.from_kg_object(inst, kg_client, model_project.uuid, scope)
+            model_instance = ModelInstance.from_kg_object(inst, kg_client, model_project.uuid, release_status)
         except ResolutionFailure:
             pass
         else:
@@ -540,12 +541,12 @@ async def get_model_instance_from_instance_id(
     user = User(token, allow_anonymous=True)
     if user.is_anonymous:
         kg_client = get_kg_client_for_service_account()
-        scope = "released"
+        release_status = "released"
     else:
         kg_client = get_kg_client_for_user_account(token)
-        scope = "any"
-    inst, model_id = _get_model_instance_by_id(model_instance_id, kg_client, scope)
-    return ModelInstance.from_kg_object(inst, kg_client, model_id, scope)
+        release_status = "any"
+    inst, model_id = _get_model_instance_by_id(model_instance_id, kg_client, release_status)
+    return ModelInstance.from_kg_object(inst, kg_client, model_id, release_status)
 
 
 @router.get("/models/{model_id}/instances/in progress", response_model=ModelInstance)
@@ -555,13 +556,13 @@ async def get_latest_model_instance_given_model_id(
     user = User(token, allow_anonymous=True)
     if user.is_anonymous:
         kg_client = get_kg_client_for_service_account()
-        scope = "released"
+        release_status = "released"
     else:
         kg_client = get_kg_client_for_user_account(token)
-        scope = "any"
-    model_project = _get_model_by_id_or_alias(model_id, kg_client, scope)
+        release_status = "any"
+    model_project = _get_model_by_id_or_alias(model_id, kg_client, release_status)
     model_instances = [
-        ModelInstance.from_kg_object(inst, kg_client, model_project.uuid, scope)
+        ModelInstance.from_kg_object(inst, kg_client, model_project.uuid, release_status)
         for inst in as_list(model_project.has_versions)
     ]
     latest = sorted(model_instances, key=lambda inst: inst["timestamp"])[-1]
@@ -575,14 +576,14 @@ async def get_model_instance_given_model_id(
     user = User(token, allow_anonymous=True)
     if user.is_anonymous:
         kg_client = get_kg_client_for_service_account()
-        scope = "released"
+        release_status = "released"
     else:
         kg_client = get_kg_client_for_user_account(token)
-        scope = "any"
-    model_project = _get_model_by_id_or_alias(model_id, kg_client, scope)
+        release_status = "any"
+    model_project = _get_model_by_id_or_alias(model_id, kg_client, release_status)
     for inst in as_list(model_project.has_versions):
         if UUID(inst.uuid) == model_instance_id:
-            return ModelInstance.from_kg_object(inst, kg_client, model_project.uuid, scope)
+            return ModelInstance.from_kg_object(inst, kg_client, model_project.uuid, release_status)
     raise HTTPException(
         status_code=status.HTTP_400_BAD_REQUEST,
         detail="Model ID/alias and model instance ID are inconsistent",
@@ -603,7 +604,7 @@ async def create_model_instance(
     user = User(token, allow_anonymous=False)
     kg_user_client = get_kg_client_for_user_account(token)
     kg_service_client = get_kg_client_for_service_account()
-    model_project = _get_model_by_id_or_alias(model_id, kg_user_client, scope="any")
+    model_project = _get_model_by_id_or_alias(model_id, kg_user_client, release_status="any")
     # check permissions for this model
     collab_id = model_instance.project_id
     if collab_id is None:
@@ -646,7 +647,7 @@ async def create_model_instance(
         # if the model project has already been published we may not be able
         # to save with user client, so use service client
         model_project.save(kg_service_client, recursive=False)
-    return ModelInstance.from_kg_object(model_instance_kg, kg_user_client, model_project.uuid, scope="any")
+    return ModelInstance.from_kg_object(model_instance_kg, kg_user_client, model_project.uuid, release_status="any")
 
 
 @router.put("/models/query/instances/{model_instance_id}", response_model=ModelInstance)
@@ -658,8 +659,8 @@ async def update_model_instance_by_id(
     _check_service_status()
     user = User(token, allow_anonymous=False)
     kg_user_client = get_kg_client_for_user_account(token)
-    model_instance_kg, model_id = _get_model_instance_by_id(model_instance_id, kg_user_client, scope="any")
-    model_project = _get_model_by_id_or_alias(model_id, kg_user_client, scope="any")
+    model_instance_kg, model_id = _get_model_instance_by_id(model_instance_id, kg_user_client, release_status="any")
+    model_project = _get_model_by_id_or_alias(model_id, kg_user_client, release_status="any")
     return await _update_model_instance(
         model_instance_kg, model_project, model_instance_patch, user
     )
@@ -679,8 +680,8 @@ async def update_model_instance(
     _check_service_status()
     user = User(token, allow_anonymous=False)
     kg_user_client = get_kg_client_for_user_account(token)
-    model_instance_kg, retrieved_model_id = _get_model_instance_by_id(model_instance_id, kg_user_client, scope="any")
-    model_project = _get_model_by_id_or_alias(model_id, kg_user_client, scope="any")
+    model_instance_kg, retrieved_model_id = _get_model_instance_by_id(model_instance_id, kg_user_client, release_status="any")
+    model_project = _get_model_by_id_or_alias(model_id, kg_user_client, release_status="any")
     assert model_id == retrieved_model_id or model_id == model_project.short_name
     return await _update_model_instance(
         model_instance_kg, model_project, model_instance_patch, user
@@ -706,13 +707,13 @@ async def _update_model_instance(model_instance_kg, model_project, model_instanc
 
     kg_user_client = get_kg_client_for_user_account(user.token)
     stored_model_instance = ModelInstance.from_kg_object(
-        model_instance_kg, kg_user_client, model_project.uuid, scope="any"
+        model_instance_kg, kg_user_client, model_project.uuid, release_status="any"
     )
     update_data = model_instance_patch.dict(exclude_unset=True)
     updated_model_instance = stored_model_instance.copy(update=update_data)
     model_instance_kg = updated_model_instance.to_kg_object(model_project)
     model_instance_kg.save(kg_user_client, space=model_project.space, recursive=True)
-    return ModelInstance.from_kg_object(model_instance_kg, kg_user_client, model_project.uuid, scope="any")
+    return ModelInstance.from_kg_object(model_instance_kg, kg_user_client, model_project.uuid, release_status="any")
 
 
 @router.delete("/models/query/instances/{model_instance_id}", status_code=status.HTTP_200_OK)
@@ -723,7 +724,7 @@ async def delete_model_instance_by_id(
     user = User(token, allow_anonymous=False)
     kg_user_client = get_kg_client_for_user_account(token)
     kg_service_client = get_kg_client_for_service_account()
-    model_instance_kg, model_id = _get_model_instance_by_id(model_instance_id, kg_user_client, scope="any")
+    model_instance_kg, model_id = _get_model_instance_by_id(model_instance_id, kg_user_client, release_status="any")
     collab_id = project_id_from_space(model_instance_kg.space)
     if not (
         await user.can_edit_collab(collab_id)
@@ -745,7 +746,7 @@ async def delete_model_instance(
     user = User(token, allow_anonymous=False)
     kg_user_client = get_kg_client_for_user_account(token)
     kg_service_client = get_kg_client_for_service_account()
-    model_instance_kg, model_id = _get_model_instance_by_id(model_instance_id, kg_user_client, scope="any")
+    model_instance_kg, model_id = _get_model_instance_by_id(model_instance_id, kg_user_client, release_status="any")
     collab_id = project_id_from_space(model_instance_kg.space)
     if not (
         await user.can_edit_collab(collab_id)
@@ -760,10 +761,10 @@ async def delete_model_instance(
 
 async def _delete_model_instance(model_instance_id, model_id, kg_user_client, kg_service_client):
     try:
-        model_project = _get_model_by_id_or_alias(model_id, kg_user_client, scope="in progress", use_cache=False)
+        model_project = _get_model_by_id_or_alias(model_id, kg_user_client, release_status="in progress", use_cache=False)
         kg_client_for_model = kg_user_client
     except HTTPException:
-        model_project = _get_model_by_id_or_alias(model_id, kg_service_client, scope="in progress", use_cache=False)
+        model_project = _get_model_by_id_or_alias(model_id, kg_service_client, release_status="in progress", use_cache=False)
         kg_client_for_model = kg_service_client
     model_instances = as_list(model_project.has_versions)
     n_start = len(model_instances)

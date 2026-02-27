@@ -76,7 +76,7 @@ def filter_study_targets(study_targets):
     brain_regions = []
     species = []
     for item in as_list(study_targets):
-        item = item.resolve(kg_service_client, scope="any")
+        item = item.resolve(kg_service_client, release_status="any")
         if isinstance(item, omterms.CellType):
             cell_types.append(item.name)
         elif isinstance(item, omterms.UBERONParcellation):
@@ -111,7 +111,7 @@ def get_term_cache():
             omterms.Service,
             omterms.ActionStatusType
         ):
-            objects = cls.list(kg_service_client, api="core", scope="any", size=10000)
+            objects = cls.list(kg_service_client, api="core", release_status="any", size=10000)
             term_cache[cls.__name__] = {
                 "names": {obj.name: obj for obj in objects},
                 "ids": {obj.id: obj for obj in objects}
@@ -271,7 +271,7 @@ class Person(BaseModel):
     @classmethod
     def from_kg_object(cls, person, client):
         try:
-            person = person.resolve(client, scope="any")
+            person = person.resolve(client, release_status="any")
         except ResolutionFailure as err:
             logger.warn(str(err))
             return None
@@ -283,7 +283,7 @@ class Person(BaseModel):
                     break
                 elif isinstance(digid, KGProxy) and digid.cls == omcore.ORCID:
                     try:
-                        orcid = digid.resolve(client, scope="any").identifier
+                        orcid = digid.resolve(client, release_status="any").identifier
                     except ResolutionFailure:
                         pass
                     else:
@@ -292,7 +292,7 @@ class Person(BaseModel):
                    orcid=orcid)
 
     def to_kg_object(self, client):
-        candidates = omcore.Person.list(client, scope="any", family_name=self.family_name, given_name=self.given_name)
+        candidates = omcore.Person.list(client, release_status="any", family_name=self.family_name, given_name=self.given_name)
         if candidates:
             obj = as_list(candidates)[0]  # could perhaps look through for closest match if there are more than one
         else:
@@ -314,7 +314,7 @@ class ModelInstance(BaseModel):
     version: str
     description: str = None
     parameters: HttpUrl = None
-    path: str = None
+    #path: str = None
     code_format: ContentType = None
     source: AnyUrl = None  # should be required
     license: License = None  # use Enum
@@ -347,7 +347,7 @@ class ModelInstance(BaseModel):
             item["alternatives"].append(f"https://search.kg.ebrains.eu/instances/{item['id']}")
         if item["source"] and "modeldb" in item["source"].lower():
             item["alternatives"].append(item["source"])
-        item["path"] = item.pop("entry_point", None)
+        #item["path"] = item.pop("entry_point", None)
 
         # provide download zip link if source is a container folder
         if item["source"] and "object.cscs.ch" in item["source"] and "?prefix" in item["source"] and item["source"][-1] == "/":
@@ -371,10 +371,10 @@ class ModelInstance(BaseModel):
         return cls(**item)
 
     @classmethod
-    def from_kg_object(cls, instance, client, model_id, scope):
+    def from_kg_object(cls, instance, client, model_id, release_status):
         instance = instance.resolve(
             client,
-            scope=scope,
+            release_status=release_status,
             follow_links={
                 "is_alternative_version_of": {},
                 "repository": {},
@@ -420,7 +420,7 @@ class ModelInstance(BaseModel):
             "version": instance.version_identifier or "unknown",
             "description": instance.version_innovation,
             "parameters": None,  # todo: get from instance.input_data
-            "path": instance.entry_point,
+            #"path": instance.entry_point,
             "timestamp": instance.release_date,
             "model_id": model_id,
             "alternatives": alternatives,
@@ -432,7 +432,7 @@ class ModelInstance(BaseModel):
         if instance.input_data:
             for input_url in as_list(instance.input_data):
                 if isinstance(input_url, KGProxy):  # this should not be needed, should have been resolved already
-                    input_url = input_url.resolve(client, scope=scope)
+                    input_url = input_url.resolve(client, release_status=release_status)
                 # this assumes input_url is a WebResource or File, but it could also be a DOI or FileBundle,
                 # which do not have an "iri" property
                 if hasattr(input_url, "iri"):
@@ -479,7 +479,7 @@ class ModelInstance(BaseModel):
             repository=repository,
             licenses=get_term("License", self.license),
             release_date=self.timestamp if self.timestamp else date.today(),
-            entry_point=self.path
+            #entry_point=self.path
         )
         if self.uri:
             minst.id = str(self.uri)
@@ -492,7 +492,7 @@ class ModelInstancePatch(BaseModel):
     version: str = None
     description: str = None
     parameters: HttpUrl = None
-    path: str = None
+    #path: str = None
     code_format: ContentType = None
     source: HttpUrl = None
     license: License = None
@@ -560,15 +560,15 @@ class ScientificModel(BaseModel):
 
     @classmethod
     def from_kg_object(cls, model_project, client):
-        assert model_project.scope is not None
+        assert model_project.release_status is not None
         instances = []
         for inst_obj in as_list(model_project.has_versions):
             try:
-                inst_obj = inst_obj.resolve(client, scope=model_project.scope)
+                inst_obj = inst_obj.resolve(client, release_status=model_project.release_status)
                 assert isinstance(inst_obj, omcore.ModelVersion)
                 inst = ModelInstance.from_kg_object(inst_obj, client,
                                                     model_id=model_project.uuid,
-                                                    scope=model_project.scope)
+                                                    release_status=model_project.release_status)
             except ResolutionFailure as err:
                 logger.warning(f"Problem retrieving model instance {inst_obj.id}: {err}")
             else:
@@ -582,7 +582,7 @@ class ScientificModel(BaseModel):
                 date_created = None
         else:
             date_created = None
-        custodians = [c.resolve(client, scope=model_project.scope)
+        custodians = [c.resolve(client, release_status=model_project.release_status)
                       for c in as_list(model_project.custodians)]
         organizations = [org.name for org in custodians if isinstance(org, omcore.Organization)]
         try:
@@ -801,21 +801,30 @@ class ValidationTestInstance(BaseModel):
 
     @classmethod
     def from_kg_object(cls, test_version, test_uuid, client):
-        test_version = test_version.resolve(client, scope="any")
+        test_version = test_version.resolve(client, release_status="any")
         if test_version.repository:
-            repository = test_version.repository.resolve(client, scope="any").iri.value
+            repository = test_version.repository.resolve(client, release_status="any").iri.value
         else:
             repository = None
         if test_version.configuration:
-            parameters = test_version.configuration.resolve(client, scope="any").iri.value
+            parameters = test_version.configuration.resolve(client, release_status="any").iri.value
         else:
             parameters = None
+        timestamp = None
+        if test_version.release_date:
+            if isinstance(test_version.release_date, datetime):
+                timestamp = test_version.release_date
+            elif isinstance(test_version.release_date, date):
+                d = test_version.release_date
+                timestamp = datetime(d.year, d.month, d.day, 12 ,0)
+            else:
+                logger.warning("Release date not provided as date or datetime")
         return cls(
             uri=test_version.id,
             id=test_version.uuid,
             description=test_version.version_innovation,
             path=test_version.entry_point,
-            timestamp=test_version.release_date,
+            timestamp=timestamp,
             repository=repository,
             version=test_version.version_identifier,
             test_id=test_uuid,
@@ -847,7 +856,7 @@ class ValidationTestInstance(BaseModel):
             developers=None,   # inherits from parent
             entry_point=self.path,
             reference_data=reference_data,
-            release_date=None,
+            release_date=None,  # should be self.timestamp.date() ?
             repository=repository,
             version_identifier=self.version,
             version_innovation=self.description,
@@ -922,7 +931,7 @@ class ValidationTest(BaseModel):
 
     @classmethod
     def from_kg_object(cls, test_definition, client):
-        versions = [ver.resolve(client, scope="any") for ver in as_list(test_definition.has_versions)]
+        versions = [ver.resolve(client, release_status="any") for ver in as_list(test_definition.has_versions)]
         instances = [
             ValidationTestInstance.from_kg_object(inst, test_definition.uuid, client) for inst in versions
         ]
@@ -933,7 +942,7 @@ class ValidationTest(BaseModel):
             reference_data = []
             for item in as_list(latest_version.reference_data):
                 try:
-                    rdi = item.resolve(client, scope="any")
+                    rdi = item.resolve(client, release_status="any")
                 except ResolutionFailure as err:
                     logger.warning(str(err))
                 else:
@@ -967,6 +976,16 @@ class ValidationTest(BaseModel):
             person = Person.from_kg_object(p, client)
             if person:
                 authors.append(person)
+        if isinstance(test_definition.reference_data_acquisitions, list):
+            # what if there is more than one? For now we just take the first
+            if len(test_definition.reference_data_acquisitions) > 0:
+                recording_modality = RecordingModality(test_definition.reference_data_acquisitions[0].resolve(client).name)
+            else:
+                recording_modality = None
+        elif test_definition.reference_data_acquisitions is None:
+            recording_modality = None
+        else:
+            recording_modality = RecordingModality(test_definition.reference_data_acquisitions.resolve(client).name)
         obj = cls(
             id=test_definition.uuid,
             uri=test_definition.id,
@@ -986,7 +1005,7 @@ class ValidationTest(BaseModel):
             data_type=data_type,
             test_type=ModelScope(test_definition.model_scope.resolve(client).name) if test_definition.model_scope else None,
             #digital_identifier=test_definition.digital_identifier,
-            recording_modality=RecordingModality(test_definition.reference_data_acquisitions.resolve(client).name) if test_definition.reference_data_acquisitions else None,
+            recording_modality=recording_modality,
             instances=sorted(instances, key=lambda inst: inst.version),
             score_type=ScoreType(test_definition.score_type.resolve(client).name) if test_definition.score_type else None,
         )
@@ -1171,7 +1190,7 @@ class File(BaseModel):
 
     @classmethod
     def from_kg_object(cls, file_obj, client):
-        file_obj = file_obj.resolve(client, scope="any")
+        file_obj = file_obj.resolve(client, release_status="any")
         url = file_obj.iri.value
         url_parts = urlparse(url)
         id = None
@@ -1327,7 +1346,7 @@ class ValidationResultSummary(BaseModel):
     @classmethod
     def from_kg_object(cls, validation_activity, client):
         logger.info(validation_activity.inputs)
-        inputs = [obj.resolve(client, scope="any") for obj in validation_activity.inputs]
+        inputs = [obj.resolve(client, release_status="any") for obj in validation_activity.inputs]
         model_instance = [obj for obj in inputs if isinstance(obj, omcore.ModelVersion)][0]
         model_instance_id = model_instance.uuid
         model = model_instance.is_version_of(client)
@@ -1336,7 +1355,7 @@ class ValidationResultSummary(BaseModel):
         test = test_instance.is_version_of(client)
         # data_type = set()
         # for item in as_list(test_instance.reference_data):
-        #     item = item.resolve(client, scope="any")
+        #     item = item.resolve(client, release_status="any")
         #     if hasattr(item, "iri"):  # File
         #         data_type.add(item.format)
         # data_type = list(data_type)
@@ -1379,7 +1398,7 @@ class ValidationResult(BaseModel):
 
     @classmethod
     def from_kg_object(cls, validation_activity, client):
-        inputs = [obj.resolve(client, scope="any") for obj in validation_activity.inputs]
+        inputs = [obj.resolve(client, release_status="any") for obj in validation_activity.inputs]
         model_instance = [obj for obj in inputs if isinstance(obj, omcore.ModelVersion)][0]
         model_instance_id = model_instance.uuid
         test_instance = [obj for obj in inputs if isinstance(obj, omcmp.ValidationTestVersion)][0]
@@ -1418,13 +1437,13 @@ class ValidationResult(BaseModel):
             for file_obj in self.results_storage
         ]
 
-        model_version = omcore.ModelVersion.from_id(str(self.model_instance_id), client, scope="any")
+        model_version = omcore.ModelVersion.from_id(str(self.model_instance_id), client, release_status="any")
         if model_version is None:
             raise HTTPException(
                status_code=status.HTTP_400_BAD_REQUEST,
                detail=f"There is no model instance with id {self.model_instance_id}",
             )
-        test_version = omcmp.ValidationTestVersion.from_id(str(self.test_instance_id), client, scope="any")
+        test_version = omcmp.ValidationTestVersion.from_id(str(self.test_instance_id), client, release_status="any")
         if test_version is None:
             raise HTTPException(
                status_code=status.HTTP_400_BAD_REQUEST,
@@ -1498,14 +1517,14 @@ class ValidationResultWithTestAndModel(ValidationResult):
     def from_kg_object(cls, validation_activity, client):
         vr = ValidationResult.from_kg_object(validation_activity, client)
 
-        model_instance_kg, model_id = _get_model_instance_by_id(vr.model_instance_id, client, scope="any")
-        model_project = _get_model_by_id_or_alias(model_id, client, scope="any")
+        model_instance_kg, model_id = _get_model_instance_by_id(vr.model_instance_id, client, release_status="any")
+        model_project = _get_model_by_id_or_alias(model_id, client, release_status="any")
 
-        model_instance = ModelInstance.from_kg_object(model_instance_kg, client, model_project.uuid, scope="any")
+        model_instance = ModelInstance.from_kg_object(model_instance_kg, client, model_project.uuid, release_status="any")
         model = ScientificModel.from_kg_object(model_project, client)
 
-        test_script = _get_test_instance_by_id(vr.test_instance_id, client, scope="any")
-        test_definition = test_script.is_version_of.resolve(client, scope="any")
+        test_script = _get_test_instance_by_id(vr.test_instance_id, client, release_status="any")
+        test_definition = test_script.is_version_of.resolve(client, release_status="any")
 
         test_instance = ValidationTestInstance.from_kg_object(test_script, test_definition.uuid, client)
         test = ValidationTest.from_kg_object(test_definition, client)
@@ -1542,10 +1561,10 @@ class ComputingEnvironment(BaseModel):
 
     @classmethod
     def from_kg_object(cls, env_obj, kg_client):
-        hardware_obj = env_obj.hardware.resolve(kg_client, api="nexus", scope="in progress")
+        hardware_obj = env_obj.hardware.resolve(kg_client, api="nexus", release_status="in progress")
         dependencies = []
         for dep in as_list(env_obj.software):
-            dep = dep.resolve(kg_client, api="nexus", scope="in progress")
+            dep = dep.resolve(kg_client, api="nexus", release_status="in progress")
             dependencies.append(
                 SoftwareDependency(name=dep.name, version=dep.version)
             )
@@ -1608,9 +1627,9 @@ class Simulation(BaseModel):
 
     @classmethod
     def from_kg_object(cls, sim_activity, kg_client):
-        outputs = [output.resolve(kg_client, api="nexus", scope="in progress")
+        outputs = [output.resolve(kg_client, api="nexus", release_status="in progress")
                    for output in as_list(sim_activity.result)]
-        config_obj = sim_activity.config.resolve(kg_client, api="nexus", scope="in progress")
+        config_obj = sim_activity.config.resolve(kg_client, api="nexus", release_status="in progress")
         if config_obj and config_obj.config_file:
             config = kg_client._nexus_client._http_client.get(config_obj.config_file.location)
         else:
@@ -1621,7 +1640,7 @@ class Simulation(BaseModel):
                     "msg": f"Unable to retrieve config. config_obj={config_obj} config_file={config_obj.config_file.location}"
                 }
             }
-        env_obj = sim_activity.computing_environment.resolve(kg_client, api="nexus", scope="in progress")
+        env_obj = sim_activity.computing_environment.resolve(kg_client, api="nexus", release_status="in progress")
         if env_obj:
             env = ComputingEnvironment.from_kg_object(env_obj, kg_client)
         else:
@@ -1652,7 +1671,7 @@ class Simulation(BaseModel):
 
         # check if sim config already exists
         config_identifier = hashlib.sha1(json.dumps(self.configuration).encode("utf-8")).hexdigest()
-        sim_config = fairgraph.brainsimulation.SimulationConfiguration.by_name(config_identifier, kg_client, api="nexus", scope="in progress")
+        sim_config = fairgraph.brainsimulation.SimulationConfiguration.by_name(config_identifier, kg_client, api="nexus", release_status="in progress")
         if not sim_config:
             tmp_config_file = tempfile.NamedTemporaryFile(mode="w", encoding="utf-8", delete=False)
             json.dump(self.configuration, tmp_config_file)
@@ -1667,7 +1686,7 @@ class Simulation(BaseModel):
         kg_objects['config'] = [sim_config]
 
         # get model instance
-        model_instance = fairgraph.brainsimulation.ModelInstance.from_id(str(self.model_instance_id), kg_client, api="nexus", scope="in progress")
+        model_instance = fairgraph.brainsimulation.ModelInstance.from_id(str(self.model_instance_id), kg_client, api="nexus", release_status="in progress")
 
         sim_outputs = []
         n = len(self.outputs)
@@ -1729,12 +1748,12 @@ class PersonWithAffiliation(BaseModel):
     @classmethod
     def from_kg_object(cls, p, client, reference_date=None):
         if isinstance(p, KGProxy):
-            pr = p.resolve(client, scope="any")
+            pr = p.resolve(client, release_status="any")
         else:
             pr = p
         if pr.affiliations:
             affiliations = [
-                affil.resolve(client, scope="any", follow_links={"member_of": {}})
+                affil.resolve(client, release_status="any", follow_links={"member_of": {}})
                 for affil in as_list(pr.affiliations)
             ]
             affiliation_strs = []
@@ -1758,7 +1777,7 @@ class PersonWithAffiliation(BaseModel):
         return cls(firstname=pr.given_name, lastname=pr.family_name, affiliation=affiliation)
 
     def to_kg_object(self, client):
-        candidates = omcore.Person.list(client, scope="any", family_name=self.lastname, given_name=self.firstname)
+        candidates = omcore.Person.list(client, release_status="any", family_name=self.lastname, given_name=self.firstname)
         if candidates:
             p = as_list(candidates)[0]  # could perhaps look through for closest match if there are more than one
         else:

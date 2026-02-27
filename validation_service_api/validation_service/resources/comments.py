@@ -53,10 +53,11 @@ async def query_comments(
     try:
         kg_comments = omcore.Comment.list(
             kg_user_client,
-            scope="any",
+            release_status="any",
             follow_links={"commenter": {}},
             size=size,
             from_index=from_index,
+            api="query",
             **filters
         )
     except AuthenticationError as err:
@@ -97,7 +98,7 @@ async def get_comment(
 ):
     """Retrieve a specific comment identified by a UUID"""
     kg_user_client = get_kg_client_for_user_account(token)
-    obj = omcore.Comment.from_uuid(str(comment_id), kg_user_client, scope="any")
+    obj = omcore.Comment.from_uuid(str(comment_id), kg_user_client, release_status="any")
     if obj:
         return Comment.from_kg_object(obj, kg_user_client)
     else:
@@ -121,7 +122,7 @@ async def update_comment(
     """Retrieve a specific comment identified by a UUID"""
     kg_user_client = get_kg_client_for_user_account(token)
     original_comment = omcore.Comment.from_uuid(
-        str(comment_id), kg_user_client, scope="any"
+        str(comment_id), kg_user_client, release_status="any"
 
     )
 
@@ -146,7 +147,7 @@ async def update_comment(
         if comment_patch.status == PublicationStatus.draft:
             target_space = "myspace"
         else:
-            about = original_comment.about.resolve(kg_user_client, scope="any")
+            about = original_comment.about.resolve(kg_user_client, release_status="any")
             target_space = about.space
 
         if original_comment.space != target_space:

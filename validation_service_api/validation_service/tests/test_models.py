@@ -326,7 +326,8 @@ def test_create_model_without_collab_membership():
     payload["project_id"] = "636"
     response = client.post(f"/models/", json=payload, headers=AUTH_HEADER)
     assert response.status_code == status.HTTP_403_FORBIDDEN
-    assert response.json() == {"detail": "This account is not a member of Collab #636"}
+    expected_errmsg = "You do not have permission to save models in the KG space for collab '636'. Try one of:"
+    assert response.json()["detail"].startswith(expected_errmsg)
 
 
 def test_create_duplicate_model(caplog):
@@ -499,7 +500,7 @@ def test_create_model_instance():
         "parameters": "http://example.com/my_modified_parameters.py",
         "code_format": "text/x-python",
         "source": "http://example.com/my_code.py",
-        "license": "The MIT license",
+        "license": "MIT License",
     }
     response = client.post(f"/models/{model_uuid}/instances/", json=payload2, headers=AUTH_HEADER)
     assert response.status_code == status.HTTP_201_CREATED
@@ -531,7 +532,7 @@ def test_update_model_instance():
     payload2 = {
         "description": "a more detailed description of this version",
         "source": "http://example.com/my_code_in_a_new_location.py",
-        "license": "The 3-Clause BSD License",
+        "license": "BSD 3-Clause 'New' or 'Revised' License",
     }
     response = client.put(
         f"/models/{model_uuid}/instances/{model_instance_uuid}", json=payload2, headers=AUTH_HEADER
@@ -569,7 +570,7 @@ def test_update_model_instance_without_model_id():
     payload2 = {
         "description": "a more detailed description of this version",
         "source": "http://example.com/my_code_in_a_new_location.py",
-        "license": "The 3-Clause BSD License",
+        "license": "BSD 3-Clause 'New' or 'Revised' License",
     }
     response = client.put(
         f"/models/query/instances/{model_instance_uuid}", json=payload2, headers=AUTH_HEADER
@@ -627,7 +628,7 @@ def test_delete_model_instance(caplog):
             "parameters": "http://example.com/my_parameters_2.py",
             "code_format": "text/x-python",
             "source": "http://example.com/my_code_2.py",
-            "license": "The MIT license",
+            "license": "MIT License",
         }
     )
     response = client.post(f"/models/", json=payload, headers=AUTH_HEADER)
@@ -657,6 +658,7 @@ def test_delete_model_instance(caplog):
     assert response.status_code == 200
 
 
+@pytest.mark.skipif(ADMIN_AUTH_HEADER is None, reason="Environment variable VF_ADMIN_TOKEN not set")
 def test_add_instance_to_published_model(caplog):
     # We retrieve a model in the "model" space that has been released
     # A normal user should be able to add an instance to this model
@@ -673,7 +675,7 @@ def test_add_instance_to_published_model(caplog):
         "description": "This is fake data for testing",
         "code_format": "application/vnd.neuron-simulator+hoc",
         "source": "http://example.com/fake_olfactory_bulb_model_for_testing",
-        "license": "The MIT license",
+        "license": "MIT License",
         "project_id": TEST_PROJECT
     }
     response = client.post(f"/models/{published_model_uuid}/instances/", json=new_instance, headers=AUTH_HEADER)

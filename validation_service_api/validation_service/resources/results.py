@@ -49,7 +49,7 @@ def _query_results(filters, kg_user_client, data_model, query_label, from_index,
         # common, simple case
         for kg_client in (kg_user_client, kg_service_client):
             response = kg_client.query(query, filters[0],
-                                       from_index=from_index, size=size, scope="any",
+                                       from_index=from_index, size=size, release_status="any",
                                        id_key="uri", use_stored_query=True)
             for item in response.data:
                 items[item["uri"]] = item
@@ -63,7 +63,7 @@ def _query_results(filters, kg_user_client, data_model, query_label, from_index,
         for kg_client in (kg_user_client, kg_service_client):
             for filter in filters:
                 response = kg_client.query(query, filter,
-                                           from_index=0, size=100000, scope="any",
+                                           from_index=0, size=100000, release_status="any",
                                            id_key="uri", use_stored_query=True)
                 for item in response.data:
                     items[item["uri"]] = item
@@ -144,7 +144,7 @@ def get_result(result_id: UUID, token: HTTPAuthorizationCredentials = Depends(au
         kg_client = get_kg_client_for_service_account()
     else:
         kg_client = get_kg_client_for_user_account(token)
-    validation_activity = omcmp.ModelValidation.from_uuid(str(result_id), kg_client, scope="any")
+    validation_activity = omcmp.ModelValidation.from_uuid(str(result_id), kg_client, release_status="any")
     if validation_activity:
         try:
             obj = ValidationResult.from_kg_object(validation_activity, kg_client)
@@ -215,7 +215,7 @@ async def get_result_extended(result_id: UUID,
         kg_client = get_kg_client_for_service_account()
     else:
         kg_client = get_kg_client_for_user_account(token)
-    validation_activity = omcmp.ModelValidation.from_uuid(str(result_id), kg_client, scope="any")
+    validation_activity = omcmp.ModelValidation.from_uuid(str(result_id), kg_client, release_status="any")
     if validation_activity:
         try:
             obj = ValidationResultWithTestAndModel.from_kg_object(validation_activity, kg_client)
@@ -324,7 +324,7 @@ async def delete_result(result_id: UUID, token: HTTPAuthorizationCredentials = D
     user = User(token, allow_anonymous=False)
     kg_client = get_kg_client_for_user_account(token)
     # todo: handle non-existent UUID
-    result = omcmp.ModelValidation.from_uuid(str(result_id), kg_client, scope="any")
+    result = omcmp.ModelValidation.from_uuid(str(result_id), kg_client, release_status="any")
     for item in as_list(result.outputs):
         item.delete(kg_client)
         # todo: check whether the result has been used in further analysis

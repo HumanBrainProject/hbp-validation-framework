@@ -22,12 +22,12 @@ def _check_service_status():
         )
 
 
-def _get_model_by_id_or_alias(model_id, kg_client, scope, use_cache=False):
+def _get_model_by_id_or_alias(model_id, kg_client, release_status, use_cache=False):
     try:
         model_id = UUID(model_id)
-        model_project = Model.from_uuid(str(model_id), kg_client, scope=scope, use_cache=use_cache)
+        model_project = Model.from_uuid(str(model_id), kg_client, release_status=release_status, use_cache=use_cache)
     except ValueError:
-        model_project = Model.from_alias(model_id, kg_client, scope=scope)
+        model_project = Model.from_alias(model_id, kg_client, release_status=release_status)
     if not model_project:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -37,26 +37,25 @@ def _get_model_by_id_or_alias(model_id, kg_client, scope, use_cache=False):
     return model_project
 
 
-def _get_model_instance_by_id(instance_id, kg_client, scope):
-    model_instance = ModelVersion.from_uuid(str(instance_id), kg_client, scope=scope)
+def _get_model_instance_by_id(instance_id, kg_client, release_status):
+    model_instance = ModelVersion.from_uuid(str(instance_id), kg_client, release_status=release_status)
     if model_instance is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Model instance with ID '{instance_id}' not found.",
         )
 
-    model_project = Model.list(kg_client, scope=scope, has_versions=model_instance, use_cache=False)
+    model_project = Model.list(kg_client, release_status=release_status, has_versions=model_instance)
     if not model_project:
         # we could get an empty response if the model_project has just been
         # updated and the KG is not consistent, so we wait and try again
         sleep(RETRY_INTERVAL)
-        model_project = Model.list(kg_client, scope=scope, has_versions=model_instance, use_cache=False)
+        model_project = Model.list(kg_client, release_status=release_status, has_versions=model_instance)
         if not model_project:
             # try the service client
             kg_service_client = get_kg_client_for_service_account()
-            model_project = Model.list(kg_service_client, scope="in progress", has_versions=model_instance, use_cache=False)
+            model_project = Model.list(kg_service_client, release_status="in progress", has_versions=model_instance)
             if not model_project:
-                raise Exception("foo")
                 # in case of a dangling model instance, where the parent model_project
                 # has been deleted but the instance wasn't
                 raise HTTPException(
@@ -67,13 +66,13 @@ def _get_model_instance_by_id(instance_id, kg_client, scope):
     return model_instance, model_project.uuid
 
 
-def _get_test_by_id_or_alias(test_id, kg_client, scope):
+def _get_test_by_id_or_alias(test_id, kg_client, release_status):
     try:
         test_id = UUID(test_id)
         get_test = ValidationTest.from_uuid
     except ValueError:
         get_test = ValidationTest.from_alias
-    test_definition = get_test(str(test_id), kg_client, scope=scope)
+    test_definition = get_test(str(test_id), kg_client, release_status=release_status)
     if not test_definition:  # None or empty list
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -88,8 +87,8 @@ def _get_test_by_id_or_alias(test_id, kg_client, scope):
     return test_definition
 
 
-def _get_test_instance_by_id(instance_id, kg_client, scope):
-    test_instance = ValidationTestVersion.from_uuid(str(instance_id), kg_client, scope=scope)
+def _get_test_instance_by_id(instance_id, kg_client, release_status):
+    test_instance = ValidationTestVersion.from_uuid(str(instance_id), kg_client, release_status=release_status)
     if test_instance is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,

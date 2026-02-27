@@ -157,7 +157,7 @@ def build_result_filters(
 def model_alias_exists(alias, client):
     if alias:
         # we deliberately use space=None to search across all spaces
-        model_with_same_alias = omcore.Model.from_alias(alias, client, space=None, scope="any")
+        model_with_same_alias = omcore.Model.from_alias(alias, client, space=None, release_status="any")
         if model_with_same_alias:
             # need this check because alias query doesn't do exact matching
             return model_with_same_alias.short_name == alias
@@ -167,7 +167,7 @@ def model_alias_exists(alias, client):
 def test_alias_exists(alias, client):
     if alias:
         # we deliberately use space=None to search across all spaces
-        test_with_same_alias = omcmp.ValidationTest.from_alias(alias, client, space=None, scope="any")
+        test_with_same_alias = omcmp.ValidationTest.from_alias(alias, client, space=None, release_status="any")
         if test_with_same_alias:
             # need this check because alias query doesn't do exact matching
             return test_with_same_alias.short_name == alias
