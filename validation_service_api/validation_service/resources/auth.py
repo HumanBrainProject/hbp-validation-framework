@@ -96,7 +96,7 @@ async def get_person(
 ):
     kg_user_client = get_kg_client_for_user_account(token)
     user = User(token, allow_anonymous=False)
-    kg_person = await user.get_person(kg_user_client)
+    kg_person = user.get_person(kg_user_client)
     if kg_person:
         return Person.from_kg_object(kg_person, kg_user_client)
     else:

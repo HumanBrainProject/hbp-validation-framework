@@ -78,7 +78,7 @@ async def create_comment(
 ):
     kg_user_client = get_kg_client_for_user_account(token)
     user = User(token, allow_anonymous=False)
-    commenter = await user.get_person(kg_user_client)
+    commenter = user.get_person(kg_user_client)
     if commenter is None:
         raise HTTPException(
             status_code=status_codes.HTTP_404_NOT_FOUND,

@@ -1,3 +1,4 @@
+import asyncio
 import base64
 import requests
 import logging
@@ -88,15 +89,16 @@ class User:
         self._teams = None
         self._collab_info = {}
         self._connection_error = False
+        self.username = None
 
     @property
     def is_anonymous(self):
         return self.token is None or self.token.credentials == "undefined"
 
-    async def get_identity(self):
+    def get_identity(self):
         if self._identity is None:
             payload = _decode_jwt_payload(self.token.credentials)
-            username = payload.get("preferred_username", "unknown")
+            username = payload.get("preferred_username", None)
             self._identity = {
                 "sub": payload["sub"],
                 "id": payload["sub"],
@@ -105,11 +107,12 @@ class User:
                 "given_name": payload.get("given_name", ""),
                 "family_name": payload.get("family_name", ""),
             }
+            self.username = username
         return self._identity
 
     async def get_teams(self):
         if self._teams is None:
-            identity = await self.get_identity()
+            identity = self.get_identity()
             url = f"{settings.EBRAINS_IDM_API_URL}/teams"
             headers = {"Authorization": f"Bearer {self.token.credentials}"}
             params = {"username": identity["username"]}
@@ -117,7 +120,32 @@ class User:
                 res = await client.get(url, headers=headers, params=params,
                                        timeout=settings.AUTHENTICATION_TIMEOUT)
             res.raise_for_status()
-            self._teams = [t["name"] for t in res.json() if isinstance(t, dict) and "name" in t]
+            self._teams = []
+            collab_names = set(
+                item["name"] for item in res.json()
+                if not (
+                    item["name"].startswith("d-")  # ignore dataset collabs
+                    or item["name"].startswith("nmc-test")  # ignore NMC test collabs
+                )
+            )
+            for role in ("administrator", "editor"):
+                for collab_name in collab_names.copy():
+                    roles_url = f"{settings.EBRAINS_IDM_API_URL}/teams/{collab_name}/{role}/users"
+                    # todo: get groups as well and check for group membership
+                    async with AsyncClient() as client:
+                        res2 = await client.get(roles_url, headers=headers,
+                                                timeout=settings.AUTHENTICATION_TIMEOUT)
+                        res2.raise_for_status()  # do we want to raise an exception, or just log an error?
+                                                 # for robustness, perhaps just log
+                        for user in res2.json():
+                            if self.username == user["username"]:
+                                self._teams.append(f"collab-{collab_name}-{role}")
+                                collab_names.discard(collab_name)
+                                print(collab_name)
+                                break
+            # we assume user must have viewer permissions for any collab still in collab_names
+            for collab_name in collab_names:
+                self._teams.append(f"collab-{collab_name}-viewer")
         return self._teams
 
     async def get_collab_info(self, collab_id):
@@ -134,8 +162,8 @@ class User:
                 self._collab_info[collab_id] = {}
         return self._collab_info[collab_id]
 
-    async def get_person(self, kg_client):
-        identity = await self.get_identity()
+    def get_person(self, kg_client):
+        identity = self.get_identity()
         family_name = identity["family_name"]
         given_name = identity["given_name"]
         person = omcore.Person.list(kg_client, family_name=family_name, given_name=given_name, release_status="any")
@@ -195,12 +223,3 @@ class User:
     async def is_admin(self):
         return await self.can_edit_collab(settings.ADMIN_COLLAB_ID)
         # todo: replace this check with a group membership check
-
-    async def get_editable_collabs(self):
-        teams = await self.get_teams()
-        editable_collab_ids = set()
-        for team_name in teams:
-            if team_name.endswith("-editor") or team_name.endswith("-administrator"):
-                collab_id = "-".join(team_name.split("-")[1:-1])
-                editable_collab_ids.add(collab_id)
-        return sorted(editable_collab_ids)

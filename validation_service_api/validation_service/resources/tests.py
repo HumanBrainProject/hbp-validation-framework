@@ -263,7 +263,7 @@ async def create_test(test: ValidationTest, token: HTTPAuthorizationCredentials 
     try:
         test_definition.save(kg_user_client, recursive=True, space=kg_space, ignore_duplicates=True)
     except AuthenticationError as err:
-        identity = await user.get_identity()
+        identity = user.get_identity()
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail=f"User {identity['username']} cannot access space {kg_space}. Error message: {err}"
