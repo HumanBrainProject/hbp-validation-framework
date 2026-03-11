@@ -110,6 +110,19 @@ class User:
             self.username = username
         return self._identity
 
+    async def _has_role(self, role, collab_name, client):
+        roles_url = f"{settings.EBRAINS_IDM_API_URL}/teams/{collab_name}/{role}/users"
+        headers = {"Authorization": f"Bearer {self.token.credentials}"}
+        res = await client.get(roles_url, headers=headers,
+                               timeout=settings.AUTHENTICATION_TIMEOUT)
+        res.raise_for_status()  # do we want to raise an exception, or just log an error?
+                                 # for robustness, perhaps just log
+        for user in res.json():
+            if self.username == user["username"]:
+                print(collab_name)
+                return True
+        return False
+
     async def get_teams(self):
         if self._teams is None:
             identity = self.get_identity()
@@ -129,20 +142,14 @@ class User:
                 )
             )
             for role in ("administrator", "editor"):
-                for collab_name in collab_names.copy():
-                    roles_url = f"{settings.EBRAINS_IDM_API_URL}/teams/{collab_name}/{role}/users"
                     # todo: get groups as well and check for group membership
                     async with AsyncClient() as client:
-                        res2 = await client.get(roles_url, headers=headers,
-                                                timeout=settings.AUTHENTICATION_TIMEOUT)
-                        res2.raise_for_status()  # do we want to raise an exception, or just log an error?
-                                                 # for robustness, perhaps just log
-                        for user in res2.json():
-                            if self.username == user["username"]:
+                        found = await asyncio.gather(*[self._has_role(role, collab_name, client) for collab_name in collab_names])
+                        for include, collab_name in zip(found, collab_names.copy()):
+                            if include:
                                 self._teams.append(f"collab-{collab_name}-{role}")
                                 collab_names.discard(collab_name)
-                                print(collab_name)
-                                break
+
             # we assume user must have viewer permissions for any collab still in collab_names
             for collab_name in collab_names:
                 self._teams.append(f"collab-{collab_name}-viewer")
