@@ -119,7 +119,6 @@ class User:
                                  # for robustness, perhaps just log
         for user in res.json():
             if self.username == user["username"]:
-                print(collab_name)
                 return True
         return False
 
@@ -138,7 +137,9 @@ class User:
                 item["name"] for item in res.json()
                 if not (
                     item["name"].startswith("d-")  # ignore dataset collabs
+                    or item["name"].startswith("m-")  # ignore model collabs
                     or item["name"].startswith("nmc-test")  # ignore NMC test collabs
+                    or item["name"].startswith("nmc-gd2022-guest")
                 )
             )
             for role in ("administrator", "editor"):
@@ -173,7 +174,13 @@ class User:
         identity = self.get_identity()
         family_name = identity["family_name"]
         given_name = identity["given_name"]
-        person = omcore.Person.list(kg_client, family_name=family_name, given_name=given_name, release_status="any")
+        person = omcore.Person.list(
+            kg_client,
+            family_name=family_name,
+            given_name=given_name,
+            release_status="any",
+            space="common"
+        )
         if person:
             if isinstance(person, list):
                 if len(person) > 1:
