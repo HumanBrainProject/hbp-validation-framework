@@ -17,7 +17,10 @@ LABEL org.opencontainers.image.authors="Andrew Davison <andrew.davison@cnrs.fr>"
 
 WORKDIR /code
 
-ADD https://api.github.com/repos/HumanBrainProject/fairgraph/git/refs/heads/stable fairgraph_version.json
+# The following line is for when we're installing fairgraph from a GitHub branch
+# to ensure we don't use a cached version of the pip install layer
+# The branch name should match that used in requirements.txt.lock
+ADD https://api.github.com/repos/HumanBrainProject/fairgraph/git/refs/heads/master fairgraph_version.json
 
 COPY requirements.txt.lock /code/requirements.txt
 RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
