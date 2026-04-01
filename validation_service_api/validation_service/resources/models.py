@@ -639,7 +639,7 @@ async def create_model_instance(
         )
     # otherwise save to KG
     target_space = space_from_project_id(collab_id)
-    model_instance_kg.save(kg_user_client, space=target_space, recursive=True)
+    model_instance_kg.save(kg_user_client, space=target_space, recursive=True, ignore_duplicates=True)
     model_project.has_versions = as_list(model_project.has_versions) + [model_instance_kg]
     try:
         model_project.save(kg_user_client, recursive=False)

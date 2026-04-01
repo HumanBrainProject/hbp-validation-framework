@@ -448,7 +448,7 @@ def create_test_instance(
             detail=f"Validation test {test_id} already has a version '{test_instance.version}"
         )
     test_instance_kg = test_instance.to_kg_object(ValidationTest.from_kg_object(test_definition, kg_client))
-    test_instance_kg.save(kg_client, recursive=True, space=test_definition.space)
+    test_instance_kg.save(kg_client, recursive=True, space=test_definition.space, ignore_duplicates=True)
     test_definition.has_versions = as_list(test_definition.has_versions) + [test_instance_kg]
     test_definition.save(kg_client, recursive=False)
     return ValidationTestInstance.from_kg_object(test_instance_kg, test_definition.uuid, kg_client)

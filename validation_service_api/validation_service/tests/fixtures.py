@@ -1,8 +1,11 @@
 import os
 from datetime import datetime, timezone
+from uuid import uuid4
+
 from fastapi.testclient import TestClient
 from fastapi.security.http import HTTPAuthorizationCredentials
 
+from openminds.base import IRI
 import fairgraph.openminds.core as omcore
 import fairgraph.openminds.controlled_terms as omterms
 
@@ -62,6 +65,30 @@ def private_model():
     yield test_model
     # cleanup
     test_model.delete(kg_client)
+
+
+@pytest.fixture(scope="session")
+def duplicate_file_repositories():
+    """Creates two FileRepositories with different ids and names but the same IRI"""
+    kg_client = get_kg_client_for_user_account(token)
+    now = datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%S')
+    iri = IRI(f"https://gitlab.example.com/test-repo-{now}")
+    repo1 = omcore.FileRepository(
+        id=f"https://kg.ebrains.eu/api/instances/{uuid4()}",
+        name=f"test-repo-{now}_first",
+        iri=iri
+    )
+    repo2 = omcore.FileRepository(
+        id=f"https://kg.ebrains.eu/api/instances/{uuid4()}",
+        name=f"test-repo-{now}_second",
+        iri=iri
+    )
+    repo1.save(kg_client, space=TEST_SPACE)
+    repo2.save(kg_client, space=TEST_SPACE)
+    yield repo1, repo2
+    # cleanup
+    repo1.delete(kg_client)
+    repo2.delete(kg_client)
 
 
 @pytest.fixture(scope="session")

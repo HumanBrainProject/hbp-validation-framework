@@ -11,7 +11,7 @@ import pytest
 from ..data_models import BrainRegion, Species
 from .fixtures import (
     _build_sample_model, private_model, released_model, client, token,
-    AUTH_HEADER, ADMIN_AUTH_HEADER, TEST_PROJECT
+    AUTH_HEADER, ADMIN_AUTH_HEADER, TEST_PROJECT, duplicate_file_repositories
 )
 
 
@@ -511,6 +511,38 @@ def test_create_model_instance():
     retrieved_model = response.json()
     assert len(retrieved_model["instances"]) == 2
     assert retrieved_model["instances"][1]["version"] == payload2["version"]
+
+    # delete again
+    response = client.delete(f"/models/{model_uuid}", headers=AUTH_HEADER)
+    assert response.status_code == 200
+
+
+def test_create_model_instance_with_duplicate_file_repo(duplicate_file_repositories):
+    # This is a regression test, for a scenario where there are two or more
+    # FileRepository instances with the same IRI. Originally, this failed
+    # with a 500 error ("Existence query is not specific enough").
+    # Now, it should choose the first of the FileRepository instances.
+    repo1, repo2 = duplicate_file_repositories
+    assert repo1.id != repo2.id
+    assert repo1.iri == repo2.iri
+
+    # first create a model project
+    payload1 = _build_sample_model()
+    response = client.post(f"/models/", json=payload1, headers=AUTH_HEADER)
+    assert response.status_code == 201
+    posted_model = response.json()
+    model_uuid = posted_model["id"]
+
+    # now add a new instance, but with a source that matches a FileRepository
+    # we know has a duplicate IRI
+    payload = {
+        "version": "1.4",
+        "description": "description of this version",
+        "source": str(repo1.iri),
+        "license": "MIT License",
+    }
+    response = client.post(f"/models/{model_uuid}/instances/", json=payload, headers=AUTH_HEADER)
+    assert response.status_code == status.HTTP_201_CREATED
 
     # delete again
     response = client.delete(f"/models/{model_uuid}", headers=AUTH_HEADER)
