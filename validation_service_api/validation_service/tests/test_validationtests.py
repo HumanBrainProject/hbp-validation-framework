@@ -1,4 +1,3 @@
-import os
 from datetime import datetime
 from time import sleep
 from urllib.parse import urlparse
@@ -6,6 +5,7 @@ import logging
 
 from fastapi import status
 import pytest
+
 
 from ..data_models import (
     BrainRegion,
@@ -15,7 +15,7 @@ from ..data_models import (
     ScoreType,
     RecordingModality
 )
-from .fixtures import _build_sample_validation_test, client, token, AUTH_HEADER
+from .fixtures import _build_sample_validation_test, client, token, AUTH_HEADER, requires_token
 
 
 def check_validation_test(test_definition, expected_instances=0):
@@ -62,6 +62,7 @@ def assert_is_valid_url(url):
         raise AssertionError
 
 
+@requires_token
 def test_get_validation_test_by_id_no_auth():
     test_ids = ("90ae68fa-a9e6-49dd-947a-908ab9a6dee2",)
     for validation_test_uuid in test_ids:
@@ -72,6 +73,7 @@ def test_get_validation_test_by_id_no_auth():
         assert validation_test["implementation_status"] == "published"
 
 
+@requires_token
 def test_get_validation_test_by_id(caplog):
     # caplog.set_level(logging.DEBUG)
     test_ids = {
@@ -92,6 +94,7 @@ def test_get_validation_test_by_id(caplog):
         assert response.status_code == 400
 
 
+@requires_token
 def test_list_validation_tests_no_auth():
     response = client.get(f"/tests/")
     assert response.status_code == 200
@@ -101,6 +104,7 @@ def test_list_validation_tests_no_auth():
         assert validation_test["implementation_status"] == "published"
 
 
+@requires_token
 def test_list_validation_tests_nofilters():
     response = client.get(f"/tests/?size=5", headers=AUTH_HEADER)
     assert response.status_code == 200
@@ -110,6 +114,7 @@ def test_list_validation_tests_nofilters():
         check_validation_test(validation_test)
 
 
+@requires_token
 def test_list_validation_tests_filter_by_brain_region():
     response = client.get(f"/tests/?size=5&brain_region=CA1%20field%20of%20hippocampus", headers=AUTH_HEADER)
     assert response.status_code == 200
@@ -120,6 +125,7 @@ def test_list_validation_tests_filter_by_brain_region():
         assert validation_test["brain_region"] == "CA1 field of hippocampus"
 
 
+@requires_token
 def test_list_validation_tests_filter_by_species():
     response = client.get(f"/tests/?size=5&species=Rattus%20norvegicus", headers=AUTH_HEADER)
     assert response.status_code == 200
@@ -130,6 +136,7 @@ def test_list_validation_tests_filter_by_species():
         assert validation_test["species"] == "Rattus norvegicus"
 
 
+@requires_token
 def test_list_validation_tests_filter_by_cell_type():
     response = client.get(f"/tests/?size=5&cell_type=hippocampus%20CA1%20pyramidal%20neuron", headers=AUTH_HEADER)
     assert response.status_code == 200
@@ -140,6 +147,7 @@ def test_list_validation_tests_filter_by_cell_type():
         assert validation_test["cell_type"] == "hippocampus CA1 pyramidal neuron"
 
 
+@requires_token
 def test_list_validation_tests_filter_by_author():
     response = client.get(f"/tests/?size=5&author=Appukuttan", headers=AUTH_HEADER)
     assert response.status_code == 200
@@ -153,6 +161,7 @@ def test_list_validation_tests_filter_by_author():
         )
 
 
+@requires_token
 def test_list_validation_tests_filter_by_brain_region_and_authors():
     response = client.get(
         f"/tests/?size=5&brain_region=CA1%20field%20of%20hippocampus&author=Appukuttan", headers=AUTH_HEADER
@@ -169,6 +178,7 @@ def test_list_validation_tests_filter_by_brain_region_and_authors():
         assert validation_test["brain_region"] == "CA1 field of hippocampus"
 
 
+@requires_token
 def test_create_and_delete_validation_test_definition(caplog):
     caplog.set_level(logging.DEBUG)
 
@@ -198,6 +208,7 @@ def test_create_and_delete_validation_test_definition(caplog):
     assert response.status_code in (400, 404)
 
 
+@requires_token
 def test_create_validation_test_with_invalid_data():
     # missing required validation_test project fields
     for required_field in ("name", "author", "description"):
@@ -268,6 +279,7 @@ def test_create_validation_test_with_invalid_data():
     }
 
 
+@requires_token
 def test_create_validation_test_with_existing_alias():
     payload = _build_sample_validation_test()
     payload["alias"] = "bpo_efel"
@@ -278,6 +290,7 @@ def test_create_validation_test_with_existing_alias():
     }
 
 
+@requires_token
 def test_create_validation_test_no_alias(caplog):
     payload = _build_sample_validation_test()
     payload.pop("alias")
@@ -293,6 +306,7 @@ def test_create_validation_test_no_alias(caplog):
 
 
 @pytest.mark.skip  # this needs some more thought - maybe change openMINDS schema to add creation date?
+@requires_token
 def test_create_duplicate_validation_test(caplog):
     # Creating two validation_tests with the same name and date_created fields is not allowed
     # caplog.set_level(logging.INFO)
@@ -319,6 +333,7 @@ def test_create_duplicate_validation_test(caplog):
     # todo: now try to create same again - should now work (set deprecated from True to False)
 
 
+@requires_token
 def test_update_validation_test(caplog):
     # caplog.set_level(logging.INFO)
     payload = _build_sample_validation_test()
@@ -357,6 +372,7 @@ def test_update_validation_test(caplog):
     assert response.status_code == 200
 
 
+@requires_token
 def test_update_validation_test_with_invalid_data():
     payload = _build_sample_validation_test()
     # create
@@ -388,6 +404,7 @@ def test_update_validation_test_with_invalid_data():
     assert response.status_code == 200
 
 
+@requires_token
 def test_changing_to_invalid_alias():
     # expect 409
     payload = _build_sample_validation_test()
@@ -412,6 +429,7 @@ def test_changing_to_invalid_alias():
     assert response.status_code == 200
 
 
+@requires_token
 def test_list_validation_test_instances_by_validation_test_id():
     #validation_test_uuid = "01c68387-fcc4-4fd3-85f0-6eb8ce4467a1"  # private
     validation_test_uuid = "100abccb-6d30-4c1e-a960-bc0489e0d82d"  # public
@@ -426,6 +444,7 @@ def test_list_validation_test_instances_by_validation_test_id():
     assert test_definition["instances"] == validation_test_instances
 
 
+@requires_token
 def test_get_validation_test_instance_by_id():
     #instance_uuid = "46e376a8-8c46-44ce-aa76-020d35114703"  # private
     instance_uuid = "1d22e1c0-5a74-49b4-b114-41d233d3250a"   # public
@@ -435,6 +454,7 @@ def test_get_validation_test_instance_by_id():
     check_validation_test_instance(validation_test_instance)
 
 
+@requires_token
 def test_get_validation_test_instance_by_test_id_and_id():
     #validation_test_uuid = "01c68387-fcc4-4fd3-85f0-6eb8ce4467a1"  # private
     #instance_uuid = "46e376a8-8c46-44ce-aa76-020d35114703"         # private
@@ -448,6 +468,7 @@ def test_get_validation_test_instance_by_test_id_and_id():
     check_validation_test_instance(validation_test_instance)
 
 
+@requires_token
 def test_get_validation_test_instance_by_test_id_and_version():
     validation_test_uuid = "100abccb-6d30-4c1e-a960-bc0489e0d82d"
     expected_instances = [
@@ -478,6 +499,7 @@ def test_get_validation_test_instance_by_test_id_and_version():
 #     assert validation_test_instance["id"] == expected_instance_uuid
 
 
+@requires_token
 def test_create_validation_test_instance():
     payload = _build_sample_validation_test()
     # create
@@ -558,6 +580,7 @@ def test_create_validation_test_instance():
 #     assert response.status_code == 200
 
 
+@requires_token
 def test_update_test_instance():
     # first create a test project
     payload1 = _build_sample_validation_test()
@@ -596,6 +619,7 @@ def test_update_test_instance():
     assert response.status_code == 200
 
 
+@requires_token
 def test_update_test_instance_without_test_id():
     # first create a test project
     payload1 = _build_sample_validation_test()

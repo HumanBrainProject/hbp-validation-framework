@@ -14,10 +14,14 @@ from ..auth import get_kg_client_for_user_account
 
 import pytest
 
+requires_token = pytest.mark.skipif(
+    not os.environ.get("VF_TEST_TOKEN"), reason="VF_TEST_TOKEN not set"
+)
+
 client = TestClient(app)
 token = HTTPAuthorizationCredentials(
     scheme="Bearer",
-    credentials = os.environ["VF_TEST_TOKEN"]
+    credentials=os.environ.get("VF_TEST_TOKEN", "")
 )
 AUTH_HEADER = {"Authorization": f"{token.scheme} {token.credentials}"}
 if "VF_ADMIN_TOKEN" in os.environ:

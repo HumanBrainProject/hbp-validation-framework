@@ -1,5 +1,20 @@
 stages:
+  - test
   - build
+
+run_tests:
+  stage: test
+  rules:
+    - changes:
+        - validation_service_api/**/*
+        - .gitlab-ci.yml
+  script:
+    - cd validation_service_api
+    - pip install --no-cache-dir -r requirements.txt.lock
+    - pytest validation_service/tests
+  tags:
+    - shell-runner
+
 
 build_api_development_image:
   stage: build
@@ -11,6 +26,7 @@ build_api_development_image:
   script:
     - bash validation_service_api/deployment/get_build_info.sh development
     - docker build -f validation_service_api/deployment/Dockerfile -t docker-registry.ebrains.eu/model-catalog/validation_service-v3:dev ./validation_service_api
+    - curl -v https://docker-registry.ebrains.eu/v2/
     - docker login -u $DOCKER_REGISTRY_USER -p $DOCKER_REGISTRY_SECRET docker-registry.ebrains.eu
     - docker push docker-registry.ebrains.eu/model-catalog/validation_service-v3:dev
   tags:

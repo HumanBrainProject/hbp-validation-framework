@@ -1,4 +1,3 @@
-import os
 from datetime import datetime, timezone
 from time import sleep
 from urllib.parse import urlparse
@@ -8,10 +7,12 @@ from fastapi import status
 
 import pytest
 
+
 from ..data_models import BrainRegion, Species
 from .fixtures import (
     _build_sample_model, private_model, released_model, client, token,
-    AUTH_HEADER, ADMIN_AUTH_HEADER, TEST_PROJECT, duplicate_file_repositories
+    AUTH_HEADER, ADMIN_AUTH_HEADER, TEST_PROJECT, duplicate_file_repositories,
+    requires_token
 )
 
 
@@ -52,12 +53,14 @@ def assert_is_valid_url(url):
         raise AssertionError
 
 
+@requires_token
 def test_get_private_model_by_id_no_auth(private_model):
     response = client.get(f"/models/{private_model.uuid}")
     assert response.status_code == 404
     assert response.json() == {"detail": f"Model with ID '{private_model.uuid}' not found."}
 
 
+@requires_token
 def test_get_released_model_by_id_no_auth(released_model):
     response = client.get(f"/models/{released_model.uuid}")
     assert response.status_code == 200
@@ -65,6 +68,7 @@ def test_get_released_model_by_id_no_auth(released_model):
     check_model(model)
 
 
+@requires_token
 def test_get_model_by_id(private_model, released_model, caplog):
     # caplog.set_level(logging.DEBUG)
     test_ids = (
@@ -81,6 +85,7 @@ def test_get_model_by_id(private_model, released_model, caplog):
         check_model(model)
 
 
+@requires_token
 def test_list_models_no_auth():
     response = client.get(f"/models/?size=5")
     assert response.status_code == 200
@@ -91,6 +96,7 @@ def test_list_models_no_auth():
         assert not model["private"]
 
 
+@requires_token
 def test_list_models_nofilters():
     response = client.get(f"/models/?size=5", headers=AUTH_HEADER)
     assert response.status_code == 200
@@ -100,6 +106,7 @@ def test_list_models_nofilters():
         check_model(model)
 
 
+@requires_token
 def test_list_models_filter_by_brain_region():
     response = client.get(f"/models/?size=5&brain_region=CA1%20field%20of%20hippocampus", headers=AUTH_HEADER)
     assert response.status_code == 200
@@ -111,6 +118,7 @@ def test_list_models_filter_by_brain_region():
         #assert model["species"] is not None
 
 
+@requires_token
 def test_list_models_filter_by_species():
     response = client.get(f"/models/?size=5&species=Rattus%20norvegicus", headers=AUTH_HEADER)
     assert response.status_code == 200
@@ -121,6 +129,7 @@ def test_list_models_filter_by_species():
         assert model["species"] == "Rattus norvegicus"
 
 
+@requires_token
 def test_list_models_filter_by_author():
     response = client.get(f"/models/?size=5&author=Migliore", headers=AUTH_HEADER)
     assert response.status_code == 200
@@ -131,6 +140,7 @@ def test_list_models_filter_by_author():
         assert len([author["family_name"] == "Migliore" for author in model["author"]]) > 0
 
 
+@requires_token
 def test_list_models_filter_by_owner():
     response = client.get(f"/models/?size=5&author=Destexhe", headers=AUTH_HEADER)
     assert response.status_code == 200
@@ -165,6 +175,7 @@ def test_list_models_filter_by_owner():
 #         assert model["project_id"] == "9821"
 
 
+@requires_token
 def test_list_models_filter_by_privacy_status():
     response = client.get(f"/models/?size=5&private=false", headers=AUTH_HEADER)
     assert response.status_code == 200
@@ -175,6 +186,7 @@ def test_list_models_filter_by_privacy_status():
         assert model["private"] is False
 
 
+@requires_token
 def test_list_models_filter_by_brain_region_and_authors():
     response = client.get(
         f"/models/?size=5&brain_region=CA1%20field%20of%20hippocampus&author=Migliore", headers=AUTH_HEADER
@@ -188,6 +200,7 @@ def test_list_models_filter_by_brain_region_and_authors():
         assert model["brain_region"] == "CA1 field of hippocampus"
 
 
+@requires_token
 def test_create_and_delete_network_model(caplog):
     caplog.set_level(logging.DEBUG)
 
@@ -215,6 +228,7 @@ def test_create_and_delete_network_model(caplog):
     assert response.status_code == 404
 
 
+@requires_token
 def test_create_model_with_minimal_data(caplog):
     payload = {
         "name": f"TestModel API v3beta {datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%S.%f')}",
@@ -241,6 +255,7 @@ def test_create_model_with_minimal_data(caplog):
     assert response.status_code == 200
 
 
+@requires_token
 def test_create_model_with_invalid_data():
     # missing required model project fields
     for required_field in ("name", "author", "owner", "description"):
@@ -311,6 +326,7 @@ def test_create_model_with_invalid_data():
     }
 
 
+@requires_token
 def test_create_model_with_existing_alias():
     payload = _build_sample_model()
     payload["alias"] = "RatHippocampusCA1"
@@ -321,15 +337,18 @@ def test_create_model_with_existing_alias():
     }
 
 
+@requires_token
 def test_create_model_without_collab_membership():
     payload = _build_sample_model()
     payload["project_id"] = "636"
     response = client.post(f"/models/", json=payload, headers=AUTH_HEADER)
     assert response.status_code == status.HTTP_403_FORBIDDEN
-    expected_errmsg = "You do not have permission to save models in the KG space for collab '636'. Try one of:"
+    #expected_errmsg = "You do not have permission to save models in the KG space for collab '636'. Try one of:"
+    expected_errmsg = "This account is not a member of Collab #636"
     assert response.json()["detail"].startswith(expected_errmsg)
 
 
+@requires_token
 def test_create_duplicate_model(caplog):
     # Creating two models with the same alias field is not allowed
     # caplog.set_level(logging.INFO)
@@ -351,6 +370,7 @@ def test_create_duplicate_model(caplog):
     # todo: now try to create same again - should now work (set deprecated from True to False)
 
 
+@requires_token
 def test_update_model(caplog):
     # caplog.set_level(logging.INFO)
     payload = _build_sample_model()
@@ -384,6 +404,7 @@ def test_update_model(caplog):
     assert response.status_code == 200
 
 
+@requires_token
 def test_update_model_with_invalid_data():
     payload = _build_sample_model()
     # create
@@ -413,6 +434,7 @@ def test_update_model_with_invalid_data():
     assert response.status_code == 200
 
 
+@requires_token
 def test_changing_project_id():
     # if test user isn't a member of the new collab, returns 403
     payload = _build_sample_model()
@@ -432,6 +454,7 @@ def test_changing_project_id():
     assert response.status_code == 200
 
 
+@requires_token
 def test_changing_to_invalid_alias():
     # expect 409
     payload = _build_sample_model()
@@ -453,6 +476,7 @@ def test_changing_to_invalid_alias():
     assert response.status_code == 200
 
 
+@requires_token
 def test_list_model_instances_by_model_id():
     model_uuid = "cb62b56e-bdfa-4016-81cd-c9dbc834cebc"
     response1 = client.get(f"/models/{model_uuid}", headers=AUTH_HEADER)
@@ -466,6 +490,7 @@ def test_list_model_instances_by_model_id():
     assert model_project["instances"] == model_instances
 
 
+@requires_token
 def test_get_model_instance_by_id():
     instance_uuid = "ef213a1a-136e-4853-836b-15d151277b9f"
     response = client.get(f"/models/query/instances/{instance_uuid}", headers=AUTH_HEADER)
@@ -474,6 +499,7 @@ def test_get_model_instance_by_id():
     check_model_instance(model_instance)
 
 
+@requires_token
 def test_get_model_instance_by_project_and_id():
     model_uuid = "cb62b56e-bdfa-4016-81cd-c9dbc834cebc"
     instance_uuid = "ef213a1a-136e-4853-836b-15d151277b9f"
@@ -483,6 +509,7 @@ def test_get_model_instance_by_project_and_id():
     check_model_instance(model_instance)
 
 
+@requires_token
 def test_create_model_instance():
     # first create a model project
     payload1 = _build_sample_model()
@@ -517,6 +544,7 @@ def test_create_model_instance():
     assert response.status_code == 200
 
 
+@requires_token
 def test_create_model_instance_with_duplicate_file_repo(duplicate_file_repositories):
     # This is a regression test, for a scenario where there are two or more
     # FileRepository instances with the same IRI. Originally, this failed
@@ -549,6 +577,7 @@ def test_create_model_instance_with_duplicate_file_repo(duplicate_file_repositor
     assert response.status_code == 200
 
 
+@requires_token
 def test_update_model_instance():
     # first create a model project
     payload1 = _build_sample_model()
@@ -587,6 +616,7 @@ def test_update_model_instance():
     assert response.status_code == 200
 
 
+@requires_token
 def test_update_model_instance_without_model_id():
     # first create a model project
     payload1 = _build_sample_model()
@@ -625,6 +655,7 @@ def test_update_model_instance_without_model_id():
     assert response.status_code == 200
 
 
+@requires_token
 def test_create_duplicate_model_instance(caplog):
     # Creating two model instances with the same name and date_created fields is not allowed
 
@@ -648,6 +679,7 @@ def test_create_duplicate_model_instance(caplog):
     assert response.status_code == 200
 
 
+@requires_token
 def test_delete_model_instance(caplog):
 
     # first create a model project
@@ -691,6 +723,7 @@ def test_delete_model_instance(caplog):
 
 
 @pytest.mark.skipif(ADMIN_AUTH_HEADER is None, reason="Environment variable VF_ADMIN_TOKEN not set")
+@requires_token
 def test_add_instance_to_published_model(caplog):
     # We retrieve a model in the "model" space that has been released
     # A normal user should be able to add an instance to this model
@@ -738,6 +771,7 @@ def test_add_instance_to_published_model(caplog):
     assert len(published_model_again["instances"]) == 3
 
 
+@requires_token
 def test_hhnb_models(caplog):
     # list of models used by the HHNB app, to check
     hhnb_models = [
