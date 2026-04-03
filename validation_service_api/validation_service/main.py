@@ -1,9 +1,12 @@
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from starlette.middleware.sessions import SessionMiddleware
 from starlette.middleware.cors import CORSMiddleware
 
 from .resources import models, tests, vocab, results, auth, comments
 from . import settings
+from .auth import get_kg_client_for_service_account
 
 
 description = """
@@ -31,7 +34,13 @@ if service_status != "ok":
     description = warning_message + description
 
 
-app = FastAPI(title="EBRAINS Model Validation Service", description=description, version="3beta")
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    get_kg_client_for_service_account()  # fail fast if credentials are missing
+    yield
+
+
+app = FastAPI(title="EBRAINS Model Validation Service", description=description, version="3beta", lifespan=lifespan)
 
 app.add_middleware(
     SessionMiddleware,

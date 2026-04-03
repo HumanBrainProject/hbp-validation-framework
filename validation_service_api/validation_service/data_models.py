@@ -31,7 +31,6 @@ from .db import (_get_model_by_id_or_alias, _get_model_instance_by_id,
 from .auth import get_kg_client_for_service_account
 
 
-kg_service_client = get_kg_client_for_service_account()
 term_cache = {}
 
 logger = logging.getLogger("validation_service_api")
@@ -76,7 +75,7 @@ def filter_study_targets(study_targets):
     brain_regions = []
     species = []
     for item in as_list(study_targets):
-        item = item.resolve(kg_service_client, release_status="any")
+        item = item.resolve(get_kg_client_for_service_account(), release_status="any")
         if isinstance(item, omterms.CellType):
             cell_types.append(item.name)
         elif isinstance(item, omterms.UBERONParcellation):
@@ -111,14 +110,18 @@ def get_term_cache():
             omterms.Service,
             omterms.ActionStatusType
         ):
-            objects = cls.list(kg_service_client, api="core", release_status="any", size=10000)
+            objects = cls.list(get_kg_client_for_service_account(), api="core", release_status="any", size=10000)
             term_cache[cls.__name__] = {
                 "names": {obj.name: obj for obj in objects},
                 "ids": {obj.id: obj for obj in objects}
             }
     return term_cache
 
-get_term_cache()
+
+try:
+    get_term_cache()
+except (ValueError, AuthenticationError):
+    pass  # term_cache stays empty; Enums will have no members until the server starts
 
 
 def get_term(cls_name, attr):
@@ -143,7 +146,7 @@ Species = Enum(
     "Species",
     [
         (name.replace(" ", "_"), name)
-        for name in sorted(term_cache["Species"]["names"])
+        for name in sorted(term_cache.get("Species", {}).get("names", {}))
     ]
 )
 
@@ -152,7 +155,7 @@ BrainRegion = Enum(
     "BrainRegion",
     [
         (name.replace(" ", "_"), name)
-        for name in sorted(term_cache["UBERONParcellation"]["names"])
+        for name in sorted(term_cache.get("UBERONParcellation", {}).get("names", {}))
     ]
 )
 
@@ -161,7 +164,7 @@ ModelScope = Enum(
     "ModelScope",
     [
         (name.replace(" ", "_").replace(":", "__"), name)
-        for name in sorted(term_cache["ModelScope"]["names"])
+        for name in sorted(term_cache.get("ModelScope", {}).get("names", {}))
     ],
 )
 
@@ -170,7 +173,7 @@ AbstractionLevel = Enum(
     "AbstractionLevel",
     [
         (name.replace(" ", "_").replace(":", "__"), name)
-        for name in sorted(term_cache["ModelAbstractionLevel"]["names"])
+        for name in sorted(term_cache.get("ModelAbstractionLevel", {}).get("names", {}))
     ],
 )
 
@@ -179,7 +182,7 @@ CellType = Enum(
     "CellType",
     [
         (name.replace(" ", "_"), name)
-        for name in sorted(term_cache["CellType"]["names"])
+        for name in sorted(term_cache.get("CellType", {}).get("names", {}))
     ]
 )
 
@@ -193,7 +196,7 @@ ContentType = Enum(
     "ContentType",
     [
         (get_identifier(obj.uuid, "ct"), obj.name)
-        for obj in sorted(term_cache["ContentType"]["names"].values(), key=lambda obj: obj.name)
+        for obj in sorted(term_cache.get("ContentType", {}).get("names", {}).values(), key=lambda obj: obj.name)
     ]
 )
 
@@ -209,7 +212,7 @@ RecordingModality = Enum(  # rename to something like DataType or ExperimentalTe
     "RecordingModality",
     [
         (name.replace(" ", "_"), name)
-        for name in sorted(term_cache["Technique"]["names"])
+        for name in sorted(term_cache.get("Technique", {}).get("names", {}))
         # or could use ExperimentalApproach
         # ideally should filter techniques to include only those are recording techniques
     ]
@@ -229,7 +232,7 @@ ScoreType = Enum(
     "ScoreType",
     [
         (name.replace(" ", "_"), name)
-        for name in sorted(term_cache["DifferenceMeasure"]["names"])
+        for name in sorted(term_cache.get("DifferenceMeasure", {}).get("names", {}))
     ]
 )
 
@@ -238,7 +241,7 @@ License = Enum(
     "License",
     [
         (name.replace(" ", "_"), name)
-        for name in sorted(term_cache["License"]["names"])
+        for name in sorted(term_cache.get("License", {}).get("names", {}))
     ]
 )
 
@@ -247,7 +250,7 @@ ActionStatusType = Enum(
     "ActionStatusType",
     [
         (name.replace(" ", "_"), name)
-        for name in sorted(term_cache["ActionStatusType"]["names"])
+        for name in sorted(term_cache.get("ActionStatusType", {}).get("names", {}))
     ]
 )
 
