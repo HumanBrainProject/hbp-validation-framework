@@ -4,7 +4,7 @@ from fastapi import FastAPI
 from starlette.middleware.sessions import SessionMiddleware
 from starlette.middleware.cors import CORSMiddleware
 
-from .resources import models, tests, vocab, results, auth, comments
+from .resources import models, tests, vocab, results, auth, comments, proxy
 from . import settings
 from .auth import get_kg_client_for_service_account
 
@@ -61,3 +61,4 @@ app.include_router(results.router, tags=["Validation Results"])
 #app.include_router(simulations.router, tags=["Simulations"])
 app.include_router(comments.router, tags=["Comments"])
 app.include_router(vocab.router, tags=["Controlled vocabularies"])
+app.include_router(proxy.router, tags=["Utilities"])
