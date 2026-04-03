@@ -4,6 +4,7 @@ stages:
 
 run_tests:
   stage: test
+  image: docker-registry.ebrains.eu/model-catalog/python:3.11
   rules:
     - changes:
         - validation_service_api/**/*
@@ -13,7 +14,7 @@ run_tests:
     - pip install --no-cache-dir -r requirements.txt.lock
     - pytest validation_service/tests
   tags:
-    - shell-runner
+    - docker-runner
 
 
 build_api_development_image:
