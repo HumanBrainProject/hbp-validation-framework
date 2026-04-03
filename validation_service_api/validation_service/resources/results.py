@@ -290,6 +290,8 @@ def _save_result(validation_activity, kg_client):
         validation_activity.custom_property_sets.data_location.save(
             kg_client, recursive=True, activity_log=activity_log, space=validation_activity.space
         )
+    if validation_activity.started_by.id is None:
+        validation_activity.started_by.save(kg_client, recursive=False, activity_log=activity_log, space=validation_activity.space)
     logger.warning(f"Saving ModelValidation object ({datetime.now().isoformat()})")
     validation_activity.save(kg_client, recursive=False, activity_log=activity_log, space=validation_activity.space)
     logger.warning(f"Background task complete: results saved for model validation {validation_activity.uuid}")

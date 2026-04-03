@@ -12,6 +12,7 @@ run_tests:
   script:
     - cd validation_service_api
     - pip install --no-cache-dir -r requirements.txt.lock
+    - pip install pytest
     - pytest validation_service/tests
   tags:
     - docker-runner
