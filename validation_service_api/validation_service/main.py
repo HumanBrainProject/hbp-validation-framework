@@ -1,12 +1,19 @@
+import asyncio
+import functools
+import logging
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse
 from starlette.middleware.sessions import SessionMiddleware
 from starlette.middleware.cors import CORSMiddleware
+from fairgraph.errors import AuthenticationError
 
 from .resources import models, tests, vocab, results, auth, comments
 from . import settings
 from .auth import get_kg_client_for_service_account
+
+logger = logging.getLogger("validation_service_api")
 
 
 description = """
@@ -41,6 +48,65 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="EBRAINS Model Validation Service", description=description, version="3beta", lifespan=lifespan)
+
+
+@app.exception_handler(Exception)
+async def unhandled_exception_handler(request: Request, exc: Exception) -> JSONResponse:
+    if isinstance(exc, AuthenticationError):
+        logger.warning("Unauthenticated KG request (likely expired token): %s", exc)
+        return JSONResponse(
+            status_code=401,
+            content={"detail": "Authentication failed. Your token may have expired."},
+        )
+    if "code=500" in str(exc):
+        logger.warning("KG upstream 500: %s", exc)
+        return JSONResponse(
+            status_code=503,
+            content={"detail": "The upstream data service is temporarily unavailable. Please try again in a few minutes."},
+        )
+    logger.exception("Unhandled exception", exc_info=exc)
+    return JSONResponse(status_code=500, content={"detail": "Internal server error"})
+
+
+@app.get("/health", tags=["Health"])
+async def health_check():
+    service_status = getattr(settings, "SERVICE_STATUS", "ok")
+    if service_status != "ok":
+        return JSONResponse(
+            status_code=503,
+            content={"status": "unavailable", "reason": service_status},
+        )
+
+    kg_client = get_kg_client_for_service_account()
+    query = kg_client.retrieve_query("VF_ScientificModelSummary")
+    if query is None:
+        return JSONResponse(status_code=503, content={"status": "unavailable"})
+
+    probe = functools.partial(
+        kg_client.query,
+        query,
+        {"space": "model"},
+        size=1,
+        from_index=0,
+        release_status="released",
+        use_stored_query=True,
+    )
+
+    last_exc = None
+    for attempt in range(3):
+        if attempt > 0:
+            await asyncio.sleep(2)
+        try:
+            loop = asyncio.get_running_loop()
+            await asyncio.wait_for(loop.run_in_executor(None, probe), timeout=5.0)
+            return {"status": "ok"}
+        except Exception as exc:
+            last_exc = exc
+            logger.warning("Health check attempt %d/3 failed: %s", attempt + 1, exc)
+
+    logger.error("Health check: KG unavailable after 3 attempts. Last error: %s", last_exc)
+    return JSONResponse(status_code=503, content={"status": "unavailable"})
+
 
 app.add_middleware(
     SessionMiddleware,

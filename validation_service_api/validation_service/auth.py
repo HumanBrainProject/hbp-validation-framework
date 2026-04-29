@@ -53,12 +53,13 @@ def get_kg_client_for_service_account():
             client_id=settings.KG_SERVICE_ACCOUNT_CLIENT_ID,
             client_secret=settings.KG_SERVICE_ACCOUNT_SECRET,
             host=settings.KG_CORE_API_HOST,
+            allow_interactive=False,
         )
     return kg_client_for_service_account
 
 
 def get_kg_client_for_user_account(token):
-    return KGClient(token=token.credentials, host=settings.KG_CORE_API_HOST)
+    return KGClient(token=token.credentials, host=settings.KG_CORE_API_HOST, allow_interactive=False)
 
 
 async def get_collab_info(collab_id, token):
