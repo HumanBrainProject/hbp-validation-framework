@@ -27,6 +27,7 @@ import fairgraph.openminds.computation as omcmp
 import fairgraph.openminds.controlled_terms as omterms
 import fairgraph.openminds.publications as ompub
 
+from . import settings
 from .examples import EXAMPLES
 from .db import (_get_model_by_id_or_alias, _get_model_instance_by_id,
                  _get_test_by_id_or_alias, _get_test_instance_by_id)
@@ -1319,20 +1320,24 @@ class File(BaseModel):
             session = requests.Session()
             session.headers['Authorization'] = f"Bearer {token}"
             if self.local_path.startswith(home_dir):
-                repo_id = session.get(f"{EBRAINS_DRIVE_API}default-repo").json()["repo_id"]
+                repo_id = session.get(f"{EBRAINS_DRIVE_API}default-repo",
+                                      timeout=settings.EXTERNAL_SERVICE_TIMEOUT).json()["repo_id"]
                 relative_path = os.path.relpath(self.local_path, home_dir)
             elif self.local_path.startswith(group_dir):
                 collab_name = self.local_path.split("/")[5]
-                repo_list = session.get(f"{EBRAINS_DRIVE_API}repos/").json()
+                repo_list = session.get(f"{EBRAINS_DRIVE_API}repos/",
+                                        timeout=settings.EXTERNAL_SERVICE_TIMEOUT).json()
                 repo_map = {r["name"]: r["id"] for r in repo_list}
-                repo_id = session.get(f"{EBRAINS_DRIVE_API}repos/{repo_map[collab_name]}/").json()["id"]
+                repo_id = session.get(f"{EBRAINS_DRIVE_API}repos/{repo_map[collab_name]}/",
+                                      timeout=settings.EXTERNAL_SERVICE_TIMEOUT).json()["id"]
                 relative_path = os.path.relpath(self.local_path, f"{group_dir}{collab_name}/")
             else:
                 repo_id = None
                 relative_path = None
             if repo_id:
                 response = session.put(f"{EBRAINS_DRIVE_API}repos/{repo_id}/file/shared-link/",
-                                       json={"p": relative_path})
+                                       json={"p": relative_path},
+                                       timeout=settings.EXTERNAL_SERVICE_TIMEOUT)
                 if response.status_code == requests.codes.created:
                     return response.headers["Location"]
         return None

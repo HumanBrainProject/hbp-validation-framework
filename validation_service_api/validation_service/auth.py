@@ -66,7 +66,8 @@ async def get_collab_info(collab_id, token):
     assert len(collab_id) > 0
     collab_info_url = f"{settings.HBP_COLLAB_SERVICE_URL}collabs/{collab_id}"
     headers = {"Authorization": f"Bearer {token.credentials}"}
-    res = requests.get(collab_info_url, headers=headers)
+    res = requests.get(collab_info_url, headers=headers,
+                       timeout=settings.AUTHENTICATION_TIMEOUT)
     try:
         response = res.json()
     except json.decoder.JSONDecodeError:
@@ -201,7 +202,8 @@ class User:
                 # requests and treat all collabs as private
                 try:
                     self._collab_info[collab_id] = await get_collab_info(collab_id, self.token)
-                except requests.exceptions.ConnectionError as err:
+                except (requests.exceptions.ConnectionError,
+                        requests.exceptions.Timeout) as err:
                     self._connection_error = True
                     self._collab_info[collab_id] = {}
             else:
