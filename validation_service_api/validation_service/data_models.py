@@ -97,19 +97,37 @@ def ensure_has_timezone(timestamp):
         return timestamp
 
 
-def _fetch_term_class(cls, client, max_retries=3, retry_delay=10):
-    for attempt in range(max_retries):
+# The term cache is loaded at import time, so an exception here kills the process
+# before uvicorn starts: a KG blip becomes a CrashLoopBackOff rather than a slow
+# start. Keep retrying until the deadline, which must stay inside the deployment's
+# startupProbe budget (currently 10 minutes).
+TERM_CACHE_RETRY_DEADLINE = 480  # seconds
+TERM_CACHE_RETRY_MAX_DELAY = 60  # seconds
+
+
+def _fetch_term_class(cls, client, deadline=None):
+    if deadline is None:
+        deadline = time.monotonic() + TERM_CACHE_RETRY_DEADLINE
+    delay = 5
+    attempt = 0
+    while True:
+        attempt += 1
         try:
             objects = cls.list(client, api="core", release_status="any", size=10000)
             return cls.__name__, {
                 "names": {obj.name: obj for obj in objects},
                 "ids": {obj.id: obj for obj in objects},
             }
-        except Exception:
-            if attempt < max_retries - 1:
-                time.sleep(retry_delay)
-            else:
+        except Exception as err:
+            remaining = deadline - time.monotonic()
+            if remaining <= 0:
+                logger.error("Could not fetch %s after %d attempts, giving up: %s",
+                             cls.__name__, attempt, err)
                 raise
+            logger.warning("Could not fetch %s (attempt %d): %s. Retrying in %ds",
+                           cls.__name__, attempt, err, delay)
+            time.sleep(min(delay, remaining))
+            delay = min(delay * 2, TERM_CACHE_RETRY_MAX_DELAY)
 
 
 def get_term_cache():
@@ -132,8 +150,9 @@ def get_term_cache():
         )
         # Fetch the term lists in parallel; each .list() is an independent KG read,
         # so this turns ~sum-of-queries startup time into ~slowest-single-query.
+        deadline = time.monotonic() + TERM_CACHE_RETRY_DEADLINE
         with ThreadPoolExecutor(max_workers=len(classes)) as executor:
-            for name, data in executor.map(lambda c: _fetch_term_class(c, client), classes):
+            for name, data in executor.map(lambda c: _fetch_term_class(c, client, deadline), classes):
                 term_cache[name] = data
     return term_cache
 
