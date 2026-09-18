@@ -30,7 +30,7 @@ from ..data_models import (
     space_from_project_id,
     special_spaces
 )
-from ..queries import build_model_project_filters, model_alias_exists, expand_combinations
+from ..queries import build_model_project_filters, model_alias_exists, uri_exists, expand_combinations
 
 
 logger = logging.getLogger("validation_service_api")
@@ -373,6 +373,11 @@ async def create_model(
             status_code=status.HTTP_409_CONFLICT,
             detail=f"Another model with alias '{model.alias}' already exists.",
         )
+    if uri_exists(model.uri, kg_service_client, kg_user_client):
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=f"A model with identifier {model.uri} already exists.",
+        )
     model_project = model.to_kg_object(kg_user_client)
     kg_space = f"collab-{model.project_id}"
     # use both service client (for checking curated spaces) and user client (for checking private spaces)
@@ -628,6 +633,11 @@ async def create_model_instance(
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail=f"This account is not a member of Collab #{model_project.project_id}",
+        )
+    if uri_exists(model_instance.uri, kg_service_client, kg_user_client):
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=f"A model instance with identifier {model_instance.uri} already exists.",
         )
     model_instance_kg = model_instance.to_kg_object(model_project)
     # check if an identical model instance already exists, raise an error if so

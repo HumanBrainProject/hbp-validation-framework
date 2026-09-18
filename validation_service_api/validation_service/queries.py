@@ -174,6 +174,18 @@ def test_alias_exists(alias, client):
     return False
 
 
+def uri_exists(uri, *clients):
+    # Check whether a client-supplied identifier is already in use.
+    # We don't rely on KGObject.exists() for this: when the object has an id, exists() compares
+    # it with the stored version, which fails if the object has newly-created linked nodes without ids.
+    if uri:
+        return any(
+            client.instance_from_full_uri(str(uri), release_status="any", require_full_data=False)
+            for client in clients
+        )
+    return False
+
+
 def model_is_public(model_id, client):
     model_uri = client.uri_from_uuid(model_id)
     return client.is_released(model_uri)

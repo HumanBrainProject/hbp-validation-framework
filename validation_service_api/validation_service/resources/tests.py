@@ -31,7 +31,7 @@ from ..data_models import (
     ValidationTestInstancePatch,
     ImplementationStatus
 )
-from ..queries import build_validation_test_filters, test_alias_exists, expand_combinations
+from ..queries import build_validation_test_filters, test_alias_exists, uri_exists, expand_combinations
 from .. import settings
 
 
@@ -232,6 +232,11 @@ async def create_test(test: ValidationTest, token: HTTPAuthorizationCredentials 
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail=f"Another validation test with alias '{test.alias}' already exists.",
+        )
+    if uri_exists(test.uri, kg_service_client, kg_user_client):
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=f"A validation test with identifier {test.uri} already exists.",
         )
     test_definition = test.to_kg_object(kg_user_client)
     kg_space = f"collab-{test.project_id}"
