@@ -97,6 +97,14 @@ def ensure_has_timezone(timestamp):
         return timestamp
 
 
+def timestamp_to_date(value):
+    # openMINDS releaseDate is a date, but older entries hold a full timestamp,
+    # so stored queries may return either; pydantic v1 won't parse a timestamp string as a date
+    if isinstance(value, str) and "T" in value:
+        return value.split("T")[0]
+    return value
+
+
 # The term cache is loaded at import time, so an exception here kills the process
 # before uvicorn starts: a KG blip becomes a CrashLoopBackOff rather than a slow
 # start. Keep retrying until the deadline, which must stay inside the deployment's
@@ -727,7 +735,7 @@ class ScientificModelSummary(BaseModel):
     brain_region: BrainRegion = None
     species: Species = None
     description: str
-    date_created: datetime = None
+    date_created: date = None
     format: List[str] = None
     validation_count: int = 0
 
@@ -935,7 +943,7 @@ class ValidationTest(BaseModel):
     brain_region: BrainRegion = None
     species: Species = None
     description: str  # was 'protocol', renamed for consistency with models
-    date_created: datetime = None
+    date_created: date = None
     old_uuid: UUID = None
     data_location: List[HttpUrl]
     data_type: str = None
@@ -944,6 +952,8 @@ class ValidationTest(BaseModel):
     score_type: ScoreType = None
     instances: List[ValidationTestInstance] = None
     # todo: add "publication" field
+
+    _date_created_from_timestamp = validator("date_created", pre=True, allow_reuse=True)(timestamp_to_date)
 
     @classmethod
     def from_kg_query(cls, item, user_client, service_client):
@@ -1113,11 +1123,13 @@ class ValidationTestSummary(BaseModel):
     brain_region: BrainRegion = None
     species: Species = None
     description: str  # was 'protocol', renamed for consistency with models
-    date_created: datetime = None
+    date_created: date = None
     data_type: str = None
     recording_modality: RecordingModality = None
     test_type: ModelScope = None
     score_type: ScoreType = None
+
+    _date_created_from_timestamp = validator("date_created", pre=True, allow_reuse=True)(timestamp_to_date)
 
     @classmethod
     def from_kg_query(cls, item, user_client, service_client):
@@ -1166,7 +1178,7 @@ class ValidationTestPatch(BaseModel):
     brain_region: BrainRegion = None
     species: Species = None
     description: str = None
-    date_created: datetime = None
+    date_created: date = None
     old_uuid: UUID = None
     data_location: List[HttpUrl] = None
     data_type: str = None

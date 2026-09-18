@@ -18,7 +18,7 @@ EXAMPLES = {
         "brain_region": "hippocampus",
         "species": "Rattus norvegicus",
         "description": "A model of CA1 pyramidal neurons, as described in:\n\nS. Kali, T.F. Freund (2004) Dendritic processing in hippocampal pyramidal cells and its modulation by inhibitory interneurons. *Proceedings of the 2004 IEEE International Joint Conference on Neural Networks* [doi:10.1109/IJCNN.2004.1379985](http://doi.org/10.1109/IJCNN.2004.1379985)",
-        "date_created": "2017-09-24T20:59:23.115629+00:00",
+        "date_created": "2017-09-24",
         "images": [],
         "old_uuid": "2a050055-8ae4-47c7-a0d6-286f50a1463e",
         "instances": [
