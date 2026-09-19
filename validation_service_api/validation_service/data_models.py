@@ -1896,6 +1896,12 @@ class NewComment(BaseModel):
     def to_kg_object(self, kg_client, commenter):
         about_uuid = self.about.split("/")[-1]
         about = KGObject.from_id(about_uuid, kg_client)
+        if about is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Either the object {self.about} being commented on does not exist, "
+                       "or you do not have access to it.",
+            )
         # by definition this is a new object, so we create its UUID
         # now to avoid taking time for the "exists()" query
         id = kg_client.uri_from_uuid(str(uuid4()))
@@ -1946,6 +1952,12 @@ class Comment(BaseModel):
 
     def to_kg_object(self, kg_client):
         about = KGObject.from_id(self.about.split("/")[-1], kg_client)
+        if about is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Either the object {self.about} being commented on does not exist, "
+                       "or you do not have access to it.",
+            )
         return omcore.Comment(
             about=about,
             comment=self.content,

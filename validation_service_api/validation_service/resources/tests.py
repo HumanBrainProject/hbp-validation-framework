@@ -31,7 +31,8 @@ from ..data_models import (
     ValidationTestInstancePatch,
     ImplementationStatus
 )
-from ..queries import build_validation_test_filters, test_alias_exists, uri_exists, expand_combinations
+from ..queries import (build_validation_test_filters, test_alias_exists, uri_exists,
+                       unsupported_filter_values, expand_combinations)
 from .. import settings
 
 
@@ -127,6 +128,14 @@ def query_tests(
             filters["space"] = [f"collab-{collab_id}" for collab_id in project_id]
         else:
             filters["space"] = ["computation"]
+
+        unsupported = unsupported_filter_values(filters)
+        if unsupported:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Cannot filter on {', '.join(unsupported)}: the KG does not handle "
+                       "'+' or '%' in filter values.",
+            )
 
         filters = expand_combinations(filters)
 

@@ -14,6 +14,21 @@ def expand_combinations(D):
         return [D]
 
 
+def unsupported_filter_values(filters):
+    """
+    Return the names of any filters whose values cannot be sent to the KG.
+
+    Filter values are passed to the KG as request parameters, which it does not decode
+    correctly if they contain "+" or "%", so fairgraph refuses to run such a query
+    (see KGClient.query()).
+    """
+    return sorted(
+        name
+        for name, value in filters.items()
+        if any(isinstance(item, str) and ("+" in item or "%" in item) for item in as_list(value))
+    )
+
+
 def build_model_project_filters(
     alias,
     id,

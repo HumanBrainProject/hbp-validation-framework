@@ -21,7 +21,8 @@ from pydantic import ValidationError
 
 from ..auth import get_kg_client_for_service_account, get_kg_client_for_user_account, User
 from ..data_models import ScoreType, ValidationResult, ValidationResultWithTestAndModel, ValidationResultSummary, ConsistencyError, space_from_project_id
-from ..queries import build_result_filters, expand_combinations, model_is_public, test_is_public
+from ..queries import (build_result_filters, expand_combinations, unsupported_filter_values,
+                       model_is_public, test_is_public)
 from ..db import _check_service_status
 from .. import settings
 
@@ -33,6 +34,14 @@ router = APIRouter()
 
 
 def _query_results(filters, kg_user_client, data_model, query_label, from_index, size, user):
+    unsupported = unsupported_filter_values(filters)
+    if unsupported:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Cannot filter on {', '.join(unsupported)}: the KG does not handle "
+                   "'+' or '%' in filter values.",
+        )
+
     filters = expand_combinations(filters)
 
     kg_service_client = get_kg_client_for_service_account()
