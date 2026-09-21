@@ -1,4 +1,6 @@
 fairgraph==0.13.2
+# fairgraph 0.13.2 cannot import openMINDS 0.6.x: RecursionError in openminds.base.to_jsonld
+openminds==0.5.1
 uvicorn==0.13.4
 fastapi==0.65.1
 itsdangerous==2.0.1
