@@ -1,5 +1,13 @@
 # EBRAINS Model Validation API
 
+> ## This repository has moved
+>
+> Development and issue tracking now take place at
+> **[gitlab.ebrains.eu/model-validation/api](https://gitlab.ebrains.eu/model-validation/api)**.
+>
+> This GitHub repository is archived and read-only. It is kept for its history, and for the
+> issues closed here, each of which links to its replacement on GitLab where one exists.
+
 This repository contains the code for the EBRAINS Model Validation API, 
 part of the the EBRAINS/Human Brain Project Validation Framework.
 
